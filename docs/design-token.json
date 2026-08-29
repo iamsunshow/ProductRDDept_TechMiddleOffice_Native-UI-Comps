@@ -1,0 +1,98 @@
+{
+  "color": {
+    "primary": "#16A34A",
+    "primaryPressed": "#15803D",
+    "primaryMuted": "#DCFCE7",
+    "income": "#16A34A",
+    "expense": "#DC2626",
+    "warning": "#F59E0B",
+    "textPrimary": "#111827",
+    "textSecondary": "#6B7280",
+    "textInverse": "#FFFFFF",
+    "border": "#E5E7EB",
+    "bgPage": "#F9FAFB",
+    "bgCard": "#FFFFFF",
+    "success": "#16A34A",
+    "error": "#DC2626",
+    "gray": {
+      "100": "#000000",
+      "85": "#262626",
+      "65": "#262626",
+      "45": "#595959",
+      "25": "#8C8C8C",
+      "15": "#BFBFBF",
+      "10": "#D9D9D9",
+      "6": "#E5E5E5",
+      "4": "#F5F5F5",
+      "0": "#FFFFFF"
+    },
+    "successScale": {
+      "bg": "#F2FFFB",
+      "border": "#BEF7E5",
+      "disabled": "#60E6B2",
+      "light": "#37DE99",
+      "main": "#0ED57D",
+      "dark": "#09B562"
+    },
+    "errorScale": {
+      "bg": "#FFF2F5",
+      "border": "#FFCCD7",
+      "disabled": "#FF7D90",
+      "light": "#FF576A",
+      "main": "#F52F3E",
+      "dark": "#CC1D31"
+    },
+    "warningScale": {
+      "bg": "#FFFCF2",
+      "border": "#FFF0C2",
+      "disabled": "#FFCD61",
+      "light": "#FFB730",
+      "main": "#FF9C00",
+      "dark": "#D47B00"
+    },
+    "infoScale": {
+      "bg": "#F2F8FF",
+      "border": "#C9E0FF",
+      "disabled": "#7AA9FF",
+      "light": "#548AFF",
+      "main": "#2C68FF",
+      "dark": "#1C4AD4"
+    }
+  },
+  "font": {
+    "sizeXs": 12,
+    "sizeSm": 14,
+    "sizeMd": 16,
+    "sizeLg": 18,
+    "sizeXl": 22,
+    "sizeDisplay": 32,
+    "sizeLgAlt": 24,
+    "sizeDisplayAlt": 28,
+    "weightRegular": "400",
+    "weightMedium": "500",
+    "weightSemibold": "600"
+  },
+  "radius": {
+    "sm": 6,
+    "md": 10,
+    "lg": 14,
+    "full": 999,
+    "buttonLarge": 25,
+    "buttonMedium": 25,
+    "buttonSmall": 16,
+    "buttonMini": 16
+  },
+  "space": {
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24
+  },
+  "text": {
+    "lineSpacing": 8,
+    "paragraphSpacing": 12,
+    "lineHeightMultiple": 1.8,
+    "lineHeightRatioSketch": 1.5
+  }
+}

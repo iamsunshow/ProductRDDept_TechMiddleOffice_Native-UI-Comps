@@ -1,0 +1,85 @@
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  background: #f5f5f5;
+}
+
+.docs-header {
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 12px 20px;
+}
+
+.docs-brand {
+  font-weight: 700;
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.docs-brand span {
+  color: #16a34a;
+}
+
+/* 顶部文档导航（水平 Menu） */
+.docs-header .ant-menu-horizontal {
+  border-bottom: none;
+  background: transparent;
+  font-size: 14px;
+}
+
+.docs-header .ant-menu-horizontal .ant-menu-item {
+  padding-inline: 14px;
+}
+
+.preview-box {
+  background: #fafafa;
+  border: 1px dashed #d9d9d9;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.preview-box img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background: #fff;
+  display: block;
+}
+
+/* Ant Menu: allow full multi-line labels (default height clips text) */
+.docs-sider .ant-menu-item,
+.docs-sider .ant-menu-submenu-title {
+  height: auto !important;
+  line-height: 1.35 !important;
+  white-space: normal !important;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  margin-block: 2px !important;
+}
+
+.docs-sider .ant-menu-item .menu-item-label,
+.docs-sider .ant-menu-submenu-title {
+  overflow: visible;
+}
+
+.docs-sider .menu-item-name {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.88);
+  word-break: break-all;
+}
+
+.docs-sider .menu-item-id {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.45);
+  word-break: break-all;
+}
+
+.docs-sider .ant-menu-title-content {
+  width: 100%;
+  overflow: visible;
+}

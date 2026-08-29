@@ -1,0 +1,56 @@
+name: ZhiqihuayunDemo
+options:
+  bundleIdPrefix: com.zhiqihuayun.demo
+  xcodeVersion: "14.0"
+  projectFormat: xcode14_0
+  developmentLanguage: en
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+packages:
+  SnapKit:
+    url: https://github.com/SnapKit/SnapKit.git
+    from: "5.6.0"
+  Charts:
+    url: https://github.com/ChartsOrg/Charts.git
+    from: "4.1.0"
+  GRDB:
+    url: https://github.com/groue/GRDB.swift.git
+    from: "6.24.0"
+  Alamofire:
+    url: https://github.com/Alamofire/Alamofire.git
+    from: "5.8.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "0.1.0"
+
+targets:
+  ZhiqihuayunDemo:
+    type: application
+    platform: iOS
+    sources:
+      - path: DemoApp
+      - path: ../../ios
+        excludes:
+          - Foundation/Routing
+          - SharedUI/Components/MediaListCell.swift
+          - SharedUI/Components/ProgressListCell.swift
+    dependencies:
+      - package: SnapKit
+      - package: Charts
+        product: Charts
+      - package: GRDB
+        product: GRDB
+      - package: Alamofire
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.zhiqihuayun.demo
+        INFOPLIST_FILE: Resources/Info.plist
+        GENERATE_INFOPLIST_FILE: false
+        PRODUCT_NAME: ZhiqihuayunDemo

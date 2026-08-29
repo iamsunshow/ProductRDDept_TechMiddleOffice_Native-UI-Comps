@@ -1,0 +1,12 @@
+# Gradle
+.gradle/
+build/
+local.properties
+
+# 发布敏感凭据（本机，不入库）
+gradle.properties.local
+
+# IDE
+.idea/
+*.iml
+.DS_Store

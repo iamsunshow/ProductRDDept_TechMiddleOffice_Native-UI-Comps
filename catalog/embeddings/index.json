@@ -1,0 +1,150 @@
+{
+  "backend": "hash-v1",
+  "dim": 256,
+  "items": [
+    {
+      "id": "basic.empty",
+      "path": "catalog/embeddings/basic_empty.json"
+    },
+    {
+      "id": "basic.date-picker-month",
+      "path": "catalog/embeddings/basic_date-picker-month.json"
+    },
+    {
+      "id": "basic.date-picker-year",
+      "path": "catalog/embeddings/basic_date-picker-year.json"
+    },
+    {
+      "id": "basic.date-picker",
+      "path": "catalog/embeddings/basic_date-picker.json"
+    },
+    {
+      "id": "basic.picker",
+      "path": "catalog/embeddings/basic_picker.json"
+    },
+    {
+      "id": "basic.webview",
+      "path": "catalog/embeddings/basic_webview.json"
+    },
+    {
+      "id": "basic.segmented",
+      "path": "catalog/embeddings/basic_segmented.json"
+    },
+    {
+      "id": "basic.list-item",
+      "path": "catalog/embeddings/basic_list-item.json"
+    },
+    {
+      "id": "basic.list",
+      "path": "catalog/embeddings/basic_list.json"
+    },
+    {
+      "id": "basic.refresh",
+      "path": "catalog/embeddings/basic_refresh.json"
+    },
+    {
+      "id": "basic.navbar",
+      "path": "catalog/embeddings/basic_navbar.json"
+    },
+    {
+      "id": "basic.icon",
+      "path": "catalog/embeddings/basic_icon.json"
+    },
+    {
+      "id": "business.statistic",
+      "path": "catalog/embeddings/business_statistic.json"
+    },
+    {
+      "id": "basic.grid",
+      "path": "catalog/embeddings/basic_grid.json"
+    },
+    {
+      "id": "basic.card",
+      "path": "catalog/embeddings/basic_card.json"
+    },
+    {
+      "id": "basic.avatar",
+      "path": "catalog/embeddings/basic_avatar.json"
+    },
+    {
+      "id": "basic.progress-circle",
+      "path": "catalog/embeddings/basic_progress-circle.json"
+    },
+    {
+      "id": "foundation.design-tokens",
+      "path": "catalog/embeddings/foundation_design-tokens.json"
+    },
+    {
+      "id": "foundation.router",
+      "path": "catalog/embeddings/foundation_router.json"
+    },
+    {
+      "id": "foundation.storage",
+      "path": "catalog/embeddings/foundation_storage.json"
+    },
+    {
+      "id": "business.repository-transaction",
+      "path": "catalog/embeddings/business_repository-transaction.json"
+    },
+    {
+      "id": "business.repository-budget",
+      "path": "catalog/embeddings/business_repository-budget.json"
+    },
+    {
+      "id": "business.repository-asset",
+      "path": "catalog/embeddings/business_repository-asset.json"
+    },
+    {
+      "id": "foundation.http-client",
+      "path": "catalog/embeddings/foundation_http-client.json"
+    },
+    {
+      "id": "foundation.money-format",
+      "path": "catalog/embeddings/foundation_money-format.json"
+    },
+    {
+      "id": "foundation.calendar",
+      "path": "catalog/embeddings/foundation_calendar.json"
+    },
+    {
+      "id": "business.content-config",
+      "path": "catalog/embeddings/business_content-config.json"
+    },
+    {
+      "id": "business.fixtures",
+      "path": "catalog/embeddings/business_fixtures.json"
+    },
+    {
+      "id": "foundation.system-bars",
+      "path": "catalog/embeddings/foundation_system-bars.json"
+    },
+    {
+      "id": "business.amount-keyboard",
+      "path": "catalog/embeddings/business_amount-keyboard.json"
+    },
+    {
+      "id": "basic.grid-picker",
+      "path": "catalog/embeddings/basic_grid-picker.json"
+    },
+    {
+      "id": "basic.line-chart",
+      "path": "catalog/embeddings/basic_line-chart.json"
+    },
+    {
+      "id": "basic.shortcut-bar",
+      "path": "catalog/embeddings/basic_shortcut-bar.json"
+    },
+    {
+      "id": "business.family-bill-invite",
+      "path": "catalog/embeddings/business_family-bill-invite.json"
+    },
+    {
+      "id": "business.feedback-list",
+      "path": "catalog/embeddings/business_feedback-list.json"
+    },
+    {
+      "id": "basic.split",
+      "path": "catalog/embeddings/basic_split.json"
+    }
+  ]
+}

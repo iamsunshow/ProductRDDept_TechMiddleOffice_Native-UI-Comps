@@ -11,24 +11,39 @@
 
 ```
 Native-UI-Comps/
-├── docs/                 # 全局规范文档（本目录权威）
-│   ├── api-contract/     # 每个组件双端 API 契约
-│   ├── design-token/     # 唯一 Token 源（json）+ 平台差异白名单
-│   └── design-spec.md / api-contract.md / versioning.md / component-governance.md
-├── design-token/         # 唯一样式数据源 json（实际 Token 源，tokens.json）
-├── ios/                  # iOS 组件库源码（SharedUI 组件 + Foundation 基建，SPM）
-├── android/              # Android 组件库源码（sharedui/foundation/components，Gradle）
+├── docs/                 # 全局规范文档（Markdown）
+│   ├── api-contract.md   #   双端 API 契约规范
+│   ├── design-spec.md    #   设计规范（Token 使用铁律）
+│   ├── versioning.md     #   版本治理
+│   ├── component-governance.md
+│   └── containment.md    #   目录约束
+├── design-token/         # 唯一样式数据源 tokens.json（颜色/字号/圆角/间距/行距）
+├── ios/                  # iOS 组件库源码（SPM）
+│   ├── Package.swift
+│   ├── SharedUI/Components/  #   UI 组件
+│   └── Foundation/           #   基建（Design/Network/Routing/Storage/SystemBars/Util）
+├── android/              # Android 组件库源码（Gradle 多模块）
+│   ├── settings.gradle.kts   #   rootProject = zhiqihuayun-android
+│   ├── sharedui/components/  #   UI 组件源码
+│   ├── components/           #   Gradle 模块（编译入口）
+│   └── foundation/           #   基建（design/network/routing/util）
 ├── demo/                 # 独立 Demo 运行环境（monorepo）
 │   ├── ios/              #   iOS Demo（XcodeGen，引用 ../ios 源码）
 │   └── android/          #   Android Demo（Gradle app，includeBuild ../android）
-├── catalog/              # 组件台账（components.jsonl + embeddings + visuals）
-├── docs-site/            # 组件文档站（React+Vite+AntD，展示 catalog）
-├── scripts/              # 生成/检索脚本（embed.py / search.py / gen_token_*）
-├── adapters/             # 跨平台适配说明（iOS/Android/Harmony/小程序）
-├── shared/               # 跨平台资源（category-icons 等）
+├── catalog/              # 组件台账 + 单一 metadata 源
+│   ├── components.jsonl  #   每组件：命名/作用/能力/API契约(props,events,demos)/平台状态/设计token
+│   ├── embeddings/       #   向量检索索引
+│   └── visuals/          #   组件截图
+├── docs-site/            # 组件文档站（React+Vite+AntD，构建时读 catalog 生成）
+│   └── scripts/generate_data.py
+├── scripts/              # 工具脚本
+│   ├── embed.py          #   生成检索向量
+│   ├── search.py         #   自然语言搜组件
+│   ├── merge_contracts_into_catalog.py  # API契约并入 catalog
+│   └── migrate_taxonomy_names.py        # 分类体系迁移
+├── shared/               # 跨平台共享资源（category-icons 分类图标）
 ├── ui-version.json       # 全局唯一版本号
-├── Package.swift         # SPM 入口（iOS，位于 ios/ 下）
-└── .github/workflows/    # 统一 CI 发版流水线
+└── CHANGELOG.md          # 版本日志（docs-site「版本日志」页数据源）
 ```
 
 ## 二、核心原则（详见各规范文档）
@@ -45,13 +60,14 @@ Native-UI-Comps/
 
 - 仓库地址：`https://github.com/iamsunshow/ProductRDDept_TechMiddleOffice_Native-UI-Comps.git`
 - 命名遵循中台技术部通用规范 `../docs/repository-naming.md`：一级部门 `ProductRDDept` `_` 二级部门 `TechMiddleOffice` `_` 部门产物 `Native-UI-Comps`
-- 阶段二将把本目录抽为该独立仓，OPC 用 submodule 挂载。
+- ✅ B3 完成：本目录已是该独立仓，OPC 通过 submodule 挂载（见 OPC `.gitmodules`）。
 
 ## 四、本目录现状
 
 - 阶段一（规范沉淀）：✅ A1~A7 完成，规范文档落位于 `docs/`。
 - 阶段二（代码迁移）：✅ B1 完成——组件源码、catalog、docs-site、scripts、demo 已全部迁入本目录，形成**自包含组件库仓**（monorepo：iOS + Android + 目录 + 文档站 + Demo）。
-- 阶段二（独立仓）：进行中——B3 起将本目录抽为独立 Git 仓库，OPC 用 submodule 挂载。
+- 阶段二（独立仓）：✅ B3 完成——本目录已抽为独立 Git 仓库，OPC 以 submodule 挂载。
+- 阶段二（API 契约收口）：✅ 组件 API 契约（props/events/demos/note）已并入 `catalog/components.jsonl`，docs-site 构建时读取，不再维护第二份源。
 - App 侧：KeepAccounts iOS 仍以 XcodeGen 引用 `Native-UI-Comps/ios`（暂排除冲突），B5 改 SPM 后移除。
 
 > 详细任务进度见 `../../../TASKS.md`。

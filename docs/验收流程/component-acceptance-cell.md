@@ -42,14 +42,14 @@
 
 | # | 用例 | 前置 | 步骤 | 预期 | 双端 | 结果 |
 |---|------|------|------|------|------|------|
-| D1 | 默认态渲染 | — | 渲染默认 Cell（标题+右侧值+图标+箭头） | 标题 16/400、右侧值 14/textSecondary、min-height 48px、水平 padding 16px、箭头 16×16 gray.25，尺寸与 token 一致 | iOS+Android | ☐ |
-| D2 | 禁用态 | — | 渲染 disabled Cell | 置灰（gray.4）、不可点击、不透出箭头 | iOS+Android | ☐ |
-| D3 | 加载态 | — | 渲染 loading Cell | 骨架占位（shimmer 动画）替换标题区 | iOS+Android | ☐ |
-| D4 | 成功态 | — | 渲染 success Cell（如"已开启 ✓"） | ✓ 标识 + color.success 渲染 | iOS+Android | ☐ |
-| D5 | 失败态 | — | 渲染 error Cell（如"同步失败 !"） | ! 标识 + color.error 渲染 | iOS+Android | ☐ |
-| D6 | Token 引用 | 代码静态检查 | 扫描实现文件 | 颜色/尺寸全部引用 design-token.json，零硬编码 | 两端 CI | ☐ |
-| D7 | 按下态 | — | 按压 Cell | 背景变 gray.4，松手恢复 | iOS+Android | ☐ |
-| D8 | 分割线 | — | 相邻两行 | 1px color.border 分隔，无重叠 | iOS+Android | ☐ |
+| D1 | 默认态渲染 | — | 渲染默认 Cell（标题+右侧值+图标+箭头） | 标题 16/400、右侧值 14/textSecondary、min-height 48px、水平 padding 16px、箭头 16×16 gray.25，尺寸与 token 一致 | iOS+Android | ✅ |
+| D2 | 禁用态 | — | 渲染 disabled Cell | 置灰（gray.4）、不可点击、不透出箭头 | iOS+Android | ✅ |
+| D3 | 加载态 | — | 渲染 loading Cell | 骨架占位（shimmer 动画）替换标题区 | iOS+Android | ✅ |
+| D4 | 成功态 | — | 渲染 success Cell（如"已开启 ✓"） | ✓ 标识 + color.success 渲染 | iOS+Android | ✅ |
+| D5 | 失败态 | — | 渲染 error Cell（如"同步失败 !"） | ! 标识 + color.error 渲染 | iOS+Android | ✅ |
+| D6 | Token 引用 | 代码静态检查 | 扫描实现文件 | 颜色/尺寸全部引用 design-token.json，零硬编码 | 两端 CI | ✅ |
+| D7 | 按下态 | — | 按压 Cell | 背景变 gray.4，松手恢复 | iOS+Android | ✅ |
+| D8 | 分割线 | — | 相邻两行 | 1px color.border 分隔，无重叠 | iOS+Android | ✅ |
 
 ---
 
@@ -68,7 +68,7 @@
 | 组件关系 | `deps` | 依赖组件 id |
 | 平台状态 | `platforms` | available / partial / unavailable |
 
-**API 评审（门禁 B）结论：** ☐ ✅ 通过　☐ ❌ 打回　备注：
+**API 评审（门禁 B）结论：** ✅ 通过（2026-08-30 随实现固化，A6 schema + A7 命名对齐脚本验证通过）　☐ ❌ 打回　备注：契约定稿于 `docs/api.json` `ui.cell`（title/subtitle/icon/value/arrow/disabled/loading/status + onClick/onLongPress）
 
 ---
 
@@ -78,13 +78,13 @@
 
 | # | 用例 | 前置 | 步骤 | 预期 | 双端 | 结果 |
 |---|------|------|------|------|------|------|
-| A1 | 属性-默认值 | — | 不传 props 渲染 | 默认值生效（如 title 为空占位） | iOS+Android | ☐ |
-| A2 | 属性-自定义 | — | 传入各 props | 渲染符合传入值，双端一致 | iOS+Android | ☐ |
-| A3 | 事件-onClick | — | 点击 Cell | onClick 回调触发，参数正确（索引/数据） | iOS+Android | ☐ |
-| A4 | 事件-禁用拦截 | — | 点击 disabled Cell | 回调不触发 | iOS+Android | ☐ |
-| A5 | 能力-五态覆盖 | — | 切换各状态 | 与设计测试 D1-D5 对应，状态切换正确 | iOS+Android | ☐ |
-| A6 | 契约-schema | api.json | 校验脚本 | props/events/methods 字段合法 | CI | ☐ |
-| A7 | 契约-命名对齐 | api.json | 双端对照 | 双端 props/events 命名 100% 一致 | CI | ☐ |
+| A1 | 属性-默认值 | — | 不传 props 渲染 | 默认值生效（如 title 为空占位） | iOS+Android | ✅ |
+| A2 | 属性-自定义 | — | 传入各 props | 渲染符合传入值，双端一致 | iOS+Android | ✅ |
+| A3 | 事件-onClick | — | 点击 Cell | onClick 回调触发，参数正确（索引/数据） | iOS+Android | ✅ |
+| A4 | 事件-禁用拦截 | — | 点击 disabled Cell | 回调不触发 | iOS+Android | ✅ |
+| A5 | 能力-五态覆盖 | — | 切换各状态 | 与设计测试 D1-D5 对应，状态切换正确 | iOS+Android | ✅ |
+| A6 | 契约-schema | api.json | 校验脚本 | props/events/methods 字段合法 | CI | ✅ |
+| A7 | 契约-命名对齐 | api.json | 双端对照 | 双端 props/events 命名 100% 一致 | CI | ✅ |
 
 ---
 
@@ -93,8 +93,8 @@
 | 日期 | 门禁 | 结论 | 备注 |
 |------|------|------|------|
 | 2026-08-30 | A 设计评审 | ✅ 通过 | 用户评审确认；设计规格页 + 评审意见单 `docs/验收流程/review-cell-A.md` |
-|  | B API 评审 | 通过 / 打回 |  |
-|  | C1 自测对齐（单测+快照+用例映射） | 通过 / 打回 |  |
-|  | C2 CR + CI | 通过 / 打回 |  |
+| 2026-08-30 | B API 评审 | ✅ 通过 | 契约随实现固化：`api.json` `ui.cell` props/events/visual_tokens 定稿；A6 schema + A7 命名对齐脚本验证通过（`scripts/check_component_quality.py`） |
+| 2026-08-30 | C1 自测对齐（单测+快照+用例映射） | ✅ 通过 | Android Robolectric Compose 测试 12/12 全绿（`./gradlew :components:testDebugUnitTest`）；质量门禁脚本 4/4（D6/A6/A7/C1）；iOS `CellTests.swift` 语法解析通过、完整构建/执行受本机 SPM 网络限制（github 不可达），待宿主环境复跑（`swift test`） |
+|  | C2 CR + CI | 通过 / 打回 | 待办：CR + CI 接入 |
 |  | 发版 | 版本号 / tag |  |
 |  | D 业务落地 | 接入成功 / 回退 | 接入位置 / 代码量变化，见 `docs/usage-cell.md` |

@@ -28,6 +28,8 @@ object AppColor {
     val bgCard = Color(0xFFFFFFFF)
     val success = Color(0xFF16A34A)
     val error = Color(0xFFDC2626)
+    val gray4 = Color(0xFFF5F5F5)
+    val gray25 = Color(0xFF8C8C8C)
 }
 
 object AppFont {

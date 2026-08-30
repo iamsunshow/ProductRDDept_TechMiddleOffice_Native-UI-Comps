@@ -11,6 +11,12 @@ www/dist/
 www/tsconfig.tsbuildinfo
 www/.vite/
 
+# iOS SPM 构建产物
+ios/.build/
+
+# Android 本地 SDK 路径（机器相关，不入库）
+android/local.properties
+
 # Lockfile for this monorepo (submodule-managed deps); keep reproducible installs
 www/package-lock.json
 

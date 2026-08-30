@@ -32,6 +32,7 @@ let package = Package(
             path: ".",
             exclude: [
                 "Package.swift",
+                "Tests",
                 // 记账业务组件（引用 App Feature 领域类型，不属于通用中台，由 App 本地编译）：
                 "SharedUI/Components/CategoryPickerView.swift",
                 "SharedUI/Components/PeriodTabsView.swift",
@@ -42,6 +43,11 @@ let package = Package(
                 "Foundation",
                 "SharedUI"
             ]
+        ),
+        .testTarget(
+            name: "KeepAccountsMiddlewareTests",
+            dependencies: ["KeepAccountsMiddleware"],
+            path: "Tests"
         )
     ]
 )

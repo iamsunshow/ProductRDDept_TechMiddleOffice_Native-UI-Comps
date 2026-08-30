@@ -32,6 +32,13 @@ android {
         compose = true
     }
 
+    testOptions {
+        unitTests {
+            // Robolectric 需要加载 Android 资源
+            isIncludeAndroidResources = true
+        }
+    }
+
     // 中台组件源码（保持单一来源，App 端通过移除 srcDirs 引用实现切换）
     sourceSets {
         getByName("main") {
@@ -53,6 +60,13 @@ dependencies {
     implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.okhttp)
     implementation(libs.kotlinx.serialization.json)
+
+    // 单测（JVM + Robolectric 托管 Compose，免模拟器）：门禁 C1 用例 D1-D8 / A1-A5
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.14.1")
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation("androidx.compose.ui:ui-test-junit4")
+    testImplementation("androidx.compose.ui:ui-test-manifest")
 }
 
 publishing {

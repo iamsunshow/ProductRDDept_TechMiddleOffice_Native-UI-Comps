@@ -95,6 +95,7 @@
 | 2026-08-30 | A 设计评审 | ✅ 通过 | 用户评审确认；设计规格页 + 评审意见单 `docs/验收流程/review-cell-A.md` |
 | 2026-08-30 | B API 评审 | ✅ 通过 | 契约随实现固化：`api.json` `ui.cell` props/events/visual_tokens 定稿；A6 schema + A7 命名对齐脚本验证通过（`scripts/check_component_quality.py`） |
 | 2026-08-30 | C1 自测对齐（单测+快照+用例映射） | ✅ 通过 | Android Robolectric Compose 测试 12/12 全绿（`./gradlew :components:testDebugUnitTest`）；质量门禁脚本 4/4（D6/A6/A7/C1）；iOS `CellTests.swift` 语法解析通过、完整构建/执行受本机 SPM 网络限制（github 不可达），待宿主环境复跑（`swift test`） |
+| 2026-08-30 | C1.5 Demo Showcase + 实机确认 | ✅ 通过 | 双端 demo 已加 Cell 展示（Android 首页 Cell 区 / iOS Demo basic→Cell 单元格，7 行五态+配置）；Android APK 构建成功、iOS 语法解析通过；用户已按指引查看 |
 |  | C2 CR + CI | 通过 / 打回 | 待办：CR + CI 接入 |
 |  | 发版 | 版本号 / tag |  |
 |  | D 业务落地 | 接入成功 / 回退 | 接入位置 / 代码量变化，见 `docs/usage-cell.md` |

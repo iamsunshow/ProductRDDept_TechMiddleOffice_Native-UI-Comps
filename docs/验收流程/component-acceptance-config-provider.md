@@ -1,6 +1,6 @@
 # 组件验收文档 · ConfigProvider 全局配置
 
-> 依据：`docs/验收流程/验收标准.md` 9.5 节。流程：设计细节+设计测试用例（阶段1，门禁A）→ API细节+API测试用例（阶段2，门禁B）→ 实现并执行测试（阶段3，门禁C1/C2）→ 发版 + 业务落地（门禁D）。
+> 依据：`docs/验收流程/验收标准.md` 9.6 节（五要素）。流程：设计细节+设计测试用例（阶段1，门禁A）→ API细节+API测试用例（阶段2，门禁B）→ 实现并执行测试（阶段3，门禁C1）→ Demo Showcase + 实机确认（阶段3.5，门禁C1.5）→ CR+CI（门禁C2）→ 发版 + 业务落地（门禁D）。
 > 用例即代码：用例 ID（D1-D8 / A1-A7）与测试函数一一对应，命名如 `test_D1_defaultBaseline`，CI 在门禁 C1 自动核对。
 > 特殊性：Provider 型组件无视觉五态（默认/禁用/加载/成功/失败不适用），D 系列改为「配置生效测试」，见第二节。
 
@@ -89,13 +89,29 @@
 
 ---
 
-## 六、验收记录
+## 六、⑤ 效果查看（Demo Showcase · 阶段 3.5 · 门禁 C1.5，实现后填写）
+
+> Provider 型无五态，以**配置生效对比**演示：demo 中挂 `<ConfigProvider primaryColor="…" compact rounded>` 包裹一组消费组件（如 Cell 列表），覆盖前 vs 覆盖后同屏对比（主题色/间距/圆角档位变化）；嵌套 Provider 演示内层优先 + 继承。
+
+| 端 | 操作 | 查看内容（演示点） |
+|----|------|-------------------|
+| Android | Android Studio 打开 `demo/android` 运行 app，首页 → ConfigProvider 区 | 覆盖前后对比 + 嵌套优先级 + 未覆盖项继承 |
+| iOS | `cd demo/ios && xcodegen generate && open *.xcodeproj`，Demo 首页 → basic → ConfigProvider 全局配置 | 覆盖前后对比 + 嵌套优先级 + 未覆盖项继承 |
+
+**双端差异观察点**：覆盖机制平台原生差异（iOS UIAppearance/环境对象 vs Android CompositionLocal），见 `平台差异.md`。
+
+**实机确认（门禁 C1.5）结论：** ☐ ✅ 通过　☐ ❌ 打回　备注：
+
+---
+
+## 七、验收记录
 
 | 日期 | 门禁 | 结论 | 备注 |
 |------|------|------|------|
 |  | A 设计评审 | 通过 / 打回 | 评审单 `docs/验收流程/review-config-provider-A.md` |
 |  | B API 评审 | 通过 / 打回 | `api.json` `ui.config-provider` 定稿 |
 |  | C1 自测对齐（单测+快照+用例映射） | 通过 / 打回 | 双端实现 + 测试执行 |
+|  | C1.5 Demo Showcase + 实机确认 | 通过 / 打回 | 双端 demo 配置生效对比 + 用户实机确认 |
 |  | C2 CR + CI | 通过 / 打回 | 待办：CR + CI 接入 |
 |  | 发版 | 版本号 / tag |  |
 |  | D 业务落地 | 接入成功 / 回退 | 接入位置 / 代码量变化，见 `docs/usage-config-provider.md` |

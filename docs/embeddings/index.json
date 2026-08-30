@@ -31,8 +31,8 @@
       "path": "docs/embeddings/ui_segmented.json"
     },
     {
-      "id": "ui.list-item",
-      "path": "docs/embeddings/ui_list-item.json"
+      "id": "ui.cell",
+      "path": "docs/embeddings/ui_cell.json"
     },
     {
       "id": "ui.list",

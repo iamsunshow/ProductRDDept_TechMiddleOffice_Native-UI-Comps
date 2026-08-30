@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-08-29T11:18:18Z",
+  "updatedAt": "2026-08-30T00:00:00Z",
   "componentCount": 27,
   "components": [
     {
@@ -616,11 +616,13 @@
       "subcategory": "navigation"
     },
     {
-      "id": "ui.list-item",
-      "name": "列表项 ListItem",
+      "id": "ui.cell",
+      "name": "Cell 单元格",
       "category": "ui",
-      "summary": "设置类列表单行：左标题 / 右值或箭头（对标 Ant List.Item；不是流水行）",
+      "summary": "列表行容器：左侧可选图标 + 中间标题（可副标题）+ 右侧值/箭头（对标 NutUI Cell / Ant Design List.Item；不是流水行）",
       "capabilities": [
+        "单元格",
+        "Cell",
         "列表行",
         "SettingsRow",
         "ProfileRow",
@@ -628,19 +630,19 @@
         "List.Item",
         "ListItem",
         "UITableViewCell",
-        "Cell",
-        "列表项 ListItem",
+        "Cell 单元格",
         "basic.list-item",
-        "ui.list-row"
+        "ui.list-row",
+        "ui.list-item"
       ],
       "platforms": {
         "ios": {
-          "state": "available",
-          "note": ""
+          "state": "partial",
+          "note": "现有 ListCell.swift 近似实现（仅内边距+行高，无五态/icon/arrow），按设计规格升级为独立 Cell"
         },
         "android": {
-          "state": "available",
-          "note": ""
+          "state": "unavailable",
+          "note": "无独立 Cell 实现，仅 ProfileListGroup.kt 分组近似，实现阶段补全"
         },
         "harmony": {
           "state": "unavailable",
@@ -656,21 +658,19 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/ProfileListRowView.swift",
-        "android": "ProductRDDept/TechMiddleOffice/android/sharedui/components/ProfileListGroup.kt"
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/ListCell.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/ProfileListGroup.kt"
       },
       "deps": [],
       "variants": [],
       "anti_goals": [],
       "visual_tokens": [],
       "apis": "",
-      "visual_refs": [
-        "docs/visuals/ui_list-row.png"
-      ],
-      "status": "stable",
-      "search_text": "basic.list-item 列表项 ListItem 设置类列表单行：左标题 / 右值或箭头（对标 Ant List.Item；不是流水行） basic List.Item ListItem UITableViewCell Cell 列表行 SettingsRow ProfileRow chevron List.Item ListItem UITableViewCell Cell 列表项 ListItem basic.list-item ui.list-row ui.list-row",
-      "embedding_ref": "docs/embeddings/ui_list-item.json",
-      "legacy_id": "ui.list-row",
+      "visual_refs": [],
+      "status": "beta",
+      "search_text": "Cell 单元格 列表行容器：左侧可选图标 + 中间标题（可副标题）+ 右侧值/箭头（对标 NutUI Cell / Ant Design List.Item；不是流水行） Cell 单元格 Cell 列表行 SettingsRow ProfileRow chevron List.Item ListItem UITableViewCell basic.list-item ui.list-row ui.list-item",
+      "embedding_ref": "docs/embeddings/ui_cell.json",
+      "legacy_id": "ui.list-item",
       "industry_names": [
         "List.Item",
         "ListItem",
@@ -728,7 +728,7 @@
         "ui.list-group"
       ],
       "deps": [
-        "basic.list-item"
+        "ui.cell"
       ],
       "platforms": {
         "ios": {

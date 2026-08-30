@@ -98,3 +98,16 @@
 |  | C2 CR + CI | 通过 / 打回 | 待办：CR + CI 接入 |
 |  | 发版 | 版本号 / tag |  |
 |  | D 业务落地 | 接入成功 / 回退 | 接入位置 / 代码量变化，见 `docs/usage-cell.md` |
+
+---
+
+## 七、效果查看（Demo Showcase）
+
+> 双端 demo 工程已添加 Cell 展示区（五态 + 常用配置：默认/带图标/仅标题/禁用/加载/成功/失败）。
+
+| 端 | 操作 | 查看内容 |
+|----|------|----------|
+| Android | Android Studio 打开 `demo/android` 运行 app（或 `./gradlew :app:assembleDebug` 装 APK）；首页下滑到 **Cell（五态 + 常用配置）** 区 | 7 行：默认（副标题+金额）/ 带图标（Favorite）/ 仅标题无箭头 / 禁用 / 加载（骨架动画）/ 成功（✓）/ 失败（!）；点击反馈：默认/仅标题行可点，禁用行不响应 |
+| iOS | `cd demo/ios && xcodegen generate && open *.xcodeproj`，Xcode 跑模拟器；Demo 首页 basic 分类 → **Cell 单元格（五态）** | 7 行同上 + 点击/长按回调（addInfo 追加提示行）；加载态骨架 shimmer 脉冲动画 |
+
+**双端差异观察点**：iOS 长按有回调、Android 不承诺（平台差异登记）；触摸反馈 iOS Highlight vs Android Ripple 为平台原生差异。

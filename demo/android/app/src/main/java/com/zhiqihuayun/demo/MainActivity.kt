@@ -19,13 +19,18 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppFont
 import com.zhiqihuayun.foundation.design.AppSpace
 import com.zhiqihuayun.sharedui.components.AppButton
 import com.zhiqihuayun.sharedui.components.AppButtonStyle
+import com.zhiqihuayun.sharedui.components.Cell
+import com.zhiqihuayun.sharedui.components.CellStatus
 import com.zhiqihuayun.sharedui.components.SegmentControl
 
 class MainActivity : ComponentActivity() {
@@ -86,5 +91,19 @@ fun TmoDemo() {
             onClick = {},
             enabled = false
         )
+
+        Text(text = "Cell（五态 + 常用配置）", color = AppColor.textSecondary, fontSize = AppFont.sizeSm)
+        Cell(title = "默认行", subtitle = "副标题示例", value = "¥3,850.00")
+        Cell(
+            title = "带图标",
+            subtitle = "icon 参数显示左侧图标",
+            icon = rememberVectorPainter(Icons.Filled.Favorite),
+            value = "收藏"
+        )
+        Cell(title = "仅标题（无箭头）", arrow = false)
+        Cell(title = "禁用态", value = "不可点", disabled = true)
+        Cell(title = "加载中", value = "骨架动画", loading = true)
+        Cell(title = "同步成功", value = "正常态", status = CellStatus.Success)
+        Cell(title = "同步失败", value = "错误态", status = CellStatus.Error, showsDivider = false)
     }
 }

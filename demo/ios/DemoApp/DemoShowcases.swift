@@ -24,6 +24,7 @@ final class DemoListViewController: UITableViewController {
         ComponentItem(id: "basic.date-picker-year", category: "basic", name: "YearPicker 年份选择") { YearPickerShowcase() },
         ComponentItem(id: "basic.picker", category: "basic", name: "OptionPicker 选项滚轮") { OptionPickerShowcase() },
         ComponentItem(id: "basic.list-item", category: "basic", name: "GroupListItem 列表行") { GroupListItemShowcase() },
+        ComponentItem(id: "ui.cell", category: "basic", name: "Cell 单元格（五态）") { CellShowcase() },
         ComponentItem(id: "basic.list", category: "basic", name: "GroupList 分组列表") { GroupListShowcase() },
         ComponentItem(id: "basic.grid", category: "basic", name: "NavigationGrid 导航网格") { GridShowcase() },
         ComponentItem(id: "basic.card", category: "basic", name: "SummaryCard 摘要卡") { CardShowcase() },
@@ -561,6 +562,60 @@ final class TabsShowcase: ShowcaseViewController {
                 make.top.bottom.equalToSuperview().inset(AppSpace.md)
             }
         }
+    }
+}
+
+// MARK: - Cell Showcase
+
+final class CellShowcase: ShowcaseViewController, UITableViewDataSource {
+    private let models: [CellModel] = [
+        CellModel(title: "默认行", subtitle: "副标题示例", value: "¥3,850.00"),
+        CellModel(title: "带图标", subtitle: "iconSymbol 显示左侧图标", iconSymbol: "star.fill", value: "收藏"),
+        CellModel(title: "仅标题（无箭头）", arrow: false),
+        CellModel(title: "禁用态", value: "不可点", disabled: true),
+        CellModel(title: "加载中", value: "骨架动画", loading: true),
+        CellModel(title: "同步成功", value: "正常态", status: .success),
+        CellModel(title: "同步失败", value: "错误态", status: .error),
+    ]
+    private let tableView = UITableView(frame: .zero, style: .plain)
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Cell 单元格"
+
+        addSection(title: "五态 + 常用配置") { container in
+            tableView.backgroundColor = .white
+            tableView.separatorStyle = .none
+            tableView.isScrollEnabled = false
+            tableView.register(Cell.self, forCellReuseIdentifier: Cell.reuseId)
+            tableView.dataSource = self
+            tableView.rowHeight = Cell.minHeight
+            container.addSubview(tableView)
+            tableView.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+                make.height.equalTo(Cell.minHeight * CGFloat(models.count))
+            }
+        }
+
+        addInfo("点击/长按有回调（长按 iOS 触发、Android 不承诺）；加载态骨架脉冲动画；禁用态整行置灰不可点；status 控制右侧 ✓/✗。")
+    }
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { models.count }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: Cell.reuseId, for: indexPath) as! Cell
+        cell.apply(models[indexPath.row])
+        cell.showsDivider = indexPath.row < models.count - 1
+        cell.onTap = { [weak self] _, index in
+            guard let self else { return }
+            self.addInfo("点击了：\(self.models[index].title)")
+        }
+        cell.onLongPress = { [weak self] _, index in
+            guard let self else { return }
+            self.addInfo("长按了：\(self.models[index].title)")
+        }
+        return cell
     }
 }
 

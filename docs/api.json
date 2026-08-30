@@ -637,12 +637,12 @@
       ],
       "platforms": {
         "ios": {
-          "state": "partial",
-          "note": "现有 ListCell.swift 近似实现（仅内边距+行高，无五态/icon/arrow），按设计规格升级为独立 Cell"
+          "state": "available",
+          "note": "独立 Cell.swift 已落地（五态+icon/arrow/onTap/onLongPress）；ListCell.swift 近似实现迁移废弃（保留作 Media/Progress 基类）"
         },
         "android": {
-          "state": "unavailable",
-          "note": "无独立 Cell 实现，仅 ProfileListGroup.kt 分组近似，实现阶段补全"
+          "state": "available",
+          "note": "独立 Cell.kt（Compose 五态）已落地；onLongPress 不承诺（平台差异已登记）"
         },
         "harmony": {
           "state": "unavailable",
@@ -658,13 +658,26 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/ListCell.swift",
-        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/ProfileListGroup.kt"
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/Cell.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Cell.kt"
       },
       "deps": [],
       "variants": [],
       "anti_goals": [],
-      "visual_tokens": [],
+      "visual_tokens": [
+        "color.gray.4",
+        "color.gray.25",
+        "color.success",
+        "color.error",
+        "color.border",
+        "color.textPrimary",
+        "color.textSecondary",
+        "font.sizeMd",
+        "font.sizeSm",
+        "space.lg",
+        "space.md",
+        "radius.md"
+      ],
       "apis": "",
       "visual_refs": [],
       "status": "beta",
@@ -680,37 +693,183 @@
       "props": [
         [
           "title",
-          "ReactNode",
+          "string",
           "是",
-          "主文案"
+          "主标题（必填）"
         ],
         [
-          "description?",
-          "ReactNode",
+          "subtitle?",
+          "string",
           "否",
-          "描述"
+          "副标题（有值时两行显示）"
         ],
         [
-          "extra?",
-          "ReactNode",
+          "icon?",
+          "string",
           "否",
-          "右侧"
+          "左侧图标（资源名/URL）"
+        ],
+        [
+          "value?",
+          "string",
+          "否",
+          "右侧值文本"
+        ],
+        [
+          "arrow",
+          "boolean",
+          "否，默认 true",
+          "是否显示右侧箭头"
+        ],
+        [
+          "disabled",
+          "boolean",
+          "否，默认 false",
+          "禁用态：置灰、不可点"
+        ],
+        [
+          "loading",
+          "boolean",
+          "否，默认 false",
+          "加载态：标题区骨架占位"
+        ],
+        [
+          "status",
+          "'normal' | 'success' | 'error'",
+          "否，默认 'normal'",
+          "右侧状态标识（success=✓ / error=!）"
         ]
       ],
       "events": [
         [
           "onClick",
-          "() => void",
-          "点击"
+          "(item: T, index: number) => void",
+          "点击行（参数=数据+索引）"
+        ],
+        [
+          "onLongPress?",
+          "(item: T, index: number) => void",
+          "长按（iOS 触发；Android 不承诺，平台差异已登记）"
         ]
       ],
       "demos": [
         [
           "设置行",
-          "<List.Item extra=\">\" onClick={...}>设置</List.Item>"
+          "<Cell title=\"设置\" value=\"深色模式\" arrow onClick={...} />"
+        ],
+        [
+          "状态行",
+          "<Cell title=\"同步\" status=\"error\" onClick={...} />"
         ]
       ],
       "subcategory": "display"
+    },
+    {
+      "id": "ui.config-provider",
+      "name": "全局配置 ConfigProvider",
+      "category": "ui",
+      "summary": "为子树提供运行时全局配置（主题色/圆角/紧凑尺寸/语言），后代组件通过上下文读取；本库 token 静态基准（design-token.json）之上的运行时覆盖层",
+      "capabilities": [
+        "全局配置",
+        "ConfigProvider",
+        "主题覆盖",
+        "primaryColor",
+        "紧凑模式",
+        "圆角模式",
+        "语言",
+        "locale",
+        "上下文穿透",
+        "runtime theme",
+        "AppConfig",
+        "ui.config-provider",
+        "运行时覆盖"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "unavailable",
+          "note": "双端未实现；设计评审（门禁 A）进行中"
+        },
+        "android": {
+          "state": "unavailable",
+          "note": "双端未实现；设计评审（门禁 A）进行中"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "deps": [],
+      "source_refs": {},
+      "variants": [],
+      "anti_goals": [
+        "不做远程动态配置下发（Remote Config 属 business 层）",
+        "不做多主题包管理（主题包由业务维护，本组件只做单点覆盖）",
+        "不替代 design-token.json 静态基准（静态基准仍由 token 生成链路产出）"
+      ],
+      "visual_tokens": [],
+      "apis": "",
+      "visual_refs": [],
+      "status": "beta",
+      "search_text": "ui.config-provider 全局配置 ConfigProvider 为子树提供运行时全局配置（主题色/圆角/紧凑尺寸/语言） 全局配置 ConfigProvider 主题覆盖 primaryColor 紧凑模式 圆角模式 语言 locale 上下文穿透 runtime theme AppConfig ui.config-provider 运行时覆盖 foundation.config-provider",
+      "embedding_ref": "",
+      "legacy_id": "foundation.config-provider",
+      "industry_names": [
+        "ConfigProvider",
+        "AppConfig"
+      ],
+      "props": [
+        [
+          "primaryColor?",
+          "string",
+          "否",
+          "主题色覆盖（十六进制）"
+        ],
+        [
+          "rounded?",
+          "boolean",
+          "否，默认 false",
+          "圆角模式：true 时全局圆角提升一档（radius.sm→md，md→lg）"
+        ],
+        [
+          "compact?",
+          "boolean",
+          "否，默认 false",
+          "紧凑尺寸模式：true 时全局间距降一档（space.md→sm，lg→md）"
+        ],
+        [
+          "locale?",
+          "'zh-CN' | 'en-US'",
+          "否，默认 'zh-CN'",
+          "文案语言"
+        ],
+        [
+          "children",
+          "ReactNode",
+          "是",
+          "子树（配置作用域）"
+        ]
+      ],
+      "events": [],
+      "demos": [
+        [
+          "主题覆盖",
+          "<ConfigProvider primaryColor=\"#4F46E5\">...</ConfigProvider>"
+        ],
+        [
+          "紧凑模式",
+          "<ConfigProvider compact locale=\"en-US\">...</ConfigProvider>"
+        ]
+      ],
+      "note": "Provider 型组件，无视觉状态；配置经上下文穿透，后代组件读取免逐层透传",
+      "tier": "core"
     },
     {
       "id": "ui.list",

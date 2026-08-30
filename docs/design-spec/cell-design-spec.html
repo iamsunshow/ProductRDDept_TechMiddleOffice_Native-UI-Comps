@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cell 单元格 · 设计规格（门禁 A 评审产物）</title>
+<style>
+  :root {
+    --primary: #16A34A; --primary-pressed: #15803D; --primary-muted: #DCFCE7;
+    --text-primary: #111827; --text-secondary: #6B7280; --text-inverse: #FFFFFF;
+    --border: #E5E7EB; --bg-page: #F9FAFB; --bg-card: #FFFFFF;
+    --error: #DC2626; --warning: #F59E0B; --success: #16A34A;
+    --gray-25: #8C8C8C; --gray-15: #BFBFBF; --gray-6: #E5E5E5; --gray-4: #F5F5F5;
+    --fs-xs: 12px; --fs-sm: 14px; --fs-md: 16px; --fs-lg: 18px; --fs-xl: 22px;
+    --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px;
+    --sp-xs: 4px; --sp-sm: 8px; --sp-md: 12px; --sp-lg: 16px; --sp-xl: 24px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg-page); color: var(--text-primary); line-height: 1.6; padding: 32px 16px 80px;
+  }
+  .page { max-width: 960px; margin: 0 auto; }
+  /* Header */
+  .header { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 20px; }
+  .header .row { display: flex; align-items: center; gap: var(--sp-sm); flex-wrap: wrap; }
+  .header h1 { font-size: 26px; font-weight: 600; letter-spacing: .2px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: var(--fs-xs); font-weight: 500; }
+  .badge.cat { background: var(--primary-muted); color: var(--primary-pressed); }
+  .badge.stage { background: #FEF3C7; color: #92400E; }
+  .badge.id { background: var(--gray-4); color: var(--text-secondary); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .header .sub { margin-top: 10px; color: var(--text-secondary); font-size: var(--fs-sm); }
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--sp-sm); margin-top: 16px; }
+  .meta { background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; }
+  .meta .k { font-size: var(--fs-xs); color: var(--text-secondary); }
+  .meta .v { font-size: var(--fs-sm); font-weight: 500; }
+  /* Section */
+  .sec { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 20px; }
+  .sec h2 { font-size: var(--fs-lg); margin-bottom: 6px; display: flex; align-items: center; gap: var(--sp-sm); }
+  .sec h2 .no { color: var(--primary); font-family: ui-monospace, monospace; }
+  .sec .lead { color: var(--text-secondary); font-size: var(--fs-sm); margin-bottom: 16px; }
+  /* Cell demo area */
+  .demo { border: 1px dashed var(--gray-15); border-radius: var(--radius-md); background: var(--bg-page); padding: 24px; }
+  .demo-label { font-size: var(--fs-xs); color: var(--text-secondary); margin-bottom: var(--sp-md); font-weight: 500; }
+  .cell-list { background: var(--bg-card); border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border); }
+  .cell { display: flex; align-items: center; min-height: 48px; padding: 0 var(--sp-lg); gap: var(--sp-md); background: var(--bg-card); }
+  .cell + .cell { border-top: 1px solid var(--border); }
+  .cell .cell-icon { width: 20px; height: 20px; border-radius: var(--radius-sm); flex: none; display: flex; align-items: center; justify-content: center; }
+  .cell .cell-title { font-size: var(--fs-md); color: var(--text-primary); font-weight: 400; }
+  .cell .cell-value { font-size: var(--fs-sm); color: var(--text-secondary); }
+  .cell .cell-arrow { flex: none; width: 16px; height: 16px; margin-left: auto; opacity: .85; }
+  .cell .grow { flex: 1; }
+  /* dimension callout */
+  .dims { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--sp-sm); margin-top: var(--sp-lg); }
+  .dim { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; }
+  .dim .d-label { font-size: var(--fs-xs); color: var(--text-secondary); }
+  .dim .d-val { font-size: var(--fs-sm); font-weight: 600; color: var(--primary-pressed); font-family: ui-monospace, monospace; }
+  /* five states */
+  .states { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--sp-md); }
+  .state { border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; background: var(--bg-card); }
+  .state .s-head { padding: 6px 12px; font-size: var(--fs-xs); font-weight: 500; border-bottom: 1px solid var(--border); }
+  .state .s-body { padding: 12px; }
+  .state.default .s-head { background: var(--bg-page); }
+  .state.disabled .s-head { background: var(--gray-4); color: var(--text-secondary); }
+  .state.loading .s-head { background: #EFF6FF; color: #1D4ED8; }
+  .state.success .s-head { background: var(--primary-muted); color: var(--primary-pressed); }
+  .state.error .s-head { background: #FEE2E2; color: #B91C1C; }
+  .mini-cell { display: flex; align-items: center; min-height: 44px; padding: 0 12px; gap: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .mini-cell .m-title { font-size: var(--fs-sm); }
+  .mini-cell.disabled { background: var(--gray-4); }
+  .mini-cell.disabled .m-title { color: var(--gray-15); }
+  .skeleton { height: 14px; border-radius: 4px; background: linear-gradient(90deg, var(--gray-6) 25%, #F0F0F0 50%, var(--gray-6) 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .skeleton.w60 { width: 60%; } .skeleton.w40 { width: 40%; }
+  .check { color: var(--primary); font-weight: 700; }
+  .warn { color: var(--error); font-weight: 700; }
+  /* token table */
+  table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  th { background: var(--bg-page); font-weight: 500; color: var(--text-secondary); }
+  code { background: var(--gray-4); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  .note { background: #FFF7ED; border: 1px solid #FDBA74; border-radius: var(--radius-sm); padding: 12px 16px; font-size: var(--fs-sm); margin-top: var(--sp-lg); }
+  .checklist { margin-top: 16px; }
+  .checklist li { list-style: none; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 8px; font-size: var(--fs-sm); display: flex; gap: 10px; align-items: baseline; }
+  .checklist li .box { flex: none; width: 16px; height: 16px; border: 1.5px solid var(--gray-15); border-radius: 4px; transform: translateY(3px); }
+  .footer { text-align: center; color: var(--text-secondary); font-size: var(--fs-xs); margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ Header ============ -->
+  <div class="header">
+    <div class="row">
+      <h1>Cell 单元格</h1>
+      <span class="badge cat">基础组件</span>
+      <span class="badge id">ui.cell</span>
+      <span class="badge stage">设计评审 · 门禁 A</span>
+    </div>
+    <div class="sub">列表行容器：左侧可选图标 + 中间标题 + 右侧值/箭头。对标 NutUI Cell / Ant Design List.Item。</div>
+    <div class="meta-grid">
+      <div class="meta"><div class="k">设计状态</div><div class="v">📐 待评审（试点）</div></div>
+      <div class="meta"><div class="k">提案日期</div><div class="v">2026-08-30</div></div>
+      <div class="meta"><div class="k">评审产物</div><div class="v">docs/design-spec/cell-design-spec.html</div></div>
+      <div class="meta"><div class="k">依赖 token</div><div class="v">color / font / space / radius</div></div>
+    </div>
+  </div>
+
+  <!-- ============ 1. 用途 ============ -->
+  <div class="sec">
+    <h2><span class="no">01</span>用途与场景</h2>
+    <div class="lead">Cell 是列表页的最小行单元，用于承载"一项设置 / 一条记录"的入口或信息展示。</div>
+    <div class="checklist">
+      <li><span class="box"></span><b>典型场景：</b>设置页每行（如「账号与安全 >」）、个人中心信息行（头像/昵称）、明细页静态信息行（交易时间 / 单号）。</li>
+      <li><span class="box"></span><b>组合关系：</b>可承载 Icon / Avatar / Badge 于左侧；右侧承载 Switch / Tag / 自定义控件（由业务组合）。</li>
+      <li><span class="box"></span><b>反模式（anti-goals）：</b>不做整页容器（用 List）、不做流水数据行（用 ListItem）、不做宫格入口矩阵（用 Grid）。</li>
+    </div>
+  </div>
+
+  <!-- ============ 2. 视觉与尺寸 ============ -->
+  <div class="sec">
+    <h2><span class="no">02</span>视觉与尺寸规格</h2>
+    <div class="lead">以下为真实渲染效果（非图片），尺寸标注引用 design-token.json。</div>
+    <div class="demo">
+      <div class="demo-label">基础形态（默认 / 带右侧值 / 带箭头 / 带图标）</div>
+      <div class="cell-list">
+        <div class="cell">
+          <div class="cell-title">账号与安全</div>
+          <div class="grow"></div>
+          <svg class="cell-arrow" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="#8C8C8C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="cell">
+          <div class="cell-icon" style="background:var(--primary-muted); color:var(--primary-pressed); font-size:11px; font-weight:600;">记</div>
+          <div class="cell-title">本月支出</div>
+          <div class="grow"></div>
+          <div class="cell-value">¥ 1,286.50</div>
+          <svg class="cell-arrow" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="#8C8C8C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="cell">
+          <div class="cell-title">自动记账提醒</div>
+          <div class="grow"></div>
+          <div class="cell-value" style="color:var(--primary);">已开启</div>
+        </div>
+      </div>
+    </div>
+    <div class="dims">
+      <div class="dim"><div class="d-label">行高（min-height）</div><div class="d-val">48px</div></div>
+      <div class="dim"><div class="d-label">水平内边距</div><div class="d-val">space.lg = 16px</div></div>
+      <div class="dim"><div class="d-label">图标与标题间距</div><div class="d-val">space.md = 12px</div></div>
+      <div class="dim"><div class="d-label">标题字号/字重</div><div class="d-val">sizeMd 16 / 400</div></div>
+      <div class="dim"><div class="d-label">右侧值字号/色</div><div class="d-val">sizeSm 14 / textSecondary</div></div>
+      <div class="dim"><div class="d-label">分割线</div><div class="d-val">1px / color.border</div></div>
+      <div class="dim"><div class="d-label">分组圆角（容器内）</div><div class="d-val">radius.md = 10px</div></div>
+      <div class="dim"><div class="d-label">箭头尺寸</div><div class="d-val">16×16 / gray.25</div></div>
+    </div>
+    <div class="note">💡 备注：48px 行高满足 iOS 44pt / Android 48dp 触控安全区下限；标题默认 400 字重，分组标题行（标题态）用 sizeXs 12 / textSecondary 大写样式。</div>
+  </div>
+
+  <!-- ============ 3. 五态 ============ -->
+  <div class="sec">
+    <h2><span class="no">03</span>五态定义</h2>
+    <div class="lead">默认 / 禁用 / 加载 / 成功 / 失败（组件库状态统一基准）。</div>
+    <div class="states">
+      <div class="state default">
+        <div class="s-head">默认 Default</div>
+        <div class="s-body"><div class="mini-cell"><div class="m-title">账号与安全</div><div class="grow" style="flex:1"></div><span class="cell-value" style="font-size:12px">›</span></div></div>
+      </div>
+      <div class="state disabled">
+        <div class="s-head">禁用 Disabled</div>
+        <div class="s-body"><div class="mini-cell disabled"><div class="m-title">已停用功能</div></div></div>
+      </div>
+      <div class="state loading">
+        <div class="s-head">加载 Loading</div>
+        <div class="s-body"><div class="mini-cell" style="border-color:var(--gray-15)"><div class="skeleton w60"></div></div></div>
+      </div>
+      <div class="state success">
+        <div class="s-head">成功 Success</div>
+        <div class="s-body"><div class="mini-cell"><div class="m-title">已开启</div><div class="grow" style="flex:1"></div><span class="check">✓</span></div></div>
+      </div>
+      <div class="state error">
+        <div class="s-head">失败 Error</div>
+        <div class="s-body"><div class="mini-cell"><div class="m-title">同步失败</div><div class="grow" style="flex:1"></div><span class="warn">!</span></div></div>
+      </div>
+    </div>
+    <div class="note">💡 交互反馈：可点击 Cell 按下态 = 背景 <code>color.gray.4 #F5F5F5</code>，松手恢复；禁用态不响应点击、不透出箭头；加载态用骨架占位（shimmer）。</div>
+  </div>
+
+  <!-- ============ 4. Token 引用 ============ -->
+  <div class="sec">
+    <h2><span class="no">04</span>Token 引用表（零硬编码）</h2>
+    <div class="lead">实现时所有值必须引用 design-token.json，禁止硬编码。</div>
+    <table>
+      <tr><th>规格项</th><th>Token</th><th>实际值</th></tr>
+      <tr><td>行背景</td><td><code>color.bgCard</code></td><td>#FFFFFF</td></tr>
+      <tr><td>标题文字</td><td><code>color.textPrimary</code> + <code>font.sizeMd</code></td><td>#111827 · 16px</td></tr>
+      <tr><td>右侧值文字</td><td><code>color.textSecondary</code> + <code>font.sizeSm</code></td><td>#6B7280 · 14px</td></tr>
+      <tr><td>分割线</td><td><code>color.border</code></td><td>#E5E7EB · 1px</td></tr>
+      <tr><td>按下态背景</td><td><code>color.gray.4</code></td><td>#F5F5F5</td></tr>
+      <tr><td>箭头颜色</td><td><code>color.gray.25</code></td><td>#8C8C8C</td></tr>
+      <tr><td>水平内边距</td><td><code>space.lg</code></td><td>16px</td></tr>
+      <tr><td>图标间距</td><td><code>space.md</code></td><td>12px</td></tr>
+      <tr><td>分组圆角</td><td><code>radius.md</code></td><td>10px</td></tr>
+      <tr><td>成功色 / 失败色</td><td><code>color.success</code> / <code>color.error</code></td><td>#16A34A / #DC2626</td></tr>
+    </table>
+  </div>
+
+  <!-- ============ 5. 交互 ============ -->
+  <div class="sec">
+    <h2><span class="no">05</span>交互细节</h2>
+    <div class="checklist">
+      <li><span class="box"></span><b>点击：</b>可点击 Cell 整体可点，按下态 <code>gray.4</code>；带箭头默认暗示可点击。</li>
+      <li><span class="box"></span><b>事件：</b><code>onClick</code>（点击回调，参数为 cell 索引/数据）；<code>onLongPress</code> 可选（iOS 长按；Android 不承诺，标注差异）。</li>
+      <li><span class="box"></span><b>层级：</b>Cell 本身无弹窗层级；右侧 Popup 类控件由业务弹层承载。</li>
+    </div>
+  </div>
+
+  <!-- ============ 6. 双端差异 ============ -->
+  <div class="sec">
+    <h2><span class="no">06</span>双端差异说明</h2>
+    <table>
+      <tr><th>项</th><th>iOS</th><th>Android</th><th>处理</th></tr>
+      <tr><td>现状</td><td>ListCell（近似）</td><td>无独立实现</td><td>本轮统一为独立 Cell 组件</td></tr>
+      <tr><td>触摸反馈</td><td>系统 UILongPress/Highlight</td><td>Ripple 水波纹</td><td>平台原生差异，允许，登记 platform-diff</td></tr>
+      <tr><td>分割线</td><td>自定义 1px</td><td>自定义 1px</td><td>双端一致</td></tr>
+      <tr><td>禁用态</td><td>系统置灰</td><td>置灰 + 禁点击</td><td>行为一致</td></tr>
+    </table>
+    <div class="note">✅ 结论：本轮建议 <b>双端全新实现独立 Cell</b>，替代 iOS 的 ListCell 近似方案与 Android 缺失；iOS 旧 ListCell 迁移到新 Cell 后废弃。</div>
+  </div>
+
+  <!-- ============ 评审 ============ -->
+  <div class="sec">
+    <h2><span class="no">07</span>设计评审清单（请评审人逐项打勾）</h2>
+    <div class="lead">评审意见单完整版见 <code>docs/review-checklist.md</code> 第一节。</div>
+    <div class="checklist">
+      <li><span class="box"></span><b>1.</b> 用途与场景清晰，与分类表一致（基础组件 / Cell 单元格）。</li>
+      <li><span class="box"></span><b>2.</b> 视觉呈现符合预期（本页 02 节为真实渲染，可直接看）。</li>
+      <li><span class="box"></span><b>3.</b> 尺寸 / 间距 / 圆角 / 字号正确（本页 02 节标注 + 04 节 token 引用）。</li>
+      <li><span class="box"></span><b>4.</b> 五态齐全（03 节，成功/失败态用途已说明）。</li>
+      <li><span class="box"></span><b>5.</b> 交互细节明确（05 节：点击/事件/按下态）。</li>
+      <li><span class="box"></span><b>6.</b> 双端差异已说明（06 节：触摸反馈为平台原生差异）。</li>
+      <li><span class="box"></span><b>7.</b> 与现有组件无重复（ListItem 为"列表行"，Cell 为"单元格行"，定位差异已声明）。</li>
+    </div>
+    <div class="note">👉 评审结论：<b>☐ ✅ 通过 → 冻结设计，进入 API 阶段（门禁 B）</b>　｜　<b>☐ ❌ 打回 → 只改设计规格，不动代码</b>。请在页面下方留言或直接回复备注。</div>
+  </div>
+
+  <div class="footer">TMO 组件库 · Cell 设计规格 · 门禁 A 评审产物 · 2026-08-30 · docs/design-spec/cell-design-spec.html</div>
+</div>
+</body>
+</html>

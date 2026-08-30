@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""Merge per-component API contracts (props/events/demos/note) into catalog/components.jsonl.
+"""Merge per-component API contracts (props/events/demos/note) into docs/api.json.
 
-Rationale: props/events/demos/note previously lived only in a hand-written CONTRACTS
-dict inside docs-site/scripts/generate_data.py, i.e. a SECOND source of truth separate
-from catalog/components.jsonl. This script folds that contract data into each component
-entry so the catalog becomes the single source of truth, and generate_data.py can drop
-its CONTRACTS dict.
+Historical rationale: props/events/demos/note previously lived only in a hand-written
+CONTRACTS dict inside generate_data.py, a SECOND source of truth separate from the
+catalog. 方案 B 后组件 metadata 收口为 docs/api.json（由 catalog/components.jsonl 收敛而来），
+本脚本保留为幂等工具：将 CONTRACTS 并入每个组件条目，使 api.json 成为唯一数据源。
 
-Run once after each catalog change (idempotent: existing props/events/demos/note on a
+Run once after each api.json change (idempotent: existing props/events/demos/note on a
 component are left untouched unless --overwrite is given).
 """
 
@@ -19,15 +18,12 @@ import shutil
 from pathlib import Path
 
 TMO = Path(__file__).resolve().parents[1]
-CATALOG = TMO / "catalog" / "components.jsonl"
+API = TMO / "docs" / "api.json"
 
-# Reuse the same CONTRACTS data that generate_data.py currently holds, so the move is exact.
-try:
-    import sys
-    sys.path.insert(0, str(TMO / "docs-site" / "scripts"))
-    from generate_data import CONTRACTS
-except Exception:  # pragma: no cover - fallback when running in a fresh checkout
-    CONTRACTS = {}
+# NOTE: 组件 API 契约（props/events/demos/note）已在历史迁移中并入 api.json，
+# 本脚本仅保留为幂等的合并工具（供新增组件时按需回填），CONTRACTS 已随
+# generate_data.py 的改版移除，因此这里不再引用外部 CONTRACTS。
+CONTRACTS: dict = {}
 
 
 def main() -> None:
@@ -40,19 +36,23 @@ def main() -> None:
     args = parser.parse_args()
 
     if not CONTRACTS:
-        print("error: could not load CONTRACTS from generate_data.py")
+        print(
+            "note: 契约已收口于 docs/api.json；无独立 CONTRACTS 源可合并，直接校验/api.json 完整性。"
+        )
+    if not API.exists():
+        print("error: missing docs/api.json")
         return
 
-    lines = CATALOG.read_text(encoding="utf-8").splitlines()
-    if not lines:
-        print("error: empty catalog")
+    api_data = json.loads(API.read_text(encoding="utf-8"))
+    comps = api_data.get("components", [])
+    if not comps:
+        print("error: empty components in api.json")
         return
 
     # Backup before rewriting.
-    bak = CATALOG.with_suffix(".jsonl.bak")
-    shutil.copy2(CATALOG, bak)
+    bak = API.with_suffix(".json.bak")
+    shutil.copy2(API, bak)
 
-    comps = [json.loads(l) for l in lines if l.strip()]
     touched = 0
     for comp in comps:
         cid = comp["id"]
@@ -70,11 +70,10 @@ def main() -> None:
         if changed:
             touched += 1
 
-    CATALOG.write_text(
-        "\n".join(json.dumps(c, ensure_ascii=False) for c in comps) + "\n",
-        encoding="utf-8",
-    )
-    print(f"merged contract fields into {touched}/{len(comps)} components")
+    api_data["components"] = comps
+    api_data["componentCount"] = len(comps)
+    API.write_text(json.dumps(api_data, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"checked {len(comps)} components in docs/api.json (touched: {touched})")
     print(f"backup: {bak}")
 
 

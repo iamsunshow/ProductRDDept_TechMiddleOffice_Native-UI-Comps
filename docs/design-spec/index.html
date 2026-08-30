@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Native-UI-Comps · 组件设计规范 v1（HTML 版）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "PingFang SC","Noto Sans CJK SC","Helvetica Neue",Arial,sans-serif;
+         background: #F9FAFB; color: #111827; padding: 32px 40px 80px; }
+  header h1 { font-size: 24px; font-weight: 700; }
+  header p { color: #6B7280; font-size: 14px; margin-top: 8px; line-height: 1.7; }
+  .meta { margin: 16px 0; font-size: 13px; color: #6B7280; }
+  .meta b { color: #16A34A; }
+  h2 { font-size: 18px; font-weight: 600; margin: 40px 0 16px; padding-left: 12px;
+       border-left: 4px solid #16A34A; }
+  .count { color: #6B7280; font-weight: 400; font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); gap: 20px; align-items: start; }
+  
+.component-card {
+  background: #fff; border: 1px solid #E5E7EB; border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(17,24,39,.05); overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.card-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px; border-bottom: 1px solid #E5E7EB;
+}
+.card-name { font-size: 15px; font-weight: 600; color: #111827; }
+.card-badge {
+  font-size: 11px; font-weight: 600; color: #fff; background: #16A34A;
+  padding: 2px 10px; border-radius: 999px;
+}
+.card-badge.foundation { background: #6B7280; }
+.card-id { font-size: 12px; color: #16A34A; background: #DCFCE7;
+  padding: 2px 8px; border-radius: 999px; font-family: ui-monospace, Menlo, monospace; }
+.visual-wrap { position: relative; padding: 40px 56px 56px; background: #F9FAFB;
+  border-bottom: 1px solid #E5E7EB; display: flex; justify-content: center; }
+.visual { position: relative; background: #fff; }
+
+  
+.callout { position: absolute; font-size: 11px; color: #16A34A; font-weight: 600;
+  font-family: ui-monospace, Menlo, monospace; white-space: nowrap; }
+.callout.line { color: #16A34A; }
+.callout::before, .callout::after { content: ''; position: absolute; height: 1px; background: #16A34A; }
+.callout.top { left: 50%; top: 12px; transform: translateX(-50%); }
+.callout.bottom { left: 50%; bottom: 10px; transform: translateX(-50%); }
+.callout.left { left: 10px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+.callout.right { right: 8px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+.callout.top::before, .callout.top::after { top: 50%; width: 40px; }
+.callout.top::before { left: -44px; } .callout.top::after { right: -44px; }
+.callout.bottom::before, .callout.bottom::after { bottom: 50%; width: 40px; }
+.callout.bottom::before { left: -44px; } .callout.bottom::after { right: -44px; }
+.callout.left::before, .callout.left::after { left: 50%; width: 1px; height: 40px; }
+.callout.left::before { top: -44px; } .callout.left::after { bottom: -44px; }
+.callout.right::before, .callout.right::after { left: 50%; width: 1px; height: 40px; }
+.callout.right::before { top: -44px; } .callout.right::after { bottom: -44px; }
+
+  
+.states-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+  padding: 16px; background: #fff; border-bottom: 1px solid #E5E7EB; }
+.state-item { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px;
+  padding: 12px 8px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.state-label { font-size: 11px; color: #6B7280; font-weight: 500; }
+.demo-btn { width: 96px; height: 32px; border-radius: 10px; display: flex; align-items: center;
+  justify-content: center; font-size: 13px; font-weight: 500; color: #fff; }
+.demo-btn.default { background: #16A34A; }
+.demo-btn.disabled { background: #D1D5DB; color: #9CA3AF; }
+.demo-btn.loading { background: #16A34A; }
+.demo-btn.success { background: #16A34A; }
+.demo-btn.error { background: #DC2626; }
+.spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.4);
+  border-top-color: #fff; border-radius: 50%; margin-right: 6px; }
+
+  .tokens { border-top: 1px solid #E5E7EB; }
+  footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #E5E7EB;
+           color: #6B7280; font-size: 13px; line-height: 1.8; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Native-UI-Comps · 组件设计规范 v1（HTML 版）</h1>
+  <p>UI 组件（20）+ 底层能力（7）· 视觉区与状态区分区布局，标注置于视觉区外圈不遮挡组件。<br>
+     设计为唯一基准，双端实现与命名以此为准。</p>
+  <p class="meta">设计令牌来源 <b>docs/design-token.json</b> · 主色 #16A34A · 生成时间 2026-08-29</p>
+</header>
+<h2>UI · 基础通用 <span class="count">(5)</span></h2><div class="grid">
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">头像 Avatar</span>
+    <div>
+      <span class="card-badge">基础通用</span>
+      <code class="card-id">ui.avatar</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:320px;border-radius:14px;border:1px solid #E5E7EB;padding:16px;display:flex;align-items:center;gap:16px;">
+  <div style="width:48px;height:48px;border-radius:50%;background:#16A34A;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:600;flex-shrink:0;">L</div>
+  <div>
+    <div style="font-size:16px;font-weight:600;color:#111827;">李知遥</div>
+    <div style="font-size:12px;color:#6B7280;">家庭账本 · 成员</div>
+  </div>
+</div>
+<span class="callout bottom" style="width:320px">48 / 行高 76</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">卡片 Card</span>
+    <div>
+      <span class="card-badge">基础通用</span>
+      <code class="card-id">ui.card</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:300px;border-radius:14px;border:1px solid #E5E7EB;padding:16px;">
+  <div style="font-size:16px;font-weight:600;color:#111827;margin-bottom:8px;">本月支出</div>
+  <div style="font-size:22px;font-weight:600;color:#111827;margin-bottom:12px;">¥ 2,480.00</div>
+  <div style="height:8px;border-radius:4px;background:#DCFCE7;overflow:hidden;">
+    <div style="width:70%;height:100%;background:#16A34A;"></div>
+  </div>
+</div>
+<span class="callout bottom" style="width:300px">300 × 圆角 14</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">图标 Icon</span>
+    <div>
+      <span class="card-badge">基础通用</span>
+      <code class="card-id">ui.icon</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="display:flex;gap:16px;">
+  <div style="width:56px;height:56px;border-radius:10px;border:1px solid #E5E7EB;display:flex;align-items:center;justify-content:center;font-size:22px;color:#16A34A;flex-shrink:0;">☀</div><div style="width:56px;height:56px;border-radius:10px;border:1px solid #E5E7EB;display:flex;align-items:center;justify-content:center;font-size:22px;color:#16A34A;flex-shrink:0;">⚙</div><div style="width:56px;height:56px;border-radius:10px;border:1px solid #E5E7EB;display:flex;align-items:center;justify-content:center;font-size:22px;color:#16A34A;flex-shrink:0;">＋</div><div style="width:56px;height:56px;border-radius:10px;border:1px solid #E5E7EB;display:flex;align-items:center;justify-content:center;font-size:22px;color:#6B7280;flex-shrink:0;">›</div>
+</div>
+<span class="callout bottom" style="width:272px">图标资源 24×24 / 圆角 10</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">双栏行 Split</span>
+    <div>
+      <span class="card-badge">基础通用</span>
+      <code class="card-id">ui.split</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:340px;border-radius:6px;border:1px solid #E5E7EB;overflow:hidden;">
+  <div style="height:40px;display:flex;align-items:center;padding:0 12px;border-bottom:1px solid #F9FAFB;"><span style="flex:1;font-size:14px;font-weight:600;color:#111827;">分区标题</span><span style="font-size:14px;color:#6B7280;">附属说明</span></div><div style="height:40px;display:flex;align-items:center;padding:0 12px;border-bottom:1px solid #F9FAFB;"><span style="flex:1;font-size:14px;font-weight:600;color:#111827;">其他分组</span><span style="font-size:14px;color:#6B7280;">12 项</span></div>
+</div>
+<span class="callout bottom" style="width:340px">行高 40</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">网页容器 WebView</span>
+    <div>
+      <span class="card-badge">基础通用</span>
+      <code class="card-id">ui.webview</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:320px;border-radius:14px;border:1px solid #E5E7EB;overflow:hidden;">
+  <div style="height:32px;background:#F9FAFB;display:flex;align-items:center;padding:0 12px;">
+    <span style="font-size:12px;color:#6B7280;">https://example.com</span></div>
+  <div style="padding:16px;display:flex;flex-direction:column;gap:12px;"><div style="height:10px;border-radius:5px;background:#E5E7EB;width:220px;"></div><div style="height:10px;border-radius:5px;background:#E5E7EB;width:280px;"></div><div style="height:10px;border-radius:5px;background:#E5E7EB;width:180px;"></div></div>
+</div>
+<span class="callout bottom" style="width:320px">WKWebView / WebView</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div></div><h2>UI · 导航 <span class="count">(4)</span></h2><div class="grid">
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">导航栏 NavigationBar</span>
+    <div>
+      <span class="card-badge">导航</span>
+      <code class="card-id">ui.navbar</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:360px;height:64px;border-radius:14px;border:1px solid #E5E7EB;display:flex;align-items:center;padding:0 16px;">
+  <span style="font-size:32px;color:#16A34A;font-weight:600;width:36px;cursor:pointer;">‹</span>
+  <span style="flex:1;text-align:center;font-size:16px;font-weight:600;color:#111827;">标题</span>
+  <div style="display:flex;gap:12px;">
+    <div style="width:24px;height:24px;border-radius:50%;border:2px solid #16A34A;"></div>
+    <div style="width:24px;height:24px;border-radius:50%;border:2px solid #16A34A"></div>
+  </div>
+</div>
+<span class="callout bottom" style="width:360px">360 × 64</span>
+<span class="callout left" style="height:64px">图标 24</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">宫格 Grid</span>
+    <div>
+      <span class="card-badge">导航</span>
+      <code class="card-id">ui.grid</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:312px;border-radius:14px;border:1px solid #E5E7EB;padding:16px;">
+  <div style="font-size:16px;font-weight:600;color:#111827;margin-bottom:14px;">常用功能</div>
+  <div style="display:flex;justify-content:space-between;"><div style="display:flex;flex-direction:column;align-items:center;gap:6px;"><div style="width:42px;height:42px;border-radius:50%;background:#DCFCE7;color:#16A34A;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;">记</div><span style="font-size:12px;color:#111827;">记账</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:6px;"><div style="width:42px;height:42px;border-radius:50%;background:#DCFCE7;color:#16A34A;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;">报</div><span style="font-size:12px;color:#111827;">报表</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:6px;"><div style="width:42px;height:42px;border-radius:50%;background:#DCFCE7;color:#16A34A;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;">预</div><span style="font-size:12px;color:#111827;">预算</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:6px;"><div style="width:42px;height:42px;border-radius:50%;background:#DCFCE7;color:#16A34A;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;">设</div><span style="font-size:12px;color:#111827;">设置</span></div></div>
+</div>
+<span class="callout bottom" style="width:312px">宫格 4 项 / 图标 42</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">分段控制器 SegmentedControl</span>
+    <div>
+      <span class="card-badge">导航</span>
+      <code class="card-id">ui.segmented</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:200px;height:32px;border-radius:10px;background:#F9FAFB;padding:4px;display:flex;">
+  <div style="flex:1;border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#16A34A;">支出</div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#6B7280;">收入</div>
+</div>
+<span class="callout bottom" style="width:200px">200 × 32 / 圆角 10</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">快捷栏 ShortcutBar</span>
+    <div>
+      <span class="card-badge">导航</span>
+      <code class="card-id">ui.shortcut-bar</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:360px;border-radius:14px;border:1px solid #E5E7EB;padding:14px 16px;">
+  <div style="display:flex;justify-content:space-between;"><div style="display:flex;flex-direction:column;align-items:center;gap:6px;"><div style="width:32px;height:32px;border-radius:50%;background:#DCFCE7;color:#16A34A;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;">明</div><span style="font-size:12px;color:#111827;">明细</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:6px;"><div style="width:32px;height:32px;border-radius:50%;background:#DCFCE7;color:#16A34A;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;">统</div><span style="font-size:12px;color:#111827;">统计</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:6px;"><div style="width:32px;height:32px;border-radius:50%;background:#DCFCE7;color:#16A34A;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;">预</div><span style="font-size:12px;color:#111827;">预算</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:6px;"><div style="width:32px;height:32px;border-radius:50%;background:#DCFCE7;color:#16A34A;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;">设</div><span style="font-size:12px;color:#111827;">设置</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:6px;"><div style="width:32px;height:32px;border-radius:50%;background:#DCFCE7;color:#16A34A;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;">更</div><span style="font-size:12px;color:#111827;">更多</span></div></div>
+</div>
+<span class="callout bottom" style="width:360px">横向快捷入口</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div></div><h2>UI · 数据录入 <span class="count">(5)</span></h2><div class="grid">
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">日期选择 DatePicker</span>
+    <div>
+      <span class="card-badge">数据录入</span>
+      <code class="card-id">ui.date-picker</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:300px;border-radius:14px;border:1px solid #E5E7EB;overflow:hidden;">
+  <div style="padding:12px 16px;font-size:14px;font-weight:600;color:#111827;display:flex;justify-content:space-between;">
+    <span>2026 年 8 月</span><span style="color:#6B7280;">‹ ›</span></div>
+  <div style="display:flex;padding:0 16px;margin-bottom:4px;"><span style="width:40px;text-align:center;font-size:12px;color:#6B7280;">日</span><span style="width:40px;text-align:center;font-size:12px;color:#6B7280;">一</span><span style="width:40px;text-align:center;font-size:12px;color:#6B7280;">二</span><span style="width:40px;text-align:center;font-size:12px;color:#6B7280;">三</span><span style="width:40px;text-align:center;font-size:12px;color:#6B7280;">四</span><span style="width:40px;text-align:center;font-size:12px;color:#6B7280;">五</span><span style="width:40px;text-align:center;font-size:12px;color:#6B7280;">六</span></div>
+  <div style="display:flex;"><span style="width:40px;"></span><span style="width:40px;"></span><span style="width:40px;"></span><span style="width:40px;"></span><span style="width:40px;"></span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">1</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">2</span></div><div style="display:flex;"><span style="width:40px;text-align:center;font-size:12px;color:#111827;">3</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">4</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">5</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">6</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">7</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">8</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">9</span></div><div style="display:flex;"><span style="width:40px;text-align:center;font-size:12px;color:#111827;">10</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">11</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">12</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">13</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">14</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">15</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">16</span></div><div style="display:flex;"><span style="width:40px;text-align:center;font-size:12px;color:#111827;">17</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">18</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">19</span><span style="width:40px;text-align:center;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:50%;background:#16A34A;color:#fff;font-size:12px;font-weight:600;">20</span></span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">21</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">22</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">23</span></div><div style="display:flex;"><span style="width:40px;text-align:center;font-size:12px;color:#111827;">24</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">25</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">26</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">27</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">28</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">29</span><span style="width:40px;text-align:center;font-size:12px;color:#111827;">30</span></div>
+  <div style="height:40px;display:flex;align-items:center;border-top:1px solid #E5E7EB;">
+    <span style="flex:1;text-align:center;font-size:14px;color:#6B7280;">取消</span>
+    <span style="flex:1;text-align:center;font-size:14px;font-weight:600;color:#16A34A;">确定</span>
+  </div>
+</div>
+<span class="callout bottom" style="width:300px">300 × 网格 40</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">日期选择·月 DatePicker</span>
+    <div>
+      <span class="card-badge">数据录入</span>
+      <code class="card-id">ui.date-picker-month</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:140px;border-radius:10px;border:1px solid #E5E7EB;overflow:hidden;padding:8px 0;position:relative;">
+  <div style="position:absolute;left:0;right:0;top:38px;height:26px;border-top:1px solid #16A34A;border-bottom:1px solid #16A34A;"></div>
+  <div style="height:26px;line-height:26px;text-align:center;font-size:14px;color:#6B7280;">收入</div><div style="height:26px;line-height:26px;text-align:center;font-size:14px;color:#16A34A;font-weight:600;background:#DCFCE7;border-radius:8px;">支出</div><div style="height:26px;line-height:26px;text-align:center;font-size:14px;color:#6B7280;">转账</div>
+</div>
+<span class="callout bottom" style="width:140px">单列 140 × 行 26</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">日期选择·年 DatePicker</span>
+    <div>
+      <span class="card-badge">数据录入</span>
+      <code class="card-id">ui.date-picker-year</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:140px;border-radius:10px;border:1px solid #E5E7EB;overflow:hidden;padding:8px 0;position:relative;">
+  <div style="position:absolute;left:0;right:0;top:38px;height:26px;border-top:1px solid #16A34A;border-bottom:1px solid #16A34A;"></div>
+  <div style="height:26px;line-height:26px;text-align:center;font-size:14px;color:#6B7280;">收入</div><div style="height:26px;line-height:26px;text-align:center;font-size:14px;color:#16A34A;font-weight:600;background:#DCFCE7;border-radius:8px;">支出</div><div style="height:26px;line-height:26px;text-align:center;font-size:14px;color:#6B7280;">转账</div>
+</div>
+<span class="callout bottom" style="width:140px">单列 140 × 行 26</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">选择器 Picker</span>
+    <div>
+      <span class="card-badge">数据录入</span>
+      <code class="card-id">ui.picker</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:140px;border-radius:10px;border:1px solid #E5E7EB;overflow:hidden;padding:8px 0;position:relative;">
+  <div style="position:absolute;left:0;right:0;top:38px;height:26px;border-top:1px solid #16A34A;border-bottom:1px solid #16A34A;"></div>
+  <div style="height:26px;line-height:26px;text-align:center;font-size:14px;color:#6B7280;">收入</div><div style="height:26px;line-height:26px;text-align:center;font-size:14px;color:#16A34A;font-weight:600;background:#DCFCE7;border-radius:8px;">支出</div><div style="height:26px;line-height:26px;text-align:center;font-size:14px;color:#6B7280;">转账</div>
+</div>
+<span class="callout bottom" style="width:140px">单列 140 × 行 26</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">宫格选择 GridPicker</span>
+    <div>
+      <span class="card-badge">数据录入</span>
+      <code class="card-id">ui.grid-picker</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:288px;border-radius:14px;border:1px solid #E5E7EB;padding:12px;">
+  <div style="display:flex;flex-wrap:wrap;gap:10px;width:278px;"><div style="width:84px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid #E5E7EB;color:#111827;">每日</div><div style="width:84px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid #E5E7EB;color:#111827;">每周</div><div style="width:84px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;background:#16A34A;color:#fff;font-weight:600;">每月</div><div style="width:84px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid #E5E7EB;color:#111827;">每年</div><div style="width:84px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid #E5E7EB;color:#111827;">自定义</div><div style="width:84px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid #E5E7EB;color:#111827;">＋</div></div>
+</div>
+<span class="callout bottom" style="width:288px">宫格选择 3 列</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div></div><h2>UI · 数据展示 <span class="count">(5)</span></h2><div class="grid">
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">空状态 Empty</span>
+    <div>
+      <span class="card-badge">数据展示</span>
+      <code class="card-id">ui.empty</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="text-align:center;padding:20px 40px;">
+  <div style="width:52px;height:52px;border-radius:50%;border:2px solid #E5E7EB;margin:0 auto 12px;position:relative;">
+    <div style="position:absolute;top:14px;left:14px;width:20px;height:20px;border-radius:50%;border:2px solid #E5E7EB;"></div>
+  </div>
+  <div style="font-size:16px;color:#6B7280;">暂无数据</div>
+  <div style="font-size:12px;color:#6B7280;margin-top:4px;">搜索无结果 / 页面内容为空</div>
+</div>
+<span class="callout bottom">图标 52 / 文案 16</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">列表 List</span>
+    <div>
+      <span class="card-badge">数据展示</span>
+      <code class="card-id">ui.list</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:340px;border-radius:14px;border:1px solid #E5E7EB;overflow:hidden;">
+  <div style="padding:12px 16px;height:14px;background:#E5E7EB;opacity:.3;"></div>
+  <div style="height:34px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid #F9FAFB;"><span style="flex:1;font-size:14px;color:#111827;">外卖</span><span style="font-size:14px;color:#6B7280;">¥ 36.00 ›</span></div><div style="height:34px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid #F9FAFB;"><span style="flex:1;font-size:14px;color:#111827;">打车</span><span style="font-size:14px;color:#6B7280;">¥ 28.50 ›</span></div><div style="height:34px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid #F9FAFB;"><span style="flex:1;font-size:14px;color:#111827;">超市</span><span style="font-size:14px;color:#6B7280;">¥ 120.30 ›</span></div>
+</div>
+<span class="callout bottom" style="width:340px">行高 34 / 内边距 16</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">列表项 ListItem</span>
+    <div>
+      <span class="card-badge">数据展示</span>
+      <code class="card-id">ui.list-item</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:320px;height:56px;border-radius:14px;border:1px solid #E5E7EB;display:flex;align-items:center;padding:0 16px;">
+  <span style="flex:1;font-size:14px;color:#111827;">设置项</span>
+  <span style="font-size:14px;color:#6B7280;">值 ›</span>
+</div>
+<span class="callout bottom" style="width:320px">行高 56 / 内边距 16</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">折线图 LineChart</span>
+    <div>
+      <span class="card-badge">数据展示</span>
+      <code class="card-id">ui.line-chart</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:300px;height:120px;border-radius:14px;border:1px solid #E5E7EB;padding:8px;background:#fff;">
+<svg width="100%" height="100%" viewBox="0 0 284 104">
+  <line x1="12" y1="31" x2="272" y2="31" stroke="#E5E7EB" stroke-width="1" stroke-dasharray="4 4"/><line x1="12" y1="52" x2="272" y2="52" stroke="#E5E7EB" stroke-width="1" stroke-dasharray="4 4"/><line x1="12" y1="73" x2="272" y2="73" stroke="#E5E7EB" stroke-width="1" stroke-dasharray="4 4"/><line x1="12" y1="94" x2="272" y2="94" stroke="#E5E7EB" stroke-width="1" stroke-dasharray="4 4"/>
+  <path d="M 20 84 L 70 58 L 120 70 L 170 36 L 220 46 L 275 18" stroke="#16A34A" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+  <path d="M 20 84 L 70 58 L 120 70 L 170 36 L 220 46 L 275 18 L 275 98 L 20 98 Z" fill="#DCFCE7" opacity="0.6"/>
+  <circle cx="275" cy="18" r="4" fill="#16A34A"/>
+</svg>
+</div>
+<span class="callout bottom" style="width:300px">300 × 120</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">环形进度 Progress</span>
+    <div>
+      <span class="card-badge">数据展示</span>
+      <code class="card-id">ui.progress-circle</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:120px;height:120px;position:relative;text-align:center;">
+  <div style="width:88px;height:88px;border-radius:50%;margin:0 auto;position:relative;
+       background:conic-gradient(#16A34A 0 72%, #F9FAFB 72% 100%);display:flex;align-items:center;justify-content:center;">
+    <div style="width:64px;height:64px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;
+         font-size:16px;font-weight:600;color:#111827;">72%</div>
+  </div>
+  <div style="font-size:12px;color:#6B7280;margin-top:6px;">本月预算</div>
+</div>
+<span class="callout bottom" style="width:120px">环形 88 / 描边 12</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div></div><h2>UI · 操作反馈 <span class="count">(1)</span></h2><div class="grid">
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">下拉刷新 Refresh</span>
+    <div>
+      <span class="card-badge">操作反馈</span>
+      <code class="card-id">ui.refresh</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="text-align:center;padding:20px 40px;">
+  <div style="font-size:28px;color:#16A34A;font-weight:600;margin-bottom:8px;">↓</div>
+  <div style="font-size:14px;color:#111827;">松开立即刷新</div>
+  <div style="font-size:12px;color:#6B7280;margin-top:4px;">对齐 UIRefreshControl / 下拉刷新</div>
+</div>
+<span class="callout bottom">下拉手势 + 文案</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 主色 #16A34A · 文字 #111827/#6B7280 · 描边 #E5E7EB · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16</div>
+</div></div><h2>底层能力 <span class="count">(7)</span></h2><div class="grid">
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">设计令牌 Design Tokens</span>
+    <div>
+      <span class="card-badge foundation">底层能力</span>
+      <code class="card-id">foundation.design-tokens</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:400px;border-radius:14px;border:1px solid #E5E7EB;padding:16px;">
+  <div style="font-size:14px;font-weight:600;color:#111827;margin-bottom:12px;">色板 Color</div>
+  <div style="display:flex;gap:10px;"><div style="text-align:center;"><div style="width:44px;height:28px;border-radius:6px;background:#16A34A;border:1px solid #E5E7EB;margin:0 auto;"></div><div style="font-size:10px;color:#6B7280;margin-top:4px;">primary</div></div><div style="text-align:center;"><div style="width:44px;height:28px;border-radius:6px;background:#16A34A;border:1px solid #E5E7EB;margin:0 auto;"></div><div style="font-size:10px;color:#6B7280;margin-top:4px;">income</div></div><div style="text-align:center;"><div style="width:44px;height:28px;border-radius:6px;background:#DC2626;border:1px solid #E5E7EB;margin:0 auto;"></div><div style="font-size:10px;color:#6B7280;margin-top:4px;">expense</div></div><div style="text-align:center;"><div style="width:44px;height:28px;border-radius:6px;background:#F59E0B;border:1px solid #E5E7EB;margin:0 auto;"></div><div style="font-size:10px;color:#6B7280;margin-top:4px;">warning</div></div><div style="text-align:center;"><div style="width:44px;height:28px;border-radius:6px;background:#DCFCE7;border:1px solid #E5E7EB;margin:0 auto;"></div><div style="font-size:10px;color:#6B7280;margin-top:4px;">primaryMuted</div></div><div style="text-align:center;"><div style="width:44px;height:28px;border-radius:6px;background:#111827;border:1px solid #E5E7EB;margin:0 auto;"></div><div style="font-size:10px;color:#6B7280;margin-top:4px;">textPrimary</div></div><div style="text-align:center;"><div style="width:44px;height:28px;border-radius:6px;background:#6B7280;border:1px solid #E5E7EB;margin:0 auto;"></div><div style="font-size:10px;color:#6B7280;margin-top:4px;">textSecondary</div></div><div style="text-align:center;"><div style="width:44px;height:28px;border-radius:6px;background:#E5E7EB;border:1px solid #E5E7EB;margin:0 auto;"></div><div style="font-size:10px;color:#6B7280;margin-top:4px;">border</div></div></div>
+  <div style="font-size:12px;color:#6B7280;margin-top:12px;">
+    字号 12/14/16/18/22/32 · 圆角 6/10/14/999 · 间距 4/8/12/16/24</div>
+</div>
+<span class="callout bottom" style="width:400px">色板 8 + 字阶</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 底层能力：无独立视觉规范，Token 以 UI 组件为准；接口契约见 docs/api.json</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">路由 Router</span>
+    <div>
+      <span class="card-badge foundation">底层能力</span>
+      <code class="card-id">foundation.router</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:400px;border-radius:14px;border:1px solid #E5E7EB;padding:16px;">
+  <div style="display:flex;align-items:center;gap:12px;"><div style="width:90px;height:40px;border-radius:10px;border:2px solid #E5E7EB;display:flex;align-items:center;justify-content:center;font-size:14px;color:#111827;font-weight:500;">首页</div><div style="font-size:18px;color:#6B7280;">→</div><div style="width:90px;height:40px;border-radius:10px;border:2px solid #E5E7EB;display:flex;align-items:center;justify-content:center;font-size:14px;color:#111827;font-weight:500;">明细</div><div style="font-size:18px;color:#6B7280;">→</div><div style="width:90px;height:40px;border-radius:10px;border:2px solid #16A34A;display:flex;align-items:center;justify-content:center;font-size:14px;color:#16A34A;font-weight:500;">编辑</div></div>
+  <div style="font-size:12px;color:#6B7280;margin-top:12px;">
+    push('home') → push('detail', id:) ← 返回 pop</div>
+</div>
+<span class="callout bottom" style="width:400px">路由 push / pop</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 底层能力：无独立视觉规范，Token 以 UI 组件为准；接口契约见 docs/api.json</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">本地存储 Storage</span>
+    <div>
+      <span class="card-badge foundation">底层能力</span>
+      <code class="card-id">foundation.storage</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:400px;border-radius:14px;border:1px solid #E5E7EB;padding:16px;">
+  <div style="font-size:14px;font-weight:600;color:#111827;margin-bottom:12px;">SQLite · keepaccounts.db</div>
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;"><span style="background:#F9FAFB;color:#16A34A;font-size:12px;font-weight:500;padding:4px 10px;border-radius:6px;font-family:ui-monospace,Menlo,monospace;width:120px;">transactions</span><span style="font-size:12px;color:#6B7280;font-family:ui-monospace,Menlo,monospace;">id / amount / category / date</span></div><div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;"><span style="background:#F9FAFB;color:#16A34A;font-size:12px;font-weight:500;padding:4px 10px;border-radius:6px;font-family:ui-monospace,Menlo,monospace;width:120px;">categories</span><span style="font-size:12px;color:#6B7280;font-family:ui-monospace,Menlo,monospace;">id / name / icon / type</span></div>
+</div>
+<span class="callout bottom" style="width:400px">本地数据库封装</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 底层能力：无独立视觉规范，Token 以 UI 组件为准；接口契约见 docs/api.json</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">网络客户端 HTTP Client</span>
+    <div>
+      <span class="card-badge foundation">底层能力</span>
+      <code class="card-id">foundation.http-client</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:400px;border-radius:14px;border:1px solid #E5E7EB;padding:16px;font-family:ui-monospace,Menlo,monospace;">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+    <span style="background:#16A34A;color:#fff;font-size:12px;font-weight:600;padding:2px 8px;border-radius:4px;">GET</span>
+    <span style="font-size:12px;color:#111827;">/api/v1/transactions?month=2026-08</span></div>
+  <div style="font-size:12px;color:#6B7280;margin-bottom:8px;">响应 Response</div>
+  <div style="font-size:12px;line-height:1.8;">
+    <div><span style="color:#16A34A;">code</span> <span style="color:#6B7280;">200</span></div>
+    <div><span style="color:#16A34A;">data</span> <span style="color:#6B7280;">count: 42</span></div>
+    <div><span style="color:#16A34A;">list</span> <span style="color:#6B7280;">[ … ]</span></div>
+  </div>
+</div>
+<span class="callout bottom" style="width:400px">HTTP 客户端（Mock）</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 底层能力：无独立视觉规范，Token 以 UI 组件为准；接口契约见 docs/api.json</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">金额格式化 MoneyFormat</span>
+    <div>
+      <span class="card-badge foundation">底层能力</span>
+      <code class="card-id">foundation.money-format</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:400px;border-radius:14px;border:1px solid #E5E7EB;padding:16px;">
+  <div style="font-size:22px;font-weight:600;color:#111827;margin-bottom:8px;">¥ 1,234,567.89</div>
+  <div style="font-size:12px;color:#6B7280;margin-bottom:12px;">千分位 · 两位小数 · 负号 −</div>
+  <div style="font-size:16px;font-weight:600;"><span style="color:#16A34A;">+¥ 36.00</span>  <span style="color:#DC2626;">−¥ 120.30</span></div>
+</div>
+<span class="callout bottom" style="width:400px">收入绿 / 支出红</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 底层能力：无独立视觉规范，Token 以 UI 组件为准；接口契约见 docs/api.json</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">日历工具 Calendar</span>
+    <div>
+      <span class="card-badge foundation">底层能力</span>
+      <code class="card-id">foundation.calendar</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:300px;border-radius:14px;border:1px solid #E5E7EB;padding:12px 16px;">
+  <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:600;color:#111827;margin-bottom:8px;">
+    <span>2026 · 08</span><span style="color:#6B7280;">‹ ›</span></div>
+  <div style="display:flex;"><span style="width:38px;text-align:center;font-size:12px;color:#6B7280;">日</span><span style="width:38px;text-align:center;font-size:12px;color:#6B7280;">一</span><span style="width:38px;text-align:center;font-size:12px;color:#6B7280;">二</span><span style="width:38px;text-align:center;font-size:12px;color:#6B7280;">三</span><span style="width:38px;text-align:center;font-size:12px;color:#6B7280;">四</span><span style="width:38px;text-align:center;font-size:12px;color:#6B7280;">五</span><span style="width:38px;text-align:center;font-size:12px;color:#6B7280;">六</span></div>
+  <div style="display:flex;"><span style="width:38px;text-align:center;font-size:12px;color:#111827;">1</span></div><div style="display:flex;"><span style="width:38px;text-align:center;font-size:12px;color:#111827;">2</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">3</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">4</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">5</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">6</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">7</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">8</span></div><div style="display:flex;"><span style="width:38px;text-align:center;font-size:12px;color:#111827;">9</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">10</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">11</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">12</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">13</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">14</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">15</span></div><div style="display:flex;"><span style="width:38px;text-align:center;font-size:12px;color:#111827;">16</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">17</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">18</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">19</span><span style="width:38px;text-align:center;"><span style="display:inline-block;width:20px;height:20px;line-height:20px;border-radius:50%;background:#16A34A;color:#fff;font-size:12px;font-weight:600;">20</span></span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">21</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">22</span></div><div style="display:flex;"><span style="width:38px;text-align:center;font-size:12px;color:#111827;">23</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">24</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">25</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">26</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">27</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">28</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">29</span></div><div style="display:flex;"><span style="width:38px;text-align:center;font-size:12px;color:#111827;">30</span><span style="width:38px;text-align:center;font-size:12px;color:#111827;">31</span></div>
+</div>
+<span class="callout bottom" style="width:300px">自然月网格 38</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 底层能力：无独立视觉规范，Token 以 UI 组件为准；接口契约见 docs/api.json</div>
+</div>
+<div class="component-card">
+  <div class="card-head">
+    <span class="card-name">系统栏 SystemBars</span>
+    <div>
+      <span class="card-badge foundation">底层能力</span>
+      <code class="card-id">foundation.system-bars</code>
+    </div>
+  </div>
+  <div class="visual-wrap">
+<div class="visual" style="width:240px;border-radius:14px;border:1px solid #E5E7EB;overflow:hidden;">
+  <div style="height:30px;background:#111827;display:flex;align-items:center;padding:0 12px;color:#fff;">
+    <span style="font-size:14px;font-weight:600;flex:1;">9:41</span>
+    <span style="font-size:12px;">▮▮▮</span></div>
+  <div style="padding:20px;text-align:center;font-size:12px;color:#6B7280;">内容区</div>
+  <div style="width:100px;height:5px;border-radius:3px;background:#111827;margin:0 auto 12px;"></div>
+</div>
+<span class="callout bottom" style="width:240px">状态栏 30 / Home 指示</span>
+</div>
+  
+<div class="states-row">
+  <div class="state-item"><span class="state-label">默认</span>
+    <div class="demo-btn default">默认</div></div>
+  <div class="state-item"><span class="state-label">禁用</span>
+    <div class="demo-btn disabled">禁用</div></div>
+  <div class="state-item"><span class="state-label">加载</span>
+    <div class="demo-btn loading"><span class="spinner"></span>加载</div></div>
+  <div class="state-item"><span class="state-label">成功</span>
+    <div class="demo-btn success">成功</div></div>
+  <div class="state-item"><span class="state-label">失败</span>
+    <div class="demo-btn error">失败</div></div>
+</div>
+
+  <div class="tokens" style="padding:12px 16px;font-size:11px;color:#6B7280;">Token · 底层能力：无独立视觉规范，Token 以 UI 组件为准；接口契约见 docs/api.json</div>
+</div></div>
+<footer>
+  生成脚本 <code>scripts/generate_design_gallery.py</code> · 本页自包含，可直接打印 / 导出<br>
+  导入 Figma / Sketch：从本页截图或导出 PNG；设计规格以 H5 规格页为准（如 <code>docs/design-spec/cell-design-spec.html</code>，本页为历史快照不再更新）
+</footer>
+</body>
+</html>

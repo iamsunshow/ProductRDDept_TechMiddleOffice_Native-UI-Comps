@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Embed component search_text into catalog/embeddings/ and index.json."""
+"""Embed component search_text into docs/embeddings/ and index.json.
+
+Source of truth: docs/api.json (single JSON object with a `components` array).
+"""
 
 from __future__ import annotations
 
@@ -11,8 +14,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CATALOG = ROOT / "catalog" / "components.jsonl"
-EMB_DIR = ROOT / "catalog" / "embeddings"
+API = ROOT / "docs" / "api.json"
+EMB_DIR = ROOT / "docs" / "embeddings"
 INDEX = EMB_DIR / "index.json"
 DIM = 256
 
@@ -47,18 +50,13 @@ def try_st_embed(texts: list[str]):
 
 
 def load_components() -> list[dict]:
-    rows = []
-    with CATALOG.open(encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                rows.append(json.loads(line))
-    return rows
+    data = json.loads(API.read_text(encoding="utf-8"))
+    return data.get("components", [])
 
 
 def main() -> int:
-    if not CATALOG.exists():
-        print(f"missing {CATALOG}", file=sys.stderr)
+    if not API.exists():
+        print(f"missing {API}", file=sys.stderr)
         return 1
     comps = load_components()
     texts = []
@@ -80,16 +78,17 @@ def main() -> int:
     EMB_DIR.mkdir(parents=True, exist_ok=True)
     index = {"backend": backend, "dim": len(vectors[0]), "items": []}
     for c, vec in zip(comps, vectors):
-        rel = c.get("embedding_ref") or f"catalog/embeddings/{c['id'].replace('.', '_')}.json"
+        rel = c.get("embedding_ref") or f"docs/embeddings/{c['id'].replace('.', '_')}.json"
         path = ROOT / rel
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps({"id": c["id"], "backend": backend, "vector": vec}, ensure_ascii=False), encoding="utf-8")
         index["items"].append({"id": c["id"], "path": rel})
         c["embedding_ref"] = rel
 
-    with CATALOG.open("w", encoding="utf-8") as f:
-        for c in comps:
-            f.write(json.dumps(c, ensure_ascii=False) + "\n")
+    api_data = json.loads(API.read_text(encoding="utf-8"))
+    api_data["components"] = comps
+    api_data["updatedAt"] = __import__("datetime").datetime.now(__import__("datetime").timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    API.write_text(json.dumps(api_data, ensure_ascii=False, indent=2), encoding="utf-8")
 
     INDEX.write_text(json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"embedded {len(comps)} components → {EMB_DIR} ({backend})")

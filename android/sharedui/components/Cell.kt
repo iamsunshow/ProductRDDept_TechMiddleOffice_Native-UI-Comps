@@ -42,6 +42,7 @@ import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppFont
 import com.zhiqihuayun.foundation.design.AppRadius
 import com.zhiqihuayun.foundation.design.AppSpace
+import com.zhiqihuayun.foundation.design.AppText
 
 /**
  * Cell 状态标识。
@@ -103,7 +104,8 @@ fun Cell(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = AppSpace.lg * 3)
+                // 最小行高：设计稿「32 号字 cell」单行 = 56dp（16dp 内边距×2 + 24dp 主标题行高）。
+                .heightIn(min = 56.dp)
                 .background(backgroundColor)
                 .testTag("cell-root")
                 .clickable(
@@ -112,7 +114,8 @@ fun Cell(
                     enabled = !disabled && onClick != null,
                     onClick = { onClick?.invoke() },
                 )
-                .padding(horizontal = AppSpace.lg),
+                // 上下内边距 16dp（设计稿 cellVertical），对齐 iOS 与设计稿高度。
+                .padding(horizontal = AppSpace.lg, vertical = AppSpace.cellVertical),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (icon != null) {
@@ -141,13 +144,19 @@ fun Cell(
                         fontSize = AppFont.sizeMd,
                         color = if (disabled) AppColor.gray25 else AppColor.textPrimary,
                         fontWeight = FontWeight.Normal,
+                        // 显式行高对齐设计稿（主 24dp），避免系统字体度量双端漂移。
+                        lineHeight = AppText.cellTitleLineHeight,
                     )
                     if (!subtitle.isNullOrEmpty()) {
+                        // 主标题-副标题间距：设计稿「32 号字 cell」4px@2x = 2dp。
+                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = subtitle,
                             fontSize = AppFont.sizeSm,
                             color = if (disabled) AppColor.gray25 else AppColor.textSecondary,
                             fontWeight = FontWeight.Normal,
+                            // 显式行高对齐设计稿（副 18dp）。
+                            lineHeight = AppText.cellSubtitleLineHeight,
                         )
                     }
                 }

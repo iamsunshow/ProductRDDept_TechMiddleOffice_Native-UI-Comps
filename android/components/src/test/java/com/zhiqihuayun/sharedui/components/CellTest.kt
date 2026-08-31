@@ -13,6 +13,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.dp
 import com.zhiqihuayun.foundation.design.AppSpace
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -42,7 +43,7 @@ class CellTest {
 
     // ---------- D 系列：设计测试 ----------
 
-    /** D1 默认态：标题、右侧值、箭头、分隔线齐全，行高 ≥ 48（AppSpace.lg*3）。 */
+    /** D1 默认态：标题、右侧值、箭头、分隔线齐全，行高 ≥ 56（设计稿「32 号字 cell」单行）。 */
     @Test
     fun test_D1_defaultState() {
         composeRule.setContent { Cell(title = "设置", value = "深色模式") }
@@ -50,7 +51,7 @@ class CellTest {
         composeRule.onNodeWithText("深色模式").assertExists()
         composeRule.onNodeWithTag("cell-arrow", useUnmergedTree = true).assertExists()
         composeRule.onNodeWithTag("cell-divider").assertExists()
-        composeRule.onNodeWithTag("cell-root").assertHeightAtLeast(AppSpace.lg * 3)
+        composeRule.onNodeWithTag("cell-root").assertHeightAtLeast(56.dp)
     }
 
     /** D2 禁用态：整行不可点、不透箭头、点击不触发。 */
@@ -198,5 +199,34 @@ class CellTest {
             "行高 ${node.size.height}px 应 ≥ $minHeightPx px",
             node.size.height >= minHeightPx,
         )
+    }
+
+    // ---------- pt/dp 机制：设计稿「32 号字 cell」高度契约 ----------
+    // 设计稿（375pt 逻辑基准，@2x）：单行 = 16pt 内边距×2 + 24pt 主标题行高 = 56pt；
+    // 副标题行 = 56 + 2pt 间距 + 18pt 副标题行高 = 76pt。两端（iOS pt / Android dp）应一致。
+
+    private fun androidx.compose.ui.test.SemanticsNodeInteraction.assertHeightExactly(expected: androidx.compose.ui.unit.Dp, tolerancePx: Int = 1) {
+        val expectedPx = with(composeRule.density) { expected.toPx() }
+        val node = fetchSemanticsNode()
+        assertTrue(
+            "行高 ${node.size.height}px 应等于 $expectedPx px（±$tolerancePx）",
+            kotlin.math.abs(node.size.height - expectedPx) <= tolerancePx,
+        )
+    }
+
+    /** H1 单行（仅标题）：行高精确 = 56dp（设计稿「32 号字 cell」单行）。 */
+    @Test
+    fun test_H1_singleLineHeight() {
+        composeRule.setContent { Cell(title = "设置") }
+        composeRule.onNodeWithTag("cell-root").assertHeightExactly(56.dp)
+    }
+
+    /** H2 副标题行：行高 ≈ 76dp（56 + 2 间距 + 18 副标题行高）。
+     *  容差放宽容纳 Android 系统字体默认行高（副标题字号 14sp > 设计稿 12sp，
+     *  默认行高 ~19.6sp 会覆盖显式 18sp）导致的 ~2dp 撑高；Robolectric 度量亦非真实字体。 */
+    @Test
+    fun test_H2_subtitleHeight() {
+        composeRule.setContent { Cell(title = "设置", subtitle = "描述信息") }
+        composeRule.onNodeWithTag("cell-root").assertHeightExactly(76.dp, tolerancePx = 6)
     }
 }

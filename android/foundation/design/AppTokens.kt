@@ -47,6 +47,9 @@ object AppSpace {
     val md = 12.dp
     val lg = 16.dp
     val xl = 24.dp
+
+    /** 列表行(Cell)上下内边距，来自设计稿「32 号字 cell」：32px@2x = 16dp。 */
+    val cellVertical = 16.dp
 }
 
 object AppRadius {
@@ -60,6 +63,11 @@ object AppText {
     val lineSpacing = AppSpace.sm
     val paragraphSpacing = AppSpace.md
     const val lineHeightMultiple = 1.8f
+
+    /** 列表行(Cell)主标题行高，来自设计稿「32 号字 cell」：48px@2x = 24sp。 */
+    val cellTitleLineHeight = 24.sp
+    /** 列表行(Cell)副标题行高，来自设计稿「32 号字 cell」：36px@2x = 18sp。 */
+    val cellSubtitleLineHeight = 18.sp
 
     fun lineHeight(fontSize: androidx.compose.ui.unit.TextUnit) = fontSize * lineHeightMultiple
 

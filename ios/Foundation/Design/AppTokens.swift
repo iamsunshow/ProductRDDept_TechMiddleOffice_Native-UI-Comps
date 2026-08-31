@@ -38,6 +38,9 @@ enum AppSpace {
     static let md: CGFloat = 12
     static let lg: CGFloat = 16
     static let xl: CGFloat = 24
+
+    /// 列表行(Cell)上下内边距，来自设计稿「32 号字 cell」：32px@2x = 16pt。
+    static let cellVertical: CGFloat = 16
 }
 
 /// 圆角阶梯。
@@ -55,6 +58,11 @@ enum AppText {
     static let paragraphSpacing = AppSpace.md
     /// Compose 行高倍率。
     static let lineHeightMultiple: CGFloat = 1.8
+
+    /// 列表行(Cell)主标题行高，来自设计稿「32 号字 cell」：48px@2x = 24pt。
+    static let cellTitleLineHeight: CGFloat = 24
+    /// 列表行(Cell)副标题行高，来自设计稿「32 号字 cell」：36px@2x = 18pt。
+    static let cellSubtitleLineHeight: CGFloat = 18
 
     static func paragraphStyle(alignment: NSTextAlignment = .natural) -> NSParagraphStyle {
         let style = NSMutableParagraphStyle()
@@ -89,6 +97,24 @@ extension UILabel {
         attributedText = NSAttributedString(
             string: text,
             attributes: AppText.attributes(fontSize: fontSize, color: color, alignment: alignment)
+        )
+    }
+
+    /// 设置显式行高（pt）。两端行高对齐设计稿时使用：
+    /// 系统字体默认行高（iOS≈19 / Android≈20）因字体度量不同而漂移，
+    /// 用设计稿逻辑值显式固定（如主标题 24、副标题 18），保证双端一致。
+    /// 注意：只设 font + paragraphStyle，不设 foregroundColor，
+    /// 颜色交由 label.textColor 属性控制（禁用态可正常置灰）。
+    func setLineHeight(_ lineHeight: CGFloat, fontSize: CGFloat) {
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.minimumLineHeight = lineHeight
+        paragraph.maximumLineHeight = lineHeight
+        attributedText = NSAttributedString(
+            string: text ?? "",
+            attributes: [
+                .font: UIFont.systemFont(ofSize: fontSize),
+                .paragraphStyle: paragraph,
+            ]
         )
     }
 }

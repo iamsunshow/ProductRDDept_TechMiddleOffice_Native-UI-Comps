@@ -128,4 +128,25 @@ final class CellTests: XCTestCase {
         XCTAssertEqual(models[3].status, .success)
         XCTAssertEqual(models[4].status, .error)
     }
+
+    // ---------- H 系列：pt/dp 机制 · 设计稿「32 号字 cell」高度契约 ----------
+    // 设计稿（375pt 逻辑基准，@2x）：单行 = 16pt 内边距×2 + 24pt 主标题行高 = 56pt；
+    // 副标题行 = 56 + 2pt 间距 + 18pt 副标题行高 = 76pt。两端（iOS pt / Android dp）应一致。
+    // 像素级由 Android Robolectric 断言（CellTest H1/H2），本类验证 token 契约值。
+
+    /// H1 单行高度契约：最小行高 = 56，上下内边距 = 16，主标题行高 = 24。
+    func test_H1_singleLineHeight() {
+        XCTAssertEqual(Cell.minHeight, 56)
+        XCTAssertEqual(AppSpace.cellVertical, 16)
+        XCTAssertEqual(AppText.cellTitleLineHeight, 24)
+        // 单行高度 = 16 + 24 + 16 = 56，与最小行高一致。
+        XCTAssertEqual(2 * AppSpace.cellVertical + AppText.cellTitleLineHeight, Cell.minHeight)
+    }
+
+    /// H2 副标题行高度契约：副标题行高 = 18，主副间距 = 2。
+    func test_H2_subtitleHeight() {
+        XCTAssertEqual(AppText.cellSubtitleLineHeight, 18)
+        // 副标题行 = 单行(56) + 间距(2) + 副标题行高(18) = 76。
+        XCTAssertEqual(Cell.minHeight + 2 + AppText.cellSubtitleLineHeight, 76)
+    }
 }

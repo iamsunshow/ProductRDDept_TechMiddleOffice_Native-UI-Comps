@@ -410,7 +410,7 @@ final class CellShowcase: ShowcaseViewController {
 
         // 组件版本 + 构建时间戳（精确到秒）：用于核对实机运行的是否为最新代码。
         // 每次改动 Cell 组件后，手动递增版本号并更新此时间，双端（iOS/Android）保持一致。
-        addVersionBadge(version: "v1.24", builtAt: "2026-09-01 23:50:00")
+        addVersionBadge(version: "v1.25", builtAt: "2026-09-01 23:55:00")
         // 固定高度参考块（B 方案）：56pt 色块（= 设计稿单行 cell），跨模拟器目测 cell 高度。须在徽标之后调用。
         addHeightReference()
         // 顶部常驻反馈条：点击/长按就地更新（对标 Android clickInfo，避免追加到底部不可见）。
@@ -421,8 +421,9 @@ final class CellShowcase: ShowcaseViewController {
             addSection(title: group.title) { [weak group] container in
                 guard let group else { return }
                 let tv = group.tableView
-                // 与 Android demo 一致：平铺 bgPage，cell 间用间隙（bgPage 色）分隔。
-                tv.backgroundColor = AppColor.bgPage
+                // v1.25 debug：tableView 背景改紫色，区分 cell 之间的间隙是 tableView 背景（紫色）
+                // 还是 cell 内部（红/蓝/黄）。原色：AppColor.bgPage。
+                tv.backgroundColor = .systemPurple
                 tv.separatorStyle = .none
                 tv.isScrollEnabled = false
                 tv.register(Cell.self, forCellReuseIdentifier: Cell.reuseId)

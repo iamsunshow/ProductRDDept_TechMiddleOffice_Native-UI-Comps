@@ -12,6 +12,18 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## \[1.1.4] - 2026-09-02
+
+Cell v1.28 修复无箭头无状态时 valueLabel trailing 锚点错误导致文字消失。
+
+### Fixed
+
+- **iOS Cell 无箭头无状态时文字消失**：v1.27 Demo2 改 `arrow: false` 后文字消失，Demo3（有箭头）正常。根因：`apply()` 中 valueLabel 的 trailing 锚点逻辑——当 `showArrow=false` 且 `hasStatus=false` 时，`valueTrailingTarget=contentView`，用 `.snp.leading` 锚点导致 `valueLabel.trailing = contentView.leading - lg`（左边外），进而 `textStack.trailing <= valueLabel.leading - sm` 变负数，textStack 宽度为负，文字被压缩消失。修复：拆分为三分支（有状态贴 statusBadge.leading / 有箭头贴 arrowView.leading / 都没有贴 `contentView.trailing - lg`），消除 `.snp.leading` 方向错误。此 bug 一直潜伏，v1.27 之前所有 Demo 都带箭头（arrow 默认 true）从未触发。
+
+### Changed
+
+- **iOS Demo 版本徽标**：v1.27 → v1.28。
+
 ## \[1.1.3] - 2026-09-02
 
 Cell v1.26 修复横屏 contentView 没充满 cell（safeArea inset 导致）+ Demo2 箭头配置修正。

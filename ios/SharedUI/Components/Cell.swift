@@ -375,14 +375,20 @@ final class Cell: UITableViewCell {
         // valueLabel 的 trailing 锚点：
         //   1. 有箭头：在箭头左侧（保持 ❯ 与 value 间 sm 间距）
         //   2. 有状态标识：在状态标识左侧（避免被状态图标覆盖）
-        //   3. 都没有：贴 contentView 右安全区
+        //   3. 都没有：贴 contentView 右边距 lg
         // 优先级：状态 > 箭头（statusBadge 与 arrowView 互斥时不会撞车）
-        let valueTrailingTarget: UIView = hasStatus
-            ? statusBadge
-            : (showArrow ? arrowView : self.contentView)
-        let valueTrailingOffset: CGFloat = (hasStatus || showArrow) ? -AppSpace.sm : -AppSpace.lg
+        // v1.28 修复：原逻辑当无箭头无状态时 valueTrailingTarget=contentView，
+        // 用 .snp.leading 锚点导致 valueLabel.trailing = contentView.leading - lg（左边外），
+        // textStack.trailing <= valueLabel.leading - sm 变负数，文字被压缩消失。
+        // 拆分分支：无箭头无状态时用 .equalToSuperview().inset(lg) 贴右边距。
         valueLabel.snp.remakeConstraints { make in
-            make.trailing.equalTo(valueTrailingTarget.snp.leading).offset(valueTrailingOffset)
+            if hasStatus {
+                make.trailing.equalTo(statusBadge.snp.leading).offset(-AppSpace.sm)
+            } else if showArrow {
+                make.trailing.equalTo(arrowView.snp.leading).offset(-AppSpace.sm)
+            } else {
+                make.trailing.equalToSuperview().inset(AppSpace.lg)
+            }
             // 跟随 textStack 垂直居中（textStack 撑起 contentView 高度）。
             make.centerY.equalTo(textStack.snp.centerY)
             make.leading.greaterThanOrEqualTo(textStack.snp.trailing).offset(AppSpace.sm)

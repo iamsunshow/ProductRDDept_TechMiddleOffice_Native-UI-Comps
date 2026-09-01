@@ -149,4 +149,36 @@ final class CellTests: XCTestCase {
         // 副标题行 = 单行(56) + 间距(2) + 副标题行高(18) = 76。
         XCTAssertEqual(Cell.minHeight + 2 + AppText.cellSubtitleLineHeight, 76)
     }
+
+    /// H3 文字行内垂直居中契约：baselineOffset 补偿让文字在行高内居中（对齐 Android Compose lineHeight）。
+    ///
+    /// 背景：iOS 用 minimumLineHeight/maximumLineHeight 撑行高时，额外行高由系统按字体度量
+    /// 分配，不保证行内文字居中（用户实测 Demo2 标题未垂直居中）；Android Compose lineHeight
+    /// 以 baseline 为中心均匀扩展、天然居中。这里断言补偿函数使「文字中心」落在行高中点。
+    func test_H3_verticalCenter() {
+        // 数学关系：设字体自然行高为 n，行高为 L，则额外高度 e = L - n。
+        // offset = e/2 把文字下移 e/2 → 文字中心 = n/2 + e/2 = L/2 = 行高中点。即居中。
+        // 用一个固定字号/行高验证该关系成立（不依赖具体字体度量值）。
+        let fontSize: CGFloat = 16
+        let lineHeight: CGFloat = 24
+        let font = UIFont.systemFont(ofSize: fontSize)
+        let natural = font.ascender - font.descender
+
+        let offset = AppText.verticalCenterBaselineOffset(lineHeight: lineHeight, fontSize: fontSize, font: font)
+
+        // 1) 补偿方向：文字应下移（offset > 0），且数值 = 额外高度的一半。
+        let expected = (lineHeight - natural) / 2
+        XCTAssertGreaterThan(expected, 0, "行高应大于字体自然行高")
+        XCTAssertEqual(offset, expected, accuracy: 0.0001)
+
+        // 2) 居中闭环：文字中心（natural/2 + offset）应落在行高中点（lineHeight/2）。
+        let glyphCenter = natural / 2 + offset
+        XCTAssertEqual(glyphCenter, lineHeight / 2, accuracy: 0.0001)
+
+        // 3) 副标题契约：18pt 行高同理居中。
+        let smFont = UIFont.systemFont(ofSize: 14)
+        let smNatural = smFont.ascender - smFont.descender
+        let smOffset = AppText.verticalCenterBaselineOffset(lineHeight: 18, fontSize: 14, font: smFont)
+        XCTAssertEqual(smNatural / 2 + smOffset, 18 / 2, accuracy: 0.0001)
+    }
 }

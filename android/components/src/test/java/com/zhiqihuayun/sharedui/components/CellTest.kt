@@ -13,8 +13,10 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.unit.dp
 import com.zhiqihuayun.foundation.design.AppSpace
+import kotlin.math.abs
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -228,5 +230,37 @@ class CellTest {
     fun test_H2_subtitleHeight() {
         composeRule.setContent { Cell(title = "设置", subtitle = "描述信息") }
         composeRule.onNodeWithTag("cell-root").assertHeightExactly(76.dp, tolerancePx = 6)
+    }
+
+    /**
+     * 断言某文本节点在 cell-root 内容区内垂直居中（对齐设计稿「行高内文字垂直居中」）。
+     *
+     * 背景：Android Compose `lineHeight` 以 baseline 为中心均匀扩展，文字在行框内天然居中；
+     * iOS 用 minimumLineHeight 撑行高不保证居中（需 baselineOffset 补偿，见 iOS CellTests H3）。
+     * 此断言固话 Android 侧的居中契约，防止改动导致标题行内文字偏移。
+     *
+     * 判据：title 文本节点的垂直中心应 ≈ cell-root 的垂直中心（单行 cell 上下内边距相等 16，
+     * 文本行高落在内容区正中）。容差容纳 Robolectric 字体度量与真实字体差异。
+     */
+    private fun SemanticsNodeInteraction.assertTextVerticallyCenteredIn(
+        containerTag: String,
+        toleranceDp: Float = 2f,
+    ) {
+        val textNode = fetchSemanticsNode()
+        val containerNode = composeRule.onNodeWithTag(containerTag).fetchSemanticsNode()
+        val textCenterY = textNode.positionInRoot.y + textNode.size.height / 2f
+        val containerCenterY = containerNode.positionInRoot.y + containerNode.size.height / 2f
+        val tolerancePx = with(composeRule.density) { toleranceDp.dp.toPx() }
+        assertTrue(
+            "标题垂直中心 ${textCenterY}px 应≈容器中心 ${containerCenterY}px（±$tolerancePx）",
+            abs(textCenterY - containerCenterY) <= tolerancePx,
+        )
+    }
+
+    /** H4 文字行内垂直居中：单行标题在 cell 内垂直居中（对应 iOS 修复的同一契约，防回归）。 */
+    @Test
+    fun test_H4_titleVerticallyCentered() {
+        composeRule.setContent { Cell(title = "设置") }
+        composeRule.onNodeWithText("设置").assertTextVerticallyCenteredIn("cell-root")
     }
 }

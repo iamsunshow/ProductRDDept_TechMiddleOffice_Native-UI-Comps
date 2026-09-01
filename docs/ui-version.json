@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0",
-  "versionKey": "v1.0.0",
-  "releaseDate": "2026-08-29",
-  "changelog": "initial skeleton for Native-UI-Comps (phase 1: docs only, no component code yet)"
+  "version": "1.1.0",
+  "versionKey": "v1.1.0",
+  "releaseDate": "2026-09-01",
+  "changelog": "fix(ios): Cell 标题行内文字垂直居中（baselineOffset 补偿，对齐 Android Compose lineHeight）；新增文字垂直居中防回归测试（iOS H3 / Android H4）"
 }

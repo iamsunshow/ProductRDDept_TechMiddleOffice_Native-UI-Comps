@@ -12,6 +12,18 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ---
 
+## [1.1.0] - 2026-09-01
+
+修复 Cell 单行标题在行内文字未垂直居中（iOS 平台独有，Android Compose `lineHeight` 天然居中）。
+
+### Fixed
+- **iOS Cell 标题行内文字垂直居中**：`AppText.setLineHeight` 使用 `minimumLineHeight/maximumLineHeight` 撑行高时，额外行高由系统按字体度量分配，不保证行内文字居中（用户实测 Demo2 标题偏上/偏下）。新增 `AppText.verticalCenterBaselineOffset(lineHeight:fontSize:font:)` 计算基线补偿，以 `baselineOffset` 下移半个额外高度，使文字在行高内视觉居中，对齐 Android Compose `lineHeight` 行为。
+- 双端行高契约保持一致（单行 56 / 副标题 76），本次仅修正行高内文字垂直位置，不改动行高数值。
+
+### Added
+- **iOS `CellTests` H3**：断言 `verticalCenterBaselineOffset` 使「文字中心 = 行高中点」，固化行内垂直居中契约（token 层）。
+- **Android `CellTest` H4**：渲染层断言单行标题节点垂直中心 ≈ cell-root 中心，防回归（Robolectric 可跑）。
+
 ## [Unreleased]
 
 ### Removed

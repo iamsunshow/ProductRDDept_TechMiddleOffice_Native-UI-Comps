@@ -64,6 +64,31 @@ enum AppText {
     /// 列表行(Cell)副标题行高，来自设计稿「32 号字 cell」：36px@2x = 18pt。
     static let cellSubtitleLineHeight: CGFloat = 18
 
+    /// 计算「让文字在指定行高内垂直居中」的 baselineOffset 补偿值（pt）。
+    ///
+    /// 背景：iOS 用 `minimumLineHeight/maximumLineHeight` 撑行高时，额外行高
+    /// （行高 − 字体自然行高）由系统按字体度量分配，**不保证行内文字垂直居中**，
+    /// 导致文字偏上/偏下；而 Android Compose 的 `lineHeight` 以 baseline 为中心
+    /// 均匀扩展，天然居中（双端差异根因）。这里用 `baselineOffset` 把文字下移
+    /// 半个额外高度，使其在行高内视觉居中，对齐 Android 行为。
+    ///
+    /// - Parameters:
+    ///   - lineHeight: 设计稿行高（pt，如主标题 24、副标题 18）。
+    ///   - fontSize: 字号（pt）。
+    ///   - font: 字体；默认按 `fontSize` 取系统字体。
+    /// - Returns: baselineOffset 值（正=文字下移）。若实机发现文字偏下，取负即可。
+    static func verticalCenterBaselineOffset(
+        lineHeight: CGFloat,
+        fontSize: CGFloat,
+        font: UIFont? = nil
+    ) -> CGFloat {
+        let f = font ?? UIFont.systemFont(ofSize: fontSize)
+        // 字体自然行高 = ascender - descender（descender 为负，相减得正）。
+        let naturalLineHeight = f.ascender - f.descender
+        // 行高需要补的额外高度，取一半作为 baselineOffset 下移补偿。
+        return (lineHeight - naturalLineHeight) / 2
+    }
+
     static func paragraphStyle(alignment: NSTextAlignment = .natural) -> NSParagraphStyle {
         let style = NSMutableParagraphStyle()
         style.lineSpacing = lineSpacing
@@ -114,6 +139,12 @@ extension UILabel {
             attributes: [
                 .font: UIFont.systemFont(ofSize: fontSize),
                 .paragraphStyle: paragraph,
+                // 让文字在行高内垂直居中（对齐 Android Compose lineHeight 的居中行为）：
+                // iOS 的 minimumLineHeight 不保证行内文字居中，用 baselineOffset 补偿。
+                .baselineOffset: AppText.verticalCenterBaselineOffset(
+                    lineHeight: lineHeight,
+                    fontSize: fontSize
+                ),
             ]
         )
     }

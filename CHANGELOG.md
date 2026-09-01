@@ -12,6 +12,22 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## \[1.1.3] - 2026-09-02
+
+Cell v1.26 修复横屏 contentView 没充满 cell（safeArea inset 导致）+ Demo2 箭头配置修正。
+
+### Fixed
+
+- **iOS Cell 横屏 contentView 没充满 cell**：`UITableViewCell.insetsContentViewsToSafeArea` 默认 true（iOS 11+），横屏时 iPhone X+ 系列 safeArea 左右各 44pt，系统把 contentView inset 到 safeArea 内，cell 两侧（safeArea 外）露出 `cell.backgroundColor`，形成"白色块点击不变灰"现象（区块在 contentView 外不受 setHighlighted 影响）。竖屏 safeArea 左右=0 故无此问题。v1.26 诊断色（cell=红/contentView=蓝/tableView=紫）确认区块为红色=cell 自身背景。修复：重写 `layoutSubviews`，在 `super.layoutSubviews()` 后强制 `contentView.frame = bounds`，让 contentView 充满 cell 覆盖红色背景。内容子视图仍受 leading/trailing offset 约束在 safeArea 内，不被刘海遮挡。
+
+- **iOS Demo2 箭头配置 bug**：`CellModel.arrow` 默认 true，Demo2「仅标题文字」未显式设 `arrow: false`，导致 Demo2 与 Demo3 配置完全一致（都带箭头），失去「纯标题无箭头」对照价值。修正：Demo2 显式 `arrow: false`，标题改「② 仅标题文字（无箭头）」，与 Demo3「标题+箭头」形成真正的单因子对照。
+
+### Changed
+
+- **iOS Cell 移除诊断色**：v1.25-v1.26 为排查横屏问题临时设 cell/contentView/textStack/titleLabel/tableView 为红/蓝/黄/橙/紫诊断色，本版恢复 `AppColor.bgCard` / `AppColor.bgPage`。
+
+- **iOS Demo 版本徽标**：v1.25 → v1.27。
+
 ## \[1.1.2] - 2026-09-01
 
 Cell v1.24 修复横屏"绿色块"问题（debug 副作用）+ 仅标题分支行高对齐设计稿。

@@ -1,6 +1,6 @@
 {
-  "version": "1.1.2",
-  "versionKey": "v1.1.2",
-  "releaseDate": "2026-09-01",
-  "changelog": "fix(ios): Cell v1.24 移除 v1.23 debug 绿色背景（.systemGreen→AppColor.bgCard），横屏绿色块消失（非 layout bug，是 debug 副作用暴露 cell 内部空白）；仅标题分支也调用 setLineHeight(24pt) 让 textStack 行高符合设计稿 cellTitleLineHeight=24，cell 内部上下空白从 ~24pt 减到 ~16pt（符合设计稿 cellVertical=16）。divider 设计保留不动（cell 内部底部 bgPage 间隙色，iOS UITableViewCell 惯例）。Demo 版本徽标 v1.23→v1.24"
+  "version": "1.1.3",
+  "versionKey": "v1.1.3",
+  "releaseDate": "2026-09-02",
+  "changelog": "fix(ios): Cell v1.26 修复横屏 contentView 没充满 cell——根因 UITableViewCell.insetsContentViewsToSafeArea 默认 true，横屏 iPhone X+ safeArea 左右 44pt 把 contentView inset 到 safeArea 内，cell 两侧露出 cell.backgroundColor 形成「白色块点击不变灰」现象（区块在 contentView 外不受 setHighlighted 影响）。修复：重写 layoutSubviews 在 super 之后强制 contentView.frame = bounds 让 contentView 充满 cell。v1.25 诊断色（红=cell/蓝=contentView/紫=tableView）确认区块为红色=cell 自身背景，本版移除诊断色恢复 AppColor.bgCard/bgPage。同时修正 Demo2 箭头配置 bug（CellModel.arrow 默认 true，Demo2 未显式设 false 导致与 Demo3 同配置），Demo2 显式 arrow: false 与 Demo3 形成真正单因子对照。Demo 版本徽标 v1.25→v1.27"
 }

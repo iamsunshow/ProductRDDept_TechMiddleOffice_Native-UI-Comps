@@ -126,25 +126,14 @@ final class Cell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
-        // v1.25 debug：cell 各部分加不同颜色，排查横屏"白色块"点击不变灰问题。
-        // 红色=cell 自身背景，蓝色=contentView，黄色=textStack，橙色=titleLabel。
-        // 点击 cell 后：蓝色变灰（contentView setHighlighted），红色/紫色不变（不在 contentView 变灰范围）。
-        // 用户根据"前后多出来的区块"颜色判断根因：
-        //   红色 → cell 自身背景露出（contentView 没充满 cell，cell.backgroundColor 透出）
-        //   蓝色 → contentView 空白（点击应变灰；若不变则 setHighlighted 未生效）
-        //   紫色 → tableView 背景（cell 之间间隙，layout 异常）
-        //   bgPage 色 → divider（cell 内部底部间隙，不透明，不变灰）
-        // v1.26 修复后应无红色块（contentView 充满 cell 覆盖红色）。
-        backgroundColor = .systemRed
-        contentView.backgroundColor = .systemBlue
+        backgroundColor = AppColor.bgCard
+        contentView.backgroundColor = AppColor.bgCard
 
         iconView.contentMode = .scaleAspectFit
         iconView.tintColor = AppColor.textSecondary
 
         titleLabel.font = .systemFont(ofSize: AppFont.sizeMd)
         titleLabel.textColor = AppColor.textPrimary
-        // v1.25 debug：titleLabel 橙色背景，区分 textStack 黄色区域内的文字部分。
-        titleLabel.backgroundColor = .systemOrange
         // 标题抗压缩高：被 value 挤压时优先保证 title 完整显示（与 Android weight(1f) 行为一致）。
         titleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         titleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -178,8 +167,6 @@ final class Cell: UITableViewCell {
 
         textStack = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel])
         textStack.axis = .vertical
-        // v1.25 debug：textStack 黄色背景，区分 contentView 蓝色区域内的文本列部分。
-        textStack.backgroundColor = .systemYellow
         // 主标题-副标题间距：设计稿「32 号字 cell」4px@2x = 2pt。
         textStack.spacing = 2
         // textStack 是「中间文本列」，必须抗压缩=required：保证不被 value/arrow 完全挤没
@@ -420,8 +407,7 @@ final class Cell: UITableViewCell {
 
         // 禁用态：背景/文字置灰、不透标识、不可点。
         let disabled = model.disabled
-        // v1.25 debug：保持 contentView 诊断色（蓝色），仅禁用态用 gray4。
-        contentView.backgroundColor = disabled ? AppColor.gray4 : .systemBlue
+        contentView.backgroundColor = disabled ? AppColor.gray4 : AppColor.bgCard
         titleLabel.textColor = disabled ? AppColor.gray25 : AppColor.textPrimary
         subtitleLabel.textColor = disabled ? AppColor.gray25 : AppColor.textSecondary
         valueLabel.textColor = disabled ? AppColor.gray25 : AppColor.textSecondary
@@ -443,8 +429,7 @@ final class Cell: UITableViewCell {
     /// 按下态反馈：背景 gray.4，松手恢复。
     override func setHighlighted(_ highlighted: Bool, animated: Bool) {
         super.setHighlighted(highlighted, animated: animated)
-        // v1.25 debug：松手恢复到诊断蓝色（非 bgCard），便于观察点击态边界。
-        contentView.backgroundColor = highlighted ? AppColor.gray4 : .systemBlue
+        contentView.backgroundColor = highlighted ? AppColor.gray4 : AppColor.bgCard
     }
 
     @objc private func handleTap() {

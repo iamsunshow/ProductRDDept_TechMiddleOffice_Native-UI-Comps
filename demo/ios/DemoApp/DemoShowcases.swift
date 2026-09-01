@@ -375,11 +375,11 @@ final class CellShowcase: ShowcaseViewController {
             ]
         ),
         Group(
-            title: "② 仅标题文字",
-            note: "排查点：标题文字的布局 / 垂直居中。只加文字，无箭头/图标/value。",
+            title: "② 仅标题文字（无箭头）",
+            note: "排查点：标题文字的布局 / 垂直居中。只加文字，无箭头/图标/value。arrow 显式 false，对照 Demo3 验证箭头对文字布局的影响。",
             models: [
-                CellModel(title: "默认行标题"),
-                CellModel(title: "标题较长，用来观察换行与垂直位置"),
+                CellModel(title: "默认行标题", arrow: false),
+                CellModel(title: "标题较长，用来观察换行与垂直位置", arrow: false),
             ]
         ),
         Group(
@@ -410,7 +410,7 @@ final class CellShowcase: ShowcaseViewController {
 
         // 组件版本 + 构建时间戳（精确到秒）：用于核对实机运行的是否为最新代码。
         // 每次改动 Cell 组件后，手动递增版本号并更新此时间，双端（iOS/Android）保持一致。
-        addVersionBadge(version: "v1.26", builtAt: "2026-09-02 00:25:00")
+        addVersionBadge(version: "v1.27", builtAt: "2026-09-02 00:35:00")
         // 固定高度参考块（B 方案）：56pt 色块（= 设计稿单行 cell），跨模拟器目测 cell 高度。须在徽标之后调用。
         addHeightReference()
         // 顶部常驻反馈条：点击/长按就地更新（对标 Android clickInfo，避免追加到底部不可见）。
@@ -421,9 +421,8 @@ final class CellShowcase: ShowcaseViewController {
             addSection(title: group.title) { [weak group] container in
                 guard let group else { return }
                 let tv = group.tableView
-                // v1.25 debug：tableView 背景改紫色，区分 cell 之间的间隙是 tableView 背景（紫色）
-                // 还是 cell 内部（红/蓝/黄）。原色：AppColor.bgPage。
-                tv.backgroundColor = .systemPurple
+                // 与 Android demo 一致：平铺 bgPage，cell 间用间隙（bgPage 色）分隔。
+                tv.backgroundColor = AppColor.bgPage
                 tv.separatorStyle = .none
                 tv.isScrollEnabled = false
                 tv.register(Cell.self, forCellReuseIdentifier: Cell.reuseId)

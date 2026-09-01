@@ -12,6 +12,17 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ---
 
+## [1.1.2] - 2026-09-01
+
+Cell v1.24 修复横屏"绿色块"问题（debug 副作用）+ 仅标题分支行高对齐设计稿。
+
+### Fixed
+- **iOS Cell 横屏"绿色块"问题**：v1.23 为排查横屏白色块临时将 `backgroundColor` / `contentView.backgroundColor` 设为 `.systemGreen`，暴露了 cell 56pt 内 textStack 只占 ~19pt、上下空白 ~24pt 的 layout 真相（横屏 cell 宽度变宽，绿色空白横向铺满变明显）。本版改回 `AppColor.bgCard`，绿色块变白色，视觉恢复正常。**非横屏特有 layout bug**，divider 始终在 cell 内部底部 16pt（bgPage 间隙色，不透明），不受影响。
+
+### Changed
+- **iOS Cell 仅标题分支行高对齐设计稿**：`apply()` 中仅标题分支（hasSubtitle=false）也调用 `titleLabel.setLineHeight(AppText.cellTitleLineHeight, fontSize: AppFont.sizeMd)`，让 textStack 行高 = 24pt（设计稿 cellTitleLineHeight）。v1.20 曾注释"仅标题不设 attributedText 让 UILabel 原生垂直居中"，但实测发现行高退化到系统默认 ~19pt，导致 cell 内部上下空白 ~24pt（偏离设计稿 cellVertical=16pt）。设行高 24pt 后 textStack 24pt，centerY 居中到 divider 上方可见区（0-40pt），上下空白各 8pt（divider 占下方 16pt，故可见区上下内边距折半为 8pt，符合设计稿逻辑）。
+- **iOS Demo 版本徽标**：v1.23 → v1.24。
+
 ## [1.1.1] - 2026-09-01
 
 修正 v1.1.0 的错误垂直居中补偿：iOS 原生 `minimumLineHeight = maximumLineHeight` 撑行高时文字已接近居中，v1.1.0 额外加的 `baselineOffset` 补偿反而把文字整体下推（且放大 `UILabel.intrinsicContentSize`，撑高 textStack → 箭头同步偏下）。本版移除补偿，恢复原生行高分配，对齐 Android Compose 视觉。

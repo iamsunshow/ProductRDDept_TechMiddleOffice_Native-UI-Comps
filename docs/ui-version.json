@@ -1,6 +1,6 @@
 {
-  "version": "1.1.1",
-  "versionKey": "v1.1.1",
+  "version": "1.1.2",
+  "versionKey": "v1.1.2",
   "releaseDate": "2026-09-01",
-  "changelog": "fix(ios): 移除 v1.1.0 错误的 baselineOffset 垂直居中补偿（实测证明 iOS 原生 min/max 行高已居中，补偿反而致文字/箭头偏下，且撑大 intrinsicContentSize）；修复 demo SelfSizingTableView 横屏旋转宽度不刷新；新增 iOS 实机垂直居中实测辅助（Cell.debugTitleVerticalOffset）；新增防回归测试（iOS H3 改判 v1.18 结论 / H3b 实测辅助可用性），Android H4 不变"
+  "changelog": "fix(ios): Cell v1.24 移除 v1.23 debug 绿色背景（.systemGreen→AppColor.bgCard），横屏绿色块消失（非 layout bug，是 debug 副作用暴露 cell 内部空白）；仅标题分支也调用 setLineHeight(24pt) 让 textStack 行高符合设计稿 cellTitleLineHeight=24，cell 内部上下空白从 ~24pt 减到 ~16pt（符合设计稿 cellVertical=16）。divider 设计保留不动（cell 内部底部 bgPage 间隙色，iOS UITableViewCell 惯例）。Demo 版本徽标 v1.23→v1.24"
 }

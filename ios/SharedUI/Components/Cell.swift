@@ -126,8 +126,6 @@ final class Cell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
-        // cell 自身背景设为 bgCard，覆盖 UITableViewCell 默认的白色 backgroundView，
-        // 避免 automaticDimension 下 contentView 未完全撑满时从边缘露白条（曾导致"左侧高 54 宽 17 白条"）。
         backgroundColor = AppColor.bgCard
         contentView.backgroundColor = AppColor.bgCard
 
@@ -263,18 +261,28 @@ final class Cell: UITableViewCell {
     /// - Returns: 无
     func apply(_ model: CellModel) {
         boundItem = model
-        // 显式行高对齐设计稿（主 24 / 副 18），两端一致；禁用态颜色置灰在下方统一处理。
-        // 顺序：先赋 text，再用 attributed 覆写行高（attributedText 会被 text= 重置）。
+        // v1.24：仅标题时也设行高 24pt（设计稿 cellTitleLineHeight）。
+        // v1.20 曾注释"仅标题不设 attributedText，让 UILabel 原生垂直居中"，但实测发现：
+        // 不设行高时 titleLabel 行高退化到系统默认 ~19pt，导致 textStack 只占 ~19pt，
+        // cell 56pt 内上下空白 ~24pt（偏离设计稿 cellVertical=16pt）。
+        // 设行高 24pt 后 textStack 24pt，centerY 居中到可见区（divider 上方 0-40pt），
+        // 上下空白各 8pt（divider 占下方 16pt，故可见区上下内边距折半为 8pt，符合设计稿逻辑）。
+        // 文字在 24pt 行框内的垂直位置由 lineHeightMultiple 决定（v1.19 改用 lineHeightMultiple，
+        // iOS TextKit 在行框内更均匀分配空间，文字接近居中——见 AppTokens 注释）。
+        // 顺序：先赋 text（清除旧 attributedText），再覆写行高。
         titleLabel.text = model.title
+        let hasSubtitle = !(model.subtitle?.isEmpty ?? true)
         titleLabel.setLineHeight(
             AppText.cellTitleLineHeight,
             fontSize: AppFont.sizeMd
         )
         subtitleLabel.text = model.subtitle
-        subtitleLabel.setLineHeight(
-            AppText.cellSubtitleLineHeight,
-            fontSize: AppFont.sizeSm
-        )
+        if hasSubtitle {
+            subtitleLabel.setLineHeight(
+                AppText.cellSubtitleLineHeight,
+                fontSize: AppFont.sizeSm
+            )
+        }
 
         // 左侧图标：存在时文本列右移，否则从左边距起排。
         // 先确定右侧 value 是否可见（决定 textStack 的 trailing 锚点）。
@@ -293,13 +301,18 @@ final class Cell: UITableViewCell {
                     // value 不可见时，文本列直接撑到右侧安全区，避免被空 valueLabel 挤压。
                     make.trailing.lessThanOrEqualToSuperview().inset(AppSpace.lg)
                 }
-                // 关键：textStack 用精确的 top+bottom 约束闭合到 contentView，
-                // 唯一确定 contentView 高度（自适高由它撑起）。不要用 centerY+>=/<= 弱约束。
-                // 上下内边距用设计稿 16pt（cellVertical），对齐两端高度。
-                make.top.equalToSuperview().offset(AppSpace.cellVertical)
-                make.bottom.equalToSuperview().offset(-AppSpace.cellVertical)
-                // 最小高度：loading 时 title/subtitle 均隐藏，textStack 会塌为 0，
-                // 用 min 高度保证骨架有垂直空间且不至于上下错位。
+                if hasSubtitle {
+                    // 有副标题：top+bottom 精确闭合，撑起 contentView 高度。
+                    make.top.equalToSuperview().offset(AppSpace.cellVertical)
+                    make.bottom.equalToSuperview().offset(-AppSpace.cellVertical)
+                } else {
+                    // v1.23：仅标题时用 centerY 居中到可见区域。
+                    // 不加 top/bottom 约束——centerY + top>=16 会冲突，
+                    // Auto Layout 被迫撑高 cell（56→67pt），多出白色块。
+                    // cell 高度由 systemLayoutSizeFitting min 56pt 兜底，
+                    // textStack 居中在 divider 上方的可见区域，不与 divider 重叠。
+                    make.centerY.equalToSuperview().offset(-rowSpacing / 2.0)
+                }
                 make.height.greaterThanOrEqualTo(AppFont.sizeMd)
             }
         } else {
@@ -313,10 +326,13 @@ final class Cell: UITableViewCell {
                     // value 不可见时，文本列直接撑到右侧安全区。
                     make.trailing.lessThanOrEqualToSuperview().inset(AppSpace.lg)
                 }
-                // 同上有图标分支：textStack 精确闭合 top/bottom，撑起 contentView 高度。
-                make.top.equalToSuperview().offset(AppSpace.cellVertical)
-                make.bottom.equalToSuperview().offset(-AppSpace.cellVertical)
-                // 最小高度：loading 时 title/subtitle 均隐藏，textStack 会塌为 0。
+                if hasSubtitle {
+                    make.top.equalToSuperview().offset(AppSpace.cellVertical)
+                    make.bottom.equalToSuperview().offset(-AppSpace.cellVertical)
+                } else {
+                    // v1.23：仅标题时用 centerY 居中到可见区域（同上有图标分支）。
+                    make.centerY.equalToSuperview().offset(-rowSpacing / 2.0)
+                }
                 make.height.greaterThanOrEqualTo(AppFont.sizeMd)
             }
         }

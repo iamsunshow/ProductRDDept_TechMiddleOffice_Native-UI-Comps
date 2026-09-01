@@ -320,15 +320,28 @@ final class CellShowcase: ShowcaseViewController {
     /// 否则横屏旋转后宽度变化不触发重算，cell 不随屏幕宽度自适应。
     private final class SelfSizingTableView: UITableView {
         private var lastWidth: CGFloat = 0
+        private var reloadScheduled = false
 
         override var intrinsicContentSize: CGSize { contentSize }
 
         override func layoutSubviews() {
             super.layoutSubviews()
-            // 高度或宽度任一变化都刷新 intrinsicContentSize：
-            // 高度变化是内容增减；宽度变化是横竖屏旋转（横屏必须重新适配宽度）。
-            if bounds.height != contentSize.height || bounds.width != lastWidth {
+            if bounds.width != lastWidth {
                 lastWidth = bounds.width
+                // v1.22：异步调度 reloadData，避免在 layoutSubviews 中同步调用
+                // 导致 contentSize 尚未更新就被父视图读取（cell 被压扁的根因）。
+                // 下一帧再 reload + layoutIfNeeded + invalidate，contentSize 即为正确值。
+                if !reloadScheduled {
+                    reloadScheduled = true
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self else { return }
+                        self.reloadScheduled = false
+                        self.reloadData()
+                        self.layoutIfNeeded()
+                        self.invalidateIntrinsicContentSize()
+                    }
+                }
+            } else if bounds.height != contentSize.height {
                 invalidateIntrinsicContentSize()
             }
         }
@@ -397,7 +410,7 @@ final class CellShowcase: ShowcaseViewController {
 
         // 组件版本 + 构建时间戳（精确到秒）：用于核对实机运行的是否为最新代码。
         // 每次改动 Cell 组件后，手动递增版本号并更新此时间，双端（iOS/Android）保持一致。
-        addVersionBadge(version: "v1.18", builtAt: "2026-09-01 12:00:00")
+        addVersionBadge(version: "v1.24", builtAt: "2026-09-01 23:50:00")
         // 固定高度参考块（B 方案）：56pt 色块（= 设计稿单行 cell），跨模拟器目测 cell 高度。须在徽标之后调用。
         addHeightReference()
         // 顶部常驻反馈条：点击/长按就地更新（对标 Android clickInfo，避免追加到底部不可见）。
@@ -426,6 +439,23 @@ final class CellShowcase: ShowcaseViewController {
             addInfo(group.note)
         }
     }
+
+    // 横竖屏旋转时刷新所有 group tableView 并强制布局：
+    // reloadData 让 cell 按新宽度重新布局（文字/箭头自适应），
+    // layoutIfNeeded 确保 contentSize 立即更新，避免 invalidateIntrinsicContentSize
+    // 读到旧值导致 cell 被压扁。
+    override func viewWillTransition(
+        to size: CGSize,
+        with coordinator: UIViewControllerTransitionCoordinator
+    ) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: { _ in
+            for group in self.groups {
+                group.tableView.reloadData()
+                group.tableView.layoutIfNeeded()
+            }
+        })
+    }
 }
 
 // MARK: - Cell 排查分组数据源
@@ -446,14 +476,11 @@ extension CellShowcase: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cell.reuseId, for: indexPath) as! Cell
         guard let group = group(for: tableView) else { return cell }
         let model = group.models[indexPath.row]
-        cell.apply(model)
-        cell.bind(model, index: indexPath.row)
-        // 统一用「间隙」分隔（与 Android 的 Arrangement.spacedBy(lg) 一致）：
-        // cell 不画横线，底部由 divider 撑出 lg 高的 bgPage 留白作为 cell 间距。
-        // 注意：divider 在 Cell 内部已改为铺满整行宽、间隙色 bgPage、独立于点击态，
-        // 不会出现"左侧竖条 / 颜色断层"。
+        // 先设 divider/spacing 再 apply，让 apply 能读取 rowSpacing 做居中补偿。
         cell.showsDivider = false
         cell.rowSpacing = AppSpace.lg
+        cell.apply(model)
+        cell.bind(model, index: indexPath.row)
         cell.onTap = { [weak self, weak cell] _, index in
             guard let self else { return }
             let name = self.rowName(in: group, index: index)

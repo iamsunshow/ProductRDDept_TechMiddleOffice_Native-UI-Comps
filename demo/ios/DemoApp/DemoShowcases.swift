@@ -410,7 +410,7 @@ final class CellShowcase: ShowcaseViewController {
 
         // 组件版本 + 构建时间戳（精确到秒）：用于核对实机运行的是否为最新代码。
         // 每次改动 Cell 组件后，手动递增版本号并更新此时间，双端（iOS/Android）保持一致。
-        addVersionBadge(version: "v1.25", builtAt: "2026-09-01 23:55:00")
+        addVersionBadge(version: "v1.26", builtAt: "2026-09-02 00:10:00")
         // 固定高度参考块（B 方案）：56pt 色块（= 设计稿单行 cell），跨模拟器目测 cell 高度。须在徽标之后调用。
         addHeightReference()
         // 顶部常驻反馈条：点击/长按就地更新（对标 Android clickInfo，避免追加到底部不可见）。

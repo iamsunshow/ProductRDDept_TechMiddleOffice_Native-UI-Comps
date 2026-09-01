@@ -132,21 +132,24 @@ extension UILabel {
     /// 用设计稿逻辑值显式固定（如主标题 24、副标题 18），保证双端一致。
     /// 注意：只设 font + paragraphStyle，不设 foregroundColor，
     /// 颜色交由 label.textColor 属性控制（禁用态可正常置灰）。
+    ///
+    /// v1.19：改用 `lineHeightMultiple` 替代 `minimumLineHeight/maximumLineHeight`。
+    /// 原因：`minimumLineHeight` 在 iOS 上将多余行高空间加在行框**顶部**，
+    /// 导致单行文字偏下、不居中（用户实测复现）。`lineHeightMultiple` 按比例
+    /// 缩放自然行高，iOS TextKit 会在行框内更均匀地分配空间，文字接近居中。
+    /// 同时移除 `baselineOffset` 补偿——`lineHeightMultiple` 不需要额外补偿，
+    /// 且 baselineOffset 会放大 intrinsicContentSize 引发布局级联偏移。
     func setLineHeight(_ lineHeight: CGFloat, fontSize: CGFloat) {
         let paragraph = NSMutableParagraphStyle()
-        paragraph.minimumLineHeight = lineHeight
-        paragraph.maximumLineHeight = lineHeight
+        let naturalLineHeight = UIFont.systemFont(ofSize: fontSize).lineHeight
+        // 用倍率方式设行高：desired / natural。若 lineHeight <= natural 则不放大。
+        let multiple = max(lineHeight / naturalLineHeight, 1.0)
+        paragraph.lineHeightMultiple = multiple
         attributedText = NSAttributedString(
             string: text ?? "",
             attributes: [
                 .font: UIFont.systemFont(ofSize: fontSize),
                 .paragraphStyle: paragraph,
-                // 让文字在行高内垂直居中（对齐 Android Compose lineHeight 的居中行为）：
-                // iOS 的 minimumLineHeight 不保证行内文字居中，用 baselineOffset 补偿。
-                .baselineOffset: AppText.verticalCenterBaselineOffset(
-                    lineHeight: lineHeight,
-                    fontSize: fontSize
-                ),
             ]
         )
     }

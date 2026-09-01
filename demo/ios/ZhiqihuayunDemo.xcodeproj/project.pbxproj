@@ -231,6 +231,7 @@
 		A092C5A5CEB9AF158FFF2C5E /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				CF57F9F86F1FC3D3AD797391 /* .swiftpm */,
 				684BA6B879BCE809DD6EA6AD /* Foundation */,
 				6FC4ABB157A25B61EF88C5CE /* SharedUI */,
 			);
@@ -253,6 +254,13 @@
 				FFCCCD1324DF9190845047C3 /* Endpoints */,
 			);
 			path = Network;
+			sourceTree = "<group>";
+		};
+		CF57F9F86F1FC3D3AD797391 /* .swiftpm */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = .swiftpm;
 			sourceTree = "<group>";
 		};
 		E12A96421A4F3714E33DAB55 /* Util */ = {

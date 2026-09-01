@@ -66,27 +66,29 @@ enum AppText {
 
     /// 计算「让文字在指定行高内垂直居中」的 baselineOffset 补偿值（pt）。
     ///
-    /// 背景：iOS 用 `minimumLineHeight/maximumLineHeight` 撑行高时，额外行高
-    /// （行高 − 字体自然行高）由系统按字体度量分配，**不保证行内文字垂直居中**，
-    /// 导致文字偏上/偏下；而 Android Compose 的 `lineHeight` 以 baseline 为中心
-    /// 均匀扩展，天然居中（双端差异根因）。这里用 `baselineOffset` 把文字下移
-    /// 半个额外高度，使其在行高内视觉居中，对齐 Android 行为。
+    /// ⚠️ v1.18 校准结论：**返回 0，不补偿**。
+    /// 背景：v1.1.0 曾用 `(lineHeight - naturalLineHeight)/2` 做补偿，但：
+    /// 1. iOS 原生 `minimumLineHeight = maximumLineHeight` 撑行高时，文字在行框内
+    ///    已经接近垂直居中（macOS TextKit 像素级实测：质心偏差仅 +0.5pt）；
+    /// 2. 叠加 baselineOffset 会把**整个文本绘制整体下移**（非行内微调），反而把
+    ///    文字推到偏下（实测 +3.5pt，与用户实测"文字偏下"完全吻合）；
+    /// 3. baselineOffset 会放大 `UILabel.intrinsicContentSize`，把 textStack/cell
+    ///    高度撑大，导致箭头（centerY 锚定 textStack）同步偏下（用户实测"箭头偏下"）。
+    /// 因此移除补偿，让 iOS 原生行高分配决定文字位置，与 Android 视觉对齐。
     ///
     /// - Parameters:
     ///   - lineHeight: 设计稿行高（pt，如主标题 24、副标题 18）。
     ///   - fontSize: 字号（pt）。
     ///   - font: 字体；默认按 `fontSize` 取系统字体。
-    /// - Returns: baselineOffset 值（正=文字下移）。若实机发现文字偏下，取负即可。
+    /// - Returns: baselineOffset 值（0 = 不补偿）。若未来某个 iOS 版本实测仍有
+    ///   行内偏移，可在此返回实测差值（正=下移，负=上移）。
     static func verticalCenterBaselineOffset(
         lineHeight: CGFloat,
         fontSize: CGFloat,
         font: UIFont? = nil
     ) -> CGFloat {
-        let f = font ?? UIFont.systemFont(ofSize: fontSize)
-        // 字体自然行高 = ascender - descender（descender 为负，相减得正）。
-        let naturalLineHeight = f.ascender - f.descender
-        // 行高需要补的额外高度，取一半作为 baselineOffset 下移补偿。
-        return (lineHeight - naturalLineHeight) / 2
+        // v1.18：实测 iOS 原生 min/max 行高已居中，无需补偿（详见上方注释）。
+        0
     }
 
     static func paragraphStyle(alignment: NSTextAlignment = .natural) -> NSParagraphStyle {

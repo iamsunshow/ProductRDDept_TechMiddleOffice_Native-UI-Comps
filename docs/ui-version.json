@@ -1,6 +1,6 @@
 {
-  "version": "1.1.0",
-  "versionKey": "v1.1.0",
+  "version": "1.1.1",
+  "versionKey": "v1.1.1",
   "releaseDate": "2026-09-01",
-  "changelog": "fix(ios): Cell 标题行内文字垂直居中（baselineOffset 补偿，对齐 Android Compose lineHeight）；新增文字垂直居中防回归测试（iOS H3 / Android H4）"
+  "changelog": "fix(ios): 移除 v1.1.0 错误的 baselineOffset 垂直居中补偿（实测证明 iOS 原生 min/max 行高已居中，补偿反而致文字/箭头偏下，且撑大 intrinsicContentSize）；修复 demo SelfSizingTableView 横屏旋转宽度不刷新；新增 iOS 实机垂直居中实测辅助（Cell.debugTitleVerticalOffset）；新增防回归测试（iOS H3 改判 v1.18 结论 / H3b 实测辅助可用性），Android H4 不变"
 }

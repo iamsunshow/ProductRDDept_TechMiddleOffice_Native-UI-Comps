@@ -1,70 +1,190 @@
 import UIKit
 import SnapKit
 
-// MARK: - Demo List
+// MARK: - Demo 组件索引
+// 数据源：docs/组件进度.md 任务清单（7 大类，95 组件）。
+// reviewed=true：已通过评审，可点击进入该组件 Demo 页；reviewed=false：未评审，列表置灰不可点。
+// 每评审完一个组件：将 reviewed 置 true 并提供 create，Demo 即自动出现。
+
+struct DemoComponent {
+    let id: String
+    let name: String
+    let reviewed: Bool
+    let create: (() -> UIViewController)?
+}
+
+// MARK: - Demo 首页 · 组件列表（分类 + 组件）
 
 final class DemoListViewController: UITableViewController {
 
-    struct ComponentItem {
-        let id: String
-        let category: String
-        let name: String
-        let create: () -> UIViewController
-    }
-
-    private let items: [ComponentItem] = [
-        ComponentItem(id: "foundation.design-tokens", category: "foundation", name: "Design Tokens 设计令牌") { DesignTokensShowcase() },
-        ComponentItem(id: "foundation.money-format", category: "foundation", name: "MoneyFormatter 金额格式化") { MoneyFormatterShowcase() },
-        ComponentItem(id: "foundation.calendar", category: "foundation", name: "CalendarFormatter 月份工具") { CalendarFormatterShowcase() },
-        ComponentItem(id: "foundation.storage", category: "foundation", name: "AppDatabase 本地存储") { StorageShowcase() },
-        ComponentItem(id: "foundation.http-client", category: "foundation", name: "MockAPIClient 网络客户端") { NetworkShowcase() },
-        ComponentItem(id: "basic.empty", category: "basic", name: "EmptyStateView 空态") { EmptyStateShowcase() },
-        ComponentItem(id: "basic.date-picker", category: "basic", name: "DatePickerSheet 日期选择") { DatePickerShowcase() },
-        ComponentItem(id: "basic.date-picker-month", category: "basic", name: "MonthPicker 月份选择") { MonthPickerShowcase() },
-        ComponentItem(id: "basic.date-picker-year", category: "basic", name: "YearPicker 年份选择") { YearPickerShowcase() },
-        ComponentItem(id: "basic.picker", category: "basic", name: "OptionPicker 选项滚轮") { OptionPickerShowcase() },
-        ComponentItem(id: "basic.list-item", category: "basic", name: "GroupListItem 列表行") { GroupListItemShowcase() },
-        ComponentItem(id: "ui.cell", category: "basic", name: "Cell 单元格（五态）") { CellShowcase() },
-        ComponentItem(id: "basic.list", category: "basic", name: "GroupList 分组列表") { GroupListShowcase() },
-        ComponentItem(id: "basic.grid", category: "basic", name: "NavigationGrid 导航网格") { GridShowcase() },
-        ComponentItem(id: "basic.card", category: "basic", name: "SummaryCard 摘要卡") { CardShowcase() },
-        ComponentItem(id: "basic.line-chart", category: "basic", name: "TrendChart 折线图") { TrendChartShowcase() },
-        ComponentItem(id: "basic.navbar", category: "basic", name: "NavBar 快捷导航") { NavBarShowcase() },
-        ComponentItem(id: "basic.tabs", category: "basic", name: "Tabs 切换") { TabsShowcase() },
-        ComponentItem(id: "basic.refresh", category: "basic", name: "PullRefreshTableView 下拉刷新") { RefreshShowcase() },
-        ComponentItem(id: "basic.webview", category: "basic", name: "WebContent H5 容器") { WebViewShowcase() },
+    private let sections: [(category: String, components: [DemoComponent])] = [
+        ("基础组件", [
+            DemoComponent(id: "ui.button", name: "Button 按钮", reviewed: false, create: nil),
+            DemoComponent(id: "ui.cell", name: "Cell 单元格", reviewed: true, create: { CellShowcase() }),
+            DemoComponent(id: "ui.config-provider", name: "ConfigProvider 全局配置", reviewed: false, create: nil),
+            DemoComponent(id: "ui.icon", name: "Icon 图标", reviewed: false, create: nil),
+            DemoComponent(id: "ui.image", name: "Image 图片", reviewed: false, create: nil),
+            DemoComponent(id: "ui.overlay", name: "Overlay 遮罩层", reviewed: false, create: nil),
+        ]),
+        ("布局组件", [
+            DemoComponent(id: "ui.divider", name: "Divider 分割线", reviewed: false, create: nil),
+            DemoComponent(id: "ui.grid", name: "Grid 宫格", reviewed: false, create: nil),
+            DemoComponent(id: "ui.layout", name: "Layout 布局", reviewed: false, create: nil),
+            DemoComponent(id: "ui.safe-area", name: "SafeArea 安全区", reviewed: false, create: nil),
+            DemoComponent(id: "ui.space", name: "Space 间距", reviewed: false, create: nil),
+            DemoComponent(id: "ui.sticky", name: "Sticky 粘性布局", reviewed: false, create: nil),
+        ]),
+        ("导航组件", [
+            DemoComponent(id: "ui.back-top", name: "BackTop 返回顶部", reviewed: false, create: nil),
+            DemoComponent(id: "ui.elevator", name: "Elevator 电梯楼层", reviewed: false, create: nil),
+            DemoComponent(id: "ui.fixed-nav", name: "FixedNav 悬浮导航", reviewed: false, create: nil),
+            DemoComponent(id: "ui.hover-button", name: "HoverButton 悬浮按钮", reviewed: false, create: nil),
+            DemoComponent(id: "ui.nav-bar", name: "NavBar 头部导航", reviewed: false, create: nil),
+            DemoComponent(id: "ui.side-bar", name: "SideBar 侧边导航", reviewed: false, create: nil),
+            DemoComponent(id: "ui.tabbar", name: "Tabbar 标签栏", reviewed: false, create: nil),
+            DemoComponent(id: "ui.tabs", name: "Tabs 选项卡", reviewed: false, create: nil),
+        ]),
+        ("数据录入", [
+            DemoComponent(id: "ui.address", name: "Address 地址", reviewed: false, create: nil),
+            DemoComponent(id: "ui.calendar", name: "Calendar 日历", reviewed: false, create: nil),
+            DemoComponent(id: "ui.calendar-card", name: "CalendarCard 日历卡片", reviewed: false, create: nil),
+            DemoComponent(id: "ui.cascader", name: "Cascader 级联选择", reviewed: false, create: nil),
+            DemoComponent(id: "ui.checkbox", name: "Checkbox 复选", reviewed: false, create: nil),
+            DemoComponent(id: "ui.date-picker", name: "DatePicker 日期选择", reviewed: false, create: nil),
+            DemoComponent(id: "ui.date-picker-view", name: "DatePickerView 视图", reviewed: false, create: nil),
+            DemoComponent(id: "ui.form", name: "Form 表单", reviewed: false, create: nil),
+            DemoComponent(id: "ui.input", name: "Input 输入框", reviewed: false, create: nil),
+            DemoComponent(id: "ui.input-number", name: "InputNumber 数字输入", reviewed: false, create: nil),
+            DemoComponent(id: "ui.menu", name: "Menu 菜单", reviewed: false, create: nil),
+            DemoComponent(id: "ui.number-keyboard", name: "NumberKeyboard 数字键盘", reviewed: false, create: nil),
+            DemoComponent(id: "ui.picker", name: "Picker 选择器", reviewed: false, create: nil),
+            DemoComponent(id: "ui.picker-view", name: "PickerView 视图", reviewed: false, create: nil),
+            DemoComponent(id: "ui.radio", name: "Radio 单选", reviewed: false, create: nil),
+            DemoComponent(id: "ui.range", name: "Range 区间选择", reviewed: false, create: nil),
+            DemoComponent(id: "ui.rate", name: "Rate 评分", reviewed: false, create: nil),
+            DemoComponent(id: "ui.search-bar", name: "SearchBar 搜索栏", reviewed: false, create: nil),
+            DemoComponent(id: "ui.short-password", name: "ShortPassword 短密码", reviewed: false, create: nil),
+            DemoComponent(id: "ui.signature", name: "Signature 签名", reviewed: false, create: nil),
+            DemoComponent(id: "ui.switch", name: "Switch 开关", reviewed: false, create: nil),
+            DemoComponent(id: "ui.text-area", name: "TextArea 文本域", reviewed: false, create: nil),
+            DemoComponent(id: "ui.uploader", name: "Uploader 上传", reviewed: false, create: nil),
+        ]),
+        ("操作反馈", [
+            DemoComponent(id: "ui.action-sheet", name: "ActionSheet 动作面板", reviewed: false, create: nil),
+            DemoComponent(id: "ui.badge", name: "Badge 徽标", reviewed: false, create: nil),
+            DemoComponent(id: "ui.dialog", name: "Dialog 对话框", reviewed: false, create: nil),
+            DemoComponent(id: "ui.drag", name: "Drag 拖拽", reviewed: false, create: nil),
+            DemoComponent(id: "ui.empty", name: "Empty 空状态", reviewed: false, create: nil),
+            DemoComponent(id: "ui.infinite-loading", name: "InfiniteLoading 滚动加载", reviewed: false, create: nil),
+            DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: false, create: nil),
+            DemoComponent(id: "ui.notice-bar", name: "NoticeBar 公告栏", reviewed: false, create: nil),
+            DemoComponent(id: "ui.notify", name: "Notify 消息通知", reviewed: false, create: nil),
+            DemoComponent(id: "ui.popover", name: "Popover 气泡弹出框", reviewed: false, create: nil),
+            DemoComponent(id: "ui.popup", name: "Popup 弹出层", reviewed: false, create: nil),
+            DemoComponent(id: "ui.pull-to-refresh", name: "PullToRefresh 下拉刷新", reviewed: false, create: nil),
+            DemoComponent(id: "ui.result-page", name: "ResultPage 结果反馈", reviewed: false, create: nil),
+            DemoComponent(id: "ui.skeleton", name: "Skeleton 骨架屏", reviewed: false, create: nil),
+            DemoComponent(id: "ui.swipe", name: "Swipe 滑动", reviewed: false, create: nil),
+            DemoComponent(id: "ui.toast", name: "Toast 吐司", reviewed: false, create: nil),
+        ]),
+        ("展示组件", [
+            DemoComponent(id: "ui.animate", name: "Animate 动画", reviewed: false, create: nil),
+            DemoComponent(id: "ui.animating-numbers", name: "AnimatingNumbers 数字动画", reviewed: false, create: nil),
+            DemoComponent(id: "ui.audio", name: "Audio 音频播放器", reviewed: false, create: nil),
+            DemoComponent(id: "ui.avatar", name: "Avatar 头像", reviewed: false, create: nil),
+            DemoComponent(id: "ui.circle-progress", name: "CircleProgress 环形进度", reviewed: false, create: nil),
+            DemoComponent(id: "ui.collapse", name: "Collapse 折叠面板", reviewed: false, create: nil),
+            DemoComponent(id: "ui.count-down", name: "CountDown 倒计时", reviewed: false, create: nil),
+            DemoComponent(id: "ui.ellipsis", name: "Ellipsis 文本省略", reviewed: false, create: nil),
+            DemoComponent(id: "ui.image-preview", name: "ImagePreview 图片预览", reviewed: false, create: nil),
+            DemoComponent(id: "ui.indicator", name: "Indicator 指示器", reviewed: false, create: nil),
+            DemoComponent(id: "ui.lottie", name: "Lottie 动画", reviewed: false, create: nil),
+            DemoComponent(id: "ui.pagination", name: "Pagination 分页", reviewed: false, create: nil),
+            DemoComponent(id: "ui.price", name: "Price 价格", reviewed: false, create: nil),
+            DemoComponent(id: "ui.progress", name: "Progress 进度条", reviewed: false, create: nil),
+            DemoComponent(id: "ui.segmented", name: "Segmented 分段选择器", reviewed: false, create: nil),
+            DemoComponent(id: "ui.steps", name: "Steps 步骤条", reviewed: false, create: nil),
+            DemoComponent(id: "ui.swiper", name: "Swiper 轮播", reviewed: false, create: nil),
+            DemoComponent(id: "ui.table", name: "Table 表格", reviewed: false, create: nil),
+            DemoComponent(id: "ui.tag", name: "Tag 标签", reviewed: false, create: nil),
+            DemoComponent(id: "ui.tour", name: "Tour 引导", reviewed: false, create: nil),
+            DemoComponent(id: "ui.video", name: "Video 视频播放器", reviewed: false, create: nil),
+            DemoComponent(id: "ui.virtual-list", name: "VirtualList 虚拟列表", reviewed: false, create: nil),
+        ]),
+        ("特色组件", [
+            DemoComponent(id: "ui.quick-enter", name: "QuickEnter 快捷入口", reviewed: false, create: nil),
+            DemoComponent(id: "ui.avatar-cropper", name: "AvatarCropper 头像裁剪", reviewed: false, create: nil),
+            DemoComponent(id: "ui.barrage", name: "Barrage 弹幕", reviewed: false, create: nil),
+            DemoComponent(id: "ui.card", name: "Card 商品卡片", reviewed: false, create: nil),
+            DemoComponent(id: "ui.time-select", name: "TimeSelect 配送时间", reviewed: false, create: nil),
+            DemoComponent(id: "ui.trend-arrow", name: "TrendArrow 趋势箭头", reviewed: false, create: nil),
+            DemoComponent(id: "ui.water-mark", name: "WaterMark 水印", reviewed: false, create: nil),
+            DemoComponent(id: "ui.calendar-tools", name: "Calendar 日历工具", reviewed: false, create: nil),
+            DemoComponent(id: "ui.system-bars", name: "SystemBars 系统栏", reviewed: false, create: nil),
+            DemoComponent(id: "ui.design-tokens", name: "DesignTokens 设计令牌", reviewed: false, create: nil),
+        ]),
+        ("底层能力 foundation", [
+            DemoComponent(id: "ui.router", name: "Router 路由", reviewed: false, create: nil),
+            DemoComponent(id: "ui.storage", name: "Storage 本地存储", reviewed: false, create: nil),
+            DemoComponent(id: "ui.http-client", name: "HTTPClient 网络客户端", reviewed: false, create: nil),
+            DemoComponent(id: "ui.money-format", name: "MoneyFormat 金额格式化", reviewed: false, create: nil),
+        ]),
     ]
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "TMO Component Demo"
+        title = "TMO 组件 Demo"
         view.backgroundColor = AppColor.bgPage
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         tableView.separatorStyle = .none
     }
 
+    override func numberOfSections(in tableView: UITableView) -> Int { sections.count }
+
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        items.count
+        sections[section].components.count
+    }
+
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        sections[section].category
+    }
+
+    override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        if let header = view as? UITableViewHeaderFooterView {
+            header.textLabel?.textColor = AppColor.textSecondary
+            header.textLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .semibold)
+        }
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let item = items[indexPath.row]
+        let item = sections[indexPath.section].components[indexPath.row]
         var config = cell.defaultContentConfiguration()
         config.text = item.name
-        config.secondaryText = item.category.uppercased()
-        config.secondaryTextProperties.color = item.category == "foundation" ? AppColor.primary : AppColor.textSecondary
-        config.textProperties.font = .systemFont(ofSize: AppFont.sizeMd, weight: .medium)
+        config.textProperties.font = .systemFont(ofSize: AppFont.sizeMd)
+        if item.reviewed {
+            config.textProperties.color = AppColor.textPrimary
+            config.secondaryText = "已评审 ✓"
+            config.secondaryTextProperties.color = AppColor.primary
+            cell.accessoryType = .disclosureIndicator
+            cell.selectionStyle = .default
+        } else {
+            config.textProperties.color = AppColor.gray25
+            config.secondaryText = "未评审"
+            config.secondaryTextProperties.color = AppColor.gray25
+            cell.accessoryType = .none
+            cell.selectionStyle = .none
+        }
         cell.contentConfiguration = config
-        cell.accessoryType = .disclosureIndicator
         cell.backgroundColor = .white
         return cell
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let vc = items[indexPath.row].create()
-        navigationController?.pushViewController(vc, animated: true)
+        let item = sections[indexPath.section].components[indexPath.row]
+        guard item.reviewed, let create = item.create else { return }
+        navigationController?.pushViewController(create(), animated: true)
     }
 }
 
@@ -104,11 +224,9 @@ class ShowcaseViewController: UIViewController {
         contentStack.addArrangedSubview(titleLabel)
 
         let container = UIView()
-        container.backgroundColor = .white
-        container.layer.cornerRadius = AppRadius.lg
-        container.layer.borderWidth = 1 / UIScreen.main.scale
-        container.layer.borderColor = AppColor.border.cgColor
-        container.layoutMargins = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16)
+        // 与 Android demo 平铺 bgPage 一致：去掉圆角卡片外框/边框，直接平铺在页面背景上。
+        container.backgroundColor = AppColor.bgPage
+        container.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         contentStack.addArrangedSubview(container)
 
         block(container)
@@ -123,632 +241,291 @@ class ShowcaseViewController: UIViewController {
         contentStack.addArrangedSubview(label)
     }
 
-    func makeContainer() -> UIView {
-        let container = UIView()
-        container.backgroundColor = .white
-        container.layer.cornerRadius = AppRadius.lg
-        container.layer.borderWidth = 1 / UIScreen.main.scale
-        container.layer.borderColor = AppColor.border.cgColor
-        return container
+    /// 在页面顶部（参考块上方）插入一条"常驻反馈条"：点击/长按等事件用它就地更新，
+    /// 避免信息追加到页面底部不可见。返回 label，业务通过设置 text 反馈。
+    /// 调用时机：须在 addVersionBadge 之后；插入到 index 1（紧跟徽标）。
+    func addFeedbackBar() -> UILabel {
+        let label = UILabel()
+        label.text = "点击任意 cell 查看按压变色 + 此处反馈"
+        label.font = .systemFont(ofSize: AppFont.sizeXs, weight: .medium)
+        label.textColor = AppColor.primary
+        label.numberOfLines = 0
+        label.textAlignment = .left
+        // 固定插到 index 2：徽标(0)、高度参考块(1)、反馈条(2)，与 Android 顺序一致，不依赖调用顺序。
+        contentStack.insertArrangedSubview(label, at: 2)
+        return label
+    }
+
+    /// 在页面顶部插入"固定高度参考块"（B 方案）：
+    /// 一个恰好 56pt 高的色块（= 设计稿「32 号字 cell」单行），旁边标注标准高度，用于目测 cell 是否达标（不依赖模拟器尺寸）。
+    /// 位置紧贴版本徽标下方（徽标在 index 0，参考块整体放 index 1）。
+    /// 调用时机：须在 addVersionBadge 之后。
+    func addHeightReference() {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = AppSpace.xs
+        stack.layoutMargins = UIEdgeInsets(top: AppSpace.md, left: 0, bottom: AppSpace.md, right: 0)
+        stack.isLayoutMarginsRelativeArrangement = true
+
+        let refLabel = UILabel()
+        refLabel.text = "高度参考：下方色块高 = 56pt（= 设计稿单行 cell）"
+        refLabel.font = .systemFont(ofSize: AppFont.sizeXs)
+        refLabel.textColor = AppColor.textSecondary
+        refLabel.numberOfLines = 0
+        stack.addArrangedSubview(refLabel)
+
+        let refBlock = UIView()
+        refBlock.backgroundColor = AppColor.gray4
+        refBlock.snp.makeConstraints { make in
+            make.height.equalTo(Cell.minHeight)
+        }
+        stack.addArrangedSubview(refBlock)
+
+        contentStack.insertArrangedSubview(stack, at: 1)
+    }
+
+    /// 在页面最顶部插入组件版本徽标，用于核对实机是否运行最新代码。
+    /// 只显示版本号（去掉了时间戳），两端用同一版本号直接对齐即可。
+    /// 注意：调用时机在 addSection/addInfo 之后，用 insert(at: 0) 保证置顶。
+    func addVersionBadge(version: String, builtAt: String) {
+        let badge = UIView()
+        let label = UILabel()
+        label.text = "Cell 组件 \(version)"
+        label.font = .systemFont(ofSize: AppFont.sizeXs, weight: .medium)
+        label.textColor = AppColor.primary
+        label.textAlignment = .center
+        badge.backgroundColor = AppColor.primaryMuted
+        badge.layer.cornerRadius = AppRadius.sm
+        badge.clipsToBounds = true
+        badge.addSubview(label)
+        label.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10))
+        }
+        contentStack.insertArrangedSubview(badge, at: 0)
     }
 }
 
-// MARK: - Foundation Showcases
+// MARK: - Cell Showcase（Cell 组件独立 Demo 页）
 
-final class DesignTokensShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "Design Tokens"
+final class CellShowcase: ShowcaseViewController {
+    /// 已输出过高度的行（去重，避免重复 addInfo 刷屏）。
+    private var reportedRows = Set<IndexPath>()
 
-        addSection(title: "颜色") { container in
-            let colors: [(String, UIColor)] = [
-                ("primary", AppColor.primary),
-                ("income", AppColor.income),
-                ("expense", AppColor.expense),
-                ("warning", AppColor.warning),
-                ("textPrimary", AppColor.textPrimary),
-                ("textSecondary", AppColor.textSecondary),
-                ("border", AppColor.border),
-                ("bgPage", AppColor.bgPage),
-                ("bgCard", AppColor.bgCard),
+    /// 顶部常驻反馈条：点击/长按在此就地更新（对标 Android 的 clickInfo 顶部反馈）。
+    /// 强引用持有：确保点击时 label 一定存活、可写。虽已被 contentStack 持有，这里显式强持有更稳妥。
+    private var feedbackLabel: UILabel?
+
+    /// 自定尺寸 tableView：高度 = 所有 cell 高度之和，副标题两行自然撑开，避免固定行高截断。
+    /// 宽度或高度任一变化（横竖屏旋转/内容刷新）都 invalidate intrinsicContentSize，
+    /// 否则横屏旋转后宽度变化不触发重算，cell 不随屏幕宽度自适应。
+    private final class SelfSizingTableView: UITableView {
+        private var lastWidth: CGFloat = 0
+
+        override var intrinsicContentSize: CGSize { contentSize }
+
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            // 高度或宽度任一变化都刷新 intrinsicContentSize：
+            // 高度变化是内容增减；宽度变化是横竖屏旋转（横屏必须重新适配宽度）。
+            if bounds.height != contentSize.height || bounds.width != lastWidth {
+                lastWidth = bounds.width
+                invalidateIntrinsicContentSize()
+            }
+        }
+    }
+
+    /// 单个排查分组：标题说明 + 一组 Cell（只加一个排查因素）。
+    private final class Group {
+        let title: String
+        let note: String
+        let models: [CellModel]
+        let tableView = SelfSizingTableView(frame: .zero, style: .plain)
+        init(title: String, note: String, models: [CellModel]) {
+            self.title = title
+            self.note = note
+            self.models = models
+        }
+    }
+
+    /// 逐步递增的单因子排查分组：
+    /// ① 空行（仅背景色）→ 验证基础骨架/行高/背景
+    /// ② +标题文字 → 验证文字布局/垂直居中
+    /// ③ +箭头 → 验证文字+箭头水平布局
+    /// ④ 完整形态 → 对照图标+副标题+value+状态
+    private let groups: [Group] = [
+        Group(
+            title: "① 空行（仅背景色，无内容）",
+            note: "排查点：cell 基础骨架 / 行高 / 背景色。若此处就不对，是基础布局问题，与文字无关。",
+            models: [
+                CellModel(title: "", arrow: false),
+                CellModel(title: "", arrow: false),
             ]
-            var lastView: UIView? = nil
-            for (name, color) in colors {
-                let swatch = UIView()
-                swatch.backgroundColor = color
-                swatch.layer.cornerRadius = AppRadius.sm
-                let label = UILabel()
-                label.text = name
-                label.font = .systemFont(ofSize: AppFont.sizeXs)
-                label.textColor = AppColor.textPrimary
-                let row = UIStackView(arrangedSubviews: [swatch, label])
-                row.axis = .horizontal
-                row.spacing = AppSpace.sm
-                row.alignment = .center
-                container.addSubview(row)
-                row.snp.makeConstraints { make in
-                    make.leading.trailing.equalToSuperview().inset(AppSpace.md)
-                    if let last = lastView {
-                        make.top.equalTo(last.snp.bottom).offset(AppSpace.sm)
-                    } else {
-                        make.top.equalToSuperview().offset(AppSpace.md)
-                    }
-                }
-                swatch.snp.makeConstraints { make in make.width.height.equalTo(24) }
-                lastView = row
-            }
-            lastView?.snp.makeConstraints { make in make.bottom.equalToSuperview().offset(-AppSpace.md) }
-        }
-
-        addSection(title: "字号") { container in
-            let sizes: [(String, CGFloat)] = [
-                ("sizeXs 12", AppFont.sizeXs), ("sizeSm 14", AppFont.sizeSm),
-                ("sizeMd 16", AppFont.sizeMd), ("sizeLg 18", AppFont.sizeLg),
-                ("sizeXl 22", AppFont.sizeXl), ("sizeDisplay 32", AppFont.sizeDisplay),
+        ),
+        Group(
+            title: "② 仅标题文字",
+            note: "排查点：标题文字的布局 / 垂直居中。只加文字，无箭头/图标/value。",
+            models: [
+                CellModel(title: "默认行标题"),
+                CellModel(title: "标题较长，用来观察换行与垂直位置"),
             ]
-            var lastView: UIView? = nil
-            for (name, size) in sizes {
-                let label = UILabel()
-                label.text = name
-                label.font = .systemFont(ofSize: size)
-                label.textColor = AppColor.textPrimary
-                container.addSubview(label)
-                label.snp.makeConstraints { make in
-                    make.leading.trailing.equalToSuperview().inset(AppSpace.md)
-                    if let last = lastView {
-                        make.top.equalTo(last.snp.bottom).offset(AppSpace.sm)
-                    } else {
-                        make.top.equalToSuperview().offset(AppSpace.md)
-                    }
-                }
-                lastView = label
-            }
-            lastView?.snp.makeConstraints { make in make.bottom.equalToSuperview().offset(-AppSpace.md) }
-        }
-    }
-}
-
-final class MoneyFormatterShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "MoneyFormatter"
-        addSection(title: "格式化") { container in
-            let testCases: [(String, String)] = [
-                ("string(38.5)", MoneyFormatter.string(from: 38.5)),
-                ("string(1121)", MoneyFormatter.string(from: 1121)),
-                ("currency(99.9)", MoneyFormatter.currency(from: 99.9)),
-                ("signed(50, 收入)", MoneyFormatter.signed(from: 50, isIncome: true)),
-                ("signed(50, 支出)", MoneyFormatter.signed(from: 50, isIncome: false)),
+        ),
+        Group(
+            title: "③ 标题 + 箭头",
+            note: "排查点：文字与右侧箭头的水平布局。只加箭头。",
+            models: [
+                CellModel(title: "标题 + 右侧箭头"),
+                CellModel(title: "标题较长 + 箭头对齐"),
             ]
-            var lastView: UIView? = nil
-            for (input, output) in testCases {
-                let label = UILabel()
-                label.text = "\(input) → \(output)"
-                label.font = .monospacedSystemFont(ofSize: AppFont.sizeSm, weight: .regular)
-                label.textColor = AppColor.textPrimary
-                container.addSubview(label)
-                label.snp.makeConstraints { make in
-                    make.leading.trailing.equalToSuperview().inset(AppSpace.md)
-                    if let last = lastView {
-                        make.top.equalTo(last.snp.bottom).offset(AppSpace.sm)
-                    } else {
-                        make.top.equalToSuperview().offset(AppSpace.md)
-                    }
-                }
-                lastView = label
-            }
-            lastView?.snp.makeConstraints { make in make.bottom.equalToSuperview().offset(-AppSpace.md) }
-        }
-    }
-}
-
-final class CalendarFormatterShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "CalendarFormatter"
-        addSection(title: "当前月份") { container in
-            let comps = CalendarFormatter.components()
-            let label = UILabel()
-            label.text = "当前: \(comps.year)年\(comps.month)月"
-            label.font = .systemFont(ofSize: AppFont.sizeMd, weight: .medium)
-            label.textColor = AppColor.textPrimary
-            container.addSubview(label)
-            label.snp.makeConstraints { make in make.edges.equalToSuperview().inset(AppSpace.md) }
-        }
-        addSection(title: "月份区间") { container in
-            let interval = CalendarFormatter.interval(year: 2026, month: 8)
-            let label = UILabel()
-            label.text = "2026年8月: \(interval.start) ~ \(interval.end)"
-            label.font = .systemFont(ofSize: AppFont.sizeSm)
-            label.textColor = AppColor.textPrimary
-            label.numberOfLines = 0
-            container.addSubview(label)
-            label.snp.makeConstraints { make in make.edges.equalToSuperview().inset(AppSpace.md) }
-        }
-    }
-}
-
-// MARK: - Basic Showcases
-
-final class EmptyStateShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "EmptyStateView"
-        addSection(title: "默认空态") { container in
-            let empty = EmptyStateView()
-            container.addSubview(empty)
-            empty.snp.makeConstraints { make in
-                make.center.equalToSuperview()
-                make.width.equalTo(200)
-                make.height.equalTo(100)
-            }
-        }
-        addSection(title: "自定义文案") { container in
-            let empty = EmptyStateView()
-            empty.setMessage("还没有账单记录\n点击 + 开始记账")
-            container.addSubview(empty)
-            empty.snp.makeConstraints { make in
-                make.center.equalToSuperview()
-                make.width.equalTo(250)
-                make.height.equalTo(100)
-            }
-        }
-    }
-}
-
-final class DatePickerShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "DatePickerSheet"
-        addSection(title: "日期选择器") { container in
-            let button = UIButton(type: .system)
-            button.setTitle("打开日期选择器", for: .normal)
-            button.addTarget(self, action: #selector(openPicker), for: .touchUpInside)
-            container.addSubview(button)
-            button.snp.makeConstraints { make in make.edges.equalTo(container.layoutMarginsGuide) }
-        }
-    }
-
-    @objc private func openPicker() {
-        let picker = DatePickerSheetViewController(date: Date())
-        picker.onConfirm = { date in
-            self.addInfo("已选日期: \(DateFormatters.dateTimeLabel(date))")
-        }
-        present(picker, animated: true)
-    }
-}
-
-final class MonthPickerShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "MonthPicker"
-        addSection(title: "月份选择器") { container in
-            let button = UIButton(type: .system)
-            button.setTitle("打开月份选择器", for: .normal)
-            button.addTarget(self, action: #selector(openPicker), for: .touchUpInside)
-            container.addSubview(button)
-            button.snp.makeConstraints { make in make.edges.equalTo(container.layoutMarginsGuide) }
-        }
-    }
-
-    @objc private func openPicker() {
-        let comps = CalendarFormatter.components()
-        let picker = MonthPickerViewController(year: comps.year, month: comps.month)
-        picker.onConfirm = { year, month in
-            self.addInfo("已选: \(year)年\(month)月")
-        }
-        present(picker, animated: true)
-    }
-}
-
-final class YearPickerShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "YearPicker"
-        addSection(title: "年份选择器") { container in
-            let button = UIButton(type: .system)
-            button.setTitle("打开年份选择器", for: .normal)
-            button.addTarget(self, action: #selector(openPicker), for: .touchUpInside)
-            container.addSubview(button)
-            button.snp.makeConstraints { make in make.edges.equalTo(container.layoutMarginsGuide) }
-        }
-    }
-
-    @objc private func openPicker() {
-        let comps = CalendarFormatter.components()
-        let picker = YearPickerViewController(year: comps.year)
-        picker.onConfirm = { year in
-            self.addInfo("已选年份: \(year)")
-        }
-        present(picker, animated: true)
-    }
-}
-
-final class OptionPickerShowcase: ShowcaseViewController {
-    private let options = ["全部", "仅支出", "仅收入", "本月", "本年"]
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "OptionPicker"
-        addSection(title: "选项滚轮") { container in
-            let button = UIButton(type: .system)
-            button.setTitle("打开选项滚轮", for: .normal)
-            button.addTarget(self, action: #selector(openPicker), for: .touchUpInside)
-            container.addSubview(button)
-            button.snp.makeConstraints { make in make.edges.equalTo(container.layoutMarginsGuide) }
-        }
-    }
-
-    @objc private func openPicker() {
-        let picker = OptionPickerSheetViewController(title: "筛选", options: options, selectedIndex: 0)
-        picker.onConfirm = { [weak self] index in
-            guard let self else { return }
-            self.addInfo("已选: \(self.options[index])")
-        }
-        present(picker, animated: true)
-    }
-}
-
-final class GroupListItemShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "GroupListItem"
-        addSection(title: "各种行样式") { container in
-            let rows: [(String, String?, String?, Bool)] = [
-                ("预算设置", "每月 ¥3000", nil, true),
-                ("我的资产", "¥128,500.00", nil, true),
-                ("家庭账单", nil, "新", true),
-                ("帮助与反馈", nil, nil, false),
-                ("关于", "v0.1.0", nil, false),
+        ),
+        Group(
+            title: "④ 完整形态（对照）",
+            note: "排查点：图标 + 副标题 + value + 状态标识的完整组合。",
+            models: [
+                CellModel(title: "默认行", subtitle: "副标题示例", value: "¥3,850.00"),
+                CellModel(title: "带图标", subtitle: "icon 参数显示左侧图标", iconSymbol: "heart.fill", value: "收藏"),
+                CellModel(title: "同步成功", value: "正常态", status: .success),
+                CellModel(title: "同步失败", value: "错误态", status: .error),
+                CellModel(title: "禁用态", value: "不可点", disabled: true),
+                CellModel(title: "加载中", value: "骨架动画", loading: true),
             ]
-            var lastView: UIView? = nil
-            for (title, value, badge, chevron) in rows {
-                let row = GroupListItem()
-                row.apply(title: title, value: value, badge: badge, showsChevron: chevron)
-                container.addSubview(row)
-                row.snp.makeConstraints { make in
-                    make.leading.trailing.equalToSuperview()
-                    if let last = lastView {
-                        make.top.equalTo(last.snp.bottom)
-                    } else {
-                        make.top.equalToSuperview().offset(AppSpace.md)
-                    }
-                }
-                lastView = row
-            }
-            lastView?.snp.makeConstraints { make in make.bottom.equalToSuperview().offset(-AppSpace.md) }
-        }
-    }
-}
-
-final class GroupListShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "GroupList"
-        addSection(title: "分组列表") { container in
-            let group = GroupList()
-            let r1 = GroupListItem()
-            r1.apply(title: "本月预算", value: "¥3,000.00")
-            let r2 = GroupListItem()
-            r2.apply(title: "已使用", value: "¥1,250.00")
-            let r3 = GroupListItem()
-            r3.apply(title: "剩余", value: "¥1,750.00")
-            group.setRows([r1, r2, r3])
-            container.addSubview(group)
-            group.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
-                make.top.bottom.equalToSuperview().inset(AppSpace.md)
-            }
-        }
-    }
-}
-
-final class GridShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "NavigationGrid"
-        addSection(title: "九宫格入口") { container in
-            let grid = NavigationGrid()
-            grid.apply(title: "常用服务", items: [
-                .init(title: "分类", symbolName: "tag"),
-                .init(title: "预算", symbolName: "chart.pie"),
-                .init(title: "账单", symbolName: "doc.text"),
-                .init(title: "设置", symbolName: "gearshape"),
-            ])
-            grid.onSelect = { index in
-                let titles = ["分类", "预算", "账单", "设置"]
-                self.addInfo("点击了: \(titles[index])")
-            }
-            container.addSubview(grid)
-            grid.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
-                make.top.bottom.equalToSuperview().inset(AppSpace.md)
-            }
-        }
-    }
-}
-
-final class CardShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "SummaryCard"
-        addSection(title: "支出卡") { container in
-            let card = SummaryCardView()
-            card.apply(title: "本月支出", subtitle: "2026年8月", value: "¥3,850.00", valueColor: AppColor.expense, accessory: "预算 ¥5,000")
-            container.addSubview(card)
-            card.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
-                make.top.bottom.equalToSuperview().inset(AppSpace.md)
-            }
-        }
-        addSection(title: "收入卡") { container in
-            let card = SummaryCardView()
-            card.apply(title: "本月收入", subtitle: "工资 + 理财", value: "¥12,000.00", valueColor: AppColor.primary, accessory: nil)
-            container.addSubview(card)
-            card.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
-                make.top.bottom.equalToSuperview().inset(AppSpace.md)
-            }
-        }
-    }
-}
-
-final class TrendChartShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "TrendChart"
-        addSection(title: "支出 vs 收入趋势") { container in
-            let chart = TrendChartView()
-            let expense = (0..<7).map { ChartPoint(label: "W\($0+1)", amount: Double([320, 180, 450, 280, 520, 390, 210][$0])) }
-            let income = (0..<7).map { ChartPoint(label: "W\($0+1)", amount: Double([1500, 0, 1500, 200, 1500, 0, 1500][$0])) }
-            chart.apply(expensePoints: expense, incomePoints: income)
-            container.addSubview(chart)
-            chart.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
-                make.top.bottom.equalToSuperview().inset(AppSpace.md)
-            }
-        }
-        addSection(title: "空态") { container in
-            let chart = TrendChartView()
-            chart.apply(expensePoints: [], incomePoints: [])
-            container.addSubview(chart)
-            chart.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
-                make.top.bottom.equalToSuperview().inset(AppSpace.md)
-                make.height.equalTo(140)
-            }
-        }
-    }
-}
-
-final class NavBarShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "NavBar"
-        addSection(title: "快捷导航栏") { container in
-            let nav = NavBar()
-            let items: [NavBar.Item] = [
-                .init(title: "账单", symbolName: "doc.text"),
-                .init(title: "预算", symbolName: "chart.pie"),
-                .init(title: "资产", symbolName: "building.columns"),
-                .init(title: "家庭", symbolName: "person.2"),
-                .init(title: "更多", symbolName: "ellipsis.circle"),
-            ]
-            nav.apply(items: items)
-            nav.onSelect = { index in
-                let titles = ["账单", "预算", "资产", "家庭", "更多"]
-                self.addInfo("点击了: \(titles[index])")
-            }
-            container.addSubview(nav)
-            nav.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview()
-                make.height.equalTo(64)
-                make.top.bottom.equalToSuperview()
-            }
-        }
-    }
-}
-
-final class TabsShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "Tabs"
-        addSection(title: "支出/收入切换") { container in
-            let sv = TabsView(titles: ["支出", "收入"])
-            sv.onSelect = { index in self.addInfo("切换到: \(index == 0 ? "支出" : "收入")") }
-            container.addSubview(sv)
-            sv.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
-                make.top.bottom.equalToSuperview().inset(AppSpace.md)
-            }
-        }
-    }
-}
-
-// MARK: - Cell Showcase
-
-final class CellShowcase: ShowcaseViewController, UITableViewDataSource {
-    private let models: [CellModel] = [
-        CellModel(title: "默认行", subtitle: "副标题示例", value: "¥3,850.00"),
-        CellModel(title: "带图标", subtitle: "iconSymbol 显示左侧图标", iconSymbol: "star.fill", value: "收藏"),
-        CellModel(title: "仅标题（无箭头）", arrow: false),
-        CellModel(title: "禁用态", value: "不可点", disabled: true),
-        CellModel(title: "加载中", value: "骨架动画", loading: true),
-        CellModel(title: "同步成功", value: "正常态", status: .success),
-        CellModel(title: "同步失败", value: "错误态", status: .error),
+        ),
     ]
-    private let tableView = UITableView(frame: .zero, style: .plain)
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Cell 单元格"
 
-        addSection(title: "五态 + 常用配置") { container in
-            tableView.backgroundColor = .white
-            tableView.separatorStyle = .none
-            tableView.isScrollEnabled = false
-            tableView.register(Cell.self, forCellReuseIdentifier: Cell.reuseId)
-            tableView.dataSource = self
-            tableView.rowHeight = Cell.minHeight
-            container.addSubview(tableView)
-            tableView.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
-                make.top.bottom.equalToSuperview().inset(AppSpace.md)
-                make.height.equalTo(Cell.minHeight * CGFloat(models.count))
-            }
-        }
+        // 组件版本 + 构建时间戳（精确到秒）：用于核对实机运行的是否为最新代码。
+        // 每次改动 Cell 组件后，手动递增版本号并更新此时间，双端（iOS/Android）保持一致。
+        addVersionBadge(version: "v1.18", builtAt: "2026-09-01 12:00:00")
+        // 固定高度参考块（B 方案）：56pt 色块（= 设计稿单行 cell），跨模拟器目测 cell 高度。须在徽标之后调用。
+        addHeightReference()
+        // 顶部常驻反馈条：点击/长按就地更新（对标 Android clickInfo，避免追加到底部不可见）。
+        // 顺序固定：徽标(0)、高度参考块(1)、反馈条(2)，与 Android 一致。
+        feedbackLabel = addFeedbackBar()
 
-        addInfo("点击/长按有回调（长按 iOS 触发、Android 不承诺）；加载态骨架脉冲动画；禁用态整行置灰不可点；status 控制右侧 ✓/✗。")
+        for group in groups {
+            addSection(title: group.title) { [weak group] container in
+                guard let group else { return }
+                let tv = group.tableView
+                // 与 Android demo 一致：平铺 bgPage，cell 间用间隙（bgPage 色）分隔。
+                tv.backgroundColor = AppColor.bgPage
+                tv.separatorStyle = .none
+                tv.isScrollEnabled = false
+                tv.register(Cell.self, forCellReuseIdentifier: Cell.reuseId)
+                tv.dataSource = self
+                tv.delegate = self
+                tv.rowHeight = UITableView.automaticDimension
+                tv.estimatedRowHeight = Cell.minHeight
+                container.addSubview(tv)
+                tv.snp.makeConstraints { make in
+                    make.leading.trailing.equalToSuperview().inset(AppSpace.md)
+                    make.top.bottom.equalToSuperview().inset(AppSpace.md)
+                }
+            }
+            addInfo(group.note)
+        }
+    }
+}
+
+// MARK: - Cell 排查分组数据源
+
+extension CellShowcase: UITableViewDataSource {
+    /// 根据 tableView 找到它所属的分组。
+    private func group(for tableView: UITableView) -> Group? {
+        groups.first { $0.tableView === tableView }
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { models.count }
+    func numberOfSections(in tableView: UITableView) -> Int { 1 }
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        group(for: tableView)?.models.count ?? 0
+    }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cell.reuseId, for: indexPath) as! Cell
-        cell.apply(models[indexPath.row])
-        cell.showsDivider = indexPath.row < models.count - 1
-        cell.onTap = { [weak self] _, index in
+        guard let group = group(for: tableView) else { return cell }
+        let model = group.models[indexPath.row]
+        cell.apply(model)
+        cell.bind(model, index: indexPath.row)
+        // 统一用「间隙」分隔（与 Android 的 Arrangement.spacedBy(lg) 一致）：
+        // cell 不画横线，底部由 divider 撑出 lg 高的 bgPage 留白作为 cell 间距。
+        // 注意：divider 在 Cell 内部已改为铺满整行宽、间隙色 bgPage、独立于点击态，
+        // 不会出现"左侧竖条 / 颜色断层"。
+        cell.showsDivider = false
+        cell.rowSpacing = AppSpace.lg
+        cell.onTap = { [weak self, weak cell] _, index in
             guard let self else { return }
-            self.addInfo("点击了：\(self.models[index].title)")
+            let name = self.rowName(in: group, index: index)
+            self.showFeedback("点击了：\(name)", heightPt: cell?.bounds.height)
         }
-        cell.onLongPress = { [weak self] _, index in
+        cell.onLongPress = { [weak self, weak cell] _, index in
             guard let self else { return }
-            self.addInfo("长按了：\(self.models[index].title)")
+            let name = self.rowName(in: group, index: index)
+            self.showFeedback("长按了：\(name)", heightPt: cell?.bounds.height)
+        }
+
+        // D 方案：读取每个 cell 布局后的真实高度（pt），输出数值，跨模拟器精确核对。
+        // selfSizing 下高度在布局后才确定，故异步一帧后再读，并按行去重避免刷屏。
+        DispatchQueue.main.async { [weak self, weak cell] in
+            guard let self, let cell, !self.reportedRows.contains(indexPath) else { return }
+            cell.layoutIfNeeded()
+            self.reportedRows.insert(indexPath)
+            let h = cell.bounds.height
+            let label = (model.title.isEmpty ? "空行" : model.title)
+            self.addInfo("\(group.title) › \(label)：实测高度 \(String(format: "%.1f", h)) pt")
+            // ② 仅标题组：额外输出文字/箭头垂直居中实测偏移（pt，正=偏下），
+            // 用于 iOS 实机校准 verticalCenterBaselineOffset（替代纯数学推导）。
+            if group.title.hasPrefix("②") && indexPath.row == 0 {
+                let titleOffset = cell.debugTitleVerticalOffset()
+                let trailingOffset = cell.debugTrailingCenterOffset()
+                self.addInfo(
+                    "② 垂直居中实测：标题偏移 \(String(format: "%.2f", titleOffset)) pt，"
+                    + "trailing 偏移 \(String(format: "%.2f", trailingOffset)) pt（正=偏下，0=居中）"
+                )
+            }
         }
         return cell
     }
 }
 
-// MARK: - Refresh Showcase
+// MARK: - Cell 排查分组点击（走 UITableView 系统点击，保证 onTap 触发）
 
-final class RefreshShowcase: ShowcaseViewController, UITableViewDataSource {
-    private var rows = (1...12).map { "初始数据第 \($0) 条" }
-    private let tableView = PullRefreshTableView(frame: .zero, style: .plain)
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "PullRefreshTableView"
-
-        addSection(title: "下拉刷新列表") { container in
-            tableView.backgroundColor = .white
-            tableView.separatorStyle = .none
-            tableView.register(UITableViewCell.self, forCellReuseIdentifier: "row")
-            tableView.dataSource = self
-            tableView.onRefresh = { [weak self] in
-                guard let self else { return }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-                    guard let self else { return }
-                    self.rows = (1...12).map { "刷新后第 \($0) 条 · \(Date().timeIntervalSince1970)" }
-                    self.tableView.reloadData()
-                    self.tableView.endRefreshing()
-                    self.addInfo("刷新完成（模拟 1s 网络延迟）")
-                }
-            }
-            container.addSubview(tableView)
-            tableView.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
-                make.top.bottom.equalToSuperview().inset(AppSpace.md)
-                make.height.equalTo(420)
-            }
-        }
-
-        addInfo("下拉列表顶部露出灰圈刷新指示，松手触发 onRefresh；业务完成后调用 endRefreshing() 收起。")
-    }
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { rows.count }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "row", for: indexPath)
-        cell.textLabel?.text = rows[indexPath.row]
-        cell.textLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
-        return cell
+extension CellShowcase: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        guard let group = group(for: tableView), indexPath.row < group.models.count else { return }
+        let heightPt = tableView.cellForRow(at: indexPath)?.bounds.height
+        showFeedback("点击了：\(rowName(in: group, index: indexPath.row))", heightPt: heightPt)
     }
 }
 
-// MARK: - Foundation Showcases (Storage & Network)
-
-final class StorageShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "AppDatabase"
-
-        addSection(title: "建库与迁移") { container in
-            let label = UILabel()
-            label.text = "准备中…"
-            label.font = .systemFont(ofSize: AppFont.sizeSm)
-            label.textColor = AppColor.textPrimary
-            label.numberOfLines = 0
-            container.addSubview(label)
-            label.snp.makeConstraints { make in make.edges.equalToSuperview().inset(AppSpace.md) }
-
-            DispatchQueue.global().async { [weak self] in
-                do {
-                    try AppDatabase.shared.prepare()
-                    let baseDir = try FileManager.default.url(
-                        for: .applicationSupportDirectory, in: .userDomainMask,
-                        appropriateFor: nil, create: true
-                    )
-                    let dbURL = baseDir.appendingPathComponent("KeepAccounts", isDirectory: true)
-                        .appendingPathComponent("ledger.sqlite")
-                    DispatchQueue.main.async { [weak self] in
-                        label.text = "数据库就绪\n\(dbURL.path)"
-                        self?.addInfo("已注册迁移：transactions / budgets / asset_accounts / category_budgets")
-                    }
-                } catch {
-                    DispatchQueue.main.async {
-                        label.text = "建库失败：\(error.localizedDescription)"
-                    }
-                }
-            }
+extension CellShowcase {
+    /// 更新顶部反馈条；若反馈条未持有（异常兜底），则追加一条 addInfo 到底部，确保点击必有可见反馈。
+    /// 主路径更新 feedbackLabel（对标 Android 的顶部 clickInfo）。
+    /// - Parameters:
+    ///   - text: 反馈文案前缀（如"点击了："）。
+    ///   - heightPt: cell 实测高度（pt）。有值则追加"（实测高度 xx.x pt）"，对齐 Android 的"（实测高度 xx dp）"。
+    private func showFeedback(_ text: String, heightPt: CGFloat?) {
+        var finalText = text
+        if let heightPt {
+            finalText += "（实测高度 \(String(format: "%.1f", heightPt)) pt）"
         }
-    }
-}
-
-final class NetworkShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "MockAPIClient"
-
-        addSection(title: "GET /health") { container in
-            let button = UIButton(type: .system)
-            button.setTitle("发起请求", for: .normal)
-            button.addTarget(self, action: #selector(fireHealth), for: .touchUpInside)
-            container.addSubview(button)
-            button.snp.makeConstraints { make in make.edges.equalTo(container.layoutMarginsGuide) }
-        }
-
-        addInfo("当前基址为 Mock（https://mock.keep-accounts.local），真实环境需替换 APIEnvironment 注入。")
-    }
-
-    @objc private func fireHealth() {
-        let task = Task {
-            do {
-                let health = try await MockAPIClient.shared.getHealth()
-                addInfo("成功：\(health.status) · \(health.service)")
-            } catch {
-                addInfo("失败：\(error.localizedDescription)")
-            }
-        }
-        addInfo("已发起请求…")
-        _ = task
-    }
-}
-
-final class WebViewShowcase: ShowcaseViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = "WebContent"
-        addSection(title: "打开 H5 页面") { container in
-            let button = UIButton(type: .system)
-            button.setTitle("打开示例网页", for: .normal)
-            button.addTarget(self, action: #selector(openWeb), for: .touchUpInside)
-            container.addSubview(button)
-            button.snp.makeConstraints { make in make.edges.equalTo(container.layoutMarginsGuide) }
+        if let feedbackLabel {
+            feedbackLabel.text = finalText
+        } else {
+            addInfo(finalText)
         }
     }
 
-    @objc private func openWeb() {
-        let vc = WebContentViewController(title: "示例", url: URL(string: "https://www.apple.com")!)
-        navigationController?.pushViewController(vc, animated: true)
+    /// 生成某一行在反馈条里显示的名字。
+    /// 有标题用标题；空行用「组前缀 + 空行-序号」命名（如"① 空行-1"），避免反馈条只显示"点击了："后面没字。
+    /// 组前缀取标题首个字符（① / ② / ③ / ④）。
+    private func rowName(in group: Group, index: Int) -> String {
+        guard group.models.indices.contains(index) else { return "未知行" }
+        let model = group.models[index]
+        if !model.title.isEmpty { return model.title }
+        let seq = String(group.title.prefix(1))
+        return "\(seq) 空行-\(index + 1)"
     }
 }

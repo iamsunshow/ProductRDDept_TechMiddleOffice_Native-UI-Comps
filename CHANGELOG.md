@@ -12,6 +12,19 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ---
 
+## [1.1.1] - 2026-09-01
+
+修正 v1.1.0 的错误垂直居中补偿：iOS 原生 `minimumLineHeight = maximumLineHeight` 撑行高时文字已接近居中，v1.1.0 额外加的 `baselineOffset` 补偿反而把文字整体下推（且放大 `UILabel.intrinsicContentSize`，撑高 textStack → 箭头同步偏下）。本版移除补偿，恢复原生行高分配，对齐 Android Compose 视觉。
+
+### Fixed
+- **iOS Cell 文字/箭头垂直居中（v1.18 修正）**：`AppText.verticalCenterBaselineOffset` 由 `(lineHeight - naturalLineHeight)/2` 改为返回 `0`（不补偿）。依据：macOS TextKit 像素级实测 + iOS 用户实测双重确认——原生 min/max 行高下文字质心偏差仅 +0.5pt，叠加补偿后 +3.5pt（偏下，复现用户实测）。同时 `baselineOffset` 会增大 `UILabel.intrinsicContentSize`，撑高 `textStack`（箭头 `centerY` 锚定它）导致箭头同步偏下，移除补偿一并解决。
+- **iOS Demo 横屏不适配**：`SelfSizingTableView.intrinsicContentSize` 原只在高度变化时 invalidate，横屏旋转后宽度变化不触发重算，cell 不随屏幕宽度自适应。现宽度/高度任一变化均刷新。
+- **iOS 垂直居中实测辅助**：新增 `Cell.debugTitleVerticalOffset()` / `debugTrailingCenterOffset()`，demo「② 仅标题」组输出标题/箭头相对 cell 内容区中心的实测偏移（pt），供 iOS 实机校准真值（替代纯数学推导）。
+
+### Changed
+- **iOS `CellTests` H3**：断言改为 v1.18 校准结论（补偿值恒为 0，行高契约 24/18 + 单行 56 不变）。
+- **新增 iOS `CellTests` H3b**：实测辅助方法可用性断言（返回有限值）。
+
 ## [1.1.0] - 2026-09-01
 
 修复 Cell 单行标题在行内文字未垂直居中（iOS 平台独有，Android Compose `lineHeight` 天然居中）。

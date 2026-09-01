@@ -426,4 +426,38 @@ final class Cell: UITableViewCell {
     private func stopSkeleton() {
         skeletonView.layer.removeAnimation(forKey: "skeletonPulse")
     }
+
+    // MARK: - 垂直居中实测辅助（iOS 实机校准用，验收通过后可移除）
+
+    /// 测量「标题文字实际绘制中心」相对「cell 内容区垂直中心」的偏移（pt）。
+    /// 正值=文字偏下，负值=文字偏上，0=完美居中。
+    ///
+    /// 背景：iOS 文字在行框内的视觉位置（受 minimumLineHeight 行高分配影响）无法
+    /// 在本机（macOS）确定性还原，需在 iOS 实机读取真实渲染位置。demo 调用此方法
+    /// 输出实测值，据此精确校准 `verticalCenterBaselineOffset`，替代纯数学推导。
+    ///
+    /// - Returns: 文字绘制中心的垂直偏移（pt）。0 = 居中。
+    func debugTitleVerticalOffset() -> CGFloat {
+        layoutIfNeeded()
+        // 标题文字实际绘制矩形（单行时即文字像素框），坐标相对 titleLabel bounds。
+        // textRect(forBounds:limitedToNumberOfLines:) 会结合 attributedText 的
+        // 字体度量与行高设置，返回文字真实绘制区域。
+        let textRect = titleLabel.textRect(forBounds: titleLabel.bounds, limitedToNumberOfLines: 1)
+        // 文字绘制中心在 cell 内容区坐标系中的 y。
+        let textCenterY = titleLabel.convert(CGPoint(x: 0, y: textRect.midY), to: contentView).y
+        // cell 内容区（contentView）垂直中心。
+        let cellCenterY = contentView.bounds.midY
+        return textCenterY - cellCenterY
+    }
+
+    /// 测量「箭头（trailing 侧）视图中心」相对「cell 内容区垂直中心」的偏移（pt）。
+    /// 正值=偏下，负值=偏上，0=居中。取当前可见的 trailing 锚点视图（箭头/状态标识/值）。
+    ///
+    /// - Returns: 偏移（pt）。
+    func debugTrailingCenterOffset() -> CGFloat {
+        layoutIfNeeded()
+        let anchor = arrowView.isHidden ? valueLabel : arrowView
+        let centerY = anchor.convert(CGPoint(x: 0, y: anchor.bounds.midY), to: contentView).y
+        return centerY - contentView.bounds.midY
+    }
 }

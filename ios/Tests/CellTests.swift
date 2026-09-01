@@ -150,35 +150,38 @@ final class CellTests: XCTestCase {
         XCTAssertEqual(Cell.minHeight + 2 + AppText.cellSubtitleLineHeight, 76)
     }
 
-    /// H3 文字行内垂直居中契约：baselineOffset 补偿让文字在行高内居中（对齐 Android Compose lineHeight）。
+    /// H3 文字行内垂直居中契约（v1.18 校准版）：**不补偿**，iOS 原生 min/max 行高已居中。
     ///
-    /// 背景：iOS 用 minimumLineHeight/maximumLineHeight 撑行高时，额外行高由系统按字体度量
-    /// 分配，不保证行内文字居中（用户实测 Demo2 标题未垂直居中）；Android Compose lineHeight
-    /// 以 baseline 为中心均匀扩展、天然居中。这里断言补偿函数使「文字中心」落在行高中点。
+    /// 背景（v1.18 修正）：v1.1.0 曾用 `baselineOffset = (L-n)/2` 补偿，但 macOS TextKit
+    /// 像素级实测 + iOS 用户实测双重证实：
+    /// 1. iOS 原生 `minimumLineHeight = maximumLineHeight` 撑行高时，文字在行框内
+    ///    已接近垂直居中（macOS 实测质心偏差仅 +0.5pt）；
+    /// 2. 叠加 baselineOffset 会把**整段文本绘制整体下移**，反而偏下（macOS 实测 +3.5pt，
+    ///    与用户实测「文字偏下」完全吻合）；且会放大 UILabel intrinsicContentSize，
+    ///    撑高 textStack → 箭头（centerY 锚定 textStack）同步偏下；
+    /// 3. 故 v1.18 移除补偿（函数返回 0），让 iOS 原生行高分配决定位置，对齐 Android。
+    /// 真值校准：demo 用 `Cell.debugTitleVerticalOffset()` 在 iOS 实机输出实测偏移。
     func test_H3_verticalCenter() {
-        // 数学关系：设字体自然行高为 n，行高为 L，则额外高度 e = L - n。
-        // offset = e/2 把文字下移 e/2 → 文字中心 = n/2 + e/2 = L/2 = 行高中点。即居中。
-        // 用一个固定字号/行高验证该关系成立（不依赖具体字体度量值）。
-        let fontSize: CGFloat = 16
-        let lineHeight: CGFloat = 24
-        let font = UIFont.systemFont(ofSize: fontSize)
-        let natural = font.ascender - font.descender
+        // 1) v1.18 校准结论：任何合法字号/行高，补偿值恒为 0（不补偿）。
+        let titleOffset = AppText.verticalCenterBaselineOffset(lineHeight: 24, fontSize: 16)
+        XCTAssertEqual(titleOffset, 0, "v1.18 起不补偿：iOS 原生 min/max 行高已居中")
 
-        let offset = AppText.verticalCenterBaselineOffset(lineHeight: lineHeight, fontSize: fontSize, font: font)
+        // 2) 主/副标题行高契约不变（24 / 18），内边距 16，单行 56 契约仍成立。
+        XCTAssertEqual(AppText.cellTitleLineHeight, 24)
+        XCTAssertEqual(AppText.cellSubtitleLineHeight, 18)
+        XCTAssertEqual(2 * AppSpace.cellVertical + AppText.cellTitleLineHeight, Cell.minHeight)
+    }
 
-        // 1) 补偿方向：文字应下移（offset > 0），且数值 = 额外高度的一半。
-        let expected = (lineHeight - natural) / 2
-        XCTAssertGreaterThan(expected, 0, "行高应大于字体自然行高")
-        XCTAssertEqual(offset, expected, accuracy: 0.0001)
-
-        // 2) 居中闭环：文字中心（natural/2 + offset）应落在行高中点（lineHeight/2）。
-        let glyphCenter = natural / 2 + offset
-        XCTAssertEqual(glyphCenter, lineHeight / 2, accuracy: 0.0001)
-
-        // 3) 副标题契约：18pt 行高同理居中。
-        let smFont = UIFont.systemFont(ofSize: 14)
-        let smNatural = smFont.ascender - smFont.descender
-        let smOffset = AppText.verticalCenterBaselineOffset(lineHeight: 18, fontSize: 14, font: smFont)
-        XCTAssertEqual(smNatural / 2 + smOffset, 18 / 2, accuracy: 0.0001)
+    /// H3b 垂直居中实测辅助可用性：demo 依赖 `debugTitleVerticalOffset()` 在 iOS 实机
+    /// 输出文字中心相对 cell 内容区中心的偏移（0=居中），用于校准而非纯数学推导。
+    /// 本机只验证辅助方法存在且返回有限值（真值需 iOS 实机，见验收文档）。
+    func test_H3b_debugVerticalOffsetAvailable() {
+        let cell = Cell(style: .default, reuseIdentifier: Cell.reuseId)
+        cell.apply(CellModel(title: "默认行标题"))
+        cell.layoutIfNeeded()
+        let offset = cell.debugTitleVerticalOffset()
+        XCTAssertTrue(offset.isFinite, "实测辅助必须返回有限偏移值（pt）")
+        let trailing = cell.debugTrailingCenterOffset()
+        XCTAssertTrue(trailing.isFinite, "trailing 实测辅助必须返回有限偏移值（pt）")
     }
 }

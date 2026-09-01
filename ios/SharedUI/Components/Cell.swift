@@ -126,12 +126,6 @@ final class Cell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
-        // v1.26 修复：insetsContentViewsToSafeArea 默认 true，横屏时 iPhone X+ safeArea
-        // 左右各 44pt，系统把 contentView inset 到 safeArea 内，导致 cell 两侧（safeArea
-        // 外）露出 cell.backgroundColor（v1.25 诊断红色已确认）。竖屏 safeArea 左右=0，
-        // contentView 充满 cell，故竖屏无此问题。设为 false 让 contentView 充满 cell，
-        // 背景延伸到 edge，内容子视图仍受 leading/trailing offset 约束在 safeArea 内。
-        insetsContentViewsToSafeArea = false
         // v1.25 debug：cell 各部分加不同颜色，排查横屏"白色块"点击不变灰问题。
         // 红色=cell 自身背景，蓝色=contentView，黄色=textStack，橙色=titleLabel。
         // 点击 cell 后：蓝色变灰（contentView setHighlighted），红色/紫色不变（不在 contentView 变灰范围）。
@@ -256,6 +250,19 @@ final class Cell: UITableViewCell {
 
     @available(*, unavailable)
     required init?(coder: NSCoder) { nil }
+
+    /// v1.26 修复：强制 contentView 充满 cell。
+    /// 原因：UITableViewCell 默认 `insetsContentViewsToSafeArea=true`（iOS 11+），
+    /// 横屏时 iPhone X+ 系列 safeArea 左右各 44pt，系统把 contentView inset 到 safeArea
+    /// 内，导致 cell 两侧（safeArea 外）露出 cell.backgroundColor（v1.25 诊断红色已确认）；
+    /// 竖屏 safeArea 左右=0 故 contentView 充满 cell 无此问题。super.layoutSubviews() 后
+    /// 系统已设置 contentView.frame（含 safeArea inset），此处覆盖为完整 bounds 让
+    /// contentView 充满 cell。内容子视图仍受 leading/trailing offset 约束在 safeArea 内，
+    /// 不会被刘海遮挡。
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        contentView.frame = bounds
+    }
 
     /// 自适高兜底最小行高（对标 Android `heightIn(min = 56.dp)`）。
     /// 不直接约束 contentView（会与 automaticDimension 冲突），而是由

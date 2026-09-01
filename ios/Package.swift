@@ -32,7 +32,12 @@ let package = Package(
             path: ".",
             exclude: [
                 "Package.swift",
+                "Package.resolved",
                 "Tests",
+                // SPM 解析产物与本地 Vendored 依赖的工程/示例资源，不应作为本 target 的 bundle 资源扫描，
+                // 否则会与依赖自身的 Base.lproj/LaunchScreen.storyboard 等重复，导致 `swift build`/`swift test` 报资源冲突。
+                ".build",
+                "Vendor",
                 // 记账业务组件（引用 App Feature 领域类型，不属于通用中台，由 App 本地编译）：
                 "SharedUI/Components/CategoryPickerView.swift",
                 "SharedUI/Components/PeriodTabsView.swift",

@@ -10,17 +10,13 @@ options:
 
 packages:
   SnapKit:
-    url: https://github.com/SnapKit/SnapKit.git
-    from: "5.6.0"
+    path: ../../ios/Vendor/SnapKit
   Charts:
-    url: https://github.com/ChartsOrg/Charts.git
-    from: "4.1.0"
+    path: ../../ios/Vendor/Charts
   GRDB:
-    url: https://github.com/groue/GRDB.swift.git
-    from: "6.24.0"
+    path: ../../ios/Vendor/GRDB.swift
   Alamofire:
-    url: https://github.com/Alamofire/Alamofire.git
-    from: "5.8.0"
+    path: ../../ios/Vendor/Alamofire
 
 settings:
   base:
@@ -36,8 +32,16 @@ targets:
     platform: iOS
     sources:
       - path: DemoApp
+      - path: Resources
+        excludes:
+          - Info.plist
       - path: ../../ios
         excludes:
+          - .build
+          - Vendor
+          - Package.swift
+          - Package.resolved
+          - Tests
           - Foundation/Routing
           - SharedUI/Components/MediaListCell.swift
           - SharedUI/Components/ProgressListCell.swift

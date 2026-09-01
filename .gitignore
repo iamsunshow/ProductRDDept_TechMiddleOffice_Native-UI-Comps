@@ -14,6 +14,59 @@ www/.vite/
 # iOS SPM 构建产物
 ios/.build/
 
+# iOS demo Xcode 生成物（本机构建/本地配置，不入库）
+demo/ios/build/
+demo/ios/ZhiqihuayunDemo.xcodeproj/xcuserdata/
+demo/ios/ZhiqihuayunDemo.xcodeproj/project.xcworkspace/xcuserdata/
+demo/ios/ZhiqihuayunDemo.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+
+# Vendor 本地依赖：各库自身的构建产物/文档/示例工程不入库
+# （Sources/README/LICENSE/CHANGELOG/Tests 入库存——Tests 被 Package.swift 引用，clone 后构建必需）
+ios/Vendor/*/build/
+ios/Vendor/*/.build/
+ios/Vendor/*/Documentation/
+ios/Vendor/*/docs/
+ios/Vendor/*/ci/
+ios/Vendor/*/scripts/
+ios/Vendor/*/Example*/
+ios/Vendor/*/*Demo*/
+ios/Vendor/*/*.xcodeproj/
+ios/Vendor/*/*.xcworkspace/
+ios/Vendor/*/*.playground/
+ios/Vendor/GRDB.swift/*.png
+# Vendor 库根下的社区维护文件（CI/发布/文档配置，与本地构建无关）
+ios/Vendor/*/.github/
+ios/Vendor/*/.dockerignore
+ios/Vendor/*/.gitmodules
+ios/Vendor/*/.jazzy.yaml
+ios/Vendor/*/.ruby-*
+ios/Vendor/*/.spi.yml
+ios/Vendor/*/.swiftformat
+ios/Vendor/*/.swiftpm/
+ios/Vendor/*/.travis.yml
+ios/Vendor/*/*.podspec
+ios/Vendor/*/watchOS Example/
+ios/Vendor/*/Support/
+ios/Vendor/*/Supporting Files/
+ios/Vendor/*/SQLiteCustom/
+ios/Vendor/*/Resources/
+ios/Vendor/*/Scripts/
+ios/Vendor/*/Xcode/
+ios/Vendor/*/cmake/
+ios/Vendor/*/CodeSnippets/
+ios/Vendor/*/Guides/
+ios/Vendor/*/Gemfile*
+ios/Vendor/*/Makefile
+ios/Vendor/*/CMakeLists.txt
+ios/Vendor/*/carthage.sh
+ios/Vendor/*/BRAG.md
+ios/Vendor/*/CODE_OF_CONDUCT.md
+ios/Vendor/*/CONTRIBUTING.md
+ios/Vendor/*/TODO.md
+ios/Vendor/*/ISSUE_TEMPLATE.md
+ios/Vendor/*/Assets/
+ios/Vendor/*/Package.resolved
+
 # Android 本地 SDK 路径（机器相关，不入库）
 android/local.properties
 

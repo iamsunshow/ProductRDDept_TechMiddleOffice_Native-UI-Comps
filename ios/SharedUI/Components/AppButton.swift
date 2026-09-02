@@ -79,9 +79,8 @@ final class AppButton: UIButton {
         isEnabled = !loading
         if loading {
             setTitle("加载中...", for: .normal)
-        } else {
-            updateBackground()
         }
+        updateBackground()
     }
 
     // MARK: - 样式

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -188,17 +189,36 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
 @Composable
 fun TmoDemo() {
     var current by remember { mutableStateOf<(@Composable () -> Unit)?>(null) }
+    var currentTitle by remember { mutableStateOf("") }
 
     if (current == null) {
-        ComponentList(onOpen = { current = it })
+        ComponentList(onOpen = { name, demo ->
+            currentTitle = name
+            current = demo
+        })
     } else {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(AppColor.bgPage)
+                .statusBarsPadding()
         ) {
-            TextButton(onClick = { current = null }) {
-                Text(text = "← 返回组件列表", color = AppColor.primary, fontSize = AppFont.sizeMd)
+            // 标题栏：返回按钮 + 组件名（对齐 iOS navigation bar）
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = AppSpace.sm, vertical = AppSpace.xs)
+            ) {
+                TextButton(onClick = { current = null }) {
+                    Text(text = "← 返回", color = AppColor.primary, fontSize = AppFont.sizeMd)
+                }
+                Text(
+                    text = currentTitle,
+                    color = AppColor.textPrimary,
+                    fontSize = AppFont.sizeLg,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
             current?.invoke()
         }
@@ -206,7 +226,7 @@ fun TmoDemo() {
 }
 
 @Composable
-private fun ComponentList(onOpen: (@Composable () -> Unit) -> Unit) {
+private fun ComponentList(onOpen: (String, @Composable () -> Unit) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -234,7 +254,7 @@ private fun ComponentList(onOpen: (@Composable () -> Unit) -> Unit) {
                 )
             }
             items(components) { comp ->
-                ComponentRow(comp, onClick = { onOpen(comp.demo!!) })
+                ComponentRow(comp, onClick = { onOpen(comp.name, comp.demo!!) })
             }
         }
     }

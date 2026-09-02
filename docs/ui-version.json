@@ -1,6 +1,6 @@
 {
-  "version": "1.1.6",
-  "versionKey": "v1.1.6",
+  "version": "1.1.7",
+  "versionKey": "v1.1.7",
   "releaseDate": "2026-09-02",
-  "changelog": "feat(ui.button): Button 组件 v1.0 新增——双端 AppButton 代码对齐（Android 补 loading 态参数对齐 iOS setLoading；双端禁用/加载态填充色改用设计令牌 AppColor.buttonDisabled；Android secondary 背景从透明改 bgCard 对齐 iOS）+ api.json 新增 ui.button 契约（props 7 / events 1 / demos 5 / status=stable / anti_goals 3，componentCount 27→28）+ design-token.json 新增 buttonDisabled=#9CA3AF + iOS ButtonShowcase / Android ButtonDemo 双端 4 组递增排查 Demo（①基础形态→②style切换→③状态→④全形态组合）+ reviewed=true。DemoShowcases.swift addVersionBadge 泛化 componentName 参数（默认 Cell 不影响现有调用）。ui-version 双端同升 1.1.6，Demo 徽标 Button v1.0。"
+  "changelog": "feat(ui.icon): Icon 组件 v1.0 新增——双端 AppIcon 代码落地（iOS AppIcon.swift 封装 SF Symbols 工厂方法 make(name/size/color) + setColor；Android AppIcon.kt 封装 SfApproxIcons 矢量映射 + ColorFilter.tint + ContentScale.Fit）+ api.json ui.icon 契约完善（platforms.ios state unavailable→available；props 3 / demos 4 / anti_goals 3 / source_refs 双端 / status=stable）+ iOS IconShowcase / Android IconDemo 双端 4 组递增排查 Demo（①基础形态 8 图标→②尺寸因子 list×4 尺寸→③着色因子 person×4 色→④全形态网格 8×3）+ reviewed=true。ui-version 双端同升 1.1.7，Demo 徽标 Icon v1.0。"
 }

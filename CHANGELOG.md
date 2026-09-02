@@ -12,6 +12,32 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## \[1.1.7] - 2026-09-02
+
+Icon 组件 v1.0 新增：双端 AppIcon 代码落地 + API 契约完善 + 双端 Demo。
+
+### Added
+
+- **Icon 组件（ui.icon）正式纳入组件库**：中台基础图标组件，封装 iOS SF Symbols / Android SfApproxIcons 矢量，统一双端图标使用方式。8 个通用图标（list/chart/plus/safari/person/arrowDown/smartphone/mail），支持自定义尺寸与着色（对标 NutUI Icon / Ant Design Icon）。
+
+- **iOS AppIcon.swift 新增**：AppIconName 枚举 8 个图标映射 SF Symbol 系统名；AppIcon 类（UIImageView）封装 SF Symbols + 工厂方法 `make(name/size/color)` + `setColor()` 着色更新。
+
+- **Android AppIcon.kt 新增**：AppIconName 枚举 8 个图标（与 iOS 同名）映射 SfApproxIcons ImageVector；AppIcon Composable 封装 Image + ColorFilter.tint + ContentScale.Fit；`sfSymbolName()` 供跨端文档参考。
+
+- **api.json ui.icon 契约完善**：platforms.ios state unavailable→available；source_refs 双端（iOS AppIcon.swift + Android AppIcon.kt）；props 3 项（name/size/color）、demos 4 项（列表图标/主色加号/红色邮箱/全图标网格）、anti_goals 3 项（不做品牌图标/图标字体/动效图标）、visual_tokens 4 项、deps 引用 foundation.design-tokens、industry_names 新增 AppIcon。
+
+- **iOS IconShowcase Demo**：4 组递增单因子排查（① 基础形态 8 图标默认尺寸 24pt → ② 尺寸因子 list × 16/24/32/48pt → ③ 着色因子 person × 4 色 → ④ 全形态网格 8 图标 × 3 色），版本徽标 Icon v1.0。
+
+- **Android IconDemo**：与 iOS IconShowcase 一一对应的 4 组排查，版本徽标 Icon v1.0。
+
+### Changed
+
+- **DemoShowcases.swift**：ui.icon 条目 reviewed=false → true，create=nil → `{ IconShowcase() }`。
+
+- **MainActivity.kt**：Icon 条目 reviewed=false → true，demo=nil → `{ IconDemo() }`；新增 AppIcon / AppIconName import。
+
+- **ui-version.json**：组件库版本 1.1.6 → 1.1.7（双端 iOS / Android 永远同版本，禁止手工改工程内版本）。
+
 ## \[1.1.6] - 2026-09-02
 
 Button 组件 v1.0 新增：双端代码对齐 + API 契约 + 设计令牌 + 双端 Demo。

@@ -203,23 +203,21 @@ fun TmoDemo() {
                 .background(AppColor.bgPage)
                 .statusBarsPadding()
         ) {
-            // 标题栏：返回按钮 + 组件名（对齐 iOS navigation bar）
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = AppSpace.sm, vertical = AppSpace.xs)
+            // 返回按钮（左对齐，无标题）
+            TextButton(
+                onClick = { current = null },
+                modifier = Modifier.padding(horizontal = AppSpace.sm)
             ) {
-                TextButton(onClick = { current = null }) {
-                    Text(text = "← 返回", color = AppColor.primary, fontSize = AppFont.sizeMd)
-                }
-                Text(
-                    text = currentTitle,
-                    color = AppColor.textPrimary,
-                    fontSize = AppFont.sizeLg,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.align(Alignment.Center)
-                )
+                Text(text = "← 返回", color = AppColor.primary, fontSize = AppFont.sizeMd)
             }
+            // 大标题（在 Demo 内容上方，版本徽标之上，对齐 iOS 大标题样式）
+            Text(
+                text = currentTitle,
+                color = AppColor.textPrimary,
+                fontSize = AppFont.sizeXl,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+            )
             current?.invoke()
         }
     }

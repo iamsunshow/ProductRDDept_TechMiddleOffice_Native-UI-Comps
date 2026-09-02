@@ -243,7 +243,7 @@ class ShowcaseViewController: UIViewController {
 
     /// 在页面顶部（参考块上方）插入一条"常驻反馈条"：点击/长按等事件用它就地更新，
     /// 避免信息追加到页面底部不可见。返回 label，业务通过设置 text 反馈。
-    /// 调用时机：须在 addVersionBadge 之后；插入到 index 1（紧跟徽标）。
+    /// 调用时机：须在 addVersionBadge 之后；插入到徽标之后（紧跟高度参考块，若存在）。
     func addFeedbackBar() -> UILabel {
         let label = UILabel()
         label.text = "点击任意 cell 查看按压变色 + 此处反馈"
@@ -251,8 +251,9 @@ class ShowcaseViewController: UIViewController {
         label.textColor = AppColor.primary
         label.numberOfLines = 0
         label.textAlignment = .left
-        // 固定插到 index 2：徽标(0)、高度参考块(1)、反馈条(2)，与 Android 顺序一致，不依赖调用顺序。
-        contentStack.insertArrangedSubview(label, at: 2)
+        // 插到 min(2, count)：有高度参考块时插 index 2（徽标0/参考块1/反馈条2），
+        // 无高度参考块时插 index 1（徽标0/反馈条1），避免越界。
+        contentStack.insertArrangedSubview(label, at: min(2, contentStack.arrangedSubviews.count))
         return label
     }
 

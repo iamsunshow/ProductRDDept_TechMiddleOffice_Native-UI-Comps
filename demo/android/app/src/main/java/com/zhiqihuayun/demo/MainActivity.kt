@@ -44,6 +44,8 @@ import com.zhiqihuayun.foundation.design.AppRadius
 import com.zhiqihuayun.foundation.design.AppSpace
 import com.zhiqihuayun.sharedui.components.AppButton
 import com.zhiqihuayun.sharedui.components.AppButtonStyle
+import com.zhiqihuayun.sharedui.components.AppIcon
+import com.zhiqihuayun.sharedui.components.AppIconName
 import com.zhiqihuayun.sharedui.components.Cell
 import com.zhiqihuayun.sharedui.components.CellStatus
 
@@ -73,7 +75,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Button 按钮", reviewed = true, demo = { ButtonDemo() }),
         DemoComponent("Cell 单元格", reviewed = true, demo = { CellDemo() }),
         DemoComponent("ConfigProvider 全局配置"),
-        DemoComponent("Icon 图标"),
+        DemoComponent("Icon 图标", reviewed = true, demo = { IconDemo() }),
         DemoComponent("Image 图片"),
         DemoComponent("Overlay 遮罩层"),
     ),
@@ -565,5 +567,130 @@ private fun ButtonDemo() {
                 fontSize = AppFont.sizeXs
             )
         }
+    }
+}
+
+// ===== Icon 组件 Demo 页（独立页面，与 iOS IconShowcase 一一对应） =====
+
+@Composable
+private fun IconDemo() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // 组件版本徽标：与 iOS 端保持同一版本号。
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm))
+                .padding(horizontal = 10.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = "Icon 组件 v1.0",
+                color = AppColor.primary,
+                fontSize = AppFont.sizeXs,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        // ① 基础形态：全部 8 个图标，默认尺寸(24dp) + 默认色(textPrimary)
+        Text(
+            text = "① 基础形态（8 图标默认尺寸 24dp）",
+            color = AppColor.textPrimary,
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            for (name in AppIconName.entries) {
+                AppIcon(name = name, size = 24.dp, tint = AppColor.textPrimary)
+            }
+        }
+        Text(
+            text = "排查点：8 个图标是否全部渲染（SfApproxIcons）。若缺图说明矢量映射有误。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs
+        )
+
+        // ② 尺寸因子：同一图标 list 不同尺寸 16/24/32/48dp
+        Text(
+            text = "② 尺寸因子（list × 16/24/32/48dp）",
+            color = AppColor.textPrimary,
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            for (size in listOf(16.dp, 24.dp, 32.dp, 48.dp)) {
+                AppIcon(name = AppIconName.List, size = size, tint = AppColor.textPrimary)
+            }
+        }
+        Text(
+            text = "排查点：尺寸缩放是否正比、无变形。16dp 应清晰可辨，48dp 应饱满。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs
+        )
+
+        // ③ 着色因子：同一图标 person 不同颜色
+        Text(
+            text = "③ 着色因子（person × 4 色）",
+            color = AppColor.textPrimary,
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            val colors = listOf(
+                AppColor.textPrimary to "textPrimary",
+                AppColor.primary to "primary",
+                AppColor.error to "error",
+                AppColor.textSecondary to "textSecondary"
+            )
+            for ((color, _) in colors) {
+                AppIcon(name = AppIconName.Person, size = 32.dp, tint = color)
+            }
+        }
+        Text(
+            text = "排查点：tint 是否生效。4 个 person 应分别为深灰/绿/红/浅灰。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs
+        )
+
+        // ④ 全形态网格：8 图标 × 3 色（textPrimary/primary/error）
+        Text(
+            text = "④ 全形态网格（8 图标 × 3 色）",
+            color = AppColor.textPrimary,
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold
+        )
+        val gridColors = listOf(AppColor.textPrimary, AppColor.primary, AppColor.error)
+        for (color in gridColors) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                for (name in AppIconName.entries) {
+                    AppIcon(name = name, size = 28.dp, tint = color)
+                }
+            }
+        }
+        Text(
+            text = "排查点：8 图标 × 3 色完整组合。第 1 行深灰、第 2 行绿、第 3 行红，每行 8 个图标对齐。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs
+        )
     }
 }

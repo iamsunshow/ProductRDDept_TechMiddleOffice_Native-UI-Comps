@@ -22,7 +22,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.button", name: "Button 按钮", reviewed: true, create: { ButtonShowcase() }),
             DemoComponent(id: "ui.cell", name: "Cell 单元格", reviewed: true, create: { CellShowcase() }),
             DemoComponent(id: "ui.config-provider", name: "ConfigProvider 全局配置", reviewed: false, create: nil),
-            DemoComponent(id: "ui.icon", name: "Icon 图标", reviewed: false, create: nil),
+            DemoComponent(id: "ui.icon", name: "Icon 图标", reviewed: true, create: { IconShowcase() }),
             DemoComponent(id: "ui.image", name: "Image 图片", reviewed: false, create: nil),
             DemoComponent(id: "ui.overlay", name: "Overlay 遮罩层", reviewed: false, create: nil),
         ]),
@@ -676,5 +676,102 @@ final class ButtonShowcase: ShowcaseViewController {
     @objc private func buttonTapped(_ sender: AppButton) {
         let title = sender.title(for: .normal) ?? ""
         feedbackLabel?.text = "点击了：\(title)"
+    }
+}
+
+// MARK: - Icon Showcase（Icon 组件独立 Demo 页）
+
+final class IconShowcase: ShowcaseViewController {
+    /// 顶部常驻反馈条。
+    private var feedbackLabel: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Icon 图标"
+
+        addVersionBadge(componentName: "Icon", version: "v1.0", builtAt: "2026-09-02 20:00:00")
+        feedbackLabel = addFeedbackBar()
+
+        // ① 基础形态：全部 8 个图标，默认尺寸(24pt) + 默认色(textPrimary)
+        addSection(title: "① 基础形态（8 图标默认尺寸 24pt）") { container in
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.distribution = .fillEqually
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            for name in AppIconName.allCases {
+                let icon = AppIcon.make(name, size: 24, color: AppColor.textPrimary)
+                row.addArrangedSubview(icon)
+            }
+        }
+        addInfo("排查点：8 个图标是否全部渲染（SF Symbols）。若缺图说明 SF Symbol 名不匹配。")
+
+        // ② 尺寸因子：同一图标 list 不同尺寸 16/24/32/48pt
+        addSection(title: "② 尺寸因子（list × 16/24/32/48pt）") { container in
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.alignment = .center
+            row.spacing = AppSpace.xl
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            for size in [16, 24, 32, 48] as [CGFloat] {
+                let icon = AppIcon.make(.list, size: size, color: AppColor.textPrimary)
+                row.addArrangedSubview(icon)
+            }
+        }
+        addInfo("排查点：尺寸缩放是否正比、无变形。16pt 应清晰可辨，48pt 应饱满。")
+
+        // ③ 着色因子：同一图标 person 不同颜色
+        addSection(title: "③ 着色因子（person × 4 色）") { container in
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.distribution = .fillEqually
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            let colors: [(UIColor, String)] = [
+                (AppColor.textPrimary, "textPrimary"),
+                (AppColor.primary, "primary"),
+                (AppColor.error, "error"),
+                (AppColor.textSecondary, "textSecondary"),
+            ]
+            for (color, _) in colors {
+                let icon = AppIcon.make(.person, size: 32, color: color)
+                row.addArrangedSubview(icon)
+            }
+        }
+        addInfo("排查点：tintColor 是否生效。4 个 person 应分别为深灰/绿/红/浅灰。")
+
+        // ④ 全形态网格：8 图标 × 3 色（textPrimary/primary/error）
+        addSection(title: "④ 全形态网格（8 图标 × 3 色）") { container in
+            let grid = UIStackView()
+            grid.axis = .vertical
+            grid.spacing = AppSpace.md
+            container.addSubview(grid)
+            grid.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            let gridColors: [UIColor] = [AppColor.textPrimary, AppColor.primary, AppColor.error]
+            for color in gridColors {
+                let row = UIStackView()
+                row.axis = .horizontal
+                row.distribution = .fillEqually
+                for name in AppIconName.allCases {
+                    let icon = AppIcon.make(name, size: 28, color: color)
+                    row.addArrangedSubview(icon)
+                }
+                grid.addArrangedSubview(row)
+            }
+        }
+        addInfo("排查点：8 图标 × 3 色完整组合。第 1 行深灰、第 2 行绿、第 3 行红，每行 8 个图标对齐。")
     }
 }

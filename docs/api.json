@@ -1127,7 +1127,7 @@
       "id": "ui.icon",
       "name": "图标 Icon",
       "category": "ui",
-      "summary": "图标资源（对标 SF Symbols / Ant Icon）",
+      "summary": "中台基础图标组件：封装 iOS SF Symbols / Android SfApproxIcons 矢量，统一双端图标使用方式。8 个通用图标（list/chart/plus/safari/person/arrowDown/smartphone/mail），支持自定义尺寸与着色（对标 NutUI Icon / Ant Design Icon）",
       "capabilities": [
         "图标",
         "SF Symbol",
@@ -1135,17 +1135,23 @@
         "Icon",
         "SF Symbols",
         "图标 Icon",
+        "AppIcon",
+        "AppIconName",
+        "SfApproxIcons",
+        "矢量图标",
+        "图标着色",
         "basic.icon",
-        "ui.sf-icons"
+        "ui.sf-icons",
+        "ui.icon"
       ],
       "platforms": {
         "ios": {
-          "state": "unavailable",
-          "note": "系统 SF Symbol"
+          "state": "available",
+          "note": "AppIcon.swift（UIKit）已落地：SF Symbols 工厂方法 + 着色 + 尺寸约束"
         },
         "android": {
           "state": "available",
-          "note": ""
+          "note": "AppIcon.kt（Compose）已落地：SfApproxIcons 矢量映射 + tint 着色"
         },
         "harmony": {
           "state": "unavailable",
@@ -1161,41 +1167,70 @@
         }
       },
       "source_refs": {
-        "android": "ProductRDDept/TechMiddleOffice/android/sharedui/icons/SfApproxIcons.kt"
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/AppIcon.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/AppIcon.kt"
       },
-      "deps": [],
+      "deps": ["foundation.design-tokens"],
       "variants": [],
-      "anti_goals": [],
-      "visual_tokens": [],
+      "anti_goals": [
+        "不做品牌图标（wechat/weibo/qq 等），品牌图标属于登录方式特定场景，不纳入通用 Icon 组件",
+        "不做图标字体（iconfont），直接用系统 SF Symbols / 自建矢量，避免字体加载与缓存问题",
+        "不做动效图标（Lottie/animated vector），动效需求由 ui.lottie 承载"
+      ],
+      "visual_tokens": [
+        "color.textPrimary",
+        "color.primary",
+        "color.error",
+        "color.textSecondary"
+      ],
       "apis": "",
       "visual_refs": [],
       "status": "stable",
-      "search_text": "basic.icon 图标 Icon 图标资源（对标 SF Symbols / Ant Icon） basic Icon SF Symbols 图标 SF Symbol tab icon Icon SF Symbols 图标 Icon basic.icon ui.sf-icons ui.sf-icons",
+      "search_text": "ui.icon 图标 Icon 中台基础图标组件：封装 iOS SF Symbols / Android SfApproxIcons 矢量，统一双端图标使用方式。8 个通用图标（list/chart/plus/safari/person/arrowDown/smartphone/mail），支持自定义尺寸与着色（对标 NutUI Icon / Ant Design Icon） 图标 Icon SF Symbol tab icon AppIcon AppIconName SfApproxIcons 矢量图标 图标着色 basic.icon ui.sf-icons ui.icon",
       "embedding_ref": "docs/embeddings/ui_icon.json",
       "legacy_id": "ui.sf-icons",
       "industry_names": [
         "Icon",
-        "SF Symbols"
+        "SF Symbols",
+        "AppIcon"
       ],
       "props": [
         [
           "name",
-          "string",
+          "AppIconName",
           "是",
-          "图标名"
+          "图标名（双端统一枚举：list/chart/plus/safari/person/arrowDown/smartphone/mail）"
         ],
         [
           "size?",
           "number",
-          "否",
-          "尺寸"
+          "否，默认 24",
+          "图标尺寸（pt/dp），正方形"
+        ],
+        [
+          "color? / tint?",
+          "Color",
+          "否，默认 textPrimary",
+          "着色（iOS tintColor / Android ColorFilter.tint）"
         ]
       ],
       "events": [],
       "demos": [
         [
-          "图标",
-          "<Icon name=\"list\" />"
+          "列表图标",
+          "<AppIcon name=\"list\" size={24} />"
+        ],
+        [
+          "主色加号",
+          "<AppIcon name=\"plus\" size={32} tint={AppColor.primary} />"
+        ],
+        [
+          "红色邮箱",
+          "<AppIcon name=\"mail\" size={20} tint={AppColor.error} />"
+        ],
+        [
+          "全图标网格",
+          "AppIconName.allCases.map { <AppIcon name=$0 size={28} /> }"
         ]
       ],
       "subcategory": "basics"

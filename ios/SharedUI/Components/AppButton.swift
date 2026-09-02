@@ -94,7 +94,7 @@ final class AppButton: UIButton {
     }
 
     private func updateBackground() {
-        let disabledColor = UIColor(hex: 0x9CA3AF)
+        let disabledColor = AppColor.buttonDisabled
         let disabledTitle = UIColor.white
 
         let (bg, border, title): (UIColor, UIColor?, UIColor) = {

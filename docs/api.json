@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-08-30T00:00:00Z",
-  "componentCount": 27,
+  "updatedAt": "2026-09-02T00:00:00Z",
+  "componentCount": 28,
   "components": [
     {
       "id": "ui.empty",
@@ -1892,6 +1892,155 @@
         ]
       ],
       "subcategory": "basics"
+    },
+    {
+      "id": "ui.button",
+      "name": "按钮 Button",
+      "category": "ui",
+      "summary": "中台基础按钮：48pt 高、圆角 lg、三样式（主操作/次要/破坏性），统一登录/注册/弹窗/表单等主操作按钮视觉（对标 NutUI Button / Ant Design Button）",
+      "capabilities": [
+        "按钮",
+        "Button",
+        "主操作",
+        "登录按钮",
+        "一键登录",
+        "AppButton",
+        "primary",
+        "secondary",
+        "destructive",
+        "加载态",
+        "禁用态",
+        "按钮 Button",
+        "basic.button",
+        "ui.button"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "AppButton.swift（UIKit）已落地：三样式工厂方法 + setLoading/setAppEnabled + 按下态反馈"
+        },
+        "android": {
+          "state": "available",
+          "note": "AppButton.kt（Compose）已落地：三样式 + loading 态 + 按下态反馈"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/AppButton.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/AppButton.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "不做图标按钮（icon-only button），图标按钮需求由 ui.icon 承载",
+        "不做悬浮动作按钮（FAB），FAB 属 Material 体系不在中台基础范围",
+        "不做按钮组（ButtonGroup），分组由布局组件承担"
+      ],
+      "visual_tokens": [
+        "color.primary",
+        "color.primaryPressed",
+        "color.buttonDisabled",
+        "color.bgCard",
+        "color.error",
+        "color.textInverse",
+        "font.sizeMd",
+        "radius.lg"
+      ],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "ui.button 按钮 Button 中台基础按钮：48pt 高、圆角 lg、三样式（主操作/次要/破坏性），统一登录/注册/弹窗/表单等主操作按钮视觉（对标 NutUI Button / Ant Design Button） 按钮 Button 主操作 登录按钮 一键登录 AppButton primary secondary destructive 加载态 禁用态 basic.button ui.button",
+      "embedding_ref": "docs/embeddings/ui_button.json",
+      "legacy_id": "basic.button",
+      "industry_names": [
+        "Button",
+        "AppButton"
+      ],
+      "props": [
+        [
+          "text",
+          "string",
+          "是",
+          "按钮文案"
+        ],
+        [
+          "onClick",
+          "() => void",
+          "是",
+          "点击回调"
+        ],
+        [
+          "style?",
+          "'primary' | 'secondary' | 'destructive'",
+          "否，默认 'primary'",
+          "视觉样式：primary=主色填充+白字；secondary=白底+主色描边+主色字；destructive=白底+红色描边+红色字"
+        ],
+        [
+          "fontSize?",
+          "number",
+          "否，默认 16",
+          "文案字号（pt/sp）"
+        ],
+        [
+          "height?",
+          "number",
+          "否，默认 48",
+          "按钮高度（pt/dp）"
+        ],
+        [
+          "enabled?",
+          "boolean",
+          "否，默认 true",
+          "是否可用：false 时置灰（buttonDisabled 填充）且不可点击"
+        ],
+        [
+          "loading?",
+          "boolean",
+          "否，默认 false",
+          "加载态：置灰（buttonDisabled 填充）+ 文案改\"加载中...\"+ 不可点击"
+        ]
+      ],
+      "events": [
+        [
+          "onClick",
+          "() => void",
+          "点击按钮（enabled=true 且 loading=false 时触发）"
+        ]
+      ],
+      "demos": [
+        [
+          "主操作",
+          "<AppButton text=\"登录\" style=\"primary\" onClick={handleLogin} />"
+        ],
+        [
+          "次要操作",
+          "<AppButton text=\"取消\" style=\"secondary\" onClick={handleCancel} />"
+        ],
+        [
+          "破坏性操作",
+          "<AppButton text=\"退出登录\" style=\"destructive\" onClick={handleLogout} />"
+        ],
+        [
+          "加载态",
+          "<AppButton text=\"登录\" loading={true} />"
+        ],
+        [
+          "禁用态",
+          "<AppButton text=\"登录\" enabled={false} />"
+        ]
+      ],
+      "subcategory": "input"
     },
     {
       "id": "foundation.design-tokens",

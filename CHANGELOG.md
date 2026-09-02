@@ -12,13 +12,67 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## \[1.1.6] - 2026-09-02
+
+Button 组件 v1.0 新增：双端代码对齐 + API 契约 + 设计令牌 + 双端 Demo。
+
+### Added
+
+- **Button 组件（ui.button）正式纳入组件库**：中台基础按钮，48pt 高、圆角 lg、三样式（primary/secondary/destructive），统一登录/注册/弹窗/表单等主操作按钮视觉（对标 NutUI Button / Ant Design Button）。
+
+- **api.json 新增 ui.button 契约**：props 7 项（text/onClick/style/fontSize/height/enabled/loading）、events 1 项（onClick）、demos 5 项（主操作/次要操作/破坏性操作/加载态/禁用态）、status=stable、anti_goals 3 项（不做图标按钮/FAB/按钮组）、source_refs 双端源码路径、visual_tokens 8 项；componentCount 27→28。
+
+- **design-token.json 新增 buttonDisabled**：`#9CA3AF`（灰阶 400 区间，介于 gray15 `#BFBFBF` 与 gray25 `#8C8C8C` 之间），用于按钮禁用/加载态填充色，与 AppTokens.swift / AppTokens.kt 已有定义对齐。
+
+- **iOS ButtonShowcase Demo**：4 组递增单因子排查（① 基础形态仅 Primary → ② style 三样式对照 → ③ loading+disabled 状态 → ④ 三样式×三状态全形态组合），点击反馈条就地更新，版本徽标 Button v1.0。
+
+- **Android ButtonDemo**：与 iOS ButtonShowcase 一一对应的 4 组排查，版本徽标 Button v1.0。
+
+- **DemoShowcases.swift addVersionBadge 泛化**：新增 `componentName` 参数（默认 "Cell"），支持 Button 等其他组件复用版本徽标方法，现有 CellShowcase 调用无需改动。
+
+### Changed
+
+- **iOS AppButton.swift**：禁用/加载态填充色由硬编码 `UIColor(hex: 0x9CA3AF)` 改为设计令牌 `AppColor.buttonDisabled`。
+
+- **Android AppButton.kt**：新增 `loading` 参数（对齐 iOS `setLoading`）；禁用/加载态填充色改用 `AppColor.buttonDisabled` 令牌；secondary 样式背景色由透明改 `AppColor.bgCard` 对齐 iOS 实现。
+
+- **DemoShowcases.swift**：ui.button 条目 reviewed=false → true，create=nil → `{ ButtonShowcase() }`。
+
+- **MainActivity.kt**：ui.button 条目 reviewed=false → true，demo=nil → `{ ButtonDemo() }`。
+
+- **ui-version.json**：组件库版本 1.1.5 → 1.1.6（双端 iOS / Android 永远同版本，禁止手工改工程内版本）。
+
+## \[1.1.5] - 2026-09-02
+
+Cell v1.31 恢复诊断色到设计令牌色 + 补录 v1.30–v1.30c Demo4 三项未入库修复 + 根治 SwiftPM 缓存漂移。
+
+### Fixed
+
+- **iOS Cell 移除 v1.29 诊断色（9 处 systemColor 赋值 + 1 处 tableView 背景）**：按「组件分色排查法」第 6 步收尾流程，Demo4 4 项问题定位修复完毕后移除临时诊断色。还原：`backgroundColor & contentView.backgroundColor` → `AppColor.bgCard`；`iconView / titleLabel / subtitleLabel / valueLabel / arrowView / statusBadge / textStack.backgroundColor` → 透明（不设值）；`skeletonView.backgroundColor` → `AppColor.border`（与 Android 骨架灰底一致）；`tableView.backgroundColor`（Demo 页面内）→ `AppColor.bgPage`。
+
+- **iOS Cell setHighlighted 禁用态错位修复**：`model.disabled` 为 true 时，`apply()` 已把 `contentView.backgroundColor = AppColor.gray4`（置灰语义）；之前 `setHighlighted` 无条件在松手恢复为蓝（诊断蓝 / bgCard），导致「禁用 cell 按住变灰 → 松手变白」视觉错位；本版补 `guard !model.disabled else { return }`，禁用态全程保持 gray4。
+
+- **【补录 v1.30】iOS Demo4 行 1/2 底部无内边距**：`rowSpacing=16pt` 的 divider 间隙占据 contentView 底部 16pt bgPage 色，`hasSubtitle` 分支 `textStack.bottom = contentView.bottom - cellVertical` 恰好落在灰色间隙区（视觉上蓝色内边距=0），与 top 不对称。修复：两处 bottom `-cellVertical` → `-(cellVertical + rowSpacing)`（完整形态与「无 icon+副标题」两分支同步）。
+
+- **【补录 v1.30】Android Demo4 行 6 loading 态箭头未右对齐**：loading 分支 `SkeletonTitle()` 按 `fillMaxWidth(0.4f)` 显示固有宽度，Row 尾部 arrow 紧贴骨架右侧。修复：外包 `Box(Modifier.weight(1f))`，撑满中间剩余空间，箭头被推到整行最右（与正常态 `Column(weight(1f))` 对称）。
+
+- **【补录 v1.30c】Android Demo4 行 4 Error 图标与 iOS 不一致**：Material Icons 标准集无「圆+!」向量（仅有 `Warning`=三角!、`Cancel`=圆×），而 iOS 使用 SF Symbols `exclamationmark.circle.fill`（红圆+白!）。v1.30b 曾误入 `ImageVector.Builder + VectorConfig + SolidColor` 组合（Compose 无此 API），导致 `:android:components:compileDebugKotlin` 编译失败。v1.30c 修复为 Compose Canvas 直接绘制 `ErrorCircleBadge()`：drawCircle 红填充 + drawRect 白竖条 + drawRect 白圆点（24×24dp 视窗按短边缩放），颜色直接取 `AppColor.error` 设计令牌；双端令牌已核对：iOS `UIColor(hex: 0xDC2626)` ≡ Android `Color(0xFFDC2626)`，与 Success 色 `0x16A34A` 配对一致。
+
+- **【根治】ios/Package.swift SwiftPM 依赖缓存漂移**：4 条依赖（Alamofire 5.9.1 / GRDB.swift 6.29.3 / Charts 4.1.0 / SnapKit 5.6.0）由 `.package(url:, exact:)` 远程 URL 改为 `.package(path: "Vendor/…")` 本地路径；`targets.dependencies` 中 GRDB 引用由 `package: "GRDB.swift"` → `package: "GRDB"`（本地路径依赖以子包自身 Package.swift 的 `name:` 字段为引用键，GRDB 自身 `name="GRDB"` 非目录名）；`targets.exclude` 移除 `"Vendor"`（远程+本地两份冲突时需要屏蔽，改纯本地后必须解除屏蔽以便 SwiftPM 直接扫描 Vendor 下 manifest）；Vendor 内部依赖链闭合：Charts → `../swift-algorithms` → `../swift-numerics` 均为相对本地路径引用，不产生任何远程 checkout。根治目的：终结 2026-08-30 起反复出现的「Charts/Package.swift:25 Extra arguments at positions #3, #4 / Reference to member 'produ' cannot be resolved」——根因是 SwiftPM 读取 `.build/checkouts/Charts` 下远程缓存脏 manifest，本地 Vendor 修复从未生效。
+
+### Changed
+
+- **双端 Demo 版本徽标**：v1.30 → v1.31。
+
+- **ui-version.json**：组件库版本 1.1.4 → 1.1.5（双端 iOS / Android 永远同版本，禁止手工改工程内版本）。
+
 ## \[1.1.4] - 2026-09-02
 
 Cell v1.28 修复无箭头无状态时 valueLabel trailing 锚点错误导致文字消失。
 
 ### Fixed
 
-- **iOS Cell 无箭头无状态时文字消失**：v1.27 Demo2 改 `arrow: false` 后文字消失，Demo3（有箭头）正常。根因：`apply()` 中 valueLabel 的 trailing 锚点逻辑——当 `showArrow=false` 且 `hasStatus=false` 时，`valueTrailingTarget=contentView`，用 `.snp.leading` 锚点导致 `valueLabel.trailing = contentView.leading - lg`（左边外），进而 `textStack.trailing <= valueLabel.leading - sm` 变负数，textStack 宽度为负，文字被压缩消失。修复：拆分为三分支（有状态贴 statusBadge.leading / 有箭头贴 arrowView.leading / 都没有贴 `contentView.trailing - lg`），消除 `.snp.leading` 方向错误。此 bug 一直潜伏，v1.27 之前所有 Demo 都带箭头（arrow 默认 true）从未触发。
+- **iOS Cell 无箭头无状态时文字消失**：v1.27 Demo2 改 `arrow: false` 后文字消失，Demo3（有箭头）正常。根因：`apply()` 中 valueLabel 的 trailing 锚点逻辑——当 `showArrow=false` 且 `hasStatus=false` 时，`valueTrailingTarget=contentView`，用 `.snp.leading` 锚点导致 `valueLabel.trailing = contentView.leading - lg`（左边外），进而 `textStack.trailing <= valueLabel.leading - sm` 变负数，textStack 宽度为负，文字被压缩消失。修复：拆分为三分支（有状态贴 statusBadge.leading / 有箭头贴 arrowView\.leading / 都没有贴 `contentView.trailing - lg`），消除 `.snp.leading` 方向错误。此 bug 一直潜伏，v1.27 之前所有 Demo 都带箭头（arrow 默认 true）从未触发。
 
 ### Changed
 

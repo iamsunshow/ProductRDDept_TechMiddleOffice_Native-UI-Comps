@@ -126,6 +126,8 @@ final class Cell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
+        // cell + contentView 同色：v1.26 横屏 safeArea 修复后 contentView.frame = bounds，
+        // 二者底色完全一致，对外呈现 bgCard（卡片白）。
         backgroundColor = AppColor.bgCard
         contentView.backgroundColor = AppColor.bgCard
 
@@ -159,6 +161,7 @@ final class Cell: UITableViewCell {
         statusBadge.contentMode = .scaleAspectFit
         statusBadge.setContentHuggingPriority(.required, for: .horizontal)
 
+        // 骨架：灰底 + 圆角 sm + 脉冲透明度，对齐 Android SkeletonTitle 视觉。
         skeletonView.backgroundColor = AppColor.border
         skeletonView.layer.cornerRadius = AppRadius.sm
         skeletonView.isHidden = true
@@ -316,8 +319,11 @@ final class Cell: UITableViewCell {
                 }
                 if hasSubtitle {
                     // 有副标题：top+bottom 精确闭合，撑起 contentView 高度。
+                    // v1.30 修复：bottom 扣除 rowSpacing（divider 占了底部 rowSpacing 高的 bgPage 色间隙），
+                    // 否则 textStack 视觉上顶住了 divider，"上面有 16pt 蓝色内边距，下面看起来没有"。
+                    // 视觉对称：顶部 16pt 蓝 + 中间黄 + 底部 16pt 蓝 + 底部 divider（间隙灰）= 对称。
                     make.top.equalToSuperview().offset(AppSpace.cellVertical)
-                    make.bottom.equalToSuperview().offset(-AppSpace.cellVertical)
+                    make.bottom.equalToSuperview().offset(-(AppSpace.cellVertical + rowSpacing))
                 } else {
                     // v1.23：仅标题时用 centerY 居中到可见区域。
                     // 不加 top/bottom 约束——centerY + top>=16 会冲突，
@@ -341,7 +347,7 @@ final class Cell: UITableViewCell {
                 }
                 if hasSubtitle {
                     make.top.equalToSuperview().offset(AppSpace.cellVertical)
-                    make.bottom.equalToSuperview().offset(-AppSpace.cellVertical)
+                    make.bottom.equalToSuperview().offset(-(AppSpace.cellVertical + rowSpacing))  // 同上对称修复
                 } else {
                     // v1.23：仅标题时用 centerY 居中到可见区域（同上有图标分支）。
                     make.centerY.equalToSuperview().offset(-rowSpacing / 2.0)
@@ -432,9 +438,14 @@ final class Cell: UITableViewCell {
         boundIndex = index
     }
 
-    /// 按下态反馈：背景 gray.4，松手恢复。
+    /// 按下态反馈：背景 gray.4，松手恢复 bgCard。禁用态下此方法理论上不会被系统调用
+    /// （apply() 已设置 `isUserInteractionEnabled = false`），但为保险起见仍显式 guard，
+    /// 避免 setHighlighted 被系统/调用方强制触发时，覆盖掉 apply() 为禁用态设置的 gray4 背景
+    /// （导致「禁用 cell 按住 → 松手恢复 bgCard 白色」视觉错位）。
     override func setHighlighted(_ highlighted: Bool, animated: Bool) {
         super.setHighlighted(highlighted, animated: animated)
+        // 禁用态 = !isUserInteractionEnabled（apply() 中统一赋值），此时禁止改背景。
+        guard isUserInteractionEnabled else { return }
         contentView.backgroundColor = highlighted ? AppColor.gray4 : AppColor.bgCard
     }
 

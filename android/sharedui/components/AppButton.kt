@@ -49,6 +49,7 @@ enum class AppButtonStyle {
  * @param fontSize 文案字号，默认与一键登录一致（16sp）
  * @param height 按钮高度，默认 48dp
  * @param enabled 是否可用，false 时按钮置灰且不可点击
+ * @param loading 是否处于加载态，true 时置灰并显示"加载中..."，不可点击（对齐 iOS setLoading）
  */
 @Composable
 fun AppButton(
@@ -58,20 +59,22 @@ fun AppButton(
     style: AppButtonStyle = AppButtonStyle.Primary,
     fontSize: TextUnit = AppFont.sizeMd,
     height: Dp = 48.dp,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    loading: Boolean = false
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
 
     val shape = RoundedCornerShape(AppRadius.lg)
+    // 加载态与禁用态共用 buttonDisabled 灰填充 + 白字，按下态仅 primary 有深色反馈。
     val (container, content, borderColor) = when {
-        !enabled -> Triple(Color(0xFF9CA3AF), Color.White, null)
+        loading || !enabled -> Triple(AppColor.buttonDisabled, Color.White, null)
         style == AppButtonStyle.Primary ->
             Triple(if (pressed) AppColor.primaryPressed else AppColor.primary, Color.White, null)
         style == AppButtonStyle.Secondary ->
-            Triple(Color.Transparent, AppColor.primary, AppColor.primary)
+            Triple(AppColor.bgCard, AppColor.primary, AppColor.primary)
         else ->
-            Triple(Color.Transparent, AppColor.error, AppColor.error)
+            Triple(AppColor.bgCard, AppColor.error, AppColor.error)
     }
 
     Box(
@@ -84,13 +87,13 @@ fun AppButton(
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
-                enabled = enabled,
+                enabled = enabled && !loading,
                 onClick = onClick
             ),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = text,
+            text = if (loading) "加载中..." else text,
             color = content,
             fontSize = fontSize,
             fontWeight = FontWeight.SemiBold

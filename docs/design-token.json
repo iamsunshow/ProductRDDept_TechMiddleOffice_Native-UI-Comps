@@ -12,6 +12,7 @@
     "border": "#E5E7EB",
     "bgPage": "#F9FAFB",
     "bgCard": "#FFFFFF",
+    "buttonDisabled": "#9CA3AF",
     "success": "#16A34A",
     "error": "#DC2626",
     "gray": {

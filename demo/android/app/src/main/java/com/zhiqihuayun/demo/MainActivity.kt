@@ -41,6 +41,8 @@ import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppFont
 import com.zhiqihuayun.foundation.design.AppRadius
 import com.zhiqihuayun.foundation.design.AppSpace
+import com.zhiqihuayun.sharedui.components.AppButton
+import com.zhiqihuayun.sharedui.components.AppButtonStyle
 import com.zhiqihuayun.sharedui.components.Cell
 import com.zhiqihuayun.sharedui.components.CellStatus
 
@@ -67,7 +69,7 @@ data class DemoComponent(
 
 private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
     "基础组件" to listOf(
-        DemoComponent("Button 按钮"),
+        DemoComponent("Button 按钮", reviewed = true, demo = { ButtonDemo() }),
         DemoComponent("Cell 单元格", reviewed = true, demo = { CellDemo() }),
         DemoComponent("ConfigProvider 全局配置"),
         DemoComponent("Icon 图标"),
@@ -287,7 +289,7 @@ private fun CellDemo() {
                 .padding(horizontal = 10.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "Cell 组件 v1.18",
+                text = "Cell 组件 v1.31",
                 color = AppColor.primary,
                 fontSize = AppFont.sizeXs,
                 fontWeight = FontWeight.Medium,
@@ -420,5 +422,130 @@ private fun MeasuredCell(label: String, content: @Composable (heightDp: Float) -
             }
     ) {
         content(measuredHeightDp)
+    }
+}
+
+// ===== Button 组件 Demo 页（独立页面，与 iOS ButtonShowcase 一一对应） =====
+
+private data class BtnConfig(
+    val style: AppButtonStyle,
+    val text: String,
+    val enabled: Boolean = true,
+    val loading: Boolean = false
+)
+
+private data class BtnGroup(
+    val title: String,
+    val note: String,
+    val configs: List<BtnConfig>
+)
+
+private val btnGroups: List<BtnGroup> = listOf(
+    BtnGroup(
+        title = "① 基础形态（仅 Primary）",
+        note = "排查点：骨架/高度(48dp)/圆角(lg)/主色填充/白字/按下态反馈。只放 primary 样式，验证基础视觉。",
+        configs = listOf(
+            BtnConfig(style = AppButtonStyle.Primary, text = "登录"),
+            BtnConfig(style = AppButtonStyle.Primary, text = "注册")
+        )
+    ),
+    BtnGroup(
+        title = "② style 切换（三样式对照）",
+        note = "排查点：primary(主色填充+白字) vs secondary(白底+主色描边+主色字) vs destructive(白底+红色描边+红色字)。",
+        configs = listOf(
+            BtnConfig(style = AppButtonStyle.Primary, text = "主操作"),
+            BtnConfig(style = AppButtonStyle.Secondary, text = "次操作"),
+            BtnConfig(style = AppButtonStyle.Destructive, text = "删除")
+        )
+    ),
+    BtnGroup(
+        title = "③ 状态（loading + disabled）",
+        note = "排查点：loading 态置灰(buttonDisabled)+文案「加载中...」+不可点击；disabled 态置灰+不可点击。",
+        configs = listOf(
+            BtnConfig(style = AppButtonStyle.Primary, text = "加载中", loading = true),
+            BtnConfig(style = AppButtonStyle.Primary, text = "已禁用", enabled = false),
+            BtnConfig(style = AppButtonStyle.Secondary, text = "次操作加载", loading = true),
+            BtnConfig(style = AppButtonStyle.Destructive, text = "删除禁用", enabled = false)
+        )
+    ),
+    BtnGroup(
+        title = "④ 全形态（三样式×三状态组合）",
+        note = "排查点：三样式 × 三状态(normal/loading/disabled)完整组合，点击有反馈。",
+        configs = listOf(
+            BtnConfig(style = AppButtonStyle.Primary, text = "主操作"),
+            BtnConfig(style = AppButtonStyle.Primary, text = "主操作加载", loading = true),
+            BtnConfig(style = AppButtonStyle.Primary, text = "主操作禁用", enabled = false),
+            BtnConfig(style = AppButtonStyle.Secondary, text = "次操作"),
+            BtnConfig(style = AppButtonStyle.Secondary, text = "次操作加载", loading = true),
+            BtnConfig(style = AppButtonStyle.Secondary, text = "次操作禁用", enabled = false),
+            BtnConfig(style = AppButtonStyle.Destructive, text = "删除"),
+            BtnConfig(style = AppButtonStyle.Destructive, text = "删除加载", loading = true),
+            BtnConfig(style = AppButtonStyle.Destructive, text = "删除禁用", enabled = false)
+        )
+    )
+)
+
+@Composable
+private fun ButtonDemo() {
+    var clickInfo by remember { mutableStateOf("点击任意按钮查看反馈") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // 组件版本徽标：与 iOS 端保持同一版本号。
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm))
+                .padding(horizontal = 10.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = "Button 组件 v1.0",
+                color = AppColor.primary,
+                fontSize = AppFont.sizeXs,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        // 点击反馈条
+        Text(
+            text = clickInfo,
+            color = AppColor.primary,
+            fontSize = AppFont.sizeXs,
+            fontWeight = FontWeight.Medium
+        )
+
+        for (group in btnGroups) {
+            Text(
+                text = group.title,
+                color = AppColor.textPrimary,
+                fontSize = AppFont.sizeMd,
+                fontWeight = FontWeight.SemiBold
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(AppSpace.md)) {
+                for (config in group.configs) {
+                    val displayText = config.text
+                    AppButton(
+                        text = displayText,
+                        onClick = { clickInfo = "点击了：$displayText" },
+                        style = config.style,
+                        enabled = config.enabled,
+                        loading = config.loading
+                    )
+                }
+            }
+            Text(
+                text = group.note,
+                color = AppColor.textSecondary,
+                fontSize = AppFont.sizeXs
+            )
+        }
     }
 }

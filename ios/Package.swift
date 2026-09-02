@@ -15,17 +15,26 @@ let package = Package(
         .library(name: "KeepAccountsMiddleware", targets: ["KeepAccountsMiddleware"])
     ],
     dependencies: [
-        .package(url: "https://github.com/Alamofire/Alamofire.git", exact: "5.9.1"),
-        .package(url: "https://github.com/groue/GRDB.swift.git", exact: "6.29.3"),
-        .package(url: "https://github.com/danielgindi/Charts.git", exact: "4.1.0"),
-        .package(url: "https://github.com/SnapKit/SnapKit.git", exact: "5.6.0")
+        // v1.30c 根治 SwiftPM 缓存漂移：全部依赖改为 Vendor 本地路径引用。
+        // 旧问题：依赖同时以「远程 URL exact」+「Vendor 本地 clone」两份同包名存在，
+        // SwiftPM 从远程 URL checkout 到 .build/checkouts/<Package>/ 作为实际解析源，
+        // 本地 Vendor/Charts/Package.swift 修复的脏字符不生效，导致反复报
+        // "Extra arguments at positions #3, #4 / Reference to member 'produ' cannot be resolved"。
+        // 改为本地 .package(path:) 后，整条链路闭环（Charts → swift-algorithms → swift-numerics
+        // 均为相对本地路径），SwiftPM 直接读取 Vendor/ 下物理文件，无远程 cache 命中机会。
+        .package(path: "Vendor/Alamofire"),
+        .package(path: "Vendor/GRDB.swift"),   // 自身 Package.swift name="GRDB"，targets 引用名见下方
+        .package(path: "Vendor/Charts"),        // 内部依赖 .package(path: "../swift-algorithms")，已闭合
+        .package(path: "Vendor/SnapKit"),
     ],
     targets: [
         .target(
             name: "KeepAccountsMiddleware",
             dependencies: [
                 .product(name: "Alamofire", package: "Alamofire"),
-                .product(name: "GRDB", package: "GRDB.swift"),
+                // GRDB.swift/Package.swift 自身 name 字段 = "GRDB"（非目录名 GRDB.swift），
+                // 本地路径依赖以 Package.swift 的 name 字段为 package 引用键，必须匹配。
+                .product(name: "GRDB", package: "GRDB"),
                 .product(name: "Charts", package: "Charts"),
                 .product(name: "SnapKit", package: "SnapKit")
             ],
@@ -34,10 +43,8 @@ let package = Package(
                 "Package.swift",
                 "Package.resolved",
                 "Tests",
-                // SPM 解析产物与本地 Vendored 依赖的工程/示例资源，不应作为本 target 的 bundle 资源扫描，
-                // 否则会与依赖自身的 Base.lproj/LaunchScreen.storyboard 等重复，导致 `swift build`/`swift test` 报资源冲突。
+                // SPM 自身解析产物（不在 sources 目录内，仍需显式排除以避免资源扫描重复）。
                 ".build",
-                "Vendor",
                 // 记账业务组件（引用 App Feature 领域类型，不属于通用中台，由 App 本地编译）：
                 "SharedUI/Components/CategoryPickerView.swift",
                 "SharedUI/Components/PeriodTabsView.swift",

@@ -19,6 +19,8 @@ enum AppColor {
     static let border = UIColor(hex: 0xE5E7EB)
     static let bgPage = UIColor(hex: 0xF9FAFB)
     static let bgCard = UIColor.white
+    /// 按钮禁用/加载态填充色（灰阶 400 区间，介于 gray15 与 gray25 之间）。
+    static let buttonDisabled = UIColor(hex: 0x9CA3AF)
 }
 
 /// 字号阶梯。

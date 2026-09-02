@@ -1,6 +1,6 @@
 {
-  "version": "1.1.4",
-  "versionKey": "v1.1.4",
+  "version": "1.1.6",
+  "versionKey": "v1.1.6",
   "releaseDate": "2026-09-02",
-  "changelog": "fix(ios): Cell v1.28 修复无箭头无状态时文字消失——根因 apply() valueLabel trailing 锚点逻辑，当 showArrow=false 且 hasStatus=false 时 valueTrailingTarget=contentView 用 .snp.leading 锚点导致 valueLabel.trailing=contentView.leading-lg（左边外），textStack.trailing<=valueLabel.leading-sm 变负数 textStack 宽度为负文字被压缩消失。修复拆分三分支（有状态贴 statusBadge.leading/有箭头贴 arrowView.leading/都没有贴 contentView.trailing-lg）消除方向错误。此 bug 一直潜伏，v1.27 前所有 Demo 都带箭头（arrow 默认 true）从未触发，v1.27 Demo2 改 arrow:false 才暴露。Demo 版本徽标 v1.27→v1.28"
+  "changelog": "feat(ui.button): Button 组件 v1.0 新增——双端 AppButton 代码对齐（Android 补 loading 态参数对齐 iOS setLoading；双端禁用/加载态填充色改用设计令牌 AppColor.buttonDisabled；Android secondary 背景从透明改 bgCard 对齐 iOS）+ api.json 新增 ui.button 契约（props 7 / events 1 / demos 5 / status=stable / anti_goals 3，componentCount 27→28）+ design-token.json 新增 buttonDisabled=#9CA3AF + iOS ButtonShowcase / Android ButtonDemo 双端 4 组递增排查 Demo（①基础形态→②style切换→③状态→④全形态组合）+ reviewed=true。DemoShowcases.swift addVersionBadge 泛化 componentName 参数（默认 Cell 不影响现有调用）。ui-version 双端同升 1.1.6，Demo 徽标 Button v1.0。"
 }

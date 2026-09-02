@@ -19,7 +19,7 @@ final class DemoListViewController: UITableViewController {
 
     private let sections: [(category: String, components: [DemoComponent])] = [
         ("基础组件", [
-            DemoComponent(id: "ui.button", name: "Button 按钮", reviewed: false, create: nil),
+            DemoComponent(id: "ui.button", name: "Button 按钮", reviewed: true, create: { ButtonShowcase() }),
             DemoComponent(id: "ui.cell", name: "Cell 单元格", reviewed: true, create: { CellShowcase() }),
             DemoComponent(id: "ui.config-provider", name: "ConfigProvider 全局配置", reviewed: false, create: nil),
             DemoComponent(id: "ui.icon", name: "Icon 图标", reviewed: false, create: nil),
@@ -287,10 +287,10 @@ class ShowcaseViewController: UIViewController {
     /// 在页面最顶部插入组件版本徽标，用于核对实机是否运行最新代码。
     /// 只显示版本号（去掉了时间戳），两端用同一版本号直接对齐即可。
     /// 注意：调用时机在 addSection/addInfo 之后，用 insert(at: 0) 保证置顶。
-    func addVersionBadge(version: String, builtAt: String) {
+    func addVersionBadge(componentName: String = "Cell", version: String, builtAt: String) {
         let badge = UIView()
         let label = UILabel()
-        label.text = "Cell 组件 \(version)"
+        label.text = "\(componentName) 组件 \(version)"
         label.font = .systemFont(ofSize: AppFont.sizeXs, weight: .medium)
         label.textColor = AppColor.primary
         label.textAlignment = .center
@@ -410,7 +410,7 @@ final class CellShowcase: ShowcaseViewController {
 
         // 组件版本 + 构建时间戳（精确到秒）：用于核对实机运行的是否为最新代码。
         // 每次改动 Cell 组件后，手动递增版本号并更新此时间，双端（iOS/Android）保持一致。
-        addVersionBadge(version: "v1.28", builtAt: "2026-09-02 00:55:00")
+        addVersionBadge(version: "v1.31", builtAt: "2026-09-02 07:40:00")
         // 固定高度参考块（B 方案）：56pt 色块（= 设计稿单行 cell），跨模拟器目测 cell 高度。须在徽标之后调用。
         addHeightReference()
         // 顶部常驻反馈条：点击/长按就地更新（对标 Android clickInfo，避免追加到底部不可见）。
@@ -421,7 +421,6 @@ final class CellShowcase: ShowcaseViewController {
             addSection(title: group.title) { [weak group] container in
                 guard let group else { return }
                 let tv = group.tableView
-                // 与 Android demo 一致：平铺 bgPage，cell 间用间隙（bgPage 色）分隔。
                 tv.backgroundColor = AppColor.bgPage
                 tv.separatorStyle = .none
                 tv.isScrollEnabled = false
@@ -554,5 +553,127 @@ extension CellShowcase {
         if !model.title.isEmpty { return model.title }
         let seq = String(group.title.prefix(1))
         return "\(seq) 空行-\(index + 1)"
+    }
+}
+
+// MARK: - Button Showcase（Button 组件独立 Demo 页）
+
+final class ButtonShowcase: ShowcaseViewController {
+    /// 顶部常驻反馈条：点击按钮在此就地更新。
+    private var feedbackLabel: UILabel?
+
+    /// 单个按钮配置：样式 + 文案 + 状态。
+    private struct ButtonConfig {
+        let style: AppButtonStyle
+        let text: String
+        let enabled: Bool
+        let loading: Bool
+    }
+
+    /// 单个排查分组：标题 + 说明 + 一组按钮配置。
+    private struct ButtonGroup {
+        let title: String
+        let note: String
+        let configs: [ButtonConfig]
+    }
+
+    /// 逐步递增的单因子排查分组：
+    /// ① 基础形态（仅 Primary）→ 验证骨架/高度(48pt)/圆角(lg)/主色填充/白字/按下态
+    /// ② style 切换 → 验证三样式视觉差异（primary/secondary/destructive）
+    /// ③ 状态（loading + disabled）→ 验证状态色和文案变化
+    /// ④ 全形态（三样式×三状态完整组合 + 点击反馈）
+    private let groups: [ButtonGroup] = [
+        ButtonGroup(
+            title: "① 基础形态（仅 Primary）",
+            note: "排查点：骨架/高度(48pt)/圆角(lg)/主色填充/白字/按下态反馈。只放 primary 样式，验证基础视觉。",
+            configs: [
+                ButtonConfig(style: .primary, text: "登录", enabled: true, loading: false),
+                ButtonConfig(style: .primary, text: "注册", enabled: true, loading: false),
+            ]
+        ),
+        ButtonGroup(
+            title: "② style 切换（三样式对照）",
+            note: "排查点：primary(主色填充+白字) vs secondary(白底+主色描边+主色字) vs destructive(白底+红色描边+红色字)。",
+            configs: [
+                ButtonConfig(style: .primary, text: "主操作", enabled: true, loading: false),
+                ButtonConfig(style: .secondary, text: "次操作", enabled: true, loading: false),
+                ButtonConfig(style: .destructive, text: "删除", enabled: true, loading: false),
+            ]
+        ),
+        ButtonGroup(
+            title: "③ 状态（loading + disabled）",
+            note: "排查点：loading 态置灰(buttonDisabled)+文案「加载中...」+不可点击；disabled 态置灰+不可点击。",
+            configs: [
+                ButtonConfig(style: .primary, text: "加载中", enabled: true, loading: true),
+                ButtonConfig(style: .primary, text: "已禁用", enabled: false, loading: false),
+                ButtonConfig(style: .secondary, text: "次操作加载", enabled: true, loading: true),
+                ButtonConfig(style: .destructive, text: "删除禁用", enabled: false, loading: false),
+            ]
+        ),
+        ButtonGroup(
+            title: "④ 全形态（三样式×三状态组合）",
+            note: "排查点：三样式 × 三状态(normal/loading/disabled)完整组合，点击有反馈。",
+            configs: [
+                ButtonConfig(style: .primary, text: "主操作", enabled: true, loading: false),
+                ButtonConfig(style: .primary, text: "主操作加载", enabled: true, loading: true),
+                ButtonConfig(style: .primary, text: "主操作禁用", enabled: false, loading: false),
+                ButtonConfig(style: .secondary, text: "次操作", enabled: true, loading: false),
+                ButtonConfig(style: .secondary, text: "次操作加载", enabled: true, loading: true),
+                ButtonConfig(style: .secondary, text: "次操作禁用", enabled: false, loading: false),
+                ButtonConfig(style: .destructive, text: "删除", enabled: true, loading: false),
+                ButtonConfig(style: .destructive, text: "删除加载", enabled: true, loading: true),
+                ButtonConfig(style: .destructive, text: "删除禁用", enabled: false, loading: false),
+            ]
+        ),
+    ]
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Button 按钮"
+
+        addVersionBadge(componentName: "Button", version: "v1.0", builtAt: "2026-09-02 19:00:00")
+        feedbackLabel = addFeedbackBar()
+
+        for group in groups {
+            addSection(title: group.title) { [weak self] container in
+                guard let self else { return }
+                let stack = UIStackView()
+                stack.axis = .vertical
+                stack.spacing = AppSpace.md
+                container.addSubview(stack)
+                stack.snp.makeConstraints { make in
+                    make.leading.trailing.equalToSuperview().inset(AppSpace.md)
+                    make.top.bottom.equalToSuperview().inset(AppSpace.md)
+                }
+                for config in group.configs {
+                    let button: AppButton
+                    switch config.style {
+                    case .primary:
+                        button = .primary(config.text)
+                    case .secondary:
+                        button = .secondary(config.text)
+                    case .destructive:
+                        button = .destructive(config.text)
+                    }
+                    if !config.enabled {
+                        button.setAppEnabled(false)
+                    }
+                    if config.loading {
+                        button.setLoading(true)
+                    }
+                    button.addTarget(self, action: #selector(self.buttonTapped(_:)), for: .touchUpInside)
+                    stack.addArrangedSubview(button)
+                    button.snp.makeConstraints { make in
+                        make.height.equalTo(AppButton.standardHeight)
+                    }
+                }
+            }
+            addInfo(group.note)
+        }
+    }
+
+    @objc private func buttonTapped(_ sender: AppButton) {
+        let title = sender.title(for: .normal) ?? ""
+        feedbackLabel?.text = "点击了：\(title)"
     }
 }

@@ -7,6 +7,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -23,7 +24,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,9 +32,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -136,7 +142,13 @@ fun Cell(
 
             // 中间标题区（加载态骨架占位）。
             if (loading) {
-                SkeletonTitle()
+                // v1.30 修复：外层 Box(Modifier.weight(1f)) 撑满 Row 剩余宽度，
+                // 否则 SkeletonTitle 按 40% fillMaxWidth 显示（intrinsic 宽固定），
+                // Row 尾部 arrow 被挤到骨架右侧而非整行最右（第 6 行 loading 态箭头不对齐）。
+                // 与正常态 Column(Modifier.weight(1f)) 对称。
+                Box(modifier = Modifier.weight(1f)) {
+                    SkeletonTitle()
+                }
             } else {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
@@ -176,25 +188,28 @@ fun Cell(
             // 状态标识：success/error 替换箭头位。
             if (status != CellStatus.Normal && !disabled) {
                 Spacer(modifier = Modifier.width(AppSpace.sm))
-                val badgeIcon = when (status) {
+                val badgeIcon: ImageVector? = when (status) {
+                    // v1.30c：Error 不用 ImageVector（Material 无"圆+!"，自绘 ImageVector API 复杂易编译错），
+                    // 改为直接 ErrorCircleBadge() Composable。Success 保留 CheckCircle（圆✓）。
                     CellStatus.Success -> Icons.Filled.CheckCircle
-                    CellStatus.Error -> Icons.Filled.Cancel
+                    CellStatus.Error -> null
                     CellStatus.Normal -> null
                 }
-                if (badgeIcon != null) {
+                if (status == CellStatus.Error) {
+                    // 直接自绘 Composable，对齐 iOS SF Symbols `exclamationmark.circle.fill` = 圆!
+                    ErrorCircleBadge(
+                        modifier = Modifier
+                            .size(AppSpace.xl)
+                            .testTag("cell-status"),
+                    )
+                } else if (badgeIcon != null) {
                     Image(
                         imageVector = badgeIcon,
                         contentDescription = if (status == CellStatus.Success) "成功" else "失败",
                         modifier = Modifier
                             .size(AppSpace.xl)
                             .testTag("cell-status"),
-                        colorFilter = ColorFilter.tint(
-                            when (status) {
-                                CellStatus.Success -> AppColor.success
-                                CellStatus.Error -> AppColor.error
-                                CellStatus.Normal -> AppColor.gray25
-                            },
-                        ),
+                        colorFilter = ColorFilter.tint(AppColor.success),
                     )
                 }
             }
@@ -244,4 +259,45 @@ private fun SkeletonTitle() {
             .graphicsLayer { this.alpha = alpha }
             .testTag("cell-skeleton"),
     )
+}
+
+/**
+ * 自定义 Error 标识 Composable：红色填充圆 + 白色感叹号（对齐 iOS SF Symbols
+ * `exclamationmark.circle.fill` 视觉），与 Success `CheckCircle`（圆✓）配对统一。
+ *
+ * Material Icons 标准集没有"圆+!"向量，且 v1.30b 尝试用 `ImageVector.Builder +
+ * PathBuilder + VectorConfig` 自绘时误用了 Compose 不存在的扩展 API，导致
+ * Kotlin 编译失败（`:android:components:compileDebugKotlin`）。
+ * 改用 Compose Canvas 直接绘制：① API 简单稳定（Compose 1.0+ 全版本兼容）；
+ * ② 颜色直接取设计令牌 `AppColor.error`，随主题同步不漂移。
+ *
+ * 24×24dp 视窗比例：红圆占满画布 → 白竖条（2×8）x=11-13, y=6-14 →
+ * 白圆点（2×2）x=11-13, y=17-19。
+ */
+@Composable
+private fun ErrorCircleBadge(modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier) {
+        // 以短边为基准做 24dp 视窗缩放，任意父级 size 传入时图形居中不变形。
+        val canvasSize = size.minDimension
+        val s = canvasSize / 24f
+
+        // 1) 红填充圆（严格取设计令牌，随暗色模式/主题切换同步）。
+        drawCircle(
+            color = AppColor.error,
+            radius = canvasSize / 2,
+            center = center,
+        )
+        // 2) 白感叹号竖条：宽 2 × 高 8。
+        drawRect(
+            color = Color.White,
+            topLeft = Offset(11f * s, 6f * s),
+            size = Size(2f * s, 8f * s),
+        )
+        // 3) 白圆点：宽 2 × 高 2。
+        drawRect(
+            color = Color.White,
+            topLeft = Offset(11f * s, 17f * s),
+            size = Size(2f * s, 2f * s),
+        )
+    }
 }

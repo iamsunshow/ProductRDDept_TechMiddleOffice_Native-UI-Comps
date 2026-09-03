@@ -275,6 +275,12 @@ final class Overlay: UIView {
         onClose: (() -> Void)? = nil,
         onMaskClick: (() -> Void)? = nil
     ) {
+        // ⚠️ Swift 两阶段初始化 Safety Check 1（永久钉死，真 build 第 15-18 条实锤=4 条 self used before self.init 全由下面这条顺序错触发）：
+        // convenience init 必须【先 self.init 代理到同类 designated init】（完成第 1 阶段=对象内存/父类链构造完毕），之后才能给 self 的属性赋值。
+        // 绝对不允许先 self.visible = xxx 赋值 → 再 self.init 代理 = 顺序反了！
+        self.init(frame: .zero)
+
+        // —— 以下为 Phase 2：self 已完全构造完毕，可安全赋值属性 & 调用方法 ——
         self.visible = visible
         self.maskColor = maskColor
         self.closeOnMaskClick = closeOnMaskClick
@@ -286,7 +292,6 @@ final class Overlay: UIView {
         self.contentBuilder = content
         self.onClose = onClose
         self.onMaskClick = onMaskClick
-        self.init(frame: .zero)
     }
 
     override init(frame: CGRect) {

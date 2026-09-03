@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Overlay 遮罩层 · 设计规格（门禁 A）</title>
+<link rel="stylesheet" href="./design-spec.css" />
+<script src="./design-spec.js" defer></script>
+<style>
+/* 本页局部样式：遮罩/弹窗视觉预览用。token 全部引用 design-token.json 等价数值。 */
+:root{
+  --primary:#16A34A; --primaryMuted:#DCFCE7; --primaryPressed:#15803D;
+  --textPrimary:#111827; --textSecondary:#6B7280; --textInverse:#FFFFFF;
+  --border:#E5E7EB; --bgPage:#F9FAFB; --bgCard:#FFFFFF;
+  --warning:#F59E0B; --error:#DC2626;
+  --radiusSm:6px; --radiusMd:10px; --radiusLg:14px; --radiusFull:999px;
+  --spaceXs:4px; --spaceSm:8px; --spaceMd:12px; --spaceLg:16px; --spaceXl:24px;
+  --sizeXs:12px; --sizeSm:14px; --sizeMd:16px; --sizeLg:18px; --sizeXl:22px;
+}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}
+h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}
+h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tok{background:var(--primaryMuted);color:var(--primaryPressed);padding:1px 6px;border-radius:var(--radiusSm);font-size:var(--sizeXs);font-weight:600;}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}
+.tag-na{background:#FEF3C7;color:#92400E;} .tag-ok{background:#DCFCE7;color:#166534;} .tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}
+th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}
+th{background:#F3F4F6;text-align:left;}
+.demo-stage{background:#1F2937;border-radius:var(--radiusLg);position:relative;aspect-ratio:9/16;max-width:320px;margin:var(--spaceMd) 0;overflow:hidden;color:#fff;}
+.stage-mask{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.stage-inner{max-width:240px;}
+.stage-content{background:var(--bgCard);color:var(--textPrimary);border-radius:var(--radiusLg);padding:var(--spaceXl);}
+.pill{padding:6px 12px;border-radius:var(--radiusMd);font-size:var(--sizeXs);}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:var(--spaceMd);}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--spaceSm);}
+@media (max-width:640px){.grid-2,.grid-4{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<h1>Overlay 遮罩层 · 设计规格（基础组件 #6，subcategory=basics · 门禁 A）</h1>
+<p>组件 ID：<code>ui.overlay</code>　｜　定位：<b>全屏遮罩 + 自定义内容插槽</b>，作为弹窗/抽屉/引导/气泡菜单等浮层的<b>通用底部基座</b>。业务浮层一律基于 Overlay 组合（二次开发），禁止自行手写遮罩。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.3.12（C1 实现升级为 v1.4.0 MINOR：基础类 6/6 收官）
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 模态弹窗遮罩（二级操作确认）；② 浮层引导遮罩（新手引导、新手蒙版）；③ 加载/阻塞操作全屏遮罩（业务层 loading 全屏）；④ 抽屉/底部弹层/气泡菜单等的遮罩背景；⑤ 点击空白关闭的任何临时浮层</td></tr>
+<tr><td>不适用（N/A）</td><td>① 页面级固定半透明 Banner（非遮罩，归页面）；② Toast/Notify 通知浮层（不归 Overlay 管理，为独立组件 ui.toast / ui.notify）；③ Loading 局部小遮罩（归 EmptyState 或 loadingContent 插槽，非全屏级）；④ 页面路由级过渡（归 Router）</td></tr>
+<tr><td>五态适配</td><td>Overlay 为"容器型组件"，<b>五态=视觉遮罩 + 插槽内容自身状态</b>。因此：<span class="tag tag-na">禁用/加载/成功/失败 N/A</span>（由插槽内容自带），<span class="tag tag-ok">默认态 ✅</span> = 遮罩显示+内容插槽默认。另提供 <b>关闭态</b>（visible=false）由动画驱动。</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[] 无依赖（不引入第三方动画库）。会被未来 Dialog / Popup / ActionSheet / Drawer / Popover 等浮层类继承组合。与 ConfigProvider 正交：遮罩颜色/圆角/间距读 DesignToken（零硬编码）。</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/颜色/圆角 Token 规格（零硬编码，引用 design-token.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>数值</th><th>说明</th></tr>
+<tr><td>遮罩颜色（默认）</td><td><span class="tok">rgba(17,24,39, 0.55)</span> = 原生 textPrimary #111827 × 55% 透明度</td><td>α = 0.55</td><td>通用半透明黑遮罩（不放入 token 颜色表，因 token 颜色表不存 RGBA + 仅遮罩组件使用；代码层以常量 OVERLAY_MASK_ALPHA = 0.55 命名，非魔法值）</td></tr>
+<tr><td>遮罩颜色（透明模式）</td><td><span class="tok">transparent</span></td><td>α = 0</td><td>仅作为全屏点击拦截/穿透开关的容器，配合 clickThrough=false 使用（见 03 决策 P3）</td></tr>
+<tr><td>顶部安全区偏移</td><td><span class="tok">foundation.safe-area.top</span></td><td>系统状态栏高</td><td>iOS 刘海/灵动岛、Android 顶部状态栏；遮罩默认覆盖全屏（including 安全区），避免白边</td></tr>
+<tr><td>底部安全区偏移</td><td><span class="tok">foundation.safe-area.bottom</span></td><td>Home Indicator 等</td><td>同上</td></tr>
+<tr><td>圆角 token（内容插槽容器）</td><td><span class="tok">radius.lg / radius.md / radius.sm</span></td><td>14 / 10 / 6</td><td>通过 <code>contentRadius</code> 属性暴露 token 档位；双端完全一致（iOS cornerRadius + 掩膜 / Android RoundedCornerShape）</td></tr>
+<tr><td>点击遮罩关闭颜色</td><td>点击态 alpha = 0.65（透明→0.65 反馈闪）</td><td>—</td><td>视觉反馈（非 token，内置动画常量：FEEDBACK_ALPHA）</td></tr>
+<tr><td>进入退出动画时长</td><td><span class="tok">200 ms</span></td><td>fade-in 200ms / fade-out 180ms</td><td>ease-out（进入）/ ease-in（退出）。双端一致为组件 API 常量，不可配置（一期 MVP，P2=B 关闭动画时长扩展）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，待用户门禁 A 表决）</h2>
+<div class="spec-card">
+
+<h3>P1 · 遮罩层级 z-index / window 挂载方案：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：iOS = addSubview 到最外层 keyWindow；Android = Compose Dialog 原生弹窗容器</td><td>✅ 真正全屏、跨页面、层级最高；Android 依赖 Dialog 自带 window 管理；iOS 须手动管理 UIWindow。双端内部实现不同但 API 一致。</td><td><b>推荐 A</b>：与现有弹窗行为一致。后续多 Overlay 叠加由调用时序控制栈序（业务保证）。</td></tr>
+<tr><td>B：作为普通容器挂在父视图树中（需要业务给根容器锚点）</td><td>① 层级低于导航栏/Tabbar 会被遮挡；② 父子布局冲突溢出；③ 每个业务接入都要暴露根容器接口 → 接入成本高</td><td>淘汰：业务接入摩擦大、层级被遮挡常见 bug 源</td></tr>
+<tr><td>C：iOS UIPresentationController / Android BottomSheetDialog 专用</td><td>绑定单一场景（抽屉/底部弹），通用性弱，无法覆盖 Modal 对话框 / 全屏引导 / 加载遮罩</td><td>淘汰：限定场景不可复用</td></tr>
+</table>
+
+<h3>P2 · 动画能力：只做淡入淡出（MVP）还是 位置/缩放/自定义 transition</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：一期仅淡入淡出（fade 200ms，关闭可关闭），不开放自定义曲线</td><td>✅ 双端 1:1 代码量最小；视觉一致性有保证。抽屉/底部弹/缩放需求由上层组件（Dialog/Popup）在插槽内容层自行实现（Overlay 仅做遮罩 base）</td><td><b>推荐 A（一期 MVP）</b>：职责边界清晰。过渡动画扩展留作 v1.4.x PATCH，不阻塞 6/6 基础类收工。</td></tr>
+<tr><td>B：开放 enterAnimation/exitAnimation 插槽（双端不同，API 分裂）</td><td>iOS CAAnimation / Android Transition 类型不同，跨端 API 无法 100% 对齐 → 违反治理规范双端一致铁律</td><td>淘汰</td></tr>
+</table>
+
+<h3>P3 · 点击遮罩背景（非内容区）行为 & 穿透 clickThrough</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：默认 <code>closeOnMaskClick=true</code>（点击遮罩背景关闭触发 onClose）；另提供 <code>clickThrough=false</code>（默认）拦截点击、true 穿透到底下页面</td><td>✅ 默认行为与 NutUI Modal 一致；closeOnMaskClick 与 clickThrough 正交：clickThrough=true 时遮罩层不接任何事件（完全透明穿透用于气泡菜单/局部浮层），closeOnMaskClick 失效符合直觉。事件回调 <code>onMaskClick?: () => void</code></td><td><b>推荐 A</b>：覆盖 90% 用例；onMaskClick 便于埋点。</td></tr>
+<tr><td>B：closeOnMaskClick 默认为 false 强制业务关</td><td>与主流组件库默认相反，业务易漏回调导致"关不掉"用户投诉 bug</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 内容插槽布局位置（contentPosition）：居中 / 顶部 / 底部 / 左上 / 左下 / 右上 / 右下</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：枚举 9 点 <code>'center' | 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'</code>，默认 <code>'center'</code>；另补 <code>contentOffset?: {x,y}</code> 微调</td><td>✅ 完全覆盖 Modal/顶部通知/底部抽屉/角标气泡；双端布局对齐（Swift UIStackView/Jetpack Alignment 都可实现 9 点）；x/y 用统一逻辑 pt/dp</td><td><b>推荐 A</b>：覆盖 Dialog(center)/Drawer(bottom)/Toast-like(top)/Tooltip(corner) 四大场景</td></tr>
+<tr><td>B：只默认 center，其余由业务写绝对定位</td><td>写死场景窄，业务每次要重复写 safe-area 偏移</td><td>淘汰</td></tr>
+</table>
+
+</div>
+
+<h2>04 · 视觉预览（四组 Demo 1:1 对照，浏览器即可预览）</h2>
+<div class="grid-2">
+<div>
+<h3>Demo ① 默认遮罩 + 内容居中（关闭遮罩点击）</h3>
+<div class="demo-stage">
+  <div style="padding:24px">页面背景：记账 APP 首页示意<br/><span style="opacity:.7">(底图灰色表示业务页面被遮挡)</span></div>
+  <div class="stage-mask" style="background:rgba(17,24,39,.55)">
+    <div class="stage-inner">
+      <div class="stage-content">
+        <div style="font-weight:600;font-size:16px;margin-bottom:8px">确认退出？</div>
+        <div style="font-size:13px;color:#6B7280;margin-bottom:16px">退出后当前编辑内容不会自动保存</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button class="pill" style="background:#E5E7EB;border:0">取消</button>
+          <button class="pill" style="background:#16A34A;color:#fff;border:0">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div>
+<h3>Demo ② 透明遮罩 + 点击穿透 + 角标气泡（clickThrough=true）</h3>
+<div class="demo-stage">
+  <div style="padding:24px">页面真实内容（遮罩透明穿透到底层可点击）</div>
+  <div class="stage-mask" style="background:transparent;justify-content:flex-end;align-items:flex-start;padding:16px">
+    <div style="background:#16A34A;color:#fff;border-radius:14px;padding:10px 12px;font-size:12px;max-width:170px;box-shadow:0 4px 14px rgba(22,163,74,.35)">🎉 新手引导：点击「+」可快速记账哦～</div>
+  </div>
+</div>
+</div>
+
+<div>
+<h3>Demo ③ 底部抽屉（contentPosition=bottom + contentRadius=lg 顶圆角）</h3>
+<div class="demo-stage">
+  <div style="padding:24px">页面背景</div>
+  <div class="stage-mask" style="background:rgba(17,24,39,.55);align-items:flex-end;padding:0">
+    <div class="stage-inner" style="max-width:100%">
+      <div class="stage-content" style="border-radius:14px 14px 0 0">
+        <div style="height:4px;width:40px;background:#E5E7EB;border-radius:2px;margin:0 auto 14px"></div>
+        <div style="font-weight:600;margin-bottom:8px">选择日期范围</div>
+        <div style="color:#6B7280;font-size:13px">本周 / 本月 / 自定义…</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div>
+<h3>Demo ④ 自定义内容圆角 + 关闭遮罩点击（contentRadius=lg + closeOnMaskClick=true）</h3>
+<div class="demo-stage">
+  <div style="padding:24px">页面背景</div>
+  <div class="stage-mask" style="background:rgba(17,24,39,.55)">
+    <div class="stage-inner">
+      <div class="stage-content" style="text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">💸</div>
+        <div style="font-weight:600;margin-bottom:6px">已保存 3 条记账</div>
+        <div style="font-size:13px;color:#6B7280">总支出 ¥ 328.00</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<h2>05 · 双端差异（登记 docs/平台差异.md）</h2>
+<div class="spec-card">
+<table>
+<tr><th>项</th><th>iOS（UIKit）</th><th>Android（Compose）</th><th>对齐结果</th></tr>
+<tr><td>全屏挂载方式</td><td>UIApplication.shared.keyWindow?.addSubview；z-order 由 addSubview 时序决定</td><td>Compose <code>Dialog(properties = DialogProperties(usePlatformDefaultWidth=false, decorFitsSystemWindows=false))</code> 内嵌，自动独立 window</td><td>API 不一致但对外 visible 参数一致。<b>双端差异白名单登记</b>。</td></tr>
+<tr><td>系统返回键</td><td>物理不存在，通过 onClose 关闭</td><td>Android 返回键默认关闭 Dialog（Compose Dialog 原生行为）→ 通过 <code>dismissOnBackPress</code> 布尔属性暴露，默认 true</td><td>补独立属性 <code>dismissOnBackPress?: boolean</code>（仅 Android 生效，iOS 读值忽略不报错）。<b>登记平台差异</b>。</td></tr>
+<tr><td>圆角实现</td><td>layer.cornerRadius + maskedCorners（顶部圆角生效于 bottom 抽屉）</td><td>RoundedCornerShape(topStart/topEnd/bottomStart/bottomEnd) 按 contentPosition 自动计算掩膜圆角</td><td>视觉一致，为内部实现差异，业务无感知。</td></tr>
+</table>
+</div>
+
+<h2>06 · API 预览（门禁 B 定稿完整契约，见 review-overlay-B.md + api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>面</th><th>速览</th></tr>
+<tr><td>Props（10）</td><td><code>visible: boolean</code> 必选 / <code>maskColor?: 'default' | 'transparent' | rgba-string</code> 默认 default / <code>closeOnMaskClick?: boolean</code> 默认 true / <code>clickThrough?: boolean</code> 默认 false / <code>contentPosition?: 9 点枚举</code> 默认 center / <code>contentOffset?: {x:number, y:number}</code> / <code>contentRadius?: 'sm'|'md'|'lg'|number</code> 默认 0 / <code>animation?: boolean</code> 默认 true / <code>dismissOnBackPress?: boolean</code> 默认 true（仅 Android 生效）/ <code>content: slot</code> 必选（自定义内容插槽）</td></tr>
+<tr><td>Events（2）</td><td><code>onClose?: () => void</code>（遮罩点击关闭 / 系统返回键关闭统一走这里）；<code>onMaskClick?: () => void</code>（仅遮罩被点击时触发，与 onClose 正交）</td></tr>
+<tr><td>deps / 五态</td><td>deps=[]（零依赖）；默认态 ✅，加载/成功/失败/禁用 N/A（插槽内容自带）</td></tr>
+</table>
+</div>
+
+<hr/>
+<footer style="color:var(--textSecondary);font-size:12px;margin-top:40px">
+设计稿版本 v1.0 · 2026-09-04 · 组件库基线 v1.3.12 · 门禁 A 冻结后进入 B。
+</footer>
+</body>
+</html>

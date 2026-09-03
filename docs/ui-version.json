@@ -1,6 +1,6 @@
 {
-  "version": "1.3.12",
-  "versionKey": "v1.3.12",
-  "releaseDate": "2026-09-03",
-  "changelog": "C2 三件发版批次：Cell 单元格 v1.3.10 C2 D 发版（试点首组件 16/16 绿） / ConfigProvider v1.3.11 C2 D 发版（双端 30/30 绿） / Image 图片 v1.3.12 C2 D 发版（实机三轮 11/11 收官 partial→available）。三组件 api.json reviewed=true，iOS/Android Demo 列表 reviewed=true + 徽标 1.3.10/1.3.11/1.3.12。组件库全局 1.3.9 → 1.3.12（3×PATCH reviewed 发版）。CHANGELOG 新增 [1.3.10] [1.3.11] [1.3.12] 三段，每段含 Changed + Tested C2 证据。"
+  "version": "1.4.0",
+  "versionKey": "v1.4.0",
+  "releaseDate": "2026-09-04",
+  "changelog": "基础类 6/6 收官 MINOR v1.4.0：新增 ui.overlay（遮罩层，basics #6）按 A→B→C1→C1.5→C2→D 六门禁全流程。双端实现对齐 10 props / 2 events（iOS keyWindow addSubview + Android Compose Dialog）；4 组排查 Demo 双端 1:1（居中确认框 / 透明穿透气泡 / 底部抽屉顶两圆角 / 圆角卡片居中）；api.json reviewed=true + componentCount=31；平台差异白名单新增 4 条；§1 完整度 26/95(27.4%) → 27/95(28.4%)。CHANGELOG [1.4.0] = Added Overlay + 平台差异 4 条 / Tested 4 组 Demo + 命名对齐 A7 / Released 基础类 6/6 收官。"
 }

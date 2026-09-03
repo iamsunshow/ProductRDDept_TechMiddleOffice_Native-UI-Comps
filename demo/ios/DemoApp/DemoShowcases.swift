@@ -24,7 +24,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.config-provider", name: "ConfigProvider 全局配置", reviewed: true, create: { ConfigProviderShowcase() }),
             DemoComponent(id: "ui.icon", name: "Icon 图标", reviewed: true, create: { IconShowcase() }),
             DemoComponent(id: "ui.image", name: "Image 图片", reviewed: true, create: { ImageShowcase() }),
-            DemoComponent(id: "ui.overlay", name: "Overlay 遮罩层", reviewed: false, create: nil),
+            DemoComponent(id: "ui.overlay", name: "Overlay 遮罩层", reviewed: false, create: { OverlayShowcase() }),
         ]),
         ("布局组件", [
             DemoComponent(id: "ui.divider", name: "Divider 分割线", reviewed: false, create: nil),
@@ -1786,3 +1786,319 @@ final class LineChartShowcase: ShowcaseViewController {
         addInfo("无数据时显示空态文案「暂无数据」。")
     }
 }
+
+// MARK: - OverlayShowcase（基础组件 #6，四组 Demo 与设计规格 §04 / Android OverlayDemo 1:1 对齐）
+
+final class OverlayShowcase: ShowcaseViewController {
+
+    private var overlayRefs: [Overlay] = []   // 持有强引用，保证闭包外生命周期
+    private var feedbackLabel: UILabel!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Overlay 遮罩层"
+
+        // 组件版本号 = 组件库 v1.0（Overlay 首发版，§7h 强制），对应 D 发版 v1.4.0。
+        addVersionBadge(componentName: "Overlay", version: "v1.0", builtAt: "2026-09-04 00:40:00")
+        feedbackLabel = addFeedbackBar()
+
+        addInfo("定位：浮层通用基座。4 组排查：① 默认遮罩+居中确认框；② 透明穿透+新手气泡 top-right；③ 底部抽屉（contentPosition=bottom + radius=lg 顶两圆角）；④ 圆角卡片居中。双端 1:1，点击下方按钮触发对应 Demo。")
+
+        // ── Demo 1：默认遮罩+居中确认框（onClose 由遮罩背景点击触发，onMaskClick 回调解耦）──
+        addSection(title: "Demo 1 · 默认遮罩 + 居中确认框") { container in
+            let btn = buildDemoButton(title: "打开确认退出弹窗") { [weak self] in
+                self?.showDemo1ConfirmDialog()
+            }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(56)
+            }
+        }
+        addInfo("maskColor=default（55% 黑）；closeOnMaskClick=默认 true；contentPosition=center；点击外部→onMaskClick→onClose。")
+
+        // ── Demo 2：透明穿透 + 新手气泡 top-right（clickThrough=true）──
+        addSection(title: "Demo 2 · 透明穿透 + 新手气泡（top-right）") { container in
+            let btn = buildDemoButton(title: "显示气泡蒙版 3 秒") { [weak self] in
+                self?.showDemo2TransparentBubble()
+            }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(56)
+            }
+        }
+        addInfo("maskColor=transparent + clickThrough=true（事件穿透到底层页面；气泡本身仍可点击）；contentPosition=top-right；offset y=状态栏+44pt。")
+
+        // ── Demo 3：底部抽屉（contentPosition=bottom + contentRadius=lg 顶两圆角自动）──
+        addSection(title: "Demo 3 · 底部抽屉（顶两圆角 radius=lg）") { container in
+            let btn = buildDemoButton(title: "打开日期范围选择器") { [weak self] in
+                self?.showDemo3BottomSheet()
+            }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(56)
+            }
+        }
+        addInfo("contentPosition=bottom + contentRadius=lg → 底两角=0（贴边自动保留直角）；点击遮罩空白区 = 触发 onMaskClick + onClose。")
+
+        // ── Demo 4：圆角卡片居中（4 圆角 Radius=lg）──
+        addSection(title: "Demo 4 · 圆角卡片居中（4 圆角 radius=lg）") { container in
+            let btn = buildDemoButton(title: "显示已保存 3 条记账") { [weak self] in
+                self?.showDemo4RoundedCard()
+            }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(56)
+            }
+        }
+        addInfo("contentPosition=center + contentRadius=lg；4 角全 14px；animation=默认 true（fade in/out）。")
+    }
+
+    // ============== Demo 内容工厂 ==============
+
+    private func makeOverlay(
+        maskColor: OverlayMaskColor = .default,
+        closeOnMaskClick: Bool = true,
+        clickThrough: Bool = false,
+        position: OverlayContentPosition = .center,
+        offset: CGPoint = .zero,
+        radius: OverlayRadius = .value(0),
+        animation: Bool = true,
+        tag: String,
+        contentBuilder: @escaping (UIView) -> Void
+    ) -> Overlay {
+        let overlay = Overlay(
+            visible: false,
+            maskColor: maskColor,
+            closeOnMaskClick: closeOnMaskClick,
+            clickThrough: clickThrough,
+            contentPosition: position,
+            contentOffset: offset,
+            contentRadius: radius,
+            animation: animation,
+            content: contentBuilder,
+            onClose: { [weak self] in
+                self?.feedbackLabel.text = "[\(tag)] onClose 触发 → 已关闭"
+            },
+            onMaskClick: { [weak self] in
+                self?.feedbackLabel.text = "[\(tag)] onMaskClick → onClose 将紧随其后"
+            }
+        )
+        overlayRefs.append(overlay)
+        return overlay
+    }
+
+    // Demo 1：确认退出弹窗（center + closeOnMaskClick）
+    private func showDemo1ConfirmDialog() {
+        let overlay = makeOverlay(position: .center, radius: .lg, tag: "Demo1") { container in
+            container.backgroundColor = .white
+            container.widthAnchor.constraint(equalToConstant: 280).isActive = true
+
+            let titleLabel = UILabel()
+            titleLabel.text = "确认退出？"
+            titleLabel.font = .boldSystemFont(ofSize: 16)
+            titleLabel.textColor = UIColor(red: 0x11/255, green: 0x18/255, blue: 0x27/255, alpha: 1)
+
+            let subLabel = UILabel()
+            subLabel.text = "退出后当前编辑内容不会自动保存"
+            subLabel.font = .systemFont(ofSize: 13)
+            subLabel.textColor = UIColor(red: 0x6B/255, green: 0x72/255, blue: 0x80/255, alpha: 1)
+            subLabel.numberOfLines = 0
+
+            let cancel = makeDialogButton(title: "取消", primary: false) { [weak overlay] in
+                overlay?.visible = false
+            }
+            let confirm = makeDialogButton(title: "确定", primary: true) { [weak overlay, weak self] in
+                overlay?.visible = false
+                self?.feedbackLabel.text = "[Demo1] 确定点击 → 手动 visible=false 关（不重复触发 onClose）"
+            }
+
+            let btnStack = UIStackView(arrangedSubviews: [cancel, confirm])
+            btnStack.axis = .horizontal
+            btnStack.spacing = 8
+            btnStack.distribution = .fillEqually
+
+            let stack = UIStackView(arrangedSubviews: [titleLabel, subLabel, btnStack])
+            stack.axis = .vertical
+            stack.spacing = 14
+            container.addSubview(stack)
+            stack.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(20)
+            }
+        }
+        feedbackLabel.text = "[Demo1] 打开遮罩，点击空白区域观察 onMaskClick→onClose 顺序（或点 确定/取消）"
+        overlay.visible = true
+    }
+
+    // Demo 2：透明穿透 + 新手气泡 top-right
+    private func showDemo2TransparentBubble() {
+        let overlay = makeOverlay(
+            maskColor: .transparent,
+            closeOnMaskClick: false,
+            clickThrough: true,
+            position: .topRight,
+            offset: CGPoint(x: -12, y: 88),
+            radius: .md,
+            tag: "Demo2"
+        ) { container in
+            container.backgroundColor = UIColor(red: 0x16/255, green: 0xA3/255, blue: 0x4A/255, alpha: 1)
+            container.widthAnchor.constraint(equalToConstant: 200).isActive = true
+
+            let text = UILabel()
+            text.text = "🎉 新手引导：点击「+」可快速记账哦～"
+            text.textColor = .white
+            text.numberOfLines = 0
+            text.font = .systemFont(ofSize: 12)
+            container.addSubview(text)
+            text.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(12)
+            }
+            // 气泡本身点击（非遮罩，clickThrough 不影响子控件）
+            let tap = UITapGestureRecognizer()
+            tap.addAction(UIAction { [weak self] _ in
+                overlay.visible = false
+                self?.feedbackLabel.text = "[Demo2] 气泡点击 → 立即关闭"
+            })
+            container.addGestureRecognizer(tap)
+        }
+        feedbackLabel.text = "[Demo2] 已显示气泡 3 秒：遮罩透明+穿透，仍可操作 Demo 列表下方按钮；3s 后自动关闭（或点击气泡立即关）"
+        overlay.visible = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak overlay] in
+            overlay?.visible = false
+        }
+    }
+
+    // Demo 3：底部抽屉（position=bottom + radius=lg → 顶两圆角）
+    private func showDemo3BottomSheet() {
+        let overlay = makeOverlay(position: .bottom, radius: .lg, tag: "Demo3") { container in
+            container.backgroundColor = .white
+            container.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width).isActive = true
+
+            let handle = UIView()
+            handle.backgroundColor = UIColor(red: 0xE5/255, green: 0xE7/255, blue: 0xEB/255, alpha: 1)
+            handle.layer.cornerRadius = 2
+            handle.snp.makeConstraints { make in
+                make.width.equalTo(40)
+                make.height.equalTo(4)
+            }
+            let handleWrap = UIView()
+            handleWrap.addSubview(handle)
+            handle.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.top.equalToSuperview().offset(10)
+                make.bottom.equalToSuperview().offset(-6)
+            }
+
+            let titleLabel = UILabel()
+            titleLabel.text = "选择日期范围"
+            titleLabel.font = .boldSystemFont(ofSize: 16)
+
+            let sub = UILabel()
+            sub.text = "本周 / 本月 / 自定义…"
+            sub.font = .systemFont(ofSize: 13)
+            sub.textColor = UIColor(red: 0x6B/255, green: 0x72/255, blue: 0x80/255, alpha: 1)
+
+            let row1 = makeOptionRow(title: "本周") { [weak overlay] in overlay?.visible = false; self.feedbackLabel.text = "[Demo3] 选择「本周」" }
+            let row2 = makeOptionRow(title: "本月") { [weak overlay] in overlay?.visible = false; self.feedbackLabel.text = "[Demo3] 选择「本月」" }
+            let row3 = makeOptionRow(title: "自定义…") { [weak overlay] in overlay?.visible = false; self.feedbackLabel.text = "[Demo3] 选择「自定义…」" }
+
+            let stack = UIStackView(arrangedSubviews: [handleWrap, titleLabel, sub, row1, row2, row3])
+            stack.axis = .vertical
+            stack.spacing = 12
+            stack.isLayoutMarginsRelativeArrangement = true
+            stack.layoutMargins = .init(top: 6, left: 16, bottom: 24, right: 16)
+            container.addSubview(stack)
+            stack.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        feedbackLabel.text = "[Demo3] 底部抽屉顶两圆角 / 底两直角 = 0（贴边自动掩膜）；点击遮罩空白区 → 关闭"
+        overlay.visible = true
+    }
+
+    // Demo 4：圆角卡片居中（4 圆角）
+    private func showDemo4RoundedCard() {
+        let overlay = makeOverlay(position: .center, radius: .lg, tag: "Demo4") { container in
+            container.backgroundColor = .white
+            container.widthAnchor.constraint(equalToConstant: 260).isActive = true
+
+            let emoji = UILabel()
+            emoji.text = "💸"
+            emoji.font = .systemFont(ofSize: 28)
+            emoji.textAlignment = .center
+
+            let title = UILabel()
+            title.text = "已保存 3 条记账"
+            title.font = .boldSystemFont(ofSize: 16)
+            title.textAlignment = .center
+
+            let sub = UILabel()
+            sub.text = "总支出 ¥ 328.00"
+            sub.font = .systemFont(ofSize: 13)
+            sub.textColor = UIColor(red: 0x6B/255, green: 0x72/255, blue: 0x80/255, alpha: 1)
+            sub.textAlignment = .center
+
+            let done = makeDialogButton(title: "好的", primary: true) { [weak overlay] in
+                overlay?.visible = false
+            }
+
+            let stack = UIStackView(arrangedSubviews: [emoji, title, sub, done])
+            stack.axis = .vertical
+            stack.spacing = 12
+            stack.alignment = .fill
+            stack.isLayoutMarginsRelativeArrangement = true
+            stack.layoutMargins = .init(top: 24, left: 20, bottom: 20, right: 20)
+            container.addSubview(stack)
+            stack.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+            done.snp.makeConstraints { make in
+                make.height.equalTo(40)
+            }
+        }
+        feedbackLabel.text = "[Demo4] 已保存 3 条记账（center + 4 圆角 radius=lg）：fade-in 动画 200ms"
+        overlay.visible = true
+    }
+
+    // ============== 私有：按钮/选项行 工厂 ==============
+
+    private func buildDemoButton(title: String, onTap: @escaping () -> Void) -> UIButton {
+        let b = UIButton(type: .system)
+        b.setTitle(title, for: .normal)
+        b.setTitleColor(.white, for: .normal)
+        b.backgroundColor = UIColor(red: 0x16/255, green: 0xA3/255, blue: 0x4A/255, alpha: 1)
+        b.layer.cornerRadius = 10
+        b.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+        b.addAction(UIAction { _ in onTap() }, for: .touchUpInside)
+        return b
+    }
+
+    private func makeDialogButton(title: String, primary: Bool, onTap: @escaping () -> Void) -> UIButton {
+        let b = UIButton(type: .system)
+        b.setTitle(title, for: .normal)
+        b.setTitleColor(primary ? .white : UIColor(red: 0x11/255, green: 0x18/255, blue: 0x27/255, alpha: 1), for: .normal)
+        b.backgroundColor = primary ? UIColor(red: 0x16/255, green: 0xA3/255, blue: 0x4A/255, alpha: 1)
+            : UIColor(red: 0xE5/255, green: 0xE7/255, blue: 0xEB/255, alpha: 1)
+        b.layer.cornerRadius = 10
+        b.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+        b.addAction(UIAction { _ in onTap() }, for: .touchUpInside)
+        return b
+    }
+
+    private func makeOptionRow(title: String, onTap: @escaping () -> Void) -> UIView {
+        let b = UIButton(type: .system)
+        b.contentHorizontalAlignment = .left
+        b.setTitle(title, for: .normal)
+        b.setTitleColor(UIColor(red: 0x11/255, green: 0x18/255, blue: 0x27/255, alpha: 1), for: .normal)
+        b.titleLabel?.font = .systemFont(ofSize: 15)
+        b.snp.makeConstraints { make in
+            make.height.equalTo(44)
+        }
+        b.addAction(UIAction { _ in onTap() }, for: .touchUpInside)
+        return b
+    }
+}
+

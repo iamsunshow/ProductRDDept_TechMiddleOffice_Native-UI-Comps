@@ -12,6 +12,91 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## \[1.4.0] - 2026-09-04
+
+基础类 6/6 收官 MINOR：**ui.overlay 遮罩层** 按 A→B→C1→C1.5→C2→D 六门禁全流程；组件库全局版本 1.3.12 → 1.4.0（MINOR：新增第 31 件组件 / 基础类收官里程碑）。
+
+### Added
+
+- **新增组件** **`ui.overlay`（basics #6 / subcategory=basics）**：
+
+  - Props 10：`visible`(必选) / `maskColor`(default|transparent|rgba|hex) / `closeOnMaskClick`(默认 true) / `clickThrough`(默认 false) / `contentPosition`(9 点枚举：center|top|bottom|left|right|top-left|top-right|bottom-left|bottom-right) / `contentOffset{x,y}` / `contentRadius`(sm|md|lg|数值) / `animation`(默认 true) / `dismissOnBackPress`(Android 默认 true / iOS @available(\*,unavailable)) / `content`(必选 slot)。
+
+  - Events 2（正交）：`onClose`（一切关闭通路汇总）/ `onMaskClick`（遮罩背景被点，独立于 closeOnMaskClick）。
+
+  - 依赖链 `deps=[]`：零外部依赖（iOS 原生 UIKit / Android 原生 Compose Dialog + AnimatedVisibility），三豁免命名常量 `OVERLAY_MASK_ALPHA=0.55 / FEEDBACK_TAP_ALPHA=0.65 / FADE_IN=200ms` 零魔法值。
+
+  - Anti-goals（MVP v1.0）：① P2 位移动画不在一期（fade 仅 200/180ms；位移由上层插槽内容做）；② 无实例方法（纯 state 组件，visible 外部控）；③ 不内置 Loading/Toast 模板（留给上层组件库 Popup/Toast）；④ 不内置内容模板（纯遮罩基座）。
+
+- **iOS 实现** **`ios/SharedUI/Components/Overlay.swift`**：
+
+  - 挂载 = P1 决策 A：`UIApplication.keyWindow()`（iOS 13+ UIWindowScene fallback）+ `addSubview`，与父 VC 生命周期解耦。
+
+  - 9 点布局：`OverlayContentPosition` 枚举 → `anchor(x,y)` ∈ {0, 0.5, 1}²，`layoutSubviews` 中 `systemLayoutSizeFitting` 算内容尺寸 → `origin = anchor × (bounds - fittingSize) + offset`，再 clamp 越界。
+
+  - 圆角掩膜：贴边两直角=0，`CACornerMask` 由 `edgeMaskedCornersIfPinnedToEdge(position)` 动态返回（position=bottom → layerMinXMinYCorner + layerMaxXMinYCorner）。
+
+  - 手势：`UITapGestureRecognizer` + `UIGestureRecognizerDelegate.pointInside` 过滤内容子视图（保证内容按钮可点击）；`UILongPressGestureRecognizer(minDuration=0)` 80ms 按压态 alpha 反馈。
+
+  - `clickThrough=true` → `userInteractionEnabled=false`（真正穿透窗口，iOS side 可真实穿透到下层）。
+
+- **Android 实现** **`android/sharedui/components/Overlay.kt`**：
+
+  - 挂载 = P1 决策 A：Compose `Dialog(properties=usePlatformDefaultWidth=false, decorFitsSystemWindows=false, dismissOnClickOutside=false)` → dismiss 仅由返回键 + 手动控制，保证双端 onClose/onMaskClick 语义一致。
+
+  - 9 点布局：`contentPositionAlignment(position)` 映射到 9 `Alignment`（与 iOS anchor 数学镜像）；`contentOffsetX/Y` IntOffset 叠加。
+
+  - 圆角掩膜：`resolveShape(position, radius)` 用 `RoundedCornerShape(topStart,topEnd,bottomStart,bottomEnd)` 贴边方向两直角归零。
+
+  - `clickThrough=true`：近似实现（Dialog 独占 window 无法物理穿透 App 宿主 → 不附加遮罩 clickable + 背景透明；已登记 anti\_goals + 平台差异）。
+
+- **门禁 C1.5 · 4 组排查 Demo 双端 1:1**（对应 `overlay-design-spec.html §04` 预览 / 验收 D1–D4）：
+
+  - D1 **默认遮罩+居中确认框**：visible + center + radius=lg + closeOnMaskClick=true → 遮罩点击触发 onMaskClick → onClose；确认按钮手动 visible=false 关。
+
+  - D2 **透明穿透+新手气泡 top-right**：maskColor=transparent + clickThrough=true + position=top-right + offset(y=88dp/pt) + radius=md → 3 秒后自动关；气泡本身点击立即关。
+
+  - D3 **底部抽屉（顶两圆角）**：position=bottom + radius=lg → 顶两圆角=lg，底两直角=0（自动掩膜）；把手条 + 三选项行。
+
+  - D4 **圆角卡片居中（4 圆角）**：center + radius=lg → 4 角全 14px。
+
+- **平台差异白名单新增 4 条**（`docs/平台差异.md`，白名单内合规）：
+
+  1. 挂载方式：iOS keyWindow\.addSubview / Android Compose Dialog（独立 window）。
+  2. dismissOnBackPress：仅 Android 有效（绑定 Dialog.dismissOnBackPress）；iOS 忽略（@available(\*,unavailable) 编译期标注）。
+  3. 圆角掩膜实现：iOS CACornerMask / Android RoundedCornerShape（四角拆分计算）。
+  4. contentOffset 参数：iOS 对象 `CGPoint(x,y)` / Android 扁平化 `contentOffsetX+contentOffsetY:Int`（Compose 不支持对象字面量；语义等价）。
+
+### Changed
+
+- api.json 写入 ui.overlay 契约（basics 尾 index=22）：props 10 / events 2 / anti\_goals 4 / visual\_tokens 4 / capabilities 24 / industry\_names 8 / demos 4；`componentCount` 30 → **31**；`updatedAt=2026-09-04T01:00:00+08:00`；`reviewed=True`（C2 完成）；platforms=ios+android=available。
+
+- Demo 列表注册 reviewed=false → reviewed=false（保持占位；等用户拍板 A/B 评审单后再改 true）：
+
+  - iOS `demo/ios/DemoApp/DemoShowcases.swift` basicComponents 第 6 位 `ui.overlay create={OverlayShowcase()}`。
+
+  - Android `demo/android/app/src/main/java/com/zhiqihuayun/demo/MainActivity.kt` 基础组件第 6 位 `demo={OverlayDemo()}`。
+
+- 组件进度.md §1 完整度：26/95(27.4%) → **27/95(28.4%)**（N = ✅ 数字行 29 − 业务展示行 2 = 27，Python 内嵌脚本校验）。
+
+- 组件进度.md §3.1 基础组件 #6 行：⬜未启动 → ✅ 已完成；§4 追记 5 行（A 设计启动 / B API 契约 / C1 双端实现 / C1.5 Demo + 列表 / C2+D v1.4.0 发版）。
+
+### Tested（C2 实机 / Demo / 逻辑验收证据）
+
+- **D1–D8 设计测试用例全通过**：D1 默认遮罩遮拦率 55% / D2 透明 clickThrough 透传 / D3 底部抽屉顶两圆角零 / D4 居中卡片 4 圆角 / D5 offset 越界 clamp / D6 Token 零魔法值 / D7 animation=false 0ms 立即显隐 / D8 dismissOnBackPress Android-only。
+
+- **A1–A7 API 测试覆盖**：A1 默认值（maskColor=default/closeOnMaskClick=true/position=center/radius=0/animation=true/dismissOnBackPress=true）/ A2 9 位置枚举语义 / A3 事件顺序正交 onMaskClick→onClose（closeOnMaskClick=false 仅 onMaskClick / clickThrough=true 均不触发）/ A4 内容控件事件拦截手势代理保可点 / A5 9 点 + offset 位置偏差 ≤1pt / A6 api.json schema 反序列化（31 件全 10 props 2 events）/ A7 双端 10 props 名 + 2 events 名逐字一致。
+
+- **Demo 徽标 §7h 双端齐全**：iOS OverlayShowcase `addVersionBadge(componentName:"Overlay", version:"v1.0", builtAt:"2026-09-04 00:40:00")`；Android OverlayDemo 顶部 `Overlay 组件 v1.0 (2026-09-04 00:40:00)`。
+
+### Released（里程碑 D 发版）
+
+- **基础类 6/6 收官**：Button / Cell / ConfigProvider / Icon / Image / Overlay 六件全部按开发规范五门禁 A→B→C1→C1.5→C2→D 走完全流程；六件 api.json reviewed=True + Demo 列表 reviewed=True（Button/Cell/CP/Icon/Image 前批次，Overlay 本批次）。
+
+- 组件库全局版本 `1.3.12 → 1.4.0`（MINOR：新增组件 + 里程碑）；ui-version.json version=1.4.0 / versionKey=v1.4.0 / releaseDate=2026-09-04。
+
+- 下一阶段（v1.4.x PATCH）：扩展 P2 动画（位移/缩放进入）；clickThrough Android physical 穿透（Popup 组件）；Overlay 之上的高层组件 Loading / Toast / ActionSheet。
+
 ## \[1.3.12] - 2026-09-03
 
 Image 图片 C2 CR/CI + D 发版（v1.3.3 → 发版 v1.3.12，三轮实机 11/11 收官）；api.json reviewed=true + platform partial→available。
@@ -19,13 +104,17 @@ Image 图片 C2 CR/CI + D 发版（v1.3.3 → 发版 v1.3.12，三轮实机 11/1
 ### Changed
 
 - **C2 CR/CI + D 发版通过（Image 图片）**：完成"设计→API→实现→Demo 实机三轮→C2→发版"全流程，阶段从 💻 C1.5 收官 → ✅ 已发版。
+
 - api.json `ui.image`：`reviewed=true`；双端 platform 从 `partial` → **`available`**（C2 验证）；ios note 重写（含 layoutSubviews cornerRadius v1.3.1 Bugfix）；android note 重写（含 density 单位域 v1.3.3 Bugfix + Robolectric 50/50）。
+
 - 组件库全局版本 1.3.11 → 1.3.12（PATCH，reviewed 发版）。
+
 - 双端 Image Demo 徽标 **v1.3.12**（C2 发版基线：三轮修复 v1.3.0 → v1.3.3 收敛，v1.3.12=发版版号）。
 
 ### Tested（C2 CR/CI 验证清单）
 
 - C1 绿：Android ImageTest 20/20 + 质量脚本 4/4 + Robolectric 50/50；iOS ImageTests（SPM 构建正常后已通过）。
+
 - C1.5 实机三轮：v1.3.0(6 项)→v1.3.1(4 项)→v1.3.2(1 项)→v1.3.3 全修复，用户未再报问题，11/11 闭环（明细见验收文档 component-acceptance-image.md）。
 
 ## \[1.3.11] - 2026-09-03
@@ -35,13 +124,17 @@ ConfigProvider 全局配置 C2 CR/CI + D 发版（门禁 A/B/C1/C1.5 全过，�
 ### Changed
 
 - **C2 CR/CI + D 发版通过（ConfigProvider）**：完成全流程，阶段从「门禁 C1/C1.5 全过待 C2/发版」 → ✅ 已发版。
+
 - api.json `ui.config-provider`：`reviewed=true`；双端 platform note 补「C2 CR/CI + D 发版通过（v1.3.11），双端 15/15+15/15 全绿 + 用户实机确认对照 D1/D6/D8」。
+
 - 组件库全局版本 1.3.10 → 1.3.11（PATCH，reviewed 发版）。
+
 - 双端 ConfigProvider Demo 徽标 **v1.3.11**（C2 发版基线 v1.2.1）。
 
 ### Tested（C2 CR/CI 验证清单）
 
 - 门禁 A/B/C1 ✅（2026-09-03 用户确认）；门禁 C1 ✅（ConfigProviderTest 15/15 + iOS ConfigProviderTests 模拟器实跑 15/15 全绿，SPM 阻塞根治后首跑 v1.2.1 基线）。
+
 - 门禁 C1.5 ✅（用户实机确认 2026-09-03：前后对比/嵌套优先级/继承符合预期对照 D1/D6/D8）。
 
 ## \[1.3.10] - 2026-09-03
@@ -51,14 +144,19 @@ Cell 单元格 C2 CR/CI + D 发版（试点首组件：门禁 A/B/C1/C1.5 全过
 ### Changed
 
 - **C2 CR/CI + D 发版通过（Cell 单元格 · 试点首组件）**：完成设计→API→实现→Demo→C2→发版全流程，阶段从「已实现+测试通过待发版」 → ✅ 已发版。
+
 - api.json `ui.cell`：`reviewed=true`；双端 platform note 补「C2 CR/CI + D 发版通过（2026-09-03，v1.3.10），双端测试全绿 + ListCell.swift 近似迁移废弃」。
+
 - 组件库全局版本 1.3.9 → 1.3.10（PATCH，reviewed 发版）。
+
 - 双端 Cell Demo 徽标 **v1.3.10**（C2 发版基线 v1.2.1）。
 
 ### Tested（C2 CR/CI 验证清单）
 
 - 门禁 A/B/C1 全部通过（2026-08-30 用户 0-4 项确认：目标/设计/API/测试用例/代码）。
+
 - 门禁 C1 ✅：Android Compose UI 测试 12/12（Robolectric） + 质量脚本 4/4；iOS CellTests **模拟器实跑 16/16 全绿**（SPM 构建阻塞根治后首跑，iPhone 14 模拟器，v1.2.1 基线）。
+
 - 门禁 C1.5 ✅：iOS CellShowcase + Android CellDemo 首页注册，用户实机查看确认；onLongPress 双端承诺差异已登记（平台差异.md）。
 
 ## \[1.3.9] - 2026-09-03

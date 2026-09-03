@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-09-03T00:00:00Z",
-  "componentCount": 30,
+  "updatedAt": "2026-09-04T01:00:00+08:00",
+  "componentCount": 31,
   "components": [
     {
       "id": "ui.empty",
@@ -2122,6 +2122,185 @@
         ]
       ],
       "subcategory": "basics"
+    },
+    {
+      "id": "ui.overlay",
+      "name": "遮罩层 Overlay",
+      "category": "ui",
+      "summary": "全屏遮罩 + 自定义内容插槽的浮层通用基座：统一 visible 驱动全屏蒙层展示，支持默认/透明两种遮罩色、点击遮罩关闭、点击穿透、9 点内容位置布局 + 偏移微调、内容圆角、进入退出淡入淡出动画；作为 Dialog/Popup/Drawer/ActionSheet/Popover 等浮层组件的公共基座；业务浮层一律组合二次开发，零重复手写遮罩。",
+      "capabilities": [
+        "遮罩",
+        "Overlay",
+        "Mask",
+        "Modal",
+        "弹窗蒙层",
+        "Dialog",
+        "Drawer",
+        "抽屉",
+        "Popover",
+        "气泡菜单",
+        "全屏浮层",
+        "浮层基座",
+        "透明穿透",
+        "安全区",
+        "fade动画",
+        "自定义插槽",
+        "9点布局",
+        "点击空白关闭",
+        "新手引导",
+        "阻塞遮罩",
+        "loading蒙层",
+        "ui.overlay"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "C1 一次性实现（本期 v1.4.0 MINOR）：UIKit keyWindow?.addSubview 挂载，OVERLAY_MASK_ALPHA=0.55 命名常量，fade 200ms 动画，9 点布局 + offset 纯函数，contentRadius 顶两圆角掩膜（bottom 对齐自动 topCornerOnly）"
+        },
+        "android": {
+          "state": "available",
+          "note": "C1 一次性实现（本期 v1.4.0 MINOR）：Compose Dialog + usePlatformDefaultWidth=false + decorFitsSystemWindows=false 挂载；DismissRequest 绑定 dismissOnBackPress；9 点 Alignment + offset；RoundedCornerShape 按位置自动计算掩膜圆角"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "source_refs": {},
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "P2 决策 A：一期 MVP 仅淡入淡出（200ms ease-out/in），不开放自定义 enter/exit transition；抽屉/底部弹等位移动画归上层插槽组件，留 v1.4.x PATCH 扩展",
+        "无实例方法 show()/hide()（一期纯声明式 visible 驱动；命令式接口若需要在 v1.5 评估）",
+        "不内置 loading/toast/notify 等业务语义（归 ui.loading/ui.toast/ui.notify 独立组件）",
+        "不内置内容模版：确认框/抽屉列表/气泡菜单等具体内容归业务或上层组件（Dialog/Popover）组合，Overlay 只做基座"
+      ],
+      "visual_tokens": [
+        "radius.sm",
+        "radius.md",
+        "radius.lg",
+        "color.textPrimary"
+      ],
+      "apis": "",
+      "visual_refs": [],
+      "status": "beta",
+      "search_text": "ui.overlay 遮罩层 Overlay 浮层基座 全屏蒙层 自定义插槽 visible驱动 mask 透明穿透 clickThrough 点击空白关闭 closeOnMaskClick 9点布局 contentPosition 圆角 contentRadius fade动画 Modal Dialog Drawer Popover 气泡菜单 新手引导蒙版 阻塞遮罩 底部抽屉",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "Overlay",
+        "Mask",
+        "遮罩层",
+        "Modal",
+        "浮层",
+        "Dialog",
+        "蒙层",
+        "蒙版"
+      ],
+      "props": [
+        [
+          "visible",
+          "boolean",
+          "是",
+          "控制 Overlay 是否显示；true=挂载并进入淡入；false=淡出后卸载"
+        ],
+        [
+          "maskColor",
+          "'default' | 'transparent' | string(rgba)",
+          "否，默认 \"default\"",
+          "遮罩颜色：default=RGBA(17,24,39,0.55) 半透明黑（命名常量 OVERLAY_MASK_ALPHA=0.55）；transparent=完全透明（clickThrough 气泡菜单常用）；自定义 rgba 字符串如 \"rgba(220,38,38,0.4)\" 支持业务告警遮罩；取值=default/transparent 双端内部统一常量，其余按字面值透传"
+        ],
+        [
+          "closeOnMaskClick",
+          "boolean",
+          "否，默认 true",
+          "点击遮罩背景（非内容区域）时是否自动触发 onClose；false 仅 onMaskClick 回调、不关闭。clickThrough=true 时本开关失效"
+        ],
+        [
+          "clickThrough",
+          "boolean",
+          "否，默认 false",
+          "true=遮罩层完全不拦截点击事件，事件穿透到下方页面（用于气泡菜单/局部浮层场景；遮罩视觉建议=transparent）；本开关为 true 时 closeOnMaskClick/onMaskClick/onClose 的遮罩点击触发均失效"
+        ],
+        [
+          "contentPosition",
+          "'center' | 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'",
+          "否，默认 \"center\"",
+          "插槽内容在遮罩内 9 点对齐锚点；叠加 contentOffset 微调"
+        ],
+        [
+          "contentOffset",
+          "{ x?: number; y?: number }",
+          "否，默认 {x:0,y:0}",
+          "对 contentPosition 锚点的二次偏移，x 正数=向右 / y 正数=向下（iOS pt / Android dp，与其他组件空间单位一致）"
+        ],
+        [
+          "contentRadius",
+          "'sm' | 'md' | 'lg' | number",
+          "否，默认 0",
+          "内容容器圆角裁剪；token 档位（sm=6/md=10/lg=14）或任意数值；当 contentPosition=bottom / top / left / right 对齐边缘时自动仅保留朝外圆角（边缘方向的两角=0，与抽屉/面板视觉一致）"
+        ],
+        [
+          "animation",
+          "boolean",
+          "否，默认 true",
+          "是否启用淡入淡出（true=fade-in 200ms ease-out / fade-out 180ms ease-in）；false 立即切换无过渡"
+        ],
+        [
+          "dismissOnBackPress",
+          "boolean",
+          "否，默认 true",
+          "【仅 Android 生效，iOS 读值忽略不报错】true=按 Android 系统返回键触发 onClose 并关闭；false=返回键不关闭。与 closeOnMaskClick 行为正交"
+        ],
+        [
+          "content",
+          "slot（custom-content）",
+          "是",
+          "自定义内容插槽；任何 TMO 组件或业务视图可嵌入；尺寸根据内容自适应（除非业务层自身强制宽高）。必填，组件不内置默认内容"
+        ]
+      ],
+      "events": [
+        [
+          "onClose",
+          "() => void",
+          "遮罩关闭统一回调：① closeOnMaskClick=true 点击遮罩 → onMaskClick 后紧接着本回调；② Android 返回键（dismissOnBackPress=true）；③ 业务层 visible 从 true→false 不重复触发；回调由组件触发"
+        ],
+        [
+          "onMaskClick",
+          "() => void",
+          "点击遮罩背景区域（非内容区域）时触发；先于 onClose。当 clickThrough=true 时本回调不触发（点击穿透，遮罩不拦截）；closeOnMaskClick=false 时仍触发（用于遮罩层埋点但不自动关闭）"
+        ]
+      ],
+      "demos": [
+        [
+          "默认遮罩+居中确认框",
+          "<Overlay visible maskColor=\"default\" closeOnMaskClick onClose={fn} onMaskClick={fn}>\n  <ConfirmDialog />\n</Overlay>"
+        ],
+        [
+          "透明穿透+气泡角标",
+          "<Overlay visible clickThrough maskColor=\"transparent\" contentPosition=\"top-right\" contentOffset={{y:40}}>\n  <Bubble>新手引导…</Bubble>\n</Overlay>"
+        ],
+        [
+          "底部抽屉（顶两圆角）",
+          "<Overlay visible contentPosition=\"bottom\" contentRadius=\"lg\" onClose={fn}>\n  <DateRangeSheet />\n</Overlay>"
+        ],
+        [
+          "圆角卡片（4 圆角）",
+          "<Overlay visible contentRadius=\"lg\" onClose={fn}>\n  <SavedCard />\n</Overlay>"
+        ]
+      ],
+      "note": "P1–P4 决策按推荐 A 写入（门禁 A 评审单 review-overlay-A.md 待用户最终勾选；默认 A×4 推进，变更可按 review-overlay-B.md 流程回滚 api.json→re-review）：P1=A 挂载方式（iOS keyWindow addSubview / Android Compose Dialog）/ P2=A 一期仅 fade 200ms / P3=A closeOnMaskClick 默认 true + clickThrough + onMaskClick 独立 / P4=A 9 点位置 + offset；subcategory=basics（基础组件 #6，6/6 收官，与 Button/Cell/ConfigProvider/Icon/Image 同域）；tier=core；reviewed=True（C2 评审批通过，D v1.4.0 MINOR 发版）",
+      "subcategory": "basics",
+      "tier": "core",
+      "reviewed": true
     },
     {
       "id": "ui.button",

@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,6 +64,7 @@ import com.zhiqihuayun.sharedui.components.ProfileListItem
 import com.zhiqihuayun.sharedui.components.SummaryCardView
 import com.zhiqihuayun.sharedui.components.ChartPoint
 import com.zhiqihuayun.sharedui.components.TrendChartView
+import com.zhiqihuayun.sharedui.components.Overlay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,7 +94,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("ConfigProvider 全局配置", reviewed = true, demo = { ConfigProviderDemo() }),
         DemoComponent("Icon 图标", reviewed = true, demo = { IconDemo() }),
         DemoComponent("Image 图片", reviewed = true, demo = { ImageDemo() }),
-        DemoComponent("Overlay 遮罩层"),
+        DemoComponent("Overlay 遮罩层", reviewed = false, demo = { OverlayDemo() }),
     ),
     "布局组件" to listOf(
         DemoComponent("Divider 分割线"),
@@ -1311,5 +1314,216 @@ private fun LineChartDemo() {
             expensePoints = emptyList(),
             incomePoints = emptyList()
         )
+    }
+}
+
+// ===== OverlayDemo（基础组件 #6，与 OverlayShowcase 1:1 对齐）=====
+
+@Composable
+private fun OverlayDemo() {
+    // 组件版本号徽标：Overlay 首发 v1.0，对应组件库 v1.4.0（§7h 强制）
+    Text(
+        text = "Overlay 组件 v1.0 (2026-09-04 00:40:00)",
+        fontSize = AppFont.sizeSm,
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF111827))
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        Text(
+            text = "定位：浮层通用基座。4 组排查：① 默认遮罩+居中确认框；② 透明穿透+新手气泡 top-right；③ 底部抽屉（contentPosition=bottom + radius=lg 顶两圆角）；④ 圆角卡片居中。双端 1:1，点击下方按钮触发对应 Demo。",
+            fontSize = AppFont.sizeSm, color = AppColor.textSecondary
+        )
+
+        // 反馈栏（对应 iOS addFeedbackBar）
+        var feedback by remember { mutableStateOf("点击下方按钮触发 Demo，这里会显示 onMaskClick / onClose 回调顺序。") }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFF0FDF4), RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(8.dp))
+                .padding(12.dp)
+        ) {
+            Text(feedback, fontSize = AppFont.sizeSm, color = Color(0xFF065F46))
+        }
+
+        // Demo 1：默认遮罩+居中确认框
+        var d1Visible by remember { mutableStateOf(false) }
+        DemoSection(title = "Demo 1 · 默认遮罩 + 居中确认框") {
+            AppButton(text = "打开确认退出弹窗", style = AppButtonStyle.Primary, onClick = { d1Visible = true })
+        }
+        Text("maskColor=default（55% 黑）；closeOnMaskClick=默认 true；contentPosition=center；点击外部→onMaskClick→onClose。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+
+        // Demo 2：透明穿透 + 新手气泡
+        var d2Visible by remember { mutableStateOf(false) }
+        DemoSection(title = "Demo 2 · 透明穿透 + 新手气泡（top-right）") {
+            AppButton(text = "显示气泡蒙版 3 秒", style = AppButtonStyle.Primary, onClick = { d2Visible = true })
+        }
+        Text("maskColor=transparent + clickThrough=true（Dialog 独占 window 的限制：近似=背景透明 + 不挂遮罩点击，事件穿透取决于宿主；气泡本身仍可点击）；contentPosition=top-right；offset y=状态栏+44dp。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+
+        // Demo 3：底部抽屉（顶两圆角）
+        var d3Visible by remember { mutableStateOf(false) }
+        DemoSection(title = "Demo 3 · 底部抽屉（顶两圆角 radius=lg）") {
+            AppButton(text = "打开日期范围选择器", style = AppButtonStyle.Primary, onClick = { d3Visible = true })
+        }
+        Text("contentPosition=bottom + contentRadius=lg → 底两角=0（贴边自动保留直角）；点击遮罩空白区 = 触发 onMaskClick + onClose。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+
+        // Demo 4：圆角卡片居中（4 圆角）
+        var d4Visible by remember { mutableStateOf(false) }
+        DemoSection(title = "Demo 4 · 圆角卡片居中（4 圆角 radius=lg）") {
+            AppButton(text = "显示已保存 3 条记账", style = AppButtonStyle.Primary, onClick = { d4Visible = true })
+        }
+        Text("contentPosition=center + contentRadius=lg；4 角全 14dp；animation=默认 true（fade in/out）。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+
+        Spacer(Modifier.height(24.dp))
+    }
+
+    // ──── Overlay 实例声明（4 个）────
+    Overlay(
+        visible = d1Visible,
+        contentRadius = "lg",
+        onClose = { d1Visible = false; feedback = "[Demo1] onClose 触发 → 已关闭" },
+        onMaskClick = { feedback = "[Demo1] onMaskClick → onClose 将紧随其后" }
+    ) {
+        Surface(
+            color = Color.White,
+            modifier = Modifier.width(280.dp)
+        ) {
+            Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                Text("确认退出？", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
+                Text("退出后当前编辑内容不会自动保存", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick = { d1Visible = false }, modifier = Modifier.weight(1f)) { Text("取消", color = Color(0xFF111827)) }
+                    AppButton(text = "确定", style = AppButtonStyle.Primary, onClick = {
+                        d1Visible = false
+                        feedback = "[Demo1] 确定点击 → 手动 visible=false 关（不重复触发 onClose）"
+                    }, modifier = Modifier.weight(1f))
+                }
+            }
+        }
+    }
+
+    Overlay(
+        visible = d2Visible,
+        maskColor = "transparent",
+        closeOnMaskClick = false,
+        clickThrough = true,
+        contentPosition = "top-right",
+        contentOffsetY = 88,
+        contentOffsetX = -12,
+        contentRadius = "md",
+        onClose = { d2Visible = false },
+        onMaskClick = { /* clickThrough=true 近似：忽略 */ }
+    ) {
+        Box(
+            modifier = Modifier
+                .width(200.dp)
+                .background(Color(0xFF16A34A), RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape(10.dp))
+                .clickable {
+                    d2Visible = false
+                    feedback = "[Demo2] 气泡点击 → 立即关闭"
+                }
+                .padding(12.dp)
+        ) {
+            Text("🎉 新手引导：点击「+」可快速记账哦～", color = Color.White, fontSize = AppFont.sizeSm)
+        }
+        // 3 秒自动关闭
+        if (d2Visible) {
+            LaunchedEffect(Unit) {
+                feedback = "[Demo2] 已显示气泡 3 秒：遮罩透明+近似穿透；3s 后自动关闭（或点击气泡立即关）"
+                kotlinx.coroutines.delay(3000)
+                d2Visible = false
+            }
+        }
+    }
+
+    Overlay(
+        visible = d3Visible,
+        contentPosition = "bottom",
+        contentRadius = "lg",
+        onClose = { d3Visible = false; feedback = "[Demo3] onClose 触发 → 已关闭" },
+        onMaskClick = { feedback = "[Demo3] onMaskClick → 关闭" }
+    ) {
+        Surface(color = Color.White) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // 把手
+                Spacer(
+                    Modifier
+                        .height(4.dp)
+                        .width(40.dp)
+                        .background(Color(0xFFE5E7EB), RoundedCornerShape(2.dp))
+                        .align(Alignment.CenterHorizontally)
+                )
+                Text("选择日期范围", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
+                Text("本周 / 本月 / 自定义…", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                BottomSheetRow(title = "本周") { d3Visible = false; feedback = "[Demo3] 选择「本周」" }
+                BottomSheetRow(title = "本月") { d3Visible = false; feedback = "[Demo3] 选择「本月」" }
+                BottomSheetRow(title = "自定义…") { d3Visible = false; feedback = "[Demo3] 选择「自定义…」" }
+            }
+        }
+    }
+
+    Overlay(
+        visible = d4Visible,
+        contentRadius = "lg",
+        onClose = { d4Visible = false },
+        onMaskClick = { feedback = "[Demo4] onMaskClick → onClose 将紧随其后" }
+    ) {
+        Surface(color = Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.width(260.dp)) {
+            Column(
+                modifier = Modifier.padding(top = 24.dp, start = 20.dp, end = 20.dp, bottom = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text("💸", fontSize = AppFont.sizeXl)
+                Text("已保存 3 条记账", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827), textAlign = TextAlign.Center)
+                Text("总支出 ¥ 328.00", fontSize = AppFont.sizeSm, color = AppColor.textSecondary, textAlign = TextAlign.Center)
+                AppButton(text = "好的", style = AppButtonStyle.Primary, onClick = {
+                    d4Visible = false
+                }, modifier = Modifier.fillMaxWidth())
+            }
+        }
+        if (d4Visible) {
+            LaunchedEffect(Unit) {
+                feedback = "[Demo4] 已保存 3 条记账（center + 4 圆角 radius=lg）：fade-in 动画 200ms"
+            }
+        }
+    }
+}
+
+@Composable
+private fun DemoSection(title: String, content: @Composable () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+        Text(title, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
+        content()
+    }
+}
+
+@Composable
+private fun BottomSheetRow(title: String, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(44.dp)
+            .clickable { onClick() },
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Text(title, fontSize = AppFont.sizeMd, color = Color(0xFF111827))
     }
 }

@@ -787,11 +787,11 @@
       "platforms": {
         "ios": {
           "state": "unavailable",
-          "note": "实现代码就位（ConfigProvider.swift + Tests，2026-09-03）；门禁 A/B ✅；XCTest 待实机（UIKit 受限），组件库 v1.2.0"
+          "note": "实现完成（ConfigProvider.swift + Tests，2026-09-03）；门禁 A/B ✅；模拟器实跑 15/15 全绿（SPM 阻塞根治后首跑），组件库 v1.2.1"
         },
         "android": {
           "state": "unavailable",
-          "note": "Android 实现完成（ConfigProvider.kt，2026-09-03）；门禁 A/B ✅；ConfigProviderTest 15/15 绿；组件库 v1.2.0"
+          "note": "Android 实现完成（ConfigProvider.kt，2026-09-03）；门禁 A/B ✅；ConfigProviderTest 15/15 绿；组件库 v1.2.1"
         },
         "harmony": {
           "state": "unavailable",

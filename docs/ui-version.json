@@ -1,6 +1,6 @@
 {
-  "version": "1.2.0",
-  "versionKey": "v1.2.0",
+  "version": "1.2.1",
+  "versionKey": "v1.2.1",
   "releaseDate": "2026-09-03",
-  "changelog": "feat(config-provider): ConfigProvider 全局配置组件 v1.0 双端实现落地（门禁 C1）——设计规格/API 契约（门禁 A/B，2026-09-03 用户确认）通过后进入实现：Android `android/sharedui/components/ConfigProvider.kt`（AppConfig 值类型 + CompositionLocal 上下文 + AppTheme 读取解析层，15 项单测绿）；iOS `ios/SharedUI/Components/ConfigProvider.swift`（AppConfig + 命令式作用域栈 ConfigProvider + AppTheme 解析层，UIAppearance/环境对象双通道按平台差异登记，XCTest 用例就位待实机）。四项配置 primaryColor/rounded/compact/locale，覆盖语义=内层优先、未设项继承、静态基准不被污染。ui-version 1.1.11 → 1.2.0。"
+  "changelog": "fix(ios): 打通 iOS 工程 SwiftPM 构建阻塞（历史遗留根治）——① Package.swift GRDB 引用键 `package: \"GRDB\"` → `package: \"GRDB.swift\"`（Xcode 14.2 实测本地 path 依赖以目录名为引用键，v1.30c 写法报 unknown package）；② exclude 补 `\"Vendor\"`（Vendor/GRDB.swift 自带 Demo App storyboard/xcassets/xcdatamodeld 资源被当主 target 资源扫描报 multiple resources）；③ Tests/CellTests.swift 与 ConfigProviderTests.swift 补 `@testable import KeepAccountsMiddleware`（首次真编译缺模块导入）；④ 删除 Package.resolved（纯本地 path 依赖无需锁定，resolve 自动清除）。首次模拟器实跑验证（验证版本 v1.2.0 代码基线）：iOS ConfigProviderTests 15/15 绿、CellTests 16/16 绿。ui-version 1.2.0 → 1.2.1。"
 }

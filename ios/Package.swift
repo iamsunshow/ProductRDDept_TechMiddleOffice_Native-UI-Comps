@@ -32,9 +32,11 @@ let package = Package(
             name: "KeepAccountsMiddleware",
             dependencies: [
                 .product(name: "Alamofire", package: "Alamofire"),
-                // GRDB.swift/Package.swift 自身 name 字段 = "GRDB"（非目录名 GRDB.swift），
-                // 本地路径依赖以 Package.swift 的 name 字段为 package 引用键，必须匹配。
-                .product(name: "GRDB", package: "GRDB"),
+                // GRDB.swift/Vendor 目录 = GRDB.swift（依赖目录名），GRDB.swift/Package.swift 自身
+                // name 字段 = "GRDB"（product 名）。SwiftPM 本地 path 依赖以「依赖目录名」为 package
+                // 引用键（Xcode 14.2 实测：valid packages = GRDB.swift），故此处 package: 必须写
+                // "GRDB.swift"；写 "GRDB" 会报 unknown package，整个 iOS 包无法编译/测试。
+                .product(name: "GRDB", package: "GRDB.swift"),
                 .product(name: "Charts", package: "Charts"),
                 .product(name: "SnapKit", package: "SnapKit")
             ],
@@ -45,6 +47,10 @@ let package = Package(
                 "Tests",
                 // SPM 自身解析产物（不在 sources 目录内，仍需显式排除以避免资源扫描重复）。
                 ".build",
+                // 本地依赖目录：Vendor/* 是独立 .package(path:) 依赖，但其仓库自带 Demo App
+                // 资源（如 GRDB.swift/Documentation/DemoApps 的 storyboard/xcassets/xcdatamodeld），
+                // 若不排除会被当主 target 资源扫描，报 multiple resources 重复错误。
+                "Vendor",
                 // 记账业务组件（引用 App Feature 领域类型，不属于通用中台，由 App 本地编译）：
                 "SharedUI/Components/CategoryPickerView.swift",
                 "SharedUI/Components/PeriodTabsView.swift",

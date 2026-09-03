@@ -12,6 +12,29 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## [1.2.1] - 2026-09-03
+
+打通 iOS 工程 SwiftPM 构建阻塞（历史遗留根治），iOS 测试首次真机模拟器实跑全绿。
+
+### Fixed
+
+- **【根治】ios/Package.swift GRDB 依赖引用键错误**：`.product(name: "GRDB", package: "GRDB")` → `package: "GRDB.swift"`。v1.30c 曾按「子包 name 字段」写作 `"GRDB"`，但 Xcode 14.2 实测本地 path 依赖以**目录名**（`GRDB.swift`）为引用键，报 `unknown package 'GRDB'`，导致 iOS 包自 2026-08-30 起一直无法构建/测试（此前误判为"SPM 网络不可达"，实为引用键错误 + 陈旧缓存）。
+
+- **【根治】ios/Package.swift exclude 补 `"Vendor"`**：Vendor/GRDB.swift 自带 Demo App 资源（Main/LaunchScreen.storyboard、Assets.xcassets、PerformanceModel.xcdatamodeld 等），主 target `path: "."` 未排除 Vendor 时被当资源扫描，报 `multiple resources named ...` 重复错误。补排除后主 target 只扫 Foundation/SharedUI。
+
+- **iOS 测试补 `@testable import KeepAccountsMiddleware`**：`Tests/CellTests.swift` 与 `Tests/ConfigProviderTests.swift` 均缺模块导入，首次真编译即报 `cannot find 'Cell'/'CellModel'/'ConfigProvider' in scope`（此前从未真正编译过测试）。补导入后全部编译通过。
+
+- **删除 ios/Package.resolved**：纯本地 path 依赖无需锁定文件（`swift package resolve` 自动清除陈旧远程 URL pins），xcodebuild 实测无此文件可正常构建测试。
+
+### Changed
+
+- **ui-version.json**：组件库版本 1.2.0 → 1.2.1（工程编译修复，SemVer PATCH，§6.5「.pbxproj/编译修正 → PATCH」先例对齐 v1.30c）。
+
+### Verified（首次模拟器实跑，验证版本 v1.2.0 代码基线）
+
+- **iOS ConfigProviderTests 15/15 绿**（D1-D8 + A1-A5 + hexStringParsing + mergedSemantics，iPhone 14 模拟器 XCTest）。
+- **iOS CellTests 16/16 绿**（D1-D8 + A1-A5 + H1/H2/H3/H3b，iPhone 14 模拟器 XCTest）——历史遗留"iOS 测试从未实跑"自此闭环。
+
 ## [1.2.0] - 2026-09-03
 
 ConfigProvider 全局配置组件 v1.0 双端实现落地（门禁 C1 进行中，Android 实现完成、iOS 代码就位）。

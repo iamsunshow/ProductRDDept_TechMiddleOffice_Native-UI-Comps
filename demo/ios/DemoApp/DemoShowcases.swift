@@ -632,7 +632,7 @@ final class ButtonShowcase: ShowcaseViewController {
         super.viewDidLoad()
         title = "Button 按钮"
 
-        addVersionBadge(componentName: "Button", version: "v1.0", builtAt: "2026-09-02 19:00:00")
+        addVersionBadge(componentName: "Button", version: "v1.4", builtAt: "2026-09-03 09:05:00")
         feedbackLabel = addFeedbackBar()
 
         for group in groups {

@@ -525,7 +525,7 @@ private fun ButtonDemo() {
                 .padding(horizontal = 10.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "Button 组件 v1.0",
+                text = "Button 组件 v1.4",
                 color = AppColor.primary,
                 fontSize = AppFont.sizeXs,
                 fontWeight = FontWeight.Medium,

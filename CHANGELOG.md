@@ -12,17 +12,37 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
-## \[1.1.10] - 2026-09-03
+## \[1.1.11] - 2026-09-03
 
-iOS SF Symbol 强制单色渲染（iphone.gen3 内部颜色 → 纯白轮廓）。
-
-### Fixed
-
-- **iOS AppIcon SF Symbol monochrome**：`UIImage(systemName:)` 加 `UIImage.SymbolConfiguration.preferringMonochrome()` 配置。`iphone.gen3` 等多色符号默认保留内部屏幕渐变/Home Indicator 细节，`tintColor` 对其无效，导致 Demo ① 基础形态第 7 列、Demo ④ 全形态网格每行第 7 列（smartphone / 手机图标）iOS 有内部颜色 vs Android 完全由 ColorFilter.tint 控制为纯白。改用 monochrome 配置后 8 图标全部为单色轮廓，仅受 tintColor 着色，与 Android SfApproxIcons 矢量着色语义对齐。
+补录 Button v1.0 三轮发布后漏掉的 4 轮 bugfix 版本递增（治理规范 §6.5 合规补齐）。
 
 ### Changed
 
-- **iOS IconShowcase 版本徽标**：`addVersionBadge(version: "v1.1")` → `version: "v1.2"`，`builtAt` → 2026-09-03 08:30:00。
+- **iOS ButtonShowcase 版本徽标**：`addVersionBadge(componentName: "Button", version: "v1.0", builtAt: "2026-09-02 19:00:00")` → `version: "v1.4"`，`builtAt` → `2026-09-03 09:05:00`。对应 4 轮 bugfix 徽标步长（每轮 +0.1）：
+
+  - v1.1：iOS Demo `addFeedbackBar` `insertArrangedSubview(at: 2)` 越界 → `min(2, contentStack.arrangedSubviews.count)` 防越界。
+
+  - v1.2：Android AppButton Box 显式补 `.background(container, shape)`（计算了 `container` 却没写 modifier，导致 Demo1 按钮透明只显文字）；secondary 样式背景由透明改 `AppColor.bgCard` 对齐 iOS。
+
+  - v1.3：iOS AppButton `setLoading(true)` 分支补 `updateBackground()`，原只 setTitle 不置灰 → 双端 Demo3/Demo4 loading 态顺序一致（iOS 原顺序正确绿灰白灰，Android 全灰；修完双端同序）。
+
+  - v1.4：Android Demo 子页面补 `statusBarsPadding()` + 自定义返回按钮行 + 内容区大标题组件名，修复返回按钮撞状态栏 + 缺大标题 + 标题在 title bar 不在内容区。
+
+- **Android ButtonDemo 版本徽标**：`text = "Button 组件 v1.0"` → `"Button 组件 v1.4"`。
+
+- **ui-version.json**：组件库版本 1.1.10 → 1.1.11（demo 代码改动同样触发版本递增，见治理规范 §6.5 / 开发规则 §1.5）。
+
+## \[1.1.10] - 2026-09-03
+
+Icon v1.1 iOS SF Symbol 多色渲染修复（monochrome 强制单色轮廓）+ Demo 徽标 v1.1→v1.2。
+
+### Fixed
+
+- **iOS AppIcon SF Symbol 强制单色渲染**：`iphone.gen3` 等多色符号默认保留内部屏幕渐变/Home Indicator 颜色细节，`tintColor` 仅作用于轮廓，导致 Demo ①/④ 手机图标 iOS 有内部颜色 vs Android 纯白色（与 Android SfApproxIcons ColorFilter.tint 语义不一致）。修复：`UIImage(systemName: name.sfSymbol, withConfiguration: .preferringMonochrome())`，8 图标全程仅受 tintColor 控制。
+
+### Changed
+
+- **iOS IconShowcase 版本徽标**：`version: "v1.1"` → `version: "v1.2"`，`builtAt` → `2026-09-03 08:30:00`。
 
 - **Android IconDemo 版本徽标**：`text = "Icon 组件 v1.1"` → `"Icon 组件 v1.2"`。
 

@@ -28,7 +28,7 @@ final class DemoListViewController: UITableViewController {
         ]),
         ("布局组件", [
             DemoComponent(id: "ui.divider", name: "Divider 分割线", reviewed: false, create: nil),
-            DemoComponent(id: "ui.grid", name: "Grid 宫格", reviewed: false, create: nil),
+            DemoComponent(id: "ui.grid", name: "Grid 宫格", reviewed: true, create: { GridShowcase() }),
             DemoComponent(id: "ui.layout", name: "Layout 布局", reviewed: false, create: nil),
             DemoComponent(id: "ui.safe-area", name: "SafeArea 安全区", reviewed: false, create: nil),
             DemoComponent(id: "ui.space", name: "Space 间距", reviewed: false, create: nil),
@@ -1502,5 +1502,100 @@ final class ListShowcase: ShowcaseViewController {
         let item = GroupListItem()
         item.apply(title: title, value: value, showsChevron: showsChevron)
         return item
+    }
+}
+
+// MARK: - Grid Showcase（Grid 宫格组件独立 Demo 页，与 Android GridDemo 一一对应）
+
+final class GridShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Grid 宫格"
+        addVersionBadge(componentName: "Grid", version: "v1.0", builtAt: "")
+
+        addInfo("4 组排查：① 基础四宫格 ② 带标题分区 ③ 可点击交互 ④ 多分组网格。双端 1:1 对齐。")
+
+        // ── Demo 1：基础四宫格 ──
+        addSection(title: "Demo 1 · 基础四宫格") { container in
+            let grid = NavigationGrid()
+            grid.apply(title: "常用功能", items: [
+                NavigationGrid.Item(title: "列表", symbolName: "list.bullet.rectangle"),
+                NavigationGrid.Item(title: "图表", symbolName: "chart.xyaxis.line"),
+                NavigationGrid.Item(title: "加号", symbolName: "plus.circle.fill"),
+                NavigationGrid.Item(title: "人物", symbolName: "person"),
+            ])
+            container.addSubview(grid)
+            grid.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("4 个入口等分，图标 24pt primary 色 + 标题 sizeXs textPrimary。")
+
+        // ── Demo 2：带标题分区 ──
+        addSection(title: "Demo 2 · 带标题分区") { container in
+            let grid = NavigationGrid()
+            grid.apply(title: "小工具", items: [
+                NavigationGrid.Item(title: "浏览器", symbolName: "safari"),
+                NavigationGrid.Item(title: "手机", symbolName: "smartphone"),
+                NavigationGrid.Item(title: "邮箱", symbolName: "envelope"),
+                NavigationGrid.Item(title: "下拉", symbolName: "arrowtriangle.down.fill"),
+            ])
+            container.addSubview(grid)
+            grid.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("不同图标组合，验证分区标题 + 图标网格布局。")
+
+        // ── Demo 3：可点击交互 ──
+        addSection(title: "Demo 3 · 可点击交互") { container in
+            let grid = NavigationGrid()
+            grid.apply(title: "快捷入口", items: [
+                NavigationGrid.Item(title: "列表", symbolName: "list.bullet.rectangle"),
+                NavigationGrid.Item(title: "图表", symbolName: "chart.xyaxis.line"),
+                NavigationGrid.Item(title: "人物", symbolName: "person"),
+                NavigationGrid.Item(title: "邮箱", symbolName: "envelope"),
+            ])
+            grid.onSelect = { index in
+                print("Grid Demo3 tapped: \(index)")
+            }
+            container.addSubview(grid)
+            grid.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("onSelect 回调返回索引，点击入口触发（打印 index）。")
+
+        // ── Demo 4：多分组网格 ──
+        addSection(title: "Demo 4 · 多分组网格") { container in
+            let col = UIStackView()
+            col.axis = .vertical
+            col.spacing = AppSpace.lg
+
+            let grid1 = NavigationGrid()
+            grid1.apply(title: "常用功能", items: [
+                NavigationGrid.Item(title: "列表", symbolName: "list.bullet.rectangle"),
+                NavigationGrid.Item(title: "图表", symbolName: "chart.xyaxis.line"),
+                NavigationGrid.Item(title: "加号", symbolName: "plus.circle.fill"),
+                NavigationGrid.Item(title: "人物", symbolName: "person"),
+            ])
+
+            let grid2 = NavigationGrid()
+            grid2.apply(title: "小工具", items: [
+                NavigationGrid.Item(title: "浏览器", symbolName: "safari"),
+                NavigationGrid.Item(title: "手机", symbolName: "smartphone"),
+                NavigationGrid.Item(title: "邮箱", symbolName: "envelope"),
+                NavigationGrid.Item(title: "下拉", symbolName: "arrowtriangle.down.fill"),
+            ])
+
+            col.addArrangedSubview(grid1)
+            col.addArrangedSubview(grid2)
+            container.addSubview(col)
+            col.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("两个独立 Grid，间距 AppSpace.lg，模拟发现页。")
     }
 }

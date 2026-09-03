@@ -1,6 +1,6 @@
 {
-  "version": "1.3.6",
-  "versionKey": "v1.3.6",
+  "version": "1.3.7",
+  "versionKey": "v1.3.7",
   "releaseDate": "2026-09-03",
-  "changelog": "feat(ui.list v1.0 reviewed): List 分组列表双端 Demo 4 组排查（基础行/带值行/可点击行/多分组），双端 1:1 对齐（设备名统一为 iPhone 15 Pro），api.json reviewed=true。组件库全局 v1.3.5 → v1.3.6；双端徽标 List v1.0。"
+  "changelog": "feat(ui.grid v1.0 reviewed): Grid 宫格双端 Demo 4 组排查（基础四宫格/带标题分区/可点击交互/多分组网格），Android sharedui 新增 NavigationGrid.kt 补全 partial→available，api.json reviewed=true。组件库全局 v1.3.6 → v1.3.7；双端徽标 Grid v1.0。"
 }

@@ -55,6 +55,10 @@ import com.zhiqihuayun.sharedui.components.AppTheme
 import com.zhiqihuayun.sharedui.components.Cell
 import com.zhiqihuayun.sharedui.components.CellStatus
 import com.zhiqihuayun.sharedui.components.ConfigProvider
+import com.zhiqihuayun.sharedui.components.GridItem
+import com.zhiqihuayun.sharedui.components.NavigationGrid
+import com.zhiqihuayun.sharedui.components.ProfileListGroup
+import com.zhiqihuayun.sharedui.components.ProfileListItem
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,7 +92,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
     ),
     "布局组件" to listOf(
         DemoComponent("Divider 分割线"),
-        DemoComponent("Grid 宫格"),
+        DemoComponent("Grid 宫格", reviewed = true, demo = { GridDemo() }),
         DemoComponent("Layout 布局"),
         DemoComponent("SafeArea 安全区"),
         DemoComponent("Space 间距"),
@@ -1060,6 +1064,93 @@ private fun ListDemo() {
                 ProfileListItem("清除缓存", value = "23.5 MB", onClick = {}),
                 ProfileListItem("检查更新", value = "最新版", onClick = {}),
                 ProfileListItem("退出登录", onClick = {}),
+            )
+        )
+    }
+}
+
+// ===== Grid 组件 Demo 页（独立页面，与 iOS GridShowcase 一一对应） =====
+
+@Composable
+private fun GridDemo() {
+    Text(
+        text = "Grid 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+
+    Text(
+        text = "4 组排查：① 基础四宫格 ② 带标题分区 ③ 可点击交互 ④ 多分组网格。双端 1:1 对齐。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // ── Demo 1：基础四宫格 ──
+        Text("Demo 1 · 基础四宫格", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        NavigationGrid(
+            title = "常用功能",
+            items = listOf(
+                GridItem("列表", AppIconName.List),
+                GridItem("图表", AppIconName.Chart),
+                GridItem("加号", AppIconName.Plus),
+                GridItem("人物", AppIconName.Person),
+            )
+        )
+
+        // ── Demo 2：带标题分区 ──
+        Text("Demo 2 · 带标题分区", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        NavigationGrid(
+            title = "小工具",
+            items = listOf(
+                GridItem("浏览器", AppIconName.Safari),
+                GridItem("手机", AppIconName.Smartphone),
+                GridItem("邮箱", AppIconName.Mail),
+                GridItem("下拉", AppIconName.ArrowDown),
+            )
+        )
+
+        // ── Demo 3：可点击交互 ──
+        Text("Demo 3 · 可点击交互", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        NavigationGrid(
+            title = "快捷入口",
+            items = listOf(
+                GridItem("列表", AppIconName.List),
+                GridItem("图表", AppIconName.Chart),
+                GridItem("人物", AppIconName.Person),
+                GridItem("邮箱", AppIconName.Mail),
+            ),
+            onSelect = { index ->
+                println("Grid Demo3 tapped: $index")
+            }
+        )
+
+        // ── Demo 4：多分组网格 ──
+        Text("Demo 4 · 多分组网格", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        NavigationGrid(
+            title = "常用功能",
+            items = listOf(
+                GridItem("列表", AppIconName.List),
+                GridItem("图表", AppIconName.Chart),
+                GridItem("加号", AppIconName.Plus),
+                GridItem("人物", AppIconName.Person),
+            )
+        )
+        NavigationGrid(
+            title = "小工具",
+            items = listOf(
+                GridItem("浏览器", AppIconName.Safari),
+                GridItem("手机", AppIconName.Smartphone),
+                GridItem("邮箱", AppIconName.Mail),
+                GridItem("下拉", AppIconName.ArrowDown),
             )
         )
     }

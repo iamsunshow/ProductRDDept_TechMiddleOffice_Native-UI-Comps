@@ -12,6 +12,22 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## \[1.3.7] - 2026-09-03
+
+Grid v1.0 双端 reviewed：Android sharedui 补全 NavigationGrid + Demo 4 组排查 + api.json reviewed=true。
+
+### Added
+
+- **Android sharedui 新增 `NavigationGrid.kt`**：`NavigationGrid` Composable + `GridItem` 数据类，对齐 iOS API（onSelect 索引回调 + title/items 参数），复用 `AppIcon`/`AppIconName` 双端统一图标系统，布局卡片壳（bgCard/cornerRadius lg/border 0.5dp）+ 标题 + Row 等分图标网格（height 72dp，icon 26dp primary 色）。
+- **Grid Demo 4 组排查（双端 1:1 对齐）**：① 基础四宫格（列表/图表/加号/人物）② 带标题分区（浏览器/手机/邮箱/下拉）③ 可点击交互（onSelect 打印 index）④ 多分组网格（常用功能 + 小工具，模拟发现页）。
+
+### Changed
+
+- api.json `ui.grid` android state `partial` → `available`，source_refs 补全双端路径（iOS NavigationGrid.swift + Android NavigationGrid.kt），reviewed=true。
+- 组件库全局版本 1.3.6 → 1.3.7（PATCH）。
+- 双端 Grid Demo 徽标 v1.0（首次 reviewed）。
+- MainActivity.kt 补全缺失 import（ProfileListGroup/ProfileListItem/NavigationGrid/GridItem）。
+
 ## \[1.3.6] - 2026-09-03
 
 List v1.0 双端 reviewed：分组列表 Demo 4 组排查 + api.json reviewed=true。

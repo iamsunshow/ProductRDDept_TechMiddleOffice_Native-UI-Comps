@@ -11,12 +11,12 @@
 | 项 | 值 |
 |----|-----|
 | 组件名 / id | 图片 Image / `ui.image`（历史：无 legacy） |
-| 分类（subcategory） | 基础组件（api.json subcategory=basics，待门禁 B 定稿） |
+| 分类（subcategory） | 基础组件（api.json subcategory=display，门禁 B 定稿） |
 | 推进顺序 | 列表第 #5 位（基础组件） |
-| 状态 | 📋 API 契约中（门禁 A ✅ 通过 2026-09-03，决策 P1–P4 用户拍板；门禁 B 待评审）→ ⬜ 实现（C） |
+| 状态 | 💻 实现中 · 门禁 C1 双端实现 + 自测（门禁 A ✅ 2026-09-03；门禁 B ✅ 2026-09-03 冻结 `ui.image`） |
 | 验收文档 | `docs/验收流程/component-acceptance-image.md` |
 | 设计规格页 | `docs/design-spec/image-design-spec.html` |
-| 组件库版本 | v1.2.1（2026-09-03 基线；本组件实现将 bump） |
+| 组件库版本 | v1.3.0（2026-09-03 发布；基线 v1.2.1） |
 
 ---
 
@@ -50,10 +50,10 @@
 | D2 | fit 模式全值 | 标记图宽高比≠容器 | 依次 fill/contain/cover/none/scale-down | 各模式几何符合语义：fill 拉伸铺满 / contain 完整显示留边 / cover 等比铺满裁边 / none 原始尺寸 / scale-down 不大于原图；渲染几何与「绘制 rect 纯函数」计算一致 | iOS+Android | ☐ |
 | D3 | position 停靠 | fit=contain，容器>内容 | 依次 center/top/bottom/left/right | 内容停靠在指定侧，停靠点与计算一致；fit=fill/cover 时 position 无视觉影响 | iOS+Android | ☐ |
 | D4 | 尺寸与圆角 | — | width/height 显式 + radius=md；radius=宽/2 | 圆角裁剪生效（四角不露图、角点像素为底）；圆形渲染完整 | iOS+Android | ☐ |
-| D5 | 加载中占位 | 异步源（URL/延迟） | 加载期间观察 | 显示 loading 占位（默认样式；传自定义时显示自定义）；加载完成占位消失、onLoad 触发一次 | iOS+Android | ☐ |
-| D6 | 加载失败占位 | 无效 src | 触发失败 | error 占位显示（默认破图+文案；自定义时自定义）、onError 触发一次；重设合法 src 后恢复渲染 | iOS+Android | ☐ |
-| D7 | 点击事件 | — | 点击图片 | onTap 回调触发（点击区域=容器内全部） | iOS+Android | ☐ |
-| D8 | 无障碍 alt | — | 渲染后读无障碍 | iOS accessibilityLabel=alt；Android contentDescription=alt | iOS+Android | ☐ |
+| D5 | 加载中占位 | 异步源（URL/延迟） | 加载期间观察 | 显示 loading 占位（默认样式；传自定义时显示自定义）；加载完成占位消失、onLoad 触发一次；loading 占位有可读语义（alt 兜底） | iOS+Android | ☐ |
+| D6 | Token 引用 | 代码静态检查 | 扫描实现文件 | 颜色/尺寸全部引用 design-token.json，零硬编码（质量脚本保留位，无测试函数） | 两端 CI | ☐ |
+| D7 | 加载失败占位 | 无效 src | 触发失败 | error 占位显示（默认破图+文案；自定义时自定义）、onError 触发一次；重设合法 src 后恢复渲染；失败占位有可读语义（原 A7「无障碍-占位语义」并入） | iOS+Android | ☐ |
+| D8 | 点击与无障碍 | — | 点击图片 / 渲染后读无障碍 | onTap 回调触发（点击区域=容器内全部）；iOS accessibilityLabel=alt；Android contentDescription=alt | iOS+Android | ☐ |
 
 > 五态说明：禁用 N/A（02 节有依据）不入 D 系列；成功态=D1/D5 加载完成段；D2-D4 几何断言采用「双端绘制几何纯函数 + 布局/像素双通道」防平台盲区（吸取 Cell token/整行两层均测不到行内对齐的教训——纯函数闭数学环，像素层闭视觉差异）。
 
@@ -84,7 +84,7 @@
 **方法 Methods**：无（NutUI 无实例方法）。
 **anti_goals（已录入 api.json）**：URL 网络图不在本组件（P1=B）/ lazy 一期 N/A（P2=B）/ 不内置预览·裁剪·编辑·上传（预览独立组件）/ 无内置失败重试（P4=B）/ 占位不依赖未完成 Icon/Loading。
 
-**API 评审（门禁 B）结论：** ☐ ✅ 通过　☐ ❌ 打回　备注：
+**API 评审（门禁 B）结论：** ✅ 通过（2026-09-03 用户表决冻结 `ui.image` 为准绳，props 9 + events 3，P1–P4 决策见上）　☐ ❌ 打回　备注：A6 schema + A7 命名对齐脚本验证随 C1 补齐（`scripts/check_component_quality.py`）
 
 ---
 
@@ -97,10 +97,10 @@
 | A1 | 属性-默认值 | — | 仅传 src 渲染 | 默认值生效：fit=fill、position=center、radius=0、loading/error 占位=默认样式 | iOS+Android | ☐ |
 | A2 | 属性-自定义 | — | 传入 fit/position/width/height/radius/alt | 各项按传入值生效，双端一致 | iOS+Android | ☐ |
 | A3 | 事件-回调 | — | 触发点击 / 加载成功 / 加载失败 | onTap/onLoad/onError 分别触发，回调签名正确、次数正确 | iOS+Android | ☐ |
-| A4 | 契约-schema | api.json | 校验脚本 | props/events/methods 字段合法 | CI | ☐ |
-| A5 | 契约-命名对齐 | api.json | 双端对照 | 双端 props 命名 100% 一致 | CI | ☐ |
-| A6 | token-零硬编码 | design-token.json | 扫描占位/圆角相关色值与档位 | 无组件内硬编码（宽高业务值除外） | 两端 CI | ☐ |
-| A7 | 无障碍-占位语义 | — | 加载失败态读无障碍 | 失败占位有可读语义（accessibilityLabel/contentDescription 非空或 alt 兜底） | iOS+Android | ☐ |
+| A6 | 契约-schema | api.json | 校验脚本 | props/events/methods 字段合法（质量脚本保留位，无测试函数） | CI | ☐ |
+| A7 | 契约-命名对齐 | api.json | 双端对照 | 双端 props/events 命名 100% 一致（质量脚本保留位，无测试函数） | CI | ☐ |
+
+> **编号说明（2026-09-03 C1）**：用例 ID 与 `scripts/check_component_quality.py` 的脚本保留位对齐（Cell 组件惯例）：**D6=Token 硬编码扫描、A6=契约 schema、A7=命名对齐** 三项由质量脚本自动执行、不要求双端测试函数；本组件 API 行为用例仅 A1–A3 三项（原表格第四/五行「契约-schema、契约-命名对齐」已分别上移为 A6/A7；原「token-零硬编码」并入 D6；原「无障碍-占位语义」并入 D5/D7 预期）。失败态测试 `test_D7_errorState` 等与点击/无障碍测试 `test_D8_tapEvent` 等双端同名。用例「结果」列 ☐ 为最终验收标记（含 C1.5 实机）；C1 单测层通过情况见「七、验收记录」C1 行（2026-09-03 ✅：Android Robolectric 全量绿 + 脚本门禁 4/4）。
 
 ---
 
@@ -121,9 +121,10 @@
 
 | 日期 | 门禁 | 结论 | 备注（验证版本） |
 |------|------|------|------|
-| 2026-09-03 | A 设计评审 | 待评审 | 评审单 `docs/验收流程/review-image-A.md`；设计规格 `image-design-spec.html`；组件库 v1.2.1 基线 |
-|  | B API 评审 | 通过 / 打回 |  |
-|  | C1 自测对齐（单测+快照+用例映射） | 通过 / 打回 | 双端实现 + 测试执行 |
+| 2026-09-03 | A 设计评审 | ✅ 通过 | 评审单 `docs/验收流程/review-image-A.md`；设计规格 `image-design-spec.html`；组件库 v1.2.1 基线；P1=B URL 业务预下载 / P2=B lazy 一期 N/A / P3=A 圆形=radius=宽/2 / P4=B 失败仅 onError |
+| 2026-09-03 | B API 评审 | ✅ 通过 | 用户表决冻结 `ui.image`（props 9 + events 3）为准绳；subcategory=display；契约 `docs/api.json` |
+| 2026-09-03 | C1 自测对齐（单测+快照+用例映射） | ✅ 完成（C1 出口=单测全绿+脚本门禁全绿；C1.5 实机待办） | 双端实现（iOS Image.swift / Android Image.kt）+ 用例重排对齐脚本保留位；Android Robolectric 全量 50/50 绿（ImageTest 20 + CellTest 15 + ConfigProviderTest 15，含 Cell D5 回归修复）；质量门禁 Cell/Image 各 4/4；像素采样因 Robolectric 窗口捕获不产帧移除、几何以纯函数+实机 C1.5 覆盖；版本 bump v1.3.0 |
+|  | C1.5 Demo Showcase + 实机确认 | 通过 / 打回 | 双端 demo + 用户实机确认 |
 |  | C1.5 Demo Showcase + 实机确认 | 通过 / 打回 | 双端 demo + 用户实机确认 |
 |  | C2 CR + CI | 通过 / 打回 |  |
 |  | 发版 | 版本号 / tag |  |

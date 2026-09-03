@@ -12,6 +12,34 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## [1.3.0] - 2026-09-03
+
+ui.image 图片组件双端实现（门禁 C1，契约 `docs/api.json` `ui.image`，门禁 B ✅ 2026-09-03 冻结）。
+
+### Added
+
+- **Image（ui.image）双端实现**：iOS `ios/SharedUI/Components/Image.swift`（UIView + 状态机 LoadState loading/loaded/failed）+ Android `android/sharedui/components/Image.kt`（Compose 顶层函数，规避 foundation.Image 命名冲突，破图占位零图标依赖）。契约 props 9（src/fit/position/width/height/radius/alt/loadingContent/errorContent）+ events 3（onTap/onLoad/onError）；fit 五值（fill/contain/cover/none/scale-down）、position 三值锚点、radius token 档位与数值。src 语义：iOS `Any?`=UIImage/String 资源/nil，Android=ImageBitmap/Int resId/String 资源名/null。
+- **几何纯函数双端同构** `ImageGeometry.rect`：`x = ax*(W-dw)` / `y = ay*(H-dh)`（ax/ay ∈ {0,0.5,1}）；scale-down=不放大、cover 超裁随 position 锚定、H1 零尺寸防御。向量同组断言在 iOS `Tests/ImageTests.swift` 与 Android `ImageTest.kt`（D2/D2b/D3/D3b/H1）。
+- **双端单测**：iOS ImageTests（状态机/几何/radius/点击/无障碍/A1-A3，纯函数数学闭环）；Android ImageTest **20/20 绿**（Robolectric，结构/状态/语义断言；根节点 mergeDescendants 下子节点统一 `useUnmergedTree`）。像素采样（captureToImage）在 Robolectric 窗口捕获不产帧，移除并归 C1.5 实机视觉验收。
+- **质量门禁脚本组件化** `scripts/check_component_quality.py`：`--component cell|image`，D6 token 扫描/A6 契约 schema/A7 双端命名/C1 用例映射按组件参数化；Cell/Image 两组 4/4 全绿。用例编号保留位（D6/A6/A7=脚本型）与 Image 验收文档对齐（D6=Token、D7=失败、D8=点击+无障碍；A4/A5 空号）。
+- **设计 token 落地**：占位色 `AppColor.gray6`（#E5E5E5）/`gray15`（#BFBFBF）补入双端 AppTokens（gray4/gray25 同族）。
+- **api.json**：`ui.image` platforms ios/android → partial（C1 已实现，C1.5 实机确认后转 available）。
+
+### Fixed
+
+- **Cell Error 徽标缺可读语义（v1.30c 自绘引入回归）**：`Cell.kt` Error 态改自绘 `ErrorCircleBadge` 后未补 `contentDescription("失败")`，与 CellTest D5（`CellTest.kt:93`）断言冲突，自 v1.2.0 起 CellTest 全量无法全绿（CHANGELOG v1.2.0 已登记遗留）。本次在徽标 modifier 补 `.semantics { contentDescription = "失败" }`，与 Success「成功」配对，a11y 对齐 iOS badge；**CellTest 15/15 恢复全绿**。
+- **Image.kt 编译修正**：设计 token 导入包名 `com.zhiqihuayun.design` → `com.zhiqihuayun.foundation.design`（与 Cell 一致）；`matchParentSize`/`drawImage` 为 BoxScope/DrawScope 接口成员，移除错误 import；material icons-core 无 `Icons.Filled.Image`，破图占位改 Canvas 自绘（画框+太阳+山形，对齐 iOS SF Symbol "photo" 语义）。
+
+### Changed
+
+- **ui-version.json**：组件库版本 1.2.1 → 1.3.0（新组件新增 + 修复，SemVer MINOR）。
+
+### Verified（验证版本 v1.3.0，2026-09-03）
+
+- Android Robolectric 全量 **50/50 绿**：ImageTest 20/20 + CellTest 15/15（含 D5_errorState 修复验证）+ ConfigProviderTest 15/15。
+- 质量门禁脚本 Cell 与 Image 两组各 4/4（D6/A6/A7/C1）全绿。
+- iOS 本机仍受 Xcode/UIKit 环境约束无法跑全量 XCTest（历史遗留，见 v1.2.1 根治记录未覆盖的编译链），iOS 侧以纯函数测试 + 代码评审为 C1 依据；真实 iOS 渲染/实机确认归 C1.5。
+
 ## [1.2.1] - 2026-09-03
 
 打通 iOS 工程 SwiftPM 构建阻塞（历史遗留根治），iOS 测试首次真机模拟器实跑全绿。

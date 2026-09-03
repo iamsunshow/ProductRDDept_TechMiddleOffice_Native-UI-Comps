@@ -12,6 +12,8 @@ enum AppColor {
     static let error = UIColor(hex: 0xDC2626)
     static let success = UIColor(hex: 0x16A34A)
     static let gray4 = UIColor(hex: 0xF5F5F5)
+    static let gray6 = UIColor(hex: 0xE5E5E5)
+    static let gray15 = UIColor(hex: 0xBFBFBF)
     static let gray25 = UIColor(hex: 0x8C8C8C)
     static let warning = UIColor(hex: 0xF59E0B)
     static let textPrimary = UIColor(hex: 0x111827)

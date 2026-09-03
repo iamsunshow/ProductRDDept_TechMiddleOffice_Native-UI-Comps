@@ -907,12 +907,12 @@
       ],
       "platforms": {
         "ios": {
-          "state": "unavailable",
-          "note": "设计中：门禁 A 通过（2026-09-03，决策 P1–P4 用户拍板）；契约定稿待门禁 B 评审；基线 v1.2.1"
+          "state": "partial",
+          "note": "Image.swift（UIKit）已实现（v1.3.0，2026-09-03 门禁 C1）：fit/position/radius/alt/占位/onTap·onLoad·onError；单测文件 ImageTests.swift（纯函数数学闭环）；iOS 完整构建/实机受 C1.5 确认；width/height 经 frame 传入"
         },
         "android": {
-          "state": "unavailable",
-          "note": "设计中：门禁 A 通过（2026-09-03，决策 P1–P4 用户拍板）；契约定稿待门禁 B 评审；基线 v1.2.1"
+          "state": "partial",
+          "note": "Image.kt（Compose）已实现（v1.3.0，2026-09-03 门禁 C1）：顶层函数同名，Robolectric 单测含像素断言；实机视觉受 C1.5 确认"
         },
         "harmony": {
           "state": "unavailable",

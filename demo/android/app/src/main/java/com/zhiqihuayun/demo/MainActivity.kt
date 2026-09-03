@@ -59,6 +59,7 @@ import com.zhiqihuayun.sharedui.components.GridItem
 import com.zhiqihuayun.sharedui.components.NavigationGrid
 import com.zhiqihuayun.sharedui.components.ProfileListGroup
 import com.zhiqihuayun.sharedui.components.ProfileListItem
+import com.zhiqihuayun.sharedui.components.SummaryCardView
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -180,7 +181,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("QuickEnter 快捷入口"),
         DemoComponent("AvatarCropper 头像裁剪"),
         DemoComponent("Barrage 弹幕"),
-        DemoComponent("Card 商品卡片"),
+        DemoComponent("Card 商品卡片", reviewed = true, demo = { CardDemo() }),
         DemoComponent("TimeSelect 配送时间"),
         DemoComponent("TrendArrow 趋势箭头"),
         DemoComponent("WaterMark 水印"),
@@ -1152,6 +1153,76 @@ private fun GridDemo() {
                 GridItem("邮箱", AppIconName.Mail),
                 GridItem("下拉", AppIconName.ArrowDown),
             )
+        )
+    }
+}
+
+// ===== Card 组件 Demo 页（独立页面，与 iOS CardShowcase 一一对应） =====
+
+@Composable
+private fun CardDemo() {
+    Text(
+        text = "Card 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+
+    Text(
+        text = "4 组排查：① 基础摘要卡 ② 带颜色数值 ③ 无辅助文案 ④ 可点击卡片。双端 1:1 对齐。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // ── Demo 1：基础摘要卡 ──
+        Text("Demo 1 · 基础摘要卡", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        SummaryCardView(
+            title = "本月支出",
+            subtitle = "2026 年 9 月 · 餐饮 + 交通 + 购物",
+            value = "¥ 3,280.50",
+            valueColor = AppColor.textPrimary,
+            accessory = "较上月 +5.2%"
+        )
+
+        // ── Demo 2：带颜色数值 ──
+        Text("Demo 2 · 带颜色数值", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        SummaryCardView(
+            title = "本月收入",
+            subtitle = "工资 + 理财收益",
+            value = "¥ 8,500.00",
+            valueColor = Color(0xFF34C759),
+            accessory = "较上月 +12.8%"
+        )
+
+        // ── Demo 3：无辅助文案 ──
+        Text("Demo 3 · 无辅助文案", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        SummaryCardView(
+            title = "账户余额",
+            subtitle = "可用余额 · 含储蓄卡 + 信用卡",
+            value = "¥ 15,420.30",
+            valueColor = AppColor.primary,
+            accessory = null
+        )
+
+        // ── Demo 4：可点击卡片 ──
+        Text("Demo 4 · 可点击卡片", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        SummaryCardView(
+            title = "预算管理",
+            subtitle = "本月预算 ¥ 5,000 · 已用 65.6%",
+            value = "¥ 3,280.50",
+            valueColor = Color(0xFFFF9500),
+            accessory = "查看详情",
+            onClick = {
+                println("Card Demo4 tapped")
+            }
         )
     }
 }

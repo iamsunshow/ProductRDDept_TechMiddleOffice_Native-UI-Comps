@@ -1529,7 +1529,7 @@
           "note": ""
         },
         "android": {
-          "state": "partial",
+          "state": "available",
           "note": ""
         },
         "harmony": {
@@ -1546,7 +1546,8 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/DiscoverSummaryCardView.swift"
+        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/SummaryCardView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/android/sharedui/components/SummaryCardView.kt"
       },
       "deps": [],
       "variants": [],
@@ -1597,7 +1598,8 @@
         ]
       ],
       "note": "单块可点容器；多入口用 Grid",
-      "subcategory": "basics"
+      "subcategory": "basics",
+      "reviewed": true
     },
     {
       "id": "ui.avatar",

@@ -12,6 +12,22 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## \[1.3.8] - 2026-09-03
+
+Card v1.0 双端 reviewed：Android sharedui 补全 SummaryCardView + Demo 4 组排查 + api.json reviewed=true。
+
+### Added
+
+- **Android sharedui 新增 `SummaryCardView.kt`**：`SummaryCardView` Composable，对齐 iOS API（title/subtitle/value/valueColor/accessory/onClick 参数），布局卡片壳（bgCard/cornerRadius lg/border 0.5dp）+ 标题行（标题 + 右箭头 14dp）+ 副标题 + 数值行（主数值 sizeXl semibold + 辅助文案 sizeXs textSecondary）。
+- **Card Demo 4 组排查（双端 1:1 对齐）**：① 基础摘要卡（本月支出 textPrimary 色）② 带颜色数值（本月收入 systemGreen 绿色）③ 无辅助文案（账户余额 accessory=nil 隐藏）④ 可点击卡片（预算管理 systemOrange 警示色 + onClick 回调）。
+
+### Changed
+
+- api.json `ui.card` android state `partial` → `available`，source_refs 修正 iOS `DiscoverSummaryCardView.swift` → `SummaryCardView.swift` + 补全 Android 路径，reviewed=true。
+- 组件库全局版本 1.3.7 → 1.3.8（PATCH）。
+- 双端 Card Demo 徽标 v1.0（首次 reviewed）。
+- MainActivity.kt 补全 import（SummaryCardView）。
+
 ## \[1.3.7] - 2026-09-03
 
 Grid v1.0 双端 reviewed：Android sharedui 补全 NavigationGrid + Demo 4 组排查 + api.json reviewed=true。

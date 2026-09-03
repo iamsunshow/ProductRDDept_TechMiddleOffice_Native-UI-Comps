@@ -116,7 +116,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.quick-enter", name: "QuickEnter 快捷入口", reviewed: false, create: nil),
             DemoComponent(id: "ui.avatar-cropper", name: "AvatarCropper 头像裁剪", reviewed: false, create: nil),
             DemoComponent(id: "ui.barrage", name: "Barrage 弹幕", reviewed: false, create: nil),
-            DemoComponent(id: "ui.card", name: "Card 商品卡片", reviewed: false, create: nil),
+            DemoComponent(id: "ui.card", name: "Card 商品卡片", reviewed: true, create: { CardShowcase() }),
             DemoComponent(id: "ui.time-select", name: "TimeSelect 配送时间", reviewed: false, create: nil),
             DemoComponent(id: "ui.trend-arrow", name: "TrendArrow 趋势箭头", reviewed: false, create: nil),
             DemoComponent(id: "ui.water-mark", name: "WaterMark 水印", reviewed: false, create: nil),
@@ -1597,5 +1597,91 @@ final class GridShowcase: ShowcaseViewController {
             }
         }
         addInfo("两个独立 Grid，间距 AppSpace.lg，模拟发现页。")
+    }
+}
+
+// MARK: - Card Showcase（Card 摘要卡片组件独立 Demo 页，与 Android CardDemo 一一对应）
+
+final class CardShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Card 商品卡片"
+        addVersionBadge(componentName: "Card", version: "v1.0", builtAt: "")
+
+        addInfo("4 组排查：① 基础摘要卡 ② 带颜色数值 ③ 无辅助文案 ④ 可点击卡片。双端 1:1 对齐。")
+
+        // ── Demo 1：基础摘要卡 ──
+        addSection(title: "Demo 1 · 基础摘要卡") { container in
+            let card = SummaryCardView()
+            card.apply(
+                title: "本月支出",
+                subtitle: "2026 年 9 月 · 餐饮 + 交通 + 购物",
+                value: "¥ 3,280.50",
+                valueColor: AppColor.textPrimary,
+                accessory: "较上月 +5.2%"
+            )
+            container.addSubview(card)
+            card.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("title + subtitle + value（textPrimary）+ accessory，完整四元素。")
+
+        // ── Demo 2：带颜色数值 ──
+        addSection(title: "Demo 2 · 带颜色数值") { container in
+            let card = SummaryCardView()
+            card.apply(
+                title: "本月收入",
+                subtitle: "工资 + 理财收益",
+                value: "¥ 8,500.00",
+                valueColor: .systemGreen,
+                accessory: "较上月 +12.8%"
+            )
+            container.addSubview(card)
+            card.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("valueColor = systemGreen，数值绿色表示正向。")
+
+        // ── Demo 3：无辅助文案 ──
+        addSection(title: "Demo 3 · 无辅助文案") { container in
+            let card = SummaryCardView()
+            card.apply(
+                title: "账户余额",
+                subtitle: "可用余额 · 含储蓄卡 + 信用卡",
+                value: "¥ 15,420.30",
+                valueColor: AppColor.primary,
+                accessory: nil
+            )
+            container.addSubview(card)
+            card.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("accessory = nil，隐藏辅助文案，数值左对齐。")
+
+        // ── Demo 4：可点击卡片 ──
+        addSection(title: "Demo 4 · 可点击卡片") { container in
+            let card = SummaryCardView()
+            card.apply(
+                title: "预算管理",
+                subtitle: "本月预算 ¥ 5,000 · 已用 65.6%",
+                value: "¥ 3,280.50",
+                valueColor: .systemOrange,
+                accessory: "查看详情"
+            )
+            card.addTarget(self, action: #selector(self.cardTapped), for: .touchUpInside)
+            container.addSubview(card)
+            card.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("UIControl 整卡可点击，valueColor = systemOrange 警示色。")
+    }
+
+    @objc private func cardTapped() {
+        print("Card Demo4 tapped")
     }
 }

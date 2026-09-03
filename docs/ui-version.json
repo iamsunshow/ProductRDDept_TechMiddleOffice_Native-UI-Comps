@@ -1,6 +1,6 @@
 {
-  "version": "1.1.11",
-  "versionKey": "v1.1.11",
+  "version": "1.2.0",
+  "versionKey": "v1.2.0",
   "releaseDate": "2026-09-03",
-  "changelog": "chore(ui.button): 补录 Button v1.0 三轮发布后漏掉的 4 轮 bugfix 版本递增——Demo 徽标 v1.0→v1.4，对齐治理规范 §6.5「就算是 demo 的代码更新，也要更改组件版本」（用户 2026-09-03 明确要求，条款已写入治理规范与开发规则）。4 轮 bugfix 对应：① v1.1 iOS Demo index out of bounds（insertArrangedSubview min 防越界）② v1.2 Android AppButton Box 缺 .background(container,shape) 导致按钮透明 + secondary 背景改 bgCard ③ v1.3 iOS setLoading(true) 分支缺 updateBackground() 导致 loading 态不置灰（双端 Demo3/Demo4 颜色顺序不一致）④ v1.4 Android 子页面缺 statusBarsPadding 导致返回按钮与状态栏重叠 + 缺大标题（补 statusBarsPadding+自定义返回行+内容区大标题组件名）。ui-version 1.1.10→1.1.11。"
+  "changelog": "feat(config-provider): ConfigProvider 全局配置组件 v1.0 双端实现落地（门禁 C1）——设计规格/API 契约（门禁 A/B，2026-09-03 用户确认）通过后进入实现：Android `android/sharedui/components/ConfigProvider.kt`（AppConfig 值类型 + CompositionLocal 上下文 + AppTheme 读取解析层，15 项单测绿）；iOS `ios/SharedUI/Components/ConfigProvider.swift`（AppConfig + 命令式作用域栈 ConfigProvider + AppTheme 解析层，UIAppearance/环境对象双通道按平台差异登记，XCTest 用例就位待实机）。四项配置 primaryColor/rounded/compact/locale，覆盖语义=内层优先、未设项继承、静态基准不被污染。ui-version 1.1.11 → 1.2.0。"
 }

@@ -12,6 +12,24 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## [1.2.0] - 2026-09-03
+
+ConfigProvider 全局配置组件 v1.0 双端实现落地（门禁 C1 进行中，Android 实现完成、iOS 代码就位）。
+
+### Added
+
+- **ConfigProvider（ui.config-provider）双端实现**：设计规格（门禁 A ✅ 2026-09-03）与 API 契约（门禁 B ✅ 2026-09-03，用户「继续」确认）通过后进入门禁 C1 实现。组件定位为 design-token 静态基准（AppTokens）之上的**运行时覆盖层**，四项配置：`primaryColor`（hex 字符串）/ `rounded`（圆角升档）/ `compact`（间距降档）/ `locale`（文案语言），覆盖语义 = 内层优先、未设项继承、静态基准不被污染（D5）。
+
+- **Android `android/sharedui/components/ConfigProvider.kt`**：`@Stable data class AppConfig`（四字段全可空 + `merged(overlay)` 合并 + `Baseline`）、`parseHexColor`（6/3 位 hex 解析）、`CompositionLocal` 上下文注入（`ProvidableCompositionLocal`，对齐 Compose 1.7 成员扩展 `provides`）、`@Composable ConfigProvider`、读取解析层 `AppTheme`（primaryColor/radiusSm/Md/Lg/spaceSm/Md/Lg/Xl/locale 解析函数）。Robolectric 单测 **15/15 绿**（D1-D8 + A1-A5 + hex 解析 + merged 语义，验证版本 v1.2.0）。
+
+- **iOS `ios/SharedUI/Components/ConfigProvider.swift`**：按平台差异登记（iOS 命令式 UIKit），`AppConfig` + 命令式**作用域栈** `ConfigProvider`（push/pop/withScope/current + resetForTesting，表达嵌套 Provider 语义）+ 读取解析层 `AppTheme` + `UIColor(hexString:)` 解析。`Tests/ConfigProviderTests.swift` D1-D8/A1-A5 用例就位（XCTest 逻辑层，本机 UIKit 受限待实机跑）。
+
+### Changed
+
+- **ui-version.json**：组件库版本 1.1.11 → 1.2.0（新组件新增，SemVer MINOR）。
+
+> 遗留（非本次引入）：CellTest `test_D5_errorState` 失败——Cell v1.30c 将 Error 态改为自绘 `ErrorCircleBadge`（Canvas）后未补 `contentDescription("失败")`，与 CellTest 93 行断言冲突；Cell.kt/CellTest.kt 均无本地改动，已单独验证与 ConfigProvider 无关，待 Cell 门禁 C2 时修复。
+
 ## \[1.1.11] - 2026-09-03
 
 补录 Button v1.0 三轮发布后漏掉的 4 轮 bugfix 版本递增（治理规范 §6.5 合规补齐）。

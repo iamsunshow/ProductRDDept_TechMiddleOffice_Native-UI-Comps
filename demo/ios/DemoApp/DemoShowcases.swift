@@ -91,7 +91,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.animate", name: "Animate 动画", reviewed: false, create: nil),
             DemoComponent(id: "ui.animating-numbers", name: "AnimatingNumbers 数字动画", reviewed: false, create: nil),
             DemoComponent(id: "ui.audio", name: "Audio 音频播放器", reviewed: false, create: nil),
-            DemoComponent(id: "ui.avatar", name: "Avatar 头像", reviewed: false, create: nil),
+            DemoComponent(id: "ui.avatar", name: "Avatar 头像", reviewed: true, create: { AvatarShowcase() }),
             DemoComponent(id: "ui.circle-progress", name: "CircleProgress 环形进度", reviewed: false, create: nil),
             DemoComponent(id: "ui.collapse", name: "Collapse 折叠面板", reviewed: false, create: nil),
             DemoComponent(id: "ui.count-down", name: "CountDown 倒计时", reviewed: false, create: nil),
@@ -1295,5 +1295,116 @@ final class EmptyShowcase: ShowcaseViewController {
             }
         }
         addInfo("模拟实际场景：圆角容器内嵌空态，图标+文案居中。")
+    }
+}
+
+// MARK: - Avatar Showcase（Avatar 头像组件独立 Demo 页，与 Android AvatarDemo 一一对应）
+
+final class AvatarShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Avatar 头像"
+        addVersionBadge(componentName: "Avatar", version: "v1.0", builtAt: "")
+
+        addInfo("4 组排查：① 文字头像 ② 星座符号头像 ③ 尺寸对比 ④ 头像组合。双端 1:1 对齐。")
+
+        // ── Demo 1：文字头像（无星座，显示昵称首字）──
+        addSection(title: "Demo 1 · 文字头像") { container in
+            let names = ["张三", "李四", "王五", "赵六"]
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.alignment = .center
+            row.spacing = AppSpace.lg
+            for name in names {
+                let avatar = ZodiacAvatarView()
+                avatar.apply(zodiacName: nil, nickname: name, diameter: 56)
+                row.addArrangedSubview(avatar)
+            }
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("无星座信息时，显示昵称首字 + primaryMuted 背景。")
+
+        // ── Demo 2：星座符号头像 ──
+        addSection(title: "Demo 2 · 星座符号头像") { container in
+            let signs = ["白羊座", "金牛座", "双子座", "巨蟹座"]
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.alignment = .center
+            row.spacing = AppSpace.lg
+            for name in signs {
+                let avatar = ZodiacAvatarView()
+                avatar.apply(zodiacName: name, nickname: name, diameter: 56)
+                row.addArrangedSubview(avatar)
+            }
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("星座符号 + 对应 tint 色（0.18 alpha 背景）。")
+
+        // ── Demo 3：尺寸对比 ──
+        addSection(title: "Demo 3 · 尺寸对比") { container in
+            let sizes: [CGFloat] = [40, 56, 72]
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.alignment = .center
+            row.spacing = AppSpace.xl
+            for size in sizes {
+                let avatar = ZodiacAvatarView()
+                avatar.apply(zodiacName: "狮子座", nickname: "Leo", diameter: size)
+                row.addArrangedSubview(avatar)
+            }
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("小(40pt) / 中(56pt) / 大(72pt) 三档对比。")
+
+        // ── Demo 4：头像组合（模拟用户列表行）──
+        addSection(title: "Demo 4 · 头像组合") { container in
+            let users: [(String, String?)] = [
+                ("白羊座", "白羊"),
+                ("金牛座", "金牛"),
+                (nil, "王五"),
+                ("双子座", "双子"),
+            ]
+            let col = UIStackView()
+            col.axis = .vertical
+            col.alignment = .fill
+            col.spacing = AppSpace.md
+            for (zodiac, name) in users {
+                let row = UIStackView()
+                row.axis = .horizontal
+                row.alignment = .center
+                row.spacing = AppSpace.md
+
+                let avatar = ZodiacAvatarView()
+                avatar.apply(zodiacName: zodiac, nickname: name, diameter: 44)
+                row.addArrangedSubview(avatar)
+
+                let label = UILabel()
+                label.text = name
+                label.textColor = AppColor.textPrimary
+                label.font = .systemFont(ofSize: AppFont.sizeMd)
+                row.addArrangedSubview(label)
+
+                col.addArrangedSubview(row)
+            }
+            container.addSubview(col)
+            col.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("模拟用户列表：44pt 头像 + 昵称，混合文字/符号头像。")
     }
 }

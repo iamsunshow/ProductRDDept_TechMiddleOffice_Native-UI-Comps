@@ -1352,7 +1352,9 @@
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/AppIcon.swift",
         "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/AppIcon.kt"
       },
-      "deps": ["foundation.design-tokens"],
+      "deps": [
+        "foundation.design-tokens"
+      ],
       "variants": [],
       "anti_goals": [
         "不做品牌图标（wechat/weibo/qq 等），品牌图标属于登录方式特定场景，不纳入通用 Icon 组件",
@@ -1676,7 +1678,8 @@
           "<Avatar>小</Avatar>"
         ]
       ],
-      "subcategory": "basics"
+      "subcategory": "basics",
+      "reviewed": true
     },
     {
       "id": "ui.progress-circle",

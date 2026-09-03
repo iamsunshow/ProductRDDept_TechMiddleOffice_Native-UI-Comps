@@ -151,7 +151,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Animate 动画"),
         DemoComponent("AnimatingNumbers 数字动画"),
         DemoComponent("Audio 音频播放器"),
-        DemoComponent("Avatar 头像"),
+        DemoComponent("Avatar 头像", reviewed = true, demo = { AvatarDemo() }),
         DemoComponent("CircleProgress 环形进度"),
         DemoComponent("Collapse 折叠面板"),
         DemoComponent("CountDown 倒计时"),
@@ -890,6 +890,103 @@ private fun EmptyDemo() {
                 icon = Icons.Default.Favorite,
                 iconSize = 40
             )
+        }
+    }
+}
+
+// ===== Avatar 组件 Demo 页（独立页面，与 iOS AvatarShowcase 一一对应） =====
+
+@Composable
+private fun AvatarDemo() {
+    // 版本徽标
+    Text(
+        text = "Avatar 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+
+    Text(
+        text = "4 组排查：① 文字头像 ② 星座符号头像 ③ 尺寸对比 ④ 头像组合。双端 1:1 对齐。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    val mockSigns = remember {
+        listOf(
+            AvatarOption("白羊座", "♈", 0xDC2626),
+            AvatarOption("金牛座", "♉", 0x16A34A),
+            AvatarOption("双子座", "♊", 0x2563EB),
+            AvatarOption("巨蟹座", "♋", 0x7C3AED),
+            AvatarOption("狮子座", "♌", 0xEA580C),
+        )
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // ── Demo 1：文字头像 ──
+        Text("Demo 1 · 文字头像", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(AppSpace.lg),
+            modifier = Modifier.fillMaxWidth().padding(vertical = AppSpace.md),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            for (name in listOf("张三", "李四", "王五", "赵六")) {
+                ZodiacAvatar(option = null, nickname = name, size = 56.dp)
+            }
+        }
+
+        // ── Demo 2：星座符号头像 ──
+        Text("Demo 2 · 星座符号头像", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(AppSpace.lg),
+            modifier = Modifier.fillMaxWidth().padding(vertical = AppSpace.md),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            for (sign in mockSigns.take(4)) {
+                ZodiacAvatar(option = sign, nickname = sign.name, size = 56.dp)
+            }
+        }
+
+        // ── Demo 3：尺寸对比 ──
+        Text("Demo 3 · 尺寸对比", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(AppSpace.xl),
+            modifier = Modifier.fillMaxWidth().padding(vertical = AppSpace.md),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ZodiacAvatar(option = mockSigns[4], nickname = "Leo", size = 40.dp)
+            ZodiacAvatar(option = mockSigns[4], nickname = "Leo", size = 56.dp)
+            ZodiacAvatar(option = mockSigns[4], nickname = "Leo", size = 72.dp)
+        }
+
+        // ── Demo 4：头像组合 ──
+        Text("Demo 4 · 头像组合", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(vertical = AppSpace.md),
+            verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+        ) {
+            val users = listOf(
+                mockSigns[0] to "白羊",
+                mockSigns[1] to "金牛",
+                null to "王五",
+                mockSigns[2] to "双子",
+            )
+            for ((sign, name) in users) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(AppSpace.md),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ZodiacAvatar(option = sign, nickname = name, size = 44.dp)
+                    Text(text = name, color = AppColor.textPrimary, fontSize = AppFont.sizeMd)
+                }
+            }
         }
     }
 }

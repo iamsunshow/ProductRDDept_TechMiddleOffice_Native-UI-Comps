@@ -12,6 +12,20 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## \[1.3.5] - 2026-09-03
+
+Avatar v1.0 双端 reviewed：Demo 4 组排查 + api.json reviewed=true。
+
+### Added
+
+- **Avatar Demo 4 组排查（双端 1:1 对齐）**：① 文字头像（4 个昵称首字 + primaryMuted 背景）② 星座符号头像（白羊/金牛/双子/巨蟹 + tint 色 0.18 alpha 背景）③ 尺寸对比（40/56/72pt 三档，狮子座符号）④ 头像组合（4 行 44pt 头像 + 昵称，混合文字/符号头像）。
+- **api.json `ui.avatar` reviewed=true**，双端 state=available 确认。
+
+### Changed
+
+- 组件库全局版本 1.3.4 → 1.3.5（PATCH）。
+- 双端 Avatar Demo 徽标 v1.0（首次 reviewed）。
+
 ## \[1.3.4] - 2026-09-03
 
 Empty v1.0 双端 reviewed：EmptyStateView 新增可选 icon 支持 + Demo 4 组排查 + api.json reviewed=true。

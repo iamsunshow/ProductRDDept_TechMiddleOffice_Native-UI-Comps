@@ -285,7 +285,7 @@ def check_demo_orchestration() -> bool:
     # iOS：三个 helper 的 insert 索引必须满足 徽标(0) < 参考块(1) < 反馈条(2)，
     #      且 viewDidLoad 中先 addHeightReference 后 addFeedbackBar。
     ios_ref_index = re.search(r"insertArrangedSubview\(stack, at:\s*(\d+)\)", ios_src)
-    ios_fb_index = re.search(r"insertArrangedSubview\(label, at:\s*(\d+)\)", ios_src)
+    ios_fb_index = re.search(r"insertArrangedSubview\(label, at:\s*(?:min\(\s*)?(\d+)", ios_src)
     ios_badge_index = re.search(r"insertArrangedSubview\(badge, at:\s*(\d+)\)", ios_src)
     if ios_badge_index and ios_ref_index and ios_fb_index:
         b, r, f = (int(m.group(1)) for m in (ios_badge_index, ios_ref_index, ios_fb_index))

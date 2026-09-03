@@ -11,7 +11,6 @@
 		0B22235F8B087F10A8C4A962 /* GroupListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1384B27B30CF0FE17962B66F /* GroupListItem.swift */; };
 		0E1F4539D228B41BF254E120 /* GroupList.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE2D8A38CDA5E1EA29759D3E /* GroupList.swift */; };
 		12A2A02B2B7C1DCC3F8762C4 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E36A0907C0CF11E9783D53FB /* AppButton.swift */; };
-		AABBCC001122334455667788 /* AppIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCCDD112233445566778899 /* AppIcon.swift */; };
 		13BCCC89E28C0FC6B2308C6C /* SummaryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD534E7B115B6495F8904031 /* SummaryCardView.swift */; };
 		1DF63FB00D4953BB012F270D /* NavigationGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34948E86D6FAAA1AA93C4FF /* NavigationGrid.swift */; };
 		1EB05D2B72FE2F73026A8AB6 /* TabsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F17F2603BDDFC72B15C7406 /* TabsView.swift */; };
@@ -30,10 +29,12 @@
 		894133E493AF6AC796F7417C /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B2561A62A1FAF93C38C686 /* Formatters.swift */; };
 		999A4F9080E1EC566009EA15 /* TrendChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B80152CEECE8827364A421 /* TrendChartView.swift */; };
 		A574AF3025E01091510DBD32 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 052B119DCD35264531FB249A /* AppDelegate.swift */; };
+		A9881998291CEC4D8FDF0538 /* ConfigProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8855A96D9FA0EAD788439CA1 /* ConfigProvider.swift */; };
 		ACC0864A442833B9D3AF4430 /* OptionPickerSheetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C4336791BDD8FE289677BA /* OptionPickerSheetViewController.swift */; };
 		AD9CE78D21BAE2F0F3B804D1 /* HealthDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06845E8809344B546909BDEA /* HealthDTO.swift */; };
 		C6CE776F97807430B1AD6E3C /* ListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AB119D396F37F5DA978A57 /* ListCell.swift */; };
 		C8E94EEFB76666AB629B02A1 /* APIEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0942F23F7F9B7AF50C6169A8 /* APIEndpoint.swift */; };
+		CA6CC3DCFCE6E9CF4AAB72D5 /* AppIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D173EBBE290117990FB6D2B /* AppIcon.swift */; };
 		CEBF68513ABB2CD95B6B8B9B /* CategoryPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A444A6A371EA9EF7F7A03038 /* CategoryPickerView.swift */; };
 		CF13E2F0EFAAC8CD1247A518 /* AppDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 264FB34C55EAF5D933C02801 /* AppDatabase.swift */; };
 		D2295DD7E8703BA4CC6B7CEE /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F295938F4E6BAC2624AD41C9 /* EmptyStateView.swift */; };
@@ -59,11 +60,13 @@
 		5DA75DA8F7E29DEEA4C578E2 /* MonthPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthPickerViewController.swift; sourceTree = "<group>"; };
 		5F21711C828F70FB0BD77548 /* DatePickerSheetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerSheetViewController.swift; sourceTree = "<group>"; };
 		6A589C278E94F50DFA31A44F /* Charts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Charts; path = ../../ios/Vendor/Charts; sourceTree = SOURCE_ROOT; };
+		6D173EBBE290117990FB6D2B /* AppIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIcon.swift; sourceTree = "<group>"; };
 		73C347F4A3C46B5E1B8CAB1D /* CalendarFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarFormatter.swift; sourceTree = "<group>"; };
 		7605737DB364BA1F0C189E22 /* GRDB.swift */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GRDB.swift; path = ../../ios/Vendor/GRDB.swift; sourceTree = SOURCE_ROOT; };
 		7EDD760398DE0D5C4A9C5997 /* WebContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebContentViewController.swift; sourceTree = "<group>"; };
 		81B80152CEECE8827364A421 /* TrendChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendChartView.swift; sourceTree = "<group>"; };
 		824D1DE307EF436C8BC83B8D /* YearPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YearPickerViewController.swift; sourceTree = "<group>"; };
+		8855A96D9FA0EAD788439CA1 /* ConfigProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigProvider.swift; sourceTree = "<group>"; };
 		8C54D7F8239BF55B2F043010 /* SnapKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SnapKit; path = ../../ios/Vendor/SnapKit; sourceTree = SOURCE_ROOT; };
 		8F17F2603BDDFC72B15C7406 /* TabsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabsView.swift; sourceTree = "<group>"; };
 		8F3D282267864AB86708A7FC /* NavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavBar.swift; sourceTree = "<group>"; };
@@ -80,7 +83,6 @@
 		DE2D8A38CDA5E1EA29759D3E /* GroupList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupList.swift; sourceTree = "<group>"; };
 		E2F3DA45E7694551DEEFA6F5 /* Cell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
 		E36A0907C0CF11E9783D53FB /* AppButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppButton.swift; sourceTree = "<group>"; };
-		BBCCDD112233445566778899 /* AppIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIcon.swift; sourceTree = "<group>"; };
 		EB34D2F889141B606A089B40 /* StatusBarNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarNavigationController.swift; sourceTree = "<group>"; };
 		F295938F4E6BAC2624AD41C9 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		F34F3AD98F674E7DA1E575E8 /* MockAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAPIClient.swift; sourceTree = "<group>"; };
@@ -117,9 +119,10 @@
 			isa = PBXGroup;
 			children = (
 				E36A0907C0CF11E9783D53FB /* AppButton.swift */,
-				BBCCDD112233445566778899 /* AppIcon.swift */,
+				6D173EBBE290117990FB6D2B /* AppIcon.swift */,
 				A444A6A371EA9EF7F7A03038 /* CategoryPickerView.swift */,
 				E2F3DA45E7694551DEEFA6F5 /* Cell.swift */,
+				8855A96D9FA0EAD788439CA1 /* ConfigProvider.swift */,
 				5F21711C828F70FB0BD77548 /* DatePickerSheetViewController.swift */,
 				F295938F4E6BAC2624AD41C9 /* EmptyStateView.swift */,
 				DE2D8A38CDA5E1EA29759D3E /* GroupList.swift */,
@@ -361,13 +364,14 @@
 			files = (
 				C8E94EEFB76666AB629B02A1 /* APIEndpoint.swift in Sources */,
 				12A2A02B2B7C1DCC3F8762C4 /* AppButton.swift in Sources */,
-				AABBCC001122334455667788 /* AppIcon.swift in Sources */,
 				CF13E2F0EFAAC8CD1247A518 /* AppDatabase.swift in Sources */,
 				A574AF3025E01091510DBD32 /* AppDelegate.swift in Sources */,
+				CA6CC3DCFCE6E9CF4AAB72D5 /* AppIcon.swift in Sources */,
 				5777E2BB1E9B4D66D6BD7D1C /* AppTokens.swift in Sources */,
 				F3C4A6B858E50E41D981C443 /* CalendarFormatter.swift in Sources */,
 				CEBF68513ABB2CD95B6B8B9B /* CategoryPickerView.swift in Sources */,
 				0606875593120BC38493C1E0 /* Cell.swift in Sources */,
+				A9881998291CEC4D8FDF0538 /* ConfigProvider.swift in Sources */,
 				D8C9728258A9E3654F94E26C /* DatePickerSheetViewController.swift in Sources */,
 				1F0CE2342A174F4717DC0FA2 /* DemoMocks.swift in Sources */,
 				D4FE8953F9FF27CB364988F5 /* DemoShowcases.swift in Sources */,

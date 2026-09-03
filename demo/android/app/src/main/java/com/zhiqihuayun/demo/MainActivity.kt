@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -32,7 +34,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -46,8 +51,10 @@ import com.zhiqihuayun.sharedui.components.AppButton
 import com.zhiqihuayun.sharedui.components.AppButtonStyle
 import com.zhiqihuayun.sharedui.components.AppIcon
 import com.zhiqihuayun.sharedui.components.AppIconName
+import com.zhiqihuayun.sharedui.components.AppTheme
 import com.zhiqihuayun.sharedui.components.Cell
 import com.zhiqihuayun.sharedui.components.CellStatus
+import com.zhiqihuayun.sharedui.components.ConfigProvider
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,7 +81,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
     "基础组件" to listOf(
         DemoComponent("Button 按钮", reviewed = true, demo = { ButtonDemo() }),
         DemoComponent("Cell 单元格", reviewed = true, demo = { CellDemo() }),
-        DemoComponent("ConfigProvider 全局配置"),
+        DemoComponent("ConfigProvider 全局配置", reviewed = true, demo = { ConfigProviderDemo() }),
         DemoComponent("Icon 图标", reviewed = true, demo = { IconDemo() }),
         DemoComponent("Image 图片"),
         DemoComponent("Overlay 遮罩层"),
@@ -694,3 +701,130 @@ private fun IconDemo() {
         )
     }
 }
+
+// ===== ConfigProvider 组件 Demo 页（独立页面，与 iOS ConfigProviderShowcase 一一对应） =====
+// Provider 型组件无视觉五态（默认/禁用/加载/成功/失败不适用），Demo 用「配置生效对比」演示：
+// 消费块直读 AppTheme 解析层，展示解析出的 primaryColor / radiusMd / spaceLg 实际值，
+// 同屏对比 覆盖前（基准）vs 覆盖后，嵌套作用域演示「内层优先 + 未设项继承」（门禁 C1.5）。
+
+@Composable
+private fun ConfigProviderDemo() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // 组件版本徽标：= 组件库正式版本（对齐 ui-version.json v1.2.1；Button/Cell/Icon 的 vX.Y 属另一套 demo 演示版本链）。
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm))
+                .padding(horizontal = 10.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = "ConfigProvider 组件 v1.2.1",
+                color = AppColor.primary,
+                fontSize = AppFont.sizeXs,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        Text(
+            text = "定位：design-token 静态基准之上的运行时覆盖层。消费块直读 AppTheme 解析层，同屏对比覆盖前后实际解析值。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs
+        )
+
+        // ① 基准区：未挂 Provider → 静态基准（零行为变化，D1）
+        Text(
+            text = "① 基准区（未挂 Provider）",
+            color = AppColor.textPrimary,
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold
+        )
+        ConfigProbe()
+        Text(
+            text = "预期：primary = AppColor.primary（#16A34A）、radiusMd = 10 dp（md 档）、spaceLg = 16 dp（lg 档）。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs
+        )
+
+        // ② 组合覆盖：primaryColor + rounded + compact 三项同时生效（D8）
+        Text(
+            text = "② 组合覆盖（primaryColor #4F46E5 + rounded + compact）",
+            color = AppColor.textPrimary,
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold
+        )
+        ConfigProvider(primaryColor = "#4F46E5", rounded = true, compact = true) {
+            ConfigProbe()
+        }
+        Text(
+            text = "预期：primary → #4F46E5；radiusMd 升档 md→lg（10→14 dp）；spaceLg 降档 lg→md（16→12 dp）；三项互不干扰。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs
+        )
+
+        // ③ 嵌套作用域：外层 primaryColor → 内层 compact（内层优先 + 未设项继承，D6）
+        Text(
+            text = "③ 嵌套（外层 primaryColor #2563EB → 内层 compact）",
+            color = AppColor.textPrimary,
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold
+        )
+        ConfigProvider(primaryColor = "#2563EB") {
+            ConfigProbe()
+            ConfigProvider(compact = true) {
+                ConfigProbe()
+            }
+        }
+        Text(
+            text = "预期：两块 primary 均 = #2563EB；外层块 spaceLg = 16 dp（默认 lg 档），内层块 spaceLg = 12 dp（compact 生效，内层优先）。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs
+        )
+    }
+}
+
+/** 配置消费块：渲染时刻读取 AppTheme 解析层当前值（未挂 Provider → 静态基准）。 */
+@Composable
+private fun ConfigProbe() {
+    val primary = AppTheme.primaryColor()
+    val radiusMd = AppTheme.radiusMd()
+    val spaceLg = AppTheme.spaceLg()
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        // 主色圆角色块：主题色覆盖 + 圆角升档的直接视觉观测点。
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .clip(RoundedCornerShape(radiusMd))
+                .background(primary)
+        )
+        Spacer(modifier = Modifier.width(AppSpace.md))
+        Column {
+            Text(
+                text = "primary = ${colorToHex(primary)}",
+                color = AppColor.textPrimary,
+                fontSize = AppFont.sizeXs
+            )
+            Text(
+                text = "radiusMd = ${radiusMd.value.toInt()} dp",
+                color = AppColor.textPrimary,
+                fontSize = AppFont.sizeXs
+            )
+            Text(
+                text = "spaceLg = ${spaceLg.value.toInt()} dp",
+                color = AppColor.textPrimary,
+                fontSize = AppFont.sizeXs
+            )
+        }
+    }
+}
+
+/** 解析色值转 "#RRGGBB"（仅用于 Demo 读数展示）。 */
+private fun colorToHex(color: Color): String =
+    String.format("#%06X", 0xFFFFFF and color.toArgb())

@@ -95,14 +95,18 @@
 
 > Provider 型无五态，以**配置生效对比**演示：demo 中挂 `<ConfigProvider primaryColor="…" compact rounded>` 包裹一组消费组件（如 Cell 列表），覆盖前 vs 覆盖后同屏对比（主题色/间距/圆角档位变化）；嵌套 Provider 演示内层优先 + 继承。
 
+**双端 Demo 已实现（2026-09-03，组件库 v1.2.1 基线）：**
+- 消费块直读 `AppTheme` 解析层，实时显示解析出的 primaryColor（hex）/ radiusMd / spaceLg 实际值，覆盖前后同屏对比。
+- 演示点与用例映射：① 基准区（未挂 Provider，对照 D1）→ ② 组合覆盖 `#4F46E5 + rounded + compact`（对照 D8）→ ③ 嵌套（外层 `#2563EB` → 内层 `compact`，对照 D6 内层优先 + 未设项继承）。
+
 | 端 | 操作 | 查看内容（演示点） |
 |----|------|-------------------|
 | Android | Android Studio 打开 `demo/android` 运行 app，首页 → ConfigProvider 区 | 覆盖前后对比 + 嵌套优先级 + 未覆盖项继承 |
-| iOS | `cd demo/ios && xcodegen generate && open *.xcodeproj`，Demo 首页 → basic → ConfigProvider 全局配置 | 覆盖前后对比 + 嵌套优先级 + 未覆盖项继承 |
+| iOS | `cd demo/ios && ./.tmo-tools/xcodegen/xcodegen/bin/xcodegen generate && open *.xcodeproj`（或 Xcode 打开 `ZhiqihuayunDemo.xcodeproj`），Demo 首页 → basic → ConfigProvider 全局配置 | 覆盖前后对比 + 嵌套优先级 + 未覆盖项继承 |
 
 **双端差异观察点**：覆盖机制平台原生差异（iOS UIAppearance/环境对象 vs Android CompositionLocal），见 `平台差异.md`。
 
-**实机确认（门禁 C1.5）结论：** ☐ ✅ 通过　☐ ❌ 打回　备注：
+**实机确认（门禁 C1.5）结论：** ☐ ✅ 通过　☐ ❌ 打回　备注：双端 Demo Showcase 已就绪（2026-09-03，Android/iOS 均编译通过），待用户实机跑后勾选
 
 ---
 
@@ -112,8 +116,8 @@
 |------|------|------|------|
 | 2026-09-03 | A 设计评审 | ✅ 通过 | 评审单 `docs/验收流程/review-config-provider-A.md` |
 | 2026-09-03 | B API 评审 | ✅ 通过 | 评审单 `docs/验收流程/review-config-provider-B.md`；`api.json` `ui.config-provider` 定稿（subcategory=basics） |
-|  | C1 自测对齐（单测+快照+用例映射） | 通过 / 打回 | 双端实现 + 测试执行 |
-|  | C1.5 Demo Showcase + 实机确认 | 通过 / 打回 | 双端 demo 配置生效对比 + 用户实机确认 |
+| 2026-09-03 | C1 自测对齐（单测+快照+用例映射） | ✅ 通过 | Android ConfigProviderTest 15/15 绿（Robolectric）+ iOS ConfigProviderTests 15/15 绿（iPhone 14 模拟器首跑，v1.2.1 基线） |
+| 2026-09-03 | C1.5 Demo Showcase + 实机确认 | Demo 就绪，实机待确认 | 双端配置生效对比 demo 已实现（iOS ConfigProviderShowcase / Android ConfigProviderDemo，编译通过）；demo 徽标 = 组件库版本 v1.2.1；待用户实机跑后勾选 |
 |  | C2 CR + CI | 通过 / 打回 | 待办：CR + CI 接入 |
 |  | 发版 | 版本号 / tag |  |
 |  | D 业务落地 | 接入成功 / 回退 | 接入位置 / 代码量变化，见 `docs/usage-config-provider.md` |

@@ -21,7 +21,7 @@ final class DemoListViewController: UITableViewController {
         ("基础组件", [
             DemoComponent(id: "ui.button", name: "Button 按钮", reviewed: true, create: { ButtonShowcase() }),
             DemoComponent(id: "ui.cell", name: "Cell 单元格", reviewed: true, create: { CellShowcase() }),
-            DemoComponent(id: "ui.config-provider", name: "ConfigProvider 全局配置", reviewed: false, create: nil),
+            DemoComponent(id: "ui.config-provider", name: "ConfigProvider 全局配置", reviewed: true, create: { ConfigProviderShowcase() }),
             DemoComponent(id: "ui.icon", name: "Icon 图标", reviewed: true, create: { IconShowcase() }),
             DemoComponent(id: "ui.image", name: "Image 图片", reviewed: false, create: nil),
             DemoComponent(id: "ui.overlay", name: "Overlay 遮罩层", reviewed: false, create: nil),
@@ -773,5 +773,128 @@ final class IconShowcase: ShowcaseViewController {
             }
         }
         addInfo("排查点：8 图标 × 3 色完整组合。第 1 行深灰、第 2 行绿、第 3 行红，每行 8 个图标对齐。")
+    }
+}
+
+// MARK: - ConfigProvider Showcase（全局配置 · 配置生效对比 Demo）
+
+/// Provider 型组件无视觉五态（默认/禁用/加载/成功/失败不适用），Demo 用「配置生效对比」演示：
+/// 消费块在渲染时刻直读 AppTheme 解析层，快照并展示解析出的 primaryColor / radiusMd / spaceLg，
+/// 同屏对比 覆盖前（基准）vs 覆盖后，嵌套作用域演示「内层优先 + 未设项继承」（门禁 C1.5）。
+final class ConfigProviderShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "ConfigProvider 全局配置"
+
+        // demo 徽标版本 = 组件库正式版本（对齐 ui-version.json v1.2.1；Cell 的 v1.31 属另一套 demo 演示版本链）。
+        addVersionBadge(componentName: "ConfigProvider", version: "v1.2.1", builtAt: "2026-09-03 09:00:00")
+        addInfo("定位：design-token 静态基准之上的运行时覆盖层。消费块渲染时刻直读 AppTheme 解析层，同屏对比覆盖前后实际解析值。")
+
+        // ① 基准区：未挂 Provider → 静态基准（零行为变化，D1）
+        addSection(title: "① 基准区（未挂 Provider）") { container in
+            addProbes([makeProbe()], into: container)
+        }
+        addInfo("预期：primary = AppColor.primary（#16A34A）、radiusMd = 10 pt（md 档）、spaceLg = 16 pt（lg 档）。")
+
+        // ② 组合覆盖：primaryColor + rounded + compact 三项同时生效（D8）
+        addSection(title: "② 组合覆盖（primaryColor #4F46E5 + rounded + compact）") { container in
+            ConfigProvider.withScope(
+                AppConfig(
+                    primaryColor: UIColor(hexString: "#4F46E5"),
+                    rounded: true,
+                    compact: true
+                )
+            ) {
+                addProbes([makeProbe()], into: container)
+            }
+        }
+        addInfo("预期：primary → #4F46E5；radiusMd 升档 md→lg（10→14 pt）；spaceLg 降档 lg→md（16→12 pt）；三项互不干扰。")
+
+        // ③ 嵌套作用域：外层 primaryColor → 内层 compact（内层优先 + 未设项继承，D6）
+        addSection(title: "③ 嵌套（外层 primaryColor #2563EB → 内层 compact）") { container in
+            ConfigProvider.withScope(
+                AppConfig(primaryColor: UIColor(hexString: "#2563EB"))
+            ) {
+                var probes = [makeProbe()]
+                ConfigProvider.withScope(AppConfig(compact: true)) {
+                    probes.append(makeProbe())
+                }
+                addProbes(probes, into: container)
+            }
+        }
+        addInfo("预期：两块 primary 均 = #2563EB；外层块 spaceLg = 16 pt（默认 lg 档），内层块 spaceLg = 12 pt（compact 生效，内层优先）。")
+    }
+
+    // MARK: - 消费块构建
+
+    /// 将一组消费块垂直排入 section container。
+    private func addProbes(_ probes: [UIView], into container: UIView) {
+        let vStack = UIStackView()
+        vStack.axis = .vertical
+        vStack.spacing = AppSpace.md
+        container.addSubview(vStack)
+        vStack.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+            make.top.bottom.equalToSuperview().inset(AppSpace.md)
+        }
+        for probe in probes {
+            vStack.addArrangedSubview(probe)
+        }
+    }
+
+    /// 构建一个「配置消费块」：渲染（构建）时刻读取 AppTheme 解析层当前值并快照。
+    /// 必须在目标作用域内调用（withScope 闭包内 → 覆盖值；闭包外 → 静态基准）。
+    private func makeProbe() -> UIView {
+        let primary = AppTheme.primaryColor
+        let radiusMd = AppTheme.radiusMd
+        let spaceLg = AppTheme.spaceLg
+        let hex = primary.toHexString() ?? "(非 RGB)"
+
+        // 主色圆角色块：主题色覆盖 + 圆角升档的直接视觉观测点。
+        let swatch = UIView()
+        swatch.backgroundColor = primary
+        swatch.layer.cornerRadius = radiusMd
+        swatch.clipsToBounds = true
+        swatch.snp.makeConstraints { make in
+            make.width.height.equalTo(44)
+        }
+
+        // 解析读数：等宽数字便于跨区块核对（compact/rounded 生效与否一眼可见）。
+        let readout = UIStackView()
+        readout.axis = .vertical
+        readout.spacing = 2
+        readout.addArrangedSubview(makeReadout("primary = \(hex)"))
+        readout.addArrangedSubview(makeReadout(String(format: "radiusMd = %.0f pt", radiusMd)))
+        readout.addArrangedSubview(makeReadout(String(format: "spaceLg = %.0f pt", spaceLg)))
+
+        let row = UIStackView()
+        row.axis = .horizontal
+        row.alignment = .center
+        row.spacing = AppSpace.md
+        row.addArrangedSubview(swatch)
+        row.addArrangedSubview(readout)
+        return row
+    }
+
+    private func makeReadout(_ text: String) -> UILabel {
+        let label = UILabel()
+        label.font = .monospacedSystemFont(ofSize: AppFont.sizeXs, weight: .regular)
+        label.textColor = AppColor.textPrimary
+        label.text = text
+        return label
+    }
+}
+
+private extension UIColor {
+    /// 转 "#RRGGBB"；非 RGB 颜色（动态/图案）返回 nil。
+    func toHexString() -> String? {
+        var r: CGFloat = 0
+        var g: CGFloat = 0
+        var b: CGFloat = 0
+        var a: CGFloat = 0
+        let resolved = resolvedColor(with: UITraitCollection(userInterfaceStyle: .light))
+        guard resolved.getRed(&r, green: &g, blue: &b, alpha: &a) else { return nil }
+        return String(format: "#%02X%02X%02X", Int(round(r * 255)), Int(round(g * 255)), Int(round(b * 255)))
     }
 }

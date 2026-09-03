@@ -13,7 +13,7 @@
 | 组件名 / id | 全局配置 ConfigProvider / `ui.config-provider`（历史：`foundation.config-provider`） |
 | 分类（subcategory） | 基础组件（api.json subcategory=basics，2026-09-03 门禁 B 定稿） |
 | 推进顺序 | 列表第 #3 位（基础组件） |
-| 状态 | ✅ 设计中（A，通过）→ 📋 API（B）→ 💻 实现（C）→ ✅ |
+| 状态 | ✅ 设计中（A，通过）→ ✅ API（B，通过）→ 💻 实现（C）→ ✅ |
 | 验收文档 | `docs/验收流程/component-acceptance-config-provider.md` |
 | 设计规格页 | `docs/design-spec/config-provider-design-spec.html`（浏览器打开） |
 
@@ -34,6 +34,8 @@
 | 设计参考图 | `docs/design-spec/config-provider-design-spec.html`（04 节覆盖前后对比渲染，非截图） |
 
 **设计评审（门禁 A）结论：** ✅ 通过（用户 2026-09-03 确认）　☐ ❌ 打回　备注：冻结设计，进入 API 阶段；API 契约随 `docs/api.json` 定稿（subcategory 复核为 basics）
+
+**API 评审（门禁 B）结论：** ✅ 通过（用户 2026-09-03「继续」确认）　☐ ❌ 打回　备注：契约冻结，进入实现阶段；8 项检查单全部通过（评审单 `review-config-provider-B.md`）
 
 ---
 
@@ -109,7 +111,7 @@
 | 日期 | 门禁 | 结论 | 备注 |
 |------|------|------|------|
 | 2026-09-03 | A 设计评审 | ✅ 通过 | 评审单 `docs/验收流程/review-config-provider-A.md` |
-|  | B API 评审 | 通过 / 打回 | `api.json` `ui.config-provider` 定稿 |
+| 2026-09-03 | B API 评审 | ✅ 通过 | 评审单 `docs/验收流程/review-config-provider-B.md`；`api.json` `ui.config-provider` 定稿（subcategory=basics） |
 |  | C1 自测对齐（单测+快照+用例映射） | 通过 / 打回 | 双端实现 + 测试执行 |
 |  | C1.5 Demo Showcase + 实机确认 | 通过 / 打回 | 双端 demo 配置生效对比 + 用户实机确认 |
 |  | C2 CR + CI | 通过 / 打回 | 待办：CR + CI 接入 |

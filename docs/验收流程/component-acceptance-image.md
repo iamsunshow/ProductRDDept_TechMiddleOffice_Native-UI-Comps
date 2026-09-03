@@ -13,7 +13,7 @@
 | 组件名 / id | 图片 Image / `ui.image`（历史：无 legacy） |
 | 分类（subcategory） | 基础组件（api.json subcategory=display，门禁 B 定稿） |
 | 推进顺序 | 列表第 #5 位（基础组件） |
-| 状态 | 💻 实现中 · 门禁 C1.5 实机待确认（门禁 A ✅ / B ✅ / C1 ✅ 2026-09-03；C1.5 Demo Showcase 双端已落地 2026-09-03，待用户实机跑 demo 确认后转 C2） |
+| 状态 | 💻 实现中 · 门禁 C1.5 实机打回已修复待复验（门禁 A ✅ / B ✅ / C1 ✅ 2026-09-03；C1.5 Demo Showcase 双端已落地 2026-09-03；用户实机发现 6 项问题 → v1.3.1 修复已提交 2026-09-03，待复验转 C2） |
 | 验收文档 | `docs/验收流程/component-acceptance-image.md` |
 | 设计规格页 | `docs/design-spec/image-design-spec.html` |
 | 组件库版本 | v1.3.0（2026-09-03 发布；基线 v1.2.1） |
@@ -125,6 +125,7 @@
 | 2026-09-03 | B API 评审 | ✅ 通过 | 用户表决冻结 `ui.image`（props 9 + events 3）为准绳；subcategory=display；契约 `docs/api.json` |
 | 2026-09-03 | C1 自测对齐（单测+快照+用例映射） | ✅ 完成（C1 出口=单测全绿+脚本门禁全绿；C1.5 实机待办） | 双端实现（iOS Image.swift / Android Image.kt）+ 用例重排对齐脚本保留位；Android Robolectric 全量 50/50 绿（ImageTest 20 + CellTest 15 + ConfigProviderTest 15，含 Cell D5 回归修复）；质量门禁 Cell/Image 各 4/4；像素采样因 Robolectric 窗口捕获不产帧移除、几何以纯函数+实机 C1.5 覆盖；版本 bump v1.3.0 |
 | 2026-09-03 | C1.5 Demo Showcase（前置落地） | ✅ 完成（演示点①②③④ 已接入双端 demo） | Android `demo/android/.../ImageDemo.kt`（编译通过）+ iOS `demo/ios/.../ImageShowcase.swift`（对照既有 Showcase 模式编写，本机 SPM 约束未编译）；demo 版本徽标 Image v1.3.0；索引已挂载（基础组件 → Image 图片，可点击进入） |
+| 2026-09-03 | C1.5 实机验收（用户） | ❌ 打回 → v1.3.1 修复待复验 | 验证版本 **v1.3.0**。用户实机发现 6 项：① demo1 素材"蓝底白圆"含义不明 ② demo1 圆角 lg 卡无圆角 ③ demo1 radius=24 卡为正方形非圆形 ④ demo2 整节空白 ⑤⑥ demo3/4 卡片横向对齐两端不一致（iOS 居中/Android 居左）+ loaded 拉伸圆变形。根因与修复（v1.3.1，2026-09-03）：②③ iOS `Image.swift` radius 仅有解析器与单测断言、`layoutSubviews` 从未应用 → 落地 `layer.cornerRadius`（D4b/A2 单测由纸面绿转真绿）；④ demo2 `UIScrollView` 无显式高度塌陷 0 → 高 118；⑤⑥ Android demo3/4 卡片 Row 撑满居中 + `fit="contain"` 对齐 iOS（iOS 为 contain/居中基准）；① 双端 demo1 补素材引导文案。iOS 修复本机不可编译，实机复验项 |
 |  | C1.5 Demo Showcase + 实机确认 | 通过 / 打回 | 双端 demo + 用户实机确认（用户跑：Android Studio 运行 `demo/android`；Xcode 运行 `demo/ios/ZhiqihuayunDemo.xcodeproj`，逐项核对演示点①②③④） |
 |  | C2 CR + CI | 通过 / 打回 |  |
 |  | 发版 | 版本号 / tag |  |

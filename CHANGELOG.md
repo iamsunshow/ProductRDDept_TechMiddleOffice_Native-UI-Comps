@@ -12,6 +12,22 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## [1.3.1] - 2026-09-03
+
+C1.5 实机验收问题修复（双端 demo 徽标同步 v1.3.1）。
+
+### Fixed
+
+- **iOS Image radius 圆角未落地（实机问题 2/3）**：`Image.swift` 仅有 `radiusValue` 解析器与单测断言（D4b/A2 断言 `layer.cornerRadius`），但 `layoutSubviews` 从未应用圆角——iOS 单测受本机 SPM/UIKit 约束从未实跑，"纸面绿"掩盖实现缺失，实机表现为：圆角 lg 卡无圆角、48×48 radius=24 卡为正方形而非圆形（Android clip 正常）。修复：`layoutSubviews` 每次布局重算 `layer.cornerRadius = Image.radiusValue(from: radius)`，clipsToBounds 连带裁剪图与占位层，radius 变化后 setNeedsLayout 即生效。
+- **iOS demo2 fit 五模式区整节空白（实机问题 4）**：`UIScrollView` 在 `addSection` 无固有高度的 container 内只有 edges 约束，自身高度无定义 → Auto Layout 塌陷为 0。修复：显式 `height = 118`（卡片 90 + caption + 余量）。
+- **Android demo3/4 卡片布局与 iOS 不一致（实机问题 5/6 位置部分）**：Android `ImageDemo.kt` demo3/4 卡片 Row 未撑满全宽 → 卡片居左；且未传 fit 用默认 fill（iOS makeStateCard 为 contain）→ loaded 后拉伸。修复：Row `fillMaxWidth + Center` 与 iOS 居中布局对齐，卡片 `fit = "contain"` 与 iOS 一致（loaded 后等比展示、白圆不变形）。
+- **Demo1 素材无引导文案（实机问题 1）**：双端 demo1 Hint/addInfo 补充素材说明（320×200 上蓝下橙+白太阳圆；fill 拉伸致圆变形属语义，非 bug）。
+
+### Verified（验证版本 v1.3.1，2026-09-03）
+
+- Android 组件单测回归：ImageTest 20/20 绿（iOS demo2 scroll/demo1 hint 均 demo 层改动，组件 Image.kt 无逻辑变更）。
+- iOS 修复为本机不可编译验证项：`Image.swift` cornerRadius 修复由实机复核（问题 2/3），demo2 scroll 高度由实机复核（问题 4）。
+
 ## [1.3.0] - 2026-09-03
 
 ui.image 图片组件双端实现（门禁 C1，契约 `docs/api.json` `ui.image`，门禁 B ✅ 2026-09-03 冻结）。

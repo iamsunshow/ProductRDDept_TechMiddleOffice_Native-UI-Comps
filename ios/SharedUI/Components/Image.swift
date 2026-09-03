@@ -4,7 +4,7 @@
 /// onTap·onLoad·onError。
 ///
 /// 对标 NutUI React Image（增强版 img）；不内置预览（属独立 ImagePreview）。
-/// 契约：`docs/api.json` `ui.image`（props/events 命名 100% 对齐，组件库 v1.3.0）。
+/// 契约：`docs/api.json` `ui.image`（props/events 命名 100% 对齐，组件库 v1.3.1）。
 ///
 /// 设计决策（门禁 A 拍板）：P1=B 网络图 URL 归业务预下载后传图对象（零三方图片加载依赖）；
 /// P2=B lazy 一期 N/A；P3=A 圆形 = radius 传宽/2（无魔法值）；P4=B 失败仅 onError（重试=重设 src）。
@@ -166,6 +166,9 @@ final class Image: UIView {
     /// 布局时刻按几何纯函数计算图片绘制矩形（fit/position 变化实时生效）。
     override func layoutSubviews() {
         super.layoutSubviews()
+        // radius → 圆角裁剪（D4：token 档位/数值/=宽/2 圆形）。cornerRadius 在每次布局
+        // 重算，radius 变化后 setNeedsLayout 即生效；clipsToBounds 已开，连带裁剪占位层。
+        layer.cornerRadius = Image.radiusValue(from: radius)
         overlay?.frame = bounds
         if state == .loaded, let imageSize = imageView.image?.size {
             imageView.frame = ImageGeometry.rect(

@@ -931,8 +931,8 @@ final class ImageShowcase: ShowcaseViewController {
         super.viewDidLoad()
         title = "Image 图片"
 
-        // demo 徽标版本 = 组件库正式版本（对齐 ui-version.json v1.3.0；Cell 的 v1.31 属另一套 demo 演示版本链）。
-        addVersionBadge(componentName: "Image", version: "v1.3.0", builtAt: "2026-09-03 18:00:00")
+        // demo 徽标版本 = 组件库正式版本（对齐 ui-version.json v1.3.1；Cell 的 v1.31 属另一套 demo 演示版本链）。
+        addVersionBadge(componentName: "Image", version: "v1.3.1", builtAt: "2026-09-03 21:00:00")
         feedbackLabel = addFeedbackBar()
         feedbackLabel?.text = "点击任意图片查看回调反馈（onTap）"
         eventsLabel = makeEventsLabel()
@@ -963,7 +963,7 @@ final class ImageShowcase: ShowcaseViewController {
                 onTap: { [weak self] in self?.tapFeedback("① 基础-圆形头像") }
             ))
         }
-        addInfo("排查点：同一本地图三种裁剪——无圆角 / lg 圆角 / 圆形（radius=宽/2=24）；点击应触发 onTap 反馈。")
+        addInfo("演示素材=320×200 上蓝下橙+白色太阳圆（8:5，太阳圆心偏左上方，便于肉眼观察 fit 变形/裁切）。排查点：同一本地图三种裁剪——无圆角 / lg 圆角 / 圆形（radius=宽/2=24）；fill 拉伸到与素材不等比的容器时白圆会变形（椭圆），属 fill 语义。点击应触发 onTap 反馈。")
 
         // ② fit 五模式同屏对比（同一 320×200 图，容器 120×90，4:3 vs 3:2，可横向滚动）
         addSection(title: "② fit 五模式同屏对比（同一图，容器 120×90）") { [weak self] container in
@@ -972,7 +972,10 @@ final class ImageShowcase: ShowcaseViewController {
             scroll.showsHorizontalScrollIndicator = true
             container.addSubview(scroll)
             scroll.snp.makeConstraints { make in
-                make.edges.equalToSuperview().inset(AppSpace.md)
+                make.leading.trailing.top.equalToSuperview().inset(AppSpace.md)
+                // 显式高度：卡片=图 90 + caption(sizeXs ~14) + spacing 4 ≈ 108，留视觉余量。
+                // UIScrollView 自身高度不能由内部内容反推，否则 Auto Layout 高度未定 → 整节塌陷为 0（v1.3.0 实机问题 4）。
+                make.height.equalTo(118)
             }
             let stack = UIStackView()
             stack.axis = .horizontal

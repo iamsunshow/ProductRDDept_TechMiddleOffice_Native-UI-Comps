@@ -138,7 +138,7 @@ fun ImageDemo() {
             .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {
-        // 组件版本徽标：与 iOS 端保持同一版本号（组件库正式版 v1.3.0，对齐 ui-version.json）。
+        // 组件版本徽标：与 iOS 端保持同一版本号（组件库正式版 v1.3.1，对齐 ui-version.json）。
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -146,7 +146,7 @@ fun ImageDemo() {
                 .padding(horizontal = 10.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "Image 组件 v1.3.0",
+                text = "Image 组件 v1.3.1",
                 color = AppColor.primary,
                 fontSize = AppFont.sizeXs,
                 fontWeight = FontWeight.Medium,
@@ -178,7 +178,7 @@ fun ImageDemo() {
             DemoImageCard(sample, 96, 64, "圆角 lg", radius = "lg", onTap = { onTapOf("① 基础-圆角 lg") })
             DemoImageCard(sample, 48, 48, "圆形头像", radius = 24, onTap = { onTapOf("① 基础-圆形头像") })
         }
-        Hint("排查点：同一本地图三种裁剪——无圆角 / lg 圆角 / 圆形（radius=宽/2=24）；点击应触发 onTap 反馈。")
+        Hint("演示素材=320×200 上蓝下橙+白色太阳圆（8:5，太阳圆心偏左上方，便于肉眼观察 fit 变形/裁切）。排查点：同一本地图三种裁剪——无圆角 / lg 圆角 / 圆形（radius=宽/2=24）；fill 拉伸到与素材不等比的容器时白圆会变形（椭圆），属 fill 语义。点击应触发 onTap 反馈。")
 
         // ② fit 五模式同屏对比（同一 320×200 图，容器 120×90，4:3 vs 3:2）
         SectionTitle("② fit 五模式同屏对比（同一图，容器 120×90）")
@@ -221,10 +221,11 @@ fun ImageDemo() {
                 height = 40.dp
             )
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.lg), verticalAlignment = Alignment.Bottom) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.Bottom) {
             DemoImageCard(
                 loadingSrc, 120, 90,
                 label = if (loadingSrc == null) "loading（默认占位）" else "loaded",
+                fit = "contain",
                 onLoad = { loadCount++ },
             )
         }
@@ -251,10 +252,11 @@ fun ImageDemo() {
                 height = 40.dp
             )
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.lg), verticalAlignment = Alignment.Bottom) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.Bottom) {
             DemoImageCard(
                 failingSrc, 120, 90,
                 label = if (failingSrc is String) "failed（默认破图占位）" else "loaded",
+                fit = "contain",
                 onLoad = { loadCount++ },
                 onError = { errorCount++ },
             )

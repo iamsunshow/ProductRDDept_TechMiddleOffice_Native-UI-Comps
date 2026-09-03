@@ -1,6 +1,6 @@
 {
-  "version": "1.3.0",
-  "versionKey": "v1.3.0",
+  "version": "1.3.1",
+  "versionKey": "v1.3.1",
   "releaseDate": "2026-09-03",
-  "changelog": "feat(image): ui.image 图片组件双端实现落地（门禁 C1，含 iOS Image.swift + Android Image.kt + 双端单测 + 质量脚本组件化 + Cell Error 徽标语义修复），组件库 1.2.1 → 1.3.0。Android Robolectric 全量 50/50 绿（ImageTest 20 + CellTest 15 + ConfigProviderTest 15），质量门禁 Cell/Image 两组 4/4 全绿。详见 CHANGELOG。"
+  "changelog": "fix(image): v1.3.0 C1.5 实机问题修复——iOS Image.swift layoutSubviews 落地 cornerRadius（radius 圆角/圆形此前仅有解析器与单测断言、实现缺失）；iOS demo2 UIScrollView 显式高度（整节空白塌陷）；Android ImageDemo demo3/4 卡片 Row 居中 + fit=contain 对齐 iOS；双端 demo1 补素材引导文案。详见 CHANGELOG。"
 }

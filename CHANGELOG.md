@@ -18,15 +18,20 @@ LineChart v1.0 双端 reviewed：Android sharedui 新增 TrendChartView（Compos
 
 ### Added
 
-- **Android sharedui 新增 `TrendChartView.kt`**：`TrendChartView` Composable + `ChartPoint` 数据类，对齐 iOS API（expensePoints/incomePoints 双序列），使用 Compose Canvas 绘制双色折线（支出红 expense + 收入绿 primary），含 Y 轴刻度（4 等分）、X 轴标签、网格线（border 色）、圆点标记（≤14 点显示）、空态「暂无数据」。
+- **Android sharedui 新增** **`TrendChartView.kt`**：`TrendChartView` Composable + `ChartPoint` 数据类，对齐 iOS API（expensePoints/incomePoints 双序列），使用 Compose Canvas 绘制双色折线（支出红 expense + 收入绿 primary），含 Y 轴刻度（4 等分）、X 轴标签、网格线（border 色）、圆点标记（≤14 点显示）、空态「暂无数据」。
+
 - **LineChart Demo 4 组排查（双端 1:1 对齐）**：① 基础双折线（6 个月支出+收入）② 仅支出（7 天红色单序列）③ 仅收入（4 季度绿色单序列）④ 空态（无数据占位文案）。
+
 - 双端 Demo 列表注册 `ui.line-chart`（展示组件分类，reviewed=true）。
 
 ### Changed
 
-- api.json `ui.line-chart` source_refs 补全 Android 路径（TrendChartView.kt），reviewed=true。
+- api.json `ui.line-chart` source\_refs 补全 Android 路径（TrendChartView\.kt），reviewed=true。
+
 - 组件库全局版本 1.3.8 → 1.3.9（PATCH）。
+
 - 双端 LineChart Demo 徽标 v1.0（首次 reviewed）。
+
 - MainActivity.kt 补全 import（ChartPoint/TrendChartView）。
 
 ## \[1.3.8] - 2026-09-03
@@ -35,14 +40,18 @@ Card v1.0 双端 reviewed：Android sharedui 补全 SummaryCardView + Demo 4 组
 
 ### Added
 
-- **Android sharedui 新增 `SummaryCardView.kt`**：`SummaryCardView` Composable，对齐 iOS API（title/subtitle/value/valueColor/accessory/onClick 参数），布局卡片壳（bgCard/cornerRadius lg/border 0.5dp）+ 标题行（标题 + 右箭头 14dp）+ 副标题 + 数值行（主数值 sizeXl semibold + 辅助文案 sizeXs textSecondary）。
+- **Android sharedui 新增** **`SummaryCardView.kt`**：`SummaryCardView` Composable，对齐 iOS API（title/subtitle/value/valueColor/accessory/onClick 参数），布局卡片壳（bgCard/cornerRadius lg/border 0.5dp）+ 标题行（标题 + 右箭头 14dp）+ 副标题 + 数值行（主数值 sizeXl semibold + 辅助文案 sizeXs textSecondary）。
+
 - **Card Demo 4 组排查（双端 1:1 对齐）**：① 基础摘要卡（本月支出 textPrimary 色）② 带颜色数值（本月收入 systemGreen 绿色）③ 无辅助文案（账户余额 accessory=nil 隐藏）④ 可点击卡片（预算管理 systemOrange 警示色 + onClick 回调）。
 
 ### Changed
 
-- api.json `ui.card` android state `partial` → `available`，source_refs 修正 iOS `DiscoverSummaryCardView.swift` → `SummaryCardView.swift` + 补全 Android 路径，reviewed=true。
+- api.json `ui.card` android state `partial` → `available`，source\_refs 修正 iOS `DiscoverSummaryCardView.swift` → `SummaryCardView.swift` + 补全 Android 路径，reviewed=true。
+
 - 组件库全局版本 1.3.7 → 1.3.8（PATCH）。
+
 - 双端 Card Demo 徽标 v1.0（首次 reviewed）。
+
 - MainActivity.kt 补全 import（SummaryCardView）。
 
 ## \[1.3.7] - 2026-09-03
@@ -51,14 +60,18 @@ Grid v1.0 双端 reviewed：Android sharedui 补全 NavigationGrid + Demo 4 组�
 
 ### Added
 
-- **Android sharedui 新增 `NavigationGrid.kt`**：`NavigationGrid` Composable + `GridItem` 数据类，对齐 iOS API（onSelect 索引回调 + title/items 参数），复用 `AppIcon`/`AppIconName` 双端统一图标系统，布局卡片壳（bgCard/cornerRadius lg/border 0.5dp）+ 标题 + Row 等分图标网格（height 72dp，icon 26dp primary 色）。
+- **Android sharedui 新增** **`NavigationGrid.kt`**：`NavigationGrid` Composable + `GridItem` 数据类，对齐 iOS API（onSelect 索引回调 + title/items 参数），复用 `AppIcon`/`AppIconName` 双端统一图标系统，布局卡片壳（bgCard/cornerRadius lg/border 0.5dp）+ 标题 + Row 等分图标网格（height 72dp，icon 26dp primary 色）。
+
 - **Grid Demo 4 组排查（双端 1:1 对齐）**：① 基础四宫格（列表/图表/加号/人物）② 带标题分区（浏览器/手机/邮箱/下拉）③ 可点击交互（onSelect 打印 index）④ 多分组网格（常用功能 + 小工具，模拟发现页）。
 
 ### Changed
 
-- api.json `ui.grid` android state `partial` → `available`，source_refs 补全双端路径（iOS NavigationGrid.swift + Android NavigationGrid.kt），reviewed=true。
+- api.json `ui.grid` android state `partial` → `available`，source\_refs 补全双端路径（iOS NavigationGrid.swift + Android NavigationGrid.kt），reviewed=true。
+
 - 组件库全局版本 1.3.6 → 1.3.7（PATCH）。
+
 - 双端 Grid Demo 徽标 v1.0（首次 reviewed）。
+
 - MainActivity.kt 补全缺失 import（ProfileListGroup/ProfileListItem/NavigationGrid/GridItem）。
 
 ## \[1.3.6] - 2026-09-03
@@ -68,12 +81,15 @@ List v1.0 双端 reviewed：分组列表 Demo 4 组排查 + api.json reviewed=tr
 ### Added
 
 - **List Demo 4 组排查（双端 1:1 对齐）**：① 基础列表行（设置/通用/关于，仅标题）② 带值列表行（版本 v1.3.5/设备 iPhone 15 Pro/存储 128 GB）③ 可点击列表行（账号管理/消息通知/隐私设置 + 右箭头 chevron）④ 多分组列表（个人资料组 + 系统设置组，模拟设置页）。
-- **api.json `ui.list` reviewed=true**，双端 state=available 确认（iOS GroupList/GroupListItem + Android ProfileListGroup 复用既有实现）。
+
+- **api.json** **`ui.list`** **reviewed=true**，双端 state=available 确认（iOS GroupList/GroupListItem + Android ProfileListGroup 复用既有实现）。
 
 ### Changed
 
 - 组件库全局版本 1.3.5 → 1.3.6（PATCH）。
+
 - 双端 List Demo 徽标 v1.0（首次 reviewed）。
+
 - Demo 2 设备名双端统一为 "iPhone 15 Pro"（原 Android "Pixel 8 Pro" 与 iOS 不一致，影响排查比对）。
 
 ## \[1.3.5] - 2026-09-03
@@ -83,11 +99,13 @@ Avatar v1.0 双端 reviewed：Demo 4 组排查 + api.json reviewed=true。
 ### Added
 
 - **Avatar Demo 4 组排查（双端 1:1 对齐）**：① 文字头像（4 个昵称首字 + primaryMuted 背景）② 星座符号头像（白羊/金牛/双子/巨蟹 + tint 色 0.18 alpha 背景）③ 尺寸对比（40/56/72pt 三档，狮子座符号）④ 头像组合（4 行 44pt 头像 + 昵称，混合文字/符号头像）。
-- **api.json `ui.avatar` reviewed=true**，双端 state=available 确认。
+
+- **api.json** **`ui.avatar`** **reviewed=true**，双端 state=available 确认。
 
 ### Changed
 
 - 组件库全局版本 1.3.4 → 1.3.5（PATCH）。
+
 - 双端 Avatar Demo 徽标 v1.0（首次 reviewed）。
 
 ## \[1.3.4] - 2026-09-03
@@ -97,12 +115,15 @@ Empty v1.0 双端 reviewed：EmptyStateView 新增可选 icon 支持 + Demo 4 �
 ### Added
 
 - **EmptyStateView 双端新增可选 icon 参数**：iOS 新增 `setIcon(_ image: UIImage?, size: CGFloat = 48)` 方法 + `UIImageView`（hidden by default，tintColor = textSecondary，monochrome 配合 SF Symbol）；Android 新增 `icon: ImageVector? = null` + `iconSize: Int = 48` 参数，Icon 居中于文案上方，双端间距 `AppSpace.md`。
+
 - **Empty Demo 4 组排查（双端 1:1 对齐）**：① 默认空态（"暂无数据"）② 自定义文案（"搜索无结果，换个关键词试试"）③ 带图标空态（iOS tray / Android Favorite + "暂无记录"）④ 固定容器空态（圆角 bgCard 容器内嵌空态，iOS folder / Android Favorite + "该文件夹为空"）。
-- **api.json `ui.empty` reviewed=true**，双端 state=available 确认。
+
+- **api.json** **`ui.empty`** **reviewed=true**，双端 state=available 确认。
 
 ### Changed
 
 - 组件库全局版本 1.3.3 → 1.3.4（PATCH）。
+
 - 双端 Empty Demo 徽标 v1.0（首次 reviewed）。
 
 ## \[1.3.3] - 2026-09-03

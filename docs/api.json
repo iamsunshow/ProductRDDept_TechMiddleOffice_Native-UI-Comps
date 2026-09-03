@@ -787,11 +787,11 @@
       "platforms": {
         "ios": {
           "state": "unavailable",
-          "note": "双端未实现；设计评审（门禁 A）进行中"
+          "note": "双端未实现；设计评审（门禁 A）已通过（2026-09-03），API 契约评审（门禁 B）进行中"
         },
         "android": {
           "state": "unavailable",
-          "note": "双端未实现；设计评审（门禁 A）进行中"
+          "note": "双端未实现；设计评审（门禁 A）已通过（2026-09-03），API 契约评审（门禁 B）进行中"
         },
         "harmony": {
           "state": "unavailable",
@@ -869,6 +869,7 @@
         ]
       ],
       "note": "Provider 型组件，无视觉状态；配置经上下文穿透，后代组件读取免逐层透传",
+      "subcategory": "basics",
       "tier": "core"
     },
     {

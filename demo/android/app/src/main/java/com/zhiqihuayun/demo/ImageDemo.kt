@@ -138,7 +138,7 @@ fun ImageDemo() {
             .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {
-        // 组件版本徽标：与 iOS 端保持同一版本号（组件库正式版 v1.3.1，对齐 ui-version.json）。
+        // 组件版本徽标：与 iOS 端保持同一版本号（组件库正式版 v1.3.2，对齐 ui-version.json）。
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -146,7 +146,7 @@ fun ImageDemo() {
                 .padding(horizontal = 10.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "Image 组件 v1.3.1",
+                text = "Image 组件 v1.3.2",
                 color = AppColor.primary,
                 fontSize = AppFont.sizeXs,
                 fontWeight = FontWeight.Medium,
@@ -170,8 +170,10 @@ fun ImageDemo() {
         // ① 基础形态：本地图 + 显式尺寸 + radius（默认 / lg 圆角 / 圆形=半径 24 = 宽 48/2）
         SectionTitle("① 基础形态（本地图 + 尺寸 + 圆角/圆形）")
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(AppSpace.lg),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = AppSpace.lg),
+            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.Bottom
         ) {
             DemoImageCard(sample, 96, 64, "默认 fill", onTap = { onTapOf("① 基础-默认") })

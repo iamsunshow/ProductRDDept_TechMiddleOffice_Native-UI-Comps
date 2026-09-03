@@ -931,8 +931,8 @@ final class ImageShowcase: ShowcaseViewController {
         super.viewDidLoad()
         title = "Image 图片"
 
-        // demo 徽标版本 = 组件库正式版本（对齐 ui-version.json v1.3.1；Cell 的 v1.31 属另一套 demo 演示版本链）。
-        addVersionBadge(componentName: "Image", version: "v1.3.1", builtAt: "2026-09-03 21:00:00")
+        // demo 徽标版本 = 组件库正式版本（对齐 ui-version.json v1.3.2；Cell 的 v1.31 属另一套 demo 演示版本链）。
+        addVersionBadge(componentName: "Image", version: "v1.3.2", builtAt: "2026-09-03 22:20:00")
         feedbackLabel = addFeedbackBar()
         feedbackLabel?.text = "点击任意图片查看回调反馈（onTap）"
         eventsLabel = makeEventsLabel()
@@ -972,9 +972,12 @@ final class ImageShowcase: ShowcaseViewController {
             scroll.showsHorizontalScrollIndicator = true
             container.addSubview(scroll)
             scroll.snp.makeConstraints { make in
-                make.leading.trailing.top.equalToSuperview().inset(AppSpace.md)
+                make.leading.trailing.top.bottom.equalToSuperview().inset(AppSpace.md)
                 // 显式高度：卡片=图 90 + caption(sizeXs ~14) + spacing 4 ≈ 108，留视觉余量。
                 // UIScrollView 自身高度不能由内部内容反推，否则 Auto Layout 高度未定 → 整节塌陷为 0（v1.3.0 实机问题 4）。
+                // top + bottom 四向锚 + 显式 height：高度用 height（SnapKit 取最大约束：height 118 优先；top/bottom 保证 section container 被正确撑开
+                // 不产生 overflow 叠到 Demo3/Demo4 标题/图片——v1.3.1 Bug4/5 根因：缺 bottom 锚 → container 高度=0，scroll 高度 118 溢出容器
+                // 向下覆盖下一节，视觉呈现「Demo2 文字/图与 Demo3 图片重叠」。
                 make.height.equalTo(118)
             }
             let stack = UIStackView()

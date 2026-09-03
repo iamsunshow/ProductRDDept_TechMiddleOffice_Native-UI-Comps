@@ -326,8 +326,10 @@ final class Image: UIView {
         return holder
     }
 
-    /// 失败占位：bgCard 底 + 破图图形（SF Symbols `photo`，gray.25）+「加载失败」（textSecondary/sizeSm）。
-    /// SF Symbols 属系统资源（与 Cell 的 chevron/checkmark 先例一致），不依赖本库 Icon 组件。
+    /// 失败占位：bgCard 底 + 破图图形（自绘矩形外框+左上角太阳圆+右下山形折线，gray.25，
+    /// 与 Android DefaultErrorPlaceholder 视窗 40×32 / 线宽 2 / 太阳 r=2.5 / 山峰坐标比例完全一致）
+    /// +「加载失败」（textSecondary/sizeSm）。双端同一数学定义绘制，解除 iOS SF Symbol
+    /// photo 依赖造成的失败占位单端差异（v1.3.1 Bug6）。
     static func makeErrorPlaceholder() -> UIView {
         let holder = UIView()
         holder.backgroundColor = AppColor.bgCard
@@ -335,11 +337,15 @@ final class Image: UIView {
         holder.isAccessibilityElement = false
         holder.accessibilityElementsHidden = true
 
-        let icon = UIImageView(
-            image: UIImage(systemName: "photo")?.withRenderingMode(.alwaysTemplate)
-        )
-        icon.tintColor = AppColor.gray25
-        icon.contentMode = .scaleAspectFit
+        // 破图图形：40×32 视窗（与 Android Canvas(Modifier.size(40.dp, 32.dp) 同尺寸）
+        let iconW: CGFloat = 40
+        let iconH: CGFloat = 32
+        let line: CGFloat = 2
+        let icon = ErrorGraphicImageView(frame: CGRect(x: 0, y: 0, width: iconW, height: iconH))
+        icon.lineWidth = line
+        icon.foregroundColor = AppColor.gray25
+        icon.backgroundColor = .clear
+        icon.isAccessibilityElement = false
 
         let caption = UILabel()
         caption.text = "加载失败"
@@ -354,14 +360,54 @@ final class Image: UIView {
 
         holder.addSubview(stack)
         stack.translatesAutoresizingMaskIntoConstraints = false
-        icon.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             stack.centerXAnchor.constraint(equalTo: holder.centerXAnchor),
             stack.centerYAnchor.constraint(equalTo: holder.centerYAnchor),
-            icon.widthAnchor.constraint(equalToConstant: 40),
-            icon.heightAnchor.constraint(equalToConstant: 32),
+            icon.widthAnchor.constraint(equalToConstant: iconW),
+            icon.heightAnchor.constraint(equalToConstant: iconH),
         ])
         return holder
+    }
+}
+
+/// 失败占位破图图形自绘：与 Android DefaultErrorPlaceholder Canvas 同数学定义（像素级对齐）。
+/// 参数来自 Android 端：40×32 视窗、线宽 2dp（iOS pt=2）、灰色 AppColor.gray25。
+/// 比例（与 Android 代码 float 比例 1:1）：
+///   - 外框：topLeft=(line, line)，size=(w-2*line, h-2*line)（stroke）
+///   - 太阳圆：center=(w*0.34, h*0.38)，r=2.5（stroke，非填充——与 Android drawCircle style=Stroke 一致）
+///   - 山折线：峰值 peak=(w*0.58, h*0.42)，左底=(w*0.36, h*0.72)，右底=(w*0.80, h*0.72)
+final class ErrorGraphicImageView: UIView {
+    var lineWidth: CGFloat = 2
+    var foregroundColor: UIColor = .gray
+
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
+        guard let ctx = UIGraphicsGetCurrentContext() else { return }
+        let w = rect.width
+        let h = rect.height
+        let line = lineWidth
+        ctx.setLineWidth(line)
+        ctx.setStrokeColor(foregroundColor.cgColor)
+        ctx.setFillColor(UIColor.clear.cgColor)
+
+        // 1. 外框（drawRect stroke）
+        let frameRect = CGRect(x: line, y: line, width: w - line * 2, height: h - line * 2)
+        ctx.stroke(frameRect)
+
+        // 2. 太阳圆（stroke 非填充，与 Android drawCircle style=Stroke 完全一致）
+        let sunR: CGFloat = 2.5
+        let sunC = CGPoint(x: w * 0.34, y: h * 0.38)
+        ctx.strokeEllipse(in: CGRect(x: sunC.x - sunR, y: sunC.y - sunR, width: sunR * 2, height: sunR * 2))
+
+        // 3. 山折线：左底 → 峰值 → 右底（两条 drawLine，与 Android 两段 drawLine 一致）
+        let peak = CGPoint(x: w * 0.58, y: h * 0.42)
+        let leftBase = CGPoint(x: w * 0.36, y: h * 0.72)
+        let rightBase = CGPoint(x: w * 0.80, y: h * 0.72)
+        ctx.beginPath()
+        ctx.move(to: leftBase)
+        ctx.addLine(to: peak)
+        ctx.addLine(to: rightBase)
+        ctx.strokePath()
     }
 }
 

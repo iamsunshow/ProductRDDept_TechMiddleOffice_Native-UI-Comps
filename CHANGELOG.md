@@ -12,6 +12,21 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## [1.3.2] - 2026-09-03
+
+Image v1.3.1 实机 4 项修复（Bug1 / Bug4-5 / Bug6）+ 双端徽标 v1.3.2。
+
+### Fixed
+
+- **Bug1 Android Demo1 三张卡片间距不等分（iOS equalSpacing vs Android spacedBy）**：Android `Row` 原 `Arrangement.spacedBy(AppSpace.lg)`（固定间距，内容整体偏左，右留大片空白）vs iOS `UIStackView distribution = .equalSpacing`（内容+留白均分）。修复：Row `horizontalArrangement = Arrangement.SpaceEvenly` + `modifier.padding(horizontal = AppSpace.lg)`（两侧等量 padding=SpaceEvenly 在两端留空，与 iOS equalSpacing + inset(lg) 的布局语义一一对应）。
+- **Bug4/Bug5 iOS Demo2 文字与图片错位重叠 + Demo3 图片与 Demo2 图片重叠**：根因 = Demo2 fit 五模式 `UIScrollView` 在 `addSection` 的 container 内仅约束了 `leading/trailing/top + height.equalTo(118)`，**缺 bottom 锚** → container（被 `contentStack.addArrangedSubview` 推入的 UIView）**高度=0**（内部 scroll 的 top 只声明位置，无法反推 container 高度）。scroll 以 origin.y=0 为起点 118pt 高，**溢出 container 边界**，在 Auto Layout 上看起来 Demo2 scroll 内容+Demo3 section 标题/Demo3 图片起点都在 Demo3 的 title 位置附近（Demo3 title 紧贴 Demo2 container 的 y=0 底部），实机视觉：Demo2 文字/图盖在 Demo3/Demo4 card/button 上（Demo4 默认占位图因此被压到 Demo3 下）。修复：scroll 补 `make.bottom.equalToSuperview().inset(AppSpace.md)`，container 被 top/bottom 双向锚定，高度被 SnapKit 计算为 `md + 118 + md`，正确撑开，scroll 不再溢出。
+- **Bug6 iOS/Android 失败占位默认图形不一致**：原 iOS `Image.makeErrorPlaceholder` 用 SF Symbol `photo`（相框+左上角太阳+右下山形，SF 多色/单色由系统决定，图形定义不可控），Android `DefaultErrorPlaceholder` 用 `Canvas(40×32)` 自绘（外框stroke + 太阳圆stroke r=2.5 at (0.34,0.38) + 左底(0.36,0.72)→peak(0.58,0.42)→右底(0.80,0.72) 折线）。双端图形太阳位置/山形/外框细节 1:1 不对等，Demo4 默认失败占位（无效资源 `no_such_image_xyz` / `no_such_drawable_xyz`）实测视觉差异明显。修复：iOS 替换为 `ErrorGraphicImageView` 自绘（Image.swift 同文件追加 class，零新文件），视窗 40×32 / 线宽 2pt / 太阳圆 r=2.5 / 比例完全同构 Android Canvas 参数（pt=dp 同 1x 逻辑尺寸），双端失败占位图形进入「同一数学定义」路径，解除 SF Symbol 单端依赖。
+
+### Changed
+
+- **双端 Image Demo 版本徽标**：iOS `DemoShowcases.swift` v1.3.1 → v1.3.2，builtAt 2026-09-03 22:20:00；Android `ImageDemo.kt` v1.3.1 → v1.3.2。
+- **ui-version.json**：组件库版本 1.3.1 → 1.3.2（SemVer PATCH，bugfix 递增；治理规范 §6.5 / 开发规则 §1.5：即使 demo 代码改动也必升版本）。
+
 ## [1.3.1] - 2026-09-03
 
 C1.5 实机验收问题修复（双端 demo 徽标同步 v1.3.1）。

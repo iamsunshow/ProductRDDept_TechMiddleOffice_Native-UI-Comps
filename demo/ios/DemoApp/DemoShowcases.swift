@@ -23,7 +23,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.cell", name: "Cell 单元格", reviewed: true, create: { CellShowcase() }),
             DemoComponent(id: "ui.config-provider", name: "ConfigProvider 全局配置", reviewed: true, create: { ConfigProviderShowcase() }),
             DemoComponent(id: "ui.icon", name: "Icon 图标", reviewed: true, create: { IconShowcase() }),
-            DemoComponent(id: "ui.image", name: "Image 图片", reviewed: false, create: nil),
+            DemoComponent(id: "ui.image", name: "Image 图片", reviewed: true, create: { ImageShowcase() }),
             DemoComponent(id: "ui.overlay", name: "Overlay 遮罩层", reviewed: false, create: nil),
         ]),
         ("布局组件", [
@@ -896,5 +896,325 @@ private extension UIColor {
         let resolved = resolvedColor(with: UITraitCollection(userInterfaceStyle: .light))
         guard resolved.getRed(&r, green: &g, blue: &b, alpha: &a) else { return nil }
         return String(format: "#%02X%02X%02X", Int(round(r * 255)), Int(round(g * 255)), Int(round(b * 255)))
+    }
+}
+
+// MARK: - Image Showcase（Image 组件独立 Demo 页，与 Android ImageDemo 一一对应）
+
+/// 演示点（验收文档 六）：
+/// ① 基础（本地图 + 显式尺寸 + radius 圆角/圆形头像）
+/// ② fit 五模式同屏对比（同一图换 fit，可看清拉伸/裁剪/留白差异）
+/// ③ loading/error 占位（src=null 模拟慢源窗口；无效源显示失败占位 + 重试恢复）
+/// ④ 事件反馈（onTap 点击反馈条 + onLoad/onError 计数）
+final class ImageShowcase: ShowcaseViewController {
+
+    /// 顶部常驻反馈条：onTap 在此就地更新（对标 Android clickInfo）。
+    private var feedbackLabel: UILabel?
+    /// 事件计数条：onLoad/onError 累计。
+    private var eventsLabel: UILabel?
+
+    private var tapCount = 0
+    private var loadCount = 0
+    private var errorCount = 0
+
+    /// 状态卡引用：③ loading 演示卡（按钮切换 src）。
+    private var loadingImage: Image?
+    private var loadingStateLabel: UILabel?
+    /// ④ 失败演示卡（按钮切换 src；P4=B 重试 = 业务改 src）。
+    private var errorImage: Image?
+    private var errorStateLabel: UILabel?
+
+    /// 演示素材：320×200 本地样例图（上蓝下橙 + 白色太阳圆），宽高比 3:2 ≠ 容器 4:3。
+    private lazy var sampleImage: UIImage = ImageShowcase.makeSampleImage()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Image 图片"
+
+        // demo 徽标版本 = 组件库正式版本（对齐 ui-version.json v1.3.0；Cell 的 v1.31 属另一套 demo 演示版本链）。
+        addVersionBadge(componentName: "Image", version: "v1.3.0", builtAt: "2026-09-03 18:00:00")
+        feedbackLabel = addFeedbackBar()
+        feedbackLabel?.text = "点击任意图片查看回调反馈（onTap）"
+        eventsLabel = makeEventsLabel()
+        updateEvents()
+
+        // ① 基础形态：本地图 + 显式尺寸 + radius（默认 / lg 圆角 / 圆形 = 半径 24 = 宽 48/2）
+        addSection(title: "① 基础形态（本地图 + 尺寸 + 圆角/圆形）") { [weak self] container in
+            guard let self else { return }
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.alignment = .center
+            row.distribution = .equalSpacing
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            row.addArrangedSubview(self.makeImageCard(
+                src: sampleImage, width: 96, height: 64, caption: "默认 fill",
+                onTap: { [weak self] in self?.tapFeedback("① 基础-默认") }
+            ))
+            row.addArrangedSubview(self.makeImageCard(
+                src: sampleImage, width: 96, height: 64, caption: "圆角 lg", radius: "lg",
+                onTap: { [weak self] in self?.tapFeedback("① 基础-圆角 lg") }
+            ))
+            row.addArrangedSubview(self.makeImageCard(
+                src: sampleImage, width: 48, height: 48, caption: "圆形头像", radius: CGFloat(24),
+                onTap: { [weak self] in self?.tapFeedback("① 基础-圆形头像") }
+            ))
+        }
+        addInfo("排查点：同一本地图三种裁剪——无圆角 / lg 圆角 / 圆形（radius=宽/2=24）；点击应触发 onTap 反馈。")
+
+        // ② fit 五模式同屏对比（同一 320×200 图，容器 120×90，4:3 vs 3:2，可横向滚动）
+        addSection(title: "② fit 五模式同屏对比（同一图，容器 120×90）") { [weak self] container in
+            guard let self else { return }
+            let scroll = UIScrollView()
+            scroll.showsHorizontalScrollIndicator = true
+            container.addSubview(scroll)
+            scroll.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(AppSpace.md)
+            }
+            let stack = UIStackView()
+            stack.axis = .horizontal
+            stack.alignment = .center
+            stack.spacing = AppSpace.lg
+            scroll.addSubview(stack)
+            stack.snp.makeConstraints { make in
+                make.edges.equalTo(scroll.contentLayoutGuide)
+            }
+            let fits: [(ImageFit, String)] = [
+                (.fill, "fill"), (.contain, "contain"), (.cover, "cover"),
+                (.none, "none"), (.scaleDown, "scale-down"),
+            ]
+            for (fit, name) in fits {
+                stack.addArrangedSubview(self.makeImageCard(
+                    src: sampleImage, width: 120, height: 90, caption: name, fit: fit,
+                    onTap: { [weak self] in self?.tapFeedback("② fit=\(name)") }
+                ))
+            }
+        }
+        addInfo("排查点：fill=拉伸铺满；contain=完整等比（上下留白）；cover=等比铺满（左右被裁，居中可见白色太阳圆）；none=原始尺寸（超出被裁）；scale-down=不放大（同 contain）。可横向滑动查看后两个。")
+
+        // ③ 加载中占位（src=null 模拟慢源/解码窗口）
+        addSection(title: "③ 加载中占位（src=null 模拟慢源/解码窗口）") { [weak self] container in
+            guard let self else { return }
+            let buttons = UIStackView()
+            buttons.axis = .horizontal
+            buttons.spacing = AppSpace.sm
+            buttons.distribution = .fillEqually
+            let loadingButton = AppButton.primary("模拟加载中（null）")
+            loadingButton.addTarget(self, action: #selector(self.loadingToNull), for: .touchUpInside)
+            let doneButton = AppButton.primary("模拟解码完成")
+            doneButton.addTarget(self, action: #selector(self.loadingToDone), for: .touchUpInside)
+            buttons.addArrangedSubview(loadingButton)
+            buttons.addArrangedSubview(doneButton)
+            loadingButton.snp.makeConstraints { make in
+                make.height.equalTo(AppButton.standardHeight)
+            }
+            doneButton.snp.makeConstraints { make in
+                make.height.equalTo(AppButton.standardHeight)
+            }
+
+            let card = self.makeStateCard(
+                src: nil, width: 120, height: 90,
+                stateLabel: &self.loadingStateLabel,
+                onLoad: { [weak self] in self?.bumpLoad() },
+                onError: { [weak self] in self?.bumpError() }
+            )
+            self.loadingImage = card.image
+            self.loadingStateLabel?.text = "loading（默认占位）"
+
+            let stack = UIStackView(arrangedSubviews: [buttons, card.container])
+            stack.axis = .vertical
+            stack.spacing = AppSpace.md
+            container.addSubview(stack)
+            stack.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("预期：src=null 时显示默认灰底+双色转圈占位；点「模拟解码完成」立即渲染并触发 onLoad（事件计数条 +1）。")
+
+        // ④ 失败占位与重试（P4=B：重试 = 业务重设 src）
+        addSection(title: "④ 失败占位与重试（无效源 → 失败占位；重试 = 业务改 src）") { [weak self] container in
+            guard let self else { return }
+            let buttons = UIStackView()
+            buttons.axis = .horizontal
+            buttons.spacing = AppSpace.sm
+            buttons.distribution = .fillEqually
+            let failButton = AppButton.primary("置为无效源")
+            failButton.addTarget(self, action: #selector(self.errorToFail), for: .touchUpInside)
+            let retryButton = AppButton.primary("重试恢复")
+            retryButton.addTarget(self, action: #selector(self.errorToRetry), for: .touchUpInside)
+            buttons.addArrangedSubview(failButton)
+            buttons.addArrangedSubview(retryButton)
+            failButton.snp.makeConstraints { make in
+                make.height.equalTo(AppButton.standardHeight)
+            }
+            retryButton.snp.makeConstraints { make in
+                make.height.equalTo(AppButton.standardHeight)
+            }
+
+            let card = self.makeStateCard(
+                src: "no_such_image_xyz", width: 120, height: 90,
+                stateLabel: &self.errorStateLabel,
+                onLoad: { [weak self] in self?.bumpLoad() },
+                onError: { [weak self] in self?.bumpError() }
+            )
+            self.errorImage = card.image
+            self.errorStateLabel?.text = "failed（默认破图占位）"
+
+            let stack = UIStackView(arrangedSubviews: [buttons, card.container])
+            stack.axis = .vertical
+            stack.spacing = AppSpace.md
+            container.addSubview(stack)
+            stack.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("预期：无效资源名显示默认破图+「加载失败」占位并触发 onError（上方案例图即默认破图视觉）；点「重试恢复」自动重新加载并触发 onLoad（P4=B 语义）。")
+    }
+
+    // MARK: - 事件
+
+    private func tapFeedback(_ name: String) {
+        tapCount += 1
+        updateEvents()
+        feedbackLabel?.text = "点击了：\(name)"
+    }
+
+    private func bumpLoad() {
+        loadCount += 1
+        updateEvents()
+    }
+
+    private func bumpError() {
+        errorCount += 1
+        updateEvents()
+    }
+
+    private func updateEvents() {
+        eventsLabel?.text = "事件累计：onTap ×\(tapCount) · onLoad ×\(loadCount) · onError ×\(errorCount)"
+    }
+
+    @objc private func loadingToNull() {
+        loadingImage?.src = nil
+        loadingImage?.apply()
+        loadingStateLabel?.text = "loading（默认占位）"
+    }
+
+    @objc private func loadingToDone() {
+        loadingImage?.src = sampleImage
+        loadingImage?.apply()
+        loadingStateLabel?.text = "loaded"
+    }
+
+    @objc private func errorToFail() {
+        errorImage?.src = "no_such_image_xyz"
+        errorImage?.apply()
+        errorStateLabel?.text = "failed（默认破图占位）"
+    }
+
+    @objc private func errorToRetry() {
+        errorImage?.src = sampleImage
+        errorImage?.apply()
+        errorStateLabel?.text = "loaded"
+    }
+
+    // MARK: - 视图工厂
+
+    private func makeEventsLabel() -> UILabel {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: AppFont.sizeXs)
+        label.textColor = AppColor.textSecondary
+        label.numberOfLines = 0
+        contentStack.addArrangedSubview(label)
+        return label
+    }
+
+    /// 静态卡片：图 + 底部小字说明。返回纵向 stack（自带图片固定尺寸约束）。
+    private func makeImageCard(
+        src: Any?,
+        width: CGFloat,
+        height: CGFloat,
+        caption: String,
+        fit: ImageFit = .fill,
+        radius: Any? = nil,
+        alt: String? = nil,
+        onTap: (() -> Void)? = nil,
+        onLoad: (() -> Void)? = nil,
+        onError: (() -> Void)? = nil
+    ) -> UIView {
+        let image = Image(frame: .zero)
+        image.src = src
+        image.fit = fit
+        image.radius = radius
+        image.alt = alt ?? caption
+        image.onTap = onTap
+        image.onLoad = onLoad
+        image.onError = onError
+        image.apply()
+        image.snp.makeConstraints { make in
+            make.size.equalTo(CGSize(width: width, height: height))
+        }
+        let label = UILabel()
+        label.text = caption
+        label.font = .systemFont(ofSize: AppFont.sizeXs)
+        label.textColor = AppColor.textSecondary
+        label.textAlignment = .center
+        let stack = UIStackView(arrangedSubviews: [image, label])
+        stack.axis = .vertical
+        stack.alignment = .center
+        stack.spacing = 4
+        return stack
+    }
+
+    /// 状态卡：图 + 状态说明小字。`image`/`container` 供外部切换 src 与刷新文案。
+    private func makeStateCard(
+        src: Any?,
+        width: CGFloat,
+        height: CGFloat,
+        stateLabel: inout UILabel?,
+        onLoad: (() -> Void)? = nil,
+        onError: (() -> Void)? = nil
+    ) -> (image: Image, container: UIView) {
+        let image = Image(frame: .zero)
+        image.src = src
+        image.fit = .contain
+        image.onLoad = onLoad
+        image.onError = onError
+        image.apply()
+        image.snp.makeConstraints { make in
+            make.size.equalTo(CGSize(width: width, height: height))
+        }
+        let label = UILabel()
+        label.font = .systemFont(ofSize: AppFont.sizeXs)
+        label.textColor = AppColor.textSecondary
+        label.textAlignment = .center
+        let container = UIStackView(arrangedSubviews: [image, label])
+        container.axis = .vertical
+        container.alignment = .center
+        container.spacing = 4
+        stateLabel = label
+        return (image, container)
+    }
+
+    /// 生成 320×200 样例图：上蓝下橙 + 白色太阳圆（与 Android makeDemoBitmap 视觉一致）。
+    private static func makeSampleImage() -> UIImage {
+        let width: CGFloat = 320
+        let height: CGFloat = 200
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: width, height: height))
+        return renderer.image { ctx in
+            let cg = ctx.cgContext
+            UIColor(red: 23 / 255.0, green: 109 / 255.0, blue: 232 / 255.0, alpha: 1).setFill()
+            cg.fill(CGRect(x: 0, y: 0, width: width, height: height / 2))
+            UIColor(red: 247 / 255.0, green: 158 / 255.0, blue: 27 / 255.0, alpha: 1).setFill()
+            cg.fill(CGRect(x: 0, y: height / 2, width: width, height: height / 2))
+            UIColor.white.setFill()
+            let sunCenterX = width * 0.62
+            let sunCenterY = height * 0.25
+            cg.fillEllipse(in: CGRect(x: sunCenterX - 26, y: sunCenterY - 26, width: 52, height: 52))
+        }
     }
 }

@@ -13,7 +13,7 @@
 | 组件名 / id | 图片 Image / `ui.image`（历史：无 legacy） |
 | 分类（subcategory） | 基础组件（api.json subcategory=display，门禁 B 定稿） |
 | 推进顺序 | 列表第 #5 位（基础组件） |
-| 状态 | 💻 实现中 · 门禁 C1 双端实现 + 自测（门禁 A ✅ 2026-09-03；门禁 B ✅ 2026-09-03 冻结 `ui.image`） |
+| 状态 | 💻 实现中 · 门禁 C1.5 实机待确认（门禁 A ✅ / B ✅ / C1 ✅ 2026-09-03；C1.5 Demo Showcase 双端已落地 2026-09-03，待用户实机跑 demo 确认后转 C2） |
 | 验收文档 | `docs/验收流程/component-acceptance-image.md` |
 | 设计规格页 | `docs/design-spec/image-design-spec.html` |
 | 组件库版本 | v1.3.0（2026-09-03 发布；基线 v1.2.1） |
@@ -124,8 +124,8 @@
 | 2026-09-03 | A 设计评审 | ✅ 通过 | 评审单 `docs/验收流程/review-image-A.md`；设计规格 `image-design-spec.html`；组件库 v1.2.1 基线；P1=B URL 业务预下载 / P2=B lazy 一期 N/A / P3=A 圆形=radius=宽/2 / P4=B 失败仅 onError |
 | 2026-09-03 | B API 评审 | ✅ 通过 | 用户表决冻结 `ui.image`（props 9 + events 3）为准绳；subcategory=display；契约 `docs/api.json` |
 | 2026-09-03 | C1 自测对齐（单测+快照+用例映射） | ✅ 完成（C1 出口=单测全绿+脚本门禁全绿；C1.5 实机待办） | 双端实现（iOS Image.swift / Android Image.kt）+ 用例重排对齐脚本保留位；Android Robolectric 全量 50/50 绿（ImageTest 20 + CellTest 15 + ConfigProviderTest 15，含 Cell D5 回归修复）；质量门禁 Cell/Image 各 4/4；像素采样因 Robolectric 窗口捕获不产帧移除、几何以纯函数+实机 C1.5 覆盖；版本 bump v1.3.0 |
-|  | C1.5 Demo Showcase + 实机确认 | 通过 / 打回 | 双端 demo + 用户实机确认 |
-|  | C1.5 Demo Showcase + 实机确认 | 通过 / 打回 | 双端 demo + 用户实机确认 |
+| 2026-09-03 | C1.5 Demo Showcase（前置落地） | ✅ 完成（演示点①②③④ 已接入双端 demo） | Android `demo/android/.../ImageDemo.kt`（编译通过）+ iOS `demo/ios/.../ImageShowcase.swift`（对照既有 Showcase 模式编写，本机 SPM 约束未编译）；demo 版本徽标 Image v1.3.0；索引已挂载（基础组件 → Image 图片，可点击进入） |
+|  | C1.5 Demo Showcase + 实机确认 | 通过 / 打回 | 双端 demo + 用户实机确认（用户跑：Android Studio 运行 `demo/android`；Xcode 运行 `demo/ios/ZhiqihuayunDemo.xcodeproj`，逐项核对演示点①②③④） |
 |  | C2 CR + CI | 通过 / 打回 |  |
 |  | 发版 | 版本号 / tag |  |
 |  | D 业务落地 | 接入成功 / 回退 | 接入位置 / 代码量变化，见 `docs/usage-image.md` |

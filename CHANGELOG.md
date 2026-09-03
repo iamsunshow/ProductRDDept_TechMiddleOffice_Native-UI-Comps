@@ -24,6 +24,7 @@ ui.image 图片组件双端实现（门禁 C1，契约 `docs/api.json` `ui.image
 - **质量门禁脚本组件化** `scripts/check_component_quality.py`：`--component cell|image`，D6 token 扫描/A6 契约 schema/A7 双端命名/C1 用例映射按组件参数化；Cell/Image 两组 4/4 全绿。用例编号保留位（D6/A6/A7=脚本型）与 Image 验收文档对齐（D6=Token、D7=失败、D8=点击+无障碍；A4/A5 空号）。
 - **设计 token 落地**：占位色 `AppColor.gray6`（#E5E5E5）/`gray15`（#BFBFBF）补入双端 AppTokens（gray4/gray25 同族）。
 - **api.json**：`ui.image` platforms ios/android → partial（C1 已实现，C1.5 实机确认后转 available）。
+- **双端 Demo Showcase（门禁 C1.5 前置）**：Android `demo/android/app/.../ImageDemo.kt`（新建文件 + MainActivity 索引挂载，编译通过）+ iOS `demo/ios/DemoApp/DemoShowcases.swift` 追加 `ImageShowcase`（对照 Button/Icon Showcase 既有模式；本机 SPM 约束未编译，实机验证时关注）。演示点①②③④ 与验收文档「六」一一对应：基础/圆角圆形、fit 五模式同屏、loading/error 占位与恢复（P4=B 重试）、onTap 反馈条 + onLoad/onError 计数。demo 版本徽标 = 组件库正式版 v1.3.0。
 
 ### Fixed
 

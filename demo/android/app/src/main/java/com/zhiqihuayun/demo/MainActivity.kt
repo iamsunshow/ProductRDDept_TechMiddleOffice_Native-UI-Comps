@@ -83,7 +83,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Cell 单元格", reviewed = true, demo = { CellDemo() }),
         DemoComponent("ConfigProvider 全局配置", reviewed = true, demo = { ConfigProviderDemo() }),
         DemoComponent("Icon 图标", reviewed = true, demo = { IconDemo() }),
-        DemoComponent("Image 图片"),
+        DemoComponent("Image 图片", reviewed = true, demo = { ImageDemo() }),
         DemoComponent("Overlay 遮罩层"),
     ),
     "布局组件" to listOf(

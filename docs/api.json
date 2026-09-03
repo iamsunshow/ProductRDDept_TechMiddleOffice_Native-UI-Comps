@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-09-02T00:00:00Z",
-  "componentCount": 28,
+  "updatedAt": "2026-09-03T00:00:00Z",
+  "componentCount": 30,
   "components": [
     {
       "id": "ui.empty",
@@ -870,6 +870,186 @@
       ],
       "note": "Provider 型组件，无视觉状态；配置经上下文穿透，后代组件读取免逐层透传",
       "subcategory": "basics",
+      "tier": "core"
+    },
+    {
+      "id": "ui.image",
+      "name": "图片 Image",
+      "category": "ui",
+      "summary": "增强版图片容器：统一 API 渲染图片内容（本地资源名 / 平台图像对象），提供对象填充模式（fit 五值）/ 内容停靠（position 五值）/ 宽高 / 圆角裁剪（token 档位或任意值，=宽/2 即圆形）/ alt 无障碍 / 加载中·失败占位（可自定义）/ onTap·onLoad·onError（对标 NutUI React Image 增强版 img；不内置预览，预览为独立组件）",
+      "capabilities": [
+        "图片",
+        "Image",
+        "图片容器",
+        "增强 img",
+        "UIImageView",
+        "thumbnail",
+        "缩略图",
+        "avatar",
+        "封面",
+        "fit",
+        "object-fit",
+        "contain",
+        "cover",
+        "scale-down",
+        "圆角",
+        "radius",
+        "占位",
+        "placeholder",
+        "loading",
+        "error",
+        "alt",
+        "无障碍",
+        "onTap",
+        "onLoad",
+        "onError",
+        "ui.image"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "unavailable",
+          "note": "设计中：门禁 A 通过（2026-09-03，决策 P1–P4 用户拍板）；契约定稿待门禁 B 评审；基线 v1.2.1"
+        },
+        "android": {
+          "state": "unavailable",
+          "note": "设计中：门禁 A 通过（2026-09-03，决策 P1–P4 用户拍板）；契约定稿待门禁 B 评审；基线 v1.2.1"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "source_refs": {},
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "网络图 URL 加载不在本组件（决策 P1=B：URL 由业务侧预下载后传平台图对象，保持组件库零第三方图片加载依赖、双端加载语义一致）",
+        "懒加载 lazy 一期 N/A（决策 P2=B：依赖宿主滚动容器可视区检测，本地资源图无网络代价；缺口已标注）",
+        "不内置图片预览/裁剪/编辑/上传（预览属独立 ImagePreview 组件，分类表 #68）",
+        "不内置失败重试（决策 P4=B：仅 onError，重试由业务重新设置 src 触发）",
+        "占位绘制不依赖未完成 Icon/Loading 组件（内置绘制，deps=[]）"
+      ],
+      "visual_tokens": [
+        "radius.sm",
+        "radius.md",
+        "radius.lg",
+        "color.bgCard",
+        "color.gray.6",
+        "color.gray.15",
+        "color.gray.25",
+        "color.textSecondary",
+        "font.sizeSm",
+        "space.sm",
+        "color.primary"
+      ],
+      "apis": "",
+      "visual_refs": [],
+      "status": "beta",
+      "search_text": "ui.image 图片 Image 增强版图片容器 统一 API 渲染图片内容（本地资源名 / 平台图像对象） 对象填充模式 fit 五值 contain cover scale-down 内容停靠 position 圆角 radius 圆形头像 alt 无障碍 加载中失败占位 loading error onTap onLoad onError 对标 NutUI React Image UIImageView 缩略图 avatar 封面",
+      "embedding_ref": "",
+      "legacy_id": "ui.image",
+      "industry_names": [
+        "Image",
+        "img",
+        "图片"
+      ],
+      "props": [
+        [
+          "src",
+          "string | platform-image-object",
+          "是",
+          "图片来源：本地资源名（iOS Asset Catalog 名 / Android @DrawableRes）或平台图像对象（iOS UIImage / Android ImageBitmap|Painter）；网络 URL 归业务侧预下载后传入（决策 P1=B）"
+        ],
+        [
+          "fit?",
+          "'fill' | 'contain' | 'cover' | 'none' | 'scale-down'",
+          "否，默认 'fill'",
+          "对象填充模式（同 CSS object-fit；fill=拉伸铺满 / contain=完整留白 / cover=等比裁剪铺满 / none=原始尺寸 / scale-down=不放大取小）"
+        ],
+        [
+          "position?",
+          "'center' | 'top' | 'right' | 'bottom' | 'left'",
+          "否，默认 'center'",
+          "内容停靠（fit=none/contain 且容器大于内容时生效；fill/cover 铺满无视觉影响）"
+        ],
+        [
+          "width?",
+          "number",
+          "否，默认撑满父容器",
+          "布局宽度（逻辑 pt/dp）"
+        ],
+        [
+          "height?",
+          "number",
+          "否，默认撑满父容器",
+          "布局高度（逻辑 pt/dp）"
+        ],
+        [
+          "radius?",
+          "number | 'sm' | 'md' | 'lg'",
+          "否，默认 0",
+          "圆角裁剪：token 档位（sm 6 / md 10 / lg 14）或任意数值；=宽/2 即圆形（决策 P3=A，无魔法值）"
+        ],
+        [
+          "alt?",
+          "string",
+          "否",
+          "无障碍描述（iOS accessibilityLabel / Android contentDescription）"
+        ],
+        [
+          "loadingContent?",
+          "custom-content",
+          "否",
+          "加载中占位自定义内容（默认内置：灰底+呼吸扫描+转圈指示器）"
+        ],
+        [
+          "errorContent?",
+          "custom-content",
+          "否",
+          "失败占位自定义内容（默认内置：破图图形+「加载失败」文案）"
+        ]
+      ],
+      "events": [
+        [
+          "onTap?",
+          "() => void",
+          "点击图片（容器全部区域）"
+        ],
+        [
+          "onLoad?",
+          "() => void",
+          "加载完成（成功态，视觉同默认渲染）"
+        ],
+        [
+          "onError?",
+          "() => void",
+          "加载失败（触发失败占位；重试由业务改 src，决策 P4=B）"
+        ]
+      ],
+      "demos": [
+        [
+          "圆角头像",
+          "<Image src=\"avatar\" width={48} height={48} radius={24} fit=\"cover\" alt=\"用户头像\" />"
+        ],
+        [
+          "封面缩略图",
+          "<Image src=\"cover\" width={120} height={90} radius=\"md\" fit=\"cover\" loadingContent={...} errorContent={...} onLoad={...} onError={...} />"
+        ],
+        [
+          "点击查看",
+          "<Image src=\"cover\" fit=\"contain\" onTap={() => openPreview(img)} />"
+        ]
+      ],
+      "note": "P1–P4 决策已由用户门禁 A 拍板（2026-09-03）：P1=B URL 业务侧预下载 / P2=B lazy 一期 N/A / P3=A 圆形=radius=宽/2 / P4=B 失败仅 onError；占位内置绘制不依赖 Icon/Loading；subcategory=display（与同为视觉容器的 Cell 一致）",
+      "subcategory": "display",
       "tier": "core"
     },
     {

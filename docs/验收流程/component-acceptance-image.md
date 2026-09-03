@@ -13,7 +13,7 @@
 | 组件名 / id | 图片 Image / `ui.image`（历史：无 legacy） |
 | 分类（subcategory） | 基础组件（api.json subcategory=basics，待门禁 B 定稿） |
 | 推进顺序 | 列表第 #5 位（基础组件） |
-| 状态 | 📐 设计中（门禁 A 待评审）→ ⬜ API（B）→ ⬜ 实现（C） |
+| 状态 | 📋 API 契约中（门禁 A ✅ 通过 2026-09-03，决策 P1–P4 用户拍板；门禁 B 待评审）→ ⬜ 实现（C） |
 | 验收文档 | `docs/验收流程/component-acceptance-image.md` |
 | 设计规格页 | `docs/design-spec/image-design-spec.html` |
 | 组件库版本 | v1.2.1（2026-09-03 基线；本组件实现将 bump） |
@@ -36,7 +36,7 @@
 
 **待决策点（门禁 A 评审拍板）**：P1 网络图 URL 加载（建议 B：一期仅本地，保持零三方依赖与双端一致）/ P2 lazy 懒加载（建议 B：一期 N/A 标注缺口）/ P3 圆形快捷（建议 A：radius=宽/2）/ P4 失败重试（建议 B：仅 onError，重试由业务改 src）。
 
-**设计评审（门禁 A）结论：** ☐ ✅ 通过　☐ ❌ 打回　备注：
+**设计评审（门禁 A）结论：** ✅ 通过（2026-09-03 用户确认：冻结设计进入 API 阶段；P1=B URL 业务预下载 / P2=B lazy 一期 N/A / P3=A 圆形=radius=宽/2 / P4=B 失败仅 onError）　☐ ❌ 打回
 
 ---
 
@@ -61,18 +61,28 @@
 
 ## 四、③ API 设计细节（阶段 2 · 门禁 B 评审）
 
-> 完整契约在 `docs/api.json` + `docs/开发规则.md` 第八节，此处为评审索引。草稿对齐 NutUI React Image：src/fit/position/alt/width/height/radius/loading/error/onTap/onLoad/onError（lazy 按决策点 P2）。
+> 完整契约已录入 `docs/api.json` `ui.image`（subcategory=display，tier=core），此处为评审索引。门禁 A 决策已定稿（2026-09-03 用户拍板）：P1=B URL 业务侧预下载后传图对象（组件库零第三方图片加载依赖）/ P2=B lazy 一期 N/A / P3=A 圆形=radius=宽/2 / P4=B 失败仅 onError（重试由业务改 src）。
 
-| 能力面 | 字段 | 关键内容 |
-|--------|------|----------|
-| 属性 Props | `props` | 属性名 / 类型 / 默认值（双端 100% 对齐） |
-| 事件 Events | `events` | onTap / onLoad / onError |
-| 方法 Methods | `methods` | 无（NutUI 无实例方法） |
-| 能力标签 | `capabilities` | 检索标签 |
-| 场景 | `scenarios` | 典型场景语料 |
-| Token 依赖 | `visual_tokens` | radius 档位 / gray 系占位色 / font.sizeSm 等 |
-| 组件关系 | `deps` | 依赖组件 id（=[]） |
-| 平台状态 | `platforms` | available / partial / unavailable |
+**属性 Props（9）**
+| 属性 | 类型 | 必选/默认 | 说明 |
+|------|------|-----------|------|
+| `src` | string \| platform-image-object | 是 | 图片来源：本地资源名（iOS Asset Catalog / Android @DrawableRes）或平台图对象（UIImage / ImageBitmap\|Painter）；URL 归业务预下载（P1=B） |
+| `fit?` | 'fill'\|'contain'\|'cover'\|'none'\|'scale-down' | 否，默认 'fill' | 对象填充模式（同 CSS object-fit） |
+| `position?` | 'center'\|'top'\|'right'\|'bottom'\|'left' | 否，默认 'center' | 内容停靠（fit=none/contain 且容器大于内容时生效） |
+| `width?` / `height?` | number | 否，默认撑满父容器 | 布局尺寸（逻辑 pt/dp，业务值非 token） |
+| `radius?` | number \| 'sm'\|'md'\|'lg' | 否，默认 0 | 圆角：token 档位（6/10/14）或数值；=宽/2 即圆形（P3=A） |
+| `alt?` | string | 否 | 无障碍描述（iOS accessibilityLabel / Android contentDescription） |
+| `loadingContent?` / `errorContent?` | custom-content | 否 | 占位自定义内容（默认内置绘制，deps=[]） |
+
+**事件 Events（3）**
+| 事件 | 签名 | 说明 |
+|------|------|------|
+| `onTap?` | () => void | 点击图片（容器全部区域） |
+| `onLoad?` | () => void | 加载完成（成功态） |
+| `onError?` | () => void | 加载失败（触发失败占位；重试由业务改 src，P4=B） |
+
+**方法 Methods**：无（NutUI 无实例方法）。
+**anti_goals（已录入 api.json）**：URL 网络图不在本组件（P1=B）/ lazy 一期 N/A（P2=B）/ 不内置预览·裁剪·编辑·上传（预览独立组件）/ 无内置失败重试（P4=B）/ 占位不依赖未完成 Icon/Loading。
 
 **API 评审（门禁 B）结论：** ☐ ✅ 通过　☐ ❌ 打回　备注：
 

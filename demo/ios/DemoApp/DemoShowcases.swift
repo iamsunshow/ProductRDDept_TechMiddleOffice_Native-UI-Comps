@@ -714,10 +714,10 @@ final class IconShowcase: ShowcaseViewController {
             let row = UIStackView()
             row.axis = .horizontal
             row.alignment = .center
-            row.spacing = AppSpace.xl
+            row.distribution = .equalSpacing
             container.addSubview(row)
             row.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                make.leading.trailing.equalToSuperview().inset(AppSpace.xl)
                 make.top.bottom.equalToSuperview().inset(AppSpace.md)
             }
             for size in [16, 24, 32, 48] as [CGFloat] {

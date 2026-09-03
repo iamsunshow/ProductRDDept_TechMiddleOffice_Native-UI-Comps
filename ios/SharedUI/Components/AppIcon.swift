@@ -31,7 +31,7 @@ enum AppIconName: String, CaseIterable {
         case .safari: return "safari"
         case .person: return "person"
         case .arrowDown: return "arrowtriangle.down.fill"
-        case .smartphone: return "smartphone"
+        case .smartphone: return "iphone.gen3"
         case .mail: return "envelope"
         }
     }

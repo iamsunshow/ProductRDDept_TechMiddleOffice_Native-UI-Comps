@@ -1,6 +1,6 @@
 {
-  "version": "1.1.8",
-  "versionKey": "v1.1.8",
+  "version": "1.1.9",
+  "versionKey": "v1.1.9",
   "releaseDate": "2026-09-03",
-  "changelog": "fix(ui.icon): Icon v1.0 双端 bugfix——① iOS smartphone 映射 SF Symbol 名不存在（smartphone 非系统 SF Symbol）→ 改 iphone.gen3（iOS 16+ 存在，与部署目标一致），Demo ①/④ 第 7 列手机图标空白修复；② iOS Demo ② 尺寸因子 UIStackView 固定 spacing=xl → distribution=equalSpacing + inset lg→xl，对齐 Android Arrangement.SpaceEvenly 均分算法；③ iOS Demo .pbxproj 手动补 AppIcon.swift 4 处编译引用（xcodegen 未安装导致新建文件不入编译），6 处 scope 编译错误修复。ui-version 双端同升 1.1.8。"
+  "changelog": "docs(ui.icon 徽标版本同步): Icon Demo 双端徽标 v1.0→v1.1（组件级版本随代码改动必升，新增§治理规范 6.5 强制条款：Bugfix/视觉对齐/Demo 调整均需升组件自身版本）；builtAt 同步更新为 2026-09-03 08:00:00；ui-version 双端同升 1.1.9。"
 }

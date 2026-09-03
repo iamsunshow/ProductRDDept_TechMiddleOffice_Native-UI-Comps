@@ -689,7 +689,7 @@ final class IconShowcase: ShowcaseViewController {
         super.viewDidLoad()
         title = "Icon 图标"
 
-        addVersionBadge(componentName: "Icon", version: "v1.0", builtAt: "2026-09-02 20:00:00")
+        addVersionBadge(componentName: "Icon", version: "v1.1", builtAt: "2026-09-03 08:00:00")
         feedbackLabel = addFeedbackBar()
 
         // ① 基础形态：全部 8 个图标，默认尺寸(24pt) + 默认色(textPrimary)

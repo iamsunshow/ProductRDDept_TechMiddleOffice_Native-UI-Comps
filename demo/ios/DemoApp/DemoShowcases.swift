@@ -74,7 +74,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.badge", name: "Badge 徽标", reviewed: false, create: nil),
             DemoComponent(id: "ui.dialog", name: "Dialog 对话框", reviewed: false, create: nil),
             DemoComponent(id: "ui.drag", name: "Drag 拖拽", reviewed: false, create: nil),
-            DemoComponent(id: "ui.empty", name: "Empty 空状态", reviewed: false, create: nil),
+            DemoComponent(id: "ui.empty", name: "Empty 空状态", reviewed: true, create: { EmptyShowcase() }),
             DemoComponent(id: "ui.infinite-loading", name: "InfiniteLoading 滚动加载", reviewed: false, create: nil),
             DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: false, create: nil),
             DemoComponent(id: "ui.notice-bar", name: "NoticeBar 公告栏", reviewed: false, create: nil),
@@ -1222,5 +1222,78 @@ final class ImageShowcase: ShowcaseViewController {
             let sunCenterY = height * 0.25
             cg.fillEllipse(in: CGRect(x: sunCenterX - 26, y: sunCenterY - 26, width: 52, height: 52))
         }
+    }
+}
+
+// MARK: - Empty Showcase（Empty 空状态组件独立 Demo 页，与 Android EmptyDemo 一一对应）
+
+final class EmptyShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Empty 空状态"
+        addVersionBadge(componentName: "Empty", version: "v1.0", builtAt: "")
+
+        addInfo("4 组排查：① 默认空态 ② 自定义文案 ③ 带图标 ④ 固定容器空态。双端 1:1 对齐。")
+
+        // ── Demo 1：默认空态（「暂无数据」）──
+        addSection(title: "Demo 1 · 默认空态") { container in
+            let empty = EmptyStateView()
+            container.addSubview(empty)
+            empty.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(160)
+            }
+        }
+        addInfo("无任何设置，默认显示「暂无数据」，文案居中。")
+
+        // ── Demo 2：自定义文案 ──
+        addSection(title: "Demo 2 · 自定义文案") { container in
+            let empty = EmptyStateView()
+            empty.setMessage("搜索无结果，换个关键词试试")
+            container.addSubview(empty)
+            empty.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(160)
+            }
+        }
+        addInfo("setMessage 覆盖默认文案，支持多行。")
+
+        // ── Demo 3：带图标空态 ──
+        addSection(title: "Demo 3 · 带图标空态") { container in
+            let empty = EmptyStateView()
+            let config = UIImage.SymbolConfiguration.preferringMonochrome()
+            empty.setIcon(UIImage(systemName: "tray", withConfiguration: config), size: 48)
+            empty.setMessage("暂无记录")
+            container.addSubview(empty)
+            empty.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(200)
+            }
+        }
+        addInfo("setIcon 设置 SF Symbol（monochrome），图标居中于文案上方。")
+
+        // ── Demo 4：固定容器空态（模拟列表空态场景）──
+        addSection(title: "Demo 4 · 固定容器空态") { container in
+            let wrapper = UIView()
+            wrapper.backgroundColor = AppColor.bgCard
+            wrapper.layer.cornerRadius = AppRadius.lg
+            wrapper.layer.masksToBounds = true
+            container.addSubview(wrapper)
+            wrapper.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(240)
+            }
+
+            let empty = EmptyStateView()
+            let config = UIImage.SymbolConfiguration.preferringMonochrome()
+            empty.setIcon(UIImage(systemName: "folder", withConfiguration: config), size: 40)
+            empty.setMessage("该文件夹为空")
+            wrapper.addSubview(empty)
+            empty.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("模拟实际场景：圆角容器内嵌空态，图标+文案居中。")
     }
 }

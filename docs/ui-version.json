@@ -1,6 +1,6 @@
 {
-  "version": "1.3.3",
-  "versionKey": "v1.3.3",
+  "version": "1.3.4",
+  "versionKey": "v1.3.4",
   "releaseDate": "2026-09-03",
-  "changelog": "fix(image ui.image Demo2 none/scale-down v1.3.2双端尺寸&太阳位置不一致): 根因=Android sample Bitmap 物理像素=320x200 px(无论密度) vs iOS UIImage.size=320x200 pt(在3x屏=960x600实像素)，两端ImageGeometry.rect同公式但单位域基准不同（iOS pt域/Android px域），导致none(原尺寸)时Android bitmap全小于容器(360x270)，表现为『四周留白不裁切』；iOS bitmap(320pt)远大于容器(120pt)，表现为『中心裁切露出太阳底部』——用户报告的『尺寸也不一样内部圆的位置也不一样』。修复：Android Demo makeDemoBitmap() 新增density参数，按(w*density, h*density)生成Bitmap物理像素（默认320x200 dp → density=3时960x600 px → contain/cover/none/scale-down与iOS 320pt×200pt → 120pt×90pt 的缩放系数s=0.375完全一致）；太阳绝对半径26也按density放大(26*d)保持相对视觉同构。组件库全局 v1.3.2 → v1.3.3；双端徽标 Image v1.3.2 → v1.3.3。"
+  "changelog": "feat(ui.empty v1.0 reviewed): EmptyStateView 双端新增可选 icon 支持（iOS setIcon(UIImage?,size:)/Android icon:ImageVector?=null），双端 Demo 4 组排查（默认空态/自定义文案/带图标/固定容器空态），api.json reviewed=true。组件库全局 v1.3.3 → v1.3.4；双端徽标 Empty v1.0。"
 }

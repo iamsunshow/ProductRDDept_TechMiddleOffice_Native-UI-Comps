@@ -62,6 +62,7 @@
       "anti_goals": [],
       "visual_refs": [],
       "status": "stable",
+      "reviewed": true,
       "search_text": "basic.empty 空状态 Empty 无数据时的占位提示（对标 Ant Empty / HIG Empty State） 当页面或列表无数据时展示的空状态组件，通常包含图标、提示文案和可选的操作按钮。设计上应保持简洁，引导用户理解当前状态。 列表无数据 搜索无结果 页面内容为空 首次使用无记录 basic Empty EmptyState 空态 empty 暂无数据 占位提示 Empty EmptyState 空状态 Empty basic.empty ui.empty-state ui.empty-state",
       "embedding_ref": "docs/embeddings/ui_empty.json",
       "legacy_id": "ui.empty-state",

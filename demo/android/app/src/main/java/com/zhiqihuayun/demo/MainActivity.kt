@@ -134,7 +134,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Badge 徽标"),
         DemoComponent("Dialog 对话框"),
         DemoComponent("Drag 拖拽"),
-        DemoComponent("Empty 空状态"),
+        DemoComponent("Empty 空状态", reviewed = true, demo = { EmptyDemo() }),
         DemoComponent("InfiniteLoading 滚动加载"),
         DemoComponent("Loading 加载中"),
         DemoComponent("NoticeBar 公告栏"),
@@ -828,3 +828,68 @@ private fun ConfigProbe() {
 /** 解析色值转 "#RRGGBB"（仅用于 Demo 读数展示）。 */
 private fun colorToHex(color: Color): String =
     String.format("#%06X", 0xFFFFFF and color.toArgb())
+
+// ===== Empty 组件 Demo 页（独立页面，与 iOS EmptyShowcase 一一对应） =====
+
+@Composable
+private fun EmptyDemo() {
+    // 版本徽标
+    Text(
+        text = "Empty 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier
+            .padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+
+    Text(
+        text = "4 组排查：① 默认空态 ② 自定义文案 ③ 带图标 ④ 固定容器空态。双端 1:1 对齐。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // ── Demo 1：默认空态 ──
+        Text("Demo 1 · 默认空态", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Box(modifier = Modifier.fillMaxWidth().height(160.dp)) {
+            EmptyStateView()
+        }
+
+        // ── Demo 2：自定义文案 ──
+        Text("Demo 2 · 自定义文案", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Box(modifier = Modifier.fillMaxWidth().height(160.dp)) {
+            EmptyStateView(message = "搜索无结果，换个关键词试试")
+        }
+
+        // ── Demo 3：带图标空态 ──
+        Text("Demo 3 · 带图标空态", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Box(modifier = Modifier.fillMaxWidth().height(200.dp)) {
+            EmptyStateView(
+                message = "暂无记录",
+                icon = Icons.Default.Favorite
+            )
+        }
+
+        // ── Demo 4：固定容器空态 ──
+        Text("Demo 4 · 固定容器空态", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(240.dp)
+                .background(AppColor.bgCard, RoundedCornerShape(AppRadius.lg))
+        ) {
+            EmptyStateView(
+                message = "该文件夹为空",
+                icon = Icons.Default.Favorite,
+                iconSize = 40
+            )
+        }
+    }
+}

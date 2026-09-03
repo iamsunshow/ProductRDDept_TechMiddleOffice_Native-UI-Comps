@@ -12,70 +12,103 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
-## [1.3.3] - 2026-09-03
+## \[1.3.4] - 2026-09-03
+
+Empty v1.0 双端 reviewed：EmptyStateView 新增可选 icon 支持 + Demo 4 组排查 + api.json reviewed=true。
+
+### Added
+
+- **EmptyStateView 双端新增可选 icon 参数**：iOS 新增 `setIcon(_ image: UIImage?, size: CGFloat = 48)` 方法 + `UIImageView`（hidden by default，tintColor = textSecondary，monochrome 配合 SF Symbol）；Android 新增 `icon: ImageVector? = null` + `iconSize: Int = 48` 参数，Icon 居中于文案上方，双端间距 `AppSpace.md`。
+- **Empty Demo 4 组排查（双端 1:1 对齐）**：① 默认空态（"暂无数据"）② 自定义文案（"搜索无结果，换个关键词试试"）③ 带图标空态（iOS tray / Android Favorite + "暂无记录"）④ 固定容器空态（圆角 bgCard 容器内嵌空态，iOS folder / Android Favorite + "该文件夹为空"）。
+- **api.json `ui.empty` reviewed=true**，双端 state=available 确认。
+
+### Changed
+
+- 组件库全局版本 1.3.3 → 1.3.4（PATCH）。
+- 双端 Empty Demo 徽标 v1.0（首次 reviewed）。
+
+## \[1.3.3] - 2026-09-03
 
 Image v1.3.2 实机：Demo2 倒数 2 卡（none / scale-down）双端尺寸 + 太阳位置不一致修复 + 徽标 v1.3.3。
 
 ### Fixed
 
 - **Android Demo 演示素材物理像素未按密度放大（单位域错位 → none/scale-down 与 iOS 完全相反）**：v1.3.2 及之前 `makeDemoBitmap(320,200)` 生成的是固定 320×200 px Bitmap，无论屏幕密度；而 `ImageGeometry.rect` 在 Android 端用容器物理像素（Canvas.size.width）参与计算。结果：xxhdpi (density=3) 容器 120dp×90dp = 360×270px，原图 320×200px < 容器 → **none/scale-down 表现为四周留白不裁切**（太阳整体居中，r=26 像素偏小）。而 iOS 侧 `UIGraphicsImageRenderer(size:)` 生成 UIImage.size=320×200 pt，`ImageGeometry.rect` 用 pt 空间计算：容器 120×90 pt < 原图 320×200 pt → **none/scale-down 表现为中心裁切（太阳被裁到容器顶外，仅露底部 20pt）**。用户实机报告"倒数第一个和第二个 demo 与 android 展现不一致，主要是尺寸也不一样，内部圆的位置也不一样"——两端完全相反。修复：
+
   - Android `ImageDemo.kt` 新增 `LocalDensity.current.density`，`makeDemoBitmap(logicalWidthDp:logicalHeightDp:density:)` 按 **(320*density,200*density) 物理像素**生成 Bitmap（density=3 → 960×600 px；density=2 → 640×400 px），与 iOS 320pt×200pt 对容器 120pt×90pt 的 contain/cover/none/scale-down **所有缩放系数 s=0.375/裁切比例/太阳位置 1:1 同构**（Python 双端数值模拟已验证：xxhdpi density=3 时 rect 输出与 iOS 完全按比例对齐）。
+
   - 太阳绝对半径 26 同步按 density 放大（`sunR=26f*density`）保证原图内视觉比例与 iOS 一致；太阳坐标按相对比例（w*0.62, h*0.25）已随尺寸放大自然等比对齐。
+
   - remember 由 `{ makeDemoBitmap() }` 改为 `remember(density) { makeDemoBitmap(density = density) }`，密度变化时自动重新生成（覆盖折叠屏/连接副屏等 case）。
 
 ### Changed
 
 - **双端 Image Demo 版本徽标**：iOS `DemoShowcases.swift` v1.3.2 → v1.3.3，builtAt 2026-09-03 22:45:00；Android `ImageDemo.kt` v1.3.2 → v1.3.3。
+
 - **ui-version.json**：组件库版本 1.3.2 → 1.3.3（PATCH：demo 代码改动必升版本，治理规范 §6.5 / 开发规则 §1.5）。
 
-## [1.3.2] - 2026-09-03
+## \[1.3.2] - 2026-09-03
 
 Image v1.3.1 实机 4 项修复（Bug1 / Bug4-5 / Bug6）+ 双端徽标 v1.3.2。
 
 ### Fixed
 
 - **Bug1 Android Demo1 三张卡片间距不等分（iOS equalSpacing vs Android spacedBy）**：Android `Row` 原 `Arrangement.spacedBy(AppSpace.lg)`（固定间距，内容整体偏左，右留大片空白）vs iOS `UIStackView distribution = .equalSpacing`（内容+留白均分）。修复：Row `horizontalArrangement = Arrangement.SpaceEvenly` + `modifier.padding(horizontal = AppSpace.lg)`（两侧等量 padding=SpaceEvenly 在两端留空，与 iOS equalSpacing + inset(lg) 的布局语义一一对应）。
+
 - **Bug4/Bug5 iOS Demo2 文字与图片错位重叠 + Demo3 图片与 Demo2 图片重叠**：根因 = Demo2 fit 五模式 `UIScrollView` 在 `addSection` 的 container 内仅约束了 `leading/trailing/top + height.equalTo(118)`，**缺 bottom 锚** → container（被 `contentStack.addArrangedSubview` 推入的 UIView）**高度=0**（内部 scroll 的 top 只声明位置，无法反推 container 高度）。scroll 以 origin.y=0 为起点 118pt 高，**溢出 container 边界**，在 Auto Layout 上看起来 Demo2 scroll 内容+Demo3 section 标题/Demo3 图片起点都在 Demo3 的 title 位置附近（Demo3 title 紧贴 Demo2 container 的 y=0 底部），实机视觉：Demo2 文字/图盖在 Demo3/Demo4 card/button 上（Demo4 默认占位图因此被压到 Demo3 下）。修复：scroll 补 `make.bottom.equalToSuperview().inset(AppSpace.md)`，container 被 top/bottom 双向锚定，高度被 SnapKit 计算为 `md + 118 + md`，正确撑开，scroll 不再溢出。
+
 - **Bug6 iOS/Android 失败占位默认图形不一致**：原 iOS `Image.makeErrorPlaceholder` 用 SF Symbol `photo`（相框+左上角太阳+右下山形，SF 多色/单色由系统决定，图形定义不可控），Android `DefaultErrorPlaceholder` 用 `Canvas(40×32)` 自绘（外框stroke + 太阳圆stroke r=2.5 at (0.34,0.38) + 左底(0.36,0.72)→peak(0.58,0.42)→右底(0.80,0.72) 折线）。双端图形太阳位置/山形/外框细节 1:1 不对等，Demo4 默认失败占位（无效资源 `no_such_image_xyz` / `no_such_drawable_xyz`）实测视觉差异明显。修复：iOS 替换为 `ErrorGraphicImageView` 自绘（Image.swift 同文件追加 class，零新文件），视窗 40×32 / 线宽 2pt / 太阳圆 r=2.5 / 比例完全同构 Android Canvas 参数（pt=dp 同 1x 逻辑尺寸），双端失败占位图形进入「同一数学定义」路径，解除 SF Symbol 单端依赖。
 
 ### Changed
 
 - **双端 Image Demo 版本徽标**：iOS `DemoShowcases.swift` v1.3.1 → v1.3.2，builtAt 2026-09-03 22:20:00；Android `ImageDemo.kt` v1.3.1 → v1.3.2。
+
 - **ui-version.json**：组件库版本 1.3.1 → 1.3.2（SemVer PATCH，bugfix 递增；治理规范 §6.5 / 开发规则 §1.5：即使 demo 代码改动也必升版本）。
 
-## [1.3.1] - 2026-09-03
+## \[1.3.1] - 2026-09-03
 
 C1.5 实机验收问题修复（双端 demo 徽标同步 v1.3.1）。
 
 ### Fixed
 
 - **iOS Image radius 圆角未落地（实机问题 2/3）**：`Image.swift` 仅有 `radiusValue` 解析器与单测断言（D4b/A2 断言 `layer.cornerRadius`），但 `layoutSubviews` 从未应用圆角——iOS 单测受本机 SPM/UIKit 约束从未实跑，"纸面绿"掩盖实现缺失，实机表现为：圆角 lg 卡无圆角、48×48 radius=24 卡为正方形而非圆形（Android clip 正常）。修复：`layoutSubviews` 每次布局重算 `layer.cornerRadius = Image.radiusValue(from: radius)`，clipsToBounds 连带裁剪图与占位层，radius 变化后 setNeedsLayout 即生效。
+
 - **iOS demo2 fit 五模式区整节空白（实机问题 4）**：`UIScrollView` 在 `addSection` 无固有高度的 container 内只有 edges 约束，自身高度无定义 → Auto Layout 塌陷为 0。修复：显式 `height = 118`（卡片 90 + caption + 余量）。
+
 - **Android demo3/4 卡片布局与 iOS 不一致（实机问题 5/6 位置部分）**：Android `ImageDemo.kt` demo3/4 卡片 Row 未撑满全宽 → 卡片居左；且未传 fit 用默认 fill（iOS makeStateCard 为 contain）→ loaded 后拉伸。修复：Row `fillMaxWidth + Center` 与 iOS 居中布局对齐，卡片 `fit = "contain"` 与 iOS 一致（loaded 后等比展示、白圆不变形）。
+
 - **Demo1 素材无引导文案（实机问题 1）**：双端 demo1 Hint/addInfo 补充素材说明（320×200 上蓝下橙+白太阳圆；fill 拉伸致圆变形属语义，非 bug）。
 
 ### Verified（验证版本 v1.3.1，2026-09-03）
 
 - Android 组件单测回归：ImageTest 20/20 绿（iOS demo2 scroll/demo1 hint 均 demo 层改动，组件 Image.kt 无逻辑变更）。
+
 - iOS 修复为本机不可编译验证项：`Image.swift` cornerRadius 修复由实机复核（问题 2/3），demo2 scroll 高度由实机复核（问题 4）。
 
-## [1.3.0] - 2026-09-03
+## \[1.3.0] - 2026-09-03
 
 ui.image 图片组件双端实现（门禁 C1，契约 `docs/api.json` `ui.image`，门禁 B ✅ 2026-09-03 冻结）。
 
 ### Added
 
 - **Image（ui.image）双端实现**：iOS `ios/SharedUI/Components/Image.swift`（UIView + 状态机 LoadState loading/loaded/failed）+ Android `android/sharedui/components/Image.kt`（Compose 顶层函数，规避 foundation.Image 命名冲突，破图占位零图标依赖）。契约 props 9（src/fit/position/width/height/radius/alt/loadingContent/errorContent）+ events 3（onTap/onLoad/onError）；fit 五值（fill/contain/cover/none/scale-down）、position 三值锚点、radius token 档位与数值。src 语义：iOS `Any?`=UIImage/String 资源/nil，Android=ImageBitmap/Int resId/String 资源名/null。
+
 - **几何纯函数双端同构** `ImageGeometry.rect`：`x = ax*(W-dw)` / `y = ay*(H-dh)`（ax/ay ∈ {0,0.5,1}）；scale-down=不放大、cover 超裁随 position 锚定、H1 零尺寸防御。向量同组断言在 iOS `Tests/ImageTests.swift` 与 Android `ImageTest.kt`（D2/D2b/D3/D3b/H1）。
+
 - **双端单测**：iOS ImageTests（状态机/几何/radius/点击/无障碍/A1-A3，纯函数数学闭环）；Android ImageTest **20/20 绿**（Robolectric，结构/状态/语义断言；根节点 mergeDescendants 下子节点统一 `useUnmergedTree`）。像素采样（captureToImage）在 Robolectric 窗口捕获不产帧，移除并归 C1.5 实机视觉验收。
+
 - **质量门禁脚本组件化** `scripts/check_component_quality.py`：`--component cell|image`，D6 token 扫描/A6 契约 schema/A7 双端命名/C1 用例映射按组件参数化；Cell/Image 两组 4/4 全绿。用例编号保留位（D6/A6/A7=脚本型）与 Image 验收文档对齐（D6=Token、D7=失败、D8=点击+无障碍；A4/A5 空号）。
+
 - **设计 token 落地**：占位色 `AppColor.gray6`（#E5E5E5）/`gray15`（#BFBFBF）补入双端 AppTokens（gray4/gray25 同族）。
+
 - **api.json**：`ui.image` platforms ios/android → partial（C1 已实现，C1.5 实机确认后转 available）。
+
 - **双端 Demo Showcase（门禁 C1.5 前置）**：Android `demo/android/app/.../ImageDemo.kt`（新建文件 + MainActivity 索引挂载，编译通过）+ iOS `demo/ios/DemoApp/DemoShowcases.swift` 追加 `ImageShowcase`（对照 Button/Icon Showcase 既有模式；本机 SPM 约束未编译，实机验证时关注）。演示点①②③④ 与验收文档「六」一一对应：基础/圆角圆形、fit 五模式同屏、loading/error 占位与恢复（P4=B 重试）、onTap 反馈条 + onLoad/onError 计数。demo 版本徽标 = 组件库正式版 v1.3.0。
 
 ### Fixed
 
 - **Cell Error 徽标缺可读语义（v1.30c 自绘引入回归）**：`Cell.kt` Error 态改自绘 `ErrorCircleBadge` 后未补 `contentDescription("失败")`，与 CellTest D5（`CellTest.kt:93`）断言冲突，自 v1.2.0 起 CellTest 全量无法全绿（CHANGELOG v1.2.0 已登记遗留）。本次在徽标 modifier 补 `.semantics { contentDescription = "失败" }`，与 Success「成功」配对，a11y 对齐 iOS badge；**CellTest 15/15 恢复全绿**。
+
 - **Image.kt 编译修正**：设计 token 导入包名 `com.zhiqihuayun.design` → `com.zhiqihuayun.foundation.design`（与 Cell 一致）；`matchParentSize`/`drawImage` 为 BoxScope/DrawScope 接口成员，移除错误 import；material icons-core 无 `Icons.Filled.Image`，破图占位改 Canvas 自绘（画框+太阳+山形，对齐 iOS SF Symbol "photo" 语义）。
 
 ### Changed
@@ -84,11 +117,13 @@ ui.image 图片组件双端实现（门禁 C1，契约 `docs/api.json` `ui.image
 
 ### Verified（验证版本 v1.3.0，2026-09-03）
 
-- Android Robolectric 全量 **50/50 绿**：ImageTest 20/20 + CellTest 15/15（含 D5_errorState 修复验证）+ ConfigProviderTest 15/15。
+- Android Robolectric 全量 **50/50 绿**：ImageTest 20/20 + CellTest 15/15（含 D5\_errorState 修复验证）+ ConfigProviderTest 15/15。
+
 - 质量门禁脚本 Cell 与 Image 两组各 4/4（D6/A6/A7/C1）全绿。
+
 - iOS 本机仍受 Xcode/UIKit 环境约束无法跑全量 XCTest（历史遗留，见 v1.2.1 根治记录未覆盖的编译链），iOS 侧以纯函数测试 + 代码评审为 C1 依据；真实 iOS 渲染/实机确认归 C1.5。
 
-## [1.2.1] - 2026-09-03
+## \[1.2.1] - 2026-09-03
 
 打通 iOS 工程 SwiftPM 构建阻塞（历史遗留根治），iOS 测试首次真机模拟器实跑全绿。
 
@@ -96,9 +131,9 @@ ui.image 图片组件双端实现（门禁 C1，契约 `docs/api.json` `ui.image
 
 - **【根治】ios/Package.swift GRDB 依赖引用键错误**：`.product(name: "GRDB", package: "GRDB")` → `package: "GRDB.swift"`。v1.30c 曾按「子包 name 字段」写作 `"GRDB"`，但 Xcode 14.2 实测本地 path 依赖以**目录名**（`GRDB.swift`）为引用键，报 `unknown package 'GRDB'`，导致 iOS 包自 2026-08-30 起一直无法构建/测试（此前误判为"SPM 网络不可达"，实为引用键错误 + 陈旧缓存）。
 
-- **【根治】ios/Package.swift exclude 补 `"Vendor"`**：Vendor/GRDB.swift 自带 Demo App 资源（Main/LaunchScreen.storyboard、Assets.xcassets、PerformanceModel.xcdatamodeld 等），主 target `path: "."` 未排除 Vendor 时被当资源扫描，报 `multiple resources named ...` 重复错误。补排除后主 target 只扫 Foundation/SharedUI。
+- **【根治】ios/Package.swift exclude 补** **`"Vendor"`**：Vendor/GRDB.swift 自带 Demo App 资源（Main/LaunchScreen.storyboard、Assets.xcassets、PerformanceModel.xcdatamodeld 等），主 target `path: "."` 未排除 Vendor 时被当资源扫描，报 `multiple resources named ...` 重复错误。补排除后主 target 只扫 Foundation/SharedUI。
 
-- **iOS 测试补 `@testable import KeepAccountsMiddleware`**：`Tests/CellTests.swift` 与 `Tests/ConfigProviderTests.swift` 均缺模块导入，首次真编译即报 `cannot find 'Cell'/'CellModel'/'ConfigProvider' in scope`（此前从未真正编译过测试）。补导入后全部编译通过。
+- **iOS 测试补** **`@testable import KeepAccountsMiddleware`**：`Tests/CellTests.swift` 与 `Tests/ConfigProviderTests.swift` 均缺模块导入，首次真编译即报 `cannot find 'Cell'/'CellModel'/'ConfigProvider' in scope`（此前从未真正编译过测试）。补导入后全部编译通过。
 
 - **删除 ios/Package.resolved**：纯本地 path 依赖无需锁定文件（`swift package resolve` 自动清除陈旧远程 URL pins），xcodebuild 实测无此文件可正常构建测试。
 
@@ -109,9 +144,10 @@ ui.image 图片组件双端实现（门禁 C1，契约 `docs/api.json` `ui.image
 ### Verified（首次模拟器实跑，验证版本 v1.2.0 代码基线）
 
 - **iOS ConfigProviderTests 15/15 绿**（D1-D8 + A1-A5 + hexStringParsing + mergedSemantics，iPhone 14 模拟器 XCTest）。
+
 - **iOS CellTests 16/16 绿**（D1-D8 + A1-A5 + H1/H2/H3/H3b，iPhone 14 模拟器 XCTest）——历史遗留"iOS 测试从未实跑"自此闭环。
 
-## [1.2.0] - 2026-09-03
+## \[1.2.0] - 2026-09-03
 
 ConfigProvider 全局配置组件 v1.0 双端实现落地（门禁 C1 进行中，Android 实现完成、iOS 代码就位）。
 
@@ -119,9 +155,9 @@ ConfigProvider 全局配置组件 v1.0 双端实现落地（门禁 C1 进行中�
 
 - **ConfigProvider（ui.config-provider）双端实现**：设计规格（门禁 A ✅ 2026-09-03）与 API 契约（门禁 B ✅ 2026-09-03，用户「继续」确认）通过后进入门禁 C1 实现。组件定位为 design-token 静态基准（AppTokens）之上的**运行时覆盖层**，四项配置：`primaryColor`（hex 字符串）/ `rounded`（圆角升档）/ `compact`（间距降档）/ `locale`（文案语言），覆盖语义 = 内层优先、未设项继承、静态基准不被污染（D5）。
 
-- **Android `android/sharedui/components/ConfigProvider.kt`**：`@Stable data class AppConfig`（四字段全可空 + `merged(overlay)` 合并 + `Baseline`）、`parseHexColor`（6/3 位 hex 解析）、`CompositionLocal` 上下文注入（`ProvidableCompositionLocal`，对齐 Compose 1.7 成员扩展 `provides`）、`@Composable ConfigProvider`、读取解析层 `AppTheme`（primaryColor/radiusSm/Md/Lg/spaceSm/Md/Lg/Xl/locale 解析函数）。Robolectric 单测 **15/15 绿**（D1-D8 + A1-A5 + hex 解析 + merged 语义，验证版本 v1.2.0）。
+- **Android** **`android/sharedui/components/ConfigProvider.kt`**：`@Stable data class AppConfig`（四字段全可空 + `merged(overlay)` 合并 + `Baseline`）、`parseHexColor`（6/3 位 hex 解析）、`CompositionLocal` 上下文注入（`ProvidableCompositionLocal`，对齐 Compose 1.7 成员扩展 `provides`）、`@Composable ConfigProvider`、读取解析层 `AppTheme`（primaryColor/radiusSm/Md/Lg/spaceSm/Md/Lg/Xl/locale 解析函数）。Robolectric 单测 **15/15 绿**（D1-D8 + A1-A5 + hex 解析 + merged 语义，验证版本 v1.2.0）。
 
-- **iOS `ios/SharedUI/Components/ConfigProvider.swift`**：按平台差异登记（iOS 命令式 UIKit），`AppConfig` + 命令式**作用域栈** `ConfigProvider`（push/pop/withScope/current + resetForTesting，表达嵌套 Provider 语义）+ 读取解析层 `AppTheme` + `UIColor(hexString:)` 解析。`Tests/ConfigProviderTests.swift` D1-D8/A1-A5 用例就位（XCTest 逻辑层，本机 UIKit 受限待实机跑）。
+- **iOS** **`ios/SharedUI/Components/ConfigProvider.swift`**：按平台差异登记（iOS 命令式 UIKit），`AppConfig` + 命令式**作用域栈** `ConfigProvider`（push/pop/withScope/current + resetForTesting，表达嵌套 Provider 语义）+ 读取解析层 `AppTheme` + `UIColor(hexString:)` 解析。`Tests/ConfigProviderTests.swift` D1-D8/A1-A5 用例就位（XCTest 逻辑层，本机 UIKit 受限待实机跑）。
 
 ### Changed
 

@@ -60,22 +60,38 @@ import com.zhiqihuayun.foundation.design.AppText
 
 /**
  * 列表空态，默认文案对齐 iOS「暂无数据」。
+ * 可选 icon 参数：图标居中于文案上方。
  */
 @Composable
 fun EmptyStateView(
     message: String = "暂无数据",
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+    iconSize: Int = 48
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = message,
-            color = AppColor.textSecondary,
-            fontSize = AppFont.sizeMd,
-            textAlign = TextAlign.Center
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+        ) {
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = AppColor.textSecondary,
+                    modifier = Modifier.size(iconSize.dp)
+                )
+            }
+            Text(
+                text = message,
+                color = AppColor.textSecondary,
+                fontSize = AppFont.sizeMd,
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 

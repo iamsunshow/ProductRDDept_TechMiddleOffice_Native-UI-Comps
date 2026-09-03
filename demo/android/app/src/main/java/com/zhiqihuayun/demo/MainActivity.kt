@@ -170,6 +170,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Tour 引导"),
         DemoComponent("Video 视频播放器"),
         DemoComponent("VirtualList 虚拟列表"),
+        DemoComponent("List 分组列表", reviewed = true, demo = { ListDemo() }),
     ),
     "特色组件" to listOf(
         DemoComponent("QuickEnter 快捷入口"),
@@ -988,5 +989,78 @@ private fun AvatarDemo() {
                 }
             }
         }
+    }
+}
+
+// ===== List 组件 Demo 页（独立页面，与 iOS ListShowcase 一一对应） =====
+
+@Composable
+private fun ListDemo() {
+    Text(
+        text = "List 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+
+    Text(
+        text = "4 组排查：① 基础行 ② 带值行 ③ 可点击行 ④ 多分组。双端 1:1 对齐。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // ── Demo 1：基础列表行 ──
+        Text("Demo 1 · 基础列表行", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        ProfileListGroup(
+            items = listOf(
+                ProfileListItem("设置"),
+                ProfileListItem("通用"),
+                ProfileListItem("关于"),
+            )
+        )
+
+        // ── Demo 2：带值列表行 ──
+        Text("Demo 2 · 带值列表行", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        ProfileListGroup(
+            items = listOf(
+                ProfileListItem("版本", value = "v1.3.5"),
+                ProfileListItem("设备", value = "iPhone 15 Pro"),
+                ProfileListItem("存储", value = "128 GB"),
+            )
+        )
+
+        // ── Demo 3：可点击列表行 ──
+        Text("Demo 3 · 可点击列表行", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        ProfileListGroup(
+            items = listOf(
+                ProfileListItem("账号管理", value = "已绑定", onClick = {}),
+                ProfileListItem("消息通知", value = "已开启", onClick = {}),
+                ProfileListItem("隐私设置", onClick = {}),
+            )
+        )
+
+        // ── Demo 4：多分组列表 ──
+        Text("Demo 4 · 多分组列表", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        ProfileListGroup(
+            items = listOf(
+                ProfileListItem("个人资料", value = "已完善", onClick = {}),
+                ProfileListItem("账号安全", onClick = {}),
+            )
+        )
+        ProfileListGroup(
+            items = listOf(
+                ProfileListItem("清除缓存", value = "23.5 MB", onClick = {}),
+                ProfileListItem("检查更新", value = "最新版", onClick = {}),
+                ProfileListItem("退出登录", onClick = {}),
+            )
+        )
     }
 }

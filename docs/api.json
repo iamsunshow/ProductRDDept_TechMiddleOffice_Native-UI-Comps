@@ -1133,7 +1133,8 @@
           "<List dataSource={rows} renderItem={...} />"
         ]
       ],
-      "subcategory": "display"
+      "subcategory": "display",
+      "reviewed": true
     },
     {
       "id": "ui.refresh",

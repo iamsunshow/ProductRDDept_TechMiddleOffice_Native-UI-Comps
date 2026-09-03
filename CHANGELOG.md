@@ -12,6 +12,21 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## \[1.3.6] - 2026-09-03
+
+List v1.0 双端 reviewed：分组列表 Demo 4 组排查 + api.json reviewed=true。
+
+### Added
+
+- **List Demo 4 组排查（双端 1:1 对齐）**：① 基础列表行（设置/通用/关于，仅标题）② 带值列表行（版本 v1.3.5/设备 iPhone 15 Pro/存储 128 GB）③ 可点击列表行（账号管理/消息通知/隐私设置 + 右箭头 chevron）④ 多分组列表（个人资料组 + 系统设置组，模拟设置页）。
+- **api.json `ui.list` reviewed=true**，双端 state=available 确认（iOS GroupList/GroupListItem + Android ProfileListGroup 复用既有实现）。
+
+### Changed
+
+- 组件库全局版本 1.3.5 → 1.3.6（PATCH）。
+- 双端 List Demo 徽标 v1.0（首次 reviewed）。
+- Demo 2 设备名双端统一为 "iPhone 15 Pro"（原 Android "Pixel 8 Pro" 与 iOS 不一致，影响排查比对）。
+
 ## \[1.3.5] - 2026-09-03
 
 Avatar v1.0 双端 reviewed：Demo 4 组排查 + api.json reviewed=true。

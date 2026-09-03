@@ -98,6 +98,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.ellipsis", name: "Ellipsis 文本省略", reviewed: false, create: nil),
             DemoComponent(id: "ui.image-preview", name: "ImagePreview 图片预览", reviewed: false, create: nil),
             DemoComponent(id: "ui.indicator", name: "Indicator 指示器", reviewed: false, create: nil),
+            DemoComponent(id: "ui.list", name: "List 分组列表", reviewed: true, create: { ListShowcase() }),
             DemoComponent(id: "ui.lottie", name: "Lottie 动画", reviewed: false, create: nil),
             DemoComponent(id: "ui.pagination", name: "Pagination 分页", reviewed: false, create: nil),
             DemoComponent(id: "ui.price", name: "Price 价格", reviewed: false, create: nil),
@@ -1406,5 +1407,100 @@ final class AvatarShowcase: ShowcaseViewController {
             }
         }
         addInfo("模拟用户列表：44pt 头像 + 昵称，混合文字/符号头像。")
+    }
+}
+
+// MARK: - List Showcase（List 分组列表组件独立 Demo 页，与 Android ListDemo 一一对应）
+
+final class ListShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "List 分组列表"
+        addVersionBadge(componentName: "List", version: "v1.0", builtAt: "")
+
+        addInfo("4 组排查：① 基础行 ② 带值行 ③ 可点击行 ④ 多分组。双端 1:1 对齐。")
+
+        // ── Demo 1：基础列表行（仅标题）──
+        addSection(title: "Demo 1 · 基础列表行") { container in
+            let group = GroupList()
+            let items = [
+                self.makeItem(title: "设置", value: nil, showsChevron: false),
+                self.makeItem(title: "通用", value: nil, showsChevron: false),
+                self.makeItem(title: "关于", value: nil, showsChevron: false),
+            ]
+            group.setRows(items)
+            container.addSubview(group)
+            group.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("仅标题，无右侧值/箭头。")
+
+        // ── Demo 2：带值列表行 ──
+        addSection(title: "Demo 2 · 带值列表行") { container in
+            let group = GroupList()
+            let items = [
+                self.makeItem(title: "版本", value: "v1.3.5", showsChevron: false),
+                self.makeItem(title: "设备", value: "iPhone 15 Pro", showsChevron: false),
+                self.makeItem(title: "存储", value: "128 GB", showsChevron: false),
+            ]
+            group.setRows(items)
+            container.addSubview(group)
+            group.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("标题 + 右侧值（textSecondary, sizeSm）。")
+
+        // ── Demo 3：可点击列表行（带箭头）──
+        addSection(title: "Demo 3 · 可点击列表行") { container in
+            let group = GroupList()
+            let items = [
+                self.makeItem(title: "账号管理", value: "已绑定", showsChevron: true),
+                self.makeItem(title: "消息通知", value: "已开启", showsChevron: true),
+                self.makeItem(title: "隐私设置", value: nil, showsChevron: true),
+            ]
+            group.setRows(items)
+            container.addSubview(group)
+            group.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("标题 + 值 + 右箭头（chevron.right, textSecondary）。")
+
+        // ── Demo 4：多分组列表 ──
+        addSection(title: "Demo 4 · 多分组列表") { container in
+            let col = UIStackView()
+            col.axis = .vertical
+            col.spacing = AppSpace.lg
+
+            let group1 = GroupList()
+            group1.setRows([
+                self.makeItem(title: "个人资料", value: "已完善", showsChevron: true),
+                self.makeItem(title: "账号安全", value: nil, showsChevron: true),
+            ])
+            col.addArrangedSubview(group1)
+
+            let group2 = GroupList()
+            group2.setRows([
+                self.makeItem(title: "清除缓存", value: "23.5 MB", showsChevron: true),
+                self.makeItem(title: "检查更新", value: "最新版", showsChevron: true),
+                self.makeItem(title: "退出登录", value: nil, showsChevron: true),
+            ])
+            col.addArrangedSubview(group2)
+
+            container.addSubview(col)
+            col.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("两个独立分组，间距 AppSpace.lg，模拟设置页。")
+    }
+
+    private func makeItem(title: String, value: String?, showsChevron: Bool) -> GroupListItem {
+        let item = GroupListItem()
+        item.apply(title: title, value: value, showsChevron: showsChevron)
+        return item
     }
 }

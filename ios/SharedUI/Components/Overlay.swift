@@ -202,7 +202,7 @@ final class Overlay: UIView {
         didSet { applyVisibility(old: oldValue, new: visible) }
     }
 
-    var maskColor: OverlayMaskColor = .default { didSet { maskView.backgroundColor = maskColor.resolved } }
+    var maskColor: OverlayMaskColor = .default { didSet { overlayMaskView.backgroundColor = maskColor.resolved } }
 
     var closeOnMaskClick: Bool = true
 
@@ -211,7 +211,7 @@ final class Overlay: UIView {
         didSet {
             // 穿透=关闭 userInteraction；默认关闭=开启。
             self.isUserInteractionEnabled = !clickThrough
-            maskView.isUserInteractionEnabled = !clickThrough
+            overlayMaskView.isUserInteractionEnabled = !clickThrough
         }
     }
 
@@ -252,7 +252,7 @@ final class Overlay: UIView {
 
     // MARK: 内部子视图
 
-    private let maskView = UIView()           // 全屏遮罩（拦截点击 + 视觉背景）
+    private let overlayMaskView = UIView()           // 全屏遮罩（拦截点击 + 视觉背景；注意：⚠️ 变量名绝对不能叫 overlayMaskView——UIKit UIView 自带 `var overlayMaskView: UIView?` 内置属性，同名会触发 override mutable property + 访问级别 + 协变 三重编译错误，以上8报错前2项即由此而来）
     private let contentContainer = UIView()   // 插槽容器（9 点布局 + 圆角掩膜）
     private var isCurrentlyMounted: Bool = false
     private var tapRecognizer: UITapGestureRecognizer?
@@ -284,8 +284,7 @@ final class Overlay: UIView {
         self.contentBuilder = content
         self.onClose = onClose
         self.onMaskClick = onMaskClick
-        super.init(frame: .zero)
-        commonInit()
+        self.init(frame: .zero)
     }
 
     override init(frame: CGRect) {
@@ -299,15 +298,15 @@ final class Overlay: UIView {
     }
 
     private func commonInit() {
-        // 根视图：透明；只做容器（拦截通过 maskView）。
+        // 根视图：透明；只做容器（拦截通过 overlayMaskView）。
         self.backgroundColor = .clear
         self.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 
-        // maskView：全屏、拦截点击（clickThrough=false 时）
-        maskView.backgroundColor = maskColor.resolved
-        maskView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        maskView.isUserInteractionEnabled = !clickThrough
-        addSubview(maskView)
+        // overlayMaskView：全屏、拦截点击（clickThrough=false 时）
+        overlayMaskView.backgroundColor = maskColor.resolved
+        overlayMaskView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlayMaskView.isUserInteractionEnabled = !clickThrough
+        addSubview(overlayMaskView)
 
         // contentContainer：根据内容自适应尺寸，由布局阶段 9 点锚 + offset 定位
         contentContainer.translatesAutoresizingMaskIntoConstraints = false
@@ -342,7 +341,7 @@ final class Overlay: UIView {
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleMaskTap(_:)))
         tap.cancelsTouchesInView = false
         tap.delegate = self
-        maskView.addGestureRecognizer(tap)
+        overlayMaskView.addGestureRecognizer(tap)
         self.tapRecognizer = tap
 
         // 按下态：0.08s 短按模拟 press feedback（闪 alpha）。
@@ -350,7 +349,7 @@ final class Overlay: UIView {
         press.minimumPressDuration = 0.0
         press.cancelsTouchesInView = false
         press.delegate = self
-        maskView.addGestureRecognizer(press)
+        overlayMaskView.addGestureRecognizer(press)
         self.pressRecognizer = press
     }
 
@@ -372,7 +371,7 @@ final class Overlay: UIView {
             ? OverlayMaskColor.FEEDBACK_TAP_ALPHA
             : 1.0
         UIView.animate(withDuration: Self.FEEDBACK_DURATION, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction]) {
-            self.maskView.alpha = targetAlpha
+            self.overlayMaskView.alpha = targetAlpha
         }
     }
 
@@ -389,7 +388,7 @@ final class Overlay: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        maskView.frame = bounds
+        overlayMaskView.frame = bounds
         // 让 contentContainer 根据内置子视图算出 intrinsic size
         let fittingSize = contentContainer.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
         let (ax, ay) = contentPosition.anchor
@@ -416,7 +415,7 @@ final class Overlay: UIView {
         self.alpha = animated ? 0 : 1
         self.frame = window.bounds
         window.addSubview(self)
-        maskView.alpha = 1
+        overlayMaskView.alpha = 1
         isCurrentlyMounted = true
         setNeedsLayout()
         if animated {
@@ -469,17 +468,17 @@ final class Overlay: UIView {
     }
 }
 
-// MARK: - UIGestureRecognizerDelegate：点击 maskView 非 content 区域才触发手势（点击 content 上透传给内部控件）
+// MARK: - UIGestureRecognizerDelegate：点击 overlayMaskView 非 content 区域才触发手势（点击 content 上透传给内部控件）
 
 extension Overlay: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        let p = touch.location(in: maskView)
+        let p = touch.location(in: overlayMaskView)
         // 若点到 contentContainer（或其子视图），手势不拦截 → 事件进入内容控件（按钮等正常响应）
         let contentPoint = touch.location(in: contentContainer)
         if contentContainer.point(inside: contentPoint, with: nil) {
             return false
         }
-        return maskView.point(inside: p, with: nil)
+        return overlayMaskView.point(inside: p, with: nil)
     }
 
     func gestureRecognizer(_: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith _: UIGestureRecognizer) -> Bool {
@@ -491,13 +490,13 @@ extension Overlay: UIGestureRecognizerDelegate {
 // MARK: - UIColor 十六进制解析（复用 Image/ConfigProvider 同款，保持组件间零依赖）
 
 private extension UIColor {
-    convenience init?(hexString: String) {
-        let hex = hexString.trimmingCharacters(in: .whitespacesAndNewlines)
+    convenience init?(overlayHexString hex: String) {
+        let cleaned = hex.trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: "#", with: "")
-        let scanner = Scanner(string: hex)
+        let scanner = Scanner(string: cleaned)
         var value: UInt64 = 0
         guard scanner.scanHexInt64(&value) else { return nil }
-        switch hex.count {
+        switch cleaned.count {
         case 6:
             self.init(
                 red: CGFloat((value & 0xFF0000) >> 16) / 255.0,
@@ -516,7 +515,7 @@ private extension UIColor {
             let r = (value & 0xF00) >> 8
             let g = (value & 0x0F0) >> 4
             let b = value & 0x00F
-            let exp = { CGFloat($0 * 17) / 255.0 }
+            let exp: (UInt64) -> CGFloat = { CGFloat($0 * 17) / 255.0 }
             self.init(red: exp(r), green: exp(g), blue: exp(b), alpha: 1.0)
         default:
             return nil

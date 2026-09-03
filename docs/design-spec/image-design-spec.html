@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image 图片 · 设计规格（门禁 A 评审产物）</title>
+<style>
+  :root {
+    --primary: #16A34A; --primary-pressed: #15803D; --primary-muted: #DCFCE7;
+    --text-primary: #111827; --text-secondary: #6B7280; --text-inverse: #FFFFFF;
+    --border: #E5E7EB; --bg-page: #F9FAFB; --bg-card: #FFFFFF;
+    --error: #DC2626; --warning: #F59E0B; --success: #16A34A;
+    --gray-25: #8C8C8C; --gray-15: #BFBFBF; --gray-6: #E5E5E5; --gray-4: #F5F5F5;
+    --fs-xs: 12px; --fs-sm: 14px; --fs-md: 16px; --fs-lg: 18px; --fs-xl: 22px;
+    --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px;
+    --sp-xs: 4px; --sp-sm: 8px; --sp-md: 12px; --sp-lg: 16px; --sp-xl: 24px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg-page); color: var(--text-primary); line-height: 1.6; padding: 32px 16px 80px;
+  }
+  .page { max-width: 960px; margin: 0 auto; }
+  .header { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 20px; }
+  .header .row { display: flex; align-items: center; gap: var(--sp-sm); flex-wrap: wrap; }
+  .header h1 { font-size: 26px; font-weight: 600; letter-spacing: .2px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: var(--fs-xs); font-weight: 500; }
+  .badge.cat { background: var(--primary-muted); color: var(--primary-pressed); }
+  .badge.stage { background: #FEF3C7; color: #92400E; }
+  .badge.id { background: var(--gray-4); color: var(--text-secondary); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .header .sub { margin-top: 10px; color: var(--text-secondary); font-size: var(--fs-sm); }
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--sp-sm); margin-top: 16px; }
+  .meta { background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; }
+  .meta .k { font-size: var(--fs-xs); color: var(--text-secondary); }
+  .meta .v { font-size: var(--fs-sm); font-weight: 500; }
+  .sec { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 20px; }
+  .sec h2 { font-size: var(--fs-lg); margin-bottom: 6px; display: flex; align-items: center; gap: var(--sp-sm); }
+  .sec h2 .no { color: var(--primary); font-family: ui-monospace, monospace; }
+  .sec .lead { color: var(--text-secondary); font-size: var(--fs-sm); margin-bottom: 16px; }
+  /* demo area */
+  .demo { border: 1px dashed var(--gray-15); border-radius: var(--radius-md); background: var(--bg-page); padding: 24px; }
+  .demo-label { font-size: var(--fs-xs); color: var(--text-secondary); margin-bottom: var(--sp-md); font-weight: 500; }
+  .demo-row { display: flex; gap: var(--sp-lg); flex-wrap: wrap; align-items: flex-end; }
+  .img-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--sp-md); text-align: center; }
+  .img-box .cap { font-size: var(--fs-xs); color: var(--text-secondary); margin-top: var(--sp-sm); }
+  .img-box .tag { font-family: ui-monospace, monospace; font-size: 11px; color: var(--primary-pressed); }
+  /* fake photo via gradient (stands for source image, e.g. 风景照) */
+  .photo {
+    position: relative; width: 180px; height: 120px; margin: 0 auto;
+    background:
+      radial-gradient(circle at 78% 24%, #FDE68A 0 16px, transparent 17px),
+      linear-gradient(180deg, #93C5FD 0 46%, #34D399 46% 62%, #FBBF24 62% 100%);
+  }
+  .photo::after { content: ''; position: absolute; left: 0; bottom: 8px; width: 0; height: 0; border-left: 40px solid transparent; border-right: 26px solid transparent; border-bottom: 34px solid #16A34A; }
+  .fit-demo { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--sp-md); margin-top: var(--sp-sm); }
+  .fit-cell { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-card); overflow: hidden; }
+  .fit-cell .f-name { padding: 4px 10px; font-size: var(--fs-xs); font-weight: 500; color: var(--text-secondary); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+  .fit-cell .f-name b { color: var(--text-primary); font-family: ui-monospace, monospace; font-weight: 600; }
+  .fit-view { width: 100%; height: 110px; }
+  .img-photo { width: 100%; height: 100%; object-fit: contain; }
+  /* dimension callout */
+  .dims { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--sp-sm); margin-top: var(--sp-lg); }
+  .dim { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; }
+  .dim .d-label { font-size: var(--fs-xs); color: var(--text-secondary); }
+  .dim .d-val { font-size: var(--fs-sm); font-weight: 600; color: var(--primary-pressed); font-family: ui-monospace, monospace; }
+  /* five states */
+  .states { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--sp-md); }
+  .state { border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; background: var(--bg-card); }
+  .state .s-head { padding: 6px 12px; font-size: var(--fs-xs); font-weight: 500; border-bottom: 1px solid var(--border); }
+  .state .s-body { padding: 12px; display: flex; justify-content: center; }
+  .state.default .s-head { background: var(--bg-page); }
+  .state.disabled .s-head { background: var(--gray-4); color: var(--text-secondary); }
+  .state.loading .s-head { background: #EFF6FF; color: #1D4ED8; }
+  .state.success .s-head { background: var(--primary-muted); color: var(--primary-pressed); }
+  .state.error .s-head { background: #FEE2E2; color: #B91C1C; }
+  .ph { width: 96px; height: 72px; border-radius: var(--radius-sm); overflow: hidden; position: relative; }
+  .ph .thumb { width: 100%; height: 100%; object-fit: cover; }
+  .ph-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 6px; background: var(--gray-4); color: var(--gray-25); }
+  .ph-loading { background: var(--gray-6); }
+  .ph-loading::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent); animation: shimmer 1.1s infinite; }
+  @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+  .spinner { width: 14px; height: 14px; border: 2px solid var(--gray-15); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ph-error { color: var(--gray-25); }
+  .ph-error .big { font-size: 18px; font-weight: 700; color: var(--gray-15); }
+  .na { color: var(--text-secondary); font-size: var(--fs-sm); padding: 8px 4px; text-align: center; }
+  .check { color: var(--primary); font-weight: 700; }
+  .warn { color: var(--error); font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--bg-page); font-weight: 500; color: var(--text-secondary); }
+  code { background: var(--gray-4); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  .note { background: #FFF7ED; border: 1px solid #FDBA74; border-radius: var(--radius-sm); padding: 12px 16px; font-size: var(--fs-sm); margin-top: var(--sp-lg); }
+  .note.blue { background: #EFF6FF; border-color: #93C5FD; }
+  .note.red { background: #FEF2F2; border-color: #FCA5A5; }
+  .checklist { margin-top: 16px; }
+  .checklist li { list-style: none; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 8px; font-size: var(--fs-sm); display: flex; gap: 10px; align-items: baseline; }
+  .checklist li .box { flex: none; width: 16px; height: 16px; border: 1.5px solid var(--gray-15); border-radius: 4px; transform: translateY(3px); }
+  .footer { text-align: center; color: var(--text-secondary); font-size: var(--fs-xs); margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ Header ============ -->
+  <div class="header">
+    <div class="row">
+      <h1>Image 图片</h1>
+      <span class="badge cat">基础组件</span>
+      <span class="badge id">ui.image</span>
+      <span class="badge stage">设计评审 · 门禁 A</span>
+    </div>
+    <div class="sub">增强版图片容器：填充模式（fit）、对齐位置（position）、加载中 / 失败占位、圆角裁剪、点击与加载事件。对标 NutUI React Image。</div>
+    <div class="meta-grid">
+      <div class="meta"><div class="k">推进顺序</div><div class="v">基础组件 #5（参考源列表顺序）</div></div>
+      <div class="meta"><div class="k">组件库版本基线</div><div class="v">v1.2.1（2026-09-03）</div></div>
+      <div class="meta"><div class="k">双端</div><div class="v">iOS + Android（全新实现）</div></div>
+      <div class="meta"><div class="k">复用</div><div class="v">双端均无近似实现（分类表 #5「双端均未实现」）</div></div>
+    </div>
+  </div>
+
+  <!-- ============ 01 用途 ============ -->
+  <div class="sec">
+    <h2><span class="no">01</span> 组件用途与能力范围</h2>
+    <div class="lead">一句话：以统一 API 渲染图片内容（本地资源 / 平台图像对象），提供对象填充模式、占位与事件，替代裸 <code>UIImageView</code> / Compose <code>Image</code> 的重复样板。</div>
+    <table>
+      <tr><th style="width:140px">能力（对齐 NutUI）</th><th>说明</th><th style="width:90px">本期范围</th></tr>
+      <tr><td><code>src</code> 图片来源</td><td>本地资源名 / 平台图像对象（iOS <code>UIImage</code>、Android <code>ImageBitmap|Painter|@DrawableRes</code>）；网络 URL 加载为独立决策点（见 08）</td><td>✅ 本地</td></tr>
+      <tr><td><code>fit</code> 填充模式</td><td><code>fill</code> 拉伸铺满 / <code>contain</code> 完整显示 / <code>cover</code> 等比裁剪铺满 / <code>none</code> 原始尺寸 / <code>scale-down</code> 不放大缩小</td><td>✅ 全 5 值</td></tr>
+      <tr><td><code>position</code> 对齐</td><td><code>center|top|right|bottom|left</code>（配合 contain/none 时的内容停靠）</td><td>✅ 全 5 值</td></tr>
+      <tr><td><code>width / height</code></td><td>显式布局尺寸（逻辑 pt/dp）；不传则撑满父容器</td><td>✅</td></tr>
+      <tr><td><code>radius</code> 圆角</td><td>默认 0（直角）；可引 token 档位（6/10/14）或传任意数值；<code>radius = 宽/2</code> 即圆形（头像场景）</td><td>✅</td></tr>
+      <tr><td><code>alt</code></td><td>无障碍描述 → iOS <code>accessibilityLabel</code> / Android <code>contentDescription</code></td><td>✅</td></tr>
+      <tr><td><code>loading</code> 占位</td><td>加载期间占位：默认样式（灰底 + 呼吸扫描 + 转圈）；可传自定义占位内容</td><td>✅</td></tr>
+      <tr><td><code>error</code> 占位</td><td>加载失败占位：默认样式（灰底 + 破图图标 + 「加载失败」）；可传自定义占位内容；可选失败重试（点击）</td><td>✅</td></tr>
+      <tr><td><code>lazy</code> 懒加载</td><td>滚动进入可视区才加载</td><td>⏭ 一期 N/A（依赖滚动容器，双端需自实现可视区检测，见 08）</td></tr>
+      <tr><td>事件</td><td><code>onTap</code> 点击 / <code>onLoad</code> 加载完成 / <code>onError</code> 加载失败</td><td>✅</td></tr>
+      <tr><td>图片预览（放大查看）</td><td>NutUI 由独立 <code>ImagePreview</code> 组件（本库 #68）提供，Image 不内置</td><td>⏭ 不越界</td></tr>
+    </table>
+    <div class="note blue"><b>定位边界：</b>本组件是「<b>显示容器</b>」，不做图片裁剪/编辑/上传；网络加载、缓存策略是基础设施能力，与本组件解耦（见 08 决策点）。</div>
+  </div>
+
+  <!-- ============ 02 五态 ============ -->
+  <div class="sec">
+    <h2><span class="no">02</span> 五态定义</h2>
+    <div class="lead">有视觉组件五态对齐：默认 / 禁用 / 加载 / 成功 / 失败。图片的「成功态」即加载完成后的正常渲染（与默认态视觉一致，区别在生命周期）。</div>
+    <div class="states">
+      <div class="state default">
+        <div class="s-head">默认 Default</div>
+        <div class="s-body"><div class="ph"><img class="thumb" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='192' height='144' viewBox='0 0 192 144'><rect width='192' height='144' fill='%2393C5FD'/><circle cx='150' cy='36' r='16' fill='%23FDE68A'/><path d='M0 144 L64 84 L104 120 L140 96 L192 144 Z' fill='%2334D399'/></svg>" alt="示例图"></div></div>
+      </div>
+      <div class="state disabled">
+        <div class="s-head">禁用 Disabled</div>
+        <div class="s-body"><div class="na">N/A —— 图片无「禁用」语义；需要置灰/不可点时由外层容器控制（组件不产禁用手势态）</div></div>
+      </div>
+      <div class="state loading">
+        <div class="s-head">加载中 Loading</div>
+        <div class="s-body"><div class="ph ph-loading"><div class="ph-placeholder"><div class="spinner"></div></div></div></div>
+      </div>
+      <div class="state success">
+        <div class="s-head">成功（加载完成）Success</div>
+        <div class="s-body"><div class="ph"><img class="thumb" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='192' height='144' viewBox='0 0 192 144'><rect width='192' height='144' fill='%2393C5FD'/><circle cx='150' cy='36' r='16' fill='%23FDE68A'/><path d='M0 144 L64 84 L104 120 L140 96 L192 144 Z' fill='%2334D399'/></svg>" alt="示例图"></div><div class="cap" style="font-size:11px">= 加载成功即正常渲染（onLoad 触发），视觉同默认</div></div>
+      </div>
+      <div class="state error">
+        <div class="s-head">失败（加载失败）Error</div>
+        <div class="s-body"><div class="ph"><div class="ph-placeholder ph-error"><div class="big">✕</div><span style="font-size:11px">加载失败</span></div></div></div>
+      </div>
+    </div>
+    <div class="note"><b>占位语义：</b>默认占位使用 <code>bgCard</code> 底 + <code>gray.*</code> 图形 + 说明文字（字号引用 <code>font.sizeSm</code> 14），不依赖未完成的 Icon/Loading 组件（组件库 #4/#50），零 deps；Icon/Loading 组件落地后可替换默认占位为组件化实现（向后兼容，非 breaking）。</div>
+  </div>
+
+  <!-- ============ 03 尺寸规格 ============ -->
+  <div class="sec">
+    <h2><span class="no">03</span> 尺寸规格（token 引用）</h2>
+    <div class="lead">布局尺寸（宽/高）由业务决定（头像 40、缩略图 80、banner 320…）；组件自身装饰性尺寸全部引用 design-token。</div>
+    <div class="demo">
+      <div class="demo-label">示例：120×90 缩略图（radius=md）＋圆角头像（宽 48 = radius 24 圆形）＋带边框封面</div>
+      <div class="demo-row">
+        <div class="img-box">
+          <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='192' height='144' viewBox='0 0 192 144'><rect width='192' height='144' fill='%2393C5FD'/><circle cx='150' cy='36' r='16' fill='%23FDE68A'/><path d='M0 144 L64 84 L104 120 L140 96 L192 144 Z' fill='%2334D399'/></svg>" alt="" style="width:120px;height:90px;border-radius:10px;object-fit:cover;display:block">
+          <div class="cap">120×90 · radius=md(10)</div>
+          <div class="tag">&lt;Image src=… width=120 height=90 radius=md fit=cover /&gt;</div>
+        </div>
+        <div class="img-box">
+          <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='192' height='144' viewBox='0 0 192 144'><rect width='192' height='144' fill='%2393C5FD'/><circle cx='150' cy='36' r='16' fill='%23FDE68A'/><path d='M0 144 L64 84 L104 120 L140 96 L192 144 Z' fill='%2334D399'/></svg>" alt="" style="width:48px;height:48px;border-radius:50%;object-fit:cover;display:block">
+          <div class="cap">48×48 圆形头像</div>
+          <div class="tag">&lt;Image width=48 height=48 radius=24 /&gt;</div>
+        </div>
+        <div class="img-box">
+          <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='192' height='144' viewBox='0 0 192 144'><rect width='192' height='144' fill='%2393C5FD'/><circle cx='150' cy='36' r='16' fill='%23FDE68A'/><path d='M0 144 L64 84 L104 120 L140 96 L192 144 Z' fill='%2334D399'/></svg>" alt="" style="width:180px;height:96px;object-fit:contain;display:block;border:1px solid #E5E7EB">
+          <div class="cap">180×96 · fit=contain（原图等比留白）</div>
+        </div>
+      </div>
+      <div class="dims">
+        <div class="dim"><div class="d-label">圆角档位（radius.*）</div><div class="d-val">sm 6 / md 10 / lg 14</div></div>
+        <div class="dim"><div class="d-label">占位说明字号</div><div class="d-val">font.sizeSm = 14</div></div>
+        <div class="dim"><div class="d-label">占位底色 / 图形</div><div class="d-val">bgCard / gray.6 · gray.15 · gray.25</div></div>
+        <div class="dim"><div class="d-label">间距（占位内部 gap）</div><div class="d-val">space.sm = 8</div></div>
+        <div class="dim"><div class="d-label">加载指示器</div><div class="d-val">ø 14（转圈，边框 gray.15+primary）</div></div>
+        <div class="dim"><div class="d-label">默认布局尺寸</div><div class="d-val">不传宽高 = 撑满父容器</div></div>
+      </div>
+    </div>
+    <div class="note"><b>零硬编码：</b>radius 档位/占位颜色/字号/间距全部引用 design-token.json（双端 AppTokens 同源）；宽高是调用方业务值，不属于组件默认 token。</div>
+  </div>
+
+  <!-- ============ 04 fit / position ============ -->
+  <div class="sec">
+    <h2><span class="no">04</span> 交互细节 · 填充模式与对齐</h2>
+    <div class="lead"><code>fit</code>（内容铺排）与 <code>position</code>（内容停靠）等同原生 <code>object-fit / object-position</code>，双端以系统能力直接映射（iOS <code>contentMode</code>、Android <code>ContentScale + alignment</code>），无自绘、无误差。</div>
+    <div class="fit-demo">
+      <div class="fit-cell"><div class="f-name">fill<b>拉伸铺满</b></div><img class="img-photo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='192' height='144' viewBox='0 0 192 144' preserveAspectRatio='none'><rect width='192' height='144' fill='%2393C5FD'/><circle cx='150' cy='36' r='16' fill='%23FDE68A'/><path d='M0 144 L64 84 L104 120 L140 96 L192 144 Z' fill='%2334D399'/></svg>" alt="" style="object-fit:fill"></div>
+      <div class="fit-cell"><div class="f-name">contain<b>完整显示</b></div><img class="img-photo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='192' height='144' viewBox='0 0 192 144' preserveAspectRatio='xMidYMid meet'><rect width='192' height='144' fill='%2393C5FD'/><circle cx='150' cy='36' r='16' fill='%23FDE68A'/><path d='M0 144 L64 84 L104 120 L140 96 L192 144 Z' fill='%2334D399'/></svg>" alt="" style="object-fit:contain"></div>
+      <div class="fit-cell"><div class="f-name">cover<b>等比裁剪</b></div><img class="img-photo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='192' height='144' viewBox='0 0 192 144' preserveAspectRatio='xMidYMid slice'><rect width='192' height='144' fill='%2393C5FD'/><circle cx='150' cy='36' r='16' fill='%23FDE68A'/><path d='M0 144 L64 84 L104 120 L140 96 L192 144 Z' fill='%2334D399'/></svg>" alt="" style="object-fit:cover"></div>
+      <div class="fit-cell"><div class="f-name">none<b>原始尺寸</b></div><div style="height:110px;display:flex;align-items:flex-start;justify-content:center;overflow:hidden"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='192' height='144' viewBox='0 0 192 144'><rect width='192' height='144' fill='%2393C5FD'/><circle cx='150' cy='36' r='16' fill='%23FDE68A'/><path d='M0 144 L64 84 L104 120 L140 96 L192 144 Z' fill='%2334D399'/></svg>" alt="" style="width:auto;height:auto;max-width:none"></div></div>
+      <div class="fit-cell"><div class="f-name">scale-down<b>取小</b></div><img class="img-photo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='192' height='144' viewBox='0 0 192 144' preserveAspectRatio='xMidYMid meet'><rect width='192' height='144' fill='%2393C5FD'/><circle cx='150' cy='36' r='16' fill='%23FDE68A'/><path d='M0 144 L64 84 L104 120 L140 96 L192 144 Z' fill='%2334D399'/></svg>" alt="" style="object-fit:scale-down;background:#fff"></div>
+    </div>
+    <div class="lead" style="margin-top:16px">position 停靠（fit=none / contain 且容器大于内容时生效；fit=fill/cover 时内容已铺满容器，position 无视觉影响）：</div>
+    <table>
+      <tr><th>position</th><th>行为</th><th>映射（双端）</th></tr>
+      <tr><td><code>center</code>（默认）</td><td>内容在容器内水平垂直居中，四周对称留白</td><td rowspan="5">iOS <code>contentMode = .center / .top / .right / .bottom / .left</code>；Android <code>ContentAlignment = Center / TopStart(或 TopCenter) / …</code>——position 全部为「单边或居中」停靠，无居中+单边组合，双端映射一一对应，见 <code>平台差异.md</code></td></tr>
+      <tr><td><code>top</code></td><td>顶对齐（水平居中）</td></tr>
+      <tr><td><code>bottom</code></td><td>底对齐（水平居中）</td></tr>
+      <tr><td><code>left</code></td><td>左对齐（垂直居中）</td></tr>
+      <tr><td><code>right</code></td><td>右对齐（垂直居中）</td></tr>
+    </table>
+    <div class="note"><b>交互细节：</b>① 点击：可选 <code>onTap</code> 回调（默认无点击态背景变化，避免「图片按钮」误判；需要按压反馈时由外层包 Button/手势层）；② 加载/失败不阻塞布局（容器尺寸始终为 width×height，占位在容器内层切换，不抖版）；③ 失败后再次设置 <code>src</code> 自动重新加载（重置 loading→success/error）；④ 无 hover 语义（触屏优先），iOS 3D Touch / Android 长按由外层手势层扩展。</div>
+  </div>
+
+  <!-- ============ 05 双端差异 ============ -->
+  <div class="sec">
+    <h2><span class="no">05</span> 双端差异</h2>
+    <table>
+      <tr><th>维度</th><th>iOS</th><th>Android</th></tr>
+      <tr><td>fit → contentMode / ContentScale</td><td><code>fill→.scaleToFill</code>、<code>contain→.scaleAspectFit</code>、<code>cover→.scaleAspectFill</code>、<code>none→.center</code>、<code>scale-down→.center（内容小于容器不放大，大于时降 contain）</code></td><td><code>fill→ContentScale.Fill</code>、<code>contain→Fit</code>、<code>cover→Crop</code>、<code>none→None</code>、<code>scale-down→FillWidth(小图) / Fit(大图)</code></td></tr>
+      <tr><td>圆角裁剪</td><td><code>layer.cornerRadius</code> + <code>masksToBounds=true</code></td><td><code>Modifier.clip(RoundedCornerShape / CircleShape)</code></td></tr>
+      <tr><td>src 资源定位</td><td>Asset Catalog 名（<code>UIImage(named:)</code>）/ <code>UIImage</code> 对象</td><td><code>@DrawableRes</code>（resId）/ <code>ImageBitmap</code> / <code>Painter</code></td></tr>
+      <tr><td>占位实现</td><td>容器内切换 UIView（无 lib 依赖）</td><td>Compose <code>when(状态)</code> 组合（无第三方加载库）</td></tr>
+      <tr><td>无障碍</td><td><code>accessibilityLabel = alt</code></td><td><code>contentDescription = alt</code></td></tr>
+      <tr><td>网络图 URL（决策点）</td><td>可选原生 URLSession+NSCache（零依赖）</td><td>引 Coil 或业务预下载（见 08）</td></tr>
+    </table>
+    <div class="note">登记到 <code>docs/平台差异.md</code>（门禁 A 清单要求）——设计通过后由实现阶段补写具体条目。</div>
+  </div>
+
+  <!-- ============ 06 组件关系 ============ -->
+  <div class="sec">
+    <h2><span class="no">06</span> 与现有组件关系</h2>
+    <table>
+      <tr><th>关系</th><th>组件</th><th>说明</th></tr>
+      <tr><td>deps（依赖）</td><td>—</td><td><code>deps=[]</code>：占位图/指示器内置绘制（Icon/Loading 组件 #4/#50 未完成，避免依赖阻塞）；网络加载与组件解耦</td></tr>
+      <tr><td>被依赖（消费方）</td><td>Cell（#2）、Avatar（#63）、Card（#85）、媒体列表等</td><td>Cell 的 icon/thumb 区、Avatar 头像、封面缩略图等以本组件渲染内容（本组件就绪前各近似实现仍可运行，向后兼容）</td></tr>
+      <tr><td>相邻（避免重复轮子）</td><td>ImagePreview 图片预览（#68）</td><td>预览（点击放大/相册）属 #68 范畴，本组件不内置（分类表已核对：预览未实现且独立编号，无重复）</td></tr>
+    </table>
+    <div class="note red"><b>防重复自查：</b>分类表 #5 Image 为「双端均未实现」唯一入口；业务侧零散 <code>UIImageView</code>/<code>Image()</code> 直接用法（NavBar 图标、SummaryCardView 封面等）属「裸用系统控件」，不构成组件，本组件统一收口能力而非覆盖现有调用。</div>
+  </div>
+
+  <!-- ============ 07 待决策点 ============ -->
+  <div class="sec">
+    <h2><span class="no">07</span> 待决策点（门禁 A 评审拍板，写进 API 契约/anti_goals）</h2>
+    <table>
+      <tr><th style="width:150px">决策点</th><th>选项</th><th>建议</th></tr>
+      <tr>
+        <td><b>P1 · 网络图 URL 加载</b></td>
+        <td>A. 一期支持（iOS 原生 URLSession+NSCache；Android 引 Coil）<br>B. 一期仅本地（URL 抛业务侧预下载后传图对象），二期双端统一加载方案<br>C. 一期 iOS 支持、Android N/A</td>
+        <td>建议 <b>B</b>：保持组件库零第三方依赖与双端一致；网络头像/封面属少数场景，业务侧（KeepAccounts 等）通常已有预取链路，传 <code>UIImage / ImageBitmap</code> 即可；B 也避免「Android 引 Coil、iOS 原生」的双端加载语义分裂（缓存/失败重试行为难对齐）</td>
+      </tr>
+      <tr>
+        <td><b>P2 · lazy 懒加载</b></td>
+        <td>A. 一期实现（双端滚动可视区检测）<br>B. 一期 N/A，标注缺口</td>
+        <td>建议 <b>B</b>：lazy 依赖宿主滚动容器（UICollectionView/RecyclerView 各自 prefetch 语义不同），双端自实现可视区检测成本高且易出滚动 bug；本地资源图无网络代价，lazy 收益集中在长列表网络图（P1=B 后自然 N/A）</td>
+      </tr>
+      <tr>
+        <td><b>P3 · 圆形快捷方式</b></td>
+        <td>A. 仅 <code>radius=数值</code>（宽/2 即圆形）<br>B. 额外 <code>radius="circle"</code> 快捷值</td>
+        <td>建议 <b>A</b>：抽象 props 少一个魔法值，圆形=radius=宽/2 语义直白；双端实现均免特判</td>
+      </tr>
+      <tr>
+        <td><b>P4 · 失败重试</b></td>
+        <td>A. 默认 error 占位可点击重试（内部自动重载）<br>B. 仅暴露 <code>onError</code>，重试由业务改 src 触发</td>
+        <td>建议 <b>B</b>：与 NutUI 对齐（无内置重试）；本地资源失败=代码错，重试无意义；URL 场景（P1=B）重试也归业务加载层</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ============ 08 token 引用 ============ -->
+  <div class="sec">
+    <h2><span class="no">08</span> Token 引用表</h2>
+    <table>
+      <tr><th>用途</th><th>token</th><th>值</th></tr>
+      <tr><td>圆角档位（radius 传入档位时）</td><td><code>radius.sm / md / lg</code></td><td>6 / 10 / 14</td></tr>
+      <tr><td>占位底（loading/error 底）</td><td><code>color.bgCard / gray.6</code></td><td>#FFFFFF / #E5E5E5</td></tr>
+      <tr><td>占位图形 / 破图色</td><td><code>gray.15 / gray.25</code></td><td>#BFBFBF / #8C8C8C</td></tr>
+      <tr><td>占位文案字号</td><td><code>font.sizeSm</code></td><td>14</td></tr>
+      <tr><td>占位内部间距</td><td><code>space.sm</code></td><td>8</td></tr>
+      <tr><td>加载指示器描边/主色</td><td><code>gray.15 / color.primary</code></td><td>#BFBFBF / #16A34A</td></tr>
+    </table>
+  </div>
+
+  <!-- ============ 门禁 A checklist ============ -->
+  <div class="sec">
+    <h2><span class="no">09</span> 门禁 A 自检清单</h2>
+    <ul class="checklist">
+      <li><span class="box"></span>规格模板七项齐全（用途/五态/尺寸/交互/差异/关系/参考图 —— 本页 01–08 节）</li>
+      <li><span class="box"></span>颜色/尺寸/圆角/字号全部引用 token（第 08 节，零硬编码；宽高为业务值）</li>
+      <li><span class="box"></span>五态逐项说明（02 节：禁用 N/A 有依据、成功=加载完成态说明）</li>
+      <li><span class="box"></span>交互细节完整（04 节：点击/占位不抖版/失败重载/hover N/A）</li>
+      <li><span class="box"></span>双端差异已说明（05 节，登记 <code>平台差异.md</code> 待实现阶段补条目）</li>
+      <li><span class="box"></span>与现有组件无重复（06 节：分类表 #5 唯一入口，预览归 #68）</li>
+      <li><span class="box"></span>设计参考图可查看（本 H5 页含 fit 五模式/五态/尺寸标注视觉渲染）</li>
+      <li><span class="box"></span>决策点 P1–P4 已给出建议与理由（07 节），待用户拍板写入契约</li>
+    </ul>
+  </div>
+
+  <div class="footer">Image 图片 · ui.image · 设计规格（门禁 A） · 组件库 v1.2.1 基线 · 2026-09-03</div>
+</div>
+</body>
+</html>

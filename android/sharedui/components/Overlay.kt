@@ -40,7 +40,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clip
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -56,6 +55,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
@@ -319,7 +319,10 @@ private fun OverlayContent(
                         )
                         // 注意：内容背景由业务插槽自身设置（Overlay 不默认给容器背景色，保持通用）。
                         // 此处仅负责裁切内容容器的外圆角（与 iOS clipsToBounds 等价）。
-                        .let { if (radiusDp > 0.dp) it.clip(shape) else it }
+                        // ⚠️ 永久钉死=**绝不使用 Modifier.clip(shape) 扩展函数**（用户 gradle 真 build 第 19/20 条实锤=2 次 Unresolved reference 'clip'：
+                        // 根因=clip() 扩展函数的包名随 Jetpack Compose 版本变动（早期在 foundation.shape、后改 foundation、1.x 又拆分）=**不是跨版本稳定 API**；
+                        // 所有 Compose 1.0+ 都稳定存在、跨版本通用的等价写法= Modifier.graphicsLayer(clip = true, shape = shape)，语义完全等价=按 shape 外圆角裁切。
+                        .let { if (radiusDp > 0.dp) it.graphicsLayer(clip = true, shape = shape) else it }
                         .semantics { testTag = "overlay-content" }
                         .testTag("overlay-content")
                 ) {

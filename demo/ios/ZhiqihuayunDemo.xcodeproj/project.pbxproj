@@ -11,6 +11,7 @@
 		0B22235F8B087F10A8C4A962 /* GroupListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1384B27B30CF0FE17962B66F /* GroupListItem.swift */; };
 		0E1F4539D228B41BF254E120 /* GroupList.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE2D8A38CDA5E1EA29759D3E /* GroupList.swift */; };
 		12A2A02B2B7C1DCC3F8762C4 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E36A0907C0CF11E9783D53FB /* AppButton.swift */; };
+		AA1B2C3D4E5F60718293A4B5 /* Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2C3D4E5F60718293A4B5C6 /* Image.swift */; };
 		13BCCC89E28C0FC6B2308C6C /* SummaryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD534E7B115B6495F8904031 /* SummaryCardView.swift */; };
 		1DF63FB00D4953BB012F270D /* NavigationGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34948E86D6FAAA1AA93C4FF /* NavigationGrid.swift */; };
 		1EB05D2B72FE2F73026A8AB6 /* TabsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F17F2603BDDFC72B15C7406 /* TabsView.swift */; };
@@ -83,6 +84,7 @@
 		DE2D8A38CDA5E1EA29759D3E /* GroupList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupList.swift; sourceTree = "<group>"; };
 		E2F3DA45E7694551DEEFA6F5 /* Cell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
 		E36A0907C0CF11E9783D53FB /* AppButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppButton.swift; sourceTree = "<group>"; };
+		BB2C3D4E5F60718293A4B5C6 /* Image.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Image.swift; sourceTree = "<group>"; };
 		EB34D2F889141B606A089B40 /* StatusBarNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarNavigationController.swift; sourceTree = "<group>"; };
 		F295938F4E6BAC2624AD41C9 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		F34F3AD98F674E7DA1E575E8 /* MockAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAPIClient.swift; sourceTree = "<group>"; };
@@ -127,6 +129,7 @@
 				F295938F4E6BAC2624AD41C9 /* EmptyStateView.swift */,
 				DE2D8A38CDA5E1EA29759D3E /* GroupList.swift */,
 				1384B27B30CF0FE17962B66F /* GroupListItem.swift */,
+				BB2C3D4E5F60718293A4B5C6 /* Image.swift */,
 				B9AB119D396F37F5DA978A57 /* ListCell.swift */,
 				5DA75DA8F7E29DEEA4C578E2 /* MonthPickerViewController.swift */,
 				8F3D282267864AB86708A7FC /* NavBar.swift */,
@@ -364,6 +367,7 @@
 			files = (
 				C8E94EEFB76666AB629B02A1 /* APIEndpoint.swift in Sources */,
 				12A2A02B2B7C1DCC3F8762C4 /* AppButton.swift in Sources */,
+				AA1B2C3D4E5F60718293A4B5 /* Image.swift in Sources */,
 				CF13E2F0EFAAC8CD1247A518 /* AppDatabase.swift in Sources */,
 				A574AF3025E01091510DBD32 /* AppDelegate.swift in Sources */,
 				CA6CC3DCFCE6E9CF4AAB72D5 /* AppIcon.swift in Sources */,

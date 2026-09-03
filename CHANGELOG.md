@@ -12,6 +12,22 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## \[1.1.8] - 2026-09-03
+
+Icon v1.0 iOS bugfix：SF Symbol 名错误 + Demo ② 间距 + .pbxproj 编译引用。
+
+### Fixed
+
+- **iOS AppIconName.smartphone SF Symbol 名修复**：`"smartphone"` 非系统 SF Symbol（`UIImage(systemName:)` 返回 nil）→ 改为 `"iphone.gen3"`（iOS 16+ 存在的手机造型符号，与 demo deploymentTarget iOS 16 一致）。修复 Demo ① 基础形态第 7 列、Demo ④ 全形态网格每行第 7 列（smartphone）图标空白。
+
+- **iOS IconShowcase Demo ② 尺寸因子间距对齐 Android**：UIStackView `spacing = AppSpace.xl`（24pt 固定）→ `distribution = .equalSpacing`；容器 leading/trailing inset `lg(16pt)` → `xl(24pt)`。Android 用 `Arrangement.SpaceEvenly`（子视图间 + 两端空白自动均分），`.equalSpacing` 是 UIStackView 对应语义近似。
+
+- **iOS Demo .pbxproj 手动补 AppIcon.swift 4 处编译引用**：PBXBuildFile / PBXFileReference / PBXGroup(Components) / PBXSourcesBuildPhase 四处。xcodegen 未安装，新建 AppIcon.swift 后 .pbxproj 未更新，导致 Xcode 编译期 6 处 `Cannot find 'AppIconName'/'AppIcon' in scope`。
+
+### Changed
+
+- **ui-version.json**：组件库版本 1.1.7 → 1.1.8（双端 iOS / Android 永远同版本，禁止手工改工程内版本）。
+
 ## \[1.1.7] - 2026-09-02
 
 Icon 组件 v1.0 新增：双端 AppIcon 代码落地 + API 契约完善 + 双端 Demo。
@@ -24,7 +40,7 @@ Icon 组件 v1.0 新增：双端 AppIcon 代码落地 + API 契约完善 + 双�
 
 - **Android AppIcon.kt 新增**：AppIconName 枚举 8 个图标（与 iOS 同名）映射 SfApproxIcons ImageVector；AppIcon Composable 封装 Image + ColorFilter.tint + ContentScale.Fit；`sfSymbolName()` 供跨端文档参考。
 
-- **api.json ui.icon 契约完善**：platforms.ios state unavailable→available；source_refs 双端（iOS AppIcon.swift + Android AppIcon.kt）；props 3 项（name/size/color）、demos 4 项（列表图标/主色加号/红色邮箱/全图标网格）、anti_goals 3 项（不做品牌图标/图标字体/动效图标）、visual_tokens 4 项、deps 引用 foundation.design-tokens、industry_names 新增 AppIcon。
+- **api.json ui.icon 契约完善**：platforms.ios state unavailable→available；source\_refs 双端（iOS AppIcon.swift + Android AppIcon.kt）；props 3 项（name/size/color）、demos 4 项（列表图标/主色加号/红色邮箱/全图标网格）、anti\_goals 3 项（不做品牌图标/图标字体/动效图标）、visual\_tokens 4 项、deps 引用 foundation.design-tokens、industry\_names 新增 AppIcon。
 
 - **iOS IconShowcase Demo**：4 组递增单因子排查（① 基础形态 8 图标默认尺寸 24pt → ② 尺寸因子 list × 16/24/32/48pt → ③ 着色因子 person × 4 色 → ④ 全形态网格 8 图标 × 3 色），版本徽标 Icon v1.0。
 
@@ -46,7 +62,7 @@ Button 组件 v1.0 新增：双端代码对齐 + API 契约 + 设计令牌 + 双
 
 - **Button 组件（ui.button）正式纳入组件库**：中台基础按钮，48pt 高、圆角 lg、三样式（primary/secondary/destructive），统一登录/注册/弹窗/表单等主操作按钮视觉（对标 NutUI Button / Ant Design Button）。
 
-- **api.json 新增 ui.button 契约**：props 7 项（text/onClick/style/fontSize/height/enabled/loading）、events 1 项（onClick）、demos 5 项（主操作/次要操作/破坏性操作/加载态/禁用态）、status=stable、anti_goals 3 项（不做图标按钮/FAB/按钮组）、source_refs 双端源码路径、visual_tokens 8 项；componentCount 27→28。
+- **api.json 新增 ui.button 契约**：props 7 项（text/onClick/style/fontSize/height/enabled/loading）、events 1 项（onClick）、demos 5 项（主操作/次要操作/破坏性操作/加载态/禁用态）、status=stable、anti\_goals 3 项（不做图标按钮/FAB/按钮组）、source\_refs 双端源码路径、visual\_tokens 8 项；componentCount 27→28。
 
 - **design-token.json 新增 buttonDisabled**：`#9CA3AF`（灰阶 400 区间，介于 gray15 `#BFBFBF` 与 gray25 `#8C8C8C` 之间），用于按钮禁用/加载态填充色，与 AppTokens.swift / AppTokens.kt 已有定义对齐。
 

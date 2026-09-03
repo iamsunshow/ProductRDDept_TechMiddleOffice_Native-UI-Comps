@@ -1,6 +1,6 @@
 {
-  "version": "1.1.7",
-  "versionKey": "v1.1.7",
-  "releaseDate": "2026-09-02",
-  "changelog": "feat(ui.icon): Icon 组件 v1.0 新增——双端 AppIcon 代码落地（iOS AppIcon.swift 封装 SF Symbols 工厂方法 make(name/size/color) + setColor；Android AppIcon.kt 封装 SfApproxIcons 矢量映射 + ColorFilter.tint + ContentScale.Fit）+ api.json ui.icon 契约完善（platforms.ios state unavailable→available；props 3 / demos 4 / anti_goals 3 / source_refs 双端 / status=stable）+ iOS IconShowcase / Android IconDemo 双端 4 组递增排查 Demo（①基础形态 8 图标→②尺寸因子 list×4 尺寸→③着色因子 person×4 色→④全形态网格 8×3）+ reviewed=true。ui-version 双端同升 1.1.7，Demo 徽标 Icon v1.0。"
+  "version": "1.1.8",
+  "versionKey": "v1.1.8",
+  "releaseDate": "2026-09-03",
+  "changelog": "fix(ui.icon): Icon v1.0 双端 bugfix——① iOS smartphone 映射 SF Symbol 名不存在（smartphone 非系统 SF Symbol）→ 改 iphone.gen3（iOS 16+ 存在，与部署目标一致），Demo ①/④ 第 7 列手机图标空白修复；② iOS Demo ② 尺寸因子 UIStackView 固定 spacing=xl → distribution=equalSpacing + inset lg→xl，对齐 Android Arrangement.SpaceEvenly 均分算法；③ iOS Demo .pbxproj 手动补 AppIcon.swift 4 处编译引用（xcodegen 未安装导致新建文件不入编译），6 处 scope 编译错误修复。ui-version 双端同升 1.1.8。"
 }

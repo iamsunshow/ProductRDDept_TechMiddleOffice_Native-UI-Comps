@@ -12,6 +12,22 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## \[1.1.10] - 2026-09-03
+
+iOS SF Symbol 强制单色渲染（iphone.gen3 内部颜色 → 纯白轮廓）。
+
+### Fixed
+
+- **iOS AppIcon SF Symbol monochrome**：`UIImage(systemName:)` 加 `UIImage.SymbolConfiguration.preferringMonochrome()` 配置。`iphone.gen3` 等多色符号默认保留内部屏幕渐变/Home Indicator 细节，`tintColor` 对其无效，导致 Demo ① 基础形态第 7 列、Demo ④ 全形态网格每行第 7 列（smartphone / 手机图标）iOS 有内部颜色 vs Android 完全由 ColorFilter.tint 控制为纯白。改用 monochrome 配置后 8 图标全部为单色轮廓，仅受 tintColor 着色，与 Android SfApproxIcons 矢量着色语义对齐。
+
+### Changed
+
+- **iOS IconShowcase 版本徽标**：`addVersionBadge(version: "v1.1")` → `version: "v1.2"`，`builtAt` → 2026-09-03 08:30:00。
+
+- **Android IconDemo 版本徽标**：`text = "Icon 组件 v1.1"` → `"Icon 组件 v1.2"`。
+
+- **ui-version.json**：组件库版本 1.1.9 → 1.1.10。
+
 ## \[1.1.9] - 2026-09-03
 
 Icon Demo 双端徽标版本同步 v1.0→v1.1（组件级版本必升）。
@@ -19,7 +35,9 @@ Icon Demo 双端徽标版本同步 v1.0→v1.1（组件级版本必升）。
 ### Changed
 
 - **iOS IconShowcase 版本徽标**：`addVersionBadge(version: "v1.0")` → `version: "v1.1"`，`builtAt` 2026-09-02 → 2026-09-03 08:00:00。
+
 - **Android IconDemo 版本徽标**：`text = "Icon 组件 v1.0"` → `"Icon 组件 v1.1"`。
+
 - **ui-version.json**：组件库版本 1.1.8 → 1.1.9（demo 代码改动同样触发版本递增，见治理规范 §6.5）。
 
 ## \[1.1.8] - 2026-09-03
@@ -29,7 +47,9 @@ Icon v1.0 iOS bugfix：SF Symbol 名错误 + Demo ② 间距 + .pbxproj 编译�
 ### Fixed
 
 - **iOS AppIconName.smartphone SF Symbol 名修复**：`"smartphone"` 非系统 SF Symbol（`UIImage(systemName:)` 返回 nil）→ 改为 `"iphone.gen3"`（iOS 16+ 存在的手机造型符号，与 demo deploymentTarget iOS 16 一致）。修复 Demo ① 基础形态第 7 列、Demo ④ 全形态网格每行第 7 列（smartphone）图标空白。
+
 - **iOS IconShowcase Demo ② 尺寸因子间距对齐 Android**：UIStackView `spacing = AppSpace.xl`（24pt 固定）→ `distribution = .equalSpacing`；容器 leading/trailing inset `lg(16pt)` → `xl(24pt)`。Android 用 `Arrangement.SpaceEvenly`（子视图间 + 两端空白自动均分），`.equalSpacing` 是 UIStackView 对应语义近似。
+
 - **iOS Demo .pbxproj 手动补 AppIcon.swift 4 处编译引用**：PBXBuildFile / PBXFileReference / PBXGroup(Components) / PBXSourcesBuildPhase 四处。xcodegen 未安装，新建 AppIcon.swift 后 .pbxproj 未更新，导致 Xcode 编译期 6 处 `Cannot find 'AppIconName'/'AppIcon' in scope`。
 
 ### Changed

@@ -74,7 +74,11 @@ final class AppIcon: UIImageView {
     ) -> AppIcon {
         let icon = AppIcon()
         icon.iconName = name
-        icon.image = UIImage(systemName: name.sfSymbol)
+        // 强制 SF Symbol 单色（monochrome）轮廓渲染，与 Android SfApproxIcons 矢量着色语义一致。
+        // 否则「iphone.gen3」等多色符号会保留内部屏幕渐变/Home Indicator 颜色，
+        // 忽略 tintColor，导致双端视觉不一致（iOS 有内色 vs Android 纯白/纯色）。
+        let config = UIImage.SymbolConfiguration.preferringMonochrome()
+        icon.image = UIImage(systemName: name.sfSymbol, withConfiguration: config)
         icon.tintColor = color
         icon.contentMode = .scaleAspectFit
         icon.translatesAutoresizingMaskIntoConstraints = false

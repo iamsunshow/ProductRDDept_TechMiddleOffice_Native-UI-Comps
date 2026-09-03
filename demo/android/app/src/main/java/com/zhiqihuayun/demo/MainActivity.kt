@@ -590,7 +590,7 @@ private fun IconDemo() {
                 .padding(horizontal = 10.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "Icon 组件 v1.1",
+                text = "Icon 组件 v1.2",
                 color = AppColor.primary,
                 fontSize = AppFont.sizeXs,
                 fontWeight = FontWeight.Medium,

@@ -42,6 +42,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.zhiqihuayun.foundation.design.AppColor
@@ -197,10 +199,12 @@ fun Cell(
                 }
                 if (status == CellStatus.Error) {
                     // 直接自绘 Composable，对齐 iOS SF Symbols `exclamationmark.circle.fill` = 圆!
+                    // 语义：contentDescription=“失败”，与 Success「成功」配对（D5 可读语义/a11y 对齐 iOS）。
                     ErrorCircleBadge(
                         modifier = Modifier
                             .size(AppSpace.xl)
-                            .testTag("cell-status"),
+                            .testTag("cell-status")
+                            .semantics { contentDescription = "失败" },
                     )
                 } else if (badgeIcon != null) {
                     Image(

@@ -12,6 +12,55 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## \[1.3.12] - 2026-09-03
+
+Image 图片 C2 CR/CI + D 发版（v1.3.3 → 发版 v1.3.12，三轮实机 11/11 收官）；api.json reviewed=true + platform partial→available。
+
+### Changed
+
+- **C2 CR/CI + D 发版通过（Image 图片）**：完成"设计→API→实现→Demo 实机三轮→C2→发版"全流程，阶段从 💻 C1.5 收官 → ✅ 已发版。
+- api.json `ui.image`：`reviewed=true`；双端 platform 从 `partial` → **`available`**（C2 验证）；ios note 重写（含 layoutSubviews cornerRadius v1.3.1 Bugfix）；android note 重写（含 density 单位域 v1.3.3 Bugfix + Robolectric 50/50）。
+- 组件库全局版本 1.3.11 → 1.3.12（PATCH，reviewed 发版）。
+- 双端 Image Demo 徽标 **v1.3.12**（C2 发版基线：三轮修复 v1.3.0 → v1.3.3 收敛，v1.3.12=发版版号）。
+
+### Tested（C2 CR/CI 验证清单）
+
+- C1 绿：Android ImageTest 20/20 + 质量脚本 4/4 + Robolectric 50/50；iOS ImageTests（SPM 构建正常后已通过）。
+- C1.5 实机三轮：v1.3.0(6 项)→v1.3.1(4 项)→v1.3.2(1 项)→v1.3.3 全修复，用户未再报问题，11/11 闭环（明细见验收文档 component-acceptance-image.md）。
+
+## \[1.3.11] - 2026-09-03
+
+ConfigProvider 全局配置 C2 CR/CI + D 发版（门禁 A/B/C1/C1.5 全过，双端 15/15+15/15 全绿 + 用户实机确认）；api.json reviewed=true。
+
+### Changed
+
+- **C2 CR/CI + D 发版通过（ConfigProvider）**：完成全流程，阶段从「门禁 C1/C1.5 全过待 C2/发版」 → ✅ 已发版。
+- api.json `ui.config-provider`：`reviewed=true`；双端 platform note 补「C2 CR/CI + D 发版通过（v1.3.11），双端 15/15+15/15 全绿 + 用户实机确认对照 D1/D6/D8」。
+- 组件库全局版本 1.3.10 → 1.3.11（PATCH，reviewed 发版）。
+- 双端 ConfigProvider Demo 徽标 **v1.3.11**（C2 发版基线 v1.2.1）。
+
+### Tested（C2 CR/CI 验证清单）
+
+- 门禁 A/B/C1 ✅（2026-09-03 用户确认）；门禁 C1 ✅（ConfigProviderTest 15/15 + iOS ConfigProviderTests 模拟器实跑 15/15 全绿，SPM 阻塞根治后首跑 v1.2.1 基线）。
+- 门禁 C1.5 ✅（用户实机确认 2026-09-03：前后对比/嵌套优先级/继承符合预期对照 D1/D6/D8）。
+
+## \[1.3.10] - 2026-09-03
+
+Cell 单元格 C2 CR/CI + D 发版（试点首组件：门禁 A/B/C1/C1.5 全过，双端 12/12 + iOS 模拟器 16/16 全绿）；api.json reviewed=true。
+
+### Changed
+
+- **C2 CR/CI + D 发版通过（Cell 单元格 · 试点首组件）**：完成设计→API→实现→Demo→C2→发版全流程，阶段从「已实现+测试通过待发版」 → ✅ 已发版。
+- api.json `ui.cell`：`reviewed=true`；双端 platform note 补「C2 CR/CI + D 发版通过（2026-09-03，v1.3.10），双端测试全绿 + ListCell.swift 近似迁移废弃」。
+- 组件库全局版本 1.3.9 → 1.3.10（PATCH，reviewed 发版）。
+- 双端 Cell Demo 徽标 **v1.3.10**（C2 发版基线 v1.2.1）。
+
+### Tested（C2 CR/CI 验证清单）
+
+- 门禁 A/B/C1 全部通过（2026-08-30 用户 0-4 项确认：目标/设计/API/测试用例/代码）。
+- 门禁 C1 ✅：Android Compose UI 测试 12/12（Robolectric） + 质量脚本 4/4；iOS CellTests **模拟器实跑 16/16 全绿**（SPM 构建阻塞根治后首跑，iPhone 14 模拟器，v1.2.1 基线）。
+- 门禁 C1.5 ✅：iOS CellShowcase + Android CellDemo 首页注册，用户实机查看确认；onLongPress 双端承诺差异已登记（平台差异.md）。
+
 ## \[1.3.9] - 2026-09-03
 
 LineChart v1.0 双端 reviewed：Android sharedui 新增 TrendChartView（Compose Canvas）+ Demo 4 组排查 + api.json reviewed=true。

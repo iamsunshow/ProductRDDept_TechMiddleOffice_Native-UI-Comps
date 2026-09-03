@@ -412,8 +412,9 @@ final class CellShowcase: ShowcaseViewController {
         title = "Cell 单元格"
 
         // 组件版本 + 构建时间戳（精确到秒）：用于核对实机运行的是否为最新代码。
-        // 每次改动 Cell 组件后，手动递增版本号并更新此时间，双端（iOS/Android）保持一致。
-        addVersionBadge(version: "v1.31", builtAt: "2026-09-02 07:40:00")
+        // 每次改动 Cell 组件 / 验证后手动递增版本号并更新此时间（§7h 强制），双端保持一致。
+        // C2→D 发版闭环 v1.3.10：iOS Simulator 16/16 实跑 + Android 12/12+脚本 4/4 全绿。
+        addVersionBadge(version: "v1.3.10", builtAt: "2026-09-03 23:58:00")
         // 固定高度参考块（B 方案）：56pt 色块（= 设计稿单行 cell），跨模拟器目测 cell 高度。须在徽标之后调用。
         addHeightReference()
         // 顶部常驻反馈条：点击/长按就地更新（对标 Android clickInfo，避免追加到底部不可见）。
@@ -789,8 +790,9 @@ final class ConfigProviderShowcase: ShowcaseViewController {
         super.viewDidLoad()
         title = "ConfigProvider 全局配置"
 
-        // demo 徽标版本 = 组件库正式版本（对齐 ui-version.json v1.2.1；Cell 的 v1.31 属另一套 demo 演示版本链）。
-        addVersionBadge(componentName: "ConfigProvider", version: "v1.2.1", builtAt: "2026-09-03 09:00:00")
+        // demo 徽标版本 = 组件库正式版本（ui-version.json v1.3.11，§7h 强制：每次 C2/发版必须升徽标版本）。
+        // C2→D 发版 v1.3.11：双端 15/15+15/15 全绿 + 用户实机对照 D1/D6/D8。
+        addVersionBadge(componentName: "ConfigProvider", version: "v1.3.11", builtAt: "2026-09-03 23:59:00")
         addInfo("定位：design-token 静态基准之上的运行时覆盖层。消费块渲染时刻直读 AppTheme 解析层，同屏对比覆盖前后实际解析值。")
 
         // ① 基准区：未挂 Provider → 静态基准（零行为变化，D1）
@@ -933,8 +935,9 @@ final class ImageShowcase: ShowcaseViewController {
         super.viewDidLoad()
         title = "Image 图片"
 
-        // demo 徽标版本 = 组件库正式版本（对齐 ui-version.json v1.3.3；Cell 的 v1.31 属另一套 demo 演示版本链）。
-        addVersionBadge(componentName: "Image", version: "v1.3.3", builtAt: "2026-09-03 22:45:00")
+        // demo 徽标版本 = 组件库正式版本（ui-version.json v1.3.12；§7h 强制：C2/发版必升徽标版本）。
+        // C2→D 发版 v1.3.12：三轮实机 11/11 收官 + api.json reviewed=true + platform partial→available 双端。
+        addVersionBadge(componentName: "Image", version: "v1.3.12", builtAt: "2026-09-04 00:00:00")
         feedbackLabel = addFeedbackBar()
         feedbackLabel?.text = "点击任意图片查看回调反馈（onTap）"
         eventsLabel = makeEventsLabel()

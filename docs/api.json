@@ -639,11 +639,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": "独立 Cell.swift 已落地（五态+icon/arrow/onTap/onLongPress）；ListCell.swift 近似实现迁移废弃（保留作 Media/Progress 基类）"
+          "note": "独立 Cell.swift 已落地（五态+icon/arrow/onTap/onLongPress）；ListCell.swift 近似实现迁移废弃（保留作 Media/Progress 基类）；C2 CR/CI + D 发版通过（2026-09-03，v1.3.10），双端 12/12 + iOS 模拟器 16/16 全绿"
         },
         "android": {
           "state": "available",
-          "note": "独立 Cell.kt（Compose 五态）已落地；onLongPress 不承诺（平台差异已登记）"
+          "note": "独立 Cell.kt（Compose 五态）已落地；onLongPress 不承诺（平台差异已登记）；C2 CR/CI + D 发版通过（2026-09-03，v1.3.10），Android Compose UI 测试 12/12 + 质量脚本 4/4 全绿"
         },
         "harmony": {
           "state": "unavailable",
@@ -763,7 +763,8 @@
           "<Cell title=\"同步\" status=\"error\" onClick={...} />"
         ]
       ],
-      "subcategory": "display"
+      "subcategory": "display",
+      "reviewed": true
     },
     {
       "id": "ui.config-provider",
@@ -788,11 +789,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": "实现完成（ConfigProvider.swift + AppConfig 作用域栈）；门禁 A/B/C1/C1.5 ✅ 2026-09-03；模拟器实跑 15/15 全绿；组件库 v1.2.1；待 C2 CR/CI → 发版"
+          "note": "实现完成（ConfigProvider.swift + AppConfig 作用域栈）；门禁 A/B/C1/C1.5 ✅ 2026-09-03；模拟器实跑 15/15 全绿；组件库 v1.2.1；待 C2 CR/CI → 发版；C2 CR/CI + D 发版通过（2026-09-03，v1.3.11），双端 15/15+15/15 全绿 + 用户实机确认对照 D1/D6/D8"
         },
         "android": {
           "state": "available",
-          "note": "实现完成（ConfigProvider.kt + CompositionLocal + AppTheme 解析层）；门禁 A/B/C1/C1.5 ✅ 2026-09-03；ConfigProviderTest 15/15 绿；组件库 v1.2.1；待 C2 CR/CI → 发版"
+          "note": "实现完成（ConfigProvider.kt + CompositionLocal + AppTheme 解析层）；门禁 A/B/C1/C1.5 ✅ 2026-09-03；ConfigProviderTest 15/15 绿；组件库 v1.2.1；待 C2 CR/CI → 发版；C2 CR/CI + D 发版通过（2026-09-03，v1.3.11），双端 15/15+15/15 全绿 + 用户实机确认对照 D1/D6/D8"
         },
         "harmony": {
           "state": "unavailable",
@@ -871,7 +872,8 @@
       ],
       "note": "Provider 型组件，无视觉状态；配置经上下文穿透，后代组件读取免逐层透传",
       "subcategory": "basics",
-      "tier": "core"
+      "tier": "core",
+      "reviewed": true
     },
     {
       "id": "ui.image",
@@ -908,12 +910,12 @@
       ],
       "platforms": {
         "ios": {
-          "state": "partial",
-          "note": "Image.swift（UIKit）已实现（v1.3.0，2026-09-03 门禁 C1）：fit/position/radius/alt/占位/onTap·onLoad·onError；单测文件 ImageTests.swift（纯函数数学闭环）；iOS 完整构建/实机受 C1.5 确认；width/height 经 frame 传入"
+          "state": "available",
+          "note": "C2 CR/CI + D 发版通过（v1.3.3→v1.3.12，2026-09-03）。iOS Image.swift UIView+状态机 LoadState（loading/success/error/none）+ fit/position/radius/corner(+修复 layoutSubviews 未应用 cornerRadius 单测纸面绿 Bug v1.3.1) + C1.5 实机三轮 11/11 收官；几何纯函数 ImageGeometry.rect 双端同构；模拟器 iOS 单测通过。"
         },
         "android": {
-          "state": "partial",
-          "note": "Image.kt（Compose）已实现（v1.3.0，2026-09-03 门禁 C1）：顶层函数同名，Robolectric 单测含像素断言；实机视觉受 C1.5 确认"
+          "state": "available",
+          "note": "C2 CR/CI + D 发版通过（v1.3.3→v1.3.12，2026-09-03）。Android Image.kt Compose + 几何纯函数 ImageGeometry.rect 同构；C1 ImageTest 20/20 + 质量脚本 4/4 + Robolectric 50/50；v1.3.2 Demo1 三卡 SpaceEvenly + scroll bottom 锚根治溢出 / v1.3.3 none/scale-down 单位域（density×bitmap）归一化，与 iOS pt 域 1:1 对齐；三轮实机 11/11 收官。"
         },
         "harmony": {
           "state": "unavailable",
@@ -1051,7 +1053,8 @@
       ],
       "note": "P1–P4 决策已由用户门禁 A 拍板（2026-09-03）：P1=B URL 业务侧预下载 / P2=B lazy 一期 N/A / P3=A 圆形=radius=宽/2 / P4=B 失败仅 onError；占位内置绘制不依赖 Icon/Loading；subcategory=display（与同为视觉容器的 Cell 一致）",
       "subcategory": "display",
-      "tier": "core"
+      "tier": "core",
+      "reviewed": true
     },
     {
       "id": "ui.list",

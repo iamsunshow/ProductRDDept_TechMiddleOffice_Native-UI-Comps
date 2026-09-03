@@ -151,7 +151,8 @@ fun ImageDemo() {
             .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {
-        // 组件版本徽标：与 iOS 端保持同一版本号（组件库正式版 v1.3.3，对齐 ui-version.json）。
+        // 组件版本徽标：组件库正式版 v1.3.12（ui-version.json；§7h 强制：C2/发版必升徽标版本）。
+        // C2→D 发版 v1.3.12：三轮实机 11/11 收官 + api.json reviewed=true + platform partial→available 双端。
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -159,7 +160,7 @@ fun ImageDemo() {
                 .padding(horizontal = 10.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "Image 组件 v1.3.3",
+                text = "Image 组件 v1.3.12 (2026-09-04 00:00)",
                 color = AppColor.primary,
                 fontSize = AppFont.sizeXs,
                 fontWeight = FontWeight.Medium,

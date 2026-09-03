@@ -317,7 +317,8 @@ private fun CellDemo() {
             .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {
-        // 组件版本徽标：用于核对实机是否运行最新代码，与 iOS 端保持同一版本号/时间。
+        // 组件版本徽标：ui-version.json v1.3.10（§7h 强制：C2/发版必升徽标版本）；双端一致。
+        // C2→D 发版 v1.3.10：Android 12/12+脚本 4/4 + iOS Simulator 16/16 全绿，试点首件 A→D 闭环。
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -325,7 +326,7 @@ private fun CellDemo() {
                 .padding(horizontal = 10.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "Cell 组件 v1.31",
+                text = "Cell 组件 v1.3.10 (2026-09-03 23:58)",
                 color = AppColor.primary,
                 fontSize = AppFont.sizeXs,
                 fontWeight = FontWeight.Medium,
@@ -726,7 +727,8 @@ private fun ConfigProviderDemo() {
             .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {
-        // 组件版本徽标：= 组件库正式版本（对齐 ui-version.json v1.2.1；Button/Cell/Icon 的 vX.Y 属另一套 demo 演示版本链）。
+        // 组件版本徽标：= 组件库正式版本 v1.3.11（对齐 ui-version.json v1.3.11；§7h 强制 C2/发版必升）。
+        // C2→D 发版 v1.3.11：双端 15/15+15/15 全绿 + 用户实机对照 D1/D6/D8。
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -734,7 +736,7 @@ private fun ConfigProviderDemo() {
                 .padding(horizontal = 10.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "ConfigProvider 组件 v1.2.1",
+                text = "ConfigProvider 组件 v1.3.11 (2026-09-03 23:59)",
                 color = AppColor.primary,
                 fontSize = AppFont.sizeXs,
                 fontWeight = FontWeight.Medium,

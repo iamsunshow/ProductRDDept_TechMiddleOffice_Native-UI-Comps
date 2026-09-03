@@ -787,12 +787,12 @@
       ],
       "platforms": {
         "ios": {
-          "state": "unavailable",
-          "note": "实现完成（ConfigProvider.swift + Tests，2026-09-03）；门禁 A/B ✅；模拟器实跑 15/15 全绿（SPM 阻塞根治后首跑），组件库 v1.2.1"
+          "state": "available",
+          "note": "实现完成（ConfigProvider.swift + AppConfig 作用域栈）；门禁 A/B/C1/C1.5 ✅ 2026-09-03；模拟器实跑 15/15 全绿；组件库 v1.2.1；待 C2 CR/CI → 发版"
         },
         "android": {
-          "state": "unavailable",
-          "note": "Android 实现完成（ConfigProvider.kt，2026-09-03）；门禁 A/B ✅；ConfigProviderTest 15/15 绿；组件库 v1.2.1"
+          "state": "available",
+          "note": "实现完成（ConfigProvider.kt + CompositionLocal + AppTheme 解析层）；门禁 A/B/C1/C1.5 ✅ 2026-09-03；ConfigProviderTest 15/15 绿；组件库 v1.2.1；待 C2 CR/CI → 发版"
         },
         "harmony": {
           "state": "unavailable",
@@ -1442,8 +1442,8 @@
           "note": ""
         },
         "android": {
-          "state": "partial",
-          "note": ""
+          "state": "available",
+          "note": "记账批次 2026-09-03 补全：android/sharedui/components/NavigationGrid.kt（4 宫格/带标题分区/可点击/多分组）；ui.grid v1.0 reviewed 双端 1:1；全局版本 1.3.6→1.3.7"
         },
         "harmony": {
           "state": "unavailable",

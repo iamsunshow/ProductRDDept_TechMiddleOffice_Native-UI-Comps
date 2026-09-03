@@ -40,6 +40,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clip
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -318,7 +319,7 @@ private fun OverlayContent(
                         )
                         // 注意：内容背景由业务插槽自身设置（Overlay 不默认给容器背景色，保持通用）。
                         // 此处仅负责裁切内容容器的外圆角（与 iOS clipsToBounds 等价）。
-                        .let { if (radiusDp > 0.dp) it.then(androidx.compose.ui.draw.clip(shape)) else it }
+                        .let { if (radiusDp > 0.dp) it.clip(shape) else it }
                         .semantics { testTag = "overlay-content" }
                         .testTag("overlay-content")
                 ) {

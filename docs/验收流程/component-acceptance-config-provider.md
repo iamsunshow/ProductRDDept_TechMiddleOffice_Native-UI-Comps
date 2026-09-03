@@ -106,7 +106,7 @@
 
 **双端差异观察点**：覆盖机制平台原生差异（iOS UIAppearance/环境对象 vs Android CompositionLocal），见 `平台差异.md`。
 
-**实机确认（门禁 C1.5）结论：** ☐ ✅ 通过　☐ ❌ 打回　备注：双端 Demo Showcase 已就绪（2026-09-03，Android/iOS 均编译通过），待用户实机跑后勾选
+**实机确认（门禁 C1.5）结论：** ✅ 通过　☐ ❌ 打回　备注：用户实机跑双端 demo 确认（2026-09-03）：覆盖前后对比、嵌套优先级、未覆盖项继承均符合预期（对照 D1/D6/D8）
 
 ---
 
@@ -117,7 +117,7 @@
 | 2026-09-03 | A 设计评审 | ✅ 通过 | 评审单 `docs/验收流程/review-config-provider-A.md` |
 | 2026-09-03 | B API 评审 | ✅ 通过 | 评审单 `docs/验收流程/review-config-provider-B.md`；`api.json` `ui.config-provider` 定稿（subcategory=basics） |
 | 2026-09-03 | C1 自测对齐（单测+快照+用例映射） | ✅ 通过 | Android ConfigProviderTest 15/15 绿（Robolectric）+ iOS ConfigProviderTests 15/15 绿（iPhone 14 模拟器首跑，v1.2.1 基线） |
-| 2026-09-03 | C1.5 Demo Showcase + 实机确认 | Demo 就绪，实机待确认 | 双端配置生效对比 demo 已实现（iOS ConfigProviderShowcase / Android ConfigProviderDemo，编译通过）；demo 徽标 = 组件库版本 v1.2.1；待用户实机跑后勾选 |
+| 2026-09-03 | C1.5 Demo Showcase + 实机确认 | ✅ 通过 | 双端配置生效对比 demo（iOS ConfigProviderShowcase / Android ConfigProviderDemo，demo 徽标 = 组件库版本 v1.2.1）；用户实机确认覆盖对比/嵌套优先级/继承均符合预期（D1/D6/D8） |
 |  | C2 CR + CI | 通过 / 打回 | 待办：CR + CI 接入 |
 |  | 发版 | 版本号 / tag |  |
 |  | D 业务落地 | 接入成功 / 回退 | 接入位置 / 代码量变化，见 `docs/usage-config-provider.md` |

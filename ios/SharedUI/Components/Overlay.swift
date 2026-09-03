@@ -63,9 +63,11 @@ enum OverlayMaskColor: Equatable {
         switch self {
         case .default:
             // textPrimary #111827 × 0.55（设计规格 §02）
-            UIColor(red: 0x11/255.0, green: 0x18/255.0, blue: 0x27/255.0, alpha: Self.OVERLAY_MASK_ALPHA)
+            return UIColor(red: 0x11/255.0, green: 0x18/255.0, blue: 0x27/255.0, alpha: Self.OVERLAY_MASK_ALPHA)
         case .transparent:
-            .clear
+            // ⚠️ 绝对不能只写 .clear —— Swift 5.9+ implicit return + switch case 单表达式会触发 "Reference to member 'clear' cannot be resolved without a contextual type"（真 build 第 14 条实锤抓包）
+            // 必须显式写 UIColor.clear 全名 + 显式 return，与 case .default / case .custom 三分支全显式 return 风格保持一致，永久避免 contextual type 推断边界 bug
+            return UIColor.clear
         case .custom(let c):
             return c
         }

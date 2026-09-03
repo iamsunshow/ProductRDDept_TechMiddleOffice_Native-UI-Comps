@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalDensity
 import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppFont
 import com.zhiqihuayun.foundation.design.AppRadius
@@ -43,8 +44,16 @@ import com.zhiqihuayun.sharedui.components.Image
 // ③ loading/error 占位（src=null 模拟慢源窗口；无效源显示失败占位 + 重试恢复）
 // ④ 事件反馈（onTap 点击反馈条 + onLoad/onError 计数）
 
-/** 演示素材：320×200 本地样例图（上蓝下橙 + 白色太阳圆），宽高比 3:2 ≠ 容器 4:3，便于肉眼判断 fit 缩放/裁切。 */
-private fun makeDemoBitmap(w: Int = 320, h: Int = 200): ImageBitmap {
+/** 演示素材：逻辑尺寸 (w dp, h dp)，生成 (w*d) × (h*d) 物理像素的 Bitmap（d=屏幕密度）。
+ *  双端 ImageGeometry.rect 数学同构对齐 iOS：iOS UIImage.size 按 point 计（UIGraphicsImageRenderer(size:) 默认屏幕 scale），
+ *  ImageShowcase.makeSampleImage 的 image.size = 320×200 pt；Android 组件 rect 按物理像素 (px) 计算，容器 Canvas.size.width 在 density=3 时 120dp→360px。
+ *  为让两端 contain/cover/none/scale-down 的 缩放系数 s、裁切比例、太阳位置 1:1 一致，Android 端生成 sample Bitmap 的物理像素 = (逻辑 dp 宽 × d, 逻辑 dp 高 × d)。
+ *  默认 320×200 dp 逻辑尺寸 → density=3 时 960×600 px，与 iOS 3x 屏幕下"原图 320pt×200pt（实像素 960×600）→ 容器 120pt×90pt（实像素 360×270）" 的比率完全一致。
+ *  v1.3.3 Bug1 / Demo2 末 2 卡（none/scale-down）双端尺寸&太阳位置对齐修复。
+ */
+private fun makeDemoBitmap(logicalWidthDp: Int = 320, logicalHeightDp: Int = 200, density: Float): ImageBitmap {
+    val w = (logicalWidthDp * density).toInt()
+    val h = (logicalHeightDp * density).toInt()
     val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bmp)
     val blue = Paint().apply { color = AndroidColor.rgb(0x17, 0x6D, 0xE8) }
@@ -52,7 +61,10 @@ private fun makeDemoBitmap(w: Int = 320, h: Int = 200): ImageBitmap {
     val white = Paint().apply { color = AndroidColor.rgb(0xFF, 0xFF, 0xFF) }
     canvas.drawColor(blue.color)
     canvas.drawRect(0f, h / 2f, w.toFloat(), h.toFloat(), orange)
-    canvas.drawCircle(w * 0.62f, h * 0.25f, 26f, white)
+    // 太阳位置：与 iOS 完全同比例（相对原图 w×h，比例 x=0.62 y=0.25 r=26*密度），保证 fill/contain/cover/none/scale-down 的任何 fit 下，
+    // 太阳相对 rect 内部坐标的比例不变 → 双端裁切比例、太阳与容器边界的相对位置完全 1:1 同构。
+    val sunR = (26f * density)
+    canvas.drawCircle(w * 0.62f, h * 0.25f, sunR, white)
     return bmp.asImageBitmap()
 }
 
@@ -114,7 +126,8 @@ private fun DemoImageCard(
 /** Image 组件 Demo 页入口（MainActivity 首页 → 基础组件 → Image 图片）。 */
 @Composable
 fun ImageDemo() {
-    val sample = remember { makeDemoBitmap() }
+    val density = LocalDensity.current.density
+    val sample = remember(density) { makeDemoBitmap(density = density) }
     var clickInfo by remember { mutableStateOf("点击任意图片查看回调反馈（onTap）") }
     var tapCount by remember { mutableStateOf(0) }
     var loadCount by remember { mutableStateOf(0) }
@@ -138,7 +151,7 @@ fun ImageDemo() {
             .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {
-        // 组件版本徽标：与 iOS 端保持同一版本号（组件库正式版 v1.3.2，对齐 ui-version.json）。
+        // 组件版本徽标：与 iOS 端保持同一版本号（组件库正式版 v1.3.3，对齐 ui-version.json）。
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -146,7 +159,7 @@ fun ImageDemo() {
                 .padding(horizontal = 10.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "Image 组件 v1.3.2",
+                text = "Image 组件 v1.3.3",
                 color = AppColor.primary,
                 fontSize = AppFont.sizeXs,
                 fontWeight = FontWeight.Medium,

@@ -1,6 +1,6 @@
 {
-  "version": "1.3.2",
-  "versionKey": "v1.3.2",
+  "version": "1.3.3",
+  "versionKey": "v1.3.3",
   "releaseDate": "2026-09-03",
-  "changelog": "fix(image): v1.3.1 实机问题 4 项修复：(1) Android Demo1 三张卡片 Row spacedBy(lg) 非等分→改 SpaceEvenly + 水平 padding(lg) 对称，对齐 iOS equalSpacing 语义；(2) iOS Demo2 fit 五模式 UIScrollView 约束缺 bottom 锚→section container 高度 0，scroll 高度 118 溢出 superview 向下覆盖 Demo3/Demo4，造成「Demo2 文字图与 Demo3 图片重叠」(Bug4/5)→补 make.bottom.equalToSuperview().inset(md)，section container 被正确撑开不溢出；(3) iOS 失败占位图默认用 SF Symbol photo(相框+山形太阳) vs Android Canvas 自绘(外框+太阳圆stroke+山折线)不一致(Bug6)→iOS 替换为 ErrorGraphicImageView 自绘，40×32 视窗/线宽2/太阳圆r=2.5 (0.34,0.38)/山峰(0.58,0.42) 与 Android DefaultErrorPlaceholder 参数完全同构，双端失败占位图形统一数学定义。组件徽标 Image v1.3.1→v1.3.2，ui-version 1.3.1→1.3.2。"
+  "changelog": "fix(image ui.image Demo2 none/scale-down v1.3.2双端尺寸&太阳位置不一致): 根因=Android sample Bitmap 物理像素=320x200 px(无论密度) vs iOS UIImage.size=320x200 pt(在3x屏=960x600实像素)，两端ImageGeometry.rect同公式但单位域基准不同（iOS pt域/Android px域），导致none(原尺寸)时Android bitmap全小于容器(360x270)，表现为『四周留白不裁切』；iOS bitmap(320pt)远大于容器(120pt)，表现为『中心裁切露出太阳底部』——用户报告的『尺寸也不一样内部圆的位置也不一样』。修复：Android Demo makeDemoBitmap() 新增density参数，按(w*density, h*density)生成Bitmap物理像素（默认320x200 dp → density=3时960x600 px → contain/cover/none/scale-down与iOS 320pt×200pt → 120pt×90pt 的缩放系数s=0.375完全一致）；太阳绝对半径26也按density放大(26*d)保持相对视觉同构。组件库全局 v1.3.2 → v1.3.3；双端徽标 Image v1.3.2 → v1.3.3。"
 }

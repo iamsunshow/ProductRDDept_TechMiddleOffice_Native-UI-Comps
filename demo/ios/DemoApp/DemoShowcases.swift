@@ -931,8 +931,8 @@ final class ImageShowcase: ShowcaseViewController {
         super.viewDidLoad()
         title = "Image 图片"
 
-        // demo 徽标版本 = 组件库正式版本（对齐 ui-version.json v1.3.2；Cell 的 v1.31 属另一套 demo 演示版本链）。
-        addVersionBadge(componentName: "Image", version: "v1.3.2", builtAt: "2026-09-03 22:20:00")
+        // demo 徽标版本 = 组件库正式版本（对齐 ui-version.json v1.3.3；Cell 的 v1.31 属另一套 demo 演示版本链）。
+        addVersionBadge(componentName: "Image", version: "v1.3.3", builtAt: "2026-09-03 22:45:00")
         feedbackLabel = addFeedbackBar()
         feedbackLabel?.text = "点击任意图片查看回调反馈（onTap）"
         eventsLabel = makeEventsLabel()

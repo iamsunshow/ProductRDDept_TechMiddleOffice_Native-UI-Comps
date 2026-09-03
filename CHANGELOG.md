@@ -12,6 +12,22 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## [1.3.3] - 2026-09-03
+
+Image v1.3.2 实机：Demo2 倒数 2 卡（none / scale-down）双端尺寸 + 太阳位置不一致修复 + 徽标 v1.3.3。
+
+### Fixed
+
+- **Android Demo 演示素材物理像素未按密度放大（单位域错位 → none/scale-down 与 iOS 完全相反）**：v1.3.2 及之前 `makeDemoBitmap(320,200)` 生成的是固定 320×200 px Bitmap，无论屏幕密度；而 `ImageGeometry.rect` 在 Android 端用容器物理像素（Canvas.size.width）参与计算。结果：xxhdpi (density=3) 容器 120dp×90dp = 360×270px，原图 320×200px < 容器 → **none/scale-down 表现为四周留白不裁切**（太阳整体居中，r=26 像素偏小）。而 iOS 侧 `UIGraphicsImageRenderer(size:)` 生成 UIImage.size=320×200 pt，`ImageGeometry.rect` 用 pt 空间计算：容器 120×90 pt < 原图 320×200 pt → **none/scale-down 表现为中心裁切（太阳被裁到容器顶外，仅露底部 20pt）**。用户实机报告"倒数第一个和第二个 demo 与 android 展现不一致，主要是尺寸也不一样，内部圆的位置也不一样"——两端完全相反。修复：
+  - Android `ImageDemo.kt` 新增 `LocalDensity.current.density`，`makeDemoBitmap(logicalWidthDp:logicalHeightDp:density:)` 按 **(320*density,200*density) 物理像素**生成 Bitmap（density=3 → 960×600 px；density=2 → 640×400 px），与 iOS 320pt×200pt 对容器 120pt×90pt 的 contain/cover/none/scale-down **所有缩放系数 s=0.375/裁切比例/太阳位置 1:1 同构**（Python 双端数值模拟已验证：xxhdpi density=3 时 rect 输出与 iOS 完全按比例对齐）。
+  - 太阳绝对半径 26 同步按 density 放大（`sunR=26f*density`）保证原图内视觉比例与 iOS 一致；太阳坐标按相对比例（w*0.62, h*0.25）已随尺寸放大自然等比对齐。
+  - remember 由 `{ makeDemoBitmap() }` 改为 `remember(density) { makeDemoBitmap(density = density) }`，密度变化时自动重新生成（覆盖折叠屏/连接副屏等 case）。
+
+### Changed
+
+- **双端 Image Demo 版本徽标**：iOS `DemoShowcases.swift` v1.3.2 → v1.3.3，builtAt 2026-09-03 22:45:00；Android `ImageDemo.kt` v1.3.2 → v1.3.3。
+- **ui-version.json**：组件库版本 1.3.2 → 1.3.3（PATCH：demo 代码改动必升版本，治理规范 §6.5 / 开发规则 §1.5）。
+
 ## [1.3.2] - 2026-09-03
 
 Image v1.3.1 实机 4 项修复（Bug1 / Bug4-5 / Bug6）+ 双端徽标 v1.3.2。

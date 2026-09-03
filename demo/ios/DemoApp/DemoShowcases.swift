@@ -98,6 +98,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.ellipsis", name: "Ellipsis 文本省略", reviewed: false, create: nil),
             DemoComponent(id: "ui.image-preview", name: "ImagePreview 图片预览", reviewed: false, create: nil),
             DemoComponent(id: "ui.indicator", name: "Indicator 指示器", reviewed: false, create: nil),
+            DemoComponent(id: "ui.line-chart", name: "LineChart 折线图", reviewed: true, create: { LineChartShowcase() }),
             DemoComponent(id: "ui.list", name: "List 分组列表", reviewed: true, create: { ListShowcase() }),
             DemoComponent(id: "ui.lottie", name: "Lottie 动画", reviewed: false, create: nil),
             DemoComponent(id: "ui.pagination", name: "Pagination 分页", reviewed: false, create: nil),
@@ -1683,5 +1684,102 @@ final class CardShowcase: ShowcaseViewController {
 
     @objc private func cardTapped() {
         print("Card Demo4 tapped")
+    }
+}
+
+// MARK: - LineChart Showcase（LineChart 折线图组件独立 Demo 页，与 Android LineChartDemo 一一对应）
+
+final class LineChartShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "LineChart 折线图"
+        addVersionBadge(componentName: "LineChart", version: "v1.0", builtAt: "")
+
+        addInfo("4 组排查：① 基础双折线 ② 仅支出 ③ 仅收入 ④ 空态。双端 1:1 对齐。")
+
+        // ── Demo 1：基础双折线 ──
+        addSection(title: "Demo 1 · 基础双折线") { container in
+            let chart = TrendChartView()
+            chart.apply(
+                expensePoints: [
+                    ChartPoint(label: "4月", amount: 1200),
+                    ChartPoint(label: "5月", amount: 1800),
+                    ChartPoint(label: "6月", amount: 1500),
+                    ChartPoint(label: "7月", amount: 2200),
+                    ChartPoint(label: "8月", amount: 1900),
+                    ChartPoint(label: "9月", amount: 2500),
+                ],
+                incomePoints: [
+                    ChartPoint(label: "4月", amount: 3000),
+                    ChartPoint(label: "5月", amount: 3500),
+                    ChartPoint(label: "6月", amount: 3200),
+                    ChartPoint(label: "7月", amount: 4000),
+                    ChartPoint(label: "8月", amount: 3800),
+                    ChartPoint(label: "9月", amount: 4500),
+                ]
+            )
+            container.addSubview(chart)
+            chart.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("支出红 + 收入绿双折线，6 个月数据，含 Y 轴刻度 + X 轴标签。")
+
+        // ── Demo 2：仅支出 ──
+        addSection(title: "Demo 2 · 仅支出") { container in
+            let chart = TrendChartView()
+            chart.apply(
+                expensePoints: [
+                    ChartPoint(label: "周一", amount: 200),
+                    ChartPoint(label: "周二", amount: 350),
+                    ChartPoint(label: "周三", amount: 180),
+                    ChartPoint(label: "周四", amount: 420),
+                    ChartPoint(label: "周五", amount: 380),
+                    ChartPoint(label: "周六", amount: 500),
+                    ChartPoint(label: "周日", amount: 280),
+                ],
+                incomePoints: []
+            )
+            container.addSubview(chart)
+            chart.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("仅支出红色折线，7 天数据，验证单序列渲染。")
+
+        // ── Demo 3：仅收入 ──
+        addSection(title: "Demo 3 · 仅收入") { container in
+            let chart = TrendChartView()
+            chart.apply(
+                expensePoints: [],
+                incomePoints: [
+                    ChartPoint(label: "Q1", amount: 8000),
+                    ChartPoint(label: "Q2", amount: 9500),
+                    ChartPoint(label: "Q3", amount: 7200),
+                    ChartPoint(label: "Q4", amount: 11000),
+                ]
+            )
+            container.addSubview(chart)
+            chart.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("仅收入绿色折线，4 季度数据，验证单序列渲染。")
+
+        // ── Demo 4：空态 ──
+        addSection(title: "Demo 4 · 空态") { container in
+            let chart = TrendChartView()
+            chart.apply(
+                expensePoints: [],
+                incomePoints: []
+            )
+            container.addSubview(chart)
+            chart.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(140)
+            }
+        }
+        addInfo("无数据时显示空态文案「暂无数据」。")
     }
 }

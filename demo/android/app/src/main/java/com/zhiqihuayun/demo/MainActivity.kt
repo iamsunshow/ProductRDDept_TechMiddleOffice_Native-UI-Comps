@@ -60,6 +60,8 @@ import com.zhiqihuayun.sharedui.components.NavigationGrid
 import com.zhiqihuayun.sharedui.components.ProfileListGroup
 import com.zhiqihuayun.sharedui.components.ProfileListItem
 import com.zhiqihuayun.sharedui.components.SummaryCardView
+import com.zhiqihuayun.sharedui.components.ChartPoint
+import com.zhiqihuayun.sharedui.components.TrendChartView
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -163,6 +165,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Ellipsis 文本省略"),
         DemoComponent("ImagePreview 图片预览"),
         DemoComponent("Indicator 指示器"),
+        DemoComponent("LineChart 折线图", reviewed = true, demo = { LineChartDemo() }),
         DemoComponent("Lottie 动画"),
         DemoComponent("Pagination 分页"),
         DemoComponent("Price 价格"),
@@ -1223,6 +1226,88 @@ private fun CardDemo() {
             onClick = {
                 println("Card Demo4 tapped")
             }
+        )
+    }
+}
+
+// ===== LineChart 组件 Demo 页（独立页面，与 iOS LineChartShowcase 一一对应） =====
+
+@Composable
+private fun LineChartDemo() {
+    Text(
+        text = "LineChart 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+
+    Text(
+        text = "4 组排查：① 基础双折线 ② 仅支出 ③ 仅收入 ④ 空态。双端 1:1 对齐。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // ── Demo 1：基础双折线 ──
+        Text("Demo 1 · 基础双折线", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        TrendChartView(
+            expensePoints = listOf(
+                ChartPoint("4月", 1200.0),
+                ChartPoint("5月", 1800.0),
+                ChartPoint("6月", 1500.0),
+                ChartPoint("7月", 2200.0),
+                ChartPoint("8月", 1900.0),
+                ChartPoint("9月", 2500.0),
+            ),
+            incomePoints = listOf(
+                ChartPoint("4月", 3000.0),
+                ChartPoint("5月", 3500.0),
+                ChartPoint("6月", 3200.0),
+                ChartPoint("7月", 4000.0),
+                ChartPoint("8月", 3800.0),
+                ChartPoint("9月", 4500.0),
+            )
+        )
+
+        // ── Demo 2：仅支出 ──
+        Text("Demo 2 · 仅支出", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        TrendChartView(
+            expensePoints = listOf(
+                ChartPoint("周一", 200.0),
+                ChartPoint("周二", 350.0),
+                ChartPoint("周三", 180.0),
+                ChartPoint("周四", 420.0),
+                ChartPoint("周五", 380.0),
+                ChartPoint("周六", 500.0),
+                ChartPoint("周日", 280.0),
+            ),
+            incomePoints = emptyList()
+        )
+
+        // ── Demo 3：仅收入 ──
+        Text("Demo 3 · 仅收入", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        TrendChartView(
+            expensePoints = emptyList(),
+            incomePoints = listOf(
+                ChartPoint("Q1", 8000.0),
+                ChartPoint("Q2", 9500.0),
+                ChartPoint("Q3", 7200.0),
+                ChartPoint("Q4", 11000.0),
+            )
+        )
+
+        // ── Demo 4：空态 ──
+        Text("Demo 4 · 空态", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        TrendChartView(
+            expensePoints = emptyList(),
+            incomePoints = emptyList()
         )
     }
 }

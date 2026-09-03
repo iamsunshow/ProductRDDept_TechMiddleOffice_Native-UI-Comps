@@ -1899,7 +1899,8 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/TrendChartView.swift"
+        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/TrendChartView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/android/sharedui/components/TrendChartView.kt"
       },
       "deps": [],
       "variants": [],
@@ -1945,7 +1946,8 @@
           "<LineChart series={[{name:'支出',data:...}]} />"
         ]
       ],
-      "subcategory": "display"
+      "subcategory": "display",
+      "reviewed": true
     },
     {
       "id": "ui.shortcut-bar",

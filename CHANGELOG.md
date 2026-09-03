@@ -12,6 +12,23 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
+## \[1.3.9] - 2026-09-03
+
+LineChart v1.0 双端 reviewed：Android sharedui 新增 TrendChartView（Compose Canvas）+ Demo 4 组排查 + api.json reviewed=true。
+
+### Added
+
+- **Android sharedui 新增 `TrendChartView.kt`**：`TrendChartView` Composable + `ChartPoint` 数据类，对齐 iOS API（expensePoints/incomePoints 双序列），使用 Compose Canvas 绘制双色折线（支出红 expense + 收入绿 primary），含 Y 轴刻度（4 等分）、X 轴标签、网格线（border 色）、圆点标记（≤14 点显示）、空态「暂无数据」。
+- **LineChart Demo 4 组排查（双端 1:1 对齐）**：① 基础双折线（6 个月支出+收入）② 仅支出（7 天红色单序列）③ 仅收入（4 季度绿色单序列）④ 空态（无数据占位文案）。
+- 双端 Demo 列表注册 `ui.line-chart`（展示组件分类，reviewed=true）。
+
+### Changed
+
+- api.json `ui.line-chart` source_refs 补全 Android 路径（TrendChartView.kt），reviewed=true。
+- 组件库全局版本 1.3.8 → 1.3.9（PATCH）。
+- 双端 LineChart Demo 徽标 v1.0（首次 reviewed）。
+- MainActivity.kt 补全 import（ChartPoint/TrendChartView）。
+
 ## \[1.3.8] - 2026-09-03
 
 Card v1.0 双端 reviewed：Android sharedui 补全 SummaryCardView + Demo 4 组排查 + api.json reviewed=true。

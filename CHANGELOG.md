@@ -55,8 +55,7 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 - **基础类 6/6 收官**：Button #1 / Cell #2 / ConfigProvider #3 / Icon #4 / Image #5 / Overlay #6 六件全部通过（设计/API/双端实现/Demo 4 组/Demo 列表 reviewed=True/§7h 徽标/平台差异 六要素齐全；api.json reviewed=True）。
 
 - 组件库全局 v1.3.12 → **v1.4.0**（MINOR = 新增 31st 组件 + 里程碑；治理回滚后=用户正式评审冻结=法定合规发版）；docs/ui-version.json version=1.4.0 / versionKey=v1.4.0 / releaseDate=2026-09-04。
-
-- 下一阶段按用户要求『按分类顺序一个一个组件实现』= 第 2 大类布局组件 **#7 Divider**（docs/组件分类.md §3.2 首行），流程严格执行：设计先行 → API 先行 → 🧑 评审单 A/B 用户全勾选 → 实现 → Demo → C2 → 发版，禁止越过 L13/L15/L269 三行硬门禁。
+- 🔒 **下一组件排期待定**（SOP 预防机制，WIP≤3 严格执行不抢跑）：待本批次 D 发版 **DoD 全绿（SOP B3 双端编译通过无 P0 + B4 编译阻断门禁全绿 + §7h 版本声明 + 复盘 RETRO 完成）** 后，再按用户偏好『分类顺序一个一个组件』启动第 2 大类布局组件第一件；严禁上一件未交付完就启动下一件扩展 WIP。
 
 - v1.4.x PATCH 扩展预告（下一批可选）：P2 位移/缩放进入动画 / Android Popup 独立 window 物理穿透 clickThrough（解决 Dialog 近似限制）/ 高层组合组件 Toast / Loading / ActionSheet。
 

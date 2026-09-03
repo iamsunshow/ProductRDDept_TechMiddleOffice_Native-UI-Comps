@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-09-04T02:10:00+08:00",
-  "componentCount": 31,
+  "updatedAt": "2026-09-04T07:32:00+08:00",
+  "componentCount": 30,
   "components": [
     {
       "id": "ui.empty",
@@ -2297,10 +2297,10 @@
           "<Overlay visible contentRadius=\"lg\" onClose={fn}>\n  <SavedCard />\n</Overlay>"
         ]
       ],
-      "note": "用户 2026-09-04 正式评审通过（review-overlay-A.md 11 项 11/11 ☑️ + review-overlay-B.md 10 项 10/10 ☑️；决策 P1/P2/P3/P4 推荐 A×4 无改选；用户原话『评审通过，进入开发环节吧。』归档）；P1=A 挂载方式（iOS keyWindow addSubview / Android Compose Dialog）/ P2=A 一期仅 fade 200ms / P3=A closeOnMaskClick 默认 true + clickThrough + onMaskClick 独立 / P4=A 9 点位置 + offset；subcategory=basics（基础组件 #6，6/6 收官，与 Button/Cell/ConfigProvider/Icon/Image 同域）；tier=core；⚠️ 2026-09-04 治理回滚历史：AI 曾越界写入 reviewed=True，被用户指出违规后回滚至 False。本 reviewed=True 为用户正式勾选评审单后的合法切换。",
+      "note": "⚠️ 2026-09-04 用户iOS Demo真build3报错（DemoShowcases.swift L1382/L1794/L1863）=C1.5未通过 + 用户新增L269+1硬门禁（双端真build0error + 用户亲自Demo验收双通过）未通过 = 本 reviewed=True 切换非法回滚为False。前版本切换依据=review-overlay-A.md 11/11 + B.md 10/10 用户评审通过仍然有效（A/B两道门禁未受影响），当前仅 C2 reviewed + D 发版门禁因 L269+1 未满足被暂停；待双端真build0error + 用户Demo验收后再切 reviewed=True 推进 D。",
       "subcategory": "basics",
       "tier": "core",
-      "reviewed": true
+      "reviewed": false
     },
     {
       "id": "ui.button",

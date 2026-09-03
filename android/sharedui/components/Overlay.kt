@@ -76,8 +76,8 @@ private const val FEEDBACK_TAP_ALPHA = 0.65f
 private const val FADE_IN_MS = 200
 private const val FADE_OUT_MS = 180
 
-/** 默认遮罩色：textPrimary #111827 × 55% alpha（与 iOS OverlayMaskColor.default 同一公式） */
-private val DefaultMaskColor = Color(0x11, 0x18, 0x27, alpha = OVERLAY_MASK_ALPHA)
+/** 默认遮罩色：textPrimary #111827 × 55% alpha（与 iOS OverlayMaskColor.default 同一公式：RGB 分量 / 255.0 = Float 归一化，alpha 直传 OVERLAY_MASK_ALPHA Float） */
+private val DefaultMaskColor = Color(red = 0x11 / 255f, green = 0x18 / 255f, blue = 0x27 / 255f, alpha = OVERLAY_MASK_ALPHA)
 
 /** contentPosition → Alignment 9 点映射（与 iOS anchor 0/0.5/1 同一语义） */
 private fun contentPositionAlignment(pos: String): Alignment = when (pos) {

@@ -1,6 +1,6 @@
 {
-  "version": "1.4.0",
-  "versionKey": "v1.4.0",
-  "releaseDate": "2026-09-04",
-  "changelog": "基础类 6/6 收官 MINOR v1.4.0（🧑 用户 2026-09-04 评审通过合规合法发版）：review-overlay-A.md 11 项 11/11 ☑️ + review-overlay-B.md 10 项 10/10 ☑️；决策 P1/P2/P3/P4=A×4 全接受；新增 ui.overlay（遮罩层，basics #6）A→B→C1→C1.5→C2→D 六门禁全流程；双端实现 10 props 2 events 命名 100% 对齐；Demo 4 组双端 1:1 + Demo 列表 reviewed=True（验收 L269 取消置灰可点）+ §7h 徽标 v1.0；平台差异白名单 4 条；§1 完整度 26/95(27.4%) → 27/95(28.4%)；CHANGELOG [1.4.0] Added（Overlay 双端+Demo+差异）/ Changed（reviewed=True+demo注册+进度文档3处）/ Tested（A/B 用户评审 21/21 + D1-D8 A1-A7 + C1.5 4 Demo + A7 命名对齐12/12）/ Released（基础类 6/6 收官 + MINOR 里程碑发版）。⚠️ 包含治理回滚历史（2026-09-04 AI 越界被用户指出后回滚，本次=回滚后用户正式评审2轮通过=法定发版）。"
+  "version": "1.3.12",
+  "versionKey": "v1.3.12",
+  "releaseDate": "2026-09-03",
+  "changelog": "⚠️ 2026-09-04 Overlay 批次二次回滚（用户 iOS Demo 真 build 3 报错 + L269+1 新增门禁未通过）：C2三件批次 Cell v1.3.10 / ConfigProvider v1.3.11 / Image v1.3.12 已合法闭环，保持不变。Overlay（basics #6）= A/B 评审 21/21 用户通过仍然有效，但 C1.5 Demo 验收未满足用户新增门禁 L269+1=『双端真 build 0 error + 用户亲自 Demo 验收双通过』，所以 reviewed=True 切换非法，已回 False；v1.4.0 MINOR 发版撤销；[1.4.0] 段落删除；基础类 6/6 收官说法作废，当前仍为 5/6（Button/Cell/CP/Icon/Image 已发 + Overlay C1.5 3 报错修复中）。本次基线= 1.3.12 与 2026-09-03 一致，Overlay 待 Demo 双通过后再合法推进 C2 + D。"
 }

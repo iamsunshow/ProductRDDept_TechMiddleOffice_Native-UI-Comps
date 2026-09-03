@@ -11,7 +11,6 @@
 		0B22235F8B087F10A8C4A962 /* GroupListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1384B27B30CF0FE17962B66F /* GroupListItem.swift */; };
 		0E1F4539D228B41BF254E120 /* GroupList.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE2D8A38CDA5E1EA29759D3E /* GroupList.swift */; };
 		12A2A02B2B7C1DCC3F8762C4 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E36A0907C0CF11E9783D53FB /* AppButton.swift */; };
-		AA1B2C3D4E5F60718293A4B5 /* Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2C3D4E5F60718293A4B5C6 /* Image.swift */; };
 		13BCCC89E28C0FC6B2308C6C /* SummaryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD534E7B115B6495F8904031 /* SummaryCardView.swift */; };
 		1DF63FB00D4953BB012F270D /* NavigationGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34948E86D6FAAA1AA93C4FF /* NavigationGrid.swift */; };
 		1EB05D2B72FE2F73026A8AB6 /* TabsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F17F2603BDDFC72B15C7406 /* TabsView.swift */; };
@@ -43,6 +42,8 @@
 		D617DE01D22C0ECCE9C78F23 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 0B443EB238EB50B42166EA1D /* SnapKit */; };
 		D8C9728258A9E3654F94E26C /* DatePickerSheetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F21711C828F70FB0BD77548 /* DatePickerSheetViewController.swift */; };
 		DED69019404F4F8F17CC62BB /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = 2459D72E133FA6C19C5EA514 /* GRDB */; };
+		E81AD0C3CFBD04C7415B66D4 /* Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8415379828FC7A89E3EDED4 /* Image.swift */; };
+		EA57F4DC6F4FAFB5A01379D7 /* Overlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E1C75478994AD561C65338A /* Overlay.swift */; };
 		EACD9C4AB942B3B95BF92906 /* StatusBarNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB34D2F889141B606A089B40 /* StatusBarNavigationController.swift */; };
 		F082C3133DE10640D955D202 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F9AA827593BC17B2833943FC /* LaunchScreen.storyboard */; };
 		F3C4A6B858E50E41D981C443 /* CalendarFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C347F4A3C46B5E1B8CAB1D /* CalendarFormatter.swift */; };
@@ -72,6 +73,7 @@
 		8F17F2603BDDFC72B15C7406 /* TabsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabsView.swift; sourceTree = "<group>"; };
 		8F3D282267864AB86708A7FC /* NavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavBar.swift; sourceTree = "<group>"; };
 		978BB17F3FAD3ECDAB39B58A /* PullRefreshTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullRefreshTableView.swift; sourceTree = "<group>"; };
+		9E1C75478994AD561C65338A /* Overlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Overlay.swift; sourceTree = "<group>"; };
 		A2341A26182D931C95A7B3E3 /* Alamofire */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Alamofire; path = ../../ios/Vendor/Alamofire; sourceTree = SOURCE_ROOT; };
 		A444A6A371EA9EF7F7A03038 /* CategoryPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryPickerView.swift; sourceTree = "<group>"; };
 		B9AB119D396F37F5DA978A57 /* ListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCell.swift; sourceTree = "<group>"; };
@@ -84,10 +86,10 @@
 		DE2D8A38CDA5E1EA29759D3E /* GroupList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupList.swift; sourceTree = "<group>"; };
 		E2F3DA45E7694551DEEFA6F5 /* Cell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
 		E36A0907C0CF11E9783D53FB /* AppButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppButton.swift; sourceTree = "<group>"; };
-		BB2C3D4E5F60718293A4B5C6 /* Image.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Image.swift; sourceTree = "<group>"; };
 		EB34D2F889141B606A089B40 /* StatusBarNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarNavigationController.swift; sourceTree = "<group>"; };
 		F295938F4E6BAC2624AD41C9 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		F34F3AD98F674E7DA1E575E8 /* MockAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAPIClient.swift; sourceTree = "<group>"; };
+		F8415379828FC7A89E3EDED4 /* Image.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Image.swift; sourceTree = "<group>"; };
 		F9AA827593BC17B2833943FC /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -129,12 +131,13 @@
 				F295938F4E6BAC2624AD41C9 /* EmptyStateView.swift */,
 				DE2D8A38CDA5E1EA29759D3E /* GroupList.swift */,
 				1384B27B30CF0FE17962B66F /* GroupListItem.swift */,
-				BB2C3D4E5F60718293A4B5C6 /* Image.swift */,
+				F8415379828FC7A89E3EDED4 /* Image.swift */,
 				B9AB119D396F37F5DA978A57 /* ListCell.swift */,
 				5DA75DA8F7E29DEEA4C578E2 /* MonthPickerViewController.swift */,
 				8F3D282267864AB86708A7FC /* NavBar.swift */,
 				D34948E86D6FAAA1AA93C4FF /* NavigationGrid.swift */,
 				24C4336791BDD8FE289677BA /* OptionPickerSheetViewController.swift */,
+				9E1C75478994AD561C65338A /* Overlay.swift */,
 				BB0DF74002674A3001F64995 /* PeriodTabsView.swift */,
 				978BB17F3FAD3ECDAB39B58A /* PullRefreshTableView.swift */,
 				BD534E7B115B6495F8904031 /* SummaryCardView.swift */,
@@ -367,7 +370,6 @@
 			files = (
 				C8E94EEFB76666AB629B02A1 /* APIEndpoint.swift in Sources */,
 				12A2A02B2B7C1DCC3F8762C4 /* AppButton.swift in Sources */,
-				AA1B2C3D4E5F60718293A4B5 /* Image.swift in Sources */,
 				CF13E2F0EFAAC8CD1247A518 /* AppDatabase.swift in Sources */,
 				A574AF3025E01091510DBD32 /* AppDelegate.swift in Sources */,
 				CA6CC3DCFCE6E9CF4AAB72D5 /* AppIcon.swift in Sources */,
@@ -384,12 +386,14 @@
 				0E1F4539D228B41BF254E120 /* GroupList.swift in Sources */,
 				0B22235F8B087F10A8C4A962 /* GroupListItem.swift in Sources */,
 				AD9CE78D21BAE2F0F3B804D1 /* HealthDTO.swift in Sources */,
+				E81AD0C3CFBD04C7415B66D4 /* Image.swift in Sources */,
 				C6CE776F97807430B1AD6E3C /* ListCell.swift in Sources */,
 				286F72795C5D0F38B4ADEDCD /* MockAPIClient.swift in Sources */,
 				2A1364D6FBFF0848333BF8DF /* MonthPickerViewController.swift in Sources */,
 				5FCD3AEEF0DF02926A7F4B94 /* NavBar.swift in Sources */,
 				1DF63FB00D4953BB012F270D /* NavigationGrid.swift in Sources */,
 				ACC0864A442833B9D3AF4430 /* OptionPickerSheetViewController.swift in Sources */,
+				EA57F4DC6F4FAFB5A01379D7 /* Overlay.swift in Sources */,
 				79F91CCE9C91D490B72977B7 /* PeriodTabsView.swift in Sources */,
 				2B5949F9894171578AEE0C72 /* PullRefreshTableView.swift in Sources */,
 				EACD9C4AB942B3B95BF92906 /* StatusBarNavigationController.swift in Sources */,

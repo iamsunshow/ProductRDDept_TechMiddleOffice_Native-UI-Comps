@@ -24,7 +24,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.config-provider", name: "ConfigProvider 全局配置", reviewed: true, create: { ConfigProviderShowcase() }),
             DemoComponent(id: "ui.icon", name: "Icon 图标", reviewed: true, create: { IconShowcase() }),
             DemoComponent(id: "ui.image", name: "Image 图片", reviewed: true, create: { ImageShowcase() }),
-            DemoComponent(id: "ui.overlay", name: "Overlay 遮罩层", reviewed: false, create: { OverlayShowcase() }),
+            DemoComponent(id: "ui.overlay", name: "Overlay 遮罩层", reviewed: true, create: { OverlayShowcase() }),
         ]),
         ("布局组件", [
             DemoComponent(id: "ui.divider", name: "Divider 分割线", reviewed: false, create: nil),

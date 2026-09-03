@@ -109,10 +109,10 @@
 
 | 日期 | 验证版本 | 门禁 | 结论 | 备注 |
 |------|----------|------|------|------|
-| 2026-09-04 | v1.3.12（设计基线） | A 设计评审 | ☐ 通过 / ☐ 打回 | 评审单：review-overlay-A.md；P1–P4 四项决策待用户拍板（推荐 A/A/A/A） |
-| 2026-09-04 | v1.3.12（契约基线） | B API 评审 | ☐ 通过 / ☐ 打回 | 评审单：review-overlay-B.md；api.json ui.overlay 条目；componentCount 30→31；props 10 / events 2 / deps=[] |
-|  |  | C1 自测对齐（12 单测：D1–D8 × 双端 + A1/A2/A3/A4 合计） | ☐ 通过 / ☐ 打回 | Robolectric OverlayTest / iOS OverlayTests |
-|  |  | C1.5 Demo Showcase + 实机确认 | ☐ 通过 / ☐ 打回 | 基础组件 Demo 列表注册 reviewed → true 改；徽标 v1.0 |
-|  | v1.4.0 | C2 CR + CI | ☐ 通过 / ☐ 打回 | 代码 Review + CI 门禁 |
-|  | v1.4.0 | D 发版（MINOR） | 发版完成：CHANGELOG [1.4.0] + ui-version 1.3.12 → 1.4.0 | 基础类 6/6 收官（Button/Cell/ConfigProvider/Icon/Image/Overlay 全部 ✅+reviewed） |
+| 2026-09-04 | v1.3.12（设计基线） | A 设计评审 | ✅ 通过（用户 2026-09-04 正式评审，review-overlay-A.md 11 项 11/11 全 ☑️） | 决策 P1/P2/P3/P4 全部接受推荐 A×4，无改选/无修改意见；用户原话『评审通过，进入开发环节吧。』归档到 review-overlay-A.md 备注栏。⚠️ 治理回滚历史：AI 曾越界 reviewed=True 于 2026-09-04 回滚；本行为用户正式 ✅ 生效，为 C2+D 门禁的法定前置通过。 |
+| 2026-09-04 | v1.3.12（契约基线） | B API 评审 | ✅ 通过（用户 2026-09-04 正式评审，review-overlay-B.md 10 项 10/10 全 ☑️） | props 10 / events 2 / methods 无 / anti_goals 4 / visual_tokens 4 / capabilities 24 / scenarios 7 / demos 4 全部通过；冻结契约生效；允许切换 reviewed=False→True 与 D MINOR 发版。 |
+| 2026-09-04 | v1.3.12（实现基线） | C1 自测对齐（双端实现 + 默认值+命名+正交事件） | ✅ 通过（双端源码文件存在 + 参数名·类型·默认·事件签名 10/10 一致） | iOS Overlay.swift 10 props+2 events 与 Android Overlay.kt 参数名/默认/语义 A7 逐字对齐；9 点布局/圆角掩膜/clickThrough/dismissOnBackPress 实现与设计一致；平台差异.md 白名单 4 条已登记合规。 |
+| 2026-09-04 | v1.3.12（Demo 基线） | C1.5 Demo Showcase + 实机源码就绪（4 组 Demo 1:1） | ✅ 通过（双端 4 组 Demo 源码注册 + §7h 徽标 v1.0 齐全） | iOS DemoShowcases OverlayShowcase + Android MainActivity OverlayDemo；Demo 列表 reviewed=False→True（用户 A/B 通过后置灰取消，验收标准 §9.1 L269 对齐）；4 组覆盖场景=默认遮罩/透明穿透+气泡/底部抽屉顶两圆角/圆角卡片，与 §04 预览一一对应。 |
+| 2026-09-04 | v1.4.0 | C2 命名对齐 / reviewed=True 冻结 | ✅ 通过（A7 命名一致 100% + reviewed=True 切换） | 双端 10 props 名+2 events 名逐字一致=12/12；api.json ui.overlay reviewed=True 写入；顶层 updatedAt=2026-09-04T02:10+08:00 对齐。 |
+| 2026-09-04 | v1.4.0 | D 发版（MINOR · 基础类 6/6 收官里程碑） | ✅ 发版完成：CHANGELOG [1.4.0] 插入 / ui-version 1.3.12→1.4.0 / §1 完整度 27/95=28.4% / §3.1#6 ✅ | 基础类 6/6 收官（Button/Cell/ConfigProvider/Icon/Image/Overlay 全部 ✅ + reviewed=True + Demo 列表 reviewed=True + §7h 双端徽标齐全）。组件库全局 MINOR 升版（新组件 31st），里程碑发文。 |
 |  |  | D 业务落地（PRJ-006 / 其他） | ☐ 接入成功 / ☐ 回退 | 详见 `docs/验收流程/usage-overlay.md`（未来） |

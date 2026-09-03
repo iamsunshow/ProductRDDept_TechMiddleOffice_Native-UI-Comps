@@ -94,7 +94,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("ConfigProvider 全局配置", reviewed = true, demo = { ConfigProviderDemo() }),
         DemoComponent("Icon 图标", reviewed = true, demo = { IconDemo() }),
         DemoComponent("Image 图片", reviewed = true, demo = { ImageDemo() }),
-        DemoComponent("Overlay 遮罩层", reviewed = false, demo = { OverlayDemo() }),
+        DemoComponent("Overlay 遮罩层", reviewed = true, demo = { OverlayDemo() }),
     ),
     "布局组件" to listOf(
         DemoComponent("Divider 分割线"),

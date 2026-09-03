@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-09-04T01:40:00+08:00",
+  "updatedAt": "2026-09-04T02:10:00+08:00",
   "componentCount": 31,
   "components": [
     {
@@ -2297,10 +2297,10 @@
           "<Overlay visible contentRadius=\"lg\" onClose={fn}>\n  <SavedCard />\n</Overlay>"
         ]
       ],
-      "note": "P1–P4 决策按推荐 A 写入（门禁 A 评审单 review-overlay-A.md 待用户最终勾选；默认 A×4 推进，变更可按 review-overlay-B.md 流程回滚 api.json→re-review）：P1=A 挂载方式（iOS keyWindow addSubview / Android Compose Dialog）/ P2=A 一期仅 fade 200ms / P3=A closeOnMaskClick 默认 true + clickThrough + onMaskClick 独立 / P4=A 9 点位置 + offset；subcategory=basics（基础组件 #6，目标 6/6 收官）；tier=core；⚠️ 2026-09-04 违反流程（门禁 A/B 用户未评审就写 reviewed=True）已按治理规范回滚，**reviewed=False（待评审占位）** = 必须等 review-overlay-A.md（11 项）+ review-overlay-B.md（10 项）由用户逐项勾选 True 后才允许改为 True 并进入 C2+D 发版；任何 AI 不得绕过该门禁。",
+      "note": "用户 2026-09-04 正式评审通过（review-overlay-A.md 11 项 11/11 ☑️ + review-overlay-B.md 10 项 10/10 ☑️；决策 P1/P2/P3/P4 推荐 A×4 无改选；用户原话『评审通过，进入开发环节吧。』归档）；P1=A 挂载方式（iOS keyWindow addSubview / Android Compose Dialog）/ P2=A 一期仅 fade 200ms / P3=A closeOnMaskClick 默认 true + clickThrough + onMaskClick 独立 / P4=A 9 点位置 + offset；subcategory=basics（基础组件 #6，6/6 收官，与 Button/Cell/ConfigProvider/Icon/Image 同域）；tier=core；⚠️ 2026-09-04 治理回滚历史：AI 曾越界写入 reviewed=True，被用户指出违规后回滚至 False。本 reviewed=True 为用户正式勾选评审单后的合法切换。",
       "subcategory": "basics",
       "tier": "core",
-      "reviewed": false
+      "reviewed": true
     },
     {
       "id": "ui.button",

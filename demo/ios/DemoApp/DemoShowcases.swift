@@ -1881,101 +1881,19 @@ final class SpaceShowcase: ShowcaseViewController {
 
     // MARK: - Demo 内容构造
 
-    /// icon+文字 工具项（白底圆角细边框 + 左 icon 色块 + 文字，高 36）。
+    /// icon+文字 工具项（SpaceToolItemView 自带 intrinsic 内容宽，UIStackView 排布稳定）。
     private func makeToolItem(text: String, iconTint: UIColor) -> UIView {
-        let shell = makeItemShell()
-        let icon = UIView()
-        icon.backgroundColor = iconTint
-        icon.layer.cornerRadius = 4
-        let label = UILabel()
-        label.text = text
-        label.font = .systemFont(ofSize: AppFont.sizeSm)
-        label.textColor = AppColor.textPrimary
-        shell.addSubview(icon)
-        shell.addSubview(label)
-        icon.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(AppSpace.md)
-            make.centerY.equalToSuperview()
-            make.size.equalTo(CGSize(width: 14, height: 14))
-        }
-        label.snp.makeConstraints { make in
-            make.leading.equalTo(icon.snp.trailing).offset(AppSpace.xs + 2)
-            make.centerY.equalToSuperview()
-            make.trailing.equalToSuperview().offset(-AppSpace.md)
-        }
-        // 普通 UIView（无 intrinsicContentSize）进 UIStackView 会被 Auto Layout 摊分富余宽度、
-        // 首项拉大；required hugging 强制内容宽（与 Android Compose wrap_content 对齐）。
-        shell.setContentHuggingPriority(.required, for: .horizontal)
-        shell.setContentCompressionResistancePriority(.required, for: .horizontal)
-        return shell
+        SpaceToolItemView(text: text, iconTint: iconTint)
     }
 
-    /// 圆角小容器（白底 + 圆角 md + 细边框，高 36）。
-    private func makeItemShell() -> UIView {
-        let shell = UIView()
-        shell.backgroundColor = AppColor.bgCard
-        shell.layer.cornerRadius = AppRadius.md
-        shell.layer.borderWidth = 1 / UIScreen.main.scale
-        shell.layer.borderColor = AppColor.border.cgColor
-        shell.snp.makeConstraints { make in
-            make.height.equalTo(36)
-        }
-        return shell
-    }
-
-    /// 筛选 chip（primaryMuted 底 + primaryPressed 字，高 28）。
+    /// 筛选 chip（SpaceChipView 自带 intrinsic 内容宽）。
     private func makeChip(title: String) -> UIView {
-        let chip = UIView()
-        chip.backgroundColor = AppColor.primaryMuted
-        chip.layer.cornerRadius = 14
-        let label = UILabel()
-        label.text = title
-        label.font = .systemFont(ofSize: AppFont.sizeXs)
-        label.textColor = AppColor.primaryPressed
-        chip.addSubview(label)
-        label.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.leading.equalToSuperview().offset(AppSpace.md)
-            make.trailing.equalToSuperview().offset(-AppSpace.md)
-        }
-        chip.snp.makeConstraints { make in
-            make.height.equalTo(28)
-        }
-        chip.setContentHuggingPriority(.required, for: .horizontal)
-        chip.setContentCompressionResistancePriority(.required, for: .horizontal)
-        return chip
+        SpaceChipView(title: title)
     }
 
-    /// 区块双卡（白底圆角 lg + label/value 纵向堆叠，自然宽）。
+    /// 区块双卡（SpaceBadgeCardView 自带 intrinsic 内容宽）。
     private func makeBadgeCard(label: String, value: String, valueColor: UIColor) -> UIView {
-        let shell = UIView()
-        shell.backgroundColor = AppColor.bgCard
-        shell.layer.cornerRadius = AppRadius.lg
-        shell.layer.borderWidth = 1 / UIScreen.main.scale
-        shell.layer.borderColor = AppColor.border.cgColor
-
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.spacing = AppSpace.xs
-        shell.addSubview(stack)
-        stack.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(
-                UIEdgeInsets(top: AppSpace.md, left: AppSpace.lg, bottom: AppSpace.md, right: AppSpace.lg)
-            )
-        }
-        let caption = UILabel()
-        caption.text = label
-        caption.font = .systemFont(ofSize: AppFont.sizeXs)
-        caption.textColor = AppColor.textSecondary
-        let valueLabel = UILabel()
-        valueLabel.text = value
-        valueLabel.font = .systemFont(ofSize: AppFont.sizeMd, weight: .semibold)
-        valueLabel.textColor = valueColor
-        stack.addArrangedSubview(caption)
-        stack.addArrangedSubview(valueLabel)
-        shell.setContentHuggingPriority(.required, for: .horizontal)
-        shell.setContentCompressionResistancePriority(.required, for: .horizontal)
-        return shell
+        SpaceBadgeCardView(label: label, value: value, valueColor: valueColor)
     }
 
     /// key-value 单行（key 灰字 + value 主色，行内间距 sm=8；外层可直接进 vertical Space）。
@@ -1991,6 +1909,131 @@ final class SpaceShowcase: ShowcaseViewController {
         valueLabel.textColor = AppColor.textPrimary
         line.addItems([keyLabel, valueLabel])
         return line
+    }
+}
+
+// MARK: - Space Demo 子视图（自带 intrinsic 内容宽：UIStackView 对无 intrinsic 的普通 UIView
+// 子项排布时无法确定内容宽度，富余空间被摊给首项致其拉大；提供 intrinsic + required hugging 后
+// 按内容宽排布，与 Android Compose wrap_content 对齐）
+
+/// icon+文字 工具项（白底圆角细边框 + 左 icon 色块 + 文字，intrinsic 宽=md+icon14+gap+文字宽+md，高 36）。
+private final class SpaceToolItemView: UIView {
+    private let label = UILabel()
+
+    init(text: String, iconTint: UIColor) {
+        super.init(frame: .zero)
+        backgroundColor = AppColor.bgCard
+        layer.cornerRadius = AppRadius.md
+        layer.borderWidth = 1 / UIScreen.main.scale
+        layer.borderColor = AppColor.border.cgColor
+
+        let icon = UIView()
+        icon.backgroundColor = iconTint
+        icon.layer.cornerRadius = 4
+        label.text = text
+        label.font = .systemFont(ofSize: AppFont.sizeSm)
+        label.textColor = AppColor.textPrimary
+
+        addSubview(icon)
+        addSubview(label)
+        icon.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(AppSpace.md)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(CGSize(width: 14, height: 14))
+        }
+        label.snp.makeConstraints { make in
+            make.leading.equalTo(icon.snp.trailing).offset(AppSpace.xs + 2)
+            make.centerY.equalToSuperview()
+        }
+        setContentHuggingPriority(.required, for: .horizontal)
+        setContentCompressionResistancePriority(.required, for: .horizontal)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("SpaceToolItemView 不支持 NSCoder 解码")
+    }
+
+    override var intrinsicContentSize: CGSize {
+        let w = AppSpace.md + 14 + AppSpace.xs + 2 + label.intrinsicContentSize.width + AppSpace.md
+        return CGSize(width: w, height: 36)
+    }
+}
+
+/// 筛选 chip（primaryMuted 底 + primaryPressed 字，intrinsic 宽=md+文字宽+md，高 28）。
+private final class SpaceChipView: UIView {
+    private let label = UILabel()
+
+    init(title: String) {
+        super.init(frame: .zero)
+        backgroundColor = AppColor.primaryMuted
+        layer.cornerRadius = 14
+        label.text = title
+        label.font = .systemFont(ofSize: AppFont.sizeXs)
+        label.textColor = AppColor.primaryPressed
+
+        addSubview(label)
+        label.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.leading.equalToSuperview().offset(AppSpace.md)
+        }
+        setContentHuggingPriority(.required, for: .horizontal)
+        setContentCompressionResistancePriority(.required, for: .horizontal)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("SpaceChipView 不支持 NSCoder 解码")
+    }
+
+    override var intrinsicContentSize: CGSize {
+        let w = AppSpace.md + label.intrinsicContentSize.width + AppSpace.md
+        return CGSize(width: w, height: 28)
+    }
+}
+
+/// 区块双卡（白底圆角 lg + label/value 纵向堆叠，intrinsic 宽=最宽行+lg×2；高度由内部约束链闭环）。
+private final class SpaceBadgeCardView: UIView {
+    private let caption = UILabel()
+    private let valueLabel = UILabel()
+
+    init(label: String, value: String, valueColor: UIColor) {
+        super.init(frame: .zero)
+        backgroundColor = AppColor.bgCard
+        layer.cornerRadius = AppRadius.lg
+        layer.borderWidth = 1 / UIScreen.main.scale
+        layer.borderColor = AppColor.border.cgColor
+
+        caption.text = label
+        caption.font = .systemFont(ofSize: AppFont.sizeXs)
+        caption.textColor = AppColor.textSecondary
+        valueLabel.text = value
+        valueLabel.font = .systemFont(ofSize: AppFont.sizeMd, weight: .semibold)
+        valueLabel.textColor = valueColor
+
+        addSubview(caption)
+        addSubview(valueLabel)
+        caption.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(AppSpace.lg)
+            make.top.equalToSuperview().offset(AppSpace.md)
+        }
+        valueLabel.snp.makeConstraints { make in
+            make.leading.equalTo(caption.snp.leading)
+            make.top.equalTo(caption.snp.bottom).offset(AppSpace.xs)
+            make.bottom.equalToSuperview().offset(-AppSpace.md)
+        }
+        setContentHuggingPriority(.required, for: .horizontal)
+        setContentCompressionResistancePriority(.required, for: .horizontal)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("SpaceBadgeCardView 不支持 NSCoder 解码")
+    }
+
+    override var intrinsicContentSize: CGSize {
+        let longest = max(caption.intrinsicContentSize.width, valueLabel.intrinsicContentSize.width)
+        return CGSize(width: longest + AppSpace.lg * 2, height: UIView.noIntrinsicMetric)
     }
 }
 

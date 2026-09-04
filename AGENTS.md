@@ -11,12 +11,10 @@
 |------|--------|
 | 全文档导航（哪些文件是干什么的） | `docs/README.md` |
 | ★ 当前任务清单 + 进度（接续必读） | `docs/组件进度.md` |
-| 评审流程完整定义（五阶段 + 门禁 A/B/C1/C1.5/C2/D） | `docs/验收流程/验收标准.md` |
-| 开始做/验收一个组件 | `docs/验收流程/README.md` |
-| 评审打勾单（门禁 A/B） | `docs/验收流程/评审清单.md` |
-| 验收文档模板 | `docs/验收流程/验收模板.md` |
+| 评审流程/验收标准/模板/评审清单（唯一权威） | 《产研部-唯一权威手册》第二章（docs 原验收流程/ 已 2026-09-04 收拢删除） |
+| 开始做/验收一个组件 | 《产研部-唯一权威手册》第二章 + `docs/组件进度.md` |
 | ★ 双端 Demo 场景定义一致性门禁 | `scripts/check_demo_parity.py`（门禁 C1.5 第一步，必跑） |
-| 规范正文统一入口（开发规则/禁令/门禁/设计对齐/版本规则） | `docs/README.md`（唯一壳=正文在产研部唯一权威手册） |
+| 规范正文统一入口（开发规则/禁令/门禁/设计对齐/版本规则） | `docs/README.md`（导航=正文在产研部唯一权威手册） |
 | 样式 Token 铁律 | `docs/README.md` + `docs/数据与产物/design-token.json`（真实数据） |
 | 版本号 | `docs/数据与产物/ui-version.json` |
 | 组件分类口径（95 个，完整度基准） | `docs/组件进度.md` 第 1.1 节 |
@@ -39,8 +37,7 @@
 ```
 
 **关键动作**：
-- 每轮评审产出**评审意见单**：复制 `docs/验收流程/评审清单.md` 为 `review-<组件名>-A/B.md`，勾选留档。
-- 每组件验收文档：复制 `docs/验收流程/验收模板.md` 为 `component-acceptance-<组件名>.md`，五要素（设计细节/设计测试/API细节/API测试/效果查看）缺一打回。
+- 评审勾选与验收留痕：按《产研部-唯一权威手册》第二章模板执行，结论落 `docs/组件进度.md` 组件行 + CHANGELOG（中间单据不落库=git 历史留档）。
 - **每过一道门禁就更新 `docs/组件进度.md`**，否则其他 Agent 无法接续。
 - 验收产物一律 H5 页（设计规格 `docs/数据与产物/design-spec/*.html` / www 文档站），用户浏览器即可验收。
 
@@ -68,7 +65,7 @@
 | iOS | `demo/ios`（xcodegen 生成） | `cd demo/ios && xcodegen generate && open *.xcodeproj`，Xcode 跑模拟器 |
 | Android | `demo/android` | Android Studio 打开运行，或 `./gradlew :app:assembleDebug` |
 
-- 各组件 Demo 入口与查看指引见对应 `docs/验收流程/component-acceptance-<组件名>.md` 的「效果查看」节。
+- 各组件 Demo 入口与验收效果查看指引：`docs/数据与产物/design-spec/*.html`（浏览器打开）+ `docs/组件进度.md` 组件行归档。
 
 ---
 

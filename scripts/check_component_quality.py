@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """组件质量门禁脚本（门禁 C1 防线①④ + A6/A7），多组件支持。
 
-覆盖用例（与各组件验收文档 `docs/验收流程/component-acceptance-<id>.md` 用例 ID 对应）：
+覆盖用例（用例 ID 对应《产研部-唯一权威手册》第二章模板；验收留痕见 `docs/组件进度.md`）：
 - D6  token 硬编码扫描：实现文件禁写死十六进制色值，且必须引用设计 token
 - A6  契约 schema 校验：api.json `ui.<id>` 的 props/events/visual_tokens 合法
 - A7  双端命名对齐：双端 props/events 与 api.json 契约命名 100% 一致

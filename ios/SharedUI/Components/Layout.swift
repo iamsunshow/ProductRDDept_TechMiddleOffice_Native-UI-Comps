@@ -68,11 +68,16 @@ final class LayoutRow: UIView {
         guard !cols.isEmpty else { return }
         cols.forEach { $0.snp.removeConstraints() }
 
+        // gutter 仅存在于子项之间（首尾无 padding）：先从行宽中扣除全部间距，
+        // 剩余宽按 span/12 比例分配——与 Android `Arrangement.spacedBy + weight` 的
+        // 空间模型一致（否则 sum(span)=12 时行总宽 = 父宽 + gutter，右侧溢出）。
+        let totalGutter = gutter * CGFloat(cols.count - 1)
         var previous: LayoutCol?
         for (index, col) in cols.enumerated() {
             col.snp.makeConstraints { make in
-                // 宽 = 父宽 × span/12（12 栅格）
+                // 宽 = (父宽 − 全部间距) × span/12（12 栅格）
                 make.width.equalTo(self).multipliedBy(CGFloat(col.span) / 12.0)
+                    .offset(-totalGutter * CGFloat(col.span) / 12.0)
                 if let previous {
                     make.leading.equalTo(previous.snp.trailing).offset(gutter)
                 } else {

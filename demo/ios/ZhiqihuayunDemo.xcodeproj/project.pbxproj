@@ -12,7 +12,8 @@
 		0E1F4539D228B41BF254E120 /* GroupList.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE2D8A38CDA5E1EA29759D3E /* GroupList.swift */; };
 		12A2A02B2B7C1DCC3F8762C4 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E36A0907C0CF11E9783D53FB /* AppButton.swift */; };
 		13BCCC89E28C0FC6B2308C6C /* SummaryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD534E7B115B6495F8904031 /* SummaryCardView.swift */; };
-		1DF63FB00D4953BB012F270D /* NavigationGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34948E86D6FAAA1AA93C4FF /* NavigationGrid.swift */; };
+				1DF63FB00D4953BB012F270D /* Grid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F3D282267864AB86708A7FC /* Grid.swift */; };
+				DV1D3R000001000AABB0002 /* Divider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DV1D3R000001000AABB0001 /* Divider.swift */; };
 		1EB05D2B72FE2F73026A8AB6 /* TabsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F17F2603BDDFC72B15C7406 /* TabsView.swift */; };
 		1F0CE2342A174F4717DC0FA2 /* DemoMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25465F7307A8D784A68E80C1 /* DemoMocks.swift */; };
 		22FF1D0AF3CDF525669996F2 /* Charts in Frameworks */ = {isa = PBXBuildFile; productRef = A1BB258859A836B00224FD3E /* Charts */; };
@@ -23,7 +24,6 @@
 		5777E2BB1E9B4D66D6BD7D1C /* AppTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB12EE14F6BAC9025495CA13 /* AppTokens.swift */; };
 		5A56CCEB59E3697DAE2F2DC0 /* ZodiacAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C72A9BFFF678CD83092A62D /* ZodiacAvatarView.swift */; };
 		5C6F236DD1355D59DB9EBF78 /* WebContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EDD760398DE0D5C4A9C5997 /* WebContentViewController.swift */; };
-		5FCD3AEEF0DF02926A7F4B94 /* NavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F3D282267864AB86708A7FC /* NavBar.swift */; };
 		77784848AE80919C6DF2812A /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = A1937672A8F1834D8E28B01B /* Alamofire */; };
 		79F91CCE9C91D490B72977B7 /* PeriodTabsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0DF74002674A3001F64995 /* PeriodTabsView.swift */; };
 		894133E493AF6AC796F7417C /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B2561A62A1FAF93C38C686 /* Formatters.swift */; };
@@ -71,7 +71,8 @@
 		8855A96D9FA0EAD788439CA1 /* ConfigProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigProvider.swift; sourceTree = "<group>"; };
 		8C54D7F8239BF55B2F043010 /* SnapKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SnapKit; path = ../../ios/Vendor/SnapKit; sourceTree = SOURCE_ROOT; };
 		8F17F2603BDDFC72B15C7406 /* TabsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabsView.swift; sourceTree = "<group>"; };
-		8F3D282267864AB86708A7FC /* NavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavBar.swift; sourceTree = "<group>"; };
+		8F3D282267864AB86708A7FC /* Grid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grid.swift; sourceTree = "<group>"; };
+		DV1D3R000001000AABB0001 /* Divider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Divider.swift; sourceTree = "<group>"; };
 		978BB17F3FAD3ECDAB39B58A /* PullRefreshTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullRefreshTableView.swift; sourceTree = "<group>"; };
 		9E1C75478994AD561C65338A /* Overlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Overlay.swift; sourceTree = "<group>"; };
 		A2341A26182D931C95A7B3E3 /* Alamofire */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Alamofire; path = ../../ios/Vendor/Alamofire; sourceTree = SOURCE_ROOT; };
@@ -81,7 +82,6 @@
 		BD534E7B115B6495F8904031 /* SummaryCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryCardView.swift; sourceTree = "<group>"; };
 		C3002759747EA05CF7B9E853 /* DemoShowcases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoShowcases.swift; sourceTree = "<group>"; };
 		C8E867CF4A79AEC489AF173F /* ZhiqihuayunDemo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ZhiqihuayunDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		D34948E86D6FAAA1AA93C4FF /* NavigationGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationGrid.swift; sourceTree = "<group>"; };
 		DB12EE14F6BAC9025495CA13 /* AppTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTokens.swift; sourceTree = "<group>"; };
 		DE2D8A38CDA5E1EA29759D3E /* GroupList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupList.swift; sourceTree = "<group>"; };
 		E2F3DA45E7694551DEEFA6F5 /* Cell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
@@ -134,8 +134,8 @@
 				F8415379828FC7A89E3EDED4 /* Image.swift */,
 				B9AB119D396F37F5DA978A57 /* ListCell.swift */,
 				5DA75DA8F7E29DEEA4C578E2 /* MonthPickerViewController.swift */,
-				8F3D282267864AB86708A7FC /* NavBar.swift */,
-				D34948E86D6FAAA1AA93C4FF /* NavigationGrid.swift */,
+				8F3D282267864AB86708A7FC /* Grid.swift */,
+				DV1D3R000001000AABB0001 /* Divider.swift */,
 				24C4336791BDD8FE289677BA /* OptionPickerSheetViewController.swift */,
 				9E1C75478994AD561C65338A /* Overlay.swift */,
 				BB0DF74002674A3001F64995 /* PeriodTabsView.swift */,
@@ -390,8 +390,8 @@
 				C6CE776F97807430B1AD6E3C /* ListCell.swift in Sources */,
 				286F72795C5D0F38B4ADEDCD /* MockAPIClient.swift in Sources */,
 				2A1364D6FBFF0848333BF8DF /* MonthPickerViewController.swift in Sources */,
-				5FCD3AEEF0DF02926A7F4B94 /* NavBar.swift in Sources */,
-				1DF63FB00D4953BB012F270D /* NavigationGrid.swift in Sources */,
+				1DF63FB00D4953BB012F270D /* Grid.swift in Sources */,
+				DV1D3R000001000AABB0002 /* Divider.swift in Sources */,
 				ACC0864A442833B9D3AF4430 /* OptionPickerSheetViewController.swift in Sources */,
 				EA57F4DC6F4FAFB5A01379D7 /* Overlay.swift in Sources */,
 				79F91CCE9C91D490B72977B7 /* PeriodTabsView.swift in Sources */,

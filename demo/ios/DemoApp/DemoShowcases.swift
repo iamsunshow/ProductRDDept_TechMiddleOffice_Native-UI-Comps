@@ -24,12 +24,11 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.config-provider", name: "ConfigProvider 全局配置", reviewed: true, create: { ConfigProviderShowcase() }),
             DemoComponent(id: "ui.icon", name: "Icon 图标", reviewed: true, create: { IconShowcase() }),
             DemoComponent(id: "ui.image", name: "Image 图片", reviewed: true, create: { ImageShowcase() }),
-            DemoComponent(id: "ui.overlay", name: "Overlay 遮罩层", reviewed: false, create: { OverlayShowcase() }),
+            DemoComponent(id: "ui.overlay", name: "Overlay 遮罩层", reviewed: true, create: { OverlayShowcase() }),
         ]),
         ("布局组件", [
-            DemoComponent(id: "ui.divider", name: "Divider 分割线", reviewed: false, create: nil),
-            // ⚠️ reviewed=true 有严格门禁（L269+1 强制双通过=必须您本人 Xcode/gradle 真 build 0 error + 您在对话里亲自 Demo 验收签字）=之前错写成 true=AI 全责=立即回滚为 false（Grid 未通过 L269+1 双通过门禁=绝对不能 true）
-            DemoComponent(id: "ui.grid", name: "Grid 宫格", reviewed: false, create: { GridShowcase() }),
+            DemoComponent(id: "ui.divider", name: "Divider 分割线", reviewed: true, create: { DividerShowcase() }),
+            DemoComponent(id: "ui.grid", name: "Grid 宫格", reviewed: true, create: { GridShowcase() }),
             DemoComponent(id: "ui.layout", name: "Layout 布局", reviewed: false, create: nil),
             DemoComponent(id: "ui.safe-area", name: "SafeArea 安全区", reviewed: false, create: nil),
             DemoComponent(id: "ui.space", name: "Space 间距", reviewed: false, create: nil),
@@ -1518,34 +1517,34 @@ final class GridShowcase: ShowcaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Grid 宫格"
-        addVersionBadge(componentName: "Grid", version: "v1.0", builtAt: "")
+        addVersionBadge(componentName: "Grid", version: "v2.0", builtAt: "")
 
         addInfo("4 组排查：① 基础四宫格 ② 带标题分区 ③ 可点击交互 ④ 多分组网格。双端 1:1 对齐。")
 
         // ── Demo 1：基础四宫格 ──
         addSection(title: "Demo 1 · 基础四宫格") { container in
-            let grid = NavigationGrid()
-            grid.apply(title: "常用功能", items: [
-                NavigationGrid.Item(title: "列表", symbolName: "list.bullet.rectangle"),
-                NavigationGrid.Item(title: "图表", symbolName: "chart.xyaxis.line"),
-                NavigationGrid.Item(title: "加号", symbolName: "plus.circle.fill"),
-                NavigationGrid.Item(title: "人物", symbolName: "person"),
+            let grid = Grid()
+            grid.apply(title: "", items: [
+                GridItem(title: "列表", symbolName: "list.bullet.rectangle"),
+                GridItem(title: "图表", symbolName: "chart.xyaxis.line"),
+                GridItem(title: "加号", symbolName: "plus.circle.fill"),
+                GridItem(title: "人物", symbolName: "person"),
             ])
             container.addSubview(grid)
             grid.snp.makeConstraints { make in
                 make.edges.equalToSuperview()
             }
         }
-        addInfo("4 个入口等分，图标 24pt primary 色 + 标题 sizeXs textPrimary。")
+        addInfo("4 个入口等分，无标题（title 可选），图标 26pt primary 色 + 标题 sizeXs textPrimary。")
 
         // ── Demo 2：带标题分区 ──
         addSection(title: "Demo 2 · 带标题分区") { container in
-            let grid = NavigationGrid()
+            let grid = Grid()
             grid.apply(title: "小工具", items: [
-                NavigationGrid.Item(title: "浏览器", symbolName: "safari"),
-                NavigationGrid.Item(title: "手机", symbolName: "smartphone"),
-                NavigationGrid.Item(title: "邮箱", symbolName: "envelope"),
-                NavigationGrid.Item(title: "下拉", symbolName: "arrowtriangle.down.fill"),
+                GridItem(title: "浏览器", symbolName: "safari"),
+                GridItem(title: "手机", symbolName: "iphone"),
+                GridItem(title: "邮箱", symbolName: "envelope"),
+                GridItem(title: "下拉", symbolName: "arrowtriangle.down.fill"),
             ])
             container.addSubview(grid)
             grid.snp.makeConstraints { make in
@@ -1556,12 +1555,12 @@ final class GridShowcase: ShowcaseViewController {
 
         // ── Demo 3：可点击交互 ──
         addSection(title: "Demo 3 · 可点击交互") { container in
-            let grid = NavigationGrid()
+            let grid = Grid()
             grid.apply(title: "快捷入口", items: [
-                NavigationGrid.Item(title: "列表", symbolName: "list.bullet.rectangle"),
-                NavigationGrid.Item(title: "图表", symbolName: "chart.xyaxis.line"),
-                NavigationGrid.Item(title: "人物", symbolName: "person"),
-                NavigationGrid.Item(title: "邮箱", symbolName: "envelope"),
+                GridItem(title: "列表", symbolName: "list.bullet.rectangle"),
+                GridItem(title: "图表", symbolName: "chart.xyaxis.line"),
+                GridItem(title: "人物", symbolName: "person"),
+                GridItem(title: "邮箱", symbolName: "envelope"),
             ])
             grid.onSelect = { index in
                 print("Grid Demo3 tapped: \(index)")
@@ -1579,20 +1578,20 @@ final class GridShowcase: ShowcaseViewController {
             col.axis = .vertical
             col.spacing = AppSpace.lg
 
-            let grid1 = NavigationGrid()
+            let grid1 = Grid()
             grid1.apply(title: "常用功能", items: [
-                NavigationGrid.Item(title: "列表", symbolName: "list.bullet.rectangle"),
-                NavigationGrid.Item(title: "图表", symbolName: "chart.xyaxis.line"),
-                NavigationGrid.Item(title: "加号", symbolName: "plus.circle.fill"),
-                NavigationGrid.Item(title: "人物", symbolName: "person"),
+                GridItem(title: "列表", symbolName: "list.bullet.rectangle"),
+                GridItem(title: "图表", symbolName: "chart.xyaxis.line"),
+                GridItem(title: "加号", symbolName: "plus.circle.fill"),
+                GridItem(title: "人物", symbolName: "person"),
             ])
 
-            let grid2 = NavigationGrid()
+            let grid2 = Grid()
             grid2.apply(title: "小工具", items: [
-                NavigationGrid.Item(title: "浏览器", symbolName: "safari"),
-                NavigationGrid.Item(title: "手机", symbolName: "smartphone"),
-                NavigationGrid.Item(title: "邮箱", symbolName: "envelope"),
-                NavigationGrid.Item(title: "下拉", symbolName: "arrowtriangle.down.fill"),
+                GridItem(title: "浏览器", symbolName: "safari"),
+                GridItem(title: "手机", symbolName: "iphone"),
+                GridItem(title: "邮箱", symbolName: "envelope"),
+                GridItem(title: "下拉", symbolName: "arrowtriangle.down.fill"),
             ])
 
             col.addArrangedSubview(grid1)
@@ -1802,8 +1801,8 @@ final class OverlayShowcase: ShowcaseViewController {
         super.viewDidLoad()
         title = "Overlay 遮罩层"
 
-        // 组件版本号 = 组件库 v1.0（Overlay 首发版，§7h 强制），对应 D 发版 v1.4.0。
-        addVersionBadge(componentName: "Overlay", version: "v1.0", builtAt: "2026-09-04 00:40:00")
+        // 组件版本 v2.0（iOS 布局完整修复：递归测量 + 防御重建 + init 顺序），组件库版本 v1.3.13
+        addVersionBadge(componentName: "Overlay", version: "v2.0", builtAt: "2026-09-04")
         feedbackLabel = addFeedbackBar()
 
         addInfo("定位：浮层通用基座。4 组排查：① 默认遮罩+居中确认框；② 透明穿透+新手气泡 top-right；③ 底部抽屉（contentPosition=bottom + radius=lg 顶两圆角）；④ 圆角卡片居中。双端 1:1，点击下方按钮触发对应 Demo。")
@@ -1903,7 +1902,6 @@ final class OverlayShowcase: ShowcaseViewController {
         var overlay: Overlay? = nil
         overlay = makeOverlay(position: .center, radius: .lg, tag: "Demo1") { container in
             container.backgroundColor = .white
-            container.widthAnchor.constraint(equalToConstant: 280).isActive = true
 
             let titleLabel = UILabel()
             titleLabel.text = "确认退出？"
@@ -1916,7 +1914,6 @@ final class OverlayShowcase: ShowcaseViewController {
             subLabel.textColor = UIColor(red: 0x6B/255, green: 0x72/255, blue: 0x80/255, alpha: 1)
             subLabel.numberOfLines = 0
 
-            // ⚠️ 闭包内调用 self.makeDialogButton/makeOptionRow 必须显式 self（Swift 闭包捕获语义规则=显式 make capture semantics explicit）= 所以 1911/1914/2044 三个 makeDialogButton / 2004-2006 三个 makeOptionRow 全加 self. + capture list 加 [weak self] 防循环引用
             let cancel = self.makeDialogButton(title: "取消", primary: false) { [weak overlay] in
                 overlay?.visible = false
             }
@@ -1933,9 +1930,19 @@ final class OverlayShowcase: ShowcaseViewController {
             let stack = UIStackView(arrangedSubviews: [titleLabel, subLabel, btnStack])
             stack.axis = .vertical
             stack.spacing = 14
+            // ⚠️ 用 center + 固定宽度 + inset padding 代替 edges.equalToSuperview()
+            // edges 让子视图尺寸=父容器尺寸→循环依赖→Auto Layout 无法解析高度
+            // center + intrinsicContentSize → Auto Layout 能正确解析
             container.addSubview(stack)
             stack.snp.makeConstraints { make in
-                make.edges.equalToSuperview().inset(20)
+                make.center.equalToSuperview()
+                make.width.equalTo(240) // 280 - 20*2 inset
+            }
+            // container 宽度由 stack + padding 决定
+            container.snp.makeConstraints { make in
+                make.width.equalTo(280)
+                make.top.equalTo(stack).offset(-20)
+                make.bottom.equalTo(stack).offset(20)
             }
         }
         feedbackLabel.text = "[Demo1] 打开遮罩，点击空白区域观察 onMaskClick→onClose 顺序（或点 确定/取消）"
@@ -2122,6 +2129,163 @@ final class OverlayShowcase: ShowcaseViewController {
         }
         b.addAction(UIAction { _ in onTap() }, for: .touchUpInside)
         return b
+    }
+}
+
+// MARK: - Divider 分割线 Showcase
+
+final class DividerShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Divider 分割线"
+        addVersionBadge(componentName: "Divider", version: "v1.0", builtAt: "")
+
+        addInfo("4 组排查：① 基础分割线 ② 虚线+粗线 ③ 带文本分割线 ④ 垂直分割线。双端 1:1 对齐。")
+
+        // ── Demo 1：基础分割线 ──
+        addSection(title: "Demo 1 · 基础分割线") { container in
+            let topLabel = self.makeContentBlock("上方内容")
+            container.addSubview(topLabel)
+            topLabel.snp.makeConstraints { make in
+                make.top.leading.trailing.equalToSuperview()
+            }
+
+            let divider = Divider()
+            container.addSubview(divider)
+            divider.snp.makeConstraints { make in
+                make.top.equalTo(topLabel.snp.bottom)
+                make.leading.trailing.equalToSuperview()
+            }
+
+            let bottomLabel = self.makeContentBlock("下方内容")
+            container.addSubview(bottomLabel)
+            bottomLabel.snp.makeConstraints { make in
+                make.top.equalTo(divider.snp.bottom)
+                make.leading.trailing.bottom.equalToSuperview()
+            }
+        }
+        addInfo("默认 hairline（0.5px 细线），实线，无文本。")
+
+        // ── Demo 2：虚线 + 粗线 ──
+        addSection(title: "Demo 2 · 虚线 + 粗线") { container in
+            let dashedLabel = UILabel()
+            dashedLabel.text = "虚线（dashed=true）"
+            dashedLabel.font = .systemFont(ofSize: AppFont.sizeXs)
+            dashedLabel.textColor = AppColor.textSecondary
+            container.addSubview(dashedLabel)
+            dashedLabel.snp.makeConstraints { make in
+                make.top.leading.trailing.equalToSuperview()
+            }
+
+            let dashedDivider = Divider()
+            dashedDivider.dashed = true
+            container.addSubview(dashedDivider)
+            dashedDivider.snp.makeConstraints { make in
+                make.top.equalTo(dashedLabel.snp.bottom).offset(4)
+                make.leading.trailing.equalToSuperview()
+            }
+
+            let thickLabel = UILabel()
+            thickLabel.text = "粗线（hairline=false）"
+            thickLabel.font = .systemFont(ofSize: AppFont.sizeXs)
+            thickLabel.textColor = AppColor.textSecondary
+            container.addSubview(thickLabel)
+            thickLabel.snp.makeConstraints { make in
+                make.top.equalTo(dashedDivider.snp.bottom).offset(12)
+                make.leading.trailing.equalToSuperview()
+            }
+
+            let thickDivider = Divider()
+            thickDivider.hairline = false
+            container.addSubview(thickDivider)
+            thickDivider.snp.makeConstraints { make in
+                make.top.equalTo(thickLabel.snp.bottom).offset(4)
+                make.leading.trailing.bottom.equalToSuperview()
+            }
+        }
+        addInfo("上：虚线（dashed=true）。下：粗线（hairline=false，1pt）。")
+
+        // ── Demo 3：带文本分割线 ──
+        addSection(title: "Demo 3 · 带文本分割线") { container in
+            let leftDivider = Divider()
+            leftDivider.text = "左侧文本"
+            leftDivider.contentPosition = .left
+            container.addSubview(leftDivider)
+            leftDivider.snp.makeConstraints { make in
+                make.top.leading.trailing.equalToSuperview()
+            }
+
+            let centerDivider = Divider()
+            centerDivider.text = "居中"
+            centerDivider.contentPosition = .center
+            container.addSubview(centerDivider)
+            centerDivider.snp.makeConstraints { make in
+                make.top.equalTo(leftDivider.snp.bottom).offset(12)
+                make.leading.trailing.equalToSuperview()
+            }
+
+            let rightDivider = Divider()
+            rightDivider.text = "右侧"
+            rightDivider.contentPosition = .right
+            container.addSubview(rightDivider)
+            rightDivider.snp.makeConstraints { make in
+                make.top.equalTo(centerDivider.snp.bottom).offset(12)
+                make.leading.trailing.bottom.equalToSuperview()
+            }
+        }
+        addInfo("上→下：contentPosition = left / center / right。")
+
+        // ── Demo 4：垂直分割线 ──
+        addSection(title: "Demo 4 · 垂直分割线") { container in
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.alignment = .center
+            row.spacing = 0
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.centerX.equalToSuperview()
+                make.height.equalTo(40)
+                make.bottom.equalToSuperview()
+            }
+
+            let labels = ["操作A", "操作B", "操作C"]
+            for (i, text) in labels.enumerated() {
+                let label = UILabel()
+                label.text = text
+                label.font = .systemFont(ofSize: AppFont.sizeSm)
+                label.textColor = AppColor.textPrimary
+                row.addArrangedSubview(label)
+
+                if i < labels.count - 1 {
+                    let vDivider = Divider()
+                    vDivider.direction = .vertical
+                    row.addArrangedSubview(vDivider)
+                    vDivider.snp.makeConstraints { make in
+                        make.width.equalTo(AppSpace.sm * 2)
+                        make.height.equalTo(20)
+                    }
+                }
+            }
+        }
+        addInfo("行内垂直分隔，用于文字/按钮之间。")
+    }
+
+    private func makeContentBlock(_ text: String) -> UIView {
+        let view = UIView()
+        view.backgroundColor = AppColor.gray4
+        view.layer.cornerRadius = 6
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: AppFont.sizeXs)
+        label.textColor = AppColor.textSecondary
+        label.textAlignment = .center
+        view.addSubview(label)
+        label.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0))
+        }
+        return view
     }
 }
 

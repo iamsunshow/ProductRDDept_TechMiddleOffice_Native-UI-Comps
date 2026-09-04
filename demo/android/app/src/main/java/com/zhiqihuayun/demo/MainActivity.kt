@@ -57,8 +57,11 @@ import com.zhiqihuayun.sharedui.components.AppTheme
 import com.zhiqihuayun.sharedui.components.Cell
 import com.zhiqihuayun.sharedui.components.CellStatus
 import com.zhiqihuayun.sharedui.components.ConfigProvider
+import com.zhiqihuayun.sharedui.components.Divider
+import com.zhiqihuayun.sharedui.components.DividerContentPosition
+import com.zhiqihuayun.sharedui.components.DividerDirection
+import com.zhiqihuayun.sharedui.components.Grid
 import com.zhiqihuayun.sharedui.components.GridItem
-import com.zhiqihuayun.sharedui.components.NavigationGrid
 import com.zhiqihuayun.sharedui.components.ProfileListGroup
 import com.zhiqihuayun.sharedui.components.ProfileListItem
 import com.zhiqihuayun.sharedui.components.SummaryCardView
@@ -97,12 +100,11 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("ConfigProvider 全局配置", reviewed = true, demo = { ConfigProviderDemo() }),
         DemoComponent("Icon 图标", reviewed = true, demo = { IconDemo() }),
         DemoComponent("Image 图片", reviewed = true, demo = { ImageDemo() }),
-        DemoComponent("Overlay 遮罩层", reviewed = false, demo = { OverlayDemo() }),
+        DemoComponent("Overlay 遮罩层", reviewed = true, demo = { OverlayDemo() }),
     ),
     "布局组件" to listOf(
-        DemoComponent("Divider 分割线"),
-        // ⚠️ reviewed=true 有严格门禁（L269+1 强制双通过=必须您本人 Xcode/gradle 真 build 0 error + 您在对话里亲自 Demo 验收签字）=之前错写成 true=AI 全责=立即回滚为 false（Grid 未通过 L269+1 双通过门禁=绝对不能 true）
-        DemoComponent("Grid 宫格", reviewed = false, demo = { GridDemo() }),
+        DemoComponent("Divider 分割线", reviewed = true, demo = { DividerDemo() }),
+        DemoComponent("Grid 宫格", reviewed = true, demo = { GridDemo() }),
         DemoComponent("Layout 布局"),
         DemoComponent("SafeArea 安全区"),
         DemoComponent("Space 间距"),
@@ -1091,7 +1093,7 @@ private fun ListDemo() {
 @Composable
 private fun GridDemo() {
     Text(
-        text = "Grid 组件 v1.0",
+        text = "Grid 组件 v2.0",
         color = AppColor.primary,
         fontSize = AppFont.sizeXs,
         fontWeight = FontWeight.Medium,
@@ -1108,13 +1110,14 @@ private fun GridDemo() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {
         // ── Demo 1：基础四宫格 ──
         Text("Demo 1 · 基础四宫格", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
-        NavigationGrid(
-            title = "常用功能",
+        Grid(
+            title = "",
             items = listOf(
                 GridItem("列表", AppIconName.List),
                 GridItem("图表", AppIconName.Chart),
@@ -1125,7 +1128,7 @@ private fun GridDemo() {
 
         // ── Demo 2：带标题分区 ──
         Text("Demo 2 · 带标题分区", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
-        NavigationGrid(
+        Grid(
             title = "小工具",
             items = listOf(
                 GridItem("浏览器", AppIconName.Safari),
@@ -1137,7 +1140,7 @@ private fun GridDemo() {
 
         // ── Demo 3：可点击交互 ──
         Text("Demo 3 · 可点击交互", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
-        NavigationGrid(
+        Grid(
             title = "快捷入口",
             items = listOf(
                 GridItem("列表", AppIconName.List),
@@ -1152,7 +1155,7 @@ private fun GridDemo() {
 
         // ── Demo 4：多分组网格 ──
         Text("Demo 4 · 多分组网格", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
-        NavigationGrid(
+        Grid(
             title = "常用功能",
             items = listOf(
                 GridItem("列表", AppIconName.List),
@@ -1161,7 +1164,7 @@ private fun GridDemo() {
                 GridItem("人物", AppIconName.Person),
             )
         )
-        NavigationGrid(
+        Grid(
             title = "小工具",
             items = listOf(
                 GridItem("浏览器", AppIconName.Safari),
@@ -1329,9 +1332,9 @@ private fun LineChartDemo() {
 
 @Composable
 private fun OverlayDemo() {
-    // 组件版本号徽标：Overlay 首发 v1.0，对应组件库 v1.4.0（§7h 强制）
+    // 组件版本 v2.0（iOS 布局完整修复），组件库版本 v1.3.13
     Text(
-        text = "Overlay 组件 v1.0 (2026-09-04 00:40:00)",
+        text = "Overlay v2.0 (lib v1.3.13)",
         fontSize = AppFont.sizeSm,
         color = Color.White,
         modifier = Modifier
@@ -1408,6 +1411,7 @@ private fun OverlayDemo() {
         ) {
             Surface(
                 color = Color.White,
+                shape = RoundedCornerShape(14.dp),
                 modifier = Modifier.width(280.dp)
             ) {
                 Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -1467,7 +1471,7 @@ private fun OverlayDemo() {
             onClose = { d3Visible = false; feedback = "[Demo3] onClose 触发 → 已关闭" },
             onMaskClick = { feedback = "[Demo3] onMaskClick → 关闭" }
         ) {
-            Surface(color = Color.White) {
+            Surface(color = Color.White, shape = RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp)) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1538,5 +1542,101 @@ private fun BottomSheetRow(title: String, onClick: () -> Unit) {
         contentAlignment = Alignment.CenterStart
     ) {
         Text(title, fontSize = AppFont.sizeMd, color = Color(0xFF111827))
+    }
+}
+
+// ── Divider 分割线 Demo ──
+
+@Composable
+private fun DividerDemo() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // ── Demo 1：基础分割线 ──
+        DemoSection(title = "Demo 1 · 基础分割线") {
+            ContentBlock("上方内容")
+            Divider()
+            ContentBlock("下方内容")
+        }
+        Text(
+            text = "默认 hairline（0.5dp 细线），实线，无文本。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // ── Demo 2：虚线 + 粗线 ──
+        DemoSection(title = "Demo 2 · 虚线 + 粗线") {
+            Text("虚线（dashed=true）", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+            Spacer(modifier = Modifier.height(4.dp))
+            Divider(dashed = true)
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("粗线（hairline=false）", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+            Spacer(modifier = Modifier.height(4.dp))
+            Divider(hairline = false)
+        }
+        Text(
+            text = "上：虚线（dashed=true）。下：粗线（hairline=false，1dp）。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // ── Demo 3：带文本分割线 ──
+        DemoSection(title = "Demo 3 · 带文本分割线") {
+            Divider(text = "左侧文本", contentPosition = DividerContentPosition.Left)
+            Spacer(modifier = Modifier.height(12.dp))
+            Divider(text = "居中", contentPosition = DividerContentPosition.Center)
+            Spacer(modifier = Modifier.height(12.dp))
+            Divider(text = "右侧", contentPosition = DividerContentPosition.Right)
+        }
+        Text(
+            text = "上→下：contentPosition = left / center / right。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // ── Demo 4：垂直分割线 ──
+        DemoSection(title = "Demo 4 · 垂直分割线") {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("操作A", fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+                Divider(
+                    direction = DividerDirection.Vertical,
+                    modifier = Modifier.height(20.dp)
+                )
+                Text("操作B", fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+                Divider(
+                    direction = DividerDirection.Vertical,
+                    modifier = Modifier.height(20.dp)
+                )
+                Text("操作C", fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+            }
+        }
+        Text(
+            text = "行内垂直分隔，用于文字/按钮之间。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+    }
+}
+
+@Composable
+private fun ContentBlock(text: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppColor.gray4, RoundedCornerShape(6.dp))
+            .padding(vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = text, fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
     }
 }

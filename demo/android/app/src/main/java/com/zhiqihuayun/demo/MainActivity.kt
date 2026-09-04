@@ -101,7 +101,8 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
     ),
     "布局组件" to listOf(
         DemoComponent("Divider 分割线"),
-        DemoComponent("Grid 宫格", reviewed = true, demo = { GridDemo() }),
+        // ⚠️ reviewed=true 有严格门禁（L269+1 强制双通过=必须您本人 Xcode/gradle 真 build 0 error + 您在对话里亲自 Demo 验收签字）=之前错写成 true=AI 全责=立即回滚为 false（Grid 未通过 L269+1 双通过门禁=绝对不能 true）
+        DemoComponent("Grid 宫格", reviewed = false, demo = { GridDemo() }),
         DemoComponent("Layout 布局"),
         DemoComponent("SafeArea 安全区"),
         DemoComponent("Space 间距"),

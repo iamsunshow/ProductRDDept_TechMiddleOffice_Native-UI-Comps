@@ -28,7 +28,8 @@ final class DemoListViewController: UITableViewController {
         ]),
         ("布局组件", [
             DemoComponent(id: "ui.divider", name: "Divider 分割线", reviewed: false, create: nil),
-            DemoComponent(id: "ui.grid", name: "Grid 宫格", reviewed: true, create: { GridShowcase() }),
+            // ⚠️ reviewed=true 有严格门禁（L269+1 强制双通过=必须您本人 Xcode/gradle 真 build 0 error + 您在对话里亲自 Demo 验收签字）=之前错写成 true=AI 全责=立即回滚为 false（Grid 未通过 L269+1 双通过门禁=绝对不能 true）
+            DemoComponent(id: "ui.grid", name: "Grid 宫格", reviewed: false, create: { GridShowcase() }),
             DemoComponent(id: "ui.layout", name: "Layout 布局", reviewed: false, create: nil),
             DemoComponent(id: "ui.safe-area", name: "SafeArea 安全区", reviewed: false, create: nil),
             DemoComponent(id: "ui.space", name: "Space 间距", reviewed: false, create: nil),

@@ -1510,7 +1510,7 @@
       ],
       "note": "多格入口矩阵；单块容器用 Card",
       "subcategory": "navigation",
-      "reviewed": true
+      "reviewed": false
     },
     {
       "id": "ui.card",

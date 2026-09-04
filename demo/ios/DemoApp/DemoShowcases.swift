@@ -29,7 +29,7 @@ final class DemoListViewController: UITableViewController {
         ("布局组件", [
             DemoComponent(id: "ui.divider", name: "Divider 分割线", reviewed: true, create: { DividerShowcase() }),
             DemoComponent(id: "ui.grid", name: "Grid 宫格", reviewed: true, create: { GridShowcase() }),
-            DemoComponent(id: "ui.layout", name: "Layout 布局", reviewed: false, create: nil),
+            DemoComponent(id: "ui.layout", name: "Layout 布局", reviewed: true, create: { LayoutShowcase() }),
             DemoComponent(id: "ui.safe-area", name: "SafeArea 安全区", reviewed: false, create: nil),
             DemoComponent(id: "ui.space", name: "Space 间距", reviewed: false, create: nil),
             DemoComponent(id: "ui.sticky", name: "Sticky 粘性布局", reviewed: false, create: nil),
@@ -1602,6 +1602,191 @@ final class GridShowcase: ShowcaseViewController {
             }
         }
         addInfo("两个独立 Grid，间距 AppSpace.lg，模拟发现页。")
+    }
+}
+
+// MARK: - Layout Showcase（Layout 布局组件独立 Demo 页，与 Android LayoutDemo 一一对应）
+
+final class LayoutShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Layout 布局"
+        addVersionBadge(componentName: "Layout", version: "v1.0", builtAt: "")
+
+        addInfo("4 组排查：① 双栏统计卡片 ② 详情 label-value 行 ③ 筛选/工具行 ④ 嵌套组合。双端 1:1 对齐。")
+
+        // ── Demo 1：双栏统计卡片（span 6+6）──
+        addSection(title: "Demo 1 · 双栏统计卡片") { container in
+            let row = LayoutRow()
+            container.addSubview(row)
+            row.snp.makeConstraints { $0.edges.equalToSuperview() }
+
+            let colA = LayoutCol(span: 6)
+            let colB = LayoutCol(span: 6)
+            row.addCols([colA, colB])
+
+            let cardA = makeStatCard(amount: "+¥12,680", amountColor: AppColor.income, label: "本月收入")
+            let cardB = makeStatCard(amount: "−¥8,340", amountColor: AppColor.expense, label: "本月支出")
+            colA.addSubview(cardA)
+            cardA.snp.makeConstraints { $0.edges.equalToSuperview() }
+            colB.addSubview(cardB)
+            cardB.snp.makeConstraints { $0.edges.equalToSuperview() }
+        }
+
+        // ── Demo 2：详情 label-value 行（span 4+8）──
+        addSection(title: "Demo 2 · 详情 label-value 行") { container in
+            let rows = UIStackView()
+            rows.axis = .vertical
+            rows.spacing = AppSpace.sm
+            container.addSubview(rows)
+            rows.snp.makeConstraints { $0.edges.equalToSuperview() }
+
+            rows.addArrangedSubview(makeKVRow(key: "分类", value: "餐饮 · 工作日午餐"))
+            rows.addArrangedSubview(makeKVRow(key: "账户", value: "招商银行(4609)"))
+            rows.addArrangedSubview(makeKVRow(key: "备注", value: "—"))
+        }
+
+        // ── Demo 3：筛选/工具行（span 4+4+4）──
+        addSection(title: "Demo 3 · 筛选/工具行") { container in
+            let row = LayoutRow()
+            container.addSubview(row)
+            row.snp.makeConstraints { $0.edges.equalToSuperview() }
+
+            let colA = LayoutCol(span: 4)
+            let colB = LayoutCol(span: 4)
+            let colC = LayoutCol(span: 4)
+            row.addCols([colA, colB, colC])
+
+            colA.addSubview(makePill(title: "周"))
+            colB.addSubview(makePill(title: "月"))
+            colC.addSubview(makePill(title: "年"))
+            colA.subviews.first?.snp.makeConstraints { $0.edges.equalToSuperview() }
+            colB.subviews.first?.snp.makeConstraints { $0.edges.equalToSuperview() }
+            colC.subviews.first?.snp.makeConstraints { $0.edges.equalToSuperview() }
+        }
+
+        // ── Demo 4：嵌套与组合（Row 内嵌 Row）──
+        addSection(title: "Demo 4 · 嵌套与组合") { container in
+            let row = LayoutRow()
+            container.addSubview(row)
+            row.snp.makeConstraints { $0.edges.equalToSuperview() }
+
+            let colA = LayoutCol(span: 6)
+            let colB = LayoutCol(span: 6)
+            row.addCols([colA, colB])
+
+            let cardA = makeKVCard(
+                title: "今日账单",
+                rows: [("支出", "¥260.00"), ("笔数", "6 笔")]
+            )
+            let cardB = makeKVCard(
+                title: "本月小计",
+                rows: [("支出", "¥1,240.00"), ("收入", "¥2,800.00")]
+            )
+            colA.addSubview(cardA)
+            cardA.snp.makeConstraints { $0.edges.equalToSuperview() }
+            colB.addSubview(cardB)
+            cardB.snp.makeConstraints { $0.edges.equalToSuperview() }
+        }
+    }
+
+    // MARK: - Demo 内容构造
+
+    /// 统计卡片（白底圆角边框，数值 + 标签）。
+    private func makeStatCard(amount: String, amountColor: UIColor, label: String) -> UIView {
+        let shell = makeCardBase()
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = AppSpace.xs
+        shell.addSubview(stack)
+        stack.snp.makeConstraints { $0.edges.equalToSuperview().inset(AppSpace.lg) }
+
+        let value = UILabel()
+        value.font = .systemFont(ofSize: AppFont.sizeLg, weight: .semibold)
+        value.textColor = amountColor
+        value.text = amount
+        let caption = UILabel()
+        caption.font = .systemFont(ofSize: AppFont.sizeXs)
+        caption.textColor = AppColor.textSecondary
+        caption.text = label
+        stack.addArrangedSubview(value)
+        stack.addArrangedSubview(caption)
+        return shell
+    }
+
+    /// kv 卡片（标题 + 多行 label-value），与 makeStatCard 同构等高。
+    private func makeKVCard(title: String, rows: [(String, String)]) -> UIView {
+        let shell = makeCardBase()
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = AppSpace.sm
+        shell.addSubview(stack)
+        stack.snp.makeConstraints { $0.edges.equalToSuperview().inset(AppSpace.lg) }
+
+        let titleLabel = UILabel()
+        titleLabel.font = .systemFont(ofSize: AppFont.sizeSm, weight: .semibold)
+        titleLabel.textColor = AppColor.textPrimary
+        titleLabel.text = title
+        stack.addArrangedSubview(titleLabel)
+
+        for (key, value) in rows {
+            stack.addArrangedSubview(makeKVRow(key: key, value: value))
+        }
+        return shell
+    }
+
+    /// 卡片底（白底 + 圆角 lg + 细边框）。
+    private func makeCardBase() -> UIView {
+        let shell = UIView()
+        shell.backgroundColor = AppColor.bgCard
+        shell.layer.cornerRadius = AppRadius.lg
+        shell.layer.borderWidth = 1 / UIScreen.main.scale
+        shell.layer.borderColor = AppColor.border.cgColor
+        return shell
+    }
+
+    /// label-value 单行（LayoutRow span 4+8；key 灰字、value 主色）。
+    private func makeKVRow(key: String, value: String) -> UIView {
+        let row = LayoutRow()
+        let keyCol = LayoutCol(span: 4)
+        let valueCol = LayoutCol(span: 8)
+        row.addCols([keyCol, valueCol])
+
+        let keyLabel = UILabel()
+        keyLabel.font = .systemFont(ofSize: AppFont.sizeSm)
+        keyLabel.textColor = AppColor.textSecondary
+        keyLabel.text = key
+        keyCol.addSubview(keyLabel)
+        keyLabel.snp.makeConstraints { $0.edges.equalToSuperview() }
+
+        let valueLabel = UILabel()
+        valueLabel.font = .systemFont(ofSize: AppFont.sizeSm)
+        valueLabel.textColor = AppColor.textPrimary
+        valueLabel.text = value
+        valueCol.addSubview(valueLabel)
+        valueLabel.snp.makeConstraints { $0.edges.equalToSuperview() }
+        return row
+    }
+
+    /// 圆角药丸（primaryMuted 底 + primaryPressed 字，高 32）。
+    private func makePill(title: String) -> UIView {
+        let pill = UIView()
+        pill.backgroundColor = AppColor.primaryMuted
+        pill.layer.cornerRadius = 16
+        let label = UILabel()
+        label.text = title
+        label.font = .systemFont(ofSize: AppFont.sizeSm)
+        label.textColor = AppColor.primaryPressed
+        pill.addSubview(label)
+        label.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(AppSpace.sm)
+        }
+        pill.snp.makeConstraints { make in
+            make.height.equalTo(32)
+        }
+        return pill
     }
 }
 

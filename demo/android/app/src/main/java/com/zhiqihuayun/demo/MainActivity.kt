@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -70,6 +71,8 @@ import com.zhiqihuayun.sharedui.components.TrendChartView
 import com.zhiqihuayun.sharedui.components.Overlay
 import com.zhiqihuayun.sharedui.components.EmptyStateView
 import com.zhiqihuayun.sharedui.components.AvatarOption
+import com.zhiqihuayun.sharedui.components.LayoutCol
+import com.zhiqihuayun.sharedui.components.LayoutRow
 import com.zhiqihuayun.sharedui.components.ZodiacAvatar
 
 class MainActivity : ComponentActivity() {
@@ -105,7 +108,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
     "布局组件" to listOf(
         DemoComponent("Divider 分割线", reviewed = true, demo = { DividerDemo() }),
         DemoComponent("Grid 宫格", reviewed = true, demo = { GridDemo() }),
-        DemoComponent("Layout 布局"),
+        DemoComponent("Layout 布局", reviewed = true, demo = { LayoutDemo() }),
         DemoComponent("SafeArea 安全区"),
         DemoComponent("Space 间距"),
         DemoComponent("Sticky 粘性布局"),
@@ -1173,6 +1176,138 @@ private fun GridDemo() {
                 GridItem("下拉", AppIconName.ArrowDown),
             )
         )
+    }
+}
+
+// ===== Layout 布局组件 Demo 页（独立页面，与 iOS LayoutShowcase 一一对应） =====
+
+@Composable
+private fun LayoutDemo() {
+    Text(
+        text = "Layout 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 组排查：① 双栏统计卡片 ② 详情 label-value 行 ③ 筛选/工具行 ④ 嵌套组合。双端 1:1 对齐。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // ── Demo 1：双栏统计卡片（span 6+6）──
+        Text("Demo 1 · 双栏统计卡片", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        LayoutRow {
+            LayoutCol(span = 6) {
+                DemoStatCard(amount = "+¥12,680", amountColor = AppColor.income, label = "本月收入")
+            }
+            LayoutCol(span = 6) {
+                DemoStatCard(amount = "−¥8,340", amountColor = AppColor.expense, label = "本月支出")
+            }
+        }
+
+        // ── Demo 2：详情 label-value 行（span 4+8）──
+        Text("Demo 2 · 详情 label-value 行", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(AppSpace.sm)
+        ) {
+            DemoKVRow(key = "分类", value = "餐饮 · 工作日午餐")
+            DemoKVRow(key = "账户", value = "招商银行(4609)")
+            DemoKVRow(key = "备注", value = "—")
+        }
+
+        // ── Demo 3：筛选/工具行（span 4+4+4）──
+        Text("Demo 3 · 筛选/工具行", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        LayoutRow {
+            LayoutCol(span = 4) { DemoPill(title = "周") }
+            LayoutCol(span = 4) { DemoPill(title = "月") }
+            LayoutCol(span = 4) { DemoPill(title = "年") }
+        }
+
+        // ── Demo 4：嵌套与组合（Row 内嵌 Row）──
+        Text("Demo 4 · 嵌套与组合", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        LayoutRow {
+            LayoutCol(span = 6) {
+                DemoKVCard(title = "今日账单", rows = listOf("支出" to "¥260.00", "笔数" to "6 笔"))
+            }
+            LayoutCol(span = 6) {
+                DemoKVCard(title = "本月小计", rows = listOf("支出" to "¥1,240.00", "收入" to "¥2,800.00"))
+            }
+        }
+    }
+}
+
+@Composable
+private fun DemoStatCard(amount: String, amountColor: Color, label: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppColor.bgCard, RoundedCornerShape(AppRadius.lg))
+            .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.lg))
+            .padding(AppSpace.lg)
+    ) {
+        Text(amount, fontSize = AppFont.sizeLg, fontWeight = FontWeight.SemiBold, color = amountColor)
+        Spacer(modifier = Modifier.height(AppSpace.xs))
+        Text(label, fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+    }
+}
+
+@Composable
+private fun DemoKVCard(title: String, rows: List<Pair<String, String>>) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppColor.bgCard, RoundedCornerShape(AppRadius.lg))
+            .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.lg))
+            .padding(AppSpace.lg),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.sm)
+    ) {
+        Text(title, fontSize = AppFont.sizeSm, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        rows.forEach { (key, value) ->
+            LayoutRow {
+                LayoutCol(span = 4) {
+                    Text(key, fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                }
+                LayoutCol(span = 8) {
+                    Text(value, fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DemoKVRow(key: String, value: String) {
+    LayoutRow {
+        LayoutCol(span = 4) {
+            Text(key, fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+        }
+        LayoutCol(span = 8) {
+            Text(value, fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+        }
+    }
+}
+
+@Composable
+private fun DemoPill(title: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(32.dp)
+            .background(AppColor.primaryMuted, RoundedCornerShape(16.dp)),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(title, fontSize = AppFont.sizeSm, color = AppColor.primaryPressed)
     }
 }
 

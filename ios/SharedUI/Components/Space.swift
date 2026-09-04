@@ -42,7 +42,9 @@ final class Space: UIStackView {
     }
 
     @available(*, unavailable)
-    required init(coder: NSCoder) { nil }
+    required init(coder: NSCoder) {
+        fatalError("Space 不支持 initWithCoder 解码，请使用 init(direction:spacing:)。")
+    }
 
     /// 添加一个子项。
     func addItem(_ item: UIView) {

@@ -30,7 +30,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.divider", name: "Divider 分割线", reviewed: true, create: { DividerShowcase() }),
             DemoComponent(id: "ui.grid", name: "Grid 宫格", reviewed: true, create: { GridShowcase() }),
             DemoComponent(id: "ui.layout", name: "Layout 布局", reviewed: true, create: { LayoutShowcase() }),
-            DemoComponent(id: "ui.safe-area", name: "SafeArea 安全区", reviewed: false, create: nil),
+            DemoComponent(id: "ui.safe-area", name: "SafeArea 安全区", reviewed: true, create: { SafeAreaShowcase() }),
             DemoComponent(id: "ui.space", name: "Space 间距", reviewed: true, create: { SpaceShowcase() }),
             DemoComponent(id: "ui.sticky", name: "Sticky 粘性布局", reviewed: false, create: nil),
         ]),
@@ -2718,6 +2718,191 @@ final class DividerShowcase: ShowcaseViewController {
             make.edges.equalToSuperview().inset(UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0))
         }
         return view
+    }
+}
+
+// MARK: - SafeArea Showcase（SafeArea 安全区 Demo 页，布局组件）
+
+/// SafeArea 安全区：内容避让系统安全区（刘海/状态栏/圆角/Home Indicator/手势区）的容器。
+/// 语义：内容自动贴安全区四边排布；edges 可裁剪避让边（默认全边）。
+/// 说明：本 demo 容器位于导航页中部（上下无系统栏压力），运行时安全区值=0，视觉等同普通容器；
+/// 接入页面边缘（沉浸式 header/底部操作条/横屏）时自动生效，见各段标注与 Android demo 对照。
+final class SafeAreaShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "SafeArea", version: "v1.0", builtAt: "2026-09-04")
+
+        addSection("D1 · SafeAreaView 真实组件（默认全边避让）") { container in
+            container.backgroundColor = AppColor.gray4
+            container.layer.cornerRadius = AppRadius.md
+            container.clipsToBounds = true
+
+            let safe = SafeAreaView()
+            container.addSubview(safe)
+            safe.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(AppSpace.md)
+            }
+
+            let inner = UIView()
+            inner.backgroundColor = AppColor.bgCard
+            safe.addContent(inner)
+
+            let label = UILabel()
+            label.text = "内容在 SafeAreaView 容器内\n（四边自动贴系统安全区）"
+            label.font = .systemFont(ofSize: AppFont.sizeXs)
+            label.textColor = AppColor.textPrimary
+            label.numberOfLines = 0
+            label.textAlignment = .center
+            inner.addSubview(label)
+            label.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(AppSpace.lg)
+            }
+        }
+        addInfo("页面中部运行时安全区=0（视觉等同普通容器）；接入页面边缘时自动避开状态栏/刘海/Home Indicator/圆角。")
+
+        addSection("D2 · 顶部避让语义对照（示意：模拟系统带）") { container in
+            let systemBar = Self.simulatedBar(text: "系统区（状态栏/刘海，示意）")
+            container.addSubview(systemBar)
+            systemBar.snp.makeConstraints { make in
+                make.top.leading.trailing.equalToSuperview()
+                make.height.equalTo(28)
+            }
+
+            let bad = Self.stripCard(text: "✗ 无 SafeArea：内容紧贴系统区，刘海机型会压字", color: .systemRed.withAlphaComponent(0.06))
+            container.addSubview(bad)
+            bad.snp.makeConstraints { make in
+                make.top.equalTo(systemBar.snp.bottom).offset(AppSpace.sm)
+                make.leading.trailing.equalToSuperview()
+            }
+
+            let good = Self.stripCard(text: "✓ 内容在 SafeArea 内：从安全区下开始，不压系统区", color: AppColor.primaryMuted)
+            container.addSubview(good)
+            good.snp.makeConstraints { make in
+                make.top.equalTo(bad.snp.bottom).offset(AppSpace.sm)
+                make.leading.trailing.bottom.equalToSuperview()
+            }
+        }
+        addInfo("避让数值取系统实时 insets（零硬编码），真机/不同机型自动适配。")
+
+        addSection("D3 · 沉浸式页面四边避让（示意）") { container in
+            let screen = UIView()
+            screen.backgroundColor = AppColor.bgCard
+            screen.layer.cornerRadius = AppRadius.lg
+            screen.layer.borderWidth = 0.5
+            screen.layer.borderColor = AppColor.gray4.cgColor
+            container.addSubview(screen)
+            screen.snp.makeConstraints { make in make.edges.equalToSuperview() }
+
+            let head = UIView()
+            head.backgroundColor = AppColor.primary
+            head.layer.cornerRadius = AppRadius.lg
+            screen.addSubview(head)
+            head.snp.makeConstraints { make in
+                make.top.leading.trailing.equalToSuperview()
+                make.height.equalTo(64)
+            }
+            let headLabel = Self.pill("沉浸 header（全屏出血，颜色自绘到屏幕边缘）")
+            head.addSubview(headLabel)
+            headLabel.snp.makeConstraints { make in make.center.equalToSuperview() }
+
+            let safe = SafeAreaView(edges: [.top, .bottom, .left, .right])
+            screen.addSubview(safe)
+            safe.snp.makeConstraints { make in
+                make.top.equalTo(head.snp.bottom)
+                make.leading.trailing.bottom.equalToSuperview()
+            }
+            let body = Self.stripCard(text: "页面内容在 SafeArea 内：避开刘海/Home Indicator/圆角后正常排版", color: AppColor.primaryMuted)
+            safe.addContent(body)
+        }
+        addInfo("沉浸式页面：颜色层延伸到屏幕边缘，内容层套 SafeArea 保证文字不压系统区。")
+
+        addSection("D4 · edges 边裁剪（仅避顶 / 仅避底）") { container in
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.spacing = AppSpace.md
+            row.distribution = .fillEqually
+            container.addSubview(row)
+            row.snp.makeConstraints { make in make.edges.equalToSuperview() }
+
+            row.addArrangedSubview(Self.edgeCard(title: "仅避 top", detail: "顶部自绘背景出血、文字避让；底部内容贴边", edges: [.top]))
+            row.addArrangedSubview(Self.edgeCard(title: "仅避 bottom", detail: "底部自绘 tab 背景贴边，内容上移避开手势区", edges: [.bottom]))
+        }
+        addInfo("edges 裁剪入口：默认四边全避，沉浸式页面按需只避单边。")
+    }
+
+    // MARK: helpers
+
+    private static func simulatedBar(text: String) -> UIView {
+        let bar = UIView()
+        bar.backgroundColor = AppColor.gray4
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: AppFont.sizeXs)
+        label.textColor = AppColor.textSecondary
+        label.textAlignment = .center
+        bar.addSubview(label)
+        label.snp.makeConstraints { make in make.center.equalToSuperview() }
+        return bar
+    }
+
+    private static func stripCard(text: String, color: UIColor) -> UIView {
+        let card = UIView()
+        card.backgroundColor = color
+        card.layer.cornerRadius = AppRadius.sm
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: AppFont.sizeXs)
+        label.textColor = AppColor.textPrimary
+        label.numberOfLines = 0
+        card.addSubview(label)
+        label.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.md, left: AppSpace.md, bottom: AppSpace.md, right: AppSpace.md))
+        }
+        return card
+    }
+
+    private static func pill(_ text: String) -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: AppFont.sizeXs)
+        label.textColor = UIColor.white
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        return label
+    }
+
+    private static func edgeCard(title: String, detail: String, edges: SafeAreaView.Edge) -> UIView {
+        let card = UIView()
+        card.backgroundColor = AppColor.bgCard
+        card.layer.cornerRadius = AppRadius.md
+        card.layer.borderWidth = 0.5
+        card.layer.borderColor = AppColor.gray4.cgColor
+
+        let safe = SafeAreaView(edges: edges)
+        card.addSubview(safe)
+        safe.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.leading.trailing.bottom.equalToSuperview()
+        }
+        let t = UILabel()
+        t.text = title
+        t.font = .systemFont(ofSize: AppFont.sizeXs, weight: .semibold)
+        t.textColor = AppColor.textPrimary
+        let d = UILabel()
+        d.text = detail
+        d.font = .systemFont(ofSize: AppFont.sizeXs)
+        d.textColor = AppColor.textSecondary
+        d.numberOfLines = 0
+        safe.addContent(UIView()) // 仅占位；说明文案放 card 直接加
+        card.addSubview(t)
+        t.snp.makeConstraints { make in make.top.leading.trailing.equalToSuperview().inset(AppSpace.md) }
+        card.addSubview(d)
+        d.snp.makeConstraints { make in
+            make.top.equalTo(t.snp.bottom).offset(AppSpace.xs)
+            make.leading.trailing.bottom.equalToSuperview().inset(AppSpace.md)
+        }
+        return card
     }
 }
 

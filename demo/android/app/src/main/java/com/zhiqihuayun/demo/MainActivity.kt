@@ -49,6 +49,9 @@ import androidx.compose.ui.unit.dp
 import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppFont
 import com.zhiqihuayun.foundation.design.AppRadius
+import com.zhiqihuayun.sharedui.components.SafeArea
+import com.zhiqihuayun.sharedui.components.SafeAreaAllEdges
+import com.zhiqihuayun.sharedui.components.SafeAreaEdges
 import com.zhiqihuayun.foundation.design.AppSpace
 import com.zhiqihuayun.sharedui.components.AppButton
 import com.zhiqihuayun.sharedui.components.AppButtonStyle
@@ -111,7 +114,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Divider 分割线", reviewed = true, demo = { DividerDemo() }),
         DemoComponent("Grid 宫格", reviewed = true, demo = { GridDemo() }),
         DemoComponent("Layout 布局", reviewed = true, demo = { LayoutDemo() }),
-        DemoComponent("SafeArea 安全区"),
+        DemoComponent("SafeArea 安全区", reviewed = true, demo = { SafeAreaDemo() }),
         DemoComponent("Space 间距", reviewed = true, demo = { SpaceDemo() }),
         DemoComponent("Sticky 粘性布局"),
     ),
@@ -1905,5 +1908,168 @@ private fun ContentBlock(text: String) {
         contentAlignment = Alignment.Center
     ) {
         Text(text = text, fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+    }
+}
+
+// ===== SafeArea 安全区 Demo 页（与 iOS SafeAreaShowcase 一一对应，布局组件） =====
+
+@Composable
+private fun SafeAreaDemo() {
+    Text(
+        text = "SafeArea 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① SafeArea 真实组件(全边避让) ② 顶部避让语义对照 ③ 沉浸式四边避让 ④ edges 边裁剪。双端 1:1 对齐。页面中部运行时安全区=0，边缘接入自动生效。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        Text("Demo 1 · SafeArea 真实组件（默认全边避让）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(AppRadius.md))
+                .background(AppColor.gray4)
+                .padding(AppSpace.md)
+        ) {
+            SafeArea {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(AppColor.bgCard)
+                        .padding(AppSpace.lg),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "内容在 SafeArea 容器内\n（四边自动贴系统安全区）",
+                        fontSize = AppFont.sizeXs,
+                        color = AppColor.textPrimary,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
+
+        Text("Demo 2 · 顶部避让语义对照（示意：模拟系统带）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        SafeAreaSimulatedBand()
+
+        Text("Demo 3 · 沉浸式页面四边避让（示意）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        SafeAreaImmersionCard()
+
+        Text("Demo 4 · edges 边裁剪（仅避顶 / 仅避底）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(AppSpace.md)) {
+            SafeAreaEdgeCard(
+                title = "仅避 top",
+                detail = "顶部自绘背景出血、文字避让；底部内容贴边",
+                edges = setOf(SafeAreaEdges.Top),
+                modifier = Modifier.weight(1f)
+            )
+            SafeAreaEdgeCard(
+                title = "仅避 bottom",
+                detail = "底部自绘 tab 背景贴边，内容上移避开手势区",
+                edges = setOf(SafeAreaEdges.Bottom),
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+/** Demo 2：顶部避让语义对照（模拟系统带 + 无避让/避让双卡）。 */
+@Composable
+private fun SafeAreaSimulatedBand() {
+    Column(Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(28.dp)
+                .background(AppColor.gray4),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("系统区（状态栏/刘海，示意）", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = AppSpace.sm)
+                .clip(RoundedCornerShape(AppRadius.sm))
+                .background(AppColor.expense.copy(alpha = 0.08f))
+                .padding(AppSpace.md)
+        ) {
+            Text("✗ 无 SafeArea：内容紧贴系统区，刘海机型会压字", fontSize = AppFont.sizeXs, color = AppColor.textPrimary)
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = AppSpace.sm)
+                .clip(RoundedCornerShape(AppRadius.sm))
+                .background(AppColor.primaryMuted)
+                .padding(AppSpace.md)
+        ) {
+            Text("✓ 内容在 SafeArea 内：从安全区下开始，不压系统区", fontSize = AppFont.sizeXs, color = AppColor.textPrimary)
+        }
+    }
+}
+
+/** Demo 3：沉浸式页面四边避让示意（深色 header 全屏出血 + SafeArea 内容层）。 */
+@Composable
+private fun SafeAreaImmersionCard() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(AppRadius.lg))
+            .background(AppColor.bgCard)
+            .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.lg))
+    ) {
+        Column {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(64.dp)
+                    .background(AppColor.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("沉浸 header（全屏出血，颜色自绘到屏幕边缘）", fontSize = AppFont.sizeXs, color = Color.White, textAlign = TextAlign.Center)
+            }
+            SafeArea {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(AppColor.primaryMuted)
+                        .padding(AppSpace.lg)
+                ) {
+                    Text("页面内容在 SafeArea 内：避开刘海/Home Indicator/圆角后正常排版", fontSize = AppFont.sizeXs, color = AppColor.textPrimary)
+                }
+            }
+        }
+    }
+}
+
+/** Demo 4：edges 边裁剪卡片（SafeArea 真实组件 + edges 组合）。 */
+@Composable
+private fun SafeAreaEdgeCard(title: String, detail: String, edges: Set<SafeAreaEdges>, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(AppRadius.md))
+            .background(AppColor.bgCard)
+            .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+    ) {
+        SafeArea(edges = edges, modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(AppSpace.md)) {
+                Text(title, fontSize = AppFont.sizeXs, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+                Text(detail, fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+            }
+        }
     }
 }

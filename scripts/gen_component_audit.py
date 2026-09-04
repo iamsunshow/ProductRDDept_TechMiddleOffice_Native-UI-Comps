@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""从 docs/api.json 生成 docs/组件审计.md（双端一致性对照列表）。
+"""（2026-09-04 起=组件审计台账已并入 docs/组件进度.md 第 1.1 节=本脚本仅供另生成历史快照）从 docs/api.json 生成 docs/组件审计.md（双端一致性对照列表）。
 
 数据源唯一：docs/api.json。展示每组件：名称 / 分类 / 描述 / iOS 命名 / Android 命名 /
 使用场景 / 双端一致性标记。命名与 API 一致性判定基于 source_refs 源码命名与

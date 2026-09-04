@@ -9,26 +9,21 @@
 
 ---
 
-## 一、目录结构（强制统一，见 `docs/治理规范.md`）
+## 一、目录结构（强制统一，规范正文见 `docs/README.md` 唯一壳）
 
-> **命名约定**：`docs/` 内人工阅读的文档一律中文命名（`开发规则.md`、`验收流程/` 等）；
+> **命名约定**：`docs/` 内人工阅读的文档一律中文命名（`组件进度.md`、`平台差异.md`、`验收流程/` 等）；
 > 机器消费的数据源 / 脚本产物保留英文（`api.json`、`design-token.json`、`ui-version.json`、`embeddings/`、`*.html`），避免编码/路径问题。
 
 ```
 Native-UI-Comps/
 ├── docs/                 # 数据 + 规范统一目录（导航见 docs/README.md）
-│   ├── README.md             #   docs 目录导航（每个文件/文件夹的用途，先看这里）
+│   ├── README.md             #   docs 唯一入口壳=规范正文去向映射+目录导航（先看这里）
 │   ├── api.json              #   组件 metadata 单一数据源（命名/作用/API契约 props,events/平台状态/设计token）【机器读取】
 │   ├── design-token.json     #   唯一样式数据源（颜色/字号/圆角/间距/行距）【机器读取】
 │   ├── ui-version.json       #   全局唯一版本号【发版脚本读取】
 │   ├── embeddings/           #   向量检索索引（docs/embeddings/ + index.json）【脚本生成】
-│   ├── 开发规则.md            #   开发规则（命名/打包/业务库约束/API契约/JSON Schema 三合一）★沟通入口
-│   ├── 设计规范.md            #   设计规范（Token 铁律 + 结构/双端生成/平台差异）
-│   ├── 治理规范.md            #   治理规范（仓库架构/收纳/版本/发版/迭代 三合一）
-│   ├── 组件分类.md            #   组件分类唯一文档（NutUI React 4.x 基准 + 完整度指标）
-│   ├── 组件进度.md            #   组件完善进度跟踪（任务清单+达成情况）★其他 Agent 接续必读
-│   ├── 平台差异.md            #   双端平台差异白名单（设计规范第四节引用）
-│   ├── 组件审计.md            #   双端 API 对齐审计报告（scripts/gen_component_audit.py 生成）
+│   ├── 组件进度.md            #   组件完善进度+分类口径+双端一致性（1.1 节）★其他 Agent 接续必读
+│   ├── 平台差异.md            #   双端平台差异白名单（系统级原生差异登记表）
 │   ├── 验收流程/              #   验收流程（开发验收入口 ★先看这里的 README）
 │   │   ├── README.md         #   流程索引 + 文件价值说明
 │   │   ├── 验收标准.md        #   验收标准（设计先行/API check/门禁/CR/自研率）
@@ -65,19 +60,19 @@ Native-UI-Comps/
 
 | 原则 | 一句话 | 文档 |
 |------|--------|------|
-| 唯一数据源 | 颜色/间距/圆角/字号/阴影只来自 Design Token，禁止硬编码 | `docs/设计规范.md` |
-| 双端对齐 | 组件 Props/参数/状态/回调 100% 对齐 | `docs/开发规则.md` 第八节 |
-| 版本唯一 | 双端永远同一版本号，以 `ui-version.json` 为准 | `docs/治理规范.md` 第六节 |
-| 治理铁律 | 变更独立提交、统一发版、禁止乱升级 | `docs/治理规范.md` |
-| 组件规则 | 命名/沟通语言/特色组件打包/业务库不造轮子 | `docs/开发规则.md` |
-| 分类基准 | 组件分类唯一文档（NutUI React 4.x + 完整度指标） | `docs/组件分类.md` |
+| 唯一数据源 | 颜色/间距/圆角/字号/阴影只来自 Design Token，禁止硬编码 | `docs/design-token.json` + `docs/README.md` |
+| 双端对齐 | 组件 Props/参数/状态/回调 100% 对齐 | `docs/README.md`（正文在产研部唯一手册） |
+| 版本唯一 | 双端永远同一版本号，以 `ui-version.json` 为准 | `docs/ui-version.json` |
+| 治理铁律 | 变更独立提交、统一发版、禁止乱升级 | `docs/README.md`（正文在产研部唯一手册） |
+| 组件规则 | 命名/沟通语言/特色组件打包/业务库不造轮子 | `docs/README.md`（正文在产研部唯一手册） |
+| 分类基准 | 组件分类口径（NutUI React 4.x + 完整度指标） | `docs/组件进度.md` 第 1.1 节 |
 | 验收标准 | 设计先行/API check/测试门禁/CR/业务自研率度量 | `docs/验收流程/验收标准.md` |
 | 运维归口 | 发布/部署/上线脚本由 `TechMiddleOffice/DevOpsDept/` 统一维护 | DevOpsDept README |
 
 ## 三、独立 Git 仓库
 
 - 仓库地址：`https://github.com/iamsunshow/ProductRDDept_TechMiddleOffice_Native-UI-Comps.git`
-- 命名遵循中台技术部通用规范 `../docs/repository-naming.md`：一级部门 `ProductRDDept` `_` 二级部门 `TechMiddleOffice` `_` 部门产物 `Native-UI-Comps`
+- 命名遵循中台技术部通用仓库命名规范（见 `TechMiddleOffice/README.md`）：一级部门 `ProductRDDept` `_` 二级部门 `TechMiddleOffice` `_` 部门产物 `Native-UI-Comps`
 - ✅ B3 完成：本目录已是该独立仓，OPC 通过 submodule 挂载（见 OPC `.gitmodules`）。
 
 ## 四、本目录现状

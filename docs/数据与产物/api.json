@@ -1638,6 +1638,67 @@
       "reviewed": true
     },
     {
+      "id": "ui.space",
+      "name": "间距 Space",
+      "category": "ui",
+      "summary": "纯间距容器（一组任意子内容按统一档位间距排布，水平/垂直），对标 Ant Design Space；比例分栏用 Layout、等分宫格用 Grid",
+      "capabilities": [
+        "间距编排",
+        "水平间距",
+        "垂直间距",
+        "方向",
+        "direction",
+        "统一间距",
+        "工具组",
+        "chip 标签组",
+        "间距 Space"
+      ],
+      "platforms": {
+        "ios": { "state": "available", "note": "Space（Space.swift）：UIStackView 子类（axis=direction、spacing=size 档位，横向 alignment=top/纵向=leading 不拉伸）；子项须自含尺寸" },
+        "android": { "state": "available", "note": "Space（Space.kt）：Compose Row/Column（direction 分支）+ Arrangement.spacedBy(size)；Row verticalAlignment=Top / Column horizontalAlignment=Start" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/Space.swift",
+        "android": "ProductRDDept/TechMiddleOffice/android/sharedui/components/Space.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": ["自动换行 wrap（一期裁剪，chips 流式二期候选）", "split 分隔符（一期裁剪，二期候选；Divider 文本模式可近似）", "比例分栏/栅格（Layout 职责）", "等分宫格矩阵（Grid 职责）", "单点间距 margin/padding（AppSpace token 直排）", "子项拉伸对齐（一期固定顶部/起始侧对齐，center/两端铺满二期）"],
+      "visual_tokens": [
+        "AppSpace.xs",
+        "AppSpace.sm",
+        "AppSpace.md",
+        "AppSpace.lg",
+        "AppSpace.xl"
+      ],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "ui.space 间距 Space 编排 水平 垂直 direction 工具组 chip 标签组 统一间距 spacedBy UIStackView Row Column 分组间距 内容间距",
+      "embedding_ref": "vector-store/ui_space.json",
+      "legacy_id": "ui.space",
+      "industry_names": [
+        "Space"
+      ],
+      "props": [
+        ["direction", "'horizontal' | 'vertical'", "否", "排布方向（默认 horizontal=一行；vertical=一列；P1 用户全 A 单组件双向）"],
+        ["size", "AppSpace 档位（xs~xl）", "否", "相邻子项间距（默认 AppSpace.sm=8，P3 用户全 A；间距仅在子项之间，首尾无 padding）"]
+      ],
+      "events": [],
+      "demos": [
+        ["工具组", "Space(direction=horizontal, size=sm){ 记一笔 · 扫一扫 · 账单 · 设置 }"],
+        ["chip 标签组", "Space(direction=horizontal, size=sm){ 全部 · 餐饮 · 交通 · 购物 }"],
+        ["区块间隔双卡", "Space(direction=horizontal, size=xl){ 本月收入卡 · 本月支出卡 }"],
+        ["垂直详情行", "Space(direction=vertical, size=md){ 分类 · 账户 · 时间 · 备注 }"]
+      ],
+      "note": "纯间距容器（方向+档位间距编排，与 Layout 比例分栏/Grid 等分宫格互补=相邻子项统一间距场景如 icon+文字工具组/chip 组/区块间隔/详情纵向堆叠）。v1.0 门禁 A 评审通过（2026-09-04 用户 P1–P4 全票 A：方向双向 + AppSpace 五档 + 默认 sm=8 + 一期无 wrap/split）+ 双端实现入库（Space.swift/Space.kt + 双端 Demo 5 段 1:1：工具组 sm / chip 组 sm / 双卡 xl / 垂直详情 md / 方向对照+嵌套）。待 C1 单测补建 + C1.5 用户实机 + C2 CR/CI + D 发版。双端 reviewed=true。",
+      "subcategory": "layout",
+      "reviewed": true
+    },
+    {
       "id": "ui.card",
       "name": "卡片 Card",
       "category": "ui",

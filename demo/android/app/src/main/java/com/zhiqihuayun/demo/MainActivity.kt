@@ -73,6 +73,8 @@ import com.zhiqihuayun.sharedui.components.EmptyStateView
 import com.zhiqihuayun.sharedui.components.AvatarOption
 import com.zhiqihuayun.sharedui.components.LayoutCol
 import com.zhiqihuayun.sharedui.components.LayoutRow
+import com.zhiqihuayun.sharedui.components.Space
+import com.zhiqihuayun.sharedui.components.SpaceDirection
 import com.zhiqihuayun.sharedui.components.ZodiacAvatar
 
 class MainActivity : ComponentActivity() {
@@ -110,7 +112,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Grid 宫格", reviewed = true, demo = { GridDemo() }),
         DemoComponent("Layout 布局", reviewed = true, demo = { LayoutDemo() }),
         DemoComponent("SafeArea 安全区"),
-        DemoComponent("Space 间距"),
+        DemoComponent("Space 间距", reviewed = true, demo = { SpaceDemo() }),
         DemoComponent("Sticky 粘性布局"),
     ),
     "导航组件" to listOf(
@@ -1308,6 +1310,136 @@ private fun DemoPill(title: String) {
         contentAlignment = Alignment.Center
     ) {
         Text(title, fontSize = AppFont.sizeSm, color = AppColor.primaryPressed)
+    }
+}
+
+// ===== Space 间距组件 Demo 页（独立页面，与 iOS SpaceShowcase 一一对应） =====
+
+@Composable
+private fun SpaceDemo() {
+    Text(
+        text = "Space 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "5 段排查：① icon+文字 工具组(sm) ② chip 标签组(sm) ③ 区块间隔双卡(xl) ④ 垂直详情行(md) ⑤ 方向对照+嵌套。双端 1:1 对齐。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // ── Demo 1：水平 icon+文字 工具组（size=sm 8）──
+        Text("Demo 1 · icon+文字 工具组（sm=8）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Space(direction = SpaceDirection.Horizontal, size = AppSpace.sm) {
+            SpaceDemoToolItem(text = "记一笔", iconTint = AppColor.primary)
+            SpaceDemoToolItem(text = "扫一扫", iconTint = AppColor.primaryPressed)
+            SpaceDemoToolItem(text = "账单", iconTint = AppColor.textSecondary)
+            SpaceDemoToolItem(text = "设置", iconTint = AppColor.primary)
+        }
+
+        // ── Demo 2：chip 标签组（size=sm 8）──
+        Text("Demo 2 · chip 标签组（sm=8）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Space(direction = SpaceDirection.Horizontal, size = AppSpace.sm) {
+            listOf("全部", "餐饮", "交通", "购物", "其他").forEach { SpaceDemoPill(title = it) }
+        }
+
+        // ── Demo 3：区块间隔双卡（horizontal size=xl 24）──
+        Text("Demo 3 · 区块间隔双卡（xl=24）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Space(direction = SpaceDirection.Horizontal, size = AppSpace.xl) {
+            SpaceDemoBadgeCard(label = "本月收入", value = "¥12,680", valueColor = AppColor.income)
+            SpaceDemoBadgeCard(label = "本月支出", value = "¥8,340", valueColor = AppColor.expense)
+        }
+
+        // ── Demo 4：垂直详情行（vertical size=md 12）──
+        Text("Demo 4 · 垂直详情行（md=12）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Space(direction = SpaceDirection.Vertical, size = AppSpace.md) {
+            SpaceDemoKVLine(key = "分类", value = "餐饮 · 工作日午餐")
+            SpaceDemoKVLine(key = "账户", value = "招商银行(4609)")
+            SpaceDemoKVLine(key = "时间", value = "2026-09-04 12:30")
+            SpaceDemoKVLine(key = "备注", value = "—")
+        }
+
+        // ── Demo 5：方向对照 + 嵌套（同内容 h/v 对照；Space 子项可为任意内容）──
+        Text("Demo 5 · 方向对照与嵌套", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Space(direction = SpaceDirection.Vertical, size = AppSpace.lg) {
+            Space(direction = SpaceDirection.Horizontal, size = AppSpace.sm) {
+                listOf("本周支出 ¥1,260", "笔数 18", "最大单笔 ¥320").forEach { SpaceDemoPill(title = it) }
+            }
+            Space(direction = SpaceDirection.Vertical, size = AppSpace.md) {
+                SpaceDemoKVLine(key = "本周支出", value = "¥1,260")
+                SpaceDemoKVLine(key = "笔数", value = "18")
+                SpaceDemoKVLine(key = "最大单笔", value = "¥320")
+            }
+            Space(direction = SpaceDirection.Vertical, size = AppSpace.md) {
+                SpaceDemoBadgeCard(label = "本月小计", value = "支出 ¥8,340 · 收入 ¥12,680", valueColor = AppColor.textPrimary)
+                SpaceDemoToolItem(text = "查看账单明细", iconTint = AppColor.primary)
+            }
+        }
+    }
+}
+
+@Composable
+private fun SpaceDemoToolItem(text: String, iconTint: Color) {
+    Row(
+        modifier = Modifier
+            .height(36.dp)
+            .background(AppColor.bgCard, RoundedCornerShape(AppRadius.md))
+            .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+            .padding(horizontal = AppSpace.md),
+        horizontalArrangement = Arrangement.spacedBy(AppSpace.xs + 2.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(14.dp)
+                .background(iconTint, RoundedCornerShape(4.dp))
+        )
+        Text(text, fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+    }
+}
+
+@Composable
+private fun SpaceDemoPill(title: String) {
+    Box(
+        modifier = Modifier
+            .height(28.dp)
+            .background(AppColor.primaryMuted, RoundedCornerShape(14.dp))
+            .padding(horizontal = AppSpace.md),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(title, fontSize = AppFont.sizeXs, color = AppColor.primaryPressed)
+    }
+}
+
+@Composable
+private fun SpaceDemoBadgeCard(label: String, value: String, valueColor: Color) {
+    Column(
+        modifier = Modifier
+            .background(AppColor.bgCard, RoundedCornerShape(AppRadius.lg))
+            .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.lg))
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.xs)
+    ) {
+        Text(label, fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+        Text(value, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = valueColor)
+    }
+}
+
+@Composable
+private fun SpaceDemoKVLine(key: String, value: String) {
+    Space(direction = SpaceDirection.Horizontal, size = AppSpace.sm) {
+        Text(key, fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+        Text(value, fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
     }
 }
 

@@ -31,7 +31,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.grid", name: "Grid 宫格", reviewed: true, create: { GridShowcase() }),
             DemoComponent(id: "ui.layout", name: "Layout 布局", reviewed: true, create: { LayoutShowcase() }),
             DemoComponent(id: "ui.safe-area", name: "SafeArea 安全区", reviewed: false, create: nil),
-            DemoComponent(id: "ui.space", name: "Space 间距", reviewed: false, create: nil),
+            DemoComponent(id: "ui.space", name: "Space 间距", reviewed: true, create: { SpaceShowcase() }),
             DemoComponent(id: "ui.sticky", name: "Sticky 粘性布局", reviewed: false, create: nil),
         ]),
         ("导航组件", [
@@ -1788,6 +1788,201 @@ final class LayoutShowcase: ShowcaseViewController {
             make.height.equalTo(32)
         }
         return pill
+    }
+}
+
+// MARK: - Space Showcase（Space 间距组件独立 Demo 页，与 Android SpaceDemo 一一对应）
+
+final class SpaceShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Space 间距"
+        addVersionBadge(componentName: "Space", version: "v1.0", builtAt: "")
+
+        addInfo("5 段排查：① icon+文字 工具组(sm) ② chip 标签组(sm) ③ 区块间隔双卡(xl) ④ 垂直详情行(md) ⑤ 方向对照+嵌套。双端 1:1 对齐。")
+
+        // ── Demo 1：水平 icon+文字 工具组（size=sm 8）──
+        addSection(title: "Demo 1 · icon+文字 工具组（sm=8）") { container in
+            let space = Space(direction: .horizontal, spacing: AppSpace.sm)
+            container.addSubview(space)
+            space.snp.makeConstraints { $0.edges.equalToSuperview() }
+            space.addItems([
+                makeToolItem(text: "记一笔", iconTint: AppColor.primary),
+                makeToolItem(text: "扫一扫", iconTint: AppColor.primaryPressed),
+                makeToolItem(text: "账单", iconTint: AppColor.textSecondary),
+                makeToolItem(text: "设置", iconTint: AppColor.primary),
+            ])
+        }
+        addInfo("相邻子项间距 8pt，首尾无 padding（紧凑工具组默认档位即用）。")
+
+        // ── Demo 2：chip 标签组（size=sm 8）──
+        addSection(title: "Demo 2 · chip 标签组（sm=8）") { container in
+            let space = Space(direction: .horizontal, spacing: AppSpace.sm)
+            container.addSubview(space)
+            space.snp.makeConstraints { $0.edges.equalToSuperview() }
+            space.addItems(["全部", "餐饮", "交通", "购物", "其他"].map { makeChip(title: $0) })
+        }
+
+        // ── Demo 3：区块间隔双卡（horizontal size=xl 24）──
+        addSection(title: "Demo 3 · 区块间隔双卡（xl=24）") { container in
+            let space = Space(direction: .horizontal, spacing: AppSpace.xl)
+            container.addSubview(space)
+            space.snp.makeConstraints { $0.edges.equalToSuperview() }
+            space.addItems([
+                makeBadgeCard(label: "本月收入", value: "¥12,680", valueColor: AppColor.income),
+                makeBadgeCard(label: "本月支出", value: "¥8,340", valueColor: AppColor.expense),
+            ])
+        }
+        addInfo("区块级显式间隔：业务按需传 xl=24（内部组默认 sm 即可，档位由调用方定）。")
+
+        // ── Demo 4：垂直详情行（vertical size=md 12）──
+        addSection(title: "Demo 4 · 垂直详情行（md=12）") { container in
+            let space = Space(direction: .vertical, spacing: AppSpace.md)
+            container.addSubview(space)
+            space.snp.makeConstraints { $0.edges.equalToSuperview() }
+            space.addItems([
+                makeKVLine(key: "分类", value: "餐饮 · 工作日午餐"),
+                makeKVLine(key: "账户", value: "招商银行(4609)"),
+                makeKVLine(key: "时间", value: "2026-09-04 12:30"),
+                makeKVLine(key: "备注", value: "—"),
+            ])
+        }
+
+        // ── Demo 5：方向对照 + 嵌套（同内容 h/v 对照；Space 子项可为任意内容）──
+        addSection(title: "Demo 5 · 方向对照与嵌套") { container in
+            let outer = Space(direction: .vertical, spacing: AppSpace.lg)
+            container.addSubview(outer)
+            outer.snp.makeConstraints { $0.edges.equalToSuperview() }
+
+            // 对照一：horizontal sm 概要 chips
+            let hChips = Space(direction: .horizontal, spacing: AppSpace.sm)
+            hChips.addItems(["本周支出 ¥1,260", "笔数 18", "最大单笔 ¥320"].map { makeChip(title: $0) })
+            outer.addItem(hChips)
+
+            // 对照二：同内容 vertical md 的 label-value 行
+            let vLines = Space(direction: .vertical, spacing: AppSpace.md)
+            vLines.addItems([
+                makeKVLine(key: "本周支出", value: "¥1,260"),
+                makeKVLine(key: "笔数", value: "18"),
+                makeKVLine(key: "最大单笔", value: "¥320"),
+            ])
+            outer.addItem(vLines)
+
+            // 嵌套：vertical 组内再放垂直卡片组 + 水平工具行
+            let inner = Space(direction: .vertical, spacing: AppSpace.md)
+            inner.addItems([
+                makeBadgeCard(label: "本月小计", value: "支出 ¥8,340 · 收入 ¥12,680", valueColor: AppColor.textPrimary),
+                makeToolItem(text: "查看账单明细", iconTint: AppColor.primary),
+            ])
+            outer.addItem(inner)
+        }
+    }
+
+    // MARK: - Demo 内容构造
+
+    /// icon+文字 工具项（白底圆角细边框 + 左 icon 色块 + 文字，高 36）。
+    private func makeToolItem(text: String, iconTint: UIColor) -> UIView {
+        let shell = makeItemShell()
+        let icon = UIView()
+        icon.backgroundColor = iconTint
+        icon.layer.cornerRadius = 4
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: AppFont.sizeSm)
+        label.textColor = AppColor.textPrimary
+        shell.addSubview(icon)
+        shell.addSubview(label)
+        icon.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(AppSpace.md)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(CGSize(width: 14, height: 14))
+        }
+        label.snp.makeConstraints { make in
+            make.leading.equalTo(icon.snp.trailing).offset(AppSpace.xs + 2)
+            make.centerY.equalToSuperview()
+            make.trailing.equalToSuperview().offset(-AppSpace.md)
+        }
+        return shell
+    }
+
+    /// 圆角小容器（白底 + 圆角 md + 细边框，高 36）。
+    private func makeItemShell() -> UIView {
+        let shell = UIView()
+        shell.backgroundColor = AppColor.bgCard
+        shell.layer.cornerRadius = AppRadius.md
+        shell.layer.borderWidth = 1 / UIScreen.main.scale
+        shell.layer.borderColor = AppColor.border.cgColor
+        shell.snp.makeConstraints { make in
+            make.height.equalTo(36)
+        }
+        return shell
+    }
+
+    /// 筛选 chip（primaryMuted 底 + primaryPressed 字，高 28）。
+    private func makeChip(title: String) -> UIView {
+        let chip = UIView()
+        chip.backgroundColor = AppColor.primaryMuted
+        chip.layer.cornerRadius = 14
+        let label = UILabel()
+        label.text = title
+        label.font = .systemFont(ofSize: AppFont.sizeXs)
+        label.textColor = AppColor.primaryPressed
+        chip.addSubview(label)
+        label.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.leading.equalToSuperview().offset(AppSpace.md)
+            make.trailing.equalToSuperview().offset(-AppSpace.md)
+        }
+        chip.snp.makeConstraints { make in
+            make.height.equalTo(28)
+        }
+        return chip
+    }
+
+    /// 区块双卡（白底圆角 lg + label/value 纵向堆叠，自然宽）。
+    private func makeBadgeCard(label: String, value: String, valueColor: UIColor) -> UIView {
+        let shell = UIView()
+        shell.backgroundColor = AppColor.bgCard
+        shell.layer.cornerRadius = AppRadius.lg
+        shell.layer.borderWidth = 1 / UIScreen.main.scale
+        shell.layer.borderColor = AppColor.border.cgColor
+
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = AppSpace.xs
+        shell.addSubview(stack)
+        stack.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(
+                UIEdgeInsets(top: AppSpace.md, left: AppSpace.lg, bottom: AppSpace.md, right: AppSpace.lg)
+            )
+        }
+        let caption = UILabel()
+        caption.text = label
+        caption.font = .systemFont(ofSize: AppFont.sizeXs)
+        caption.textColor = AppColor.textSecondary
+        let valueLabel = UILabel()
+        valueLabel.text = value
+        valueLabel.font = .systemFont(ofSize: AppFont.sizeMd, weight: .semibold)
+        valueLabel.textColor = valueColor
+        stack.addArrangedSubview(caption)
+        stack.addArrangedSubview(valueLabel)
+        return shell
+    }
+
+    /// key-value 单行（key 灰字 + value 主色，行内间距 sm=8；外层可直接进 vertical Space）。
+    private func makeKVLine(key: String, value: String) -> UIView {
+        let line = Space(direction: .horizontal, spacing: AppSpace.sm)
+        let keyLabel = UILabel()
+        keyLabel.text = key
+        keyLabel.font = .systemFont(ofSize: AppFont.sizeSm)
+        keyLabel.textColor = AppColor.textSecondary
+        let valueLabel = UILabel()
+        valueLabel.text = value
+        valueLabel.font = .systemFont(ofSize: AppFont.sizeSm)
+        valueLabel.textColor = AppColor.textPrimary
+        line.addItems([keyLabel, valueLabel])
+        return line
     }
 }
 

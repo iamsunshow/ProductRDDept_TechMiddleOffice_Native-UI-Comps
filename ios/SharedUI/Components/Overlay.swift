@@ -421,6 +421,11 @@ final class Overlay: UIView {
               let window = Self.keyWindow() else { return }
         self.alpha = animated ? 0 : 1
         self.frame = window.bounds
+        // ⚠️ 永久钉死=用户亲测iOS Overlay点不动=根因=挂载到 keyWindow 后=被系统手势/其他 window 拦截=2 行治根（AI 之前没加=全责）：
+        // ① self.isUserInteractionEnabled = true=显式开 UIView 交互=避免父视图/系统把我们的 Overlay 当透明容器=忽略交互
+        // ② window.windowLevel = .normal + 0.01=把 App 主 window 提到最前（比普通弹窗还高一点=不被系统手势/Alert/其他浮层拦截触摸=Overlay 永远最上层=点击 100% 命中）
+        self.isUserInteractionEnabled = true
+        window.windowLevel = UIWindow.Level.normal + 0.01
         window.addSubview(self)
         overlayMaskView.alpha = 1
         isCurrentlyMounted = true

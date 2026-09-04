@@ -1694,7 +1694,7 @@
         ["区块间隔双卡", "Space(direction=horizontal, size=xl){ 本月收入卡 · 本月支出卡 }"],
         ["垂直详情行", "Space(direction=vertical, size=md){ 分类 · 账户 · 时间 · 备注 }"]
       ],
-      "note": "纯间距容器（方向+档位间距编排，与 Layout 比例分栏/Grid 等分宫格互补=相邻子项统一间距场景如 icon+文字工具组/chip 组/区块间隔/详情纵向堆叠）。v1.0 门禁 A 评审通过（2026-09-04 用户 P1–P4 全票 A：方向双向 + AppSpace 五档 + 默认 sm=8 + 一期无 wrap/split）+ 双端实现入库（Space.swift/Space.kt + 双端 Demo 5 段 1:1：工具组 sm / chip 组 sm / 双卡 xl / 垂直详情 md / 方向对照+嵌套）。待 C1 单测补建 + C1.5 用户实机 + C2 CR/CI + D 发版。双端 reviewed=true。",
+      "note": "纯间距容器（方向+档位间距编排，与 Layout 比例分栏/Grid 等分宫格互补=相邻子项统一间距场景如 icon+文字工具组/chip 组/区块间隔/详情纵向堆叠）。v1.0 门禁 A 评审通过（2026-09-04 用户 P1–P4 全票 A：方向双向 + AppSpace 五档 + 默认 sm=8 + 一期无 wrap/split）+ 双端实现入库（Space.swift/Space.kt + 双端 Demo 5 段 1:1：工具组 sm / chip 组 sm / 双卡 xl / 垂直详情 md / 方向对照+嵌套）+ C1.5 用户放行（2026-09-04 用户指示'继续'；iOS 工程受预存 SPM 依赖阻塞未本机编译，iOS 实机验证待 SPM 解除后补）。待 C1 单测补建 + C2 CR/CI + D 发版。双端 reviewed=true。",
       "subcategory": "layout",
       "reviewed": true
     },

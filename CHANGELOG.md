@@ -74,7 +74,7 @@ Cell 单元格 C2 CR/CI + D 发版（试点首组件：门禁 A/B/C1/C1.5 全过
 
 - 门禁 C1 ✅：Android Compose UI 测试 12/12（Robolectric） + 质量脚本 4/4；iOS CellTests **模拟器实跑 16/16 全绿**（SPM 构建阻塞根治后首跑，iPhone 14 模拟器，v1.2.1 基线）。
 
-- 门禁 C1.5 ✅：iOS CellShowcase + Android CellDemo 首页注册，用户实机查看确认；onLongPress 双端承诺差异已登记（平台差异.md）。
+- 门禁 C1.5 ✅：iOS CellShowcase + Android CellDemo 首页注册，用户实机查看确认；onLongPress 双端承诺差异已登记（差异豁免白名单 `docs/数据与产物/diff-api.json`）。
 
 ## \[1.3.9] - 2026-09-03
 

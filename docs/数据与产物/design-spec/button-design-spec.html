@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Button 按钮 · 设计规格（补录归档）</title>
+<style>
+  :root {
+    --primary: #16A34A; --primary-pressed: #15803D; --primary-muted: #DCFCE7;
+    --text-primary: #111827; --text-secondary: #6B7280; --text-inverse: #FFFFFF;
+    --border: #E5E7EB; --bg-page: #F9FAFB; --bg-card: #FFFFFF;
+    --error: #DC2626; --warning: #F59E0B; --success: #16A34A;
+    --gray-25: #8C8C8C; --gray-15: #BFBFBF; --gray-6: #E5E5E5; --gray-4: #F5F5F5;
+    --button-disabled: #9CA3AF;
+    --fs-xs: 12px; --fs-sm: 14px; --fs-md: 16px; --fs-lg: 18px; --fs-xl: 22px;
+    --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px;
+    --sp-xs: 4px; --sp-sm: 8px; --sp-md: 12px; --sp-lg: 16px; --sp-xl: 24px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg-page); color: var(--text-primary); line-height: 1.6; padding: 32px 16px 80px;
+  }
+  .page { max-width: 960px; margin: 0 auto; }
+  /* Header */
+  .header { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 20px; }
+  .header .row { display: flex; align-items: center; gap: var(--sp-sm); flex-wrap: wrap; }
+  .header h1 { font-size: 26px; font-weight: 600; letter-spacing: .2px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: var(--fs-xs); font-weight: 500; }
+  .badge.cat { background: var(--primary-muted); color: var(--primary-pressed); }
+  .badge.stage { background: #DCFCE7; color: var(--primary-pressed); }
+  .badge.arch { background: #FEF3C7; color: #92400E; }
+  .badge.id { background: var(--gray-4); color: var(--text-secondary); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .header .sub { margin-top: 10px; color: var(--text-secondary); font-size: var(--fs-sm); }
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--sp-sm); margin-top: 16px; }
+  .meta { background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; }
+  .meta .k { font-size: var(--fs-xs); color: var(--text-secondary); }
+  .meta .v { font-size: var(--fs-sm); font-weight: 500; }
+  /* Section */
+  .sec { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 20px; }
+  .sec h2 { font-size: var(--fs-lg); margin-bottom: 6px; display: flex; align-items: center; gap: var(--sp-sm); }
+  .sec h2 .no { color: var(--primary); font-family: ui-monospace, monospace; }
+  .sec .lead { color: var(--text-secondary); font-size: var(--fs-sm); margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--bg-page); font-weight: 500; color: var(--text-secondary); }
+  code { background: var(--gray-4); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  .note { background: #FFF7ED; border: 1px solid #FDBA74; border-radius: var(--radius-sm); padding: 12px 16px; font-size: var(--fs-sm); margin-top: var(--sp-lg); }
+  .warn-note { background: #FEF2F2; border: 1px solid #FCA5A5; }
+  .ok-note { background: #F0FDF4; border: 1px solid #86EFAC; }
+  .checklist { margin-top: 16px; }
+  .checklist li { list-style: none; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 8px; font-size: var(--fs-sm); display: flex; gap: 10px; align-items: baseline; }
+  .checklist li .box { flex: none; width: 16px; height: 16px; border: 1.5px solid var(--gray-15); border-radius: 4px; transform: translateY(3px); }
+  .checklist li.done .box { border: none; background: var(--success); position: relative; }
+  .checklist li.done .box::after { content: '✓'; color: #fff; font-size: 11px; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+  /* 按钮实时演示 */
+  .btn-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+  .btn-demo { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 136px; height: 48px; padding: 0 20px; border-radius: 14px; font-size: 16px; font-weight: 600; color: var(--text-inverse); border: 0; }
+  .btn-demo.primary { background: var(--primary); }
+  .btn-demo.primary.pressed { background: var(--primary-pressed); }
+  .btn-demo.secondary { background: var(--bg-card); color: var(--primary); border: 1px solid var(--primary); }
+  .btn-demo.destructive { background: var(--bg-card); color: var(--error); border: 1px solid var(--error); }
+  .btn-demo.disabled { background: var(--button-disabled); }
+  .btn-label { position: absolute; left: 50%; bottom: -20px; transform: translateX(-50%); font-size: var(--fs-xs); color: var(--text-secondary); font-weight: 400; }
+  .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; margin-right: 8px; }
+  .footer { text-align: center; color: var(--text-secondary); font-size: var(--fs-xs); margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ Header ============ -->
+  <div class="header">
+    <div class="row">
+      <h1>Button 按钮</h1>
+      <span class="badge cat">基础组件</span>
+      <span class="badge id">ui.button</span>
+      <span class="badge stage">已评审验收</span>
+      <span class="badge arch">补录归档 2026-09-04</span>
+    </div>
+    <div class="sub">中台基础按钮：48 高、圆角 lg、三样式（主操作 / 次要 / 破坏性），统一登录 / 注册 / 弹窗 / 表单等所有主操作按钮视觉，禁止各页面单独发挥（对标 NutUI Button / Ant Design Button）。</div>
+    <div class="meta-grid">
+      <div class="meta"><div class="k">验收结论</div><div class="v">✅ reviewed=true 注册（2026-09-02）</div></div>
+      <div class="meta"><div class="k">双端实现</div><div class="v">iOS AppButton.swift / Android AppButton.kt</div></div>
+      <div class="meta"><div class="k">Demo 徽标</div><div class="v">Button v1.4（四轮 bugfix 闭环）</div></div>
+      <div class="meta"><div class="k">视觉 token</div><div class="v">8 项（见 04 节）</div></div>
+    </div>
+  </div>
+
+  <!-- ============ 1. 用途与场景 ============ -->
+  <div class="sec">
+    <h2><span class="no">01</span>用途与场景</h2>
+    <div class="lead">中台「主操作按钮」的唯一入口：把散落各页、各自定义的按钮收敛为三种既定样式的统一组件，保证主次破坏三级操作在全 App 视觉一致。</div>
+    <div class="checklist">
+      <li><span class="box"></span><b>典型场景：</b>一键登录（本机号码登录主按钮=样式基准）、注册、弹窗确认 / 取消、表单提交、退出登录等主操作与次操作。</li>
+      <li><span class="box"></span><b>组合关系：</b>页面级通栏使用（全宽 48 高）；行内 / 紧凑场景由外部约束宽度，高度不矮于 48。</li>
+      <li><span class="box"></span><b>操作反馈：</b>点击触发 <code>onClick</code>；提交型按钮用 <code>loading</code> 防止重复提交；不可达操作用 <code>enabled=false</code> 置灰。</li>
+    </div>
+    <div class="note warn-note">
+      <b>边界（anti-goals）：</b>① 不做图标按钮（icon-only），图标按钮由 <code>ui.icon</code> 承载；② 不做悬浮动作按钮（FAB，属 Material 体系，不在中台基础范围）；③ 不做按钮组（ButtonGroup），分组由布局组件承担。
+    </div>
+  </div>
+
+  <!-- ============ 2. 视觉规格 ============ -->
+  <div class="sec">
+    <h2><span class="no">02</span>视觉规格（三样式）</h2>
+    <div class="lead">三样式语义 = 操作层级：每屏只应有一个 primary（主操作）、secondary 为次级操作、destructive 为破坏性操作。以下为真实渲染（色值 = design-token.json，与双端 AppTokens 一致）。</div>
+    <div class="btn-row">
+      <div><button class="btn-demo primary">登录</button><div class="btn-label">primary=主色填充+白字</div></div>
+      <div><button class="btn-demo secondary">取消</button><div class="btn-label">secondary=白底+主色描边+主色字</div></div>
+      <div><button class="btn-demo destructive">退出登录</button><div class="btn-label">destructive=白底+红色描边+红字</div></div>
+    </div>
+    <table style="margin-top:36px;">
+      <tr><th>样式</th><th>填充</th><th>描边</th><th>文字</th><th>按下态反馈</th></tr>
+      <tr>
+        <td><code>primary</code>（默认）</td>
+        <td><code>color.primary</code> #16A34A</td>
+        <td>无</td>
+        <td><code>textInverse</code> 白</td>
+        <td>背景切 <code>color.primaryPressed</code> #15803D</td>
+      </tr>
+      <tr>
+        <td><code>secondary</code></td>
+        <td><code>bgCard</code> 白底</td>
+        <td>1px <code>color.primary</code></td>
+        <td><code>color.primary</code> 主色字</td>
+        <td>弱反馈（文字透明度 0.6，iOS；Android 无独立按下档）</td>
+      </tr>
+      <tr>
+        <td><code>destructive</code></td>
+        <td><code>bgCard</code> 白底</td>
+        <td>1px <code>color.error</code> #DC2626</td>
+        <td><code>color.error</code> 红字</td>
+        <td>弱反馈（同 secondary）</td>
+      </tr>
+    </table>
+    <div class="note"><b>层级约定：</b>primary 是操作层级锚点，一屏至多一个；次要/破坏性操作降为描边样式，避免满屏彩色按钮。破坏性 ≠ 「错误状态」，它只是一种操作样式（见 03 节状态说明）。</div>
+  </div>
+
+  <!-- ============ 3. 状态规格 ============ -->
+  <div class="sec">
+    <h2><span class="no">03</span>状态规格</h2>
+    <div class="lead">按钮是离散操作控件：五态中「成功 / 失败」不适用（由调用方 toast/反馈组件表达结果），实际状态空间 = <b>样式 × (enabled × loading)</b>，按下为过程态。</div>
+    <table>
+      <tr><th>状态</th><th>表现</th><th>可点</th><th>触发方式</th></tr>
+      <tr>
+        <td>默认</td>
+        <td>按三样式既定视觉渲染</td>
+        <td>是</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>按下（过程态）</td>
+        <td>primary→深一档主色；secondary / destructive→弱透明度反馈</td>
+        <td>—</td>
+        <td>手指按下瞬间，抬起即回默认</td>
+      </tr>
+      <tr>
+        <td>禁用</td>
+        <td>灰填充 <code>buttonDisabled</code> #9CA3AF + 白字，无描边</td>
+        <td>否</td>
+        <td><code>enabled=false</code> / iOS <code>setAppEnabled(false)</code></td>
+      </tr>
+      <tr>
+        <td>加载</td>
+        <td>灰填充 <code>buttonDisabled</code> #9CA3AF + 白字 + 文案改「加载中...」</td>
+        <td>否</td>
+        <td><code>loading=true</code> / iOS <code>setLoading(true)</code>（加载中不改回原文案直至结束）</td>
+      </tr>
+    </table>
+    <div class="btn-row" style="margin-top:24px;">
+      <div><button class="btn-demo primary">登录</button><div class="btn-label">默认（primary）</div></div>
+      <div><button class="btn-demo primary pressed">登录</button><div class="btn-label">按下（primaryPressed）</div></div>
+      <div><button class="btn-demo disabled">登录</button><div class="btn-label">禁用（enabled=false）</div></div>
+      <div><button class="btn-demo disabled"><span class="spinner"></span>加载中...</button><div class="btn-label">加载（loading=true）</div></div>
+    </div>
+    <div class="note"><b>禁用 / 加载一致性：</b>两者视觉完全一致（共用 buttonDisabled），差异只在文案（加载态显示「加载中...」）与外部语义；iOS 与 Android 顺序一致（先灰、后亮回原样式）。<b>状态切换自愈：</b>loading/enabled 恢复后回原样式渲染，无残留态。</div>
+  </div>
+
+  <!-- ============ 4. 尺寸与令牌 ============ -->
+  <div class="sec">
+    <h2><span class="no">04</span>尺寸与视觉令牌</h2>
+    <div class="lead">尺寸基准对齐「本机号码一键登录」按钮；通栏由页面约束全宽，组件默认内容高度 48。</div>
+    <table>
+      <tr><th>维度</th><th>规格</th><th>来源</th></tr>
+      <tr><td>高度</td><td>48（pt / dp）</td><td><code>standardHeight=48</code> / 默认 <code>48.dp</code>，外部可覆盖</td></tr>
+      <tr><td>宽度</td><td>默认通栏全宽（fillMaxWidth / 外部约束）</td><td>主操作按钮通栏惯例</td></tr>
+      <tr><td>圆角</td><td>lg = 14</td><td><code>radius.lg</code>（AppRadius.lg）</td></tr>
+      <tr><td>字号 / 字重</td><td>16 / Semibold 半粗</td><td><code>font.sizeMd</code>（AppFont.sizeMd）</td></tr>
+      <tr><td>描边宽（描边样式）</td><td>1px</td><td>secondary / destructive</td></tr>
+    </table>
+    <table style="margin-top:24px;">
+      <tr><th>视觉令牌</th><th>值</th><th>用途</th></tr>
+      <tr><td><code>color.primary</code></td><td>#16A34A</td><td>primary 填充 / secondary 描边与字色</td></tr>
+      <tr><td><code>color.primaryPressed</code></td><td>#15803D</td><td>primary 按下态</td></tr>
+      <tr><td><code>color.buttonDisabled</code></td><td>#9CA3AF</td><td>禁用 / 加载灰填充</td></tr>
+      <tr><td><code>color.bgCard</code></td><td>#FFFFFF</td><td>secondary / destructive 白底</td></tr>
+      <tr><td><code>color.error</code></td><td>#DC2626</td><td>destructive 描边与字色</td></tr>
+      <tr><td><code>color.textInverse</code></td><td>#FFFFFF</td><td>填充型按钮文字色</td></tr>
+      <tr><td><code>font.sizeMd</code></td><td>16</td><td>按钮文案字号</td></tr>
+      <tr><td><code>radius.lg</code></td><td>14</td><td>按钮圆角</td></tr>
+    </table>
+  </div>
+
+  <!-- ============ 5. API 契约摘要 ============ -->
+  <div class="sec">
+    <h2><span class="no">05</span>API 契约摘要</h2>
+    <div class="lead">契约正文以 <code>docs/数据与产物/api.json</code>（ui.button，reviewed=true）为唯一事实源，此处为摘要。双端 A7 命名比对一致，无平台差异登记。</div>
+    <table>
+      <tr><th>Props</th><th>类型 / 默认</th><th>说明</th></tr>
+      <tr><td><code>text</code></td><td>string（必填）</td><td>按钮文案</td></tr>
+      <tr><td><code>onClick</code></td><td>() =&gt; void（必填）</td><td>点击回调（enabled=true 且 loading=false 时触发）</td></tr>
+      <tr><td><code>style?</code></td><td>primary / secondary / destructive，默认 primary</td><td>视觉样式（见 02 节）</td></tr>
+      <tr><td><code>fontSize?</code></td><td>number，默认 16</td><td>文案字号（pt / sp）</td></tr>
+      <tr><td><code>height?</code></td><td>number，默认 48</td><td>按钮高度（pt / dp）</td></tr>
+      <tr><td><code>enabled?</code></td><td>boolean，默认 true</td><td>可用性：false 置灰不可点</td></tr>
+      <tr><td><code>loading?</code></td><td>boolean，默认 false</td><td>加载态：置灰 + 「加载中...」+ 不可点</td></tr>
+    </table>
+    <table style="margin-top:24px;">
+      <tr><th>Events</th><th>签名</th><th>说明</th></tr>
+      <tr><td><code>onClick</code></td><td>() =&gt; void</td><td>点击（enabled=true 且 loading=false 时触发）</td></tr>
+    </table>
+    <div class="note"><b>Demos（5 项，Demo 对照双端 1:1）：</b>主操作 / 次要操作 / 破坏性操作 / 加载态 / 禁用态。iOS <code>ButtonShowcase</code> 与 Android <code>ButtonDemo</code> 以 4 组递增单因子排查呈现（① 基础仅 Primary → ② style 三样式 → ③ loading+disabled → ④ 三样式×三状态全组合）。</div>
+  </div>
+
+  <!-- ============ 6. 验收与评审记录 ============ -->
+  <div class="sec">
+    <h2><span class="no">06</span>验收与评审记录</h2>
+    <div class="lead">Button 为 <b>2026-09-02 收编批次</b>组件（自业务「本机一键登录」等既有按钮形态收敛而来），评审验收记录如下。</div>
+    <div class="checklist">
+      <li class="done"><span class="box"></span><b>评审通过 + 验收完成（2026-09-02）</b>：ui.button <code>reviewed=false → true</code> 注册（CHANGELOG v1.1.6），用户实机查看双端 ButtonShowcase / ButtonDemo 确认。</li>
+      <li class="done"><span class="box"></span><b>四轮 bugfix 闭环（v1.0 → v1.4）</b>：v1.1 Android 补 loading / 令牌色；v1.2 补 Box 背景 + secondary 底对齐 iOS；v1.3 iOS setLoading 补 updateBackground（双端 loading 顺序一致）；双端 Demo 徽标同步 v1.4。</li>
+      <li class="done"><span class="box"></span><b>双端一致（C2 口径）</b>：iOS AppButton.swift（UIKit 命令式）/ Android AppButton.kt（Compose）三样式 + 状态语义对齐，props/events A7 命名逐字一致。</li>
+      <li class="done"><span class="box"></span><b>状态 = stable</b>：api.json 契约 + design-token.json（buttonDisabled #9CA3AF）同步落地。</li>
+    </div>
+    <div class="note warn-note">
+      <b>本页性质 = 补录归档（2026-09-04）：</b>Button 收编时（09-02）评审验收的载体是「api.json 契约 + 双端 Demo 对照」，尚未引入「每组件独立 H5 规格」的门禁体系（该体系 09-03 起应用于 ConfigProvider / Image / Overlay 等），故当时未产规格页；本页按双端源码 + api.json 契约 + CHANGELOG 验收留痕补录，<b>非门禁 A 前置产物</b>，不改变既有验收结论。设计依据主源 = <code>api.json ui.button</code> + <code>design-token.json</code> + 双端源码。
+    </div>
+  </div>
+
+  <div class="footer">Native-UI-Comps · docs/数据与产物/design-spec/button-design-spec.html · 补录归档 2026-09-04（设计事实以双端源码与 api.json 契约为准）</div>
+</div>
+</body>
+</html>

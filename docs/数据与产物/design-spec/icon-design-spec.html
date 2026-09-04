@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Icon 图标 · 设计规格（补录归档）</title>
+<style>
+  :root {
+    --primary: #16A34A; --primary-pressed: #15803D; --primary-muted: #DCFCE7;
+    --text-primary: #111827; --text-secondary: #6B7280; --text-inverse: #FFFFFF;
+    --border: #E5E7EB; --bg-page: #F9FAFB; --bg-card: #FFFFFF;
+    --error: #DC2626; --warning: #F59E0B; --success: #16A34A;
+    --button-disabled: #9CA3AF;
+    --fs-xs: 12px; --fs-sm: 14px; --fs-md: 16px; --fs-lg: 18px; --fs-xl: 22px;
+    --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg-page); color: var(--text-primary); line-height: 1.6; padding: 32px 16px 80px;
+  }
+  .page { max-width: 960px; margin: 0 auto; }
+  .header { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 20px; }
+  .header .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .header h1 { font-size: 26px; font-weight: 600; letter-spacing: .2px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: var(--fs-xs); font-weight: 500; }
+  .badge.cat { background: var(--primary-muted); color: var(--primary-pressed); }
+  .badge.id { background: #F3F4F6; color: var(--text-secondary); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .badge.stage { background: #DCFCE7; color: var(--primary-pressed); }
+  .badge.arch { background: #FEF3C7; color: #92400E; }
+  .header .sub { margin-top: 10px; color: var(--text-secondary); font-size: var(--fs-sm); }
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin-top: 16px; }
+  .meta { background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; }
+  .meta .k { font-size: var(--fs-xs); color: var(--text-secondary); }
+  .meta .v { font-size: var(--fs-sm); font-weight: 500; }
+  .sec { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 20px; }
+  .sec h2 { font-size: var(--fs-lg); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .sec h2 .no { color: var(--primary); font-family: ui-monospace, monospace; }
+  .sec .lead { color: var(--text-secondary); font-size: var(--fs-sm); margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--bg-page); font-weight: 500; color: var(--text-secondary); }
+  code { background: #F3F4F6; border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  .note { background: #FFF7ED; border: 1px solid #FDBA74; border-radius: var(--radius-sm); padding: 12px 16px; font-size: var(--fs-sm); margin-top: 16px; }
+  .warn-note { background: #FEF2F2; border: 1px solid #FCA5A5; }
+  .ok-note { background: #F0FDF4; border: 1px solid #86EFAC; }
+  .checklist { margin-top: 16px; }
+  .checklist li { list-style: none; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 8px; font-size: var(--fs-sm); display: flex; gap: 10px; align-items: baseline; }
+  .checklist li .box { flex: none; width: 16px; height: 16px; border: 1.5px solid #BFBFBF; border-radius: 4px; transform: translateY(3px); }
+  .checklist li.done .box { border: none; background: var(--success); position: relative; }
+  .checklist li.done .box::after { content: '✓'; color: #fff; font-size: 11px; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+  .demo-panel { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; background: var(--bg-page); margin: 16px 0; }
+  .demo-panel h3 { font-size: var(--fs-sm); color: var(--text-secondary); font-weight: 500; margin-bottom: 12px; }
+  .icon-row { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+  .icon-cell { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .icon-cell .tag { font-size: var(--fs-xs); color: var(--text-secondary); }
+  .size-row { display: flex; align-items: flex-end; gap: 32px; flex-wrap: wrap; }
+  .icon-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 8px; }
+  .grid-item { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .grid-item .name { font-family: ui-monospace, monospace; font-size: 12px; color: var(--text-primary); }
+  .grid-item .lab { font-size: var(--fs-xs); color: var(--text-secondary); }
+  .footer { text-align: center; color: var(--text-secondary); font-size: var(--fs-xs); margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ Header ============ -->
+  <div class="header">
+    <div class="row">
+      <h1>Icon 图标</h1>
+      <span class="badge cat">基础组件</span>
+      <span class="badge id">ui.icon</span>
+      <span class="badge stage">已评审验收</span>
+      <span class="badge arch">补录归档 2026-09-04</span>
+    </div>
+    <div class="sub">中台基础图标组件：封装 iOS SF Symbols / Android SfApproxIcons 矢量，统一双端图标使用方式（对标 NutUI Icon / Ant Design Icon）。8 个通用图标（list / chart / plus / safari / person / arrowDown / smartphone / mail），支持自定义尺寸与着色。</div>
+    <div class="meta-grid">
+      <div class="meta"><div class="k">验收结论</div><div class="v">✅ reviewed=true 注册（2026-09-02）</div></div>
+      <div class="meta"><div class="k">双端实现</div><div class="v">iOS AppIcon.swift / Android AppIcon.kt</div></div>
+      <div class="meta"><div class="k">Demo 徽标</div><div class="v">Icon v1.2（组件库 v1.3.12 基线）</div></div>
+      <div class="meta"><div class="k">视觉 token</div><div class="v">4 项（见 04 节）</div></div>
+    </div>
+  </div>
+
+  <!-- ============ 1. 用途与场景 ============ -->
+  <div class="sec">
+    <h2><span class="no">01</span>用途与场景</h2>
+    <div class="lead">图标是 UI 的最小矢量单元：tab、列表行、主操作加号、空态、宫格入口等全部收敛到这一个入口，收编「SF Symbol 名各页面自造 + 尺寸/着色随手写」的散乱用法。</div>
+    <div class="checklist">
+      <li><span class="box"></span><b>统一入口：</b>任何页面需要图标时用 <code>&lt;AppIcon&gt;</code>，禁止各页面直接调用 <code>UIImage(systemName:)</code> / Material Icons 原语各写各的。</li>
+      <li><span class="box"></span><b>字形来源（双端差异=允许项）：</b>iOS 直接用系统 SF Symbols（零资源开销、系统级适配）；Android 用 SfApproxIcons 手绘矢量近似，同名枚举 <code>AppIconName</code> 双端共用。</li>
+      <li><span class="box"></span><b>着色机制：</b>整图单色 tint——iOS <code>tintColor</code>（配合 monochrome 强制单色轮廓），Android <code>ColorFilter.tint</code>，默认 <code>textPrimary</code>。</li>
+      <li><span class="box"></span><b>被引用方：</b>宫格 <code>ui.grid</code>、空态 <code>ui.empty</code>（EmptyStateView icon 参数）、Cell 等均复用本组件，语义色保持一致。</li>
+    </div>
+    <div class="note warn-note">
+      <b>边界（anti-goals）：</b>① 不做品牌图标（wechat / weibo / qq 等），品牌图标属于登录方式特定场景，不纳入通用 Icon 组件；② 不做图标字体（iconfont），直接用系统 SF Symbols / 自建矢量，避免字体加载与缓存问题；③ 不做动效图标（Lottie / animated vector），动效需求由 <code>ui.lottie</code> 承载。
+    </div>
+  </div>
+
+  <!-- ============ 2. 着色与尺寸机制 ============ -->
+  <div class="sec">
+    <h2><span class="no">02</span>视觉规格（着色 × 尺寸机制）</h2>
+    <div class="lead">以下为页面内联 SVG 的<b>机制示意</b>（字形近似，非库内字形）：图标是「矢量 + 单色 tint」模型，任意替换字形不影响着色与尺寸机制；库内真实字形以双端 IconShowcase / IconDemo 实测为准。</div>
+
+    <div class="demo-panel">
+      <h3>着色因子：同一图标 × 语义色（默认 24）</h3>
+      <div class="icon-row">
+        <div class="icon-cell">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#111827" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.6" fill="#111827" stroke="none"/><path d="M5.5 20c.8-4 3.2-6 6.5-6s5.7 2 6.5 6" /></svg>
+          <div class="tag">textPrimary（默认）</div>
+        </div>
+        <div class="icon-cell">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#16A34A" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.6" fill="#16A34A" stroke="none"/><path d="M5.5 20c.8-4 3.2-6 6.5-6s5.7 2 6.5 6" /></svg>
+          <div class="tag">primary（主色强调）</div>
+        </div>
+        <div class="icon-cell">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#DC2626" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.6" fill="#DC2626" stroke="none"/><path d="M5.5 20c.8-4 3.2-6 6.5-6s5.7 2 6.5 6" /></svg>
+          <div class="tag">error（警示语义）</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-panel">
+      <h3>尺寸因子：正方形等比，默认 24（pt / dp）</h3>
+      <div class="size-row">
+        <div class="icon-cell">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round"><rect x="4" y="6.5" width="16" height="3" rx="1.5" fill="#111827" stroke="none"/><rect x="4" y="10.5" width="16" height="3" rx="1.5" fill="#111827" stroke="none"/><rect x="4" y="14.5" width="16" height="3" rx="1.5" fill="#111827" stroke="none"/></svg>
+          <div class="tag">16</div>
+        </div>
+        <div class="icon-cell">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round"><rect x="4" y="6.5" width="16" height="3" rx="1.5" fill="#111827" stroke="none"/><rect x="4" y="10.5" width="16" height="3" rx="1.5" fill="#111827" stroke="none"/><rect x="4" y="14.5" width="16" height="3" rx="1.5" fill="#111827" stroke="none"/></svg>
+          <div class="tag">24（默认）</div>
+        </div>
+        <div class="icon-cell">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round"><rect x="4" y="6.5" width="16" height="3" rx="1.5" fill="#111827" stroke="none"/><rect x="4" y="10.5" width="16" height="3" rx="1.5" fill="#111827" stroke="none"/><rect x="4" y="14.5" width="16" height="3" rx="1.5" fill="#111827" stroke="none"/></svg>
+          <div class="tag">32</div>
+        </div>
+        <div class="icon-cell">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round"><rect x="4" y="6.5" width="16" height="3" rx="1.5" fill="#111827" stroke="none"/><rect x="4" y="10.5" width="16" height="3" rx="1.5" fill="#111827" stroke="none"/><rect x="4" y="14.5" width="16" height="3" rx="1.5" fill="#111827" stroke="none"/></svg>
+          <div class="tag">48</div>
+        </div>
+      </div>
+    </div>
+
+    <table>
+      <tr><th>机制维度</th><th>iOS（UIKit）</th><th>Android（Compose）</th></tr>
+      <tr><td>字形来源</td><td>系统 SF Symbols（monochrome 强制单色轮廓，v1.2 修复）</td><td>SfApproxIcons 手绘 ImageVector 近似</td></tr>
+      <tr><td>着色</td><td><code>tintColor</code>，运行时 <code>setColor()</code></td><td><code>ColorFilter.tint</code></td></tr>
+      <tr><td>缩放 / 布局</td><td><code>contentMode = .scaleAspectFit</code> + 宽高约束 = size</td><td><code>ContentScale.Fit</code> + <code>Modifier.size(size)</code></td></tr>
+      <tr><td>无障碍</td><td>—（SF Symbol 系统语义）</td><td><code>contentDescription = name.label</code></td></tr>
+    </table>
+  </div>
+
+  <!-- ============ 3. 图标清单 ============ -->
+  <div class="sec">
+    <h2><span class="no">03</span>图标清单（8 个通用图标）</h2>
+    <div class="lead">双端统一枚举 <code>AppIconName</code>，iOS 映射系统 SF Symbol 名，Android 映射 SfApproxIcons 矢量；语义标签用于无障碍与 Demo 展示。</div>
+    <table>
+      <tr><th>枚举名</th><th>语义（label）</th><th>iOS SF Symbol</th><th>Android SfApproxIcons</th><th>典型使用</th></tr>
+      <tr><td><code>list</code></td><td>列表</td><td>list.bullet.rectangle</td><td>ListBulletRectangle</td><td>列表行图标（demos ①）</td></tr>
+      <tr><td><code>chart</code></td><td>图表</td><td>chart.xyaxis.line</td><td>ChartXyAxisLine</td><td>宫格 / 图表入口</td></tr>
+      <tr><td><code>plus</code></td><td>加号</td><td>plus.circle.fill</td><td>PlusCircleFill</td><td>新建主操作（demos ② 主色）</td></tr>
+      <tr><td><code>safari</code></td><td>浏览器</td><td>safari</td><td>Safari</td><td>宫格入口</td></tr>
+      <tr><td><code>person</code></td><td>人物</td><td>person</td><td>Person</td><td>着色因子排查（demos ③）</td></tr>
+      <tr><td><code>arrowDown</code></td><td>下拉三角</td><td>arrowtriangle.down.fill</td><td>ArrowTriangleDownFill</td><td>下拉/排序指示</td></tr>
+      <tr><td><code>smartphone</code></td><td>手机</td><td>iphone.gen3（v1.2 修复）</td><td>Smartphone</td><td>手机绑定入口</td></tr>
+      <tr><td><code>mail</code></td><td>邮箱</td><td>envelope</td><td>Mail</td><td>邮箱警示（demos ③ 红色）</td></tr>
+    </table>
+    <div class="note">
+      <b>v1.2 关键修复：</b>iOS <code>smartphone</code> 原映射系统名 <code>"smartphone"</code> 并非 SF Symbol（<code>UIImage(systemName:)</code> 返回 nil，Demo ①第 7 列 / ④每行第 7 列图标空白）→ 改为 iOS 16+ 存在的 <code>"iphone.gen3"</code>。Android 侧 companion <code>sfSymbolName()</code> 仍登记 <code>"smartphone"</code>（仅跨端文档参考、非运行路径，待「零魔法值」立项统一清理）。
+    </div>
+  </div>
+
+  <!-- ============ 4. 尺寸与令牌 ============ -->
+  <div class="sec">
+    <h2><span class="no">04</span>尺寸与视觉令牌</h2>
+    <div class="lead">图标为正方形等比：<code>size</code> 同时约束宽高（iOS width/height 双约束，Android <code>Modifier.size</code>），默认 24（pt / dp），宫格内常用 26（见 ui.grid）。</div>
+    <table>
+      <tr><th>视觉令牌</th><th>值</th><th>用途</th></tr>
+      <tr><td><code>color.textPrimary</code></td><td>#111827</td><td>默认着色（icon 默认值）</td></tr>
+      <tr><td><code>color.primary</code></td><td>#16A34A</td><td>主色强调（新建加号等主操作语义）</td></tr>
+      <tr><td><code>color.error</code></td><td>#DC2626</td><td>警示语义（邮箱等需警示内容）</td></tr>
+      <tr><td><code>color.textSecondary</code></td><td>#6B7280</td><td>次要内容图标</td></tr>
+    </table>
+    <div class="note"><b>设计要点：</b>图标永远「语义着色」不随手写色，一屏内同一语义色保持一致；着色须与邻近文字色语义配套（警示→error、强调主操作→primary、普通内容→textPrimary / textSecondary）。</div>
+  </div>
+
+  <!-- ============ 5. API 契约摘要 ============ -->
+  <div class="sec">
+    <h2><span class="no">05</span>API 契约摘要</h2>
+    <div class="lead">契约正文以 <code>docs/数据与产物/api.json</code>（ui.icon，reviewed=true）为唯一事实源，此处为摘要。纯展示组件：<b>无 events</b>（无交互回调）。</div>
+    <table>
+      <tr><th>Props</th><th>类型 / 默认</th><th>说明</th></tr>
+      <tr><td><code>name</code></td><td>AppIconName（必填）</td><td>图标名，双端统一枚举 8 项（见 03 节清单）</td></tr>
+      <tr><td><code>size?</code></td><td>number，默认 24</td><td>图标尺寸（pt / dp），正方形等比</td></tr>
+      <tr><td><code>color? / tint?</code></td><td>Color，默认 textPrimary</td><td>着色：iOS <code>color</code>（tintColor）/ Android <code>tint</code>（ColorFilter.tint），契约文档化双写映射</td></tr>
+    </table>
+    <table style="margin-top:24px;">
+      <tr><th>Events</th><th>签名</th><th>说明</th></tr>
+      <tr><td>—</td><td>—</td><td>纯展示组件，无事件</td></tr>
+    </table>
+    <div class="note"><b>Demos（4 项，双端 1:1 递增单因子排查）：</b>① 列表图标（list × 24）→ ② 尺寸因子（list × 16/24/32/48）→ ③ 着色因子（person × 3 色 / mail × error）→ ④ 全图标网格（8 图标 × 3 色，allCases）。iOS <code>IconShowcase</code> / Android <code>IconDemo</code>。</div>
+  </div>
+
+  <!-- ============ 6. 验收与评审记录 ============ -->
+  <div class="sec">
+    <h2><span class="no">06</span>验收与评审记录</h2>
+    <div class="lead">Icon 为 <b>2026-09-02 收编批次</b>组件（前身 ui.sf-icons，遗留 ID 已归档），评审验收记录如下。</div>
+    <div class="checklist">
+      <li class="done"><span class="box"></span><b>v1.0 入库 + 评审验收（2026-09-02，库 1.1.6→1.1.7）</b>：双端 AppIcon.swift / AppIcon.kt 落地 + api.json 契约完善（platforms.ios unavailable→available / props 3 / demos 4 / anti_goals 3 / visual_tokens 4 / deps）+ 双端 4 组递增 Demo，demo 列表 <code>reviewed=false → true</code>=评审通过验收（用户实机查看 IconShowcase / IconDemo）。</li>
+      <li class="done"><span class="box"></span><b>双轮 bugfix 闭环（v1.1→v1.2，2026-09-03，库 1.1.8→1.1.10）</b>：① iOS smartphone SF Symbol 名修复（→iphone.gen3，根治 Demo ①第 7 列 / ④每行第 7 列手机图标空白）；② iOS Demo ② 尺寸因子间距对齐 Android（equalSpacing）；③ iOS .pbxproj 手动补 AppIcon.swift 4 处编译引用；④ iOS monochrome 强制单色（iphone.gen3 等多色符号默认忽略 tintColor → 双端着色语义一致）。Demo 徽标同步 v1.2。</li>
+      <li class="done"><span class="box"></span><b>双端一致（C2 口径）</b>：8 图标同名枚举 AppIconName；字形来源平台差异（SF Symbols vs SfApproxIcons 手绘近似）为登记允许项，着色机制对齐（iOS tintColor + monochrome / Android ColorFilter.tint）。</li>
+      <li class="done"><span class="box"></span><b>状态 = stable</b>：api.json 契约 + design-token.json（textPrimary #111827 等）同步落地；被 <code>ui.grid</code> / <code>ui.empty</code>（EmptyStateView.icon）复用。</li>
+      <li class="done"><span class="box"></span><b>遗留立项</b>：「零魔法值（sfSymbol 字符串映射表化）/ 多色映射扩展」另行立项，不影响既有验收结论。</li>
+    </div>
+    <div class="note warn-note">
+      <b>本页性质 = 补录归档（2026-09-04）：</b>与 Button 同因——Icon 收编时（09-02）评审验收载体是「api.json 契约 + 双端 Demo 对照」，每组件独立 H5 规格的门禁体系 09-03 起才引入（ConfigProvider / Image / Overlay 等），故当时未产规格页；本页按双端源码 + api.json 契约 + CHANGELOG（1.1.7/1.1.8/1.1.9/1.1.10）验收留痕补录，<b>非门禁 A 前置产物</b>，不改变既有验收结论。设计依据主源 = <code>api.json ui.icon</code> + <code>design-token.json</code> + 双端源码。
+    </div>
+  </div>
+
+  <div class="footer">Native-UI-Comps · docs/数据与产物/design-spec/icon-design-spec.html · 补录归档 2026-09-04（设计事实以双端源码与 api.json 契约为准）</div>
+</div>
+</body>
+</html>

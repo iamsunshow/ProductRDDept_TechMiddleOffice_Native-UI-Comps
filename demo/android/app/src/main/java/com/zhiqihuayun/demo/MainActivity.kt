@@ -79,6 +79,7 @@ import com.zhiqihuayun.sharedui.components.LayoutRow
 import com.zhiqihuayun.sharedui.components.Space
 import com.zhiqihuayun.sharedui.components.SpaceDirection
 import com.zhiqihuayun.sharedui.components.ZodiacAvatar
+import com.zhiqihuayun.sharedui.components.stickyHeaderItem
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -116,7 +117,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Layout 布局", reviewed = true, demo = { LayoutDemo() }),
         DemoComponent("SafeArea 安全区", reviewed = true, demo = { SafeAreaDemo() }),
         DemoComponent("Space 间距", reviewed = true, demo = { SpaceDemo() }),
-        DemoComponent("Sticky 粘性布局"),
+        DemoComponent("Sticky 粘性布局", reviewed = true, demo = { StickyDemo() }),
     ),
     "导航组件" to listOf(
         DemoComponent("BackTop 返回顶部"),
@@ -2069,6 +2070,241 @@ private fun SafeAreaEdgeCard(title: String, detail: String, edges: Set<SafeAreaE
             Column(Modifier.padding(AppSpace.md)) {
                 Text(title, fontSize = AppFont.sizeXs, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
                 Text(detail, fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+            }
+        }
+    }
+}
+
+// ===== Sticky 粘性布局 Demo 页（与 iOS StickyShowcase 一一对应，布局组件） =====
+
+@Composable
+private fun StickyDemo() {
+    Text(
+        text = "Sticky 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 分组列表标题吸顶 ② 筛选条吸顶 ③ offset 让位(固定 AppBar 下) ④ 吸顶行内容任意可交互。双端 1:1 对齐（Android LazyColumn 原生 stickyHeader）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        Text("Demo 1 · 分组列表标题吸顶（真实组件，多组标题依次顶替）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().height(260.dp),
+            verticalArrangement = Arrangement.spacedBy(AppSpace.sm)
+        ) {
+            stickyHeaderItem(key = "today") { GroupBar("今天", "共 3 笔 · ¥126") }
+            items(listOf("餐饮" to "-¥32", "交通" to "-¥18", "购物" to "-¥76")) { (c, a) -> BillRow(c, a) }
+            stickyHeaderItem(key = "yesterday") { GroupBar("昨天", "共 2 笔 · ¥94") }
+            items(listOf("餐饮" to "-¥58", "娱乐" to "-¥36")) { (c, a) -> BillRow(c, a) }
+            stickyHeaderItem(key = "earlier") { GroupBar("本周更早", "共 5 笔 · ¥420") }
+            items(listOf("房租" to "-¥300", "日用" to "-¥120")) { (c, a) -> BillRow(c, a) }
+        }
+        Text("滚动观察：「今天」吸顶 → 滚过「昨天」边界被顶替 → 「本周更早」再顶替；回滚依次恢复随流排布。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        Text("Demo 2 · 筛选条吸顶（内容行从吸顶条下方穿过）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().height(240.dp),
+            verticalArrangement = Arrangement.spacedBy(AppSpace.sm)
+        ) {
+            stickyHeaderItem(key = "filter") { FilterBar() }
+            items(
+                listOf(
+                    Triple("09-01", "餐饮", "-¥32"), Triple("09-02", "工资", "+¥12,000"),
+                    Triple("09-03", "交通", "-¥18"), Triple("09-04", "购物", "-¥76"),
+                    Triple("09-05", "娱乐", "-¥120"), Triple("09-06", "日用", "-¥45")
+                )
+            ) { (d, m, a) -> DateRow(d, m, a) }
+        }
+        Text("滚动观察：筛选条滚到容器顶即钉住，列表行从条下方穿过（遮挡区在条下，行为正确）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        Text("Demo 3 · offset 让位（吸顶条停固定 AppBar 下方，不遮挡）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Column(Modifier.fillMaxWidth()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(34.dp)
+                    .clip(RoundedCornerShape(AppRadius.sm))
+                    .background(AppColor.gray4),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("固定 AppBar（高 34）", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+            }
+            // 滚动区置于 AppBar 之下：吸顶钉线 = 滚动区顶部 = AppBar 下沿（offset 让位达成）
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = AppSpace.sm)
+                    .height(196.dp),
+                verticalArrangement = Arrangement.spacedBy(AppSpace.sm)
+            ) {
+                stickyHeaderItem(key = "title") { GroupBar("吸顶标题", "offset 让位，停 AppBar 下方") }
+                items(
+                    listOf(
+                        Triple("09-04", "餐饮", "-¥32"), Triple("09-04", "购物", "-¥76"),
+                        Triple("09-03", "交通", "-¥18"), Triple("09-02", "娱乐", "-¥120")
+                    )
+                ) { (d, m, a) -> DateRow(d, m, a) }
+            }
+        }
+        Text("滚动观察：吸顶标题停 AppBar 下方（AppBar 恒在、不遮挡）；Android offset 以容器排布表达（LazyColumn 置于 AppBar 下），与 iOS 一致。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        Text("Demo 4 · 吸顶行内容任意（icon+文字+右侧按钮，吸顶中可交互）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var exported by remember { mutableStateOf(false) }
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().height(260.dp),
+            verticalArrangement = Arrangement.spacedBy(AppSpace.sm)
+        ) {
+            stickyHeaderItem(key = "summary") {
+                SummaryHeader(onExport = { exported = true })
+            }
+            items(
+                listOf(
+                    "收入" to "+¥18,240", "支出" to "-¥7,960", "结余" to "+¥10,280",
+                    "笔数" to "共 26 笔", "餐饮占比" to "32%", "交通占比" to "18%"
+                )
+            ) { (c, a) -> BillRow(c, a) }
+        }
+        Text(
+            text = if (exported) "已点击「导出」按钮（吸顶态下仍可交互）" else "滚动观察：汇总条（含可点按钮）吸顶后整行可见可点——Sticky 只是行为容器，内容任意编排。",
+            fontSize = AppFont.sizeXs,
+            color = if (exported) AppColor.primary else AppColor.textSecondary
+        )
+    }
+}
+
+/** 分组标题条（primaryMuted 底圆角色块）：标题左、计数右。 */
+@Composable
+private fun GroupBar(title: String, trailing: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(34.dp)
+            .clip(RoundedCornerShape(AppRadius.sm))
+            .background(AppColor.primaryMuted),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = AppSpace.md),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(title, fontSize = AppFont.sizeSm, fontWeight = FontWeight.SemiBold, color = AppColor.primary)
+            Text(trailing, fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+        }
+    }
+}
+
+/** 筛选条（吸顶内容 = 文本筛选项行）。 */
+@Composable
+private fun FilterBar() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(34.dp)
+            .clip(RoundedCornerShape(AppRadius.sm))
+            .background(AppColor.primaryMuted),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Text(
+            text = "筛选：全部 ｜ 收入 ｜ 支出",
+            fontSize = AppFont.sizeSm,
+            fontWeight = FontWeight.Medium,
+            color = AppColor.primaryPressed,
+            modifier = Modifier.padding(start = AppSpace.md)
+        )
+    }
+}
+
+/** 白底圆角账目行：分类左、金额右。 */
+@Composable
+private fun BillRow(category: String, amount: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .clip(RoundedCornerShape(AppRadius.sm))
+            .background(AppColor.bgCard)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = AppSpace.md),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(category, fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+            Text(amount, fontSize = AppFont.sizeXs, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        }
+    }
+}
+
+/** 白底流水行：日期左、摘要中、金额右。 */
+@Composable
+private fun DateRow(date: String, desc: String, amount: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .clip(RoundedCornerShape(AppRadius.sm))
+            .background(AppColor.bgCard)
+    ) {
+        Box(modifier = Modifier.fillMaxWidth().padding(horizontal = AppSpace.md)) {
+            Text(date, fontSize = AppFont.sizeXs, color = AppColor.textSecondary, modifier = Modifier.align(Alignment.CenterStart))
+            Text(desc, fontSize = AppFont.sizeXs, color = AppColor.textPrimary, modifier = Modifier.align(Alignment.Center))
+            Text(amount, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium, color = AppColor.textPrimary, modifier = Modifier.align(Alignment.CenterEnd))
+        }
+    }
+}
+
+/** D4 汇总吸顶条：icon 容器(26dp 圆角 primary 白图标) + 标题 + 右侧「导出」胶囊按钮。 */
+@Composable
+private fun SummaryHeader(onExport: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(44.dp)
+            .clip(RoundedCornerShape(AppRadius.sm))
+            .background(AppColor.bgCard)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = AppSpace.md),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(26.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(AppColor.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                AppIcon(name = AppIconName.List, size = 16.dp, tint = Color.White)
+            }
+            Text(
+                text = "本月账单汇总",
+                fontSize = AppFont.sizeSm,
+                fontWeight = FontWeight.SemiBold,
+                color = AppColor.textPrimary,
+                modifier = Modifier.padding(start = AppSpace.sm).weight(1f)
+            )
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(AppColor.primary)
+                    .clickable { onExport() }
+                    .padding(horizontal = AppSpace.lg, vertical = 5.dp)
+            ) {
+                Text("导出", fontSize = AppFont.sizeXs, fontWeight = FontWeight.SemiBold, color = Color.White)
             }
         }
     }

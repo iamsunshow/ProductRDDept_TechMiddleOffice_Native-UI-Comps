@@ -32,7 +32,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.layout", name: "Layout 布局", reviewed: true, create: { LayoutShowcase() }),
             DemoComponent(id: "ui.safe-area", name: "SafeArea 安全区", reviewed: true, create: { SafeAreaShowcase() }),
             DemoComponent(id: "ui.space", name: "Space 间距", reviewed: true, create: { SpaceShowcase() }),
-            DemoComponent(id: "ui.sticky", name: "Sticky 粘性布局", reviewed: false, create: nil),
+            DemoComponent(id: "ui.sticky", name: "Sticky 粘性布局", reviewed: true, create: { StickyShowcase() }),
         ]),
         ("导航组件", [
             DemoComponent(id: "ui.back-top", name: "BackTop 返回顶部", reviewed: false, create: nil),
@@ -2903,6 +2903,277 @@ final class SafeAreaShowcase: ShowcaseViewController {
             make.leading.trailing.bottom.equalToSuperview().inset(AppSpace.md)
         }
         return card
+    }
+}
+
+// MARK: - Sticky Showcase（Sticky 粘性布局 Demo 页，布局组件）
+
+/// Sticky 粘性布局：把一行内容在父滚动容器滚动时固定在可视区顶部（对标 Web position:sticky / Android LazyColumn stickyHeader）。
+/// 4 段排查：D1 分组列表标题吸顶 / D2 筛选条吸顶 / D3 offset 让位（固定 AppBar 下）/ D4 吸顶行内容任意可交互。
+/// 双端 1:1：iOS StickyView（通用滚动 pinned 方案）vs Android LazyColumn stickyHeader。
+final class StickyShowcase: ShowcaseViewController {
+
+    /// 页面顶部常驻反馈条（D4 导出按钮点击就地反馈）。
+    private var feedbackLabel: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Sticky", version: "v1.0", builtAt: "2026-09-04")
+        feedbackLabel = addFeedbackBar()
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    // D1 · 分组列表标题吸顶（真实 StickyView：组标题随滚动依次吸顶/顶替）
+    private func buildDemo1() {
+        addSection("D1 · 分组列表标题吸顶（真实组件，多组标题依次顶替）") { container in
+            let sticky = Self.makeStickyHost(container: container, height: 260)
+            sticky.addStickyHeader(Self.groupBar("今天", trailing: "共 3 笔 · ¥126"), height: 34)
+            sticky.addRow(Self.billRow(category: "餐饮", amount: "-¥32"), height: 40)
+            sticky.addRow(Self.billRow(category: "交通", amount: "-¥18"), height: 40)
+            sticky.addRow(Self.billRow(category: "购物", amount: "-¥76"), height: 40)
+            sticky.addStickyHeader(Self.groupBar("昨天", trailing: "共 2 笔 · ¥94"), height: 34)
+            sticky.addRow(Self.billRow(category: "餐饮", amount: "-¥58"), height: 40)
+            sticky.addRow(Self.billRow(category: "娱乐", amount: "-¥36"), height: 40)
+            sticky.addStickyHeader(Self.groupBar("本周更早", trailing: "共 5 笔 · ¥420"), height: 34)
+            sticky.addRow(Self.billRow(category: "房租", amount: "-¥300"), height: 40)
+            sticky.addRow(Self.billRow(category: "日用", amount: "-¥120"), height: 40)
+        }
+        addInfo("滚动观察：「今天」吸顶 → 滚过「昨天」边界被顶替 → 「本周更早」再顶替；回滚依次恢复随流排布。")
+    }
+
+    // D2 · 筛选条吸顶（通用滚动容器路径：内容从吸顶条下穿过）
+    private func buildDemo2() {
+        addSection("D2 · 筛选条吸顶（内容行从吸顶条下方穿过）") { container in
+            let sticky = Self.makeStickyHost(container: container, height: 240)
+            sticky.addStickyHeader(Self.filterBar(), height: 34)
+            sticky.addRow(Self.dateRow(date: "09-01", desc: "餐饮", amount: "-¥32"), height: 40)
+            sticky.addRow(Self.dateRow(date: "09-02", desc: "工资", amount: "+¥12,000"), height: 40)
+            sticky.addRow(Self.dateRow(date: "09-03", desc: "交通", amount: "-¥18"), height: 40)
+            sticky.addRow(Self.dateRow(date: "09-04", desc: "购物", amount: "-¥76"), height: 40)
+            sticky.addRow(Self.dateRow(date: "09-05", desc: "娱乐", amount: "-¥120"), height: 40)
+            sticky.addRow(Self.dateRow(date: "09-06", desc: "日用", amount: "-¥45"), height: 40)
+        }
+        addInfo("滚动观察：筛选条滚到容器顶即钉住，列表行从条下方穿过（遮挡区在条下，行为正确）。")
+    }
+
+    // D3 · offset 让位：吸顶条停于固定 AppBar 下方（让位语义 = 滚动区置于 AppBar 之下，双端一致）
+    private func buildDemo3() {
+        addSection("D3 · offset 让位（吸顶条停固定 AppBar 下方，不遮挡）") { container in
+            let appBar = UIView()
+            appBar.backgroundColor = AppColor.gray4
+            appBar.layer.cornerRadius = AppRadius.sm
+            container.addSubview(appBar)
+            appBar.snp.makeConstraints { make in
+                make.top.leading.trailing.equalToSuperview()
+                make.height.equalTo(34)
+            }
+            let label = UILabel()
+            label.text = "固定 AppBar（高 34）"
+            label.font = .systemFont(ofSize: AppFont.sizeXs)
+            label.textColor = AppColor.textSecondary
+            label.textAlignment = .center
+            appBar.addSubview(label)
+            label.snp.makeConstraints { make in make.center.equalToSuperview() }
+
+            // 滚动区置于 AppBar 之下：吸顶钉线 = 滚动区顶部 = AppBar 下沿（offset 让位达成）
+            let sticky = StickyView()
+            container.addSubview(sticky)
+            sticky.snp.makeConstraints { make in
+                make.top.equalTo(appBar.snp.bottom).offset(AppSpace.sm)
+                make.leading.trailing.bottom.equalToSuperview()
+                make.height.equalTo(196)
+            }
+            sticky.addStickyHeader(Self.groupBar("吸顶标题", trailing: "offset 让位，停 AppBar 下方"), height: 34)
+            sticky.addRow(Self.dateRow(date: "09-04", desc: "餐饮", amount: "-¥32"), height: 40)
+            sticky.addRow(Self.dateRow(date: "09-04", desc: "购物", amount: "-¥76"), height: 40)
+            sticky.addRow(Self.dateRow(date: "09-03", desc: "交通", amount: "-¥18"), height: 40)
+            sticky.addRow(Self.dateRow(date: "09-02", desc: "娱乐", amount: "-¥120"), height: 40)
+        }
+        addInfo("滚动观察：吸顶标题停 AppBar 下方（AppBar 恒在、不遮挡）；iOS offset 参数可设钉线下移量（本 demo 以容器排布表达让位，与 Android 一致）。")
+    }
+
+    // D4 · 吸顶行内容任意：icon+文字+右侧按钮，滚动中整行吸顶且按钮可点
+    private func buildDemo4() {
+        addSection("D4 · 吸顶行内容任意（icon+文字+右侧按钮，吸顶中可交互）") { container in
+            let sticky = Self.makeStickyHost(container: container, height: 260)
+            sticky.addStickyHeader(Self.makeSummaryHeader(target: self, action: #selector(exportTapped)), height: 44)
+            sticky.addRow(Self.billRow(category: "收入", amount: "+¥18,240"), height: 40)
+            sticky.addRow(Self.billRow(category: "支出", amount: "-¥7,960"), height: 40)
+            sticky.addRow(Self.billRow(category: "结余", amount: "+¥10,280"), height: 40)
+            sticky.addRow(Self.billRow(category: "笔数", amount: "共 26 笔"), height: 40)
+            sticky.addRow(Self.billRow(category: "餐饮占比", amount: "32%"), height: 40)
+            sticky.addRow(Self.billRow(category: "交通占比", amount: "18%"), height: 40)
+        }
+        addInfo("滚动观察：汇总条（含可点按钮）吸顶后整行可见可点——Sticky 只是行为容器，内容任意编排。")
+    }
+
+    @objc private func exportTapped() {
+        feedbackLabel?.text = "已点击「导出」按钮（吸顶态下仍可交互）"
+    }
+
+    // MARK: helpers
+
+    /// 在 section 容器中放置固定高 StickyView，返回供内容添加。
+    private static func makeStickyHost(container: UIView, height: CGFloat) -> StickyView {
+        let sticky = StickyView(rowSpacing: AppSpace.sm)
+        container.addSubview(sticky)
+        sticky.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.height.equalTo(height)
+        }
+        return sticky
+    }
+
+    /// 分组标题条（primaryMuted 底圆角色块）：标题左、计数右。
+    private static func groupBar(_ title: String, trailing: String) -> UIView {
+        let bar = UIView()
+        bar.backgroundColor = AppColor.primaryMuted
+        bar.layer.cornerRadius = AppRadius.sm
+        let l = UILabel()
+        l.text = title
+        l.font = .systemFont(ofSize: AppFont.sizeSm, weight: .semibold)
+        l.textColor = AppColor.primary
+        bar.addSubview(l)
+        l.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(AppSpace.md)
+            make.centerY.equalToSuperview()
+        }
+        let t = UILabel()
+        t.text = trailing
+        t.font = .systemFont(ofSize: AppFont.sizeXs)
+        t.textColor = AppColor.textSecondary
+        bar.addSubview(t)
+        t.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().offset(-AppSpace.md)
+            make.centerY.equalToSuperview()
+        }
+        return bar
+    }
+
+    /// 筛选条（吸顶内容 = 文本筛选项行）。
+    private static func filterBar() -> UIView {
+        let bar = UIView()
+        bar.backgroundColor = AppColor.primaryMuted
+        bar.layer.cornerRadius = AppRadius.sm
+        let l = UILabel()
+        l.text = "筛选：全部 ｜ 收入 ｜ 支出"
+        l.font = .systemFont(ofSize: AppFont.sizeSm, weight: .medium)
+        l.textColor = AppColor.primaryPressed
+        bar.addSubview(l)
+        l.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(AppSpace.md)
+            make.centerY.equalToSuperview()
+        }
+        return bar
+    }
+
+    /// 白底圆角账目行：分类左、金额右。
+    private static func billRow(category: String, amount: String) -> UIView {
+        let row = UIView()
+        row.backgroundColor = AppColor.bgCard
+        row.layer.cornerRadius = AppRadius.sm
+        let l = UILabel()
+        l.text = category
+        l.font = .systemFont(ofSize: AppFont.sizeXs)
+        l.textColor = AppColor.textSecondary
+        row.addSubview(l)
+        l.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(AppSpace.md)
+            make.centerY.equalToSuperview()
+        }
+        let a = UILabel()
+        a.text = amount
+        a.font = .systemFont(ofSize: AppFont.sizeXs, weight: .semibold)
+        a.textColor = AppColor.textPrimary
+        row.addSubview(a)
+        a.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().offset(-AppSpace.md)
+            make.centerY.equalToSuperview()
+        }
+        return row
+    }
+
+    /// 白底流水行：日期左、摘要中、金额右。
+    private static func dateRow(date: String, desc: String, amount: String) -> UIView {
+        let row = UIView()
+        row.backgroundColor = AppColor.bgCard
+        row.layer.cornerRadius = AppRadius.sm
+        let d = UILabel()
+        d.text = date
+        d.font = .systemFont(ofSize: AppFont.sizeXs)
+        d.textColor = AppColor.textSecondary
+        row.addSubview(d)
+        d.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(AppSpace.md)
+            make.centerY.equalToSuperview()
+        }
+        let m = UILabel()
+        m.text = desc
+        m.font = .systemFont(ofSize: AppFont.sizeXs)
+        m.textColor = AppColor.textPrimary
+        row.addSubview(m)
+        m.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+        let a = UILabel()
+        a.text = amount
+        a.font = .systemFont(ofSize: AppFont.sizeXs, weight: .medium)
+        a.textColor = AppColor.textPrimary
+        row.addSubview(a)
+        a.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().offset(-AppSpace.md)
+            make.centerY.equalToSuperview()
+        }
+        return row
+    }
+
+    /// D4 汇总吸顶条：icon 容器(26pt 圆角 primary 白图标) + 标题 + 右侧「导出」胶囊按钮。
+    private static func makeSummaryHeader(target: Any, action: Selector) -> UIView {
+        let bar = UIView()
+        bar.backgroundColor = AppColor.bgCard
+        bar.layer.cornerRadius = AppRadius.sm
+
+        let iconWrap = UIView()
+        iconWrap.backgroundColor = AppColor.primary
+        iconWrap.layer.cornerRadius = 6
+        bar.addSubview(iconWrap)
+        iconWrap.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(AppSpace.md)
+            make.centerY.equalToSuperview()
+            make.width.height.equalTo(26)
+        }
+        let icon = AppIcon.make(.list, size: 16, color: .white)
+        iconWrap.addSubview(icon)
+        icon.snp.makeConstraints { make in make.center.equalToSuperview() }
+
+        let l = UILabel()
+        l.text = "本月账单汇总"
+        l.font = .systemFont(ofSize: AppFont.sizeSm, weight: .semibold)
+        l.textColor = AppColor.textPrimary
+        bar.addSubview(l)
+        l.snp.makeConstraints { make in
+            make.leading.equalTo(iconWrap.snp.trailing).offset(AppSpace.sm)
+            make.centerY.equalToSuperview()
+        }
+
+        let btn = UIButton(type: .system)
+        btn.setTitle("导出", for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs, weight: .semibold)
+        btn.setTitleColor(.white, for: .normal)
+        btn.backgroundColor = AppColor.primary
+        btn.layer.cornerRadius = 13 // 胶囊：按钮高 26 的一半
+        btn.addTarget(target, action: action, for: .touchUpInside)
+        bar.addSubview(btn)
+        btn.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().offset(-AppSpace.md)
+            make.centerY.equalToSuperview()
+            make.height.equalTo(26)
+            make.width.equalTo(56)
+        }
+        return bar
     }
 }
 

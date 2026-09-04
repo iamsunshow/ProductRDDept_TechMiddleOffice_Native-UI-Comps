@@ -65,6 +65,9 @@ import com.zhiqihuayun.sharedui.components.SummaryCardView
 import com.zhiqihuayun.sharedui.components.ChartPoint
 import com.zhiqihuayun.sharedui.components.TrendChartView
 import com.zhiqihuayun.sharedui.components.Overlay
+import com.zhiqihuayun.sharedui.components.EmptyStateView
+import com.zhiqihuayun.sharedui.components.AvatarOption
+import com.zhiqihuayun.sharedui.components.ZodiacAvatar
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -928,7 +931,9 @@ private fun AvatarDemo() {
         modifier = Modifier.padding(horizontal = AppSpace.xl)
     )
 
-    val mockSigns = remember {
+    // ⚠️ AvatarDemo 里 remember 的泛型列表必须显式标注类型（真 build 第 31-40 条实锤=Cannot infer T/V + iterator ambiguous + take overload ambiguity）
+    // Kotlin remember + listOf() 的组合=当 listOf 元素里包含 null（Pair 首元素 null）或多种推断候选时=编译器推断不出 T=必须显式写 List<Type>
+    val mockSigns: List<AvatarOption> = remember {
         listOf(
             AvatarOption("白羊座", "♈", 0xDC2626),
             AvatarOption("金牛座", "♉", 0x16A34A),
@@ -986,7 +991,9 @@ private fun AvatarDemo() {
             modifier = Modifier.fillMaxWidth().padding(vertical = AppSpace.md),
             verticalArrangement = Arrangement.spacedBy(AppSpace.md)
         ) {
-            val users = listOf(
+            // ⚠️ users 列表里有 (null to "王五")=Pair 首元素是 AvatarOption?=必须显式标注类型 List<Pair<AvatarOption?, String>>
+            // 否则 Kotlin 编译器在 for ((sign,name) in users) 解构时=泛型参数 V 推断不出=报 Cannot infer type for V（真 build 990/993 实锤）
+            val users: List<Pair<AvatarOption?, String>> = listOf(
                 mockSigns[0] to "白羊",
                 mockSigns[1] to "金牛",
                 null to "王五",
@@ -1386,125 +1393,129 @@ private fun OverlayDemo() {
         Text("contentPosition=center + contentRadius=lg；4 角全 14dp；animation=默认 true（fade in/out）。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
 
         Spacer(Modifier.height(24.dp))
-    }
 
-    // ──── Overlay 实例声明（4 个）────
-    Overlay(
-        visible = d1Visible,
-        contentRadius = "lg",
-        onClose = { d1Visible = false; feedback = "[Demo1] onClose 触发 → 已关闭" },
-        onMaskClick = { feedback = "[Demo1] onMaskClick → onClose 将紧随其后" }
-    ) {
-        Surface(
-            color = Color.White,
-            modifier = Modifier.width(280.dp)
+        // ⚠️ 永久钉死=下面 4 个 Overlay() 实例声明=必须放在本 Column { } 闭包的**内部**（不能写在 Column 结束大括号之后=真 build 35 条 d1Visible/d4Visible/feedback Unresolved=跨作用域根因）
+        // 因为 L1349/L1361-L1380 用 remember { mutableStateOf } 声明的 feedback + d1~d4Visible=作用域是 Column content lambda（remember {} 仅在当前 Composable 子树作用域可见）
+        // —— 下面 4 个 Overlay 和 feedback/Visible 同作用域=才能读写 state ——
+
+        // ──── Overlay 实例声明（4 个）────
+        Overlay(
+            visible = d1Visible,
+            contentRadius = "lg",
+            onClose = { d1Visible = false; feedback = "[Demo1] onClose 触发 → 已关闭" },
+            onMaskClick = { feedback = "[Demo1] onMaskClick → onClose 将紧随其后" }
         ) {
-            Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                Text("确认退出？", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
-                Text("退出后当前编辑内容不会自动保存", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TextButton(onClick = { d1Visible = false }, modifier = Modifier.weight(1f)) { Text("取消", color = Color(0xFF111827)) }
-                    AppButton(text = "确定", style = AppButtonStyle.Primary, onClick = {
-                        d1Visible = false
-                        feedback = "[Demo1] 确定点击 → 手动 visible=false 关（不重复触发 onClose）"
-                    }, modifier = Modifier.weight(1f))
+            Surface(
+                color = Color.White,
+                modifier = Modifier.width(280.dp)
+            ) {
+                Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Text("确认退出？", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
+                    Text("退出后当前编辑内容不会自动保存", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        TextButton(onClick = { d1Visible = false }, modifier = Modifier.weight(1f)) { Text("取消", color = Color(0xFF111827)) }
+                        AppButton(text = "确定", style = AppButtonStyle.Primary, onClick = {
+                            d1Visible = false
+                            feedback = "[Demo1] 确定点击 → 手动 visible=false 关（不重复触发 onClose）"
+                        }, modifier = Modifier.weight(1f))
+                    }
                 }
             }
         }
-    }
 
-    Overlay(
-        visible = d2Visible,
-        maskColor = "transparent",
-        closeOnMaskClick = false,
-        clickThrough = true,
-        contentPosition = "top-right",
-        contentOffsetY = 88,
-        contentOffsetX = -12,
-        contentRadius = "md",
-        onClose = { d2Visible = false },
-        onMaskClick = { /* clickThrough=true 近似：忽略 */ }
-    ) {
-        Box(
-            modifier = Modifier
-                .width(200.dp)
-                .background(Color(0xFF16A34A), RoundedCornerShape(10.dp))
-                .clip(RoundedCornerShape(10.dp))
-                .clickable {
-                    d2Visible = false
-                    feedback = "[Demo2] 气泡点击 → 立即关闭"
-                }
-                .padding(12.dp)
+        Overlay(
+            visible = d2Visible,
+            maskColor = "transparent",
+            closeOnMaskClick = false,
+            clickThrough = true,
+            contentPosition = "top-right",
+            contentOffsetY = 88,
+            contentOffsetX = -12,
+            contentRadius = "md",
+            onClose = { d2Visible = false },
+            onMaskClick = { /* clickThrough=true 近似：忽略 */ }
         ) {
-            Text("🎉 新手引导：点击「+」可快速记账哦～", color = Color.White, fontSize = AppFont.sizeSm)
-        }
-        // 3 秒自动关闭
-        if (d2Visible) {
-            LaunchedEffect(Unit) {
-                feedback = "[Demo2] 已显示气泡 3 秒：遮罩透明+近似穿透；3s 后自动关闭（或点击气泡立即关）"
-                kotlinx.coroutines.delay(3000)
-                d2Visible = false
-            }
-        }
-    }
-
-    Overlay(
-        visible = d3Visible,
-        contentPosition = "bottom",
-        contentRadius = "lg",
-        onClose = { d3Visible = false; feedback = "[Demo3] onClose 触发 → 已关闭" },
-        onMaskClick = { feedback = "[Demo3] onMaskClick → 关闭" }
-    ) {
-        Surface(color = Color.White) {
-            Column(
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .width(200.dp)
+                    .background(Color(0xFF16A34A), RoundedCornerShape(10.dp))
+                    .clip(RoundedCornerShape(10.dp))
+                    .clickable {
+                        d2Visible = false
+                        feedback = "[Demo2] 气泡点击 → 立即关闭"
+                    }
+                    .padding(12.dp)
             ) {
-                // 把手
-                Spacer(
-                    Modifier
-                        .height(4.dp)
-                        .width(40.dp)
-                        .background(Color(0xFFE5E7EB), RoundedCornerShape(2.dp))
-                        .align(Alignment.CenterHorizontally)
-                )
-                Text("选择日期范围", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
-                Text("本周 / 本月 / 自定义…", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
-                BottomSheetRow(title = "本周") { d3Visible = false; feedback = "[Demo3] 选择「本周」" }
-                BottomSheetRow(title = "本月") { d3Visible = false; feedback = "[Demo3] 选择「本月」" }
-                BottomSheetRow(title = "自定义…") { d3Visible = false; feedback = "[Demo3] 选择「自定义…」" }
+                Text("🎉 新手引导：点击「+」可快速记账哦～", color = Color.White, fontSize = AppFont.sizeSm)
+            }
+            // 3 秒自动关闭
+            if (d2Visible) {
+                LaunchedEffect(Unit) {
+                    feedback = "[Demo2] 已显示气泡 3 秒：遮罩透明+近似穿透；3s 后自动关闭（或点击气泡立即关）"
+                    kotlinx.coroutines.delay(3000)
+                    d2Visible = false
+                }
             }
         }
-    }
 
-    Overlay(
-        visible = d4Visible,
-        contentRadius = "lg",
-        onClose = { d4Visible = false },
-        onMaskClick = { feedback = "[Demo4] onMaskClick → onClose 将紧随其后" }
-    ) {
-        Surface(color = Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.width(260.dp)) {
-            Column(
-                modifier = Modifier.padding(top = 24.dp, start = 20.dp, end = 20.dp, bottom = 20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text("💸", fontSize = AppFont.sizeXl)
-                Text("已保存 3 条记账", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827), textAlign = TextAlign.Center)
-                Text("总支出 ¥ 328.00", fontSize = AppFont.sizeSm, color = AppColor.textSecondary, textAlign = TextAlign.Center)
-                AppButton(text = "好的", style = AppButtonStyle.Primary, onClick = {
-                    d4Visible = false
-                }, modifier = Modifier.fillMaxWidth())
+        Overlay(
+            visible = d3Visible,
+            contentPosition = "bottom",
+            contentRadius = "lg",
+            onClose = { d3Visible = false; feedback = "[Demo3] onClose 触发 → 已关闭" },
+            onMaskClick = { feedback = "[Demo3] onMaskClick → 关闭" }
+        ) {
+            Surface(color = Color.White) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // 把手
+                    Spacer(
+                        Modifier
+                            .height(4.dp)
+                            .width(40.dp)
+                            .background(Color(0xFFE5E7EB), RoundedCornerShape(2.dp))
+                            .align(Alignment.CenterHorizontally)
+                    )
+                    Text("选择日期范围", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
+                    Text("本周 / 本月 / 自定义…", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                    BottomSheetRow(title = "本周") { d3Visible = false; feedback = "[Demo3] 选择「本周」" }
+                    BottomSheetRow(title = "本月") { d3Visible = false; feedback = "[Demo3] 选择「本月」" }
+                    BottomSheetRow(title = "自定义…") { d3Visible = false; feedback = "[Demo3] 选择「自定义…」" }
+                }
             }
         }
-        if (d4Visible) {
-            LaunchedEffect(Unit) {
-                feedback = "[Demo4] 已保存 3 条记账（center + 4 圆角 radius=lg）：fade-in 动画 200ms"
+
+        Overlay(
+            visible = d4Visible,
+            contentRadius = "lg",
+            onClose = { d4Visible = false },
+            onMaskClick = { feedback = "[Demo4] onMaskClick → onClose 将紧随其后" }
+        ) {
+            Surface(color = Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.width(260.dp)) {
+                Column(
+                    modifier = Modifier.padding(top = 24.dp, start = 20.dp, end = 20.dp, bottom = 20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text("💸", fontSize = AppFont.sizeXl)
+                    Text("已保存 3 条记账", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827), textAlign = TextAlign.Center)
+                    Text("总支出 ¥ 328.00", fontSize = AppFont.sizeSm, color = AppColor.textSecondary, textAlign = TextAlign.Center)
+                    AppButton(text = "好的", style = AppButtonStyle.Primary, onClick = {
+                        d4Visible = false
+                    }, modifier = Modifier.fillMaxWidth())
+                }
+            }
+            if (d4Visible) {
+                LaunchedEffect(Unit) {
+                    feedback = "[Demo4] 已保存 3 条记账（center + 4 圆角 radius=lg）：fade-in 动画 200ms"
+                }
             }
         }
-    }
+    } // —— Column { } 结束大括号=**必须在这里才闭合**（把 4 个 Overlay 实例全部包进 Column 作用域=与 remember 的 5 个 state 同作用域=解决 35 条 Unresolved）
 }
 
 @Composable

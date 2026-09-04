@@ -1962,7 +1962,8 @@ final class OverlayShowcase: ShowcaseViewController {
             }
             // 气泡本身点击（非遮罩，clickThrough 不影响子控件）
             // ⚠️ UITapGestureRecognizer.addAction(UIAction) 需要 iOS 14+，为兼容所有 Deployment Target（真 build 第 26 条实锤=低版本 has no member addAction）=改 iOS 2.0+ 通用老写法 addTarget + @objc selector
-            let tap = UITapGestureRecognizer(target: self, action: #selector(onDemo2BubbleTap(_:)))
+            // ⚠️ 再补=makeOverlay 的内容闭包是 @escaping=闭包内引用 self 的方法=必须显式写 self.（真 build 第 91 条实锤=Call to method onDemo2BubbleTap in closure requires explicit self → 所以 #selector(...) 里写成 self.onDemo2BubbleTap(_:)）
+            let tap = UITapGestureRecognizer(target: self, action: #selector(self.onDemo2BubbleTap(_:)))
             // 把局部 overlay 临时存入 weak 属性（供 selector 读取，避免 associated object 复杂度）
             self.demo2TapOverlay = overlay
             container.addGestureRecognizer(tap)

@@ -1903,6 +1903,10 @@ final class SpaceShowcase: ShowcaseViewController {
             make.centerY.equalToSuperview()
             make.trailing.equalToSuperview().offset(-AppSpace.md)
         }
+        // 普通 UIView（无 intrinsicContentSize）进 UIStackView 会被 Auto Layout 摊分富余宽度、
+        // 首项拉大；required hugging 强制内容宽（与 Android Compose wrap_content 对齐）。
+        shell.setContentHuggingPriority(.required, for: .horizontal)
+        shell.setContentCompressionResistancePriority(.required, for: .horizontal)
         return shell
     }
 
@@ -1937,6 +1941,8 @@ final class SpaceShowcase: ShowcaseViewController {
         chip.snp.makeConstraints { make in
             make.height.equalTo(28)
         }
+        chip.setContentHuggingPriority(.required, for: .horizontal)
+        chip.setContentCompressionResistancePriority(.required, for: .horizontal)
         return chip
     }
 
@@ -1967,6 +1973,8 @@ final class SpaceShowcase: ShowcaseViewController {
         valueLabel.textColor = valueColor
         stack.addArrangedSubview(caption)
         stack.addArrangedSubview(valueLabel)
+        shell.setContentHuggingPriority(.required, for: .horizontal)
+        shell.setContentCompressionResistancePriority(.required, for: .horizontal)
         return shell
     }
 

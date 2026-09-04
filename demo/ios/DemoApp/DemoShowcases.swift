@@ -1778,6 +1778,7 @@ final class LayoutShowcase: ShowcaseViewController {
         label.text = title
         label.font = .systemFont(ofSize: AppFont.sizeSm)
         label.textColor = AppColor.primaryPressed
+        label.textAlignment = .center // label 被 leading/trailing 拉宽，默认左对齐会导致文字偏左；对齐 Android Box(Center)
         pill.addSubview(label)
         label.snp.makeConstraints { make in
             make.center.equalToSuperview()

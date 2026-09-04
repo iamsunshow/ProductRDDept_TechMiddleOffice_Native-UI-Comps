@@ -1475,7 +1475,7 @@
         ["基础分割线", "<Divider />"],
         ["虚线+粗线", "<Divider dashed /> / <Divider hairline={false} />"],
         ["带文本分割线", "<Divider text=\"或\" contentPosition=\"center\" />"],
-        ["垂直分割线", "<Divider direction=\"vertical\" />"][
+        ["垂直分割线", "<Divider direction=\"vertical\" />"]
       ],
       "note": "区隔内容分割线。v1.0 门禁 A 评审通过（2026-09-04）+ C1.5 用户 Demo 实机验收通过（2026-09-04）：修复 iOS Demo4 不均分/与说明文案重叠 + Android Demo3 文字截断 + iOS 组件带文本行高随文本撑高（intrinsicContentSize），双端行高一致；组件源码已入库（子仓 5456e38）。待 C1 单测补建 + C2 CR/CI + D 发版。双端 reviewed=true。",
       "subcategory": "layout",
@@ -1574,6 +1574,67 @@
       ],
       "note": "多格入口矩阵；单块容器用 Card。v2.0 门禁 A 评审通过（2026-09-04），双端 reviewed=true。",
       "subcategory": "navigation",
+      "reviewed": true
+    },
+    {
+      "id": "ui.layout",
+      "name": "布局 Layout",
+      "category": "ui",
+      "summary": "横向弹性分栏容器（Row/Col 12 栅格 span1~12；与 Grid 等分宫格互补=按任意内容比例分栏），对标 Ant Design Layout/Grid Row/Col",
+      "capabilities": [
+        "横向弹性分栏",
+        "Row/Col",
+        "12 栅格",
+        "gutter 间距",
+        "Layout",
+        "LayoutRow",
+        "LayoutCol",
+        "Row",
+        "Col",
+        "分栏",
+        "双栏",
+        "布局 Layout"
+      ],
+      "platforms": {
+        "ios": { "state": "available", "note": "LayoutRow/LayoutCol（Layout.swift）；宽度=(行宽−间距总和)×span/12 与 Compose spacedBy+weight 空间模型同构，首尾无 padding" },
+        "android": { "state": "available", "note": "LayoutRow/LayoutCol（Layout.kt）：Row(fillMaxWidth)+Arrangement.spacedBy(gutter)+verticalAlignment=Top，Col=weight(span/12f)" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/Layout.swift",
+        "android": "ProductRDDept/TechMiddleOffice/android/sharedui/components/Layout.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": ["垂直分栏（一期仅横向）", "自动换行 wrap（一期单行，chips 流式二期候选）", "等高拉伸对齐（二期引入）", "center/end 对齐（一期顶部对齐）"],
+      "visual_tokens": [
+        "AppSpace.md"
+      ],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "ui.layout 布局 Layout 横向弹性分栏 Row Col 12栅格 gutter 分栏 双栏 label-value Row Col LayoutRow LayoutCol 栅格系统",
+      "embedding_ref": "vector-store/ui_layout.json",
+      "legacy_id": "ui.layout",
+      "industry_names": [
+        "Layout",
+        "Row",
+        "Col"
+      ],
+      "props": [
+        ["gutter", "number | 间距等级", "否", "子项水平间距（默认 AppSpace.md=12，双端同名）"],
+        ["span", "number", "是", "栅格宽度 1~12（12 栅格，占行宽 span/12；span 和不足 12 右侧留空）"]
+      ],
+      "events": [],
+      "demos": [
+        ["双栏卡片", "<LayoutRow><LayoutCol span={6}>A</LayoutCol><LayoutCol span={6}>B</LayoutCol></LayoutRow>"],
+        ["label-value 行", "<LayoutRow><LayoutCol span={4}>key</LayoutCol><LayoutCol span={8}>value</LayoutCol></LayoutRow>"],
+        ["三等分工具行", "<LayoutRow gutter={sm}><LayoutCol span={4}/><LayoutCol span={4}/><LayoutCol span={4}/></LayoutRow>"]
+      ],
+      "note": "横向弹性分栏容器（Row/Col 12 栅格，与 Grid 等分宫格互补=按任意内容比例分栏如统计双栏卡/详情 label-value 行）。v1.0 门禁 A 评审通过（2026-09-04 用户 P1–P4 全票 A：Row/Col 双组件 + 12 栅格 + gutter 默认 AppSpace.md + 一期单行 wrap 二期）+ C1.5 用户 Demo 实机验收通过（2026-09-04）：修复 iOS Demo1/4 右缘溢出（行宽分配未扣 gutter→(行宽−间距总和)×span/12 与 Compose spacedBy+weight 同构）+ iOS Demo3 药丸文字居中（makePill textAlignment=.center）；组件源码已入库（子仓 f254156，修复 dadaf09/ae39dbb 已合）。待 C1 单测补建 + C2 CR/CI + D 发版。双端 reviewed=true。",
+      "subcategory": "layout",
       "reviewed": true
     },
     {

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Layout 布局 · 设计规格（门禁 A）</title>
+<link rel="stylesheet" href="./design-spec.css" />
+<script src="./design-spec.js" defer></script>
+<style>
+:root{
+  --primary:#16A34A; --primaryMuted:#DCFCE7; --primaryPressed:#15803D;
+  --textPrimary:#111827; --textSecondary:#6B7280; --textInverse:#FFFFFF;
+  --border:#E5E7EB; --bgPage:#F9FAFB; --bgCard:#FFFFFF;
+  --warning:#F59E0B; --error:#DC2626;
+  --radiusSm:6px; --radiusMd:10px; --radiusLg:14px; --radiusFull:999px;
+  --spaceXs:4px; --spaceSm:8px; --spaceMd:12px; --spaceLg:16px; --spaceXl:24px;
+  --sizeXs:12px; --sizeSm:14px; --sizeMd:16px; --sizeLg:18px; --sizeXl:22px;
+}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}
+h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}
+h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tok{background:var(--primaryMuted);color:var(--primaryPressed);padding:1px 6px;border-radius:var(--radiusSm);font-size:var(--sizeXs);font-weight:600;}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}
+.tag-na{background:#FEF3C7;color:#92400E;} .tag-ok{background:#DCFCE7;color:#166534;} .tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}
+th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}
+th{background:#F3F4F6;text-align:left;}
+/* Layout demo 预览：flex 12 栅格模拟（flex-grow 比值 = span 比值） */
+.lw-box{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusLg);padding:var(--spaceLg);margin:var(--spaceSm) 0;}
+.lw-row{display:flex;gap:12px;align-items:center;}
+.lw-row.cards{align-items:stretch;}
+.lw-row.top{align-items:flex-start;}
+.lw-col{padding:var(--spaceMd);border-radius:var(--radiusMd);font-size:var(--sizeSm);box-sizing:border-box;}
+.lw-c1{flex:1;} .lw-c2{flex:2;} .lw-c3{flex:3;} .lw-c4{flex:4;} .lw-c5{flex:5;} .lw-c6{flex:6;}
+.lw-c7{flex:7;} .lw-c8{flex:8;} .lw-c9{flex:9;} .lw-c10{flex:10;} .lw-c11{flex:11;} .lw-c12{flex:12;}
+.lw-card{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:var(--radiusMd);padding:var(--spaceMd);font-size:var(--sizeSm);}
+.lw-card .num{font-size:var(--sizeLg);font-weight:600;color:var(--primaryPressed);}
+.lw-card .lbl{font-size:var(--sizeXs);color:var(--textSecondary);margin-top:2px;}
+.lw-kv{display:flex;justify-content:space-between;align-items:center;padding:var(--spaceSm) 0;}
+.lw-kv .k{color:var(--textSecondary);font-size:var(--sizeSm);}
+.lw-chip{background:#EEF2FF;color:#3730A3;border-radius:var(--radiusFull);padding:2px 10px;font-size:var(--sizeXs);}
+.diff-row{background:#FEF3C7;}
+</style>
+</head>
+<body>
+
+<h1>Layout 布局 · 设计规格（布局组件 #3，subcategory=layout · 门禁 A）</h1>
+<p>组件 ID：<code>ui.layout</code> ｜ 定位：<b>横向弹性分栏容器（Row/Col 栅格）</b>，对标 NutUI Layout（Row/Col）/ Ant Design Row/Col 的轻量版。用于统计双栏卡片、详情 label-value 行、筛选/工具组行、图标+文字水平组等「一行内按比例/自适应排布多个子内容」的场景。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-04，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 概览/统计页双栏卡片（如 本月收入/支出 1:1，span 6+6）；② 详情页 label-value 行（label 窄列 + value 宽列，span 3+9 或 4+8）；③ 筛选条件/工具按钮行（三~四个等宽或不等宽操作并排）；④ 图标/头像 + 文字水平组合（auto 内容并排 + 统一间距）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 等分宫格图标入口矩阵 → <b>Grid（ui.grid）</b>；② 仅需子项统一间距、无比例诉求 → <b>Space（ui.space）</b>；③ 整行可点击列表项（含图标/箭头/副标题） → <b>Cell（ui.cell）</b>；④ 页面级骨架模板（导航栏+滚动内容+底部操作区，纵向三段） → 业务页面模板层（Layout 一期不做纵向页面骨架）；⑤ 吸顶/吸附 → Sticky（ui.sticky）</td></tr>
+<tr><td>五态适配</td><td>Layout 为「纯布局编排」组件，本身无交互与状态。<span class="tag tag-ok">默认态 ✅</span> = 子内容按 span/gutter/alignment 正常排布。<span class="tag tag-na">点击/禁用/加载/成功/失败 N/A</span>（子内容自身的交互与状态由各自内容组件承担，Layout 不内建任何状态）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]（AppSpace 等）零硬编码。与 Grid（宫格=等分 items 自动折行）互补：Grid 面向「N 个同类入口等分」，Layout 面向「任意类型子内容按比例排布」；与 Space 划界：Space=纯间距工具（subview 数组 + 统一 gap），Layout=比例分栏容器（span 体系）；Layout 内可自由嵌套 Grid/Cell/卡片等任何内容组件</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/颜色/圆角 Token 规格（零硬编码，引用 design-token.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>数值</th><th>说明</th></tr>
+<tr><td>容器背景/边框/圆角</td><td>—</td><td>透明</td><td>Layout 为 pass-through 容器：背景/边框/圆角由放入的子内容组件（Card 等）自己负责，Layout 不绘制任何装饰，避免叠层污染</td></tr>
+<tr><td>子项水平间距（gutter）</td><td><span class="tok">AppSpace.xs~xl</span></td><td>4/8/12/16/24</td><td>row 内相邻 Col 间距；默认 <span class="tok">AppSpace.md</span>=12（P3 待表决）</td></tr>
+<tr><td>子项垂直对齐</td><td>规则</td><td>顶部对齐（行高 = 子项内容自然最大高度）</td><td>一期两端一致：内容顶部对齐、行高取最高子项（等高拉伸 / center / end 对齐二期引入，双端契约同步；2026-09-04 门禁 B 前修订）</td></tr>
+<tr><td>分栏比例（span）</td><td>规则</td><td>1~12（12 栅格）</td><td>span/12 占父容器宽；双端实现：iOS Col 宽=父宽×span/12（constraint multiplier），Android Modifier.weight(span/12f)</td></tr>
+<tr><td>字号/颜色</td><td>—</td><td>—</td><td>Layout 无自有文本，文字样式由子内容决定（子内容引用 AppFont/AppColor）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，待用户门禁 A 表决）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件形态：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：Row/Col 双组件（Row=行容器；Col=子项，自带 span 1~12）</td><td>✅ 声明式嵌套（Row 内 2~4 个 Col），贴近 NutUI Row/Col 行业惯例；Android 命名 LayoutRow/LayoutCol 防与 Compose 内置 Row 冲突；iOS LayoutRow/LayoutCol（去 View 后缀规范）。双端 API 一致性好，span 语义直白。</td><td><b>推荐 A</b>：标准、可读、可扩展；Col span 体系双端 1:1 对齐成本最低</td></tr>
+<tr><td>B：单组件 LayoutRow + addCol(span:content:) 方法式填充</td><td>少一个类，但业务写法冗长（逐段 add），嵌套层级表达能力弱于声明式。</td><td>淘汰：声明式弱，写复杂分栏不直观</td></tr>
+<tr><td>C：页面骨架 Layout（Header/Content/Footer 三段模板）</td><td>面向「整页纵向骨架」的另一种组件方向，与 Row/Col 分栏职责不同。</td><td>可选二期方向（若业务页面骨架诉求出现再立 Page/Skeleton 组件）；一期 Layout 定位=分栏容器，避免与 SafeArea/页面层混职</td></tr>
+</table>
+
+<h3>P2 · 栅格基数（span 取值范围）：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：12 栅格（span 1~12）</td><td>✅ 常用比例（1:1=6+6、1:2=4+8、1:3=3+9、1:1:1=4+4+4）全可表达；实现简单（span/12）。</td><td><b>推荐 A</b>：记账/通用场景最常用比例覆盖足够，双端实现最简</td></tr>
+<tr><td>B：24 栅格（span 1~24）</td><td>粒度更细（可表达 5:19 等），但业务几乎用不到，实现与心智成本更高。</td><td>淘汰：一期过度设计</td></tr>
+<tr><td>C：无固定基数，纯 flex 权重（子项任意 int 权重）</td><td>灵活但缺统一约束：不同页面写 1:1 可能用 2:2/5:5…比例不一致，跨端换算易错。</td><td>淘汰：无栅格约束会引入比例漂移</td></tr>
+</table>
+
+<h3>P3 · gutter 默认值：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：默认 AppSpace.md=12，可覆盖</td><td>✅ 双栏卡片/工具行间距 12 视觉舒适且为组件库常见节奏（Grid 标题间距同为 md）；业务可传 xs/sm/lg/xl 或 0 覆盖。</td><td><b>推荐 A</b>：默认即合理，少配置</td></tr>
+<tr><td>B：默认 0（业务必须显式传 gutter）</td><td>显式但繁琐：绝大多数场景都要间距，漏传则内容贴死。</td><td>淘汰：反直觉，默认应贴合多数场景</td></tr>
+<tr><td>C：固定 md 不可配置</td><td>API 最简但失去弹性（紧凑工具行想用 8 无解）。</td><td>淘汰：不提供覆盖太死</td></tr>
+</table>
+
+<h3>P4 · 子项换行支持：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：一期单行不换行（超宽由内容自行适配/截断）</td><td>✅ 满足统计双栏/label-value/工具行全部一期场景；实现最简；chips 流式多行场景确实存在但可用二期 wrap 支持。</td><td><b>推荐 A</b>：一期克制，覆盖已立项场景</td></tr>
+<tr><td>B：一期即支持 wrap（子项超出自动折行）</td><td>流式 chips 可用，但双端折行语义对齐成本高（iOS 需额外容器），且 Col span 与折行语义易混。</td><td>淘汰：一期放大复杂度</td></tr>
+<tr><td>C：二期再加 wrap（P4=B 一期不实现，登记需求）</td><td>需求登记不实现=在规划内。</td><td>记入 P4 附注：wrap 列为二期候选（需求待出现）</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 双栏统计卡片（span 6 + 6）</h3>
+<p>本月收入 / 本月支出两张卡片 1:1，gutter=12。验证 6+6 等分与内容同构自然等高。</p>
+<div class="lw-box"><div class="lw-row cards">
+  <div class="lw-c6"><div class="lw-card"><div class="num">+¥12,680</div><div class="lbl">本月收入</div></div></div>
+  <div class="lw-c6"><div class="lw-card"><div class="num">−¥8,340</div><div class="lbl">本月支出</div></div></div>
+</div></div>
+
+<h3>D2 · 详情 label-value 行（span 4 + 8）</h3>
+<p>纵向多行「科目名 + 值」排布：label 左、value 右对齐同属一行内部布局，验证 4+8 与两端对齐。</p>
+<div class="lw-box">
+  <div class="lw-row"><div class="lw-c4"><div class="lw-kv"><span class="k">分类</span></div></div><div class="lw-c8"><div class="lw-kv"><span>餐饮 · 工作日午餐</span></div></div></div>
+  <div class="lw-row"><div class="lw-c4"><div class="lw-kv"><span class="k">账户</span></div></div><div class="lw-c8"><div class="lw-kv"><span>招商银行(4609)</span></div></div></div>
+  <div class="lw-row"><div class="lw-c4"><div class="lw-kv"><span class="k">备注</span></div></div><div class="lw-c8"><div class="lw-kv"><span>—</span></div></div></div>
+</div>
+
+<h3>D3 · 筛选/工具行（span 4+4+4 与 3+3+6）</h3>
+<p>等宽三按钮与「全部/收入/支出」筛选 chips 行，验证多 Col + gutter 在内容自适应（chips 短内容）下的排布。</p>
+<div class="lw-box"><div class="lw-row">
+  <div class="lw-c4" style="text-align:center;background:#DCFCE7;border-radius:999px;padding:6px 0;">周</div>
+  <div class="lw-c4" style="text-align:center;background:#F0FDF4;border-radius:999px;padding:6px 0;">月</div>
+  <div class="lw-c4" style="text-align:center;background:#EEF2FF;border-radius:999px;padding:6px 0;">年</div>
+</div></div>
+
+<h3>D4 · 嵌套与组合（Row 内嵌 Row + 图标文字组）</h3>
+<p>外层 1:1 卡片，卡内再嵌 Row（图标+说明文字）——验证 Layout 可嵌套任意内容组件（Card/Grid/Cell/二次 Layout）。</p>
+<div class="lw-box"><div class="lw-row cards">
+  <div class="lw-c6"><div class="lw-card" style="display:flex;flex-direction:column;gap:8px;">
+    <b>今日账单</b>
+    <div class="lw-row" style="justify-content:space-between;"><span>支出</span><span style="font-weight:600;">¥260.00</span></div>
+    <div class="lw-row" style="justify-content:space-between;"><span>笔数</span><span>6 笔</span></div>
+  </div></div>
+  <div class="lw-c6"><div class="lw-card" style="display:flex;flex-direction:column;gap:8px;">
+    <b>快捷入口</b>
+    <div class="lw-row"><span style="background:#DCFCE7;border-radius:999px;padding:2px 10px;">记一笔</span><span style="background:#EEF2FF;border-radius:999px;padding:2px 10px;">扫一扫</span></div>
+  </div></div>
+</div></div>
+
+</div>
+
+<h2>05 · 平台差异预告</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>差异说明</th></tr>
+<tr><td>行容器实现</td><td>LayoutRow = 纯约束链（子项宽 = 父宽 × span/12 multiplier；顶部对齐；行高=内容 max）</td><td>LayoutRow = Compose Row 封装 + 子项 Modifier.weight(span/12f)，verticalAlignment = Top</td><td>系统原生架构差异，span 数学语义一致（span/12），两端行为对齐</td></tr>
+<tr><td>子项 span 实现</td><td>LayoutCol 宽 = 父宽 × span/12（NSLayoutConstraint multiplier）</td><td>Modifier.weight(span / 12f)</td><td>数学语义一致（span/12 占宽），数值两端同为 span 输入</td></tr>
+<tr><td>gutter</td><td>UIStackView.spacing（pt）</td><td>Row horizontalArrangement spacing（dp）</td><td>同取 AppSpace token 值（xs/xs=4 等）</td></tr>
+<tr><td>子项内容定高</td><td>内容须四边钉满 LayoutCol（内容高驱动行高）</td><td>Box 内内容自然高，Row 高 = 最高子项</td><td>两端一致：行高 = 子项内容自然最大高度；卡片等高 = 内容同构（D1/D4 Demo 自洽）；等高拉伸对齐二期（双端契约同步引入）</td></tr>
+<tr><td>命名</td><td>LayoutRow / LayoutCol（无 View 后缀）</td><td>LayoutRow / LayoutCol（避开 androidx Row/Column）</td><td>双端同名同 API</td></tr>
+</table>
+</div>
+
+<h2>06 · API 速览（门禁 B 冻结前草案）</h2>
+<div class="spec-card">
+<table>
+<tr><th>类别</th><th>名称</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>LayoutRow Props</td><td>gutter</td><td>AppSpace（xs/sm/md/lg/xl 或 0）</td><td>否</td><td>子项水平间距，默认 md=12（P3 用户 2026-09-04 表决 A）</td></tr>
+<tr><td>LayoutCol Props</td><td>span</td><td>Int（1~12）</td><td>是</td><td>占父宽 span/12</td></tr>
+<tr><td>Children</td><td>—</td><td>任意 View/Composable</td><td>—</td><td>Col 内放任意内容组件（卡片/文本/Grid/Cell/嵌套 LayoutRow）</td></tr>
+<tr><td>事件</td><td>—</td><td>—</td><td>—</td><td>Layout 无事件；子内容交互由内容组件自身事件承担</td></tr>
+</table>
+</div>
+
+<h2>07 · 门禁 A 验收清单（A1–A7）</h2>
+<div class="spec-card">
+<table>
+<tr><th>编号</th><th>检查项</th><th>结论（填 ☑️/☐）</th></tr>
+<tr><td>A1</td><td>组件定位与边界（适用/N/A/五态/与现有组件关系）</td><td>☐</td></tr>
+<tr><td>A2</td><td>Token 引用零硬编码（间距/对齐/比例全部走 token 或规则常量）</td><td>☐</td></tr>
+<tr><td>A3</td><td>关键决策 P1–P4 用户表决</td><td>☐</td></tr>
+<tr><td>A4</td><td>Demo 4 组排查双端 1:1（D1 双栏卡 / D2 label-value / D3 工具行 / D4 嵌套）</td><td>☐</td></tr>
+<tr><td>A5</td><td>双端实现现状核对（命名/API/span 语义/零硬编码）</td><td>☐</td></tr>
+<tr><td>A6</td><td>已知差异表内登记（框架原生差异放行）</td><td>☐</td></tr>
+<tr><td>A7</td><td>anti_goals 排除（不做宫格/间距工具/页面骨架/吸顶）</td><td>☐</td></tr>
+</table>
+</div>
+
+</body>
+</html>

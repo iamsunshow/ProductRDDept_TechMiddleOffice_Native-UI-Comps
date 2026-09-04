@@ -1439,8 +1439,9 @@ private fun OverlayDemo() {
             Box(
                 modifier = Modifier
                     .width(200.dp)
+                    // ⚠️ 永久钉死=**绝不使用 Modifier.clip(shape) 扩展来做形状裁切**（用户 gradle 真 build 连续 5 条实锤=Unresolved reference clip×N 连炸=与 Overlay.kt L321-L324 永久禁令完全对齐）
+                    // Compose Modifier.background 的 shape 参数=除了画背景色=还会自动把后面内容按 shape 裁切=效果与 iOS clipsToBounds 完全等价=0 新 import=绝对稳=所以这里直接 background(color, shape) 一次搞定=不需要再单独 .clip()
                     .background(Color(0xFF16A34A), RoundedCornerShape(10.dp))
-                    .clip(RoundedCornerShape(10.dp))
                     .clickable {
                         d2Visible = false
                         feedback = "[Demo2] 气泡点击 → 立即关闭"

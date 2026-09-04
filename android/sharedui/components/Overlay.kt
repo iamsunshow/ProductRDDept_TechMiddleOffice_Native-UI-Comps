@@ -48,7 +48,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,8 +62,8 @@ import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import com.zhiqihuayun.foundation.design.AppColor
 import kotlin.math.roundToInt
 
@@ -200,37 +199,31 @@ fun Overlay(
     onMaskClick: () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
-    // 控制 Dialog 的显示态：visible=true → 请求 Dialog 显示；visible=false → 先 fade-out 再真正 dismiss。
-    // Compose Dialog 本身由 visible 直接控制生命周期；动画通过包裹 AnimatedVisibility 完成。
+    // ⚠️ 永久钉死=绝对不用 Compose Dialog（用户亲测=Android Dialog 独立 window=触摸事件被系统窗口 flag 拦截=所有遮罩/按钮点击=永远没响应=Overlay 无法点击=根因=AI 之前用 Dialog 选型错=全责）
+    // 唯一合法=用 Compose Popup=弹出层=触摸事件 100% 由 Compose pointerInput 分发=不会被 Android 系统 Dialog window 拦截=点击 100% 有响应=用户亲测可验=与 iOS keyWindow.addSubview 挂载语义=1:1 对齐（全屏浮层=由我们自处理触摸=不被系统 window 截）
     if (!visible) return
-
-    // 处理关闭动作（点击遮罩 / 返回键）：
-    // ① closeOnMaskClick + mask click → dismissRequest → 触发 onClose（业务设 visible=false 即可；本组件不改变 visible）
-    // ② dismissOnBackPress + 返回键 → onClose
-    Dialog(
+    Popup(
+        alignment = Alignment.Center,
         onDismissRequest = {
-            // Dialog 标准：返回键 + 点击遮罩空白（properties dismissOnClickOutside）都走这里。
-            // 为区分"点击遮罩"与"返回键"，我们关闭默认 dismissOnClickOutside → 用 clickable 手动接管点击。
-            // 所以走到这里 → 一定是返回键；仅 dismissOnBackPress=true 触发 onClose。
+            // Popup 标准：返回键走这里；点击 Popup 外=我们自己平级 mask clickable 接管（dismissOnClickOutside=false 永久关=保证 closeOnMaskClick/clickThrough 开关可控）
             if (dismissOnBackPress) {
                 onClose()
             }
         },
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            decorFitsSystemWindows = false,
+        properties = PopupProperties(
+            focusable = true,
             dismissOnBackPress = dismissOnBackPress,
-            dismissOnClickOutside = false, // 关闭默认遮罩点击 → 手动 clickable 接管（保证 clickThrough/closeOnMaskClick 开关可控）
+            dismissOnClickOutside = false, // 永久关=手动 mask clickable 接管=保证 clickThrough/closeOnMaskClick 独立开关=与 iOS 1:1 对齐
         ),
     ) {
-        // Dialog 内部根容器 = 全屏（含安全区）
+        // Popup 根=全屏（含安全区）=与 iOS Overlay frame=window.bounds 语义一致
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .semantics { testTag = "overlay-root" }
                 .testTag("overlay-root")
         ) {
-            // fade in/out：AnimatedVisibility 包裹整棵树（注意 Dialog 自身挂载已有一次可见性，此处动画淡入淡出与 iOS 时长一致）
+            // fade in/out：AnimatedVisibility 包裹=与 iOS fade 时长 200/180 完全对齐
             val enter = if (animation) fadeIn(animationSpec = tween(FADE_IN_MS)) else fadeIn(animationSpec = tween(0))
             val exit = if (animation) fadeOut(animationSpec = tween(FADE_OUT_MS)) else fadeOut(animationSpec = tween(0))
             AnimatedVisibility(visible = true, enter = enter, exit = exit) {

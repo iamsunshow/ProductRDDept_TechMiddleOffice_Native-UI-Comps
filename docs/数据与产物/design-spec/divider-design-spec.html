@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Divider 分割线 · 设计规格（门禁 A）</title>
+<link rel="stylesheet" href="./design-spec.css" />
+<script src="./design-spec.js" defer></script>
+<style>
+:root{
+  --primary:#16A34A; --primaryMuted:#DCFCE7; --primaryPressed:#15803D;
+  --textPrimary:#111827; --textSecondary:#6B7280; --textInverse:#FFFFFF;
+  --border:#E5E7EB; --bgPage:#F9FAFB; --bgCard:#FFFFFF;
+  --warning:#F59E0B; --error:#DC2626;
+  --radiusSm:6px; --radiusMd:10px; --radiusLg:14px; --radiusFull:999px;
+  --spaceXs:4px; --spaceSm:8px; --spaceMd:12px; --spaceLg:16px; --spaceXl:24px;
+  --sizeXs:12px; --sizeSm:14px; --sizeMd:16px; --sizeLg:18px; --sizeXl:22px;
+}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}
+h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}
+h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tok{background:var(--primaryMuted);color:var(--primaryPressed);padding:1px 6px;border-radius:var(--radiusSm);font-size:var(--sizeXs);font-weight:600;}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);} .tag-na{background:#FEF3C7;color:#92400E;} .tag-ok{background:#DCFCE7;color:#166534;} .tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}
+th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}
+th{background:#F3F4F6;text-align:left;}
+.demo-box{padding:var(--spaceLg);background:var(--bgCard);border-radius:var(--radiusLg);border:1px solid var(--border);margin:var(--spaceSm) 0;}
+.divider-line{height:0;border-top:1px solid var(--border);margin:var(--spaceSm) 0;}
+.divider-dashed{border-top-style:dashed;}
+.divider-thick{border-top-width:2px;}
+.v-divider{display:inline-block;width:0;border-left:1px solid var(--border);height:1em;vertical-align:middle;margin:0 var(--spaceSm);}
+.text-divider{display:flex;align-items:center;gap:var(--spaceSm);color:var(--textSecondary);font-size:var(--sizeXs);margin:var(--spaceSm) 0;}
+.text-divider .line{flex:1;border-top:1px solid var(--border);}
+.text-divider .line.short{flex:0 0 10%;}
+</style>
+</head>
+<body>
+
+<h1>Divider 分割线 · 设计规格（布局组件 #1，subcategory=layout · 门禁 A）</h1>
+<p>组件 ID：<code>ui.divider</code> ｜ 定位：<b>区隔内容分割线</b>，对标 NutUI Divider / Ant Design Divider。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 列表/表单区域间的水平分隔；② 内容分区带文本标注（如"—— 或 ——"）；③ 行内垂直分隔（如菜单项之间）；④ 虚线分隔（历史/时间线风格）</td></tr>
+<tr><td>不适用（N/A）</td><td>① Cell 组件内置的底部 1px 分隔线（已内建于 Cell.showsDivider）；② 卡片边框/分隔 → 用 Card border；③ 间距留白 → 用 Space（ui.space）</td></tr>
+<tr><td>五态适配</td><td>Divider 为"纯展示"组件，无交互。<span class="tag tag-ok">默认态 ✅</span> = 分隔线正常展示。<span class="tag tag-na">点击/禁用/加载/成功/失败 全部 N/A</span>（分隔线无状态切换需求）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[] 无硬依赖。内部引用 DesignTokens（AppColor/AppSpace/AppFont）零硬编码。Android 现有 HorizontalDivider 内联用法（CommonComponents/ProfileListGroup）可替换为独立 Divider 组件。</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/颜色 Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>数值</th><th>说明</th></tr>
+<tr><td>线条颜色</td><td><span class="tok">AppColor.border</span></td><td>#E5E7EB</td><td>与 Cell 分隔线一致，跟随主题</td></tr>
+<tr><td>线条粗细（hairline）</td><td>像素级 <span class="tok">1px / 0.5dp</span></td><td>iOS: 1/scale pt，Android: 0.5dp</td><td>hairline 模式（默认），与 Cell 分隔线一致</td></tr>
+<tr><td>线条粗细（非 hairline）</td><td><span class="tok">1dp / 1pt</span></td><td>普通粗细</td><td>非 hairline 模式</td></tr>
+<tr><td>文本字号</td><td><span class="tok">AppFont.sizeXs</span></td><td>12</td><td>带文本分割线时的文字大小</td></tr>
+<tr><td>文本颜色</td><td><span class="tok">AppColor.textSecondary</span></td><td>#6B7280</td><td>次要文字色</td></tr>
+<tr><td>文本与线条间距</td><td><span class="tok">AppSpace.sm</span></td><td>8</td><td>文本左右两侧到线条的间距</td></tr>
+<tr><td>上下外边距</td><td><span class="tok">AppSpace.sm</span></td><td>8</td><td>分割线上下留白</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（4 条，编号 P1–P4，待用户门禁 A 表决）</h2>
+<div class="spec-card">
+
+<h3>P1 · hairline 默认值：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：hairline 默认 true（0.5px 细线）</td><td>✅ 与 Cell 分隔线视觉一致，双端均使用像素级细线。</td><td><b>推荐 A</b>：与现有组件风格统一</td></tr>
+<tr><td>B：hairline 默认 false（1px/dp 普通线）</td><td>更粗更显眼，可能更适合某些设计稿。</td><td>淘汰：与 Cell 不一致</td></tr>
+<tr><td>C：不暴露 hairline prop，固定细线</td><td>简化 API 但失去灵活性。</td><td>淘汰：NutUI 有此 prop，保留灵活性</td></tr>
+</table>
+
+<h3>P2 · 虚线（dashed）支持：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：支持 dashed prop（默认 false）</td><td>✅ 与 NutUI 对齐，iOS CAShapeLayer dashPattern / Android PathEffect 实现。</td><td><b>推荐 A</b>：NutUI 标准能力，实现成本低</td></tr>
+<tr><td>B：不支持虚线</td><td>简化但缺失能力。</td><td>淘汰：NutUI 有此能力</td></tr>
+<tr><td>C：支持 dashed + 自定义 dash 间距</td><td>过度设计。</td><td>淘汰：MVP 不需要</td></tr>
+</table>
+
+<h3>P3 · 文本位置（contentPosition）：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：支持 left/center/right 三个位置</td><td>✅ 与 NutUI 完全对齐。</td><td><b>推荐 A</b>：NutUI 标准能力</td></tr>
+<tr><td>B：仅支持 center</td><td>简化但不够灵活。</td><td>淘汰：限制使用场景</td></tr>
+<tr><td>C：支持位置 + 自定义间距</td><td>过度设计。</td><td>淘汰：MVP 不需要</td></tr>
+</table>
+
+<h3>P4 · 垂直方向（direction）：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：支持 horizontal + vertical</td><td>✅ 与 NutUI 完全对齐。vertical 用于行内分隔。</td><td><b>推荐 A</b>：NutUI 标准能力</td></tr>
+<tr><td>B：仅支持 horizontal</td><td>简化但缺失垂直分隔能力。</td><td>淘汰：NutUI 有 vertical</td></tr>
+<tr><td>C：支持方向 + 自定义角度</td><td>过度设计。</td><td>淘汰：不需要</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础分割线</h3>
+<p>默认水平 hairline 分割线，无文本。</p>
+<div class="demo-box">
+  <div style="padding:8px 0;background:#f5f5f5;text-align:center;font-size:12px;color:#999;">上方内容</div>
+  <div class="divider-line"></div>
+  <div style="padding:8px 0;background:#f5f5f5;text-align:center;font-size:12px;color:#999;">下方内容</div>
+</div>
+
+<h3>D2 · 虚线 + 粗线</h3>
+<p>虚线分割线 + 非 hairline 粗线对比。</p>
+<div class="demo-box">
+  <div class="divider-line divider-dashed">虚线</div>
+  <div class="divider-line divider-thick">粗线</div>
+</div>
+
+<h3>D3 · 带文本分割线</h3>
+<p>文本位置：左 / 中 / 右。</p>
+<div class="demo-box">
+  <div class="text-divider"><span class="line short"></span><span>左侧文本</span><span class="line"></span></div>
+  <div class="text-divider"><span class="line"></span><span>居中</span><span class="line"></span></div>
+  <div class="text-divider"><span class="line"></span><span>右侧</span><span class="line short"></span></div>
+</div>
+
+<h3>D4 · 垂直分割线</h3>
+<p>行内垂直分隔，用于文字/按钮之间。</p>
+<div class="demo-box">
+  <div style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:14px;">
+    <span>操作A</span><span class="v-divider"></span><span>操作B</span><span class="v-divider"></span><span>操作C</span>
+  </div>
+</div>
+
+</div>
+
+<h2>05 · 平台差异预告</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>差异说明</th></tr>
+<tr><td>实现方式</td><td>UIView + drawRect / CAShapeLayer</td><td>Compose Canvas + DrawScope</td><td>平台惯例差异，允许</td></tr>
+<tr><td>hairline 实现</td><td>1/scale pt（像素对齐）</td><td>0.5dp</td><td>平台惯例，允许保留</td></tr>
+<tr><td>虚线实现</td><td>CAShapeLayer lineDashPattern</td><td>PathEffect.dashPathEffect</td><td>平台 API 差异，视觉一致</td></tr>
+<tr><td>垂直方向</td><td>固定宽度，高度由父决定</td><td>固定宽度，Modifier.height</td><td>用法一致，API 略有差异</td></tr>
+</table>
+</div>
+
+<h2>06 · API 速览（门禁 B 冻结前草案）</h2>
+<div class="spec-card">
+<table>
+<tr><th>类别</th><th>名称</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+<tr><td rowspan="4">Props</td><td>direction</td><td>'horizontal' | 'vertical'</td><td>'horizontal'</td><td>分割线方向</td></tr>
+<tr><td>dashed</td><td>boolean</td><td>false</td><td>是否虚线</td></tr>
+<tr><td>hairline</td><td>boolean</td><td>true</td><td>是否细线（0.5px）</td></tr>
+<tr><td>contentPosition</td><td>'left' | 'center' | 'right'</td><td>'center'</td><td>文本位置（有 text 时生效）</td></tr>
+<tr><td>Props</td><td>text</td><td>string</td><td>''</td><td>分割线内嵌文本（空=纯线条）</td></tr>
+</table>
+</div>
+
+<h2>07 · 验收文档清单</h2>
+<div class="spec-card">
+<table>
+<tr><th>编号</th><th>文档</th><th>状态</th></tr>
+<tr><td>D1</td><td>设计规格（本文件）</td><td>✅ 产出</td></tr>
+<tr><td>D2</td><td>验收用例（门禁 A 评审单）</td><td>✅ 产出（见 review-divider-A.md）</td></tr>
+<tr><td>D3</td><td>双端实现代码</td><td>💻 待实现</td></tr>
+<tr><td>D4</td><td>双端 Demo 4 组</td><td>💻 待实现</td></tr>
+<tr><td>D5</td><td>双端测试</td><td>❌ 缺失（门禁 C1 补充）</td></tr>
+<tr><td>D6</td><td>Token 扫描</td><td>待门禁 C1</td></tr>
+<tr><td>D7</td><td>api.json 契约</td><td>待门禁 B</td></tr>
+<tr><td>D8</td><td>组件进度更新</td><td>待门禁 C2</td></tr>
+</table>
+</div>
+
+</body>
+</html>

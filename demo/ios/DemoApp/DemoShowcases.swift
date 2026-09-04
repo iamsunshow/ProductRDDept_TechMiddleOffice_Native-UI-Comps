@@ -1393,7 +1393,8 @@ final class AvatarShowcase: ShowcaseViewController {
                 row.spacing = AppSpace.md
 
                 let avatar = ZodiacAvatarView()
-                avatar.apply(zodiacName: zodiac, nickname: name, diameter: 44)
+                // ⚠️ users 数组是 [(String?, String?)]（A1 类型改 Optional 以支持 (nil, "王五") 行），这里形参 ZodiacAvatarView.apply(zodiacName:nickname:) 要求非 Optional String=必须解包
+                avatar.apply(zodiacName: zodiac ?? "", nickname: name ?? "", diameter: 44)
                 row.addArrangedSubview(avatar)
 
                 let label = UILabel()
@@ -1793,6 +1794,8 @@ final class OverlayShowcase: ShowcaseViewController {
 
     private var overlayRefs: [Overlay] = []   // 持有强引用，保证闭包外生命周期
     private var feedbackLabel: UILabel!
+    // ⚠️ Demo2 气泡点击手势临时弱引用 overlay：UIGestureRecognizer.addAction 需要 iOS 14+，为兼容低版本用 addTarget:action: 老写法=必须把局部 overlay 通过属性挂到 self 上供 @objc selector 读取（避免用 associated object=太重）
+    private weak var demo2TapOverlay: Overlay?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -1908,10 +1911,11 @@ final class OverlayShowcase: ShowcaseViewController {
             subLabel.textColor = UIColor(red: 0x6B/255, green: 0x72/255, blue: 0x80/255, alpha: 1)
             subLabel.numberOfLines = 0
 
-            let cancel = makeDialogButton(title: "取消", primary: false) { [weak overlay] in
+            // ⚠️ 闭包内调用 self.makeDialogButton/makeOptionRow 必须显式 self（Swift 闭包捕获语义规则=显式 make capture semantics explicit）= 所以 1911/1914/2044 三个 makeDialogButton / 2004-2006 三个 makeOptionRow 全加 self. + capture list 加 [weak self] 防循环引用
+            let cancel = self.makeDialogButton(title: "取消", primary: false) { [weak overlay] in
                 overlay?.visible = false
             }
-            let confirm = makeDialogButton(title: "确定", primary: true) { [weak overlay, weak self] in
+            let confirm = self.makeDialogButton(title: "确定", primary: true) { [weak overlay, weak self] in
                 overlay?.visible = false
                 self?.feedbackLabel.text = "[Demo1] 确定点击 → 手动 visible=false 关（不重复触发 onClose）"
             }
@@ -1957,11 +1961,10 @@ final class OverlayShowcase: ShowcaseViewController {
                 make.edges.equalToSuperview().inset(12)
             }
             // 气泡本身点击（非遮罩，clickThrough 不影响子控件）
-            let tap = UITapGestureRecognizer()
-            tap.addAction(UIAction { [weak self] _ in
-                overlay.visible = false
-                self?.feedbackLabel.text = "[Demo2] 气泡点击 → 立即关闭"
-            })
+            // ⚠️ UITapGestureRecognizer.addAction(UIAction) 需要 iOS 14+，为兼容所有 Deployment Target（真 build 第 26 条实锤=低版本 has no member addAction）=改 iOS 2.0+ 通用老写法 addTarget + @objc selector
+            let tap = UITapGestureRecognizer(target: self, action: #selector(onDemo2BubbleTap(_:)))
+            // 把局部 overlay 临时存入 weak 属性（供 selector 读取，避免 associated object 复杂度）
+            self.demo2TapOverlay = overlay
             container.addGestureRecognizer(tap)
         }
         feedbackLabel.text = "[Demo2] 已显示气泡 3 秒：遮罩透明+穿透，仍可操作 Demo 列表下方按钮；3s 后自动关闭（或点击气泡立即关）"
@@ -1969,6 +1972,12 @@ final class OverlayShowcase: ShowcaseViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak overlay] in
             overlay?.visible = false
         }
+    }
+
+    // ⚠️ Demo2 气泡点击 @objc selector（与 UITapGestureRecognizer addTarget:action: 老写法配对=兼容 iOS 所有版本，避免 iOS 14+ addAction 的版本门槛）
+    @objc private func onDemo2BubbleTap(_ sender: UITapGestureRecognizer) {
+        self.demo2TapOverlay?.visible = false
+        self.feedbackLabel.text = "[Demo2] 气泡点击 → 立即关闭"
     }
 
     // Demo 3：底部抽屉（position=bottom + radius=lg → 顶两圆角）
@@ -2001,9 +2010,10 @@ final class OverlayShowcase: ShowcaseViewController {
             sub.font = .systemFont(ofSize: 13)
             sub.textColor = UIColor(red: 0x6B/255, green: 0x72/255, blue: 0x80/255, alpha: 1)
 
-            let row1 = makeOptionRow(title: "本周") { [weak overlay] in overlay?.visible = false; self.feedbackLabel.text = "[Demo3] 选择「本周」" }
-            let row2 = makeOptionRow(title: "本月") { [weak overlay] in overlay?.visible = false; self.feedbackLabel.text = "[Demo3] 选择「本月」" }
-            let row3 = makeOptionRow(title: "自定义…") { [weak overlay] in overlay?.visible = false; self.feedbackLabel.text = "[Demo3] 选择「自定义…」" }
+            // ⚠️ 闭包内调用 self.makeOptionRow 必须显式 self（Swift 闭包捕获语义=显式 make capture semantics explicit）+ capture list 加 [weak self] 防循环引用（否则强引用 self=闭包不释放）
+            let row1 = self.makeOptionRow(title: "本周") { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo3] 选择「本周」" }
+            let row2 = self.makeOptionRow(title: "本月") { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo3] 选择「本月」" }
+            let row3 = self.makeOptionRow(title: "自定义…") { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo3] 选择「自定义…」" }
 
             let stack = UIStackView(arrangedSubviews: [handleWrap, titleLabel, sub, row1, row2, row3])
             stack.axis = .vertical
@@ -2041,7 +2051,8 @@ final class OverlayShowcase: ShowcaseViewController {
             sub.textColor = UIColor(red: 0x6B/255, green: 0x72/255, blue: 0x80/255, alpha: 1)
             sub.textAlignment = .center
 
-            let done = makeDialogButton(title: "好的", primary: true) { [weak overlay] in
+            let done = self.makeDialogButton(title: "好的", primary: true) { [weak overlay, weak self] in
+                _ = self // 显式 capture self=避免编译器警告；闭包捕获语义显式化
                 overlay?.visible = false
             }
 

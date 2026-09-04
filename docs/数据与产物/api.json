@@ -1689,6 +1689,62 @@
       "reviewed": false
     },
     {
+      "id": "ui.sticky",
+      "name": "吸顶 Sticky",
+      "category": "ui",
+      "summary": "粘性布局：把滚动内容流中登记的一行（分组标题/筛选条/可交互行）在滚动到钉线时钉在可视区顶部、被后续吸顶块顶替、回滚恢复随流排布，对标 Web position:sticky / Android LazyColumn stickyHeader / Flutter SliverPersistentHeader",
+      "capabilities": [
+        "吸顶",
+        "粘性布局",
+        "sticky",
+        "stickyHeader",
+        "分组标题吸顶",
+        "筛选条吸顶",
+        "吸顶被顶替",
+        "offset 让位",
+        "吸顶块内容任意"
+      ],
+      "platforms": {
+        "ios": { "state": "available", "note": "StickyView.swift（自包含滚动容器 + contentOffset KVO + pinned 平移/占位替换）" },
+        "android": { "state": "available", "note": "Sticky.kt（LazyColumn stickyHeaderItem 封装，offset 以容器排布表达）" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/StickyView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Sticky.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": ["多级嵌套吸顶容器", "吸顶态视觉样式（阴影/背景变化，一期零视觉）", "吸底/悬浮操作类（FAB 等）", "水平吸顶/吸顶宽限", "吸顶块拖拽"],
+      "visual_tokens": [],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "ui.sticky 吸顶 Sticky 粘性布局 stickyHeader 分组标题吸顶 筛选条吸顶 offset 让位 吸顶被顶替 position sticky LazyColumn stickyHeader SliverPersistentHeader",
+      "embedding_ref": "",
+      "legacy_id": "ui.sticky",
+      "industry_names": ["StickyHeader", "StickyView", "sticky-header"],
+      "props": [
+        ["offset", "number(pt)", "否", "钉线距容器顶距离（iOS；默认 0；Android 以滚动区置于固定条之下等价表达）"],
+        ["addStickyHeader / stickyHeaderItem", "吸顶块", "是", "登记吸顶内容行（内容任意：标题/筛选条/含按钮）"],
+        ["addRow / items", "普通行", "是", "随流普通内容（随滚动排布，无吸顶语义）"]
+      ],
+      "events": [
+        ["onStickChange", "吸顶态切换回调（true=当前有吸顶块钉住；iOS 提供）"]
+      ],
+      "demos": [
+        ["分组列表标题吸顶", "多组标题滚动中依次吸顶、被下一组顶替、回滚恢复（D1）"],
+        ["筛选条吸顶", "列表行从吸顶筛选条下穿过（D2）"],
+        ["offset 让位", "吸顶条停固定 AppBar 下方不遮挡（D3）"],
+        ["吸顶行内容任意", "icon+文字+右侧按钮的吸顶行，滚动中整行吸顶且按钮可点（D4）"]
+      ],
+      "note": "粘性布局容器/行封装（吸顶行为容器级语义，吸顶块视觉由内容自带，组件零视觉零硬编码）。2026-09-04 全新立项：门禁 A AI 代评通过（用户'中间任何询问直接通过'总授权，P1–P4 全 A：单吸顶行封装 + 列表/通用滚动双路径 + iOS contentOffset 监听 pinned 平移方案（不依赖系统 section 模型）/ Android LazyColumn 原生 stickyHeader + 一期单吸顶点 + offset）+ 双端实现入库（StickyView.swift / Sticky.kt + 双端 Demo 4 段 1:1：D1 分组标题 / D2 筛选条 / D3 offset 让位 / D4 任意可交互内容，Android :app:assembleDebug 0 error + iOS pbxproj 补登记 SafeAreaView/StickyView）。iOS 工程受预存 SPM 依赖阻塞未本机编译，iOS 实机验证待用户 Xcode 确认。待 C1 单测 + C1.5 用户实机 + C2 CR/CI + D 发版。reviewed=false（未用户实机验收）。",
+      "subcategory": "layout",
+      "reviewed": false
+    },
+    {
       "id": "ui.space",
       "name": "间距 Space",
       "category": "ui",

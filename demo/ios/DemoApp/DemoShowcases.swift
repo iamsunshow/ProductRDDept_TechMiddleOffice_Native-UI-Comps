@@ -1897,7 +1897,11 @@ final class OverlayShowcase: ShowcaseViewController {
 
     // Demo 1：确认退出弹窗（center + closeOnMaskClick）
     private func showDemo1ConfirmDialog() {
-        let overlay = makeOverlay(position: .center, radius: .lg, tag: "Demo1") { container in
+        // ⚠️ 永久钉死变量声明顺序（真 build 第92/93/94/95 条实锤=4条 Closure captures 'overlay' before it is declared 同根因）：
+        // 绝对不能写 let overlay = makeOverlay(内容闭包/嵌套闭包里捕获 overlay)= 因为 makeOverlay 的初始化表达式执行时= overlay 这个 let 常量还没绑定（绑定要等表达式返回后才做）= 闭包里捕获 overlay=必然炸！
+        // 唯一合法写法=先 var overlay: Overlay? = nil（先声明占位=overlay已经存在于作用域），然后 overlay = makeOverlay(...)（赋值给已声明变量=闭包里捕获 overlay 时=它已经存在=不炸）；函数尾打开 visible=写 overlay?.visible = true（可选链=安全）
+        var overlay: Overlay? = nil
+        overlay = makeOverlay(position: .center, radius: .lg, tag: "Demo1") { container in
             container.backgroundColor = .white
             container.widthAnchor.constraint(equalToConstant: 280).isActive = true
 
@@ -1935,12 +1939,14 @@ final class OverlayShowcase: ShowcaseViewController {
             }
         }
         feedbackLabel.text = "[Demo1] 打开遮罩，点击空白区域观察 onMaskClick→onClose 顺序（或点 确定/取消）"
-        overlay.visible = true
+        overlay?.visible = true
     }
 
     // Demo 2：透明穿透 + 新手气泡 top-right
     private func showDemo2TransparentBubble() {
-        let overlay = makeOverlay(
+        // ⚠️ 同上=永久钉死变量声明顺序（必须先 var overlay: Overlay? = nil 再赋值=内容闭包里引用 overlay=才不会捕获前声明）
+        var overlay: Overlay? = nil
+        overlay = makeOverlay(
             maskColor: .transparent,
             closeOnMaskClick: false,
             clickThrough: true,
@@ -1970,7 +1976,7 @@ final class OverlayShowcase: ShowcaseViewController {
             container.addGestureRecognizer(tap)
         }
         feedbackLabel.text = "[Demo2] 已显示气泡 3 秒：遮罩透明+穿透，仍可操作 Demo 列表下方按钮；3s 后自动关闭（或点击气泡立即关）"
-        overlay.visible = true
+        overlay?.visible = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak overlay] in
             overlay?.visible = false
         }
@@ -1984,7 +1990,9 @@ final class OverlayShowcase: ShowcaseViewController {
 
     // Demo 3：底部抽屉（position=bottom + radius=lg → 顶两圆角）
     private func showDemo3BottomSheet() {
-        let overlay = makeOverlay(position: .bottom, radius: .lg, tag: "Demo3") { container in
+        // ⚠️ 同上=永久钉死变量声明顺序（必须先 var overlay: Overlay? = nil 再赋值=嵌套闭包捕获 overlay=才不会捕获前声明）
+        var overlay: Overlay? = nil
+        overlay = makeOverlay(position: .bottom, radius: .lg, tag: "Demo3") { container in
             container.backgroundColor = .white
             container.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width).isActive = true
 
@@ -2028,12 +2036,14 @@ final class OverlayShowcase: ShowcaseViewController {
             }
         }
         feedbackLabel.text = "[Demo3] 底部抽屉顶两圆角 / 底两直角 = 0（贴边自动掩膜）；点击遮罩空白区 → 关闭"
-        overlay.visible = true
+        overlay?.visible = true
     }
 
     // Demo 4：圆角卡片居中（4 圆角）
     private func showDemo4RoundedCard() {
-        let overlay = makeOverlay(position: .center, radius: .lg, tag: "Demo4") { container in
+        // ⚠️ 同上=永久钉死变量声明顺序（必须先 var overlay: Overlay? = nil 再赋值=嵌套闭包捕获 overlay=才不会捕获前声明）
+        var overlay: Overlay? = nil
+        overlay = makeOverlay(position: .center, radius: .lg, tag: "Demo4") { container in
             container.backgroundColor = .white
             container.widthAnchor.constraint(equalToConstant: 260).isActive = true
 
@@ -2073,7 +2083,7 @@ final class OverlayShowcase: ShowcaseViewController {
             }
         }
         feedbackLabel.text = "[Demo4] 已保存 3 条记账（center + 4 圆角 radius=lg）：fade-in 动画 200ms"
-        overlay.visible = true
+        overlay?.visible = true
     }
 
     // ============== 私有：按钮/选项行 工厂 ==============

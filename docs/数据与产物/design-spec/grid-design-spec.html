@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Grid 宫格 · 设计规格（门禁 A）</title>
+<link rel="stylesheet" href="./design-spec.css" />
+<script src="./design-spec.js" defer></script>
+<style>
+:root{
+  --primary:#16A34A; --primaryMuted:#DCFCE7; --primaryPressed:#15803D;
+  --textPrimary:#111827; --textSecondary:#6B7280; --textInverse:#FFFFFF;
+  --border:#E5E7EB; --bgPage:#F9FAFB; --bgCard:#FFFFFF;
+  --warning:#F59E0B; --error:#DC2626;
+  --radiusSm:6px; --radiusMd:10px; --radiusLg:14px; --radiusFull:999px;
+  --spaceXs:4px; --spaceSm:8px; --spaceMd:12px; --spaceLg:16px; --spaceXl:24px;
+  --sizeXs:12px; --sizeSm:14px; --sizeMd:16px; --sizeLg:18px; --sizeXl:22px;
+}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}
+h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}
+h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tok{background:var(--primaryMuted);color:var(--primaryPressed);padding:1px 6px;border-radius:var(--radiusSm);font-size:var(--sizeXs);font-weight:600;}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}
+.tag-na{background:#FEF3C7;color:#92400E;} .tag-ok{background:#DCFCE7;color:#166534;} .tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}
+th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}
+th{background:#F3F4F6;text-align:left;}
+.grid-demo{display:grid;gap:var(--spaceSm);padding:var(--spaceLg);background:var(--bgCard);border-radius:var(--radiusLg);border:1px solid var(--border);margin:var(--spaceSm) 0;}
+.grid-demo-4{grid-template-columns:repeat(4,1fr);}
+.grid-demo-3{grid-template-columns:repeat(3,1fr);}
+.grid-item{display:flex;flex-direction:column;align-items:center;gap:var(--spaceXs);padding:var(--spaceSm);text-align:center;}
+.grid-item .icon{width:26px;height:26px;background:var(--primary);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;}
+.grid-item .label{font-size:var(--sizeXs);color:var(--textPrimary);}
+.diff-row{background:#FEF3C7;}
+</style>
+</head>
+<body>
+
+<h1>Grid 宫格 · 设计规格（布局组件 #2，subcategory=navigation · 门禁 A）</h1>
+<p>组件 ID：<code>ui.grid</code> ｜ 定位：<b>多格图标入口矩阵</b>，对标 Ant Design Grid / 九宫格。用于首页快捷入口、发现页导航、功能菜单等场景。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 首页快捷入口矩阵（4~5 列 × 1~3 行）；② 发现页/我的页功能导航分区；③ 更多功能页全量入口网格；④ 任何「图标 + 文字」等分矩阵布局</td></tr>
+<tr><td>不适用（N/A）</td><td>① 单块可点击内容容器 → 用 Card（ui.card）；② 纯文字列表入口 → 用 Cell（ui.cell）；③ 横向滑动标签 → 用 Tabs（ui.tabs）；④ 复杂卡片内嵌多组件 → 用自定义布局</td></tr>
+<tr><td>五态适配</td><td>Grid 为"静态展示 + 点击交互"组件。<span class="tag tag-ok">默认态 ✅</span> = 网格正常展示。<span class="tag tag-ok">点击态 ✅</span> = 每项可点击 + 回调。<span class="tag tag-na">禁用/加载/成功/失败 N/A</span>（网格入口无状态切换需求；若业务需要禁用某项，由 data 层过滤实现，组件不内建）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[] 无硬依赖。内部引用 DesignTokens（AppColor/AppRadius/AppSpace/AppFont/AppIcon）零硬编码。与 NavBar 关系：iOS 现有两层封装 NavigationGrid→NavBar，Android 单层 Composable 直接实现（评审决策 P1 讨论是否统一）。</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/颜色/圆角 Token 规格（零硬编码，引用 design-token.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>数值</th><th>说明</th></tr>
+<tr><td>卡片背景色</td><td><span class="tok">AppColor.bgCard</span></td><td>#FFFFFF</td><td>卡片容器背景，跟随 ConfigProvider 主题切换</td></tr>
+<tr><td>卡片圆角</td><td><span class="tok">AppRadius.lg</span></td><td>14</td><td>卡片四角圆角（双端一致）</td></tr>
+<tr><td>卡片边框</td><td><span class="tok">AppColor.border</span></td><td>#E5E7EB</td><td>iOS 1px / Android 0.5dp（平台惯例差异，允许）</td></tr>
+<tr><td>卡片内边距</td><td><span class="tok">AppSpace.lg</span></td><td>16</td><td>四周内边距</td></tr>
+<tr><td>标题与网格间距</td><td><span class="tok">AppSpace.md</span></td><td>12</td><td>分区标题底部到网格行的间距</td></tr>
+<tr><td>标题字号</td><td><span class="tok">AppFont.sizeMd</span></td><td>16</td><td>semibold 字重</td></tr>
+<tr><td>入口图标尺寸</td><td><span class="tok">26</span></td><td>iOS 24pt / Android 26dp</td><td class="diff-row">⚠️ 双端差异 2pt，评审决策 P2 讨论是否统一</td></tr>
+<tr><td>入口图标颜色</td><td><span class="tok">AppColor.primary</span></td><td>#16A34A</td><td>主色 tint</td></tr>
+<tr><td>入口文字字号</td><td><span class="tok">AppFont.sizeXs</span></td><td>12</td><td>正文色，最多 2 行</td></tr>
+<tr><td>图标与文字间距</td><td><span class="tok">AppSpace.xs</span></td><td>4</td><td>垂直间距</td></tr>
+<tr><td>网格行高</td><td>固定 <span class="tok">72</span></td><td>iOS 72pt / Android 72dp</td><td>单项内容区 64 + 上下 padding 各 4（iOS layoutMargins 12+64+12=88→实际 NavBar 区域含 padding）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，待用户门禁 A 表决）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件命名：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：保持 NavigationGrid（与 api.json id=ui.grid 不一致但代码不改）</td><td>代码类名 NavigationGrid，api.json id=ui.grid。开发者需记忆映射关系。</td><td>淘汰：命名不一致增加认知负担</td></tr>
+<tr><td>B：重命名为 Grid（与 api.json 一致，iOS 去 View 后缀规范）</td><td>✅ 代码类名 = api.json id 去掉前缀。iOS: Grid.swift，Android: Grid.kt。双端 1:1 对齐。</td><td><b>推荐 B</b>：命名一致性优先。NavigationGrid 是历史遗留名（记账批次快速实现），正式评审后应统一到 Grid。</td></tr>
+<tr><td>C：重命名为 GridView（保留 View 后缀）</td><td>违反 iOS 组件无 View 后缀规范（已决策记录）。</td><td>淘汰：违反已有命名规范</td></tr>
+</table>
+
+<h3>P2 · 双端图标尺寸差异（24pt vs 26dp）：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：统一为 26（iOS 24→26pt）</td><td>✅ 双端视觉完全一致。26pt 在 iOS 上略大但差异可忽略。</td><td><b>推荐 A</b>：双端一致性优先，2pt 差异在视觉上几乎不可辨</td></tr>
+<tr><td>B：统一为 24（Android 26→24dp）</td><td>双端一致但 Android 图标略缩小。</td><td>可选，但 26 是设计稿原始值</td></tr>
+<tr><td>C：保持差异（iOS 24 / Android 26）</td><td>双端视觉微差，用户可能注意到。</td><td>淘汰：无必要差异</td></tr>
+</table>
+
+<h3>P3 · 列数（column）支持：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：column 作为 prop 暴露（api.json 已定义 column:number），默认 4</td><td>✅ 灵活支持 3/4/5 列。Android 用 weight(1f) 天然等分只需改列数；iOS 用 .fillEqually 同理。</td><td><b>推荐 A</b>：api.json 已定义此 prop，实现成本低</td></tr>
+<tr><td>B：固定 4 列，不暴露 column prop</td><td>简化 API 但失去灵活性。</td><td>淘汰：与 api.json 契约冲突</td></tr>
+<tr><td>C：支持 column + 自动换行（超过 column 数量自动折行）</td><td>类似 CSS flex-wrap，items 超过一行自动排多行。</td><td>可选扩展（P3=C 时一期不实现，二期考虑）</td></tr>
+</table>
+
+<h3>P4 · 分区标题（title）是否为必选：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：title 可选（空字符串时不显示标题区域）</td><td>✅ 更灵活：有标题=带分区网格，无标题=纯网格卡片。适配更多场景。</td><td><b>推荐 A</b>：空 title 时隐藏标题 + 节省垂直空间</td></tr>
+<tr><td>B：title 必选（始终显示标题行）</td><td>简单但不够灵活。</td><td>淘汰：限制使用场景</td></tr>
+<tr><td>C：title 可选 + 支持自定义标题视图</td><td>过度设计，一期不需要。</td><td>淘汰：MVP 不需要</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础四宫格</h3>
+<p>4 列 × 1 行，无标题。列表/图表/加号/人物图标。</p>
+<div class="grid-demo grid-demo-4">
+  <div class="grid-item"><div class="icon">☰</div><div class="label">列表</div></div>
+  <div class="grid-item"><div class="icon">📊</div><div class="label">图表</div></div>
+  <div class="grid-item"><div class="icon">＋</div><div class="label">添加</div></div>
+  <div class="grid-item"><div class="icon">👤</div><div class="label">我的</div></div>
+</div>
+
+<h3>D2 · 带标题分区</h3>
+<p>标题"小工具" + 4 列网格。</p>
+<div class="grid-demo" style="border:1px solid var(--border);border-radius:var(--radiusLg);">
+  <div style="font-weight:600;font-size:16px;padding:0 0 8px;">小工具</div>
+  <div class="grid-demo-4" style="padding:0;">
+    <div class="grid-item"><div class="icon">🌐</div><div class="label">浏览器</div></div>
+    <div class="grid-item"><div class="icon">📱</div><div class="label">手机</div></div>
+    <div class="grid-item"><div class="icon">📧</div><div class="label">邮箱</div></div>
+    <div class="grid-item"><div class="icon">▼</div><div class="label">下拉</div></div>
+  </div>
+</div>
+
+<h3>D3 · 可点击交互</h3>
+<p>点击任一项输出索引。验证 onSelect/onClick 回调正确触发。</p>
+
+<h3>D4 · 多分组网格</h3>
+<p>两个独立 Grid 垂直排列，模拟发现页多分区效果。</p>
+
+</div>
+
+<h2>05 · 平台差异预告</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>差异说明</th></tr>
+<tr><td>实现架构</td><td>两层封装：NavigationGrid → NavBar</td><td>单层 Composable</td><td class="diff-row">P1 决策后可能统一命名；架构差异可保留（UIKit 分层 vs Compose 扁平均为平台惯例）</td></tr>
+<tr><td>图标尺寸</td><td>24pt</td><td>26dp</td><td class="diff-row">P2 决策后统一</td></tr>
+<tr><td>边框宽度</td><td>1px（1/屏幕倍率）</td><td>0.5dp</td><td>平台惯例，允许保留</td></tr>
+<tr><td>数据模型</td><td>NavigationGrid.Item(title, symbolName)</td><td>GridItem(title, icon: AppIconName)</td><td>Android 用类型安全枚举 AppIconName，iOS 用 String（映射 SF Symbol）；API 对齐方式与现有组件一致</td></tr>
+<tr><td>回调命名</td><td>onSelect((Int) -> Void)</td><td>onSelect: ((Int) -> Unit)?</td><td>需统一到 api.json 契约：onClick(id) → 实际实现为 onClick(index)（见 P5 补充）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 速览（门禁 B 冻结前草案）</h2>
+<div class="spec-card">
+<table>
+<tr><th>类别</th><th>名称</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td rowspan="3">Props</td><td>column</td><td>number</td><td>否</td><td>列数，默认 4</td></tr>
+<tr><td>data</td><td>{icon, text, id}[]</td><td>是</td><td>入口数据数组</td></tr>
+<tr><td>title</td><td>string</td><td>否</td><td>分区标题（空=不显示，P4 决策 A）</td></tr>
+<tr><td>Events</td><td>onClick</td><td>(id: string|number) => void</td><td>否</td><td>点击某项回调，参数=该项的 id（或 index 降级）</td></tr>
+</table>
+<p><b>注意</b>：当前实现回调参数为 index（Int），与 api.json 定义的 id 不一致。门禁 B 需决策：① 保持 index（简单，双端已实现）② 改用 id（需 data 项带 id 字段，更灵活）。</p>
+</div>
+
+<h2>07 · 验收文档清单</h2>
+<div class="spec-card">
+<table>
+<tr><th>编号</th><th>文档</th><th>状态</th></tr>
+<tr><td>D1</td><td>设计规格（本文件）</td><td>✅ 产出</td></tr>
+<tr><td>D2</td><td>验收用例（门禁 A 评审单）</td><td>✅ 产出（见 review-grid-A.md）</td></tr>
+<tr><td>D3</td><td>双端实现代码</td><td>✅ 已有（记账批次）</td></tr>
+<tr><td>D4</td><td>双端 Demo 4 组</td><td>✅ 已有（1:1 对齐）</td></tr>
+<tr><td>D5</td><td>双端测试</td><td>❌ 缺失（门禁 C1 补充）</td></tr>
+<tr><td>D6</td><td>Token 扫描</td><td>待门禁 C1</td></tr>
+<tr><td>D7</td><td>api.json 契约增强</td><td>待门禁 B</td></tr>
+<tr><td>D8</td><td>组件进度更新</td><td>待门禁 C2</td></tr>
+</table>
+</div>
+
+</body>
+</html>

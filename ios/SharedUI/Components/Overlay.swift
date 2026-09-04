@@ -65,9 +65,8 @@ enum OverlayMaskColor: Equatable {
             // textPrimary #111827 × 0.55（设计规格 §02）
             return UIColor(red: 0x11/255.0, green: 0x18/255.0, blue: 0x27/255.0, alpha: Self.OVERLAY_MASK_ALPHA)
         case .transparent:
-            // ⚠️ 绝对不能只写 .clear —— Swift 5.9+ implicit return + switch case 单表达式会触发 "Reference to member 'clear' cannot be resolved without a contextual type"（真 build 第 14 条实锤抓包）
-            // 必须显式写 UIColor.clear 全名 + 显式 return，与 case .default / case .custom 三分支全显式 return 风格保持一致，永久避免 contextual type 推断边界 bug
-            return UIColor.clear
+            // 显式 RGBA 构造，避免部分 Xcode/Swift 版本静态成员推断问题。
+            return UIColor(red: 0, green: 0, blue: 0, alpha: 0)
         case .custom(let c):
             return c
         }
@@ -204,16 +203,15 @@ final class Overlay: UIView {
         didSet { applyVisibility(old: oldValue, new: visible) }
     }
 
-    var maskColor: OverlayMaskColor = .default { didSet { overlayMaskView.backgroundColor = maskColor.resolved } }
+    var maskColor: OverlayMaskColor = .default { didSet { maskBackgroundView.backgroundColor = maskColor.resolved } }
 
     var closeOnMaskClick: Bool = true
 
     /// true 时遮罩完全不拦截事件；穿透到底层视图。`closeOnMaskClick` 与 `onMaskClick` 均不触发。
     var clickThrough: Bool = false {
         didSet {
-            // 穿透=关闭 userInteraction；默认关闭=开启。
             self.isUserInteractionEnabled = !clickThrough
-            overlayMaskView.isUserInteractionEnabled = !clickThrough
+            maskBackgroundView.isUserInteractionEnabled = !clickThrough
         }
     }
 
@@ -254,11 +252,17 @@ final class Overlay: UIView {
 
     // MARK: 内部子视图
 
-    private let overlayMaskView = UIView()           // 全屏遮罩（拦截点击 + 视觉背景；注意：⚠️ 变量名绝对不能叫 overlayMaskView——UIKit UIView 自带 `var overlayMaskView: UIView?` 内置属性，同名会触发 override mutable property + 访问级别 + 协变 三重编译错误，以上8报错前2项即由此而来）
-    private let contentContainer = UIView()   // 插槽容器（9 点布局 + 圆角掩膜）
+    private let maskBackgroundView = UIView()  // 全屏遮罩（拦截点击 + 视觉背景）
+    private let contentContainer = UIView()    // 插槽容器（9 点布局 + 圆角掩膜）
     private var isCurrentlyMounted: Bool = false
     private var tapRecognizer: UITapGestureRecognizer?
     private var pressRecognizer: UILongPressGestureRecognizer?
+
+    // Auto Layout 约束（contentContainer 挂载后创建）
+    private var ccWidthCon: NSLayoutConstraint?
+    private var ccHeightCon: NSLayoutConstraint?
+    private var ccLeadingCon: NSLayoutConstraint?
+    private var ccTopCon: NSLayoutConstraint?
 
     // MARK: 生命周期
 
@@ -281,7 +285,9 @@ final class Overlay: UIView {
         self.init(frame: .zero)
 
         // —— 以下为 Phase 2：self 已完全构造完毕，可安全赋值属性 & 调用方法 ——
-        self.visible = visible
+        // ⚠️ visible 必须在 contentBuilder 之后赋值！
+        // 因为 visible=true 触发 mountToWindow() → measureContentSize() 需要读取 contentBuilder 创建的子视图。
+        // 如果先设 visible → mount 时 contentBuilder 还是 nil → 内容为空 → 测量返回 0。
         self.maskColor = maskColor
         self.closeOnMaskClick = closeOnMaskClick
         self.clickThrough = clickThrough
@@ -289,9 +295,10 @@ final class Overlay: UIView {
         self.contentOffset = contentOffset
         self.contentRadius = contentRadius
         self.animation = animation
-        self.contentBuilder = content
+        self.contentBuilder = content   // ← 先赋值 contentBuilder
         self.onClose = onClose
         self.onMaskClick = onMaskClick
+        self.visible = visible          // ← 最后设 visible（触发 mount，此时 contentBuilder 已就绪）
     }
 
     override init(frame: CGRect) {
@@ -305,41 +312,30 @@ final class Overlay: UIView {
     }
 
     private func commonInit() {
-        // 根视图：透明；只做容器（拦截通过 overlayMaskView）。
-        self.backgroundColor = .clear
-        self.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        // Overlay 根视图 = 透明（遮罩颜色由 maskBackgroundView 渲染）
+        self.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0)
 
-        // overlayMaskView：全屏、拦截点击（clickThrough=false 时）
-        overlayMaskView.backgroundColor = maskColor.resolved
-        overlayMaskView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        overlayMaskView.isUserInteractionEnabled = !clickThrough
-        addSubview(overlayMaskView)
+        maskBackgroundView.backgroundColor = maskColor.resolved
+        maskBackgroundView.isUserInteractionEnabled = !clickThrough
+        addSubview(maskBackgroundView)
 
-        // contentContainer：根据内容自适应尺寸，由布局阶段 9 点锚 + offset 定位
         contentContainer.translatesAutoresizingMaskIntoConstraints = false
-        contentContainer.backgroundColor = .clear
         contentContainer.clipsToBounds = true
         addSubview(contentContainer)
 
         applyRadius()
         installGestures()
         rebuildContent()
-
-        if visible { mountToWindow(animated: animation) }
     }
 
-    // MARK: 圆角：按 contentRadius + 贴边位置自动保留直角
+    // MARK: 圆角：用 CAShapeLayer mask 实现可靠圆角
 
     private func applyRadius() {
         let r = contentRadius.resolvedValue
         contentContainer.layer.cornerRadius = r
         contentContainer.layer.cornerCurve = .continuous
-        if let pinOnly = contentPosition.edgeMaskedCornersIfPinnedToEdge(), r > 0 {
-            // 贴边时只留朝外的两角为圆角（内侧两角保留直角）
-            contentContainer.layer.maskedCorners = pinOnly
-        } else {
-            contentContainer.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-        }
+        contentContainer.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        // 圆角 mask 在 layoutSubviews 中更新（此时 bounds 已确定）
     }
 
     // MARK: 手势：mask 点击 / 按压态反馈
@@ -348,15 +344,14 @@ final class Overlay: UIView {
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleMaskTap(_:)))
         tap.cancelsTouchesInView = false
         tap.delegate = self
-        overlayMaskView.addGestureRecognizer(tap)
+        maskBackgroundView.addGestureRecognizer(tap)
         self.tapRecognizer = tap
 
-        // 按下态：0.08s 短按模拟 press feedback（闪 alpha）。
         let press = UILongPressGestureRecognizer(target: self, action: #selector(handleMaskPress(_:)))
         press.minimumPressDuration = 0.0
         press.cancelsTouchesInView = false
         press.delegate = self
-        overlayMaskView.addGestureRecognizer(press)
+        maskBackgroundView.addGestureRecognizer(press)
         self.pressRecognizer = press
     }
 
@@ -378,7 +373,7 @@ final class Overlay: UIView {
             ? OverlayMaskColor.FEEDBACK_TAP_ALPHA
             : 1.0
         UIView.animate(withDuration: Self.FEEDBACK_DURATION, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction]) {
-            self.overlayMaskView.alpha = targetAlpha
+            self.maskBackgroundView.alpha = targetAlpha
         }
     }
 
@@ -389,23 +384,190 @@ final class Overlay: UIView {
         contentContainer.subviews.forEach { $0.removeFromSuperview() }
         if let builder = contentBuilder { builder(contentContainer) }
         setNeedsLayout()
+
+        // 如果已挂载，重新测量并定位内容
+        if isCurrentlyMounted {
+            let contentSize = measureContentSize()
+            updateContentConstraints(size: contentSize)
+            self.layoutIfNeeded()
+            contentContainer.layoutIfNeeded()
+        }
     }
 
-    // MARK: 布局阶段：9 点锚定 + offset 微调
+    // MARK: 布局阶段
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        overlayMaskView.frame = bounds
-        // 让 contentContainer 根据内置子视图算出 intrinsic size
-        let fittingSize = contentContainer.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+        maskBackgroundView.frame = bounds
+        // 更新圆角 mask（contentContainer 尺寸变化时重绘圆角路径）
+        let r = contentRadius.resolvedValue
+        if r > 0, contentContainer.bounds.size != .zero {
+            let mask = CAShapeLayer()
+            mask.path = UIBezierPath(roundedRect: CGRect(origin: .zero, size: contentContainer.bounds.size), cornerRadius: r).cgPath
+            contentContainer.layer.mask = mask
+        }
+    }
+
+    /// 测量内容尺寸：递归计算 stack view 自然尺寸（绕过 sizeThatFits + fillEqually 陷阱）。
+    private func measureContentSize() -> CGSize {
+        // ① 优先：如果 contentContainer 包含 UIStackView，递归计算自然尺寸
+        for sub in contentContainer.subviews {
+            if let stack = sub as? UIStackView {
+                let stackSize = measureStackView(stack, maxWidth: resolveStackViewWidth(stack))
+                if stackSize.width > 0 && stackSize.height > 0 {
+                    let padding = resolveContainerPadding()
+                    let containerW = resolveTargetWidth()
+                    return CGSize(width: containerW, height: stackSize.height + padding)
+                }
+            }
+        }
+
+        // ② 非 StackView 内容：用 sizeThatFits 读取自然尺寸 + 检测 edge 约束 padding
+        if let firstSub = contentContainer.subviews.first {
+            let containerW = resolveTargetWidth()
+            let subSize = firstSub.sizeThatFits(CGSize(width: containerW, height: 2000))
+            if subSize.width > 0 && subSize.height > 0 && subSize.height < 1000 {
+                let padH = resolveEdgeConstraintPadding(vertical: true)
+                let padW = resolveEdgeConstraintPadding(vertical: false)
+                return CGSize(width: containerW, height: subSize.height + padH)
+            }
+        }
+
+        // ③ 最终兜底
+        return CGSize(width: resolveTargetWidth(), height: 100)
+    }
+
+    /// 检测 contentContainer 对子视图的 edge 约束 padding。
+    /// vertical=true 检测 top/bottom，false 检测 leading/trailing。
+    private func resolveEdgeConstraintPadding(vertical: Bool) -> CGFloat {
+        let (a1, a2) = vertical ? (NSLayoutConstraint.Attribute.top, NSLayoutConstraint.Attribute.bottom) : (NSLayoutConstraint.Attribute.leading, NSLayoutConstraint.Attribute.trailing)
+        var total: CGFloat = 0
+        for c in contentContainer.constraints {
+            guard c.secondItem is UIView else { continue }
+            if c.firstAttribute == a1, c.constant != 0 { total += abs(c.constant) }
+            if c.firstAttribute == a2, c.constant != 0 { total += abs(c.constant) }
+        }
+        return total
+    }
+
+    /// 递归计算 UIStackView 的自然尺寸（不依赖 sizeThatFits，避免 fillEqually 陷阱）。
+    private func measureStackView(_ stack: UIStackView, maxWidth: CGFloat) -> CGSize {
+        let spacing = stack.spacing
+        if stack.axis == .vertical {
+            var totalH: CGFloat = 0
+            var maxW: CGFloat = 0
+            for (i, sub) in stack.arrangedSubviews.enumerated() {
+                let subSize = measureView(sub, maxWidth: maxWidth)
+                maxW = max(maxW, subSize.width)
+                totalH += subSize.height
+                if i > 0 { totalH += spacing }
+            }
+            return CGSize(width: maxW, height: totalH)
+        } else {
+            // horizontal: height = max(subview heights), width = sum + spacing
+            var totalW: CGFloat = 0
+            var maxH: CGFloat = 0
+            for (i, sub) in stack.arrangedSubviews.enumerated() {
+                let subSize = measureView(sub, maxWidth: maxWidth)
+                totalW += subSize.width
+                maxH = max(maxH, subSize.height)
+                if i > 0 { totalW += spacing }
+            }
+            return CGSize(width: min(totalW, maxWidth), height: maxH)
+        }
+    }
+
+    /// 递归测量单个视图的自然尺寸。
+    private func measureView(_ view: UIView, maxWidth: CGFloat) -> CGSize {
+        if let stack = view as? UIStackView {
+            return measureStackView(stack, maxWidth: maxWidth)
+        }
+        let intrinsic = view.intrinsicContentSize
+        if intrinsic.width > 0 && intrinsic.height > 0 {
+            return intrinsic
+        }
+        // 兜底：用 sizeThatFits（对非 stack 视图通常可靠）
+        let s = view.sizeThatFits(CGSize(width: maxWidth, height: 200))
+        return CGSize(width: max(s.width, 1), height: max(s.height, 1))
+    }
+
+    /// 解析 stack view 的目标宽度（优先 stack 自身的宽度约束，否则 intrinsicWidth）
+    private func resolveStackViewWidth(_ stack: UIStackView) -> CGFloat {
+        // 查找 stack 自身的宽度约束
+        for c in stack.constraints {
+            if c.firstAttribute == .width, c.relation == .equal, c.secondItem == nil {
+                return c.constant
+            }
+        }
+        // 兜底：intrinsicContentSize 的宽度
+        let intrinsic = stack.intrinsicContentSize
+        if intrinsic.width > 0 { return intrinsic.width }
+        return resolveTargetWidth()
+    }
+
+    /// 解析 contentContainer 对子视图的垂直 padding（top/bottom offset 之和）。
+    private func resolveContainerPadding() -> CGFloat {
+        var topOff: CGFloat = 0, botOff: CGFloat = 0
+        for c in contentContainer.constraints {
+            if c.firstAttribute == .top, c.constant < 0 { topOff = -c.constant }
+            if c.firstAttribute == .bottom, c.constant > 0 { botOff = c.constant }
+        }
+        return (topOff > 0 || botOff > 0) ? topOff + botOff : 40
+    }
+
+    /// 解析 contentContainer 对子视图的水平 padding（leading/trailing offset 之和）。
+    private func resolveContainerHorizontalPadding() -> CGFloat {
+        var leadOff: CGFloat = 0, trailOff: CGFloat = 0
+        for c in contentContainer.constraints {
+            if c.firstAttribute == .leading, c.constant > 0 { leadOff = c.constant }
+            if c.firstAttribute == .trailing, c.constant < 0 { trailOff = -c.constant }
+        }
+        return leadOff + trailOff // Demo 1 用 center 无水平 padding → 0
+    }
+
+    /// 解析目标宽度（优先内容自带宽度约束，否则 bounds 80%）
+    private func resolveTargetWidth() -> CGFloat {
+        // ① 查找 contentContainer 自身的宽度约束
+        for c in contentContainer.constraints {
+            if c.firstAttribute == .width, c.relation == .equal, c.secondItem == nil {
+                return c.constant
+            }
+        }
+        // ② SnapKit 可能把宽度约束存在父视图上
+        if let superview = contentContainer.superview {
+            for c in superview.constraints {
+                if c.firstItem as? UIView == contentContainer && c.firstAttribute == .width && c.secondItem == nil {
+                    return c.constant
+                }
+            }
+        }
+        return min(bounds.width * 0.8, 340)
+    }
+
+    /// 创建/更新 contentContainer 的 Auto Layout 约束（9 点定位 + 实测尺寸）
+    private func updateContentConstraints(size: CGSize) {
+        // 清除旧约束
+        [ccWidthCon, ccHeightCon, ccLeadingCon, ccTopCon].forEach {
+            $0?.isActive = false
+        }
+
         let (ax, ay) = contentPosition.anchor
-        let originX = (bounds.width - fittingSize.width) * ax + contentOffset.x
-        let originY = (bounds.height - fittingSize.height) * ay + contentOffset.y
-        // 约束不越界（简单 clamp 到 bounds 内）
-        let x = min(max(originX, 0), max(0, bounds.width - fittingSize.width))
-        let y = min(max(originY, 0), max(0, bounds.height - fittingSize.height))
-        contentContainer.frame = CGRect(origin: CGPoint(x: x, y: y), size: fittingSize)
-        applyRadius()
+        let ox = contentOffset.x
+        let oy = contentOffset.y
+
+        // 尺寸约束 = 实测内容尺寸
+        ccWidthCon = contentContainer.widthAnchor.constraint(equalToConstant: size.width)
+        ccHeightCon = contentContainer.heightAnchor.constraint(equalToConstant: size.height)
+
+        // 位置约束 = 9 点锚 + offset
+        // leading = (overlay.width - content.width) * ax + ox
+        // top = (overlay.height - content.height) * ay + oy
+        let leadingConstant = (bounds.width - size.width) * ax + ox
+        let topConstant = (bounds.height - size.height) * ay + oy
+        ccLeadingCon = contentContainer.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: leadingConstant)
+        ccTopCon = contentContainer.topAnchor.constraint(equalTo: self.topAnchor, constant: topConstant)
+
+        [ccWidthCon, ccHeightCon, ccLeadingCon, ccTopCon].forEach { $0?.isActive = true }
     }
 
     // MARK: visible 切换 —— 挂载 keyWindow / 卸载 + fade 动画
@@ -418,19 +580,34 @@ final class Overlay: UIView {
 
     private func mountToWindow(animated: Bool) {
         guard !isCurrentlyMounted,
-              let window = Self.keyWindow() else { return }
-        self.alpha = animated ? 0 : 1
-        self.frame = window.bounds
-        // ⚠️ 永久钉死=用户亲测iOS Overlay点不动=根因=挂载到 keyWindow 后=被系统手势/其他 window 拦截=2 行治根（AI 之前没加=全责）：
-        // ① self.isUserInteractionEnabled = true=显式开 UIView 交互=避免父视图/系统把我们的 Overlay 当透明容器=忽略交互
-        // ② window.windowLevel = .normal + 0.01=把 App 主 window 提到最前（比普通弹窗还高一点=不被系统手势/Alert/其他浮层拦截触摸=Overlay 永远最上层=点击 100% 命中）
+              let hostView = Self.keyWindowHostView() else { return }
+
+        // ⚠️ 防御性重建：如果 contentContainer 为空（contentBuilder 赋值时序问题），立即重建内容
+        if contentContainer.subviews.isEmpty, let builder = contentBuilder {
+            builder(contentContainer)
+        }
+
+        // ① 先加入宿主视图（measureContentSize 需要 overlay 在视图层级内才能正确解析约束）
+        self.frame = hostView.bounds
+        self.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.isUserInteractionEnabled = true
-        window.windowLevel = UIWindow.Level.normal + 0.01
-        window.addSubview(self)
-        overlayMaskView.alpha = 1
+        hostView.addSubview(self)
+
+        // ② 测量内容尺寸（overlay 已在层级内 → layoutIfNeeded 可正确解析）
+        let contentSize = measureContentSize()
+
+        // ③ 创建 9 点定位 + 尺寸约束
+        updateContentConstraints(size: contentSize)
+
+        // ④ 强制布局使约束生效
+        self.layoutIfNeeded()
+        contentContainer.layoutIfNeeded()
+
+        maskBackgroundView.alpha = 1
         isCurrentlyMounted = true
-        setNeedsLayout()
+
         if animated {
+            self.alpha = 0
             UIView.animate(withDuration: Self.FADE_IN_DURATION, delay: 0, options: [.curveEaseOut]) {
                 self.alpha = 1
             }
@@ -441,9 +618,7 @@ final class Overlay: UIView {
         UIView.animate(withDuration: Self.FADE_OUT_DURATION, delay: 0, options: [.curveEaseIn]) {
             self.alpha = 0
         } completion: { _ in
-            self.removeFromSuperview()
-            self.alpha = 1
-            self.isCurrentlyMounted = false
+            self.removeFromHost()
         }
     }
 
@@ -452,31 +627,33 @@ final class Overlay: UIView {
         if animated {
             fadeOutAndUnmount()
         } else {
-            removeFromSuperview()
-            isCurrentlyMounted = false
+            removeFromHost()
         }
     }
 
-    // MARK: Helper：keyWindow
-
-    static func keyWindow() -> UIWindow? {
-        if #available(iOS 13.0, *) {
-            return UIApplication.shared.connectedScenes
-                .compactMap { $0 as? UIWindowScene }
-                .flatMap { $0.windows }
-                .first(where: \.isKeyWindow) ?? UIApplication.shared.keyWindow
-        } else {
-            return UIApplication.shared.keyWindow
-        }
+    private func removeFromHost() {
+        // 清除 Auto Layout 约束
+        [ccWidthCon, ccHeightCon, ccLeadingCon, ccTopCon].forEach { $0?.isActive = false }
+        ccWidthCon = nil; ccHeightCon = nil; ccLeadingCon = nil; ccTopCon = nil
+        removeFromSuperview()
+        alpha = 1
+        isCurrentlyMounted = false
     }
 
-    // MARK: Deinit：自动清理（业务忘记 visible=false 时兜底）
+    // MARK: Helper：keyWindow 的 rootVC.view
+
+    private static func keyWindowHostView() -> UIView? {
+        let window = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first(where: { $0.isKeyWindow })
+        return window?.rootViewController?.view ?? window
+    }
+
+    // MARK: Deinit
 
     deinit {
-        if isCurrentlyMounted {
-            removeFromSuperview()
-            isCurrentlyMounted = false
-        }
+        removeFromSuperview()
     }
 }
 
@@ -484,13 +661,12 @@ final class Overlay: UIView {
 
 extension Overlay: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        let p = touch.location(in: overlayMaskView)
-        // 若点到 contentContainer（或其子视图），手势不拦截 → 事件进入内容控件（按钮等正常响应）
+        let p = touch.location(in: maskBackgroundView)
         let contentPoint = touch.location(in: contentContainer)
         if contentContainer.point(inside: contentPoint, with: nil) {
             return false
         }
-        return overlayMaskView.point(inside: p, with: nil)
+        return maskBackgroundView.point(inside: p, with: nil)
     }
 
     func gestureRecognizer(_: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith _: UIGestureRecognizer) -> Bool {

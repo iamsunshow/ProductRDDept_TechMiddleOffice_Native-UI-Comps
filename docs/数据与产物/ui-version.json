@@ -1,6 +1,6 @@
 {
-  "version": "1.3.12",
-  "versionKey": "v1.3.12",
-  "releaseDate": "2026-09-03",
-  "changelog": "⚠️ 2026-09-04 Overlay 批次二次回滚（用户 iOS Demo 真 build 3 报错 + L269+1 新增门禁未通过）：C2三件批次 Cell v1.3.10 / ConfigProvider v1.3.11 / Image v1.3.12 已合法闭环，保持不变。Overlay（basics #6）= A/B 评审 21/21 用户通过仍然有效，但 C1.5 Demo 验收未满足用户新增门禁 L269+1=『双端真 build 0 error + 用户亲自 Demo 验收双通过』，所以 reviewed=True 切换非法，已回 False；v1.4.0 MINOR 发版撤销；[1.4.0] 段落删除；基础类 6/6 收官说法作废，当前仍为 5/6（Button/Cell/CP/Icon/Image 已发 + Overlay C1.5 3 报错修复中）。本次基线= 1.3.12 与 2026-09-03 一致，Overlay 待 Demo 双通过后再合法推进 C2 + D。"
+  "version": "1.4.0",
+  "versionKey": "v1.4.0",
+  "releaseDate": "2026-09-04",
+  "changelog": "[1.4.0] 2026-09-04 Overlay v2.0 iOS 完整修复：① 递归测量 stack view 自然尺寸（绕过 sizeThatFits + fillEqually 陷阱）；② 非 StackView 内容用 sizeThatFits + edge 约束 padding 检测；③ 防御性重建（contentBuilder 赋值时序保护）；④ convenience init 赋值顺序修复（visible 最后赋值）；⑤ CAShapeLayer mask 可靠圆角；⑥ 统一 4 角圆角（去掉贴边直角逻辑）。Android Demo 1/3 Surface shape 补齐圆角。双端 build 0 error + 用户 Demo 4 组验收通过。基础组件 6/6 收官。"
 }

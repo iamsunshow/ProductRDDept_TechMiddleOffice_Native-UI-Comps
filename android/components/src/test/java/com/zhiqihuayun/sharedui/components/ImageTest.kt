@@ -45,7 +45,7 @@ import org.robolectric.annotation.GraphicsMode
  * `useUnmergedTree = true`（Cell 先例同款）。
  *
  * 运行：`./gradlew :components:testDebugUnitTest`（Robolectric 托管 Compose，无需模拟器）。
- * 验证组件库版本：v1.3.0（契约 `docs/api.json` `ui.image`，门禁 B ✅ 2026-09-03 冻结）。
+ * 验证组件库版本：v1.3.0（契约 `docs/数据与产物/api.json` `ui.image`，门禁 B ✅ 2026-09-03 冻结）。
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)

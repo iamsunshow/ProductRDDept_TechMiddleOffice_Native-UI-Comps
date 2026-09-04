@@ -8,9 +8,9 @@ from pathlib import Path
 
 WWW = Path(__file__).resolve().parents[1]
 TMO = WWW.parent
-# 组件 metadata 单一数据源：docs/api.json（方案 B 由 catalog/components.jsonl 收敛而来）
+# 组件 metadata 单一数据源：docs/数据与产物/api.json（方案 B 由 catalog/components.jsonl 收敛而来）
 API = TMO / "docs" / "api.json"
-# 唯一 Token 源：组件库 docs/design-token.json（迁移后统一收口，不再读业务 App 内 tokens）
+# 唯一 Token 源：组件库 docs/数据与产物/design-token.json（迁移后统一收口，不再读业务 App 内 tokens）
 TOKENS = TMO / "docs" / "design-token.json"
 # 版本日志唯一数据源：组件库根 CHANGELOG.md（官方文档「版本日志」页）
 CHANGELOG = TMO / "CHANGELOG.md"
@@ -30,8 +30,8 @@ META = {
   "sources": {
     "android": "android",
     "ios": "ios",
-    "designToken": "docs/design-token.json",
-    "catalog": "docs/api.json",
+    "designToken": "docs/数据与产物/design-token.json",
+    "catalog": "docs/数据与产物/api.json",
   },
 }
 
@@ -58,7 +58,7 @@ SUB_CAT_META = {
   },
 }
 
-# 组件 API 契约（props/events/demos/note）现收口于 docs/api.json 的每组件字段，
+# 组件 API 契约（props/events/demos/note）现收口于 docs/数据与产物/api.json 的每组件字段，
 # 由 scripts/merge_contracts_into_catalog.py 从历史 CONTRACTS 并入。generate_data.py 不再持有第二份源。
 
 

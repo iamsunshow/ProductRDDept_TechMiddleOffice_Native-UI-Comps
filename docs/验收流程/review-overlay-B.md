@@ -16,7 +16,7 @@
 | **评审人（唯一有权签字）** | **🧑 用户（OPC 所有者）** |
 | 评审日期 | 2026-09-04 |
 | 评审结论 | ☑️ ✅ 通过（冻结契约；C2 启动 → reviewed=True 切换 → D MINOR v1.4.0 发版）　☐ ❌ 打回 |
-| 契约位置 | `docs/api.json` `ui.overlay` 条目（basics 尾 index=22；componentCount 30→31；**reviewed=False→True（B 评审通过生效）**） |
+| 契约位置 | `docs/数据与产物/api.json` `ui.overlay` 条目（basics 尾 index=22；componentCount 30→31；**reviewed=False→True（B 评审通过生效）**） |
 | 验收文档 | `docs/验收流程/component-acceptance-overlay.md` |
 
 ---

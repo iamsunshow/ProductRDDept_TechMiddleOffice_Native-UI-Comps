@@ -15,7 +15,7 @@
 | 推进顺序 | 列表第 #3 位（基础组件） |
 | 状态 | ✅ 设计中（A，通过）→ ✅ API（B，通过）→ 💻 实现（C）→ ✅ |
 | 验收文档 | `docs/验收流程/component-acceptance-config-provider.md` |
-| 设计规格页 | `docs/design-spec/config-provider-design-spec.html`（浏览器打开） |
+| 设计规格页 | `docs/数据与产物/design-spec/config-provider-design-spec.html`（浏览器打开） |
 
 ---
 
@@ -31,9 +31,9 @@
 | 运行机制 | 覆盖 = 对「静态基准 + 父级配置」的叠加替换；未覆盖项完全沿用静态基准；嵌套时内层覆盖外层同名项、外层未覆盖项继承；design-token.json 与双端 AppTokens 静态常量**不被修改**，覆盖仅发生在读取解析层 |
 | 双端差异 | 覆盖机制平台原生差异（iOS UIAppearance/环境对象 vs Android CompositionLocal），**已登记 `docs/平台差异.md`** |
 | 与现有组件关系 | deps=[]（纯上下文组件，不依赖业务组件）；被全库消费组件依赖（读取配置）；与 `ui.cell` 等组件正交 |
-| 设计参考图 | `docs/design-spec/config-provider-design-spec.html`（04 节覆盖前后对比渲染，非截图） |
+| 设计参考图 | `docs/数据与产物/design-spec/config-provider-design-spec.html`（04 节覆盖前后对比渲染，非截图） |
 
-**设计评审（门禁 A）结论：** ✅ 通过（用户 2026-09-03 确认）　☐ ❌ 打回　备注：冻结设计，进入 API 阶段；API 契约随 `docs/api.json` 定稿（subcategory 复核为 basics）
+**设计评审（门禁 A）结论：** ✅ 通过（用户 2026-09-03 确认）　☐ ❌ 打回　备注：冻结设计，进入 API 阶段；API 契约随 `docs/数据与产物/api.json` 定稿（subcategory 复核为 basics）
 
 **API 评审（门禁 B）结论：** ✅ 通过（用户 2026-09-03「继续」确认）　☐ ❌ 打回　备注：契约冻结，进入实现阶段；8 项检查单全部通过（评审单 `review-config-provider-B.md`）
 
@@ -58,7 +58,7 @@
 
 ## 四、③ API 设计细节（阶段 2 · 门禁 B 评审）
 
-> 完整契约在 `docs/api.json`（契约规则正文=产研部唯一手册，docs 入口壳 `docs/README.md`），此处为评审索引。
+> 完整契约在 `docs/数据与产物/api.json`（契约规则正文=产研部唯一手册，docs 入口壳 `docs/README.md`），此处为评审索引。
 
 | 能力面 | 字段 | 关键内容 |
 |--------|------|----------|
@@ -71,7 +71,7 @@
 | 组件关系 | `deps` | 依赖组件 id（=[]） |
 | 平台状态 | `platforms` | available / partial / unavailable |
 
-**API 评审（门禁 B）结论：** ☐ ✅ 通过　☐ ❌ 打回　备注：契约拟稿于 `docs/api.json` `ui.config-provider`（primaryColor/rounded/compact/locale/children），待门禁 B 评审后定稿
+**API 评审（门禁 B）结论：** ☐ ✅ 通过　☐ ❌ 打回　备注：契约拟稿于 `docs/数据与产物/api.json` `ui.config-provider`（primaryColor/rounded/compact/locale/children），待门禁 B 评审后定稿
 
 ---
 

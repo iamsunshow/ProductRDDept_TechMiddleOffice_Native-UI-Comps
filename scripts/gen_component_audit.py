@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""（2026-09-04 起=组件审计台账已并入 docs/组件进度.md 第 1.1 节=本脚本仅供另生成历史快照）从 docs/api.json 生成 docs/组件审计.md（双端一致性对照列表）。
+"""（2026-09-04 起=组件审计台账已并入 docs/组件进度.md 第 1.1 节=本脚本仅供另生成历史快照）从 docs/数据与产物/api.json 生成 docs/组件审计.md（双端一致性对照列表）。
 
-数据源唯一：docs/api.json。展示每组件：名称 / 分类 / 描述 / iOS 命名 / Android 命名 /
+数据源唯一：docs/数据与产物/api.json。展示每组件：名称 / 分类 / 描述 / iOS 命名 / Android 命名 /
 使用场景 / 双端一致性标记。命名与 API 一致性判定基于 source_refs 源码命名与
 props/events 契约，缺失端标注「—（未实现）」，暴露双端不一致与数据缺口。
 """
@@ -84,7 +84,7 @@ def main() -> None:
 
     with OUT.open("w", encoding="utf-8") as f:
         f.write("# 组件双端一致性对照表\n\n")
-        f.write(f"> 数据源：`docs/api.json`（{api.get('componentCount', len(comps))} 个组件）· 生成时间 {api.get('updatedAt','')}\n\n")
+        f.write(f"> 数据源：`docs/数据与产物/api.json`（{api.get('componentCount', len(comps))} 个组件）· 生成时间 {api.get('updatedAt','')}\n\n")
         f.write("> 目的：审查双端（iOS / Android）代码独立前提下，**组件命名、API 契约**是否保持一致；并暴露单端缺失与数据缺口。\n\n")
         f.write("## 一览\n\n")
         f.write("| 组件名称 | 分类 | 组件描述 | iOS 命名 | Android 命名 | 命名一致 | 使用场景 | 双端状态 |\n")
@@ -110,7 +110,7 @@ def main() -> None:
         f.write("1. **双端命名对齐**：对 ❌ 不一致组件统一命名（含 iOS/Android 类名、Swift/Kotlin 文件）。\n")
         f.write("2. **单端补全**：⚠️ 仅 iOS / 仅 Android 组件在另一端落地，保持命名与 API 一致。\n")
         f.write("3. **聚合文件拆分**：Android 的 `CommonComponents.kt` / `ProfileListGroup.kt` / `ProfileAvatarComponents.kt` 承载多组件，按组件独立文件。\n")
-        f.write("4. **API 契约补全**：多个组件 `apis` / `props` / `events` 为空，需在 `docs/api.json` 补齐，作为双端 API 一致性基准。\n")
+        f.write("4. **API 契约补全**：多个组件 `apis` / `props` / `events` 为空，需在 `docs/数据与产物/api.json` 补齐，作为双端 API 一致性基准。\n")
 
     print(f"generated {OUT} ({len(rows)} components)")
 

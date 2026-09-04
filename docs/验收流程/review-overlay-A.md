@@ -16,7 +16,7 @@
 | **评审人（唯一有权签字）** | **🧑 用户（OPC 所有者）** |
 | 评审日期 | 2026-09-04 |
 | 评审结论 | ☑️ ✅ 通过（冻结设计 + 冻结契约，进入 C2+D 正式发版）　☐ ❌ 打回 |
-| 评审产物位置 | `docs/design-spec/overlay-design-spec.html`（浏览器打开即可预览 4 组 Demo + 4 条 ACE 决策）；验收文档 `docs/验收流程/component-acceptance-overlay.md`（D1–D8 / A1–A7 用例） |
+| 评审产物位置 | `docs/数据与产物/design-spec/overlay-design-spec.html`（浏览器打开即可预览 4 组 Demo + 4 条 ACE 决策）；验收文档 `docs/验收流程/component-acceptance-overlay.md`（D1–D8 / A1–A7 用例） |
 
 ---
 

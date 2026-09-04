@@ -14,7 +14,7 @@
 | 推进顺序 | 列表第 #2 位（基础组件） |
 | 状态 | 📐 设计中（A）→ 📋 API（B）→ 💻 实现（C）→ ✅ |
 | 验收文档 | `docs/验收流程/component-acceptance-cell.md` |
-| 设计规格页 | `docs/design-spec/cell-design-spec.html`（浏览器打开） |
+| 设计规格页 | `docs/数据与产物/design-spec/cell-design-spec.html`（浏览器打开） |
 
 ---
 
@@ -30,9 +30,9 @@
 | 交互细节 | 点击整体可点、按下态背景 `gray.4` 松手恢复；`onClick`（参数=索引/数据）、`onLongPress` 可选（iOS 长按，Android 不承诺）；无弹窗层级（右侧 Popup 由业务承载） |
 | 双端差异 | 触摸反馈 iOS UILongPress/Highlight vs Android Ripple = 平台原生差异，**已登记 `docs/平台差异.md`**；分割线/禁用态双端一致 |
 | 与现有组件关系 | deps=[]（独立）；被 `ui.list`（列表容器）依赖；替代 iOS ListCell 近似实现（迁移后废弃）、补 Android 缺口 |
-| 设计参考图 | `docs/design-spec/cell-design-spec.html`（02 节真实渲染，非截图） |
+| 设计参考图 | `docs/数据与产物/design-spec/cell-design-spec.html`（02 节真实渲染，非截图） |
 
-**设计评审（门禁 A）结论：** ✅ 通过（用户 2026-08-30 确认）　☐ ❌ 打回　备注：冻结设计，进入实现；API 契约随 `docs/api.json` 定稿
+**设计评审（门禁 A）结论：** ✅ 通过（用户 2026-08-30 确认）　☐ ❌ 打回　备注：冻结设计，进入实现；API 契约随 `docs/数据与产物/api.json` 定稿
 
 ---
 
@@ -55,7 +55,7 @@
 
 ## 四、③ API 设计细节（阶段 2 · 门禁 B 评审）
 
-> 完整契约在 `docs/api.json`（契约规则正文=产研部唯一手册，docs 入口壳 `docs/README.md`），此处为评审索引。
+> 完整契约在 `docs/数据与产物/api.json`（契约规则正文=产研部唯一手册，docs 入口壳 `docs/README.md`），此处为评审索引。
 
 | 能力面 | 字段 | 关键内容 |
 |--------|------|----------|
@@ -68,7 +68,7 @@
 | 组件关系 | `deps` | 依赖组件 id |
 | 平台状态 | `platforms` | available / partial / unavailable |
 
-**API 评审（门禁 B）结论：** ✅ 通过（2026-08-30 随实现固化，A6 schema + A7 命名对齐脚本验证通过）　☐ ❌ 打回　备注：契约定稿于 `docs/api.json` `ui.cell`（title/subtitle/icon/value/arrow/disabled/loading/status + onClick/onLongPress）
+**API 评审（门禁 B）结论：** ✅ 通过（2026-08-30 随实现固化，A6 schema + A7 命名对齐脚本验证通过）　☐ ❌ 打回　备注：契约定稿于 `docs/数据与产物/api.json` `ui.cell`（title/subtitle/icon/value/arrow/disabled/loading/status + onClick/onLongPress）
 
 ---
 

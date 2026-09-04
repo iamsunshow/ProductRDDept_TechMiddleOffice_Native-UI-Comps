@@ -2,7 +2,7 @@
 
 > 依据：`docs/验收流程/验收标准.md` 9.6 节（五要素）。流程：设计细节+设计测试用例（阶段1，门禁A）→ API细节+API测试用例（阶段2，门禁B）→ 实现并执行测试（阶段3，门禁C1）→ Demo Showcase + 实机确认（阶段3.5，门禁C1.5）→ CR+CI（门禁C2）→ 发版 + 业务落地（门禁D）。
 > 用例即代码：用例 ID（D1-D8 / A1-A7）与测试函数一一对应，命名如 `test_D1_defaultRenders`, CI 在门禁 C1 自动核对。
-> 设计规格页：`docs/design-spec/image-design-spec.html`（浏览器打开）。
+> 设计规格页：`docs/数据与产物/design-spec/image-design-spec.html`（浏览器打开）。
 
 ---
 
@@ -15,7 +15,7 @@
 | 推进顺序 | 列表第 #5 位（基础组件） |
 | 状态 | 💻 实现中 · 门禁 C1.5 实机打回已修复待复验（门禁 A ✅ / B ✅ / C1 ✅ 2026-09-03；C1.5 Demo Showcase 双端已落地 2026-09-03；用户实机发现 6 项问题 → v1.3.1 修复已提交 2026-09-03，待复验转 C2） |
 | 验收文档 | `docs/验收流程/component-acceptance-image.md` |
-| 设计规格页 | `docs/design-spec/image-design-spec.html` |
+| 设计规格页 | `docs/数据与产物/design-spec/image-design-spec.html` |
 | 组件库版本 | v1.3.0（2026-09-03 发布；基线 v1.2.1） |
 
 ---
@@ -32,7 +32,7 @@
 | 交互细节 | 可选 onTap（无默认按压反馈）；加载/失败占位在容器内切换不抖版；失败后重设 src 自动重载；hover/长按/3D Touch N/A 归外层 |
 | 双端差异 | fit→contentMode（iOS）/ContentScale（Android）映射、圆角实现（cornerRadius+masksToBounds vs Modifier.clip）、src 定位（Asset Catalog vs @DrawableRes）、占位实现（UIView 切换 vs when(状态)）；登记 `docs/平台差异.md`（实现阶段补条目） |
 | 与现有组件关系 | deps=[]（占位内置绘制，不依赖未完成 Icon/Loading）；被 Cell/Avatar/Card 等消费；预览归 ImagePreview #68 无重复 |
-| 设计参考图 | `docs/design-spec/image-design-spec.html`（04 节 fit 五模式渲染 + 02 节五态渲染 + 03 节尺寸标注，非截图） |
+| 设计参考图 | `docs/数据与产物/design-spec/image-design-spec.html`（04 节 fit 五模式渲染 + 02 节五态渲染 + 03 节尺寸标注，非截图） |
 
 **待决策点（门禁 A 评审拍板）**：P1 网络图 URL 加载（建议 B：一期仅本地，保持零三方依赖与双端一致）/ P2 lazy 懒加载（建议 B：一期 N/A 标注缺口）/ P3 圆形快捷（建议 A：radius=宽/2）/ P4 失败重试（建议 B：仅 onError，重试由业务改 src）。
 
@@ -61,7 +61,7 @@
 
 ## 四、③ API 设计细节（阶段 2 · 门禁 B 评审）
 
-> 完整契约已录入 `docs/api.json` `ui.image`（subcategory=display，tier=core），此处为评审索引。门禁 A 决策已定稿（2026-09-03 用户拍板）：P1=B URL 业务侧预下载后传图对象（组件库零第三方图片加载依赖）/ P2=B lazy 一期 N/A / P3=A 圆形=radius=宽/2 / P4=B 失败仅 onError（重试由业务改 src）。
+> 完整契约已录入 `docs/数据与产物/api.json` `ui.image`（subcategory=display，tier=core），此处为评审索引。门禁 A 决策已定稿（2026-09-03 用户拍板）：P1=B URL 业务侧预下载后传图对象（组件库零第三方图片加载依赖）/ P2=B lazy 一期 N/A / P3=A 圆形=radius=宽/2 / P4=B 失败仅 onError（重试由业务改 src）。
 
 **属性 Props（9）**
 | 属性 | 类型 | 必选/默认 | 说明 |
@@ -122,7 +122,7 @@
 | 日期 | 门禁 | 结论 | 备注（验证版本） |
 |------|------|------|------|
 | 2026-09-03 | A 设计评审 | ✅ 通过 | 评审单 `docs/验收流程/review-image-A.md`；设计规格 `image-design-spec.html`；组件库 v1.2.1 基线；P1=B URL 业务预下载 / P2=B lazy 一期 N/A / P3=A 圆形=radius=宽/2 / P4=B 失败仅 onError |
-| 2026-09-03 | B API 评审 | ✅ 通过 | 用户表决冻结 `ui.image`（props 9 + events 3）为准绳；subcategory=display；契约 `docs/api.json` |
+| 2026-09-03 | B API 评审 | ✅ 通过 | 用户表决冻结 `ui.image`（props 9 + events 3）为准绳；subcategory=display；契约 `docs/数据与产物/api.json` |
 | 2026-09-03 | C1 自测对齐（单测+快照+用例映射） | ✅ 完成（C1 出口=单测全绿+脚本门禁全绿；C1.5 实机待办） | 双端实现（iOS Image.swift / Android Image.kt）+ 用例重排对齐脚本保留位；Android Robolectric 全量 50/50 绿（ImageTest 20 + CellTest 15 + ConfigProviderTest 15，含 Cell D5 回归修复）；质量门禁 Cell/Image 各 4/4；像素采样因 Robolectric 窗口捕获不产帧移除、几何以纯函数+实机 C1.5 覆盖；版本 bump v1.3.0 |
 | 2026-09-03 | C1.5 Demo Showcase（前置落地） | ✅ 完成（演示点①②③④ 已接入双端 demo） | Android `demo/android/.../ImageDemo.kt`（编译通过）+ iOS `demo/ios/.../ImageShowcase.swift`（对照既有 Showcase 模式编写，本机 SPM 约束未编译）；demo 版本徽标 Image v1.3.0；索引已挂载（基础组件 → Image 图片，可点击进入） |
 | 2026-09-03 | C1.5 实机验收（用户） | ❌ 打回 → v1.3.1 修复待复验 | 验证版本 **v1.3.0**。用户实机发现 6 项：① demo1 素材"蓝底白圆"含义不明 ② demo1 圆角 lg 卡无圆角 ③ demo1 radius=24 卡为正方形非圆形 ④ demo2 整节空白 ⑤⑥ demo3/4 卡片横向对齐两端不一致（iOS 居中/Android 居左）+ loaded 拉伸圆变形。根因与修复（v1.3.1，2026-09-03）：②③ iOS `Image.swift` radius 仅有解析器与单测断言、`layoutSubviews` 从未应用 → 落地 `layer.cornerRadius`（D4b/A2 单测由纸面绿转真绿）；④ demo2 `UIScrollView` 无显式高度塌陷 0 → 高 118；⑤⑥ Android demo3/4 卡片 Row 撑满居中 + `fit="contain"` 对齐 iOS（iOS 为 contain/居中基准）；① 双端 demo1 补素材引导文案。iOS 修复本机不可编译，实机复验项 |

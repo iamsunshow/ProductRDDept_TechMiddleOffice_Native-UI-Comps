@@ -14,7 +14,7 @@
 | 评审人 | 用户（OPC 所有者） |
 | 评审日期 | 2026-09-03 |
 | 评审结论 | 待评审 |
-| 评审产物位置 | `docs/design-spec/image-design-spec.html`（浏览器打开） |
+| 评审产物位置 | `docs/数据与产物/design-spec/image-design-spec.html`（浏览器打开） |
 
 ---
 

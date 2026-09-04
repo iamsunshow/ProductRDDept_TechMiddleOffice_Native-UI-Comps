@@ -1,6 +1,6 @@
 /// Image 图片 · 组件测试
 ///
-/// 验证组件库版本：v1.3.0（契约 `docs/api.json` `ui.image`，门禁 B ✅ 2026-09-03 冻结）。
+/// 验证组件库版本：v1.3.0（契约 `docs/数据与产物/api.json` `ui.image`，门禁 B ✅ 2026-09-03 冻结）。
 /// 用例编号对齐 `docs/验收流程/component-acceptance-image.md` D 系列（视觉几何）+ A 系列（API 契约）。
 /// 职责分工（防 Cell 盲区教训）：几何数学 = 纯函数 `ImageGeometry.rect` 数学闭环断言（D2/D3/H）；
 /// 状态机/回调/默认值 = 本文件；渲染像素级视觉留 demo 实机 C1.5 确认。

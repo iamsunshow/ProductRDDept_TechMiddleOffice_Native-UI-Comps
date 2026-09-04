@@ -70,7 +70,7 @@ enum class CellStatus {
  * 通用列表行容器：左侧可选图标 + 中间标题（可副标题）+ 右侧值/箭头/状态标识。
  *
  * 对标 NutUI Cell / Ant Design List.Item，支持五态（默认/禁用/加载/成功/失败）。
- * 参数名与 `docs/api.json` 中 `ui.cell` 契约一致（A7 命名对齐）。
+ * 参数名与 `docs/数据与产物/api.json` 中 `ui.cell` 契约一致（A7 命名对齐）。
  * 长按交互 iOS 触发、Android 不承诺（平台差异已登记）；事件参数（数据+索引）由调用方闭包绑定。
  *
  * @param title 主标题（必填）

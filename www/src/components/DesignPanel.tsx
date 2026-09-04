@@ -34,7 +34,7 @@ export default function DesignPanel({ data }: { data: CatalogData }) {
         设计规范
       </Title>
       <Paragraph type="secondary">
-        来源中台 <Text code>docs/design-token.json</Text> · 组件{" "}
+        来源中台 <Text code>docs/数据与产物/design-token.json</Text> · 组件{" "}
         <Text code>foundation.design-tokens</Text>
       </Paragraph>
 

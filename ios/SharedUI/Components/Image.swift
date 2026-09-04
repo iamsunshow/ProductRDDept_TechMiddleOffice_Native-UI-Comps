@@ -4,7 +4,7 @@
 /// onTap·onLoad·onError。
 ///
 /// 对标 NutUI React Image（增强版 img）；不内置预览（属独立 ImagePreview）。
-/// 契约：`docs/api.json` `ui.image`（props/events 命名 100% 对齐，组件库 v1.3.1）。
+/// 契约：`docs/数据与产物/api.json` `ui.image`（props/events 命名 100% 对齐，组件库 v1.3.1）。
 ///
 /// 设计决策（门禁 A 拍板）：P1=B 网络图 URL 归业务预下载后传图对象（零三方图片加载依赖）；
 /// P2=B lazy 一期 N/A；P3=A 圆形 = radius 传宽/2（无魔法值）；P4=B 失败仅 onError（重试=重设 src）。

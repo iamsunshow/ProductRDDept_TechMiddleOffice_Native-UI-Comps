@@ -14,7 +14,7 @@
 | **组件库版本（验证对象）** | 立项设计基线 = **v1.3.12**；C1 实现目标 = **MINOR v1.4.0**（基础类 6/6 收工）；每次验证前必须锁定并同步填写；版本变更同步 CHANGELOG 与 ui-version.json |
 | 状态 | 📐 设计评审 A → 📋 API（B）→ 💻 实现（C1）→ ✅ 发版 D |
 | 验收文档 | `docs/验收流程/component-acceptance-overlay.md` |
-| 设计规格页 | `docs/design-spec/overlay-design-spec.html`（浏览器打开） |
+| 设计规格页 | `docs/数据与产物/design-spec/overlay-design-spec.html`（浏览器打开） |
 
 ---
 

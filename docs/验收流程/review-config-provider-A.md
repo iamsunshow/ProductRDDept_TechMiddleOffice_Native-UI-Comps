@@ -14,7 +14,7 @@
 | 评审人 | 用户（OPC 所有者） |
 | 评审日期 | 2026-08-30 |
 | 评审结论 | ✅ 通过（用户 2026-09-03 确认） |
-| 评审产物位置 | `docs/design-spec/config-provider-design-spec.html`（浏览器打开） |
+| 评审产物位置 | `docs/数据与产物/design-spec/config-provider-design-spec.html`（浏览器打开） |
 
 ---
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Build a self-contained HTML design spec for all TMO components.
 
-Uses real tokens from docs/design-token.json. Each component card has:
+Uses real tokens from docs/数据与产物/design-token.json. Each component card has:
   - header (category badge + name + id)
   - component visual area (rendered with CSS/flex, no overlap)
   - dimension callouts placed OUTSIDE the visual box (not covering it)
@@ -104,7 +104,7 @@ def tokens_footer(comp):
     if comp["category"] == "ui":
         return (f'主色 {C["primary"]} · 文字 {C["textPrimary"]}/{C["textSecondary"]} · 描边 {C["border"]}'
                 f' · 圆角 sm 6 / md 10 / lg 14 · 字号 12/14/16/18 · 间距 8/12/16')
-    return "底层能力：无独立视觉规范，Token 以 UI 组件为准；接口契约见 docs/api.json"
+    return "底层能力：无独立视觉规范，Token 以 UI 组件为准；接口契约见 docs/数据与产物/api.json"
 
 
 # ---------------------------------------------------------------- state row
@@ -661,12 +661,12 @@ def build():
   <h1>Native-UI-Comps · 组件设计规范 v1（HTML 版）</h1>
   <p>UI 组件（20）+ 底层能力（7）· 视觉区与状态区分区布局，标注置于视觉区外圈不遮挡组件。<br>
      设计为唯一基准，双端实现与命名以此为准。</p>
-  <p class="meta">设计令牌来源 <b>docs/design-token.json</b> · 主色 {C['primary']} · 生成时间 2026-08-29</p>
+  <p class="meta">设计令牌来源 <b>docs/数据与产物/design-token.json</b> · 主色 {C['primary']} · 生成时间 2026-08-29</p>
 </header>
 {''.join(sections)}
 <footer>
   生成脚本 <code>scripts/generate_design_gallery.py</code> · 本页自包含，可直接打印 / 导出<br>
-  导入 Figma / Sketch：从本页截图或导出 PNG；设计规格以 H5 规格页为准（如 <code>docs/design-spec/cell-design-spec.html</code>）
+  导入 Figma / Sketch：从本页截图或导出 PNG；设计规格以 H5 规格页为准（如 <code>docs/数据与产物/design-spec/cell-design-spec.html</code>）
 </footer>
 </body>
 </html>

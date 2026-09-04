@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Merge per-component API contracts (props/events/demos/note) into docs/api.json.
+"""Merge per-component API contracts (props/events/demos/note) into docs/数据与产物/api.json.
 
 Historical rationale: props/events/demos/note previously lived only in a hand-written
 CONTRACTS dict inside generate_data.py, a SECOND source of truth separate from the
-catalog. 方案 B 后组件 metadata 收口为 docs/api.json（由 catalog/components.jsonl 收敛而来），
+catalog. 方案 B 后组件 metadata 收口为 docs/数据与产物/api.json（由 catalog/components.jsonl 收敛而来），
 本脚本保留为幂等工具：将 CONTRACTS 并入每个组件条目，使 api.json 成为唯一数据源。
 
 Run once after each api.json change (idempotent: existing props/events/demos/note on a
@@ -37,10 +37,10 @@ def main() -> None:
 
     if not CONTRACTS:
         print(
-            "note: 契约已收口于 docs/api.json；无独立 CONTRACTS 源可合并，直接校验/api.json 完整性。"
+            "note: 契约已收口于 docs/数据与产物/api.json；无独立 CONTRACTS 源可合并，直接校验/api.json 完整性。"
         )
     if not API.exists():
-        print("error: missing docs/api.json")
+        print("error: missing docs/数据与产物/api.json")
         return
 
     api_data = json.loads(API.read_text(encoding="utf-8"))
@@ -73,7 +73,7 @@ def main() -> None:
     api_data["components"] = comps
     api_data["componentCount"] = len(comps)
     API.write_text(json.dumps(api_data, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"checked {len(comps)} components in docs/api.json (touched: {touched})")
+    print(f"checked {len(comps)} components in docs/数据与产物/api.json (touched: {touched})")
     print(f"backup: {bak}")
 
 

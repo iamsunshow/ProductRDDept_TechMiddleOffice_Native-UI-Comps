@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Embed component search_text into docs/embeddings/ and index.json.
+"""Embed component search_text into vector-store/ and index.json.
 
-Source of truth: docs/api.json (single JSON object with a `components` array).
+Source of truth: docs/数据与产物/api.json (single JSON object with a `components` array).
 """
 
 from __future__ import annotations
@@ -14,8 +14,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-API = ROOT / "docs" / "api.json"
-EMB_DIR = ROOT / "docs" / "embeddings"
+API = ROOT / "docs" / "数据与产物" / "api.json"
+EMB_DIR = ROOT / "vector-store"
 INDEX = EMB_DIR / "index.json"
 DIM = 256
 
@@ -78,7 +78,7 @@ def main() -> int:
     EMB_DIR.mkdir(parents=True, exist_ok=True)
     index = {"backend": backend, "dim": len(vectors[0]), "items": []}
     for c, vec in zip(comps, vectors):
-        rel = c.get("embedding_ref") or f"docs/embeddings/{c['id'].replace('.', '_')}.json"
+        rel = c.get("embedding_ref") or f"vector-store/{c['id'].replace('.', '_')}.json"
         path = ROOT / rel
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps({"id": c["id"], "backend": backend, "vector": vec}, ensure_ascii=False), encoding="utf-8")

@@ -1,6 +1,6 @@
 // Image 图片 · 增强版图片容器（Android 顶层函数与 iOS 类同名，跨端调用形式一致）
 //
-// 组件库版本：v1.3.1（契约 `docs/api.json` `ui.image`，门禁 B ✅ 2026-09-03 冻结；v1.3.1=实机问题修复，Android 组件本体无逻辑变更）。
+// 组件库版本：v1.3.1（契约 `docs/数据与产物/api.json` `ui.image`，门禁 B ✅ 2026-09-03 冻结；v1.3.1=实机问题修复，Android 组件本体无逻辑变更）。
 // 能力：fit 五模式 / position 停靠 / width·height / radius（token 档位或任意值，=宽/2 即圆形）/
 // alt 无障碍 / 加载中·失败占位（可自定义）/ onTap·onLoad·onError。
 // 对标 NutUI React Image（增强版 img）；不内置预览（属独立 ImagePreview）。

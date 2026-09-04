@@ -1,0 +1,114 @@
+{
+  "backend": "hash-v1",
+  "dim": 256,
+  "items": [
+    {
+      "id": "ui.empty",
+      "path": "vector-store/ui_empty.json"
+    },
+    {
+      "id": "ui.date-picker-month",
+      "path": "vector-store/ui_date-picker-month.json"
+    },
+    {
+      "id": "ui.date-picker-year",
+      "path": "vector-store/ui_date-picker-year.json"
+    },
+    {
+      "id": "ui.date-picker",
+      "path": "vector-store/ui_date-picker.json"
+    },
+    {
+      "id": "ui.picker",
+      "path": "vector-store/ui_picker.json"
+    },
+    {
+      "id": "ui.webview",
+      "path": "vector-store/ui_webview.json"
+    },
+    {
+      "id": "ui.segmented",
+      "path": "vector-store/ui_segmented.json"
+    },
+    {
+      "id": "ui.cell",
+      "path": "vector-store/ui_cell.json"
+    },
+    {
+      "id": "ui.list",
+      "path": "vector-store/ui_list.json"
+    },
+    {
+      "id": "ui.refresh",
+      "path": "vector-store/ui_refresh.json"
+    },
+    {
+      "id": "ui.navbar",
+      "path": "vector-store/ui_navbar.json"
+    },
+    {
+      "id": "ui.icon",
+      "path": "vector-store/ui_icon.json"
+    },
+    {
+      "id": "ui.grid",
+      "path": "vector-store/ui_grid.json"
+    },
+    {
+      "id": "ui.card",
+      "path": "vector-store/ui_card.json"
+    },
+    {
+      "id": "ui.avatar",
+      "path": "vector-store/ui_avatar.json"
+    },
+    {
+      "id": "ui.progress-circle",
+      "path": "vector-store/ui_progress-circle.json"
+    },
+    {
+      "id": "ui.grid-picker",
+      "path": "vector-store/ui_grid-picker.json"
+    },
+    {
+      "id": "ui.line-chart",
+      "path": "vector-store/ui_line-chart.json"
+    },
+    {
+      "id": "ui.shortcut-bar",
+      "path": "vector-store/ui_shortcut-bar.json"
+    },
+    {
+      "id": "ui.split",
+      "path": "vector-store/ui_split.json"
+    },
+    {
+      "id": "foundation.design-tokens",
+      "path": "vector-store/foundation_design-tokens.json"
+    },
+    {
+      "id": "foundation.router",
+      "path": "vector-store/foundation_router.json"
+    },
+    {
+      "id": "foundation.storage",
+      "path": "vector-store/foundation_storage.json"
+    },
+    {
+      "id": "foundation.http-client",
+      "path": "vector-store/foundation_http-client.json"
+    },
+    {
+      "id": "foundation.money-format",
+      "path": "vector-store/foundation_money-format.json"
+    },
+    {
+      "id": "foundation.calendar",
+      "path": "vector-store/foundation_calendar.json"
+    },
+    {
+      "id": "foundation.system-bars",
+      "path": "vector-store/foundation_system-bars.json"
+    }
+  ]
+}

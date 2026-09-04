@@ -14,13 +14,13 @@
 | 评审人 | 用户（OPC 所有者） |
 | 评审日期 | 2026-09-03 |
 | 评审结论 | ✅ 通过（用户 2026-09-03「继续」确认） |
-| 评审产物位置 | `docs/api.json` `ui.config-provider` 条目（契约单一数据源） |
+| 评审产物位置 | `docs/数据与产物/api.json` `ui.config-provider` 条目（契约单一数据源） |
 
 ---
 
 ## 二、API 评审清单（门禁 B）
 
-> 验收方式：对照 `docs/api.json` `ui.config-provider` 条目逐项检查（契约已拟稿，本评审定稿）。
+> 验收方式：对照 `docs/数据与产物/api.json` `ui.config-provider` 条目逐项检查（契约已拟稿，本评审定稿）。
 
 | # | 检查项 | 结论 |
 |---|--------|------|

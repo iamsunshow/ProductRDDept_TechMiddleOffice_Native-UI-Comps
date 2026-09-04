@@ -14,14 +14,14 @@
 | 评审人 | 用户（OPC 所有者） |
 | 评审日期 | 2026-09-03 |
 | 评审结论 | ✅ 通过（2026-09-03 用户表决冻结 `ui.image`） |
-| 契约位置 | `docs/api.json` `ui.image` 条目（componentCount 30） |
+| 契约位置 | `docs/数据与产物/api.json` `ui.image` 条目（componentCount 30） |
 | 验收文档 | `docs/验收流程/component-acceptance-image.md` |
 
 ---
 
 ## 一、API 评审清单（门禁 B）
 
-> 验收方式：对照 `docs/api.json` `ui.image` 条目与验收文档 A 系列用例，逐项勾选。
+> 验收方式：对照 `docs/数据与产物/api.json` `ui.image` 条目与验收文档 A 系列用例，逐项勾选。
 
 | # | 检查项 | 结论 |
 |---|--------|------|

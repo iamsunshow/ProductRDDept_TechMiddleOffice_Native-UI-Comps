@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SafeArea 安全区 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tok{background:var(--primaryMuted);color:var(--primaryPressed);padding:1px 6px;border-radius:var(--radiusSm);font-size:var(--sizeXs);font-weight:600;}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-na{background:#FEF3C7;color:#92400E;}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.phone{width:180px;border:6px solid #1F2937;border-radius:22px;overflow:hidden;margin:var(--spaceMd) auto;background:var(--bgPage);}
+.screen-status{height:14px;background:#6B7280;display:flex;align-items:flex-end;justify-content:center;color:#fff;font-size:8px;padding-bottom:2px;}
+.area-bad{background:#FEE2E2;color:#B91C1C;font-size:10px;text-align:center;padding:10px 4px;}
+.area-ok{background:#DCFCE7;color:#166534;font-size:10px;text-align:center;padding:10px 4px;}
+.screen-home{height:12px;background:var(--border);display:flex;align-items:center;justify-content:center;position:relative;}
+.area-bad-bottom{background:#FEE2E2;color:#B91C1C;font-size:10px;text-align:center;padding:8px 4px;}
+.area-ok-bottom{background:#DCFCE7;color:#166534;font-size:10px;text-align:center;padding:8px 4px;}
+.diff-row{background:#FEF3C7;}
+</style>
+</head>
+<body>
+
+<h1>SafeArea 安全区 · 设计规格（布局组件 #5 · 任务清单 #10，subcategory=layout · 门禁 A）</h1>
+<p>组件 ID：<code>ui.safe-area</code> ｜ 定位：<b>安全区避让容器——把内容限制在系统安全区（刘海/状态栏/圆角/Home Indicator/手势区）之内</b>，对标 Flutter SafeArea / Android WindowInsets / iOS safeAreaLayoutGuide 的跨端统一封装，让双端页面内容自动避开系统遮挡。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-04，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 页面级内容避让：顶部内容不压状态栏/刘海，底部操作栏不贴 Home Indicator/系统手势区；② 自定义 header/沉浸式页面的安全区留白；③ 横屏圆角遮挡避让；④ 深浅色状态栏随页面内容自绘时，安全区内边距与内容色板分离</td></tr>
+<tr><td>不适用（N/A）</td><td>① 系统栏颜色/图标明暗 → <b>SystemBars（foundation.system-bars）</b>（iOS StatusBarNavigationController / Android ConfigureSystemBars）；② 键盘弹出避让（imePadding）→ 二期候选；③ 安全区内的布局排版 → 页面自身布局职责（Space/Layout 编排）；④ 手势下拉/转场动画适配 → 非组件职责</td></tr>
+<tr><td>五态适配</td><td>纯适配容器，无自身交互与状态。<span class="tag tag-ok">默认态 ✅</span> = 子内容自动位于安全区内。<span class="tag tag-na">点击/禁用/加载/成功/失败 N/A</span></td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]（零视觉 token，仅间距语义）。与 SystemBars 划界：SystemBars=「栏自身」外观（颜色/明暗/透明），SafeArea=「内容避开系统区域」的内边距适配；两者可叠用（页面配置栏色 + 内容套 SafeArea）。双端一致性基础：iOS safeAreaInsets（UIViewController 提供）vs Android WindowInsets.safeDrawing 语义对齐（P3 表决）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>避让数值</td><td>系统 insets（运行时）</td><td>不自定义数值：top=状态栏/刘海高、bottom=Home Indicator/手势区高、left/right=圆角/刘海侧距，全部取系统实时值（iOS safeAreaInsets / Android safeDrawing），机型自适应零硬编码</td></tr>
+<tr><td>容器视觉</td><td>—</td><td>透明 pass-through：零绘制零背景，装饰由子内容承担</td></tr>
+<tr><td>子内容对齐</td><td>规则</td><td>默认贴安全区四边排布（内容从安全区原点起排），与页面布局组件（Layout/Space/Grid）正常嵌套</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件形态：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：容器式 <code>SafeArea { content }</code>（内容自动避让）</td><td>✅ 声明式最简：双端同构 Box 包装（iOS 约束到 safeAreaLayoutGuide / Android windowInsetsPadding）；业务零手写 insets 判断。</td><td><b>推荐 A</b>：覆盖 90% 场景、心智负担最低、双端 1:1 易验证</td></tr>
+<tr><td>B：仅取 insets 值的函数（返回 EdgeInsets 由业务自己 pad）</td><td>灵活但每个调用点都要手动拼 Modifier/padding，业务易漏/混用，失去组件统一语义。</td><td>淘汰：退回手工适配=没有组件</td></tr>
+<tr><td>C：容器 + insets 取值函数双 API</td><td>功能全但一期 API 面积翻倍，insets 取值实际业务多可交由容器内部完成。</td><td>淘汰：容器一期足够，取值函数遇真实诉求再补</td></tr>
+</table>
+
+<h3>P2 · 避让边（edges）模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：可配四边 top/bottom/left/right（默认全边）</td><td>✅ 对齐 Flutter SafeArea 语义；沉浸式顶栏/底栏等需要"只避单边"的真实页面可显式裁剪。</td><td><b>推荐 A</b>：默认全边零参数，特殊页显式裁剪</td></tr>
+<tr><td>B：仅 top+bottom 二档（仿 antd-mobile SafeArea position）</td><td>行业有先例但忽略刘海横屏 left/right 圆角场景，且竖屏全边默认即 top+bottom，裁剪需求少。</td><td>淘汰：antd 是 Web 壳场景，原生需四边覆盖</td></tr>
+<tr><td>C：不分边，强制四边</td><td>API 最简但沉浸式页面（如 tab 底部自绘背景）无法只避底/只避顶。</td><td>淘汰：缺少裁剪入口会导致业务绕过组件手写</td></tr>
+</table>
+
+<h3>P3 · Android insets 数据源：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：<span class="tok">WindowInsets.safeDrawing</span>（statusBars+navigationBars+displayCutout 聚合）</td><td>✅ 一次覆盖状态栏/刘海/手势条/圆角，随系统变化自动更新，Compose 官方推荐聚合源。</td><td><b>推荐 A</b>：语义即"安全区"，与 iOS safeAreaInsets 对齐</td></tr>
+<tr><td>B：手动 statusBars+navigationBars 组合</td><td>漏 displayCutout（刘海/挖孔）在部分机型会压字。</td><td>淘汰：组合易漏项</td></tr>
+<tr><td>C：安全区全由系统 Activity 主题处理</td><td>与沉浸式自绘需求冲突，无法页面级控制。</td><td>淘汰：组件语义需要代码级可控</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：一期仅容器式安全区避让（top/bottom 为主，四边可配）</td><td>✅ 覆盖页面级/沉浸式/底栏全部一期场景；键盘避让与横屏动画等登记二期候选。</td><td><b>推荐 A</b>：一期克制、双端同构、可即时验收</td></tr>
+<tr><td>B：一期追加键盘 imePadding 避让</td><td>Android imePadding 现成但 iOS 需键盘通知联动，双端不对称且键盘场景与"安全区"语义分属两件事。</td><td>淘汰：键盘避让另行立项（ui.keyboard 类）</td></tr>
+<tr><td>C：一期提供 SafeAreaInsetsProvider 全局注入（可测试性）</td><td>为单测抽象但组件库一期无单测基线，抽象成本>收益。</td><td>淘汰：登记二期（C1 单测补建时再引入注入点）</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 顶部避让对照（默认态 vs 无避让）</h3>
+<p>页面顶部内容套 SafeArea 后从安全区下开始；对照区展示不避让时文字压入状态栏（红色警示）的差异。</p>
+<div class="phone"><div class="screen-status">刘海 / 状态栏区域</div><div class="area-bad">✗ 无 SafeArea：文字压入状态栏</div><div class="area-ok">✓ SafeArea 容器内：内容从安全区开始</div><div class="screen-home"><span style="width:44px;height:4px;background:#9CA3AF;border-radius:2px;"></span></div></div>
+
+<h3>D2 · 底部避让（底部操作条不贴 Home Indicator）</h3>
+<p>底部固定操作条套 SafeArea 后自动让出 Home Indicator/手势区；下方给出避让留白示意。</p>
+<div class="phone"><div class="screen-status">状态栏区域</div><div style="background:var(--bgCard);padding:var(--spaceMd);font-size:11px;text-align:center;">页面内容……</div><div class="area-ok-bottom">✓ 操作条（SafeArea 内，已避让）</div><div class="area-bad-bottom">✗ 无避让：操作条压手势区</div></div>
+
+<h3>D3 · 沉浸式页面四边避让</h3>
+<p>深色沉浸 header（延伸全屏自绘）+ 内容套 SafeArea 的组合：头部避开状态栏与刘海、底部避开 Home Indicator，内容区正常排版。</p>
+
+<h3>D4 · 边裁剪（仅 top / 仅 bottom）</h3>
+<p>同一容器分别以仅避顶（顶部有自绘背景的 header 全屏出血，文字在安全区下）与仅避底（底部自绘 tab 栏背景贴边、内容上移）演示 edges 裁剪入口。</p>
+</div>
+
+<h2>05 · 平台差异预告</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>差异说明</th></tr>
+<tr class="diff-row"><td>数据源</td><td>UIViewController.safeAreaInsets（safeAreaLayoutGuide）</td><td>WindowInsets.safeDrawing（聚合）</td><td>系统原生差异；均由系统实时计算，数值不可硬编码</td></tr>
+<tr class="diff-row"><td>容器实现</td><td>SafeAreaView：普通 UIView，内部按 superview 的 safeAreaLayoutGuide 约束子内容四边（edges 可裁剪）</td><td>SafeArea(edges){ content } = Box(Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(edges)))</td><td>仅框架层差异，对外语义一致（edges 位掩码对齐）</td></tr>
+<tr><td>edges 表示</td><td>OptionSet&lt;Edge&gt;（top/bottom/left/right）</td><td>Set&lt;SafeAreaEdges&gt;（枚举值）</td><td>枚举语义一一对应</td></tr>
+<tr><td>命名</td><td>SafeAreaView（iOS 已有 UIKit 类冲突规避？无同名——组件用 SafeArea 别名类名若冲突则 SafeAreaView）</td><td>SafeArea（Compose 无内置同名）</td><td>P1 表决后统一双端命名</td></tr>
+</table>
+</div>
+
+<h2>06 · API 速览（门禁 B 冻结前草案）</h2>
+<div class="spec-card">
+<table>
+<tr><th>类别</th><th>名称</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>Props</td><td>edges</td><td>top/bottom/left/right 集合</td><td>否</td><td>避让边，默认四边全避</td></tr>
+<tr><td>Children</td><td>—</td><td>任意内容（1 个容器子内容）</td><td>—</td><td>容器子内容套安全区内边距排布</td></tr>
+<tr><td>事件</td><td>—</td><td>—</td><td>—</td><td>无事件；insets 变化由系统触发重排（自动）</td></tr>
+</table>
+<p style="font-size:var(--sizeXs);color:var(--textSecondary);">使用示例（草案）：<code>SafeAreaView(edges: [.top, .bottom]) { 页面内容 }</code> / <code>SafeArea(edges = setOf(SafeAreaEdges.Top, SafeAreaEdges.Bottom)) { 页面内容 }</code></p>
+</div>
+
+<h2>07 · 门禁 A 验收清单（A1–A7）</h2>
+<div class="spec-card">
+<table>
+<tr><th>编号</th><th>检查项</th><th>结论（填 ☑️/☐）</th></tr>
+<tr><td>A1</td><td>组件定位与边界（适用/N/A/五态/与 SystemBars 划界）</td><td>☐</td></tr>
+<tr><td>A2</td><td>Token 引用零硬编码（insets 全取系统实时值）</td><td>☐</td></tr>
+<tr><td>A3</td><td>关键决策 P1–P4 表决</td><td>☐</td></tr>
+<tr><td>A4</td><td>Demo 4 组排查双端 1:1（D1 顶部对照 / D2 底部操作条 / D3 沉浸四边 / D4 边裁剪）</td><td>☐</td></tr>
+<tr><td>A5</td><td>双端实现现状核对（全新立项：api.json 无 ui.safe-area；Android 无同名、iOS 需规避 UIKit SafeArea 类名）</td><td>☐</td></tr>
+<tr><td>A6</td><td>已知差异表内登记（数据源 safeDrawing vs safeAreaInsets 放行）</td><td>☐</td></tr>
+<tr><td>A7</td><td>anti_goals 排除（不做栏外观/键盘避让/动画适配/取值函数一期）</td><td>☐</td></tr>
+</table>
+</div>
+
+</body>
+</html>

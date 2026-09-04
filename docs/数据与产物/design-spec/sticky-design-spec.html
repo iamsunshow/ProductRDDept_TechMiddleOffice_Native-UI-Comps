@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sticky 粘性布局 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tok{background:var(--primaryMuted);color:var(--primaryPressed);padding:1px 6px;border-radius:var(--radiusSm);font-size:var(--sizeXs);font-weight:600;}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-na{background:#FEF3C7;color:#92400E;}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.viewport{position:relative;background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusLg);padding:0;margin:var(--spaceMd) 0;overflow:hidden;}
+.sticky-bar{background:var(--primaryMuted);color:var(--primaryPressed);font-weight:600;font-size:var(--sizeSm);padding:6px 12px;display:flex;justify-content:space-between;position:sticky;top:0;z-index:2;}
+.sticky-bar.alt{background:#EEF2FF;color:#3730A3;}
+.row-item{display:flex;justify-content:space-between;padding:8px 12px;font-size:var(--sizeSm);border-top:1px solid #F3F4F6;}
+.row-item .k{color:var(--textSecondary);font-size:var(--sizeXs);}
+.pin-box{background:#FEF3C7;border:1px dashed #F59E0B;color:#92400E;font-size:var(--sizeXs);text-align:center;padding:6px;border-radius:var(--radiusSm);}
+.diff-row{background:#FEF3C7;}
+</style>
+</head>
+<body>
+
+<h1>Sticky 粘性布局 · 设计规格（布局组件 #6 · 任务清单 #12，subcategory=layout · 门禁 A）</h1>
+<p>组件 ID：<code>ui.sticky</code> ｜ 定位：<b>粘性容器——把一行内容在父滚动容器滚动时固定在可视区顶部</b>，对标 Web position:sticky / Android LazyColumn stickyHeader / iOS UITableView 浮动 section header 的跨端封装。用于「分组列表的分组标题吸顶」「筛选条吸顶」「表头吸顶」等需在滚动中保持可见的标题类行内容。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-04，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 分组列表（账单/联系人/通讯录按日期/首字母分组的组标题在滚动时吸顶）；② 筛选/排序条随内容滚动吸顶；③ 数据表头（列头在长列表滚动时吸顶）；④ 长表单章节标题吸顶提示当前位置</td></tr>
+<tr><td>不适用（N/A）</td><td>① 悬浮操作类（回到顶部/发布按钮等全局悬浮层）→ <b>BackTop（ui.back-top）/HoverButton（ui.hover-button）</b>；② 底部操作栏固定 → 页面级 bottomBar（Tabbar/自绘）而非内容吸顶；③ 侧边导航吸顶 → SideBar（ui.side-bar）；④ 内容不滚动的单屏布局 → 无需粘性</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> = 未滚到顶：随内容流正常排布；<span class="tag tag-ok">吸顶态 ✅</span> = 滚过原点：钉在滚动容器可视区顶部。点击/禁用/加载/成功/失败 N/A（吸顶条自身交互由内容承担）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]（视觉走内容组件自身 token，Sticky 只负责"吸顶行为"）。与 Space/Layout/Grid 划界：布局组件管"静态排布"，Sticky 管"滚动中保持可见"。可为 Cell 分组列表、Grid 宫格页、Layout 表单行的组标题提供吸顶外层。Divider 可作为吸顶条内部分隔或列表行间分隔复用</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>吸顶条视觉</td><td>内容组件自含</td><td>Sticky 为行为容器不提供视觉：背景/圆角/阴影/文字由吸顶条内容（如 Cell/标签+按钮行）自带</td></tr>
+<tr><td>吸顶偏移（offset）</td><td>数字 pt/dp（默认 0）</td><td>吸顶位置距滚动容器顶部的偏移（如需要给 AppBar 让位时传入）</td></tr>
+<tr><td>层级（z 序）</td><td>规则</td><td>吸顶后需浮于滚动内容之上（高于普通行内容 z 序）</td></tr>
+<tr><td>吸顶后阴影/底色变化</td><td>一期不做</td><td>吸顶态与常态视觉一致（除位置外不变式）——变化样式登记二期（避免一期状态样式蔓延）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 一期形态：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：单吸顶行封装——列表/滚动容器内嵌 StickyItem（原生 stickyHeader 或 offset 监听）</td><td>✅ 覆盖「分组标题吸顶」核心场景；Android LazyColumn stickyHeader 原生、iOS 监听 contentOffset 改 pinned 约束，双端可行且一致。</td><td><b>推荐 A</b>：一期克制，覆盖分组列表与筛选条两大高频诉求</td></tr>
+<tr><td>B：任意内容多级 sticky（多个不同高度吸顶块互相替换）</td><td>iOS 需复杂 z 序管理+多 pinned 约束切换，成本数倍且业务场景（多级分组+替换动画）当前未出现。</td><td>淘汰：登记二期候选（多 sticky 段逐节替换）</td></tr>
+<tr><td>C：Web position:sticky 语义完整复刻（含 bottom 吸底、粘在容器边界内）</td><td>端上原生无此语义，iOS 自实现成本高收益低。</td><td>淘汰：端上场景以 top 吸顶为主</td></tr>
+</table>
+
+<h3>P2 · 承载滚动容器：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：Sticky 面向「列表容器」（LazyColumn / TableView / UICollectionView / 自管 UIScrollView）通用提供</td><td>✅ 列表型（分组标题）是绝对主流；组件内部区分列表原生 sticky 能力与通用滚动监听两条实现路径，对外 API 单一。</td><td><b>推荐 A</b>：覆盖列表+通用滚动两大形态</td></tr>
+<tr><td>B：仅列表 stickyHeader 模式（Android LazyColumn / iOS TableView section header）</td><td>实现最简（双端皆原生），但 UIScrollView 型长页（表单章节标题/长文小标题吸顶）无解。</td><td>淘汰：砍掉通用滚动场景则组件价值减半</td></tr>
+<tr><td>C：仅通用滚动监听模式（双端统一 offset 驱动）</td><td>列表用也要手接 offset，违背"分组标题吸顶开箱即用"。</td><td>淘汰：反直觉</td></tr>
+</table>
+
+<h3>P3 · iOS 实现路径：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：pinned 约束方案——内容随滚动容器平移，Sticky 监听 contentOffset，命中阈值即把吸顶块从滚动内容平移为钉在容器顶部（约束/ frame 切换 + z 序提升）</td><td>✅ 不依赖 TableView/CollectionView 特定结构，可包装任意可滚动内容的普通视图容器，与 Android「滚动容器 + stickyHeader」语义对应。</td><td><b>推荐 A</b>：demo 用 UIScrollView 验证，行为确定</td></tr>
+<tr><td>B：UITableView sectionHeader 原生浮动</td><td>仅列表可用、行为受系统 section 模型约束（必须整节数据驱动），无法承载自定义筛选条等非行内容。</td><td>淘汰：场景面窄</td></tr>
+<tr><td>C：UICollectionView 自定义 layout（layoutAttributes zIndex）</td><td>性能最优但实现复杂度高，且只覆盖 collection 型。</td><td>淘汰：一期用不上（二期多段 sticky 时再评估）</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：单吸顶点 + offset + 双端各一条 demo 路径（iOS 通用滚动 pinned / Android LazyColumn stickyHeader + UIScrollView pinned 对照）</td><td>✅ 四个 demo 段可控、可实机 1:1 验收；吸顶态视觉不变式一期。</td><td><b>推荐 A</b>：范围收敛、先跑通行为再谈样式</td></tr>
+<tr><td>B：一期追加吸顶态样式（阴影/底色加深/边线）</td><td>需要状态分发与样式 token，双端状态语义新增（吸顶态埋点与测试面积扩大）。</td><td>淘汰：登记二期</td></tr>
+<tr><td>C：一期追加多吸顶段（各分组各吸顶）</td><td>iOS 多 pinned 切换复杂度陡增。</td><td>淘汰：登记二期候选（P1-B）</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 分组列表标题吸顶（列表原生路径）</h3>
+<p>账单分组列表：多分组（今天/昨天/本周），组标题在滚动中吸顶、下一组标题顶入替换。</p>
+<div class="viewport" style="max-height:220px;overflow-y:auto;">
+  <div class="sticky-bar">今天 <span>共 3 笔 · ¥126</span></div>
+  <div class="row-item"><span class="k">餐饮</span><span>-¥32</span></div>
+  <div class="row-item"><span class="k">交通</span><span>-¥18</span></div>
+  <div class="row-item"><span class="k">购物</span><span>-¥76</span></div>
+  <div class="sticky-bar alt">昨天 <span>共 2 笔 · ¥94</span></div>
+  <div class="row-item"><span class="k">餐饮</span><span>-¥58</span></div>
+  <div class="row-item"><span class="k">娱乐</span><span>-¥36</span></div>
+  <div class="sticky-bar">本周更早 <span>共 5 笔 · ¥420</span></div>
+  <div class="row-item"><span class="k">房租</span><span>-¥300</span></div>
+  <div class="row-item"><span class="k">日用</span><span>-¥120</span></div>
+</div>
+
+<h3>D2 · 筛选条吸顶（通用滚动容器路径）</h3>
+<p>长列表页顶部筛选/排序条（全部/收入/支出 pill 组 + 时间）随内容上滚钉在顶部，列表行从吸顶条下方穿过。</p>
+<div class="viewport" style="max-height:200px;overflow-y:auto;">
+  <div class="sticky-bar" style="justify-content:flex-start;gap:8px;">筛选：全部 ｜ 收入 ｜ 支出</div>
+  <div class="row-item"><span class="k">09-01</span><span>餐饮 -¥32</span></div>
+  <div class="row-item"><span class="k">09-02</span><span>工资 +¥12,000</span></div>
+  <div class="row-item"><span class="k">09-03</span><span>交通 -¥18</span></div>
+  <div class="row-item"><span class="k">09-04</span><span>购物 -¥76</span></div>
+</div>
+
+<h3>D3 · offset 让位（吸顶条贴于顶部固定 AppBar 之下）</h3>
+<p>容器顶部先有固定 AppBar（浅灰块），Sticky 吸顶时停在 AppBar 下方（offset=AppBar 高），不遮挡 AppBar。</p>
+<div class="viewport" style="max-height:200px;overflow-y:auto;">
+  <div style="background:#E5E7EB;color:#374151;font-size:11px;text-align:center;padding:10px;position:sticky;top:0;z-index:1;">固定 AppBar（高 34）</div>
+  <div class="sticky-bar" style="top:34px;">吸顶标题（offset 34，停 AppBar 下方）</div>
+  <div class="row-item"><span class="k">09-04</span><span>餐饮 -¥32</span></div>
+  <div class="row-item"><span class="k">09-04</span><span>购物 -¥76</span></div>
+</div>
+
+<h3>D4 · 吸顶行内容任意性（Cell/标签+按钮，非仅文本标题）</h3>
+<p>吸顶条内容为可交互行（icon+文字+右侧按钮），验证 Sticky 只是行为容器、内容可任意编排，滚动中整行吸顶且按钮可点。</p>
+<div class="viewport" style="max-height:200px;overflow-y:auto;">
+  <div class="sticky-bar" style="align-items:center;">🗂 本月账单汇总 <span style="background:#16A34A;color:#fff;border-radius:999px;padding:2px 10px;font-size:11px;">导出</span></div>
+  <div class="row-item"><span class="k">收入</span><span>+¥18,240</span></div>
+  <div class="row-item"><span class="k">支出</span><span>-¥7,960</span></div>
+</div>
+</div>
+
+<h2>05 · 平台差异预告</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>差异说明</th></tr>
+<tr class="diff-row"><td>列表路径</td><td>UIScrollView 容器 + pinned 平移方案（P3-A）</td><td>LazyColumn + Modifier.stickyHeader / 或 Column+offset 监听</td><td>原生能力差异；对外均为「滚动容器 + Sticky 内容块」</td></tr>
+<tr class="diff-row"><td>实现引擎</td><td>contentOffset 监听 → 吸顶块约束/位置切换</td><td>LazyLayout 自带 sticky 语义（无需自算）</td><td>行为对齐（吸顶位置/替换时序）</td></tr>
+<tr><td>offset 支持</td><td>手动传入（pt）</td><td>stickyHeader 下方留位或 topPadding</td><td>语义一致：吸顶点偏移量</td></tr>
+<tr><td>命名</td><td>StickyView / StickyHeaderContainer</td><td>Sticky / StickyHeaderItem</td><td>双端同名 Sticky 前缀统一（P1 表决后定）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 速览（门禁 B 冻结前草案）</h2>
+<div class="spec-card">
+<table>
+<tr><th>类别</th><th>名称</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>Props</td><td>offset</td><td>CGFloat/Dp</td><td>否</td><td>吸顶位置距滚动容器顶偏移（默认 0）</td></tr>
+<tr><td>Slot</td><td>content（header 内容）</td><td>任意 View/Composable</td><td>是</td><td>吸顶行内容（Cell/标签+按钮/任意自绘行）</td></tr>
+<tr><td>容器</td><td>host（滚动容器）</td><td>UIScrollView 子类 / LazyColumn 等</td><td>是</td><td>Sticky 绑定的滚动宿主（用于监听 offset / 提供 sticky 语义）</td></tr>
+<tr><td>事件</td><td>onStickChange</td><td>回调 (Bool)</td><td>否</td><td>吸顶态切换回调（一期登记，供业务埋点/UI 反馈，不参与视觉）</td></tr>
+</table>
+<p style="font-size:var(--sizeXs);color:var(--textSecondary);">使用示例（草案）：<code>StickyView(host: scrollView, offset: 0) { 标题行 }</code> / <code>item(key=分组) { StickyHeaderItem(offset=0.dp) { 标题行 } }</code></p>
+</div>
+
+<h2>07 · 门禁 A 验收清单（A1–A7）</h2>
+<div class="spec-card">
+<table>
+<tr><th>编号</th><th>检查项</th><th>结论（填 ☑️/☐）</th></tr>
+<tr><td>A1</td><td>组件定位与边界（适用/N/A/五态/与 BackTop/HoverButton/SideBar 划界）</td><td>☐</td></tr>
+<tr><td>A2</td><td>Token 引用零硬编码（吸顶条视觉由内容自带，offset 显式传参）</td><td>☐</td></tr>
+<tr><td>A3</td><td>关键决策 P1–P4 表决</td><td>☐</td></tr>
+<tr><td>A4</td><td>Demo 4 组排查双端 1:1（D1 分组标题 / D2 筛选条 / D3 offset 让位 / D4 吸顶行内容任意）</td><td>☐</td></tr>
+<tr><td>A5</td><td>双端实现现状核对（全新立项：api.json 无 ui.sticky；命名 Sticky 前缀双端同名）</td><td>☐</td></tr>
+<tr><td>A6</td><td>已知差异表内登记（列表路径原生能力差异放行）</td><td>☐</td></tr>
+<tr><td>A7</td><td>anti_goals 排除（不做多级 sticky/吸底/吸顶态样式一期/悬浮操作类）</td><td>☐</td></tr>
+</table>
+</div>
+
+</body>
+</html>

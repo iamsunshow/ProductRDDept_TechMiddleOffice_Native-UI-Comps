@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-09-04T07:32:00+08:00",
+  "updatedAt": "2026-09-04T23:50:00+08:00",
   "componentCount": 30,
   "components": [
     {
@@ -1636,6 +1636,57 @@
       "note": "横向弹性分栏容器（Row/Col 12 栅格，与 Grid 等分宫格互补=按任意内容比例分栏如统计双栏卡/详情 label-value 行）。v1.0 门禁 A 评审通过（2026-09-04 用户 P1–P4 全票 A：Row/Col 双组件 + 12 栅格 + gutter 默认 AppSpace.md + 一期单行 wrap 二期）+ C1.5 用户 Demo 实机验收通过（2026-09-04）：修复 iOS Demo1/4 右缘溢出（行宽分配未扣 gutter→(行宽−间距总和)×span/12 与 Compose spacedBy+weight 同构）+ iOS Demo3 药丸文字居中（makePill textAlignment=.center）；组件源码已入库（子仓 f254156，修复 dadaf09/ae39dbb 已合）。待 C1 单测补建 + C2 CR/CI + D 发版。双端 reviewed=true。",
       "subcategory": "layout",
       "reviewed": true
+    },
+    {
+      "id": "ui.safe-area",
+      "name": "安全区 SafeArea",
+      "category": "ui",
+      "summary": "内容避让系统安全区（刘海/状态栏/圆角/Home Indicator/手势区）的容器，对标 Flutter SafeArea / Android WindowInsets / iOS safeAreaLayoutGuide",
+      "capabilities": [
+        "安全区避让",
+        "刘海避让",
+        "Home Indicator 避让",
+        "沉浸式页面内容避让",
+        "SafeArea",
+        "SafeAreaView",
+        "安全区"
+      ],
+      "platforms": {
+        "ios": { "state": "available", "note": "SafeAreaView.swift（safeAreaLayoutGuide 锚定 + edges 可配）" },
+        "android": { "state": "available", "note": "SafeArea.kt（WindowInsets.safeDrawing + edges 可配）" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/SafeAreaView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/SafeArea.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": ["系统栏颜色/图标明暗（SystemBars 职责）", "键盘避让 imePadding（二期候选）", "自定义避让数值（全取系统实时 insets）", "旋转/转场动画适配"],
+      "visual_tokens": [],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "ui.safe-area 安全区 SafeArea SafeAreaView 刘海 状态栏 Home Indicator 手势区 沉浸式 避让 safe area insets 安全区容器",
+      "embedding_ref": "",
+      "legacy_id": "ui.safe-area",
+      "industry_names": ["SafeArea"],
+      "props": [
+        ["edges", "top | bottom | left | right 集合", "否", "避让边（默认四边全避）"],
+        ["content", "View/Composable", "是", "需要避让的内容"]
+      ],
+      "events": [],
+      "demos": [
+        ["SafeArea 容器默认全边", "<SafeAreaView /> 内容自动贴安全区"],
+        ["顶部避让对照", "SafeArea 内内容从安全区开始 vs 无避让压状态栏"],
+        ["沉浸式页面四边避让", "深色 header 全屏出血 + SafeArea 内容层"],
+        ["edges 边裁剪", "SafeAreaView(edges: [.top]) / SafeArea(edges=setOf(Top))"]
+      ],
+      "note": "安全区避让容器（内容自动贴系统安全区四边排布，避让值取系统实时 insets 零硬编码）。2026-09-04 全新立项：门禁 A AI 代评通过（用户'中间任何询问直接通过'总授权，P1–P4 全 A：容器式 + edges 四边可配默认全边 + Android safeDrawing 聚合源 + 一期仅容器式避让）+ 双端实现入库（SafeAreaView.swift / SafeArea.kt + 双端 Demo 4 段 1:1：D1 真实组件 / D2 顶部语义对照 / D3 沉浸四边 / D4 edges 裁剪，Android :app:assembleDebug 0 error）。iOS 工程受预存 SPM 依赖阻塞未本机编译，iOS 实机验证待用户 Xcode 确认。待 C1 单测 + C1.5 用户实机 + C2 CR/CI + D 发版。reviewed=false（未用户实机验收）。",
+      "subcategory": "layout",
+      "reviewed": false
     },
     {
       "id": "ui.space",

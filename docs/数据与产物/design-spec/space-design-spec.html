@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Space 间距 · 设计规格（门禁 A）</title>
+<link rel="stylesheet" href="./design-spec.css" />
+<script src="./design-spec.js" defer></script>
+<style>
+:root{
+  --primary:#16A34A; --primaryMuted:#DCFCE7; --primaryPressed:#15803D;
+  --textPrimary:#111827; --textSecondary:#6B7280; --textInverse:#FFFFFF;
+  --border:#E5E7EB; --bgPage:#F9FAFB; --bgCard:#FFFFFF;
+  --warning:#F59E0B; --error:#DC2626;
+  --radiusSm:6px; --radiusMd:10px; --radiusLg:14px; --radiusFull:999px;
+  --spaceXs:4px; --spaceSm:8px; --spaceMd:12px; --spaceLg:16px; --spaceXl:24px;
+  --sizeXs:12px; --sizeSm:14px; --sizeMd:16px; --sizeLg:18px; --sizeXl:22px;
+}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}
+h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}
+h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tok{background:var(--primaryMuted);color:var(--primaryPressed);padding:1px 6px;border-radius:var(--radiusSm);font-size:var(--sizeXs);font-weight:600;}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}
+.tag-na{background:#FEF3C7;color:#92400E;} .tag-ok{background:#DCFCE7;color:#166534;} .tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}
+th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}
+th{background:#F3F4F6;text-align:left;}
+/* Space demo 预览：flex 模拟（gap = 对应档位） */
+.sp-box{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusLg);padding:var(--spaceLg);margin:var(--spaceSm) 0;}
+.sp-row{display:flex;flex-wrap:nowrap;align-items:center;}
+.sp-col{display:flex;flex-direction:column;}
+.gap-xs{gap:4px;} .gap-sm{gap:8px;} .gap-md{gap:12px;} .gap-lg{gap:16px;} .gap-xl{gap:24px;}
+.sp-item{display:inline-flex;align-items:center;gap:6px;background:#F3F4F6;border-radius:var(--radiusMd);padding:6px 10px;font-size:var(--sizeSm);white-space:nowrap;}
+.sp-item.primary{background:var(--primaryMuted);color:var(--primaryPressed);font-weight:600;}
+.sp-ico{width:16px;height:16px;border-radius:5px;background:var(--primary);display:inline-block;}
+.sp-ico.alt{background:#818CF8;}
+.sp-ico.txt{background:#94A3B8;}
+.sp-chip{background:#EEF2FF;color:#3730A3;border-radius:var(--radiusFull);padding:2px 10px;font-size:var(--sizeXs);}
+.sp-line{display:flex;align-items:center;justify-content:space-between;background:#F9FAFB;border:1px solid var(--border);border-radius:var(--radiusSm);padding:8px 10px;font-size:var(--sizeSm);}
+.sp-line .k{color:var(--textSecondary);font-size:var(--sizeXs);}
+.sp-caption{font-size:var(--sizeXs);color:var(--textSecondary);margin:2px 0 6px;}
+.sp-ctrl{display:inline-flex;align-items:center;gap:var(--spaceSm);margin:var(--spaceSm) 0;}
+.sp-toggle{font-size:var(--sizeXs);color:var(--textSecondary);}
+.diff-row{background:#FEF3C7;}
+</style>
+</head>
+<body>
+
+<h1>Space 间距 · 设计规格（布局组件 #4 · 任务清单 #11，subcategory=layout · 门禁 A）</h1>
+<p>组件 ID：<code>ui.space</code> ｜ 定位：<b>纯间距容器（一组任意子内容按统一档位间距排布，水平/垂直）</b>，对标 Ant Design Space 的轻量版。用于「icon+文字工具组、chip 操作组、卡片间隔、表单块纵向间距、多行条目间距」等只需统一间距、无比例诉求的场景。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-04，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 工具/操作组（「记一笔」「扫一扫」「分享」等 icon+文字横向组，间距默认紧凑 8）；② chip 筛选/标签组（横向一排，sm 8）；③ 两张卡片/区块之间的显式间距（如 lg=16/xl=24）；④ 表单或详情纵向堆叠的多行文本/条目（vertical 方向，md/lg 档）；⑤ 图标+文字水平单元组（同一单元内部再规整间距）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 需要按比例分栏（1:1 / 4+8）→ <b>Layout（ui.layout）</b>；② 等分宫格入口矩阵 → <b>Grid（ui.grid）</b>；③ 整行列表项/可点容器 → <b>Cell（ui.cell）</b>；④ 任意两点间距（margin/padding 单次需求）→ 直接用 <span class="tok">AppSpace</span> token 排版即可（不必包 Space）；⑤ 分隔线 → <b>Divider（ui.divider）</b>（Space 不做 split 分隔符，一期裁剪见 P4）</td></tr>
+<tr><td>五态适配</td><td>Space 为「纯间距容器」，无自身交互与状态。<span class="tag tag-ok">默认态 ✅</span> = 子项按 direction/size 均匀排布、首尾无 padding。<span class="tag tag-na">点击/禁用/加载/成功/失败 N/A</span>（子项自身状态由内容组件承担）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]（AppSpace）零硬编码。与 Layout 划界：Layout=比例分栏（span 体系，面向「按比例分配宽」），Space=统一间距（面向「等比/自然宽子项只需间距」）。LayoutRow 内部子项间隔用 gutter，Space 只管理子项排布不承载比例；两者可嵌套（Layout Col 内放 Space 组 / Space 子项放 Layout 行）。与 Divider 互补：需要「内容 + 分隔线」交替用 split 的场景一期交 Divider 文本模式或子项自含，Space 不内建分隔符</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/颜色/圆角 Token 规格（零硬编码，引用 design-token.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>数值</th><th>说明</th></tr>
+<tr><td>子项间距（size）</td><td><span class="tok">AppSpace.xs~xl</span></td><td>4/8/12/16/24</td><td>相邻子项统一间距（首尾无 padding）；默认档位待 P3 表决</td></tr>
+<tr><td>排布方向</td><td>规则</td><td>horizontal / vertical</td><td>水平=一行从左到右；垂直=一列从上到下。direction 由调用方传入，默认 horizontal（P1 表决后定）</td></tr>
+<tr><td>子项对齐</td><td>规则</td><td>水平=顶部对齐；垂直=起始侧（左）对齐</td><td>一期固定（对齐由内容自身高度/宽度自然决定，Space 不拉伸子项）；center 对齐 / 两端铺满二期候选</td></tr>
+<tr><td>容器背景/边框/圆角/文本</td><td>—</td><td>透明 / 无</td><td>Space 为 pass-through 容器：零绘制零自有文本，装饰由子项内容承担</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，待用户门禁 A 表决）</h2>
+<div class="spec-card">
+
+<h3>P1 · 方向支持：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：单组件 + direction 双向（horizontal / vertical）</td><td>✅ 一个 API 覆盖「横向工具组」与「纵向条目堆叠」两类高频场景；与 Ant Design Space 对齐；双端实现 = iOS UIStackView.axis / Android Row|Column，成本低。</td><td><b>推荐 A</b>：覆盖最广、API 最简、双端同构</td></tr>
+<tr><td>B：仅 horizontal（一期）</td><td>砍掉纵向需求（表单/详情多行间距等），但业务侧会退回手动加 padding/margin 逐行处理，间距失去统一档位约束。</td><td>淘汰：纵向堆叠间距是高频诉求，只做横向价值减半</td></tr>
+<tr><td>C：双容器 SpaceH / SpaceV（按方向分两个类）</td><td>免 direction 参数但多一个类型；Android 声明式里 lambda scope（RowScope/ColumnScope）更明确，但双端命名/心智成本高于单组件。</td><td>淘汰：单组件 + direction 足够，双类过度设计</td></tr>
+</table>
+
+<h3>P2 · size 档位模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：AppSpace 五档枚举（xs/sm/md/lg/xl）</td><td>✅ 间距档位与全库 token 对齐（4/8/12/16/24），跨组件节奏一致、可读性强；超纲需求（如 20）业务应回到 token 决策而非在 Space 造数。</td><td><b>推荐 A</b>：档位约束防止「每个页面一个间距」的漂移</td></tr>
+<tr><td>B：三档裁剪（sm/md/lg）</td><td>选项更少但 xs（贴紧 4）与 xl（区块级 24）两类真实场景无档可用，会退回硬编码。</td><td>淘汰：裁剪反致越权硬编码</td></tr>
+<tr><td>C：纯数字 Dp/pt（任意数值）</td><td>最灵活但失去档位约束：页面间 9/10/11 漂移，且与 Layout gutter 档位语义不统一。</td><td>淘汰：无约束即无设计系统</td></tr>
+</table>
+
+<h3>P3 · size 默认值：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：默认 <span class="tok">AppSpace.sm</span>=8</td><td>✅ 与 Ant Design Space 默认 small=8 对齐；Space 语义=紧凑内容组（icon+文字工具行 / chip 组 / 双按钮行），默认即常用；需宽间隔（卡片间距/纵向表单块）时业务显式传 md/lg/xl。</td><td><b>推荐 A</b>：紧凑默认贴合 Space 最常见用法，Ant 生态对齐降低认知</td></tr>
+<tr><td>B：默认 <span class="tok">AppSpace.md</span>=12</td><td>与 Layout gutter 默认一致（页面级节奏 12），但 Space 工具组默认 12 偏松（两组按钮间距 12 视觉散），多数调用仍需传 sm。</td><td>淘汰：默认 md 会令高频紧凑场景多写参数</td></tr>
+<tr><td>C：默认 lg=16</td><td>偏宽松，工具组/文本行默认 16 过散。</td><td>淘汰：默认过松与 Space 紧凑语义冲突</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪（wrap 换行 / split 分隔符）：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：一期仅 direction + size（wrap / split 均登记二期候选）</td><td>✅ 覆盖工具组/条目堆叠/区块间隔全部一期场景；实现 = iOS UIStackView / Android Row|Column（原生能力），双端零差异；chips 自动折行与「内容/分隔线交替」两类场景出现真实诉求后再立项。</td><td><b>推荐 A</b>：一期克制，双端一致，二期候选已登记</td></tr>
+<tr><td>B：一期追加 wrap（子项超宽自动折行）</td><td>Android FlowRow 现成，但 iOS 需自实现流式布局（UIStackView 不支持 wrap）→ 双端实现不对称、风险与工期高。</td><td>淘汰：iOS 成本高且属 chips 流式独立场景（届时立项论证）</td></tr>
+<tr><td>C：一期追加 split（子项间插入分隔符，如 "/"、竖线）</td><td>「面包屑」「多段日期」「a/b/c」类好看，但需分隔视图类型设计与内容/间距联动；现有 Divider 文本模式可近似，且此类场景当前业务未出现。</td><td>淘汰：无真实诉求不预埋复杂 API；登记二期候选</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 水平 icon+文字 工具组（size=sm 8）</h3>
+<p>「记一笔 / 扫一扫 / 账单 / 设置」四个 icon+label 工具项横排。验证 horizontal + 默认紧凑档位下的常见用法。</p>
+<div class="sp-box">
+  <div class="sp-caption">Space(horizontal, size=sm) → 子项间距 8</div>
+  <div class="sp-row gap-sm">
+    <span class="sp-item primary"><span class="sp-ico"></span>记一笔</span>
+    <span class="sp-item"><span class="sp-ico alt"></span>扫一扫</span>
+    <span class="sp-item"><span class="sp-ico txt"></span>账单</span>
+    <span class="sp-item"><span class="sp-ico alt"></span>设置</span>
+  </div>
+</div>
+
+<h3>D2 · 水平 chip 标签组（size=sm 8）与区块双卡间隔（size=xl 24）</h3>
+<p>上：筛选 chip 横排；下：两张卡片间隔 24（区块级间距场景由业务显式传 xl）。验证同向不同档位。</p>
+<div class="sp-box">
+  <div class="sp-caption">chips · Space(horizontal, size=sm)</div>
+  <div class="sp-row gap-sm"><span class="sp-chip">全部</span><span class="sp-chip">餐饮</span><span class="sp-chip">交通</span><span class="sp-chip">购物</span><span class="sp-chip">其他</span></div>
+  <div class="sp-caption" style="margin-top:16px;">卡片间隔 · Space(horizontal, size=xl=24)</div>
+  <div class="sp-row gap-xl">
+    <span class="sp-item" style="flex:1;justify-content:center;padding:10px;">本月收入<br/><b style="color:var(--primaryPressed);font-size:var(--sizeMd);">¥12,680</b></span>
+    <span class="sp-item" style="flex:1;justify-content:center;padding:10px;">本月支出<br/><b style="color:#DC2626;font-size:var(--sizeMd);">¥8,340</b></span>
+  </div>
+</div>
+
+<h3>D3 · 垂直条目堆叠（vertical，size=md 12）</h3>
+<p>账单详情纵向多行（科目/账户/备注），行间 12。验证 vertical 方向与纵向组常用档位。</p>
+<div class="sp-box">
+  <div class="sp-caption">Space(vertical, size=md) → 行距 12</div>
+  <div class="sp-col gap-md">
+    <div class="sp-line"><span class="k">分类</span><span>餐饮 · 工作日午餐</span></div>
+    <div class="sp-line"><span class="k">账户</span><span>招商银行(4609)</span></div>
+    <div class="sp-line"><span class="k">时间</span><span>2026-09-04 12:30</span></div>
+    <div class="sp-line"><span class="k">备注</span><span>—</span></div>
+  </div>
+</div>
+
+<h3>D4 · 方向与嵌套组合（icon+文字组 + 纵向容器 + 卡片内 h/v 混合）</h3>
+<p>同一组内容分别以 horizontal / vertical 呈现作对照，并演示 Space 可嵌套任意内容（Card 内先 vertical 再 horizontal）。</p>
+<div class="sp-box">
+  <div class="sp-caption">对照：同一组 3 项内容 → horizontal(8) ｜ vertical(12)</div>
+  <div class="sp-row" style="gap:24px;">
+    <div class="sp-col gap-sm">
+      <span class="sp-chip">本周支出 ¥1,260</span>
+      <span class="sp-chip">笔数 18</span>
+      <span class="sp-chip">最大 ¥320</span>
+    </div>
+    <div style="width:1px;background:var(--border);align-self:stretch;"></div>
+    <div class="sp-col gap-md">
+      <span class="sp-item" style="background:transparent;padding:0;"><span class="k">本周支出</span> <b>¥1,260</b></span>
+      <span class="sp-item" style="background:transparent;padding:0;"><span class="k">笔数</span> 18</span>
+      <span class="sp-item" style="background:transparent;padding:0;"><span class="k">最大单笔</span> ¥320</span>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<h2>05 · 平台差异预告</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>差异说明</th></tr>
+<tr><td>容器实现</td><td>UIStackView（axis = direction 映射；spacing = size 档位 pt）</td><td>Compose Row / Column（direction 分支）+ Arrangement.spacedBy(size)</td><td>系统原生架构差异；间距数学语义一致（档位 token 数值），行为对齐</td></tr>
+<tr><td>子项对齐</td><td>StackView 默认：横向 top、纵向 leading；不做 fill（拉伸由子项自行）</td><td>Row verticalAlignment=Top；Column horizontalAlignment=Start</td><td>双端一致（一期固定，center 拉伸二期）</td></tr>
+<tr><td>size 档位</td><td>AppSpace 同名字段（CGFloat pt）</td><td>AppSpace 同名字段（Dp）</td><td>design-token.json 单源（4/8/12/16/24）</td></tr>
+<tr><td>命名</td><td>Space（iOS 无系统同名冲突；规则：不加 View 后缀）</td><td>Space（Compose 无同名内置，避开 Spacer）</td><td>双端同名同 API</td></tr>
+</table>
+</div>
+
+<h2>06 · API 速览（门禁 B 冻结前草案）</h2>
+<div class="spec-card">
+<table>
+<tr><th>类别</th><th>名称</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>Space Props</td><td>direction</td><td>'horizontal' \| 'vertical'</td><td>否</td><td>排布方向（默认 horizontal，P1 表决后定）</td></tr>
+<tr><td>Space Props</td><td>size</td><td>AppSpace 档位（xs/sm/md/lg/xl）</td><td>否</td><td>相邻子项间距（默认 P3 表决后定=推荐 sm 8）</td></tr>
+<tr><td>Children</td><td>—</td><td>任意 View/Composable（2 个及以上）</td><td>—</td><td>子项任意内容组件（文本/按钮/chip/卡片/嵌套 Space/Layout 行）；少于 2 项时空排布自然无异常</td></tr>
+<tr><td>事件</td><td>—</td><td>—</td><td>—</td><td>Space 无事件；子项交互由内容组件自身事件承担</td></tr>
+</table>
+<p style="font-size:var(--sizeXs);color:var(--textSecondary);">使用示例（草案）：<code>Space(direction: .horizontal, size: .sm) { 记一笔 · 扫一扫 · 账单 }</code> / <code>Space(direction="vertical", size="md") { …详情行×N }</code></p>
+</div>
+
+<h2>07 · 门禁 A 验收清单（A1–A7）</h2>
+<div class="spec-card">
+<table>
+<tr><th>编号</th><th>检查项</th><th>结论（填 ☑️/☐）</th></tr>
+<tr><td>A1</td><td>组件定位与边界（适用/N/A/五态/与现有组件关系：Layout/Grid/Divider 划界）</td><td>☐</td></tr>
+<tr><td>A2</td><td>Token 引用零硬编码（size 档位/方向规则全部走 token 或规则常量）</td><td>☐</td></tr>
+<tr><td>A3</td><td>关键决策 P1–P4 用户表决</td><td>☐</td></tr>
+<tr><td>A4</td><td>Demo 4 组排查双端 1:1（D1 工具组 / D2 chips+区块间隔 / D3 垂直条目 / D4 方向对照与嵌套）</td><td>☐</td></tr>
+<tr><td>A5</td><td>双端实现现状核对（全新立项：api.json 无 ui.space 条目；命名 Space 双端同名零冲突）</td><td>☐</td></tr>
+<tr><td>A6</td><td>已知差异表内登记（框架原生差异放行：UIStackView vs Compose Row/Column）</td><td>☐</td></tr>
+<tr><td>A7</td><td>anti_goals 排除（不做比例分栏/宫格/单点间距/分隔符/折行一期）</td><td>☐</td></tr>
+</table>
+</div>
+
+</body>
+</html>

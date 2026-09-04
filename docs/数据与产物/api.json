@@ -1424,6 +1424,64 @@
       "subcategory": "basics"
     },
     {
+      "id": "ui.divider",
+      "name": "分割线 Divider",
+      "category": "ui",
+      "summary": "区隔内容的分割线（水平/垂直 + 实线/虚线 + 可选文本），对标 NutUI Divider / Ant Design Divider",
+      "capabilities": [
+        "水平分割线",
+        "垂直分割线",
+        "虚线分割线",
+        "带文本分割线",
+        "hairline 细线",
+        "Divider"
+      ],
+      "platforms": {
+        "ios": { "state": "available", "note": "" },
+        "android": { "state": "available", "note": "" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/Divider.swift",
+        "android": "ProductRDDept/TechMiddleOffice/android/sharedui/components/Divider.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": ["点击交互（Divider 为纯展示）", "动画/过渡效果", "自定义颜色（统一 AppColor.border）", "自定义角度（仅 horizontal/vertical）"],
+      "visual_tokens": [
+        "AppColor.border",
+        "AppColor.textSecondary",
+        "AppFont.sizeXs",
+        "AppSpace.sm"
+      ],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "ui.divider 分割线 Divider 水平线 垂直线 虚线 hairline 分隔 区隔 分割线 Divider horizontal vertical dashed",
+      "embedding_ref": "vector-store/ui_divider.json",
+      "legacy_id": "ui.divider",
+      "industry_names": ["Divider"],
+      "props": [
+        ["direction", "'horizontal' | 'vertical'", "否", "分割线方向（默认 horizontal）"],
+        ["dashed", "boolean", "否", "是否虚线（默认 false）"],
+        ["hairline", "boolean", "否", "是否细线 0.5px（默认 true）"],
+        ["contentPosition", "'left' | 'center' | 'right'", "否", "文本位置（默认 center）"],
+        ["text", "string", "否", "内嵌文本（空=纯线条）"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础分割线", "<Divider />"],
+        ["虚线+粗线", "<Divider dashed /> / <Divider hairline={false} />"],
+        ["带文本分割线", "<Divider text=\"或\" contentPosition=\"center\" />"],
+        ["垂直分割线", "<Divider direction=\"vertical\" />"][
+      ],
+      "note": "区隔内容分割线。v1.0 门禁 A 评审通过（2026-09-04）+ C1.5 用户 Demo 实机验收通过（2026-09-04）：修复 iOS Demo4 不均分/与说明文案重叠 + Android Demo3 文字截断 + iOS 组件带文本行高随文本撑高（intrinsicContentSize），双端行高一致；组件源码已入库（子仓 5456e38）。待 C1 单测补建 + C2 CR/CI + D 发版。双端 reviewed=true。",
+      "subcategory": "layout",
+      "reviewed": true
+    },
+    {
       "id": "ui.grid",
       "name": "宫格 Grid",
       "category": "ui",
@@ -1446,7 +1504,7 @@
         },
         "android": {
           "state": "available",
-          "note": "记账批次 2026-09-03 补全：android/sharedui/components/NavigationGrid.kt（4 宫格/带标题分区/可点击/多分组）；ui.grid v1.0 reviewed 双端 1:1；全局版本 1.3.6→1.3.7"
+          "note": "记账批次 2026-09-03 NavigationGrid 版（v1.0 reviewed，全局 1.3.6→1.3.7）→ 2026-09-04 独立组件化 v2.0：Grid.kt 单 Composable（column 默认 4/title 可选/onSelect 返回索引，26dp 图标容器圆角 6 + AppIcon 16dp 白，行高 72dp）；NavigationGrid.kt 已废弃删除；C1.5 用户 Demo 实机验收通过（2026-09-04，4 组 1:1 首轮零问题）。待 C1 单测补建 + C2 CR/CI + D 发版"
         },
         "harmony": {
           "state": "unavailable",
@@ -1462,8 +1520,8 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/NavigationGrid.swift",
-        "android": "ProductRDDept/TechMiddleOffice/android/sharedui/components/NavigationGrid.kt"
+        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/Grid.swift",
+        "android": "ProductRDDept/TechMiddleOffice/android/sharedui/components/Grid.kt"
       },
       "deps": [],
       "variants": [],
@@ -1486,13 +1544,19 @@
           "column",
           "number",
           "否",
-          "列数"
+          "列数（默认 4，支持 3/4/5，超过自动换行）"
         ],
         [
           "data",
           "{icon,text,id}[]",
           "是",
-          "项"
+          "入口数据数组"
+        ],
+        [
+          "title",
+          "string",
+          "否",
+          "分区标题（空字符串=不显示标题区域）"
         ]
       ],
       "events": [
@@ -1508,9 +1572,9 @@
           "<Grid column={4} data={shortcuts} onClick={...} />"
         ]
       ],
-      "note": "多格入口矩阵；单块容器用 Card",
+      "note": "多格入口矩阵；单块容器用 Card。v2.0 门禁 A 评审通过（2026-09-04），双端 reviewed=true。",
       "subcategory": "navigation",
-      "reviewed": false
+      "reviewed": true
     },
     {
       "id": "ui.card",
@@ -2297,10 +2361,10 @@
           "<Overlay visible contentRadius=\"lg\" onClose={fn}>\n  <SavedCard />\n</Overlay>"
         ]
       ],
-      "note": "⚠️ 2026-09-04 用户iOS Demo真build3报错（DemoShowcases.swift L1382/L1794/L1863）=C1.5未通过 + 用户新增L269+1硬门禁（双端真build0error + 用户亲自Demo验收双通过）未通过 = 本 reviewed=True 切换非法回滚为False。前版本切换依据=review-overlay-A.md 11/11 + B.md 10/10 用户评审通过仍然有效（A/B两道门禁未受影响），当前仅 C2 reviewed + D 发版门禁因 L269+1 未满足被暂停；待双端真build0error + 用户Demo验收后再切 reviewed=True 推进 D。",
+      "note": "2026-09-04 用户 Demo 验收通过（iOS v2.0 / Android 原版本），双端 build 0 error + 4 组 Demo 全部正常。reviewed=True 合法注册。",
       "subcategory": "basics",
       "tier": "core",
-      "reviewed": false
+      "reviewed": true
     },
     {
       "id": "ui.button",

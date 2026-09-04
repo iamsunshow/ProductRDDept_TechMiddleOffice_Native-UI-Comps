@@ -26,7 +26,7 @@
 /// P3 遮罩点击：A closeOnMaskClick=true（默认）+ clickThrough 独立开关 + onMaskClick/onClose 回调解耦
 /// P4 内容位置：A 9 点锚 + contentOffset{x,y} 微调（覆盖 center Modal / top 通知 / bottom 抽屉 / corner 气泡）
 ///
-/// 双端差异（登记 `docs/平台差异.md`）：
+/// 双端差异（登记 `docs/数据与产物/diff-api.json`）：
 /// 1) 挂载：iOS keyWindow / Android Compose Dialog（外部不可见，visible 语义一致）
 /// 2) dismissOnBackPress：iOS 无物理返回键，属性读取忽略不报错
 /// 3) 圆角掩膜：iOS `CACornerMask` + `maskedCorners`；Android `RoundedCornerShape(topStart/topEnd/…)`

@@ -12,7 +12,7 @@
 ///
 /// 覆盖语义：内层覆盖外层同名项；外层未覆盖项继承；全未设取静态基准（D6）。
 ///
-/// 双通道（平台差异登记 `docs/平台差异.md`）：
+/// 双通道（差异登记 `docs/数据与产物/diff-api.json`）：
 /// - 命令式（UIKit）：[ConfigProvider] 作用域栈 push/pop，消费组件在渲染时刻读 [AppTheme]
 /// - 声明式（SwiftUI）：环境对象通道，未来引入 SwiftUI 包装组件时经 `AppTheme` 同一解析层
 ///

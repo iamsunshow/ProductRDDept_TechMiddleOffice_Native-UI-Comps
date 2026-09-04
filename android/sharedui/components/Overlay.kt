@@ -28,7 +28,7 @@
 // P3 遮罩点击：A closeOnMaskClick 默认 true + clickThrough 独立开关 + onMaskClick/onClose 回调解耦
 // P4 内容位置：A 9 点 Alignment + offset(x,y)（覆盖 Modal 居中 / 顶部通知 / bottom 抽屉 / corner 气泡）
 //
-// 双端差异（登记 docs/平台差异.md）：
+// 双端差异（登记 docs/数据与产物/diff-api.json）：
 // 1) 挂载：iOS keyWindow.addSubview vs 本文件 Compose Dialog → 视觉语义一致，外部不感知
 // 2) dismissOnBackPress：本平台独有，原生 Dialog properties 控制；iOS 同名属性 API 保留但忽略
 // 3) 圆角掩膜：iOS CACornerMask / 本文件 RoundedCornerShape(topStart …) → 贴边侧两角自动设零

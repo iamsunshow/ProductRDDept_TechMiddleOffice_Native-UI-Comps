@@ -8,7 +8,7 @@
 // 设计决策（门禁 A 拍板）：P1=B 网络图 URL 归业务预下载后传图对象（零三方图片加载依赖）；
 // P2=B lazy 一期 N/A；P3=A 圆形 = radius 传宽/2（无魔法值）；P4=B 失败仅 onError（重试=重设 src）。
 // src 语义：null=加载中占位；String=包内 drawable 资源名；Int=@DrawableRes；ImageBitmap/Bitmap=平台图对象。
-// Android 与 iOS 资源体系差异（登记平台差异.md，与 Cell.icon 同型）：String 解析经 context 按
+// Android 与 iOS 资源体系差异（登记 docs/数据与产物/diff-api.json，与 Cell.icon 同型）：String 解析经 context 按
 // packageName 查 drawable；Asset Catalog 名 ↔ 包内 drawable 名由业务资源规范保证同名。
 //
 // 几何：绘制矩形在 px 空间用 `ImageGeometry.rect`（与 iOS `ImageGeometry.rect` 同公式同数学，

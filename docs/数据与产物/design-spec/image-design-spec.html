@@ -217,7 +217,7 @@
     <div class="lead" style="margin-top:16px">position 停靠（fit=none / contain 且容器大于内容时生效；fit=fill/cover 时内容已铺满容器，position 无视觉影响）：</div>
     <table>
       <tr><th>position</th><th>行为</th><th>映射（双端）</th></tr>
-      <tr><td><code>center</code>（默认）</td><td>内容在容器内水平垂直居中，四周对称留白</td><td rowspan="5">iOS <code>contentMode = .center / .top / .right / .bottom / .left</code>；Android <code>ContentAlignment = Center / TopStart(或 TopCenter) / …</code>——position 全部为「单边或居中」停靠，无居中+单边组合，双端映射一一对应，见 <code>平台差异.md</code></td></tr>
+      <tr><td><code>center</code>（默认）</td><td>内容在容器内水平垂直居中，四周对称留白</td><td rowspan="5">iOS <code>contentMode = .center / .top / .right / .bottom / .left</code>；Android <code>ContentAlignment = Center / TopStart(或 TopCenter) / …</code>——position 全部为「单边或居中」停靠，无居中+单边组合，双端映射一一对应，见 <code>docs/数据与产物/diff-api.json</code></td></tr>
       <tr><td><code>top</code></td><td>顶对齐（水平居中）</td></tr>
       <tr><td><code>bottom</code></td><td>底对齐（水平居中）</td></tr>
       <tr><td><code>left</code></td><td>左对齐（垂直居中）</td></tr>
@@ -238,7 +238,7 @@
       <tr><td>无障碍</td><td><code>accessibilityLabel = alt</code></td><td><code>contentDescription = alt</code></td></tr>
       <tr><td>网络图 URL（决策点）</td><td>可选原生 URLSession+NSCache（零依赖）</td><td>引 Coil 或业务预下载（见 08）</td></tr>
     </table>
-    <div class="note">登记到 <code>docs/平台差异.md</code>（门禁 A 清单要求）——设计通过后由实现阶段补写具体条目。</div>
+    <div class="note">登记到 <code>docs/数据与产物/diff-api.json</code>（门禁 A 清单要求）——设计通过后由实现阶段补写具体条目。</div>
   </div>
 
   <!-- ============ 06 组件关系 ============ -->
@@ -303,7 +303,7 @@
       <li><span class="box"></span>颜色/尺寸/圆角/字号全部引用 token（第 08 节，零硬编码；宽高为业务值）</li>
       <li><span class="box"></span>五态逐项说明（02 节：禁用 N/A 有依据、成功=加载完成态说明）</li>
       <li><span class="box"></span>交互细节完整（04 节：点击/占位不抖版/失败重载/hover N/A）</li>
-      <li><span class="box"></span>双端差异已说明（05 节，登记 <code>平台差异.md</code> 待实现阶段补条目）</li>
+      <li><span class="box"></span>双端差异已说明（05 节，登记 <code>diff-api.json</code> 待实现阶段补条目）</li>
       <li><span class="box"></span>与现有组件无重复（06 节：分类表 #5 唯一入口，预览归 #68）</li>
       <li><span class="box"></span>设计参考图可查看（本 H5 页含 fit 五模式/五态/尺寸标注视觉渲染）</li>
       <li><span class="box"></span>决策点 P1–P4 已给出建议与理由（07 节），待用户拍板写入契约</li>

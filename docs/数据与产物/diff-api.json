@@ -1,0 +1,145 @@
+{
+  "version": "1.0.0",
+  "updatedAt": "2026-09-04T00:00:00+08:00",
+  "purpose": "组件库双端（iOS/Android）差异 API 登记 = 允许的系统级原生差异豁免白名单。本文件与 api.json 共同描述完整组件特征：api.json = 双端一致的契约（props/events/状态）；diff-api.json = 契约统一前提下，允许保留的系统/实现层差异豁免。",
+  "governance": "白名单之外差异一律禁止=验收门禁打回；新差异=先评估是否系统级原生差异→是则登记本文件（注明原因），否则双端统一；修改已有条目=走组件治理变更（唯一手册=docs/README 入口），不能私自改。",
+  "registryCount": 12,
+  "registry": [
+    {
+      "id": "diff.system.gesture",
+      "component": "system",
+      "scope": "system",
+      "item": "手势",
+      "ios": "UIGesture",
+      "android": "GestureDetector",
+      "rationale": "系统级原生差异",
+      "source": "平台差异.md 原始登记（2026-09-04 迁移）"
+    },
+    {
+      "id": "diff.system.hover",
+      "component": "system",
+      "scope": "system",
+      "item": "hover",
+      "ios": "无",
+      "android": "有",
+      "rationale": "Android 支持 hover 态，iOS 无 hover 概念",
+      "source": "平台差异.md 原始登记（2026-09-04 迁移）"
+    },
+    {
+      "id": "diff.system.keyboard",
+      "component": "system",
+      "scope": "system",
+      "item": "键盘",
+      "ios": "系统键盘",
+      "android": "IME",
+      "rationale": "系统级原生差异",
+      "source": "平台差异.md 原始登记（2026-09-04 迁移）"
+    },
+    {
+      "id": "diff.system.control-default",
+      "component": "system",
+      "scope": "system",
+      "item": "控件默认样式",
+      "ios": "UIKit",
+      "android": "Material",
+      "rationale": "需覆盖对齐（视觉层双端统一到组件库 Design Token）",
+      "source": "平台差异.md 原始登记（2026-09-04 迁移）"
+    },
+    {
+      "id": "diff.cell.press-feedback",
+      "component": "ui.cell",
+      "scope": "implementation",
+      "item": "按压反馈",
+      "ios": "UILongPress/Highlight",
+      "android": "Ripple 水波纹",
+      "rationale": "平台原生差异；Cell 按下态统一覆盖为背景 gray.4，水波纹不扩散至 Cell 外",
+      "contract_point": "states.pressed",
+      "source": "cell-design-spec.html 06 节（平台差异.md 原始登记迁移）",
+      "registered_in": "v1.2.1"
+    },
+    {
+      "id": "diff.cell.long-press",
+      "component": "ui.cell",
+      "scope": "contract",
+      "item": "长按事件",
+      "ios": "支持 onLongPress 回调",
+      "android": "不承诺（契约声明，Android 侧不暴露）",
+      "rationale": "能力差异：契约字段名 onLongPress 双端一致，iOS 触发、Android 不触发为已登记豁免",
+      "contract_point": "events.onLongPress",
+      "source": "cell-design-spec.html 06 节 + api.json ui.cell events",
+      "registered_in": "v1.2.1"
+    },
+    {
+      "id": "diff.cell.icon-param",
+      "component": "ui.cell",
+      "scope": "contract",
+      "item": "图标参数类型",
+      "ios": "iconSymbol: String?（SF Symbol 名）",
+      "android": "icon: Painter?（资源映射层传入）",
+      "rationale": "平台资源体系差异（SF Symbols vs Vector Drawable）；契约字段名 icon 双端一致",
+      "contract_point": "props.icon",
+      "source": "cell-design-spec.html 06 节 + api.json ui.cell props",
+      "registered_in": "v1.2.1"
+    },
+    {
+      "id": "diff.cell.tap-signature",
+      "component": "ui.cell",
+      "scope": "contract",
+      "item": "点击事件签名",
+      "ios": "onTap(_ item, _ index)",
+      "android": "onClick: (() -> Unit)?（数据+索引由调用方闭包绑定）",
+      "rationale": "平台惯例差异（Compose () -> Unit）；事件名 onClick 双端一致",
+      "contract_point": "events.onClick",
+      "source": "cell-design-spec.html 06 节 + api.json ui.cell events",
+      "registered_in": "v1.2.1"
+    },
+    {
+      "id": "diff.overlay.mount",
+      "component": "ui.overlay",
+      "scope": "implementation",
+      "item": "挂载方式",
+      "ios": "UIApplication.keyWindow() → addSubview（直接挂最前 UIWindow）",
+      "android": "Compose Dialog（独立 window，usePlatformDefaultWidth=false + decorFitsSystemWindows=false）",
+      "rationale": "P1 决策 A：两者均脱离父 VC/Activity 生命周期的顶层覆盖；视觉一致；影响 clickThrough 物理穿透实现差异",
+      "contract_point": "mount",
+      "source": "overlay-design-spec.html（平台差异.md 原始登记迁移）",
+      "registered_in": "v1.3.12"
+    },
+    {
+      "id": "diff.overlay.dismiss-on-backpress",
+      "component": "ui.overlay",
+      "scope": "contract",
+      "item": "dismissOnBackPress",
+      "ios": "@available(*, unavailable)（iOS 无返回键概念；props 仍保留以对齐 API）",
+      "android": "绑定 DialogProperties.dismissOnBackPress；true=返回键触发 onClose，false=忽略",
+      "rationale": "系统能力差异；契约 10 props 名一致，iOS 用编译期告警说明无效果",
+      "contract_point": "props.dismissOnBackPress",
+      "source": "overlay-design-spec.html（平台差异.md 原始登记迁移）",
+      "registered_in": "v1.3.12"
+    },
+    {
+      "id": "diff.overlay.corner-mask",
+      "component": "ui.overlay",
+      "scope": "implementation",
+      "item": "圆角掩膜（贴边零圆角）",
+      "ios": "CACornerMask（layer.maskedCorners = 贴边两直角移除掩码）",
+      "android": "RoundedCornerShape(topStart,topEnd,bottomStart,bottomEnd)（四角差异化，贴边方向两直角=0dp）",
+      "rationale": "系统 API 差异；resolveShape(position, radius) / edgeMaskedCornersIfPinnedToEdge(position) 数学镜像，视觉结果一致",
+      "contract_point": "visual",
+      "source": "overlay-design-spec.html（平台差异.md 原始登记迁移）",
+      "registered_in": "v1.3.12"
+    },
+    {
+      "id": "diff.overlay.content-offset-flatten",
+      "component": "ui.overlay",
+      "scope": "contract",
+      "item": "contentOffset 参数展开",
+      "ios": "单一对象 contentOffset: CGPoint(x, y)（UIKit 原生支持对象字面量）",
+      "android": "扁平化为两个 Int：contentOffsetX: Int + contentOffsetY: Int（Compose 不支持命名对象字面量传参）",
+      "rationale": "Compose 语言限制；语义等价（{x,y} → 两个 Int 合成 IntOffset(x,y)）；对外 api.json 契约仍保留 contentOffset?:{x,y} 对象语义（类型层对象+实现层 flatten 桥接）",
+      "contract_point": "props.contentOffset",
+      "source": "overlay-design-spec.html（平台差异.md 原始登记迁移）",
+      "registered_in": "v1.3.12"
+    }
+  ]
+}

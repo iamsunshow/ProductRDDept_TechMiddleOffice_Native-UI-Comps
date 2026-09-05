@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BackTop 返回顶部 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tok{background:var(--primaryMuted);color:var(--primaryPressed);padding:1px 6px;border-radius:var(--radiusSm);font-size:var(--sizeXs);font-weight:600;}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-na{background:#FEF3C7;color:#92400E;}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.viewport{position:relative;background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusLg);padding:0;margin:var(--spaceMd) 0;overflow:hidden;}
+.row-item{display:flex;justify-content:space-between;padding:8px 12px;font-size:var(--sizeSm);border-top:1px solid #F3F4F6;color:var(--textPrimary);}
+.row-item .k{color:var(--textSecondary);font-size:var(--sizeXs);}
+.bt-btn{position:absolute;right:12px;bottom:16px;width:40px;height:40px;border-radius:50%;background:var(--primary);color:#fff;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(17,24,39,.15);}
+.diff-row{background:#FEF3C7;}
+</style>
+</head>
+<body>
+
+<h1>BackTop 返回顶部 · 设计规格（导航组件 #1 · 任务清单 #13，subcategory=nav · 门禁 A）</h1>
+<p>组件 ID：<code>ui.back-top</code> ｜ 定位：<b>长滚动内容（列表/长页）右下角的"回到顶部"浮层入口</b>——滚动超过阈值出现、点击回滚到顶，对标 NutUI React BackTop。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-04，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 长列表/长表单页滚动一段距离后提供"一键回顶"（账目明细/消息流/长文阅读）；② 悬浮入口位：右下/左下角常驻（位置由宿主容器摆放）；③ 自定义内容：默认主色圆钮 ↑，可用任意视图/文案替换（如"回顶"字样、计数徽标组合）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 吸顶类（标题/筛选条在滚动中钉顶）→ <b>Sticky（ui.sticky）</b>；② 常驻全局悬浮按钮（发布/扫码等业务功能按钮）→ <b>HoverButton（ui.hover-button）</b>；③ 页面底部标签栏 → Tabbar（ui.tabbar）；④ 交互式引导按钮、拖拽悬浮钮（Drag/HoverButton 一期范围外）</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 未超阈值：隐藏（不占位、无层级）；<span class="tag tag-ok">出现态 ✅</span> 滚动超阈值：淡入显示；<span class="tag tag-ok">点击态 ✅</span> 点击回顶；禁用/加载/成功/失败 N/A（纯行为入口无业务态）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]（默认视觉用主色/白/字号 token，零硬编码零图片依赖）。与导航批其他组件划界：HoverButton=常驻功能悬浮钮；FixedNav=悬浮导航菜单组；Elevator/SideBar=内容定位导航；Tabbar=底部标签栏；BackTop 只做"回顶"一件事</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>出现阈值 appearAfter</td><td>数字 pt/dp（默认 120）</td><td>滚动位移超过该值后显示（px 比较，不做单位换算魔法）</td></tr>
+<tr><td>默认尺寸</td><td>直径 40pt/40dp（demo 摆放值；组件不强约束，由宿主布局决定）</td><td>圆角=直径一半（胶囊/圆钮），在组件内按实际 bounds 计算，不写死魔法值</td></tr>
+<tr><td>默认视觉</td><td>bg=主色 primary / 前景=白 / 字号 Lg 级（↑ 字符）</td><td>字符 ↑（U+2191）为文本非图片，零资源依赖；全部 token 取系统色板</td></tr>
+<tr><td>显隐动效</td><td>一期淡入淡出（alpha 过渡，iOS .15s / Android 默认 fade）</td><td>弹性/缩放动效二期候选（不引入动画引擎魔法）</td></tr>
+<tr><td>位置</td><td>宿主容器自行摆放（如右下 16/24 偏移）</td><td>组件不自行约束，避免与宿主布局系统耦合</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 一期形态：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：浮层按钮模式——组件 = 悬浮按钮 + 滚动源（target scrollView / scrollState）+ 阈值 + 点击回调，位置由宿主容器在右下摆放</td><td>✅ 覆盖"长页回顶"全部诉求；滚动源解耦=任意滚动容器可用（UIScrollView/UITableView/Compose 任意 scrollable）；iOS 监听 contentOffset / Android 读 scrollState 即可，双端一致。</td><td><b>推荐 A</b>：语义单一只做回顶，位置交给宿主（与组件库其他行为组件一致：SafeArea/Sticky 均不代管布局上下文）</td></tr>
+<tr><td>B：自包含滚动容器模式（滚动+按钮封装一体，类似 StickyView）</td><td>组件可 demo 即插即用，但把滚动内容构建方式锁死（用户被迫用组件内容 API），与页面既有的 LazyColumn/TableView 冲突。</td><td>淘汰：过度封装，限制业务</td></tr>
+<tr><td>C：自动吸底常驻（页面级全局 float，scroll 出现后始终停底部导航之上）</td><td>牵涉全局定位与底部导航感知，双端各需页面容器约定。</td><td>淘汰：一期以容器内浮层为主，页面级全局位登记二期</td></tr>
+</table>
+
+<h3>P2 · iOS 实现路径：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：KVO 监听 target.contentOffset 驱动显隐 + 点击 setContentOffset(.zero, animated:)</td><td>✅ 不占用业务 delegate；UIView.animate alpha 平滑淡入；回顶使用系统滚动动画与既有滚动体验一致。</td><td><b>推荐 A</b>：行为确定、代码最少</td></tr>
+<tr><td>B：UIScrollViewDelegate scrollViewDidScroll 回调</td><td>若业务已设 delegate 则需转发链，宿主约束多。</td><td>淘汰：KVO 更松耦合</td></tr>
+<tr><td>C：CADisplayLink 自驱平滑滚顶（自定义缓动）</td><td>与系统滚动动画手感/打断行为难对齐，维护成本高。</td><td>淘汰：登记二期（如要自定义缓动再评估）</td></tr>
+</table>
+
+<h3>P3 · Android 实现路径：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：参数 scrollState（ScrollState/LazyListState 派生）+ SnapshotFlow 监听 + scrollState.animateScrollTo(0)</td><td>✅ 与任意 Column/LazyColumn 组合；滚动值驱动重组即显隐；动画与系统一致。</td><td><b>推荐 A</b>：Compose 惯用、无额外耦合</td></tr>
+<tr><td>B：组件内部自建 LazyColumn 容器（list 内容直接喂组件）</td><td>与 iOS 浮层模式不对齐（iOS 不代管内容）。</td><td>淘汰：破坏双端同构</td></tr>
+<tr><td>C：Scaffold/Box 级全局 FloatingActionButton 替代</td><td>语义变为 Material FAB，非组件库自有设计语言。</td><td>淘汰：用组件自有视觉</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：默认视觉（主色圆钮 + ↑）+ 内容可替换 + 阈值可配 + 点击回调（默认回顶）</td><td>✅ demo 四段可 1:1 验收；默认视觉覆盖 90% 场景，自定义兜底剩余。</td><td><b>推荐 A</b>：范围收敛</td></tr>
+<tr><td>B：一期即支持拖拽自由摆放</td><td>手势冲突/边界吸附复杂，且与"位置宿主定"矛盾。</td><td>淘汰：登记二期（配合 Drag 能力评估）</td></tr>
+<tr><td>C：多滚动源绑定（同按钮服务多滚动区）</td><td>罕见需求，双端状态管理复杂。</td><td>淘汰</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 真实组件默认样式（滚动超阈值出现，点击回顶）</h3>
+<p>高 240 区域内 30 行内容，滚动超过阈值 120 后右下淡入主色 ↑ 圆钮，点击回到顶部。</p>
+<div class="viewport" style="height:180px;overflow-y:auto;">
+  <div class="row-item"><span class="k">#01</span><span>餐饮 -¥32</span></div>
+  <div class="row-item"><span class="k">#02</span><span>交通 -¥18</span></div>
+  <div class="row-item"><span class="k">#03</span><span>购物 -¥76</span></div>
+  <div class="row-item"><span class="k">#04</span><span>娱乐 -¥120</span></div>
+  <div class="row-item"><span class="k">#05</span><span>日用 -¥45</span></div>
+  <div class="row-item"><span class="k">#06</span><span>餐饮 -¥58</span></div>
+  <div class="row-item"><span class="k">#07</span><span>交通 -¥36</span></div>
+  <div class="row-item"><span class="k">#08</span><span>工资 +¥12,000</span></div>
+  <div class="bt-btn">↑</div>
+</div>
+
+<h3>D2 · 自定义内容（文字"回顶"按钮）</h3>
+<p>content 替换为竖排文字胶囊，行为不变（阈值出现+点击回顶）。</p>
+<div class="viewport" style="height:150px;overflow-y:auto;">
+  <div class="row-item"><span class="k">#01</span><span>餐饮 -¥32</span></div>
+  <div class="row-item"><span class="k">#02</span><span>购物 -¥76</span></div>
+  <div class="row-item"><span class="k">#03</span><span>交通 -¥18</span></div>
+  <div class="row-item"><span class="k">#04</span><span>娱乐 -¥120</span></div>
+  <div class="row-item"><span class="k">#05</span><span>日用 -¥45</span></div>
+  <div style="position:absolute;right:12px;bottom:16px;border-radius:14px;background:var(--primaryPressed);color:#fff;padding:6px 12px;font-size:12px;">回顶</div>
+</div>
+
+<h3>D3 · 点击回调（点击计数，不自动回顶）</h3>
+<p>传入 onClick 接管默认回顶：记录点击次数并在容器外反馈区显示（验证点击事件可用）。</p>
+<div class="viewport" style="height:140px;overflow-y:auto;">
+  <div class="row-item"><span class="k">#01</span><span>餐饮 -¥32</span></div>
+  <div class="row-item"><span class="k">#02</span><span>购物 -¥76</span></div>
+  <div class="row-item"><span class="k">#03</span><span>娱乐 -¥120</span></div>
+  <div class="row-item"><span class="k">#04</span><span>日用 -¥45</span></div>
+  <div class="bt-btn">↑</div>
+</div>
+
+<h3>D4 · 位置由宿主摆放（左下角）+ 阈值可配</h3>
+<p>同一容器内容，按钮放左下角、appearAfter=40（滚动即现），验证"位置=宿主责任、阈值=组件参数"。</p>
+<div class="viewport" style="height:140px;overflow-y:auto;">
+  <div class="row-item"><span class="k">#01</span><span>餐饮 -¥32</span></div>
+  <div class="row-item"><span class="k">#02</span><span>购物 -¥76</span></div>
+  <div class="row-item"><span class="k">#03</span><span>娱乐 -¥120</span></div>
+  <div class="row-item"><span class="k">#04</span><span>日用 -¥45</span></div>
+  <div style="position:absolute;left:12px;bottom:16px;width:40px;height:40px;border-radius:50%;background:var(--primary);color:#fff;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;">↑</div>
+</div>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>滚动源</td><td>UIScrollView 引用（KVO contentOffset）</td><td>ScrollState 参数（snapshotFlow 派生）</td><td>系统级原生差异：两端滚动模型不同（对象引用 vs 状态快照）</td></tr>
+<tr><td>回顶动画</td><td>setContentOffset(.zero, animated: true)</td><td>scrollState.animateScrollTo(0)</td><td>系统级原生差异：各自系统滚动动画</td></tr>
+<tr><td>显隐过渡</td><td>UIView.animate(alpha)</td><td>AnimatedVisibility(fadeIn/fadeOut)</td><td>系统级原生差异：动画 API 不同</td></tr>
+<tr class="diff-row"><td>出现阈值判定</td><td>offset.y &gt; appearAfter</td><td>scrollState.value &gt; appearAfter</td><td>语义一致：均为 px 位移比较（表内放行）</td></tr>
+<tr class="diff-row"><td>默认 ↑ 字符</td><td>UILabel/Button 文本 ↑</td><td>Text("↑")</td><td>同一字符不同端渲染（表内放行）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>iOS</td><td><code>BackTopButton(target: UIScrollView?, appearAfter: CGFloat = 120, onTap: (() -> Void)? = nil)</code>；<br/>替换默认视觉：<code>setFace(_ view: UIView)</code>（点击行为保留）</td></tr>
+<tr><td>Android</td><td><code>@Composable fun BackTop(scrollState: ScrollState, modifier: Modifier = Modifier, appearAfterPx: Int = 120, onClick: () -> Unit = {}, content: @Composable () -> Unit)</code>（content 默认主色 ↑ 圆钮）</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：回顶专属、与悬浮类/吸顶类划界）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（默认视觉全 token 化 + ↑ 文本零资源）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（默认/自定义/回调/位置与阈值）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，本规格为首立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（滚动源/动画为系统级差异）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（拖拽/多滚动源/全局悬浮二期）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

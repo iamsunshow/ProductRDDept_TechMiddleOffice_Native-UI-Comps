@@ -35,7 +35,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.sticky", name: "Sticky 粘性布局", reviewed: true, create: { StickyShowcase() }),
         ]),
         ("导航组件", [
-            DemoComponent(id: "ui.back-top", name: "BackTop 返回顶部", reviewed: false, create: nil),
+            DemoComponent(id: "ui.back-top", name: "BackTop 返回顶部", reviewed: true, create: { BackTopShowcase() }),
             DemoComponent(id: "ui.elevator", name: "Elevator 电梯楼层", reviewed: false, create: nil),
             DemoComponent(id: "ui.fixed-nav", name: "FixedNav 悬浮导航", reviewed: false, create: nil),
             DemoComponent(id: "ui.hover-button", name: "HoverButton 悬浮按钮", reviewed: false, create: nil),
@@ -3174,6 +3174,148 @@ final class StickyShowcase: ShowcaseViewController {
             make.width.equalTo(56)
         }
         return bar
+    }
+}
+
+// MARK: - BackTop Showcase（BackTop 返回顶部 Demo 页，导航组件 #1）
+
+/// BackTop 返回顶部：长滚动内容右下角"回到顶部"浮层入口，滚动超阈值出现、点击回顶。
+/// 4 段排查：D1 默认样式超阈值出现/点击回顶 / D2 自定义内容 / D3 点击回调 / D4 位置宿主摆放+阈值可配。
+/// 双端 1:1：iOS BackTopButton（KVO 监听 target.contentOffset）vs Android BackTop（scrollState）。
+final class BackTopShowcase: ShowcaseViewController {
+
+    private var feedbackLabel: UILabel?
+    private var tapCount = 0
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "BackTop", version: "v1.0", builtAt: "2026-09-04")
+        feedbackLabel = addFeedbackBar()
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    // D1 · 默认样式：30 行长内容，滚动超阈值（120）右下淡入 ↑ 圆钮，点击回顶
+    private func buildDemo1() {
+        addSection("D1 · 默认样式（滚动超阈值 120 出现 ↑ 圆钮，点击回顶）") { container in
+            let scroll = Self.makeScroller(container: container, height: 240, rows: 30)
+            let backtop = BackTopButton(target: scroll, appearAfter: 120)
+            container.addSubview(backtop)
+            backtop.snp.makeConstraints { make in
+                make.trailing.equalToSuperview().offset(-AppSpace.md)
+                make.bottom.equalToSuperview().offset(-AppSpace.lg)
+                make.width.height.equalTo(40)
+            }
+        }
+        addInfo("向下滚动列表，右下出现主色 ↑ 按钮；点击回到顶部后按钮淡出。")
+    }
+
+    // D2 · 自定义内容：文字胶囊"回顶"
+    private func buildDemo2() {
+        addSection("D2 · 自定义内容（setFace 文字胶囊，行为不变）") { container in
+            let scroll = Self.makeScroller(container: container, height: 200, rows: 16)
+            let backtop = BackTopButton(target: scroll, appearAfter: 40)
+            let face = Self.makeCapsuleFace(title: "回顶")
+            backtop.setFace(face)
+            container.addSubview(backtop)
+            backtop.snp.makeConstraints { make in
+                make.trailing.equalToSuperview().offset(-AppSpace.md)
+                make.bottom.equalToSuperview().offset(-AppSpace.lg)
+                make.width.equalTo(72)
+                make.height.equalTo(30)
+            }
+        }
+        addInfo("setFace 替换默认 ↑ 圆钮为文字胶囊（点击行为保留）。")
+    }
+
+    // D3 · 点击回调：记录次数不自动回顶
+    private func buildDemo3() {
+        addSection("D3 · 点击回调（接管回顶，记录点击次数）") { container in
+            let scroll = Self.makeScroller(container: container, height: 200, rows: 16)
+            let backtop = BackTopButton(target: scroll, appearAfter: 40, onTap: { [weak self] in
+                guard let self else { return }
+                self.tapCount += 1
+                self.feedbackLabel?.text = "BackTop 已点击 \(self.tapCount) 次（onTap 接管，未自动回顶）"
+            })
+            container.addSubview(backtop)
+            backtop.snp.makeConstraints { make in
+                make.trailing.equalToSuperview().offset(-AppSpace.md)
+                make.bottom.equalToSuperview().offset(-AppSpace.lg)
+                make.width.height.equalTo(40)
+            }
+        }
+        addInfo("传入 onTap 即接管默认回顶；点击后顶部反馈条计数。")
+    }
+
+    // D4 · 位置由宿主摆放（左下角）+ 阈值 40
+    private func buildDemo4() {
+        addSection("D4 · 位置宿主摆放（左下）+ 阈值 40（滚动即现）") { container in
+            let scroll = Self.makeScroller(container: container, height: 200, rows: 12)
+            let backtop = BackTopButton(target: scroll, appearAfter: 40)
+            container.addSubview(backtop)
+            backtop.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.md)
+                make.bottom.equalToSuperview().offset(-AppSpace.lg)
+                make.width.height.equalTo(40)
+            }
+        }
+        addInfo("位置（右下/左下）是宿主责任，组件不代管布局上下文；阈值作为参数可配。")
+    }
+
+    /// 胶囊文字 face（setFace 用）
+    private static func makeCapsuleFace(title: String) -> UIView {
+        let face = UIView()
+        face.backgroundColor = AppColor.primaryPressed
+        face.layer.cornerRadius = 15
+        face.clipsToBounds = true
+        let l = UILabel()
+        l.text = title
+        l.font = .systemFont(ofSize: AppFont.sizeXs, weight: .semibold)
+        l.textColor = .white
+        face.addSubview(l)
+        l.snp.makeConstraints { make in make.center.equalToSuperview() }
+        return face
+    }
+
+    /// 生成固定高滚动容器 + N 条文本行，返回滚动视图（BackTop target）。
+    @discardableResult
+    private static func makeScroller(container: UIView, height: CGFloat, rows: Int) -> UIScrollView {
+        let scroll = UIScrollView()
+        container.addSubview(scroll)
+        scroll.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.height.equalTo(height)
+        }
+        let content = UIView()
+        scroll.addSubview(content)
+        content.snp.makeConstraints { make in
+            make.top.leading.trailing.equalTo(scroll.contentLayoutGuide)
+            make.width.equalTo(scroll.frameLayoutGuide)
+        }
+        var prev: UIView?
+        for i in 1...rows {
+            let l = UILabel()
+            l.text = String(format: "%02d", i) + " · 条目内容第 " + String(i) + " 行"
+            l.font = .systemFont(ofSize: AppFont.sizeXs)
+            l.textColor = AppColor.textSecondary
+            content.addSubview(l)
+            l.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
+                make.height.equalTo(40)
+                if let p = prev {
+                    make.top.equalTo(p.snp.bottom)
+                } else {
+                    make.top.equalToSuperview()
+                }
+            }
+            prev = l
+        }
+        if let last = prev {
+            last.snp.makeConstraints { make in make.bottom.equalToSuperview() }
+        }
+        return scroll
     }
 }
 

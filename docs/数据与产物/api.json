@@ -1931,8 +1931,8 @@
         "FixedNav"
       ],
       "platforms": {
-        "ios": { "state": "available", "note": "FixedNavView.swift（UIButton 胶囊钮 + 面板 UIStackView 竖排行：图标位 20 圆角 6/文本/num 角标，点钮开合、点项自动收起 + collapse()）" },
-        "android": { "state": "available", "note": "FixedNav.kt（Compose 受控 expanded + 面板 Column 竖排行，点钮翻转、点项自动收起）" },
+        "ios": { "state": "available", "note": "FixedNavView.swift（UIButton 胶囊钮 + 面板 UIStackView 竖排行：图标位 20 圆角 6/文本/num 角标，行内容 title 后低 hugging 弹性 spacer 防 title 被拉宽，点钮开合、点项自动收起 + collapse()；collapse completion panelCard===card 引用保护防多次快速开合失灵）" },
+        "android": { "state": "available", "note": "FixedNav.kt（Compose 受控 expanded + 面板 Column width(IntrinsicSize.Min) 竖排行：图标位/文本/num 角标，行内 title 后 Spacer(weight) 推行尾，点钮翻转、点项自动收起）" },
         "harmony": { "state": "unavailable", "note": "" },
         "weixin": { "state": "unavailable", "note": "" },
         "alipay": { "state": "unavailable", "note": "" }
@@ -1966,9 +1966,9 @@
         ["无图标无角标长文本", "图标位缺省=不显示不占位，行宽自适应；自定义钮文案「操作/收起」（D3）"],
         ["多次开合 + 点面板外收起", "连续开合点选 + 点面板外空白=收起且不触发选中，状态机稳定（D4）"]
       ],
-      "note": "悬浮导航（导航组件 #3，任务清单 #15）：页面边缘常驻悬浮入口钮 + 展开导航项列表的“快捷导航器”；对标 NutUI React FixedNav（active/nav-list/type/text 语义）；钮视觉基线对齐 BackTop 悬浮钮（高 40pt/40dp 主色白字胶囊钮，圆角 full）；面板=卡片壳（bgCard/圆角 md/边框/阴影）竖排行（行高 44pt/44dp：图标位 20 圆角 6 primaryMuted + 文本 + 可选 num 角标 16 圆角 full，末行无下边线，行最小宽 140）；type 只决定钮靠左/右缘与面板展开方向；“悬浮”定位由宿主完成（组件=纯内容视图放非滚动覆盖层锚定边角，同 BackTop 先例，不做 window 浮层/不监听滚动）；点项自动收起。2026-09-05 全新立项：规格 fixed-nav-design-spec.html（01 用途边界/02 Token/03 P1–P4/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-fixed-nav-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：收起胶囊钮+点钮弹出面板+点项自动收起 / FixedNavItem(key/text/icon?/num?) + type 左右 + 文案自定义 + onSelect / 宿主锚定纯内容视图 / 一期面板行≤7 无滚动；anti_goal=拖拽 Drag/自定义插槽/Icon 系统映射/面板滚动=登记二期）+ 双端实现入库（FixedNavView.swift / FixedNav.kt + iOS FixedNavShowcase/Android FixedNavDemo 4 段 1:1：D1 右侧默认 / D2 左侧 type=left / D3 无图标无角标 / D4 多次开合+点面板外收起）。",
+      "note": "悬浮导航（导航组件 #3，任务清单 #15）：页面边缘常驻悬浮入口钮 + 展开导航项列表的“快捷导航器”；对标 NutUI React FixedNav（active/nav-list/type/text 语义）；钮视觉基线对齐 BackTop 悬浮钮（高 40pt/40dp 主色白字胶囊钮，圆角 full）；面板=卡片壳（bgCard/圆角 md/边框/阴影）竖排行（行高 44pt/44dp：图标位 20 圆角 6 primaryMuted + 文本 + 可选 num 角标 16 圆角 full，末行无下边线，行最小宽 140）；type 只决定钮靠左/右缘与面板展开方向；“悬浮”定位由宿主完成（组件=纯内容视图放非滚动覆盖层锚定边角，同 BackTop 先例，不做 window 浮层/不监听滚动）；点项自动收起。2026-09-05 全新立项：规格 fixed-nav-design-spec.html（01 用途边界/02 Token/03 P1–P4/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-fixed-nav-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：收起胶囊钮+点钮弹出面板+点项自动收起 / FixedNavItem(key/text/icon?/num?) + type 左右 + 文案自定义 + onSelect / 宿主锚定纯内容视图 / 一期面板行≤7 无滚动；anti_goal=拖拽 Drag/自定义插槽/Icon 系统映射/面板滚动=登记二期）+ 双端实现入库（FixedNavView.swift / FixedNav.kt + iOS FixedNavShowcase/Android FixedNavDemo 4 段 1:1：D1 右侧默认 / D2 左侧 type=left / D3 无图标无角标 / D4 多次开合+点面板外收起）。2026-09-05 C1.5 用户 Demo 双端实机验收通过（原话“通过了”）：验收 5 类问题双端修复闭环（子仓 9503a47：①Android 面板通栏→面板 Column 补 width(IntrinsicSize.Min)+行 defaultMinSize(140)；②Android 图标浅绿框内不居中/数字截断→icon/num 文字 lineHeight=fontSize+居中+num badge 弃固定高改 defaultMinSize；③行内数字推行尾→title 后 Spacer(weight)/iOS 低 hugging 弹性 spacer=spec fn-num margin-left:auto；④iOS 行 title 被 UIStackView fill 拉宽→弹性 spacer；⑤iOS 多次点击失灵→collapse completion 加 panelCard===card 引用保护），reviewed=true。",
       "subcategory": "navigation",
-      "reviewed": false
+      "reviewed": true
     },
     {
       "id": "ui.card",

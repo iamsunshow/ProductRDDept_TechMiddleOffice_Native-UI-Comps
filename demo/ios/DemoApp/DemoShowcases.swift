@@ -39,10 +39,10 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.elevator", name: "Elevator 电梯楼层", reviewed: true, create: { ElevatorShowcase() }),
             DemoComponent(id: "ui.fixed-nav", name: "FixedNav 悬浮导航", reviewed: true, create: { FixedNavShowcase() }),
             DemoComponent(id: "ui.hover-button", name: "HoverButton 悬浮按钮", reviewed: true, create: { HoverButtonShowcase() }),
-            DemoComponent(id: "ui.nav-bar", name: "NavBar 头部导航", reviewed: false, create: nil),
+            DemoComponent(id: "ui.nav-bar", name: "NavBar 头部导航", reviewed: true, create: { NavBarShowcase() }),
             DemoComponent(id: "ui.side-bar", name: "SideBar 侧边导航", reviewed: true, create: { SideBarShowcase() }),
-            DemoComponent(id: "ui.tabbar", name: "Tabbar 标签栏", reviewed: false, create: nil),
-            DemoComponent(id: "ui.tabs", name: "Tabs 选项卡", reviewed: false, create: nil),
+            DemoComponent(id: "ui.tabbar", name: "Tabbar 标签栏", reviewed: true, create: { TabbarShowcase() }),
+            DemoComponent(id: "ui.tabs", name: "Tabs 选项卡", reviewed: true, create: { TabsShowcase() }),
         ]),
         ("数据录入", [
             DemoComponent(id: "ui.address", name: "Address 地址", reviewed: false, create: nil),
@@ -3978,6 +3978,494 @@ final class SideBarShowcase: ShowcaseViewController, UIScrollViewDelegate {
         d4Title?.text = "「\(first.title)」"
         d4Subtitle?.text = d4FirstDesc
         d4Feedback?.text = "外部驱动 selectedValue → 第一项「\(first.title)」：高亮已同步（onChange 计数不增，仍为 \(d4Count) 次）"
+        d4Feedback?.textColor = AppColor.primary
+    }
+}
+
+// MARK: - NavBar Showcase（NavBar 头部导航 Demo 页，导航组件 #2 收编 · #17）
+
+/// 4 段排查：D1 基础返回 / D2 一级页无返回（标题严格居中）/ D3 右动作保存 / D4 长标题省略。
+/// 双端 1:1：iOS NavBar（UIView）vs Android NavBar（Row）。
+final class NavBarShowcase: ShowcaseViewController {
+    private var d1Back = 0
+    private var d1Feedback: UILabel?
+    private var d3Back = 0
+    private var d3Save = 0
+    private var d3Feedback: UILabel?
+    private var d4Back = 0
+    private var d4Save = 0
+    private var d4Feedback: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "NavBar", version: "v1.0", builtAt: "")
+        addInfo("4 段排查：① 返回钮+标题 ② 一级页无返回（标题严格居中） ③ 右侧动作「保存」 ④ 长标题省略。双端 1:1（iOS NavBar vs Android NavBar）。")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    private func pinBar(_ bar: UIView, in container: UIView) {
+        container.addSubview(bar)
+        bar.snp.makeConstraints { make in
+            make.leading.trailing.top.equalToSuperview()
+        }
+    }
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 返回钮 + 标题（点击返回计数）") { [weak self] container in
+            guard let self else { return }
+            let bar = NavBar(title: "账单明细", onBack: { [weak self] in
+                guard let self else { return }
+                self.d1Back += 1
+                self.d1Feedback?.text = "D1 返回点击：累计 \(self.d1Back) 次（返回槽出现在左侧，标题居中）"
+                self.d1Feedback?.textColor = AppColor.primary
+            })
+            self.pinBar(bar, in: container)
+        }
+        d1Feedback = addDynamicInfo("左侧返回钮热区 44×44pt，← 主色；点击计数。")
+    }
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 一级页无返回（onBack=nil，标题严格居中）") { [weak self] container in
+            guard let self else { return }
+            let bar = NavBar(title: "资产总览")
+            self.pinBar(bar, in: container)
+        }
+        addInfo("onBack=nil 返回槽不占位，标题严格水平居中（无左侧偏移）。")
+    }
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 返回 + 右侧动作「保存」（点击计数）") { [weak self] container in
+            guard let self else { return }
+            let bar = NavBar(
+                title: "编辑分类",
+                onBack: { [weak self] in
+                    guard let self else { return }
+                    self.d3Back += 1
+                    self.refreshD3()
+                },
+                rightAction: NavBarAction(text: "保存") { [weak self] in
+                    guard let self else { return }
+                    self.d3Save += 1
+                    self.refreshD3()
+                }
+            )
+            self.pinBar(bar, in: container)
+        }
+        d3Feedback = addDynamicInfo("右侧动作 = NavBarAction(text, color?, onTap)，文字默认 textPrimary 14pt。")
+    }
+
+    private func refreshD3() {
+        d3Feedback?.text = "D3 返回 \(d3Back) 次 / 保存 \(d3Save) 次"
+        d3Feedback?.textColor = AppColor.primary
+    }
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 长标题省略（返回+保存两侧夹挤）") { [weak self] container in
+            guard let self else { return }
+            let bar = NavBar(
+                title: "这是一条特别特别长的标题用来验证单行省略的效果是否正确展示",
+                onBack: { [weak self] in
+                    guard let self else { return }
+                    self.d4Back += 1
+                    self.refreshD4()
+                },
+                rightAction: NavBarAction(text: "保存") { [weak self] in
+                    guard let self else { return }
+                    self.d4Save += 1
+                    self.refreshD4()
+                }
+            )
+            self.pinBar(bar, in: container)
+        }
+        d4Feedback = addDynamicInfo("标题最多一行，超出以省略号结尾；返回/动作热区不被长标题侵入。D4 返回 0 次 / 保存 0 次。")
+    }
+
+    private func refreshD4() {
+        d4Feedback?.text = "标题最多一行，超出以省略号结尾；返回/动作热区不被长标题侵入。D4 返回 \(d4Back) 次 / 保存 \(d4Save) 次。"
+        d4Feedback?.textColor = AppColor.primary
+    }
+}
+
+// MARK: - Tabbar Showcase（Tabbar 标签栏 Demo 页，导航组件 #6 · #19）
+
+/// 4 段排查：D1 基础 5 项等分 / D2 角标+禁用 / D3 纯文字+长标题+品牌红 / D4 受控外部驱动。
+/// 双端 1:1：iOS TabbarView（UIStackView 等分）vs Android Tabbar（Row weight）。
+final class TabbarShowcase: ShowcaseViewController {
+    private var d1Value = "home"
+    private var d1Tap = 0
+    private var d1Feedback: UILabel?
+
+    private var d2Value = "home"
+    private var d2Feedback: UILabel?
+
+    private var d3Value = "a"
+    private var d3Feedback: UILabel?
+
+    private var d4Value = "chart"
+    private var d4Tap = 0
+    private var d4Feedback: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Tabbar", version: "v1.0", builtAt: "")
+        addInfo("4 段排查：① 基础 5 项等分 ② 角标数字+禁用 ③ 纯文字长标题+品牌红 activeColor ④ 受控外部驱动。双端 1:1（iOS TabbarView vs Android Tabbar）。")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    /// 造一块模拟页面区：高 height、灰底、居中一行状态文案、底栏钉底部。
+    private func makePageArea(container: UIView, height: CGFloat) -> (UIView, UILabel) {
+        let holder = UIView()
+        holder.backgroundColor = AppColor.bgPage
+        container.addSubview(holder)
+        holder.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.height.equalTo(height)
+        }
+        let state = UILabel()
+        state.font = .systemFont(ofSize: AppFont.sizeXs)
+        state.textColor = AppColor.textSecondary
+        state.numberOfLines = 2
+        state.textAlignment = .center
+        holder.addSubview(state)
+        state.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.leading.trailing.lessThanOrEqualToSuperview().inset(AppSpace.md)
+        }
+        return (holder, state)
+    }
+
+    @discardableResult
+    private func addButtonsRow(_ block: (UIStackView) -> Void) -> UIStackView {
+        let row = UIStackView()
+        row.axis = .horizontal
+        row.spacing = AppSpace.sm
+        contentStack.addArrangedSubview(row)
+        block(row)
+        return row
+    }
+
+    private func makeTextButton(title: String, action: Selector) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setTitle(title, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs)
+        button.setTitleColor(AppColor.primary, for: .normal)
+        button.addTarget(self, action: action, for: .touchUpInside)
+        return button
+    }
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 基础 5 项等分（点击切换）") { [weak self] container in
+            guard let self else { return }
+            let (holder, state) = self.makePageArea(container: container, height: 180)
+            state.text = "当前页面：home（自管理选中）"
+            let tab = TabbarView(
+                items: [
+                    TabBarItem(title: "首页", value: "home", icon: "⌂"),
+                    TabBarItem(title: "明细", value: "list", icon: "▤"),
+                    TabBarItem(title: "记账", value: "add", icon: "✚"),
+                    TabBarItem(title: "报表", value: "chart", icon: "☰"),
+                    TabBarItem(title: "我的", value: "mine", icon: "☺"),
+                ],
+                selectedValue: self.d1Value,
+                onChange: { [weak self] value in
+                    guard let self else { return }
+                    self.d1Value = value
+                    self.d1Tap += 1
+                    state.text = "当前页面：\(value)（点击回调 \(self.d1Tap) 次）"
+                    state.textColor = AppColor.primary
+                    self.d1Feedback?.text = "D1 点击：\(value)（第 \(self.d1Tap) 次切换）"
+                    self.d1Feedback?.textColor = AppColor.primary
+                }
+            )
+            holder.addSubview(tab)
+            tab.snp.makeConstraints { make in
+                make.leading.trailing.bottom.equalToSuperview()
+            }
+        }
+        d1Feedback = addDynamicInfo("icon 字符 22pt + 文字 12pt，等分 5 项；激活=主色加粗，默认首启用项自管理。")
+    }
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 角标数字 + 禁用项") { [weak self] container in
+            guard let self else { return }
+            let (holder, state) = self.makePageArea(container: container, height: 180)
+            state.text = "当前：home（消息角标 3，我的=禁用）"
+            let tab = TabbarView(
+                items: [
+                    TabBarItem(title: "首页", value: "home", icon: "⌂"),
+                    TabBarItem(title: "消息", value: "msg", icon: "✉", badge: 3),
+                    TabBarItem(title: "报表", value: "chart", icon: "☰"),
+                    TabBarItem(title: "我的", value: "mine", icon: "☺", disabled: true),
+                ],
+                selectedValue: self.d2Value,
+                onChange: { [weak self] value in
+                    guard let self, value != "mine" else { return }
+                    self.d2Value = value
+                    state.text = "当前：\(value)（消息角标 3，我的=禁用）"
+                    state.textColor = AppColor.primary
+                    self.d2Feedback?.text = "D2 点击：\(value)（禁用项不可点）"
+                    self.d2Feedback?.textColor = AppColor.primary
+                }
+            )
+            holder.addSubview(tab)
+            tab.snp.makeConstraints { make in
+                make.leading.trailing.bottom.equalToSuperview()
+            }
+        }
+        d2Feedback = addDynamicInfo("角标=高 16pt 圆角主色白字数字（位于图标右上）；禁用项 40% 透明且不可点（点击不回调）。")
+    }
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 纯文字 + 长标题省略 + 品牌红 activeColor") { [weak self] container in
+            guard let self else { return }
+            let (holder, state) = self.makePageArea(container: container, height: 180)
+            state.text = "当前：a（品牌红激活色）"
+            let tab = TabbarView(
+                items: [
+                    TabBarItem(title: "全部账单明细全部明细", value: "a"),
+                    TabBarItem(title: "进行中", value: "b"),
+                    TabBarItem(title: "我的收藏夹", value: "c"),
+                ],
+                selectedValue: self.d3Value,
+                activeColor: UIColor(red: 0.882, green: 0.114, blue: 0.282, alpha: 1),
+                onChange: { [weak self] value in
+                    guard let self else { return }
+                    self.d3Value = value
+                    state.text = "当前：\(value)（品牌红激活色）"
+                    state.textColor = AppColor.primary
+                    self.d3Feedback?.text = "D3 点击：\(value)"
+                    self.d3Feedback?.textColor = AppColor.primary
+                }
+            )
+            holder.addSubview(tab)
+            tab.snp.makeConstraints { make in
+                make.leading.trailing.bottom.equalToSuperview()
+            }
+        }
+        d3Feedback = addDynamicInfo("icon 缺省=纯文字项；长标题单行省略；activeColor 覆盖默认主色（此处品牌红）。")
+    }
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 受控外部驱动（selectedValue 由外部状态驱动）") { [weak self] container in
+            guard let self else { return }
+            let (holder, state) = self.makePageArea(container: container, height: 200)
+            state.text = "当前：chart（外部驱动，点击回调 0 次）"
+            let tab = TabbarView(
+                items: [
+                    TabBarItem(title: "首页", value: "home", icon: "⌂"),
+                    TabBarItem(title: "报表", value: "chart", icon: "☰"),
+                    TabBarItem(title: "我的", value: "mine", icon: "☺"),
+                ],
+                selectedValue: self.d4Value,
+                onChange: { [weak self] value in
+                    guard let self else { return }
+                    self.d4Value = value
+                    self.d4Tap += 1
+                    state.text = "当前：\(value)（外部驱动，点击回调 \(self.d4Tap) 次）"
+                    state.textColor = AppColor.primary
+                    self.d4Feedback?.text = "D4 点击：\(value)（第 \(self.d4Tap) 次）"
+                    self.d4Feedback?.textColor = AppColor.primary
+                }
+            )
+            holder.addSubview(tab)
+            tab.snp.makeConstraints { make in
+                make.leading.trailing.bottom.equalToSuperview()
+            }
+        }
+        addButtonsRow { row in
+            row.addArrangedSubview(self.makeTextButton(title: "外部切到「报表」", action: #selector(self.d4ToChart)))
+            row.addArrangedSubview(self.makeTextButton(title: "外部切到「我的」", action: #selector(self.d4ToMine)))
+        }
+        d4Feedback = addDynamicInfo("半受控语义：外部 selectedValue 优先级高于自管理；点已激活项幂等（不重复回调）。")
+    }
+
+    @objc private func d4ToChart() {
+        d4Value = "chart"
+        d4Feedback?.text = "外部驱动 selectedValue → chart（未触发 onChange，计数仍为 \(d4Tap) 次）"
+        d4Feedback?.textColor = AppColor.primary
+    }
+
+    @objc private func d4ToMine() {
+        d4Value = "mine"
+        d4Feedback?.text = "外部驱动 selectedValue → mine（未触发 onChange，计数仍为 \(d4Tap) 次）"
+        d4Feedback?.textColor = AppColor.primary
+    }
+}
+
+// MARK: - Tabs Showcase（Tabs 选项卡 Demo 页，导航组件 #3 收编 · #20）
+
+/// 4 段排查：D1 基础等分+指示线 / D2 禁用 / D3 长标题省略+品牌红 / D4 受控外部驱动。
+/// 双端 1:1：iOS TabsView（替换旧收编业务双 Tab）vs Android Tabs（Row weight）。
+final class TabsShowcase: ShowcaseViewController {
+    private var d1Value = "in"
+    private var d1Tap = 0
+    private var d1Feedback: UILabel?
+
+    private var d2Value = "week"
+    private var d2Feedback: UILabel?
+
+    private var d3Value = "a"
+    private var d3Feedback: UILabel?
+
+    private var d4Value = "draft"
+    private var d4Tap = 0
+    private var d4Feedback: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Tabs", version: "v1.0", builtAt: "")
+        addInfo("4 段排查：① 基础等分+指示线 ② 禁用项 ③ 长标题省略+品牌红 activeColor ④ 受控外部驱动。双端 1:1（iOS TabsView vs Android Tabs）。")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    /// 把 TabsView 钉进容器顶部（条宽=容器宽，高走组件 intrinsic 44）。
+    private func embedTabs(_ tabs: TabsView, in container: UIView) {
+        container.addSubview(tabs)
+        tabs.snp.makeConstraints { make in
+            make.leading.trailing.top.equalToSuperview()
+        }
+    }
+
+    /// 段内说明行（钉在条下方，与 Android demo 的说明文字 1:1）。
+    private func sectionInfo(_ text: String, topTo tabs: UIView, in container: UIView) -> UILabel {
+        let info = UILabel()
+        info.text = text
+        info.font = .systemFont(ofSize: AppFont.sizeXs)
+        info.textColor = AppColor.textSecondary
+        info.numberOfLines = 0
+        container.addSubview(info)
+        info.snp.makeConstraints { make in
+            make.top.equalTo(tabs.snp.bottom).offset(AppSpace.sm)
+            make.leading.trailing.bottom.equalToSuperview()
+        }
+        return info
+    }
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 基础等分 + 底部指示线") { [weak self] container in
+            guard let self else { return }
+            let tabs = TabsView(
+                items: [
+                    TabItem(title: "支出", value: "in"),
+                    TabItem(title: "收入", value: "out"),
+                    TabItem(title: "转账", value: "transfer"),
+                ],
+                selectedValue: self.d1Value,
+                onChange: { [weak self] value in
+                    guard let self else { return }
+                    self.d1Value = value
+                    self.d1Tap += 1
+                    self.d1Feedback?.text = "当前页签：\(value)（点击回调 \(self.d1Tap) 次）"
+                    self.d1Feedback?.textColor = AppColor.primary
+                }
+            )
+            self.embedTabs(tabs, in: container)
+            self.d1Feedback = self.sectionInfo("当前页签：in（点击回调 0 次）", topTo: tabs, in: container)
+        }
+    }
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 禁用项（年视图禁用）") { [weak self] container in
+            guard let self else { return }
+            let tabs = TabsView(
+                items: [
+                    TabItem(title: "周视图", value: "week"),
+                    TabItem(title: "月视图", value: "month"),
+                    TabItem(title: "年视图", value: "year", disabled: true),
+                ],
+                selectedValue: self.d2Value,
+                onChange: { [weak self] value in
+                    guard let self else { return }
+                    self.d2Value = value
+                    self.d2Feedback?.text = "当前页签：\(value)"
+                    self.d2Feedback?.textColor = AppColor.primary
+                }
+            )
+            self.embedTabs(tabs, in: container)
+            self.d2Feedback = self.sectionInfo("禁用页签 40% 透明且不可点；激活指示线仍在启用的项下方。", topTo: tabs, in: container)
+        }
+    }
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 长标题省略 + 品牌红 activeColor") { [weak self] container in
+            guard let self else { return }
+            let tabs = TabsView(
+                items: [
+                    TabItem(title: "全部账单明细全部账单", value: "a"),
+                    TabItem(title: "已完成", value: "b"),
+                    TabItem(title: "个人收藏夹", value: "c"),
+                ],
+                selectedValue: self.d3Value,
+                activeColor: UIColor(red: 0.882, green: 0.114, blue: 0.282, alpha: 1),
+                onChange: { [weak self] value in
+                    guard let self else { return }
+                    self.d3Value = value
+                    self.d3Feedback?.text = "当前页签：\(value)"
+                    self.d3Feedback?.textColor = AppColor.primary
+                }
+            )
+            self.embedTabs(tabs, in: container)
+            self.d3Feedback = self.sectionInfo("标题单行省略；激活项底部 2pt 指示线（宽=当前项整宽）为 activeColor。", topTo: tabs, in: container)
+        }
+    }
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 受控外部驱动") { [weak self] container in
+            guard let self else { return }
+            let tabs = TabsView(
+                items: [
+                    TabItem(title: "草稿", value: "draft"),
+                    TabItem(title: "已发布", value: "published"),
+                    TabItem(title: "归档", value: "archive"),
+                ],
+                selectedValue: self.d4Value,
+                onChange: { [weak self] value in
+                    guard let self else { return }
+                    self.d4Value = value
+                    self.d4Tap += 1
+                    self.d4Feedback?.text = "当前页签：\(value)（点击回调累计 \(self.d4Tap) 次）"
+                    self.d4Feedback?.textColor = AppColor.primary
+                }
+            )
+            self.embedTabs(tabs, in: container)
+            self.d4Feedback = self.sectionInfo("外部 selectedValue 优先级高于自管理；点击回调累计 0 次；点已激活项幂等。", topTo: tabs, in: container)
+        }
+        let row = UIStackView()
+        row.axis = .horizontal
+        row.spacing = AppSpace.sm
+        contentStack.addArrangedSubview(row)
+        let toDraft = UIButton(type: .system)
+        toDraft.setTitle("外部切到「草稿」", for: .normal)
+        toDraft.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs)
+        toDraft.setTitleColor(AppColor.primary, for: .normal)
+        toDraft.addTarget(self, action: #selector(d4ToDraft), for: .touchUpInside)
+        row.addArrangedSubview(toDraft)
+        let toPublished = UIButton(type: .system)
+        toPublished.setTitle("外部切到「已发布」", for: .normal)
+        toPublished.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs)
+        toPublished.setTitleColor(AppColor.primary, for: .normal)
+        toPublished.addTarget(self, action: #selector(d4ToPublished), for: .touchUpInside)
+        row.addArrangedSubview(toPublished)
+    }
+
+    @objc private func d4ToDraft() {
+        d4Value = "draft"
+        d4Feedback?.text = "外部驱动 selectedValue → draft（未触发 onChange，计数仍为 \(d4Tap) 次）"
+        d4Feedback?.textColor = AppColor.primary
+    }
+
+    @objc private func d4ToPublished() {
+        d4Value = "published"
+        d4Feedback?.text = "外部驱动 selectedValue → published（未触发 onChange，计数仍为 \(d4Tap) 次）"
         d4Feedback?.textColor = AppColor.primary
     }
 }

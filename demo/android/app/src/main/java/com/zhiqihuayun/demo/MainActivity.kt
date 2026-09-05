@@ -94,6 +94,12 @@ import com.zhiqihuayun.sharedui.components.FixedNav
 import com.zhiqihuayun.sharedui.components.FixedNavItem
 import com.zhiqihuayun.sharedui.components.FixedNavType
 import com.zhiqihuayun.sharedui.components.HoverButton
+import com.zhiqihuayun.sharedui.components.NavBar
+import com.zhiqihuayun.sharedui.components.NavBarAction
+import com.zhiqihuayun.sharedui.components.TabBarItem
+import com.zhiqihuayun.sharedui.components.Tabbar
+import com.zhiqihuayun.sharedui.components.TabItem
+import com.zhiqihuayun.sharedui.components.Tabs
 import com.zhiqihuayun.sharedui.components.SideBar
 import com.zhiqihuayun.sharedui.components.SideBarItem
 import com.zhiqihuayun.sharedui.components.LayoutCol
@@ -146,10 +152,10 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Elevator 电梯楼层", reviewed = true, demo = { ElevatorDemo() }),
         DemoComponent("FixedNav 悬浮导航", reviewed = true, demo = { FixedNavDemo() }),
         DemoComponent("HoverButton 悬浮按钮", reviewed = true, demo = { HoverButtonDemo() }),
-        DemoComponent("NavBar 头部导航"),
+        DemoComponent("NavBar 头部导航", reviewed = true, demo = { NavBarDemo() }),
         DemoComponent("SideBar 侧边导航", reviewed = true, demo = { SideBarDemo() }),
-        DemoComponent("Tabbar 标签栏"),
-        DemoComponent("Tabs 选项卡"),
+        DemoComponent("Tabbar 标签栏", reviewed = true, demo = { TabbarDemo() }),
+        DemoComponent("Tabs 选项卡", reviewed = true, demo = { TabsDemo() }),
     ),
     "数据录入" to listOf(
         DemoComponent("Address 地址"),
@@ -2721,6 +2727,300 @@ private fun FixedNavDemo() {
             color = if (d4Picked) AppColor.primary else AppColor.textSecondary
         )
         Text("点钮多次开合稳定；面板/钮内命中由组件消费，点空白仅收起不选中。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+    }
+}
+
+/** NavBarDemo：4 段排查（D1 基础返回 / D2 一级页无返回 / D3 右动作保存 / D4 长标题省略），与 iOS NavBarShowcase 1:1。 */
+@Composable
+private fun NavBarDemo() {
+    Text(
+        text = "NavBar 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 返回钮+标题 ② 一级页无返回（标题严格居中） ③ 右侧动作「保存」 ④ 长标题省略。双端 1:1（iOS NavBar vs Android NavBar）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 基础返回
+        Text("Demo 1 · 返回钮 + 标题（点击返回计数）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1Back by remember { mutableStateOf(0) }
+        NavBar(title = "账单明细", onBack = { d1Back++ })
+        Text(
+            text = if (d1Back > 0) "D1 返回点击：累计 $d1Back 次（返回槽出现在左侧，标题居中）" else "左侧返回钮热区 44×44dp，← 主色；点击计数。",
+            fontSize = AppFont.sizeXs,
+            color = if (d1Back > 0) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D2 · 一级页无返回
+        Text("Demo 2 · 一级页无返回（onBack=nil，标题严格居中）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        NavBar(title = "资产总览")
+        Text("onBack=nil 返回槽不占位，标题严格水平居中（无左侧偏移）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D3 · 右动作保存
+        Text("Demo 3 · 返回 + 右侧动作「保存」（点击计数）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3Back by remember { mutableStateOf(0) }
+        var d3Save by remember { mutableStateOf(0) }
+        NavBar(
+            title = "编辑分类",
+            onBack = { d3Back++ },
+            rightAction = NavBarAction(text = "保存") { d3Save++ }
+        )
+        Text(
+            text = when {
+                d3Back > 0 || d3Save > 0 -> "D3 返回 $d3Back 次 / 保存 $d3Save 次"
+                else -> "右侧动作 = NavBarAction(text, color?, onTap)，文字默认 textPrimary 14dp。"
+            },
+            fontSize = AppFont.sizeXs,
+            color = if (d3Back > 0 || d3Save > 0) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D4 · 长标题省略
+        Text("Demo 4 · 长标题省略（返回+保存两侧夹挤）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4Back by remember { mutableStateOf(0) }
+        var d4Save by remember { mutableStateOf(0) }
+        NavBar(
+            title = "这是一条特别特别长的标题用来验证单行省略的效果是否正确展示",
+            onBack = { d4Back++ },
+            rightAction = NavBarAction(text = "保存") { d4Save++ }
+        )
+        Text(
+            text = "标题最多一行，超出以省略号结尾；返回/动作热区不被长标题侵入。D4 返回 $d4Back 次 / 保存 $d4Save 次。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+    }
+}
+
+/** TabbarDemo：4 段排查（D1 基础 5 项 / D2 角标+禁用 / D3 纯文字+长标题+品牌红 / D4 受控外部驱动），与 iOS TabbarShowcase 1:1。 */
+@Composable
+private fun TabbarDemo() {
+    Text(
+        text = "Tabbar 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 基础 5 项等分 ② 角标数字+禁用 ③ 纯文字长标题+品牌红 activeColor ④ 受控外部驱动。双端 1:1（iOS TabbarView vs Android Tabbar）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 基础 5 项
+        Text("Demo 1 · 基础 5 项等分（点击切换）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1 by remember { mutableStateOf("home") }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(180.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("当前页面：${d1}（自管理选中）", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+            Tabbar(
+                items = listOf(
+                    TabBarItem("首页", "home", icon = "⌂"),
+                    TabBarItem("明细", "list", icon = "▤"),
+                    TabBarItem("记账", "add", icon = "✚"),
+                    TabBarItem("报表", "chart", icon = "☰"),
+                    TabBarItem("我的", "mine", icon = "☺"),
+                ),
+                selectedValue = d1,
+                onChange = { d1 = it },
+                modifier = Modifier.align(Alignment.BottomCenter),
+            )
+        }
+        Text("icon 字符 22dp + 文字 12dp，等分 5 项；激活=主色加粗，默认首启用项自管理。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D2 · 角标 + 禁用
+        Text("Demo 2 · 角标数字 + 禁用项", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2 by remember { mutableStateOf("home") }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(180.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("当前：${d2}（消息角标 3，我的=禁用）", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+            Tabbar(
+                items = listOf(
+                    TabBarItem("首页", "home", icon = "⌂"),
+                    TabBarItem("消息", "msg", icon = "✉", badge = 3),
+                    TabBarItem("报表", "chart", icon = "☰"),
+                    TabBarItem("我的", "mine", icon = "☺", disabled = true),
+                ),
+                selectedValue = d2,
+                onChange = { if (it != "mine") d2 = it },
+                modifier = Modifier.align(Alignment.BottomCenter),
+            )
+        }
+        Text("角标=高 16dp 圆角主色白字数字（位于图标右上）；禁用项 40% 透明且不可点（点击不回调）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D3 · 纯文字 + 长标题省略 + 品牌红
+        Text("Demo 3 · 纯文字 + 长标题省略 + 品牌红 activeColor", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3 by remember { mutableStateOf("a") }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(180.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("当前：${d3}（品牌红激活色）", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+            Tabbar(
+                items = listOf(
+                    TabBarItem("全部账单明细全部明细", "a"),
+                    TabBarItem("进行中", "b"),
+                    TabBarItem("我的收藏夹", "c"),
+                ),
+                activeColor = Color(0xFFE11D48),
+                selectedValue = d3,
+                onChange = { d3 = it },
+                modifier = Modifier.align(Alignment.BottomCenter),
+            )
+        }
+        Text("icon 缺省=纯文字项；长标题单行省略；activeColor 覆盖默认主色（此处品牌红）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D4 · 受控外部驱动
+        Text("Demo 4 · 受控外部驱动（selectedValue 由外部状态驱动）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4 by remember { mutableStateOf("chart") }
+        var d4Tap by remember { mutableStateOf(0) }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("当前：${d4}（外部驱动，外部点击回调 $d4Tap 次）", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+            Tabbar(
+                items = listOf(
+                    TabBarItem("首页", "home", icon = "⌂"),
+                    TabBarItem("报表", "chart", icon = "☰"),
+                    TabBarItem("我的", "mine", icon = "☺"),
+                ),
+                selectedValue = d4,
+                onChange = { d4 = it; d4Tap++ },
+                modifier = Modifier.align(Alignment.BottomCenter),
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = { d4 = "chart" }) { Text("外部切到「报表」", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = { d4 = "mine" }) { Text("外部切到「我的」", fontSize = AppFont.sizeXs) }
+        }
+        Text("半受控语义：外部 selectedValue 优先级高于自管理；点已激活项幂等（不重复回调）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+    }
+}
+
+/** TabsDemo：4 段排查（D1 基础 / D2 禁用 / D3 长标题省略+品牌红 / D4 受控外部驱动），与 iOS TabsShowcase 1:1。 */
+@Composable
+private fun TabsDemo() {
+    Text(
+        text = "Tabs 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 基础等分+指示线 ② 禁用项 ③ 长标题省略+品牌红 activeColor ④ 受控外部驱动。双端 1:1（iOS TabsView vs Android Tabs）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 基础
+        Text("Demo 1 · 基础等分 + 底部指示线", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1 by remember { mutableStateOf("in") }
+        var d1Tap by remember { mutableStateOf(0) }
+        Tabs(
+            items = listOf(
+                TabItem("支出", "in"),
+                TabItem("收入", "out"),
+                TabItem("转账", "transfer"),
+            ),
+            selectedValue = d1,
+            onChange = { d1 = it; d1Tap++ },
+        )
+        Text(
+            text = "当前页签：${d1}（点击回调 $d1Tap 次）",
+            fontSize = AppFont.sizeXs,
+            color = if (d1Tap > 0) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D2 · 禁用
+        Text("Demo 2 · 禁用项（年视图禁用）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2 by remember { mutableStateOf("week") }
+        Tabs(
+            items = listOf(
+                TabItem("周视图", "week"),
+                TabItem("月视图", "month"),
+                TabItem("年视图", "year", disabled = true),
+            ),
+            selectedValue = d2,
+            onChange = { d2 = it },
+        )
+        Text("禁用页签 40% 透明且不可点；激活指示线仍在启用的项下方。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D3 · 长标题省略 + 品牌红
+        Text("Demo 3 · 长标题省略 + 品牌红 activeColor", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3 by remember { mutableStateOf("a") }
+        Tabs(
+            items = listOf(
+                TabItem("全部账单明细全部账单", "a"),
+                TabItem("已完成", "b"),
+                TabItem("个人收藏夹", "c"),
+            ),
+            activeColor = Color(0xFFE11D48),
+            selectedValue = d3,
+            onChange = { d3 = it },
+        )
+        Text("标题单行省略；激活项底部 2dp 指示线（宽=当前项整宽）为 activeColor。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D4 · 受控外部驱动
+        Text("Demo 4 · 受控外部驱动", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4 by remember { mutableStateOf("draft") }
+        var d4Tap by remember { mutableStateOf(0) }
+        Tabs(
+            items = listOf(
+                TabItem("草稿", "draft"),
+                TabItem("已发布", "published"),
+                TabItem("归档", "archive"),
+            ),
+            selectedValue = d4,
+            onChange = { d4 = it; d4Tap++ },
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = { d4 = "draft" }) { Text("外部切到「草稿」", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = { d4 = "published" }) { Text("外部切到「已发布」", fontSize = AppFont.sizeXs) }
+        }
+        Text("外部 selectedValue 优先级高于自管理；点击回调累计 $d4Tap 次；点已激活项幂等。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
     }
 }
 

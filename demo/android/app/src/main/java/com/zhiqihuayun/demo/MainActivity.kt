@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -81,6 +82,7 @@ import com.zhiqihuayun.sharedui.components.TrendChartView
 import com.zhiqihuayun.sharedui.components.Overlay
 import com.zhiqihuayun.sharedui.components.EmptyStateView
 import com.zhiqihuayun.sharedui.components.AvatarOption
+import com.zhiqihuayun.sharedui.components.BackTop
 import com.zhiqihuayun.sharedui.components.LayoutCol
 import com.zhiqihuayun.sharedui.components.LayoutRow
 import com.zhiqihuayun.sharedui.components.Space
@@ -127,7 +129,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Sticky 粘性布局", reviewed = true, demo = { StickyDemo() }),
     ),
     "导航组件" to listOf(
-        DemoComponent("BackTop 返回顶部"),
+        DemoComponent("BackTop 返回顶部", reviewed = true, demo = { BackTopDemo() }),
         DemoComponent("Elevator 电梯楼层"),
         DemoComponent("FixedNav 悬浮导航"),
         DemoComponent("HoverButton 悬浮按钮"),
@@ -1924,7 +1926,7 @@ private fun ContentBlock(text: String) {
 @Composable
 private fun SafeAreaDemo() {
     Text(
-        text = "SafeArea 组件 v1.0.3（修复待复验）",
+        text = "SafeArea 组件 v1.0.3 · 2026-09-05 用户双端实机验收通过",
         color = AppColor.primary,
         fontSize = AppFont.sizeXs,
         fontWeight = FontWeight.Medium,
@@ -2411,5 +2413,169 @@ private fun SummaryHeader(onExport: () -> Unit) {
                 Text("导出", fontSize = AppFont.sizeXs, fontWeight = FontWeight.SemiBold, color = Color.White)
             }
         }
+    }
+}
+
+// ===== BackTop 返回顶部 Demo 页（与 iOS BackTopShowcase 一一对应，导航组件） =====
+
+@Composable
+private fun BackTopDemo() {
+    Text(
+        text = "BackTop 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 默认样式（滚动超阈值出现 ↑ 圆钮，点击回顶）② 自定义内容（文字胶囊）③ 点击回调（不自动回顶）④ 位置宿主摆放 + 阈值可配。双端 1:1 对齐（iOS KVO contentOffset vs Android snapshotFlow scrollState）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1 · 默认样式：30 行长内容，滚动超阈值（120dp）右下淡入 ↑ 圆钮，点击回顶
+        Text("Demo 1 · 默认样式（滚动超阈值 120dp 出现 ↑ 圆钮，点击回顶）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        val s1 = rememberScrollState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(240.dp)
+        ) {
+            BackTopContent(rows = 30, scrollState = s1)
+            BackTop(
+                scrollState = s1,
+                appearAfterPx = BackTopThresholdPx(120),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = AppSpace.md, bottom = AppSpace.lg)
+            )
+        }
+        Text("向下滚动列表，右下出现主色 ↑ 按钮；点击回到顶部后按钮淡出。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D2 · 自定义内容：文字胶囊"回顶"（内容替换，行为不变）
+        Text("Demo 2 · 自定义内容（content 文字胶囊「回顶」，行为不变）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        val s2 = rememberScrollState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+        ) {
+            BackTopContent(rows = 16, scrollState = s2)
+            BackTop(
+                scrollState = s2,
+                appearAfterPx = BackTopThresholdPx(40),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = AppSpace.md, bottom = AppSpace.lg)
+            ) {
+                BackTopCapsuleFace()
+            }
+        }
+        Text("content 整体替换默认 ↑ 圆钮为文字胶囊（点击行为保留：回顶）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D3 · 点击回调：记录次数不自动回顶
+        Text("Demo 3 · 点击回调（接管回顶，记录点击次数）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var tapCount by remember { mutableStateOf(0) }
+        val s3 = rememberScrollState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+        ) {
+            BackTopContent(rows = 16, scrollState = s3)
+            BackTop(
+                scrollState = s3,
+                appearAfterPx = BackTopThresholdPx(40),
+                onClick = { tapCount++ },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = AppSpace.md, bottom = AppSpace.lg)
+            )
+        }
+        Text(
+            text = if (tapCount > 0) "BackTop 已点击 $tapCount 次（onTap 接管，未自动回顶）" else "传入 onClick 即接管默认回顶；点击后此处计数。",
+            fontSize = AppFont.sizeXs,
+            color = if (tapCount > 0) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D4 · 位置宿主摆放（左下角）+ 阈值 40dp（滚动即现）
+        Text("Demo 4 · 位置宿主摆放（左下）+ 阈值 40dp（滚动即现）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        val s4 = rememberScrollState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+        ) {
+            BackTopContent(rows = 12, scrollState = s4)
+            BackTop(
+                scrollState = s4,
+                appearAfterPx = BackTopThresholdPx(40),
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = AppSpace.md, bottom = AppSpace.lg)
+            )
+        }
+        Text("位置（右下/左下）是宿主责任，组件不代管布局上下文；阈值作为参数可配。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+    }
+}
+
+/** BackTopDemo 滚动内容：rows 条等高文本行，行高 40dp（与 iOS makeScroller 40pt 1:1）。 */
+@Composable
+private fun BackTopContent(rows: Int, scrollState: ScrollState) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(scrollState)
+    ) {
+        repeat(rows) { i ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .padding(horizontal = AppSpace.md),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Text(
+                    text = String.format("%02d", i + 1) + " · 条目内容第 " + (i + 1) + " 行",
+                    fontSize = AppFont.sizeXs,
+                    color = AppColor.textSecondary
+                )
+            }
+        }
+    }
+}
+
+/** BackTopDemo 阈值换算：dp 视觉阈值 → px（组件 appearAfterPx 为 px 参数，与 scroll px 一致）。 */
+@Composable
+private fun BackTopThresholdPx(dpValue: Int): Int {
+    val density = LocalDensity.current
+    return with(density) { dpValue.dp.toPx().roundToInt() }
+}
+
+/** D2 文字胶囊 face（对齐 iOS makeCapsuleFace：primaryPressed 底圆角 15 + 白字「回顶」，72×30）。 */
+@Composable
+private fun BackTopCapsuleFace() {
+    Box(
+        modifier = Modifier
+            .width(72.dp)
+            .height(30.dp)
+            .clip(RoundedCornerShape(15.dp))
+            .background(AppColor.primaryPressed),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "回顶",
+            fontSize = AppFont.sizeXs,
+            fontWeight = FontWeight.SemiBold,
+            color = Color.White
+        )
     }
 }

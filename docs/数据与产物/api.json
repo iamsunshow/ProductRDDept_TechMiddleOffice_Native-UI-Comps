@@ -2161,9 +2161,9 @@
         ["右侧动作「保存」", "编辑分类：返回+保存双热区，保存文字 14 textPrimary 可 color 覆盖，点击计数（D3）"],
         ["长标题省略", "超长标题单行省略+两侧返回/保存夹挤不侵入热区（D4）"]
       ],
-      "note": "头部导航（导航组件 #2 收编，任务清单 #17）：页面顶部单行头部导航条，对标 NutUI React NavBar（title/back/right）与 iOS 系统 UINavigationBar 语义对齐收编为库内独立组件；导航栈管理与状态栏 inset 由宿主自理（一期明确 anti_goal），内容行高 44pt/44dp（宿主可覆盖），白底 bgCard、行底 hairline（iOS 1/scale pt vs Android 0.5dp 表内放行），返回钮热区 44×44、← 字符 22 主色；右侧动作 NavBarAction(text, color?, onTap)。2026-09-05 导航区收官三件门禁 A 总评通过（规格 nav-bar-design-spec.html + review-nav-bar-A.md，P1–P4 全 A）+ 双端实现入库（NavBar.swift / NavBar.kt + iOS NavBarShowcase/Android NavBarDemo 4 段 1:1）+ demo 注册（iOS pbxproj 5A17 登记、Android DemoComponent reviewed=true 接线）。C1.5 待用户实机验收。旧键 ui.navbar 为收编前 legacy 登记（不删，去向以本条目为准）。",
+      "note": "头部导航（导航组件 #2 收编，任务清单 #17）：页面顶部单行头部导航条，对标 NutUI React NavBar（title/back/right）与 iOS 系统 UINavigationBar 语义对齐收编为库内独立组件；导航栈管理与状态栏 inset 由宿主自理（一期明确 anti_goal），内容行高 44pt/44dp（宿主可覆盖），白底 bgCard、行底 hairline（iOS 1/scale pt vs Android 0.5dp 表内放行），返回钮热区 44×44、← 字符 22 主色；右侧动作 NavBarAction(text, color?, onTap)。2026-09-05 导航区收官三件门禁 A 总评通过（规格 nav-bar-design-spec.html + review-nav-bar-A.md，P1–P4 全 A）+ 双端实现入库（NavBar.swift / NavBar.kt + iOS NavBarShowcase/Android NavBarDemo 4 段 1:1）+ demo 注册（iOS pbxproj 5A17 登记、Android DemoComponent reviewed=true 接线）。C1.5 待用户实机验收。旧键 ui.navbar 为收编前 legacy 登记（不删，去向以本条目为准）。C1.5 ✅ 用户双端实机验收通过（2026-09-05 原话“Android全部通过。iOS也全部通过”）：iOS demo 说明文字与导航条重叠根因=NavBarShowcase.pinBar 顶部单锚缺 bottom 闭合（段容器普通 UIView 无 intrinsic 高、44pt 条高度链断裂溢出压到说明文字）→ 改四边 edges 闭合（子仓 49f1bef，同 Divider 首轮「Demo4 文案重叠」同根因先例）；验证版本 v1.4.0；C1.5 通过，统一待 C1 单测补建 + C2/D。",
       "subcategory": "navigation",
-      "reviewed": false
+      "reviewed": true
     },
     {
       "id": "ui.tabbar",
@@ -2206,9 +2206,9 @@
         ["纯文字 + 长标题省略 + 品牌红", "icon 缺省纯文字项；长标题单行省略；activeColor=品牌红覆盖主色（D3）"],
         ["受控外部驱动", "外部状态驱动 selectedValue（高亮随外部变化），外部按钮切换演示（D4）"]
       ],
-      "note": "标签栏（导航组件 #6，任务清单 #19）：页面底部一级主导航标签条（2-5 项等分 icon+文字，页面路由/切换宿主自理，一期不收编 iOS UITabBar/Material BottomNavigation 系统容器=anti_goal）；栏高 56pt/56dp、icon 文本字符 22=sizeXl（emoji 彩色不染色）、文字 12=sizeXs（激活 semibold 主色/默认 textSecondary）、角标高 16 圆角 full 主色白字 12、禁用 40% 透明、单行省略、activeColor 可覆盖、栏顶 hairline（iOS 1/scale pt vs Android 0.5dp 表内放行）；半受控选中语义与库内 SideBar/Elevator 一致（外部 selectedValue 驱动不触发 onChange、点已激活项幂等）。角标锚点对齐 spec preview（cell 水平中心 +14/顶 2）。2026-09-05 导航区收官三件门禁 A 总评通过（规格 tabbar-design-spec.html + review-tabbar-A.md，P1–P4 全 A）+ 双端实现入库（TabbarView.swift / Tabbar.kt + iOS TabbarShowcase/Android TabbarDemo 4 段 1:1）+ demo 注册（iOS pbxproj 5A18 登记、Android DemoComponent reviewed=true 接线）。C1.5 待用户实机验收。",
+      "note": "标签栏（导航组件 #6，任务清单 #19）：页面底部一级主导航标签条（2-5 项等分 icon+文字，页面路由/切换宿主自理，一期不收编 iOS UITabBar/Material BottomNavigation 系统容器=anti_goal）；栏高 56pt/56dp、icon 文本字符 22=sizeXl（emoji 彩色不染色）、文字 12=sizeXs（激活 semibold 主色/默认 textSecondary）、角标高 16 圆角 full 主色白字 12、禁用 40% 透明、单行省略、activeColor 可覆盖、栏顶 hairline（iOS 1/scale pt vs Android 0.5dp 表内放行）；半受控选中语义与库内 SideBar/Elevator 一致（外部 selectedValue 驱动不触发 onChange、点已激活项幂等）。角标锚点对齐 spec preview（cell 水平中心 +14/顶 2）。2026-09-05 导航区收官三件门禁 A 总评通过（规格 tabbar-design-spec.html + review-tabbar-A.md，P1–P4 全 A）+ 双端实现入库（TabbarView.swift / Tabbar.kt + iOS TabbarShowcase/Android TabbarDemo 4 段 1:1）+ demo 注册（iOS pbxproj 5A18 登记、Android DemoComponent reviewed=true 接线）。C1.5 ✅ 用户双端实机验收通过（2026-09-05 原话“Android全部通过。iOS也全部通过”）：① Android 角标不在图标右上/数字不在胶囊中央=align(TopCenter)+offset y=10 的 y 作用于角标上缘致整枚下移 8dp（iOS 为 top=2）→ offset y 改 2 双端锚点 1:1 + badge Text 默认行高额外纵向空隙致数字视觉偏下 → 显式 lineHeight=字号（子仓 2cabefa，Pixel7Pro 模拟器截图验证居中）；② iOS D1–D4 点击不切换高亮=半受控 demo 只 onChange 更新宿主 state、命令式端不回写组件 selectedValue（Android 声明式自动重组）→ 各 demo 存组件引用 + onChange/D4 外部按钮统一回写 selectedValue（子仓 18545fc）；验证版本 v1.4.0；C1.5 通过，统一待 C1 单测补建 + C2/D。",
       "subcategory": "navigation",
-      "reviewed": false
+      "reviewed": true
     },
     {
       "id": "ui.tabs",
@@ -2251,9 +2251,9 @@
         ["长标题省略 + 品牌红", "长标题单行省略；activeColor=品牌红指示线与文字（D3）"],
         ["受控外部驱动", "外部状态驱动 selectedValue，外部按钮切换演示（D4）"]
       ],
-      "note": "选项卡（导航组件 #3 收编，任务清单 #20）：页内顶部页签条（内容面板宿主渲染），对标 iOS TabsView/PeriodTabsView 旧收编业务双 Tab 与 Android 无对应（旧 TabsView 200 宽胶囊形态近 Segmented）→ 收编替换为库内独立等分页签条 Tabs，与 Segmented（#74 胶囊分段控件）划界：本组件=页内顶部页签切换条+底部整项宽指示线；文字 Sm 14、条高 44pt/44dp、激活项底部 2pt/2dp 指示线（宽度定稿=当前项整宽=等分格宽，spec 05 平台差异表内放行：iOS UIView 底条 vs Android Box align bottom）、禁用 40% 透明、单行省略、activeColor 覆盖默认主色；半受控选中语义同库内 SideBar/Elevator/Tabbar。2026-09-05 导航区收官三件门禁 A 总评通过（规格 tabs-design-spec.html + review-tabs-A.md，P1–P4 全 A）+ 双端实现入库（TabsView.swift 重写替换旧收编业务文件 / Tabs.kt + iOS TabsShowcase/Android TabsDemo 4 段 1:1）+ demo 注册（TabsView.swift pbxproj 已登记沿用、Android DemoComponent reviewed=true 接线）。C1.5 待用户实机验收。",
+      "note": "选项卡（导航组件 #3 收编，任务清单 #20）：页内顶部页签条（内容面板宿主渲染），对标 iOS TabsView/PeriodTabsView 旧收编业务双 Tab 与 Android 无对应（旧 TabsView 200 宽胶囊形态近 Segmented）→ 收编替换为库内独立等分页签条 Tabs，与 Segmented（#74 胶囊分段控件）划界：本组件=页内顶部页签切换条+底部整项宽指示线；文字 Sm 14、条高 44pt/44dp、激活项底部 2pt/2dp 指示线（宽度定稿=当前项整宽=等分格宽，spec 05 平台差异表内放行：iOS UIView 底条 vs Android Box align bottom）、禁用 40% 透明、单行省略、activeColor 覆盖默认主色；半受控选中语义同库内 SideBar/Elevator/Tabbar。2026-09-05 导航区收官三件门禁 A 总评通过（规格 tabs-design-spec.html + review-tabs-A.md，P1–P4 全 A）+ 双端实现入库（TabsView.swift 重写替换旧收编业务文件 / Tabs.kt + iOS TabsShowcase/Android TabsDemo 4 段 1:1）+ demo 注册（TabsView.swift pbxproj 已登记沿用、Android DemoComponent reviewed=true 接线）。C1.5 ✅ 用户双端实机验收通过（2026-09-05 原话“Android全部通过。iOS也全部通过”）：iOS D1–D4 点击不切换高亮=半受控 demo onChange 只改宿主 state 不回写组件 selectedValue（命令式端受控路径宿主必须回写，同 Tabbar 修复）→ 各 demo 存组件引用 + onChange/D4 外部按钮统一回写（子仓 18545fc）；验证版本 v1.4.0；C1.5 通过，统一待 C1 单测补建 + C2/D。",
       "subcategory": "navigation",
-      "reviewed": false
+      "reviewed": true
     },
     {
       "id": "ui.card",

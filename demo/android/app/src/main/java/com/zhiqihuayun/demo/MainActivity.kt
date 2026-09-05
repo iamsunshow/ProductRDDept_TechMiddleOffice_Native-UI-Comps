@@ -2133,11 +2133,14 @@ private fun SafeAreaImmersionCard() {
             // 走 insets 传播链，消费对组件生效），与 iOS 中部容器（safeAreaLayoutGuide=0）1:1
             .consumeWindowInsets(WindowInsets.safeDrawing)
     ) {
+        // 内层两块各带独立圆角，与 iOS D3 同构（深绿 header lg、浅绿 body sm，均四角圆角）；
+        // 不做仅靠外层卡片 clip 的裁剪（那样圆弧只落在整卡外沿，中间两角成直角）
         Column {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(64.dp)
+                    .clip(RoundedCornerShape(AppRadius.lg))
                     .background(AppColor.primary),
                 contentAlignment = Alignment.Center
             ) {
@@ -2147,6 +2150,7 @@ private fun SafeAreaImmersionCard() {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .clip(RoundedCornerShape(AppRadius.sm))
                         .background(AppColor.primaryMuted)
                         .padding(AppSpace.lg)
                 ) {

@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-09-04T23:50:00+08:00",
-  "componentCount": 30,
+  "updatedAt": "2026-09-05T20:00:00+08:00",
+  "componentCount": 40,
   "components": [
     {
       "id": "ui.empty",
@@ -1969,6 +1969,157 @@
       "note": "悬浮导航（导航组件 #3，任务清单 #15）：页面边缘常驻悬浮入口钮 + 展开导航项列表的“快捷导航器”；对标 NutUI React FixedNav（active/nav-list/type/text 语义）；钮视觉基线对齐 BackTop 悬浮钮（高 40pt/40dp 主色白字胶囊钮，圆角 full）；面板=卡片壳（bgCard/圆角 md/边框/阴影）竖排行（行高 44pt/44dp：图标位 20 圆角 6 primaryMuted + 文本 + 可选 num 角标 16 圆角 full，末行无下边线，行最小宽 140）；type 只决定钮靠左/右缘与面板展开方向；“悬浮”定位由宿主完成（组件=纯内容视图放非滚动覆盖层锚定边角，同 BackTop 先例，不做 window 浮层/不监听滚动）；点项自动收起。2026-09-05 全新立项：规格 fixed-nav-design-spec.html（01 用途边界/02 Token/03 P1–P4/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-fixed-nav-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：收起胶囊钮+点钮弹出面板+点项自动收起 / FixedNavItem(key/text/icon?/num?) + type 左右 + 文案自定义 + onSelect / 宿主锚定纯内容视图 / 一期面板行≤7 无滚动；anti_goal=拖拽 Drag/自定义插槽/Icon 系统映射/面板滚动=登记二期）+ 双端实现入库（FixedNavView.swift / FixedNav.kt + iOS FixedNavShowcase/Android FixedNavDemo 4 段 1:1：D1 右侧默认 / D2 左侧 type=left / D3 无图标无角标 / D4 多次开合+点面板外收起）。2026-09-05 C1.5 用户 Demo 双端实机验收通过（原话“通过了”）：验收 5 类问题双端修复闭环（子仓 9503a47：①Android 面板通栏→面板 Column 补 width(IntrinsicSize.Min)+行 defaultMinSize(140)；②Android 图标浅绿框内不居中/数字截断→icon/num 文字 lineHeight=fontSize+居中+num badge 弃固定高改 defaultMinSize；③行内数字推行尾→title 后 Spacer(weight)/iOS 低 hugging 弹性 spacer=spec fn-num margin-left:auto；④iOS 行 title 被 UIStackView fill 拉宽→弹性 spacer；⑤iOS 多次点击失灵→collapse completion 加 panelCard===card 引用保护），reviewed=true。",
       "subcategory": "navigation",
       "reviewed": true
+    },
+
+    {
+      "id": "ui.side-bar",
+      "name": "侧边导航 SideBar",
+      "category": "ui",
+      "summary": "页面内容区左侧的竖排目录导航轨（垂直单选导航）：轨内目录项数据驱动、选中持久胶囊高亮、点击回调幂等、禁用项与单行省略、轨内长列表可滚动且选中自动滚入可视，对标 NutUI React SideBar 收敛为库内自有设计语言的目录导航轨",
+      "capabilities": [
+        "侧边导航",
+        "目录导航",
+        "竖排单选",
+        "垂直导航",
+        "导航轨",
+        "选中高亮",
+        "禁用项",
+        "单行省略",
+        "SideBar"
+      ],
+      "platforms": {
+        "ios": { "state": "available", "note": "SideBarView.swift（SideBarItem(title/value/disabled) + UIButton 胶囊行轨（行高 48、胶囊宽=轨宽−8 圆角 full）+ UIScrollView 轨内滚动 + scrollRectToVisible 选中滚入可视 + 半受控 selectedValue（外部赋值不触发 onChange）+ 幂等点选）" },
+        "android": { "state": "available", "note": "SideBar.kt（Compose LazyColumn 懒加载轨 + 选中胶囊 RoundedCornerShape(20) bgCard + animateScrollToItem 选中滚入可视 + 半受控 selectedValue（外部驱动不触发 onChange）+ 幂等点选）" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/SideBarView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/SideBar.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.side-bar",
+      "industry_names": ["SideBar", "SideBarNav", "侧边导航", "分类导航", "目录导航轨"],
+      "props": [
+        ["items", "目录项列表", "是", "SideBarItem(title 单行省略/value 稳定标识/disabled 禁用不可点)；数据驱动，轨内行数=items 数"],
+        ["selectedValue", "选中值(半受控)", "否", "nil=默认首启用项激活自管理；外部赋值=受控高亮同步 + 选中滚入可视；外部驱动不触发 onChange（幂等）"],
+        ["onChange", "点选回调", "否", "(value) 用户点选触发；点击已激活项不重复回调（幂等）；disabled 项不触发"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础两栏目录（账单分类 5 项）", "左轨 5 分类 + 右信息卡：选中持久高亮 + 点选迁移内容 + 回调幂等（点已激活项计数不增）（D1）"],
+        ["禁用项 + 长标题省略", "禁用项文字透明度 40% 不可点不触发回调；「消息通知与提醒偏好配置」长标题单行省略（D2）"],
+        ["长列表滚动 + 内容联动（12 月）", "12 项轨内可滚选中自动滚入可视；点选=右区滚动定位，右区拖动=轨高亮反向驱动（D3）"],
+        ["受控复位（外部 value 驱动）", "「重置到第一项」外部赋值 selectedValue：高亮同步 + 选中滚入可视，不触发 onChange（幂等）（D4）"]
+      ],
+      "note": "侧边导航（导航组件 #5，任务清单 #18）：页面内容区左侧竖排目录导航轨（垂直单选导航），对标 NutUI React SideBar（title/url 语义收敛为 value 回调）；纯导航轨定位（组件不内嵌右内容联动，与 Elevator 划界：不监听滚动/不做锚点跟随=宿主自理）；选中视觉=白底胶囊（圆角 full）+ 主色加粗浮于灰轨（gray4）上；禁用=文字透明度 40%（A2 规格）；胶囊宽=轨宽−8（行左右 margin xs=4）、行高 48pt/48dp（同库导航轨行高）、轨宽默认 96pt/96dp（宿主可宽度约束覆盖）；行高/轨宽/胶囊 margin 均 Token 对齐（AppSpace.xs/sizeSm 等注释，防魔法值）。轨内长列表滚动 iOS=UIScrollView/Android=LazyColumn，选中自动滚入可视（scrollRectToVisible/animateScrollToItem）。2026-09-05 全新立项：规格 side-bar-design-spec.html（01 用途边界/02 Token/03 P1–P4 决策/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-side-bar-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：纯导航轨数据驱动 + 半受控选中（外部驱动不触发回调）+ 长轨滚动选中滚入可视 + 一期无右内容联动；anti_goal=右侧内容插槽/行内缩进图标/双向滚动锚定跟随=登记二期）+ 双端实现入库（SideBarView.swift / SideBar.kt + iOS SideBarShowcase/Android SideBarDemo 4 段 1:1：D1 基础两栏 / D2 禁用+长标题 / D3 长列表+双向联动 / D4 受控复位）。C1.5 用户实机验收待进行（reviewed 验收通过后翻 true 并回写组件进度.md §1/§2.13/§3）。",
+      "subcategory": "navigation",
+      "reviewed": false
+    },
+
+    {
+      "id": "ui.hover-button",
+      "name": "悬浮按钮 HoverButton",
+      "category": "ui",
+      "summary": "页面边缘常驻的“单功能悬浮动作钮”：主色钮（icon-only 圆钮 / icon+文本或纯文本胶囊，内容自适应），常驻显示（无滚动阈值自动显隐），点击交回 onTap 业务回调，位置由宿主锚定，对标悬浮按钮（Material FAB 业务动作形态的库内自有设计语言）",
+      "capabilities": [
+        "悬浮按钮",
+        "常驻入口",
+        "业务动作",
+        "动作按钮",
+        "悬浮",
+        "HoverButton"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "HoverButton.swift（final class HoverButton: UIView：主色圆底圆角=bounds 高一半 + icon/text 内容 stack + 透明 UIButton 点击承载；intrinsic=钮内容尺寸，宿主只锚边/角即可撑开；icon/text 均缺省=默认 ✚ 圆钮，text 非空=胶囊 padding lg；touchDown 压暗 alpha0.75=按压反馈）"
+        },
+        "android": {
+          "state": "available",
+          "note": "HoverButton.kt（Compose：RoundedCornerShape(20) 主色底 + clickable(indication=null) 无涟漪；text 空=40×40 圆钮 icon 兜底 ✚；text 非空=高 40 胶囊 padding lg 内容自适应；Row spacedBy 8 icon/text 白色）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/HoverButton.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/HoverButton.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "动作组展开/展开面板并入 FixedNav 语义（登记二期）",
+        "自定义色板/内容插槽（登记二期）",
+        "拖拽摆放+边界吸附 Drag（登记二期）",
+        "系统图标 Icon 映射（一期 icon=单字符文本位，登记二期）"
+      ],
+      "visual_tokens": [],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "ui.hover-button 悬浮按钮 常驻入口 业务动作 悬浮 动作按钮 hover button float",
+      "embedding_ref": "",
+      "legacy_id": "ui.hover-button",
+      "industry_names": [
+        "HoverButton",
+        "FloatingButton",
+        "悬浮按钮",
+        "FAB"
+      ],
+      "props": [
+        [
+          "icon",
+          "图标字符",
+          "否",
+          "单字符/emoji（零图片）；text 为空时兜底默认 ✚；仅 icon=icon-only 圆钮"
+        ],
+        [
+          "text",
+          "文本",
+          "否",
+          "null/空=icon-only 圆钮形态；有值=胶囊（高 40、圆角 full、水平内边距 16、宽随内容自适应）；icon 缺省+text 有值=纯文本胶囊（无 icon 位占位）"
+        ],
+        [
+          "onTap",
+          "点击回调",
+          "否",
+          "业务自理动作；nil=仅形态预览/样式反馈"
+        ]
+      ],
+      "events": [],
+      "demos": [
+        [
+          "icon-only 圆钮（默认 ✚）",
+          "右下角常驻 ✚ 圆钮（40×40），滚动内容不影响显隐，点击计数回显（D1）"
+        ],
+        [
+          "图标+文本胶囊",
+          "左下角 ✎ 记一笔 胶囊，icon 与文本间距 8，点击计数回显（D2）"
+        ],
+        [
+          "纯文本长内容胶囊",
+          "icon 缺省仅 text=胶囊宽随文本自然宽+双侧 padding lg 自适应（D3）"
+        ],
+        [
+          "与 BackTop 共存",
+          "同容器滚动：HoverButton 常驻点计数 vs BackTop 滚动超阈值才出现的回顶钮=悬浮族划界（D4）"
+        ]
+      ],
+      "note": "悬浮按钮（导航组件 #4，任务清单 #16）：页面边缘常驻的“单功能悬浮动作钮”；与悬浮族划界=多入口列表面板→FixedNav（ui.fixed-nav）、滚动超阈值回顶→BackTop（ui.back-top）、本组件=单钮常驻自定义动作；钮视觉基线对齐 BackTop 悬浮钮同族（主色底白字、圆角 full、高 40pt/40dp、icon=单字符文本位零图片）；形态内容驱动（P3-A）：text 空=icon-only 圆钮（40×40 icon 兜底 ✚ U+271A）、text 非空=胶囊（高 40 圆角 full 水平内边距 16 icon 间距 8 宽随内容，icon 缺省不占位=纯文本胶囊）；“悬浮”定位由宿主完成（组件=纯内容视图放非滚动覆盖层锚定边角，同 BackTop/FixedNav 先例，不做 window 浮层/不监听滚动）。2026-09-05 全新立项：规格 hover-button-design-spec.html（01 用途边界/02 Token/03 P1–P4/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-hover-button-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：单钮常驻悬浮动作钮+onTap / icon/text 声明式+onTap 缺省不崩 / 内容驱动形态判定（无 mode 枚举）/ 一期=主色钮三形态+常驻+宿主定位+Demo 四段；anti_goal=动作组并入 FixedNav、色板/插槽、拖拽、Icon 映射=登记二期）+ 双端实现入库（HoverButton.swift / HoverButton.kt + iOS HoverButtonShowcase/Android HoverButtonDemo 4 段 1:1：D1 icon-only ✚ 圆钮右侧常驻 / D2 icon+text 胶囊左下 / D3 纯文本长内容胶囊 / D4 与 BackTop 共存划界）+ demo 注册（iOS pbxproj 5A15 登记、Android DemoComponent reviewed=true demo 接线），Android assembleDebug 0 error + iOS xcodebuild Simulator BUILD SUCCEEDED；待 C1.5 用户 Demo 双端实机验收（见组件进度.md §2.14）。",
+      "subcategory": "navigation",
+      "reviewed": false
     },
     {
       "id": "ui.card",

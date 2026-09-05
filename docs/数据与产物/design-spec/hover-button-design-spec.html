@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>HoverButton 悬浮按钮 · 设计规格（门禁 A）</title>
+<style>
+::root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+.hb-stage{position:relative;background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);height:170px;margin:var(--spaceMd) 0;overflow:hidden;}
+.hb-stage .hb-page{position:absolute;inset:0;background:repeating-linear-gradient(#F9FAFB,#F9FAFB 22px,#F3F4F6 23px);}
+.hb-row{position:absolute;inset:0;overflow:hidden;}
+.hb-row::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(#fff,#fff 30px,#F3F4F6 31px);}
+.hb-row i{display:block;height:30px;border-bottom:1px solid #F3F4F6;position:relative;}
+.hb-row i::after{content:"账单示例 · 长滚动内容行";font-style:normal;font-size:12px;color:#9CA3AF;position:absolute;left:12px;top:8px;}
+.hb-btn{position:absolute;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 2px 6px rgba(17,24,39,.18);}
+.hb-round{width:40px;height:40px;border-radius:50%;font-size:18px;}
+.hb-pill{height:40px;border-radius:999px;padding:0 16px;gap:6px;font-size:14px;box-sizing:border-box;}
+.hb-btn b{font-weight:600;}
+.hb-bt-btn{position:absolute;right:12px;bottom:16px;width:40px;height:40px;border-radius:50%;background:var(--primary);color:#fff;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(17,24,39,.15);}
+.hb-note{font-size:12px;color:var(--textSecondary);}
+</style>
+</head>
+<body>
+
+<h1>HoverButton 悬浮按钮 · 设计规格（导航组件 #4 · 任务清单 #16，subcategory=navigation · 门禁 A）</h1>
+<p>组件 ID：<code>ui.hover-button</code> ｜ 定位：<b>页面边缘常驻的"单功能悬浮动作钮"</b>——常驻显示（无滚动阈值自动显隐）、图标字符 + 可选文本、点击交回业务回调，对标同族"悬浮按钮"语义（Material FAB 业务动作形态的库内自有设计语言版本）。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-04，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 单个业务功能入口需要"不占主内容区、页面角落常驻可点"的悬浮动作钮（发布 / 扫码 / 记一笔 / 打开工具书 / 语音），点击后由业务 onTap 自行处理（弹窗/跳转/计数器…）；② 图标钮（icon 单字符，圆形）或 图标+文本/纯文本（胶囊）两种形态按内容自适应；③ 位置由宿主锚定（右下/左下/任意），常驻不随滚动消失</td></tr>
+<tr><td>不适用（N/A）</td><td>① 多入口悬浮导航列表（点钮展开面板多行）→ <b>FixedNav（ui.fixed-nav，#15）</b>；② 长内容"回到顶部"（滚动超阈值出现 + 点击回顶）→ <b>BackTop（ui.back-top，#13）</b>；③ 底部主导航 Tab → Tabbar（ui.tabbar）；④ 页面顶部导航/标题 → NavBar（ui.nav-bar）</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 常驻主色钮（图标单字符 圆钮 / 图标+文本或纯文本 胶囊）；<span class="tag tag-ok">交互态 ✅</span> 点击触发 onTap（业务自理动作，组件不代管）；禁用/加载/成功/失败 N/A（单动作入口类组件，业务态由宿主反馈承载，本期不引）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；悬浮钮视觉基线=BackTop 悬浮钮同族（主色底白字、圆角 full、高 40pt/dp、无图片依赖=icon 为单字符文本位）；与悬浮类划界：<b>HoverButton=单钮常驻自定义动作（无列表、无滚动阈值）</b>、BackTop=滚动触发回顶、FixedNav=多入口列表悬浮导航</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>icon-only 圆钮</td><td>直径 40pt/40dp，圆角=直径一半（full）</td><td>仅 icon 时圆形钮：主色底 + 白字单字符（如 ✚/✎），圆角随实际 bounds 动态（同 BackTop 默认钮先例），字重 bold 字号 Lg</td></tr>
+<tr><td>icon+text / 纯文本 胶囊</td><td>高 40pt/40dp，圆角 full，水平内边距 = AppSpace.lg（16），icon 与 text 间距 sm（8）</td><td>含 text 时=胶囊钮：主色底白字，text 字号 Sm 常规字重；宽随内容自适应（不写死魔法值）</td></tr>
+<tr><td>icon 字符</td><td>单字符/emoji 文本（默认 "✚"，U+271A；零图片依赖）</td><td>icon 一期=字符文本位（不走 Icon 组件映射，同 FixedNav/BackTop 先例；系统图标映射登记二期）</td></tr>
+<tr><td>icon 缺省规则</td><td>icon=null 且 text=null → 显示默认 ✚ 圆钮</td><td>icon=null 仅 text 有值 → 纯文本胶囊（无 icon 位占位）；icon 有值 text 缺省 → icon-only 圆钮</td></tr>
+<tr><td>位置</td><td>宿主锚定（右下/左下/自定义偏移），组件常驻不自动显隐</td><td>组件=纯内容视图（self 尺寸=钮内容），宿主只锚边/角即可撑开（同 FixedNav intrinsic 先例）</td></tr>
+<tr><td>点击行为</td><td>onTap 业务回调（必选语义：悬浮动作钮无内置动作）</td><td>按压缩放/压暗反馈=平台级放行（见 §05）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 形态与交互：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：单钮常驻悬浮动作钮——主色钮（icon 字符圆钮 / icon+文本或纯文本胶囊，内容自适应）+ onTap 业务回调；常驻不随滚动显隐；位置宿主锚定</td><td>✅ 语义=单功能动作入口（发布/扫码/记一笔），与 FixedNav 列表面板、BackTop 回顶划界清晰；无滚动监听无浮层 API；双端同构易验收。</td><td><b>推荐 A</b>：范围收敛、验收直观</td></tr>
+<tr><td>B：带展开面板的"单入口悬浮菜单"（点钮弹操作组）</td><td>与 FixedNav 悬浮导航面板重复（FixedNav 已覆盖多入口列表），二期 HoverButton 若需动作组应并入 FixedNav。</td><td>淘汰：与 FixedNav 语义重叠</td></tr>
+<tr><td>C：整视图可替换 face（仿 BackTop setFace）+ 自动隐藏/角标全内置</td><td>BackTop 已提供 setFace 供宿主自定义；HoverButton 再引 face 会与"icon/text 声明式"定位冲突，宿主自定义走宿主自己做。</td><td>淘汰：保持声明式轻量（icon/text）</td></tr>
+</table>
+
+<h3>P2 · 数据模型与回调：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：icon: String?（缺省="✚" 默认圆钮，仅 text=纯文本胶囊）+ text: String?（缺省=nil）+ onTap: (() -> Void)?（nil=点击无动作，仅点击样式反馈）</td><td>✅ 覆盖圆钮/胶囊/纯文本三形态；onTap 缺省不崩（可先验证形态再接线）；与 FixedNav/BackTop 字符位约定一致。</td><td><b>推荐 A</b>：契约干净、Demo 覆盖形态差异</td></tr>
+<tr><td>B：icon 必填图片 URL/资源名 + 固定主色矩形</td><td>资源系统强耦合，违背库内"字符文本零图片"惯例。</td><td>淘汰</td></tr>
+<tr><td>C：整个按钮由宿主传 View/Composable（内容插槽）</td><td>组件退化为纯点击壳，形态契约失控，双端 1:1 难排查。</td><td>淘汰：二期自定义插槽再评估</td></tr>
+</table>
+
+<h3>P3 · 圆钮/胶囊形态判定：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：内容驱动——text 为空=icon-only 圆形（宽=高=40）；text 非空=胶囊（高 40、圆角 full、宽=内容+padding lg）；纯文本=无 icon 位的胶囊</td><td>✅ 无需新增 mode 枚举，宿主只喂 icon/text 即可得到正确形态，1:1 双端同判。</td><td><b>推荐 A</b>：零枚举、行为确定</td></tr>
+<tr><td>B：显式 shape 枚举（round/pill）</td><td>多一层 API 让宿主决定形态，且 round+长文本 会产生宽扁椭圆不成立。</td><td>淘汰</td></tr>
+<tr><td>C：统一固定胶囊（文本长按钮，无圆形钮）</td><td>覆盖不到 icon-only 圆形悬浮钮常见诉求（扫码/语音等常用圆形）。</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：主色钮三形态（icon-only 圆钮 / icon+text 胶囊 / 纯文本胶囊）+ onTap 回调 + 常驻 + 宿主定位 + demo 四段（含与 BackTop 同容器共存划界）</td><td>✅ 覆盖悬浮动作钮核心闭环；常驻语义（与 BackTop 滚动显隐对照）可在 D4 直接验证。</td><td><b>推荐 A</b>：验收路径清晰</td></tr>
+<tr><td>B：一期即支持自定义颜色/渐变/阴影</td><td>主题扩展属 token 体系职责，业务可用 ConfigProvider/自绘覆盖，非核心。</td><td>淘汰：登记二期（色板自定义）</td></tr>
+<tr><td>C：支持拖拽摆放 + 边界吸附</td><td>手势与吸附状态双端实现重、与"位置宿主定"矛盾。</td><td>淘汰：登记二期（Drag 能力评估）</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 圆形图标钮（右侧常驻，点击计数）</h3>
+<p>右下角主色 ✚ 圆钮（icon-only，40 圆形）；常驻不随内容滚动消失；点一次反馈区计数 +1。验证 icon-only 圆形态 + 点击回调 + 常驻。</p>
+<div class="hb-stage"><div class="hb-page"></div>
+<div class="hb-btn hb-round" style="right:12px;bottom:16px;">✚</div>
+</div>
+
+<h3>D2 · 图标+文本胶囊（左下，业务动作"记一笔"）</h3>
+<p>左下角主色胶囊（icon ✎ + 文本"记一笔"，padding lg、圆角 full），点击计数回显。验证胶囊形态 + 内容自适应宽。</p>
+<div class="hb-stage"><div class="hb-page"></div>
+<div class="hb-btn hb-pill" style="left:12px;bottom:16px;">✎<b>记一笔</b></div>
+</div>
+
+<h3>D3 · 纯文本长内容胶囊（右侧，"打开工具书"）</h3>
+<p>icon 缺省仅 text（"打开工具书"）：胶囊宽度=文本自然宽 + 双侧 padding lg（无 icon 位占位），点击计数回显。</p>
+<div class="hb-stage"><div class="hb-page"></div>
+<div class="hb-btn hb-pill" style="right:12px;bottom:16px;"><b>打开工具书</b></div>
+</div>
+
+<h3>D4 · 与 BackTop 共存（悬浮族划界对照）</h3>
+<p>同一滚动容器：右下 HoverButton（✚ 常驻，滚动中不消失、点计数）与 BackTop（滚动超阈值才出现、点击回顶）同屏对照——验证"常驻动作钮 vs 滚动触发回顶"两组件划界。</p>
+<div class="hb-stage"><div class="hb-row"></div>
+<div class="hb-btn hb-round" style="right:12px;bottom:16px;">✚</div>
+<div class="hb-bt-btn" style="right:12px;bottom:76px;opacity:.9;">↑</div>
+</div>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>点击按压反馈</td><td>UIButton touchDown/Up 按压压暗（alpha 0.75 瞬态）</td><td>一期无涟漪/无缩放（组件库悬浮族既有惯例，同 BackTop/FixedNav）</td><td>系统级原生差异：按压反馈体系不同（表内放行）</td></tr>
+<tr><td>钮圆角随尺寸</td><td>layoutSubviews 按实际 bounds 动态计算</td><td>40 固定尺寸构造即可（宿主给 modifier 尺寸时按实际取半）</td><td>系统级原生差异：布局时机不同（表内放行）</td></tr>
+<tr class="diff-row"><td>icon 单字符</td><td>UILabel/Button 文本单字符</td><td>Compose Text 单字符</td><td>同一字符不同端渲染（表内放行，同 BackTop ↑ 先例）</td></tr>
+<tr class="diff-row"><td>尺寸数值单位</td><td>pt</td><td>dp</td><td>Token 同一数值不同单位（表内放行，同全库先例）</td></tr>
+<tr class="diff-row"><td>默认图标字符</td><td>"✚"（U+271A）</td><td>"✚"（U+271A）</td><td>两平台同一码点渲染（表内放行）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>iOS</td><td><code>final class HoverButton: UIView</code><br/><code>init(icon: String? = nil, text: String? = nil, onTap: (() -> Void)? = nil)</code><br/>（icon 缺省="✚"；text 非空=胶囊；内容自适应 intrinsic 尺寸=钮宽×40/40×40；宿主只锚边角即可撑开；"悬浮"由宿主置于覆盖层锚定，组件不代管布局）</td></tr>
+<tr><td>Android</td><td><code>@Composable fun HoverButton(modifier: Modifier = Modifier, icon: String? = null, text: String? = null, onTap: () -&gt; Unit)</code><br/>（icon/text 同 iOS 缺省规则；组件自身 wrap 内容不撑满父级；位置由宿主 offset/Box 摆放）</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：单钮常驻自定义动作，与 FixedNav/BackTop/Tabbar/NavBar 划界）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（40 尺寸族/胶囊 padding lg/圆角 full 全走 token+注释锚定，✚ 字符零图片）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（icon-only 圆/胶囊/纯文本/与 BackTop 共存划界）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，任务清单行 16 ⬜，api.json 无条目待立项，本规格为立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（按压反馈/圆角时机=系统级差异；字符与单位表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（动作组并入 FixedNav、自定义色板/插槽、拖拽、系统图标映射=二期）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

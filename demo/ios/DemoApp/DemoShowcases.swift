@@ -38,9 +38,9 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.back-top", name: "BackTop 返回顶部", reviewed: true, create: { BackTopShowcase() }),
             DemoComponent(id: "ui.elevator", name: "Elevator 电梯楼层", reviewed: true, create: { ElevatorShowcase() }),
             DemoComponent(id: "ui.fixed-nav", name: "FixedNav 悬浮导航", reviewed: true, create: { FixedNavShowcase() }),
-            DemoComponent(id: "ui.hover-button", name: "HoverButton 悬浮按钮", reviewed: false, create: nil),
+            DemoComponent(id: "ui.hover-button", name: "HoverButton 悬浮按钮", reviewed: false, create: { HoverButtonShowcase() }),
             DemoComponent(id: "ui.nav-bar", name: "NavBar 头部导航", reviewed: false, create: nil),
-            DemoComponent(id: "ui.side-bar", name: "SideBar 侧边导航", reviewed: false, create: nil),
+            DemoComponent(id: "ui.side-bar", name: "SideBar 侧边导航", reviewed: true, create: { SideBarShowcase() }),
             DemoComponent(id: "ui.tabbar", name: "Tabbar 标签栏", reviewed: false, create: nil),
             DemoComponent(id: "ui.tabs", name: "Tabs 选项卡", reviewed: false, create: nil),
         ]),
@@ -3554,6 +3554,412 @@ final class FixedNavShowcase: ShowcaseViewController {
         nav.collapse(animated: true)
         d4Feedback?.text = "点击面板外区域 → 已收起（未触发选中）"
         d4Feedback?.textColor = AppColor.textSecondary
+    }
+}
+
+// MARK: - HoverButton Showcase（HoverButton 悬浮按钮 Demo 页，导航组件 #4 · #16）
+
+/// 4 段排查：D1 icon-only ✚ 圆钮右侧常驻 / D2 icon+text 胶囊左下 / D3 纯文本长内容胶囊 /
+/// D4 与 BackTop 同容器共存（常驻动作钮 vs 滚动触发回顶划界）。双端 1:1（iOS HoverButton vs Android HoverButton）。
+final class HoverButtonShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "HoverButton", version: "v1.0", builtAt: "2026-09-05")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    // D1 · icon-only 圆钮（右侧常驻，点击计数）：默认 ✚（icon/text 均缺省）
+    private func buildDemo1() {
+        addSection(title: "D1 · icon-only 圆钮（右侧常驻，点击计数）") { container in
+            makeScroller(container: container, height: 220, rows: 18)
+            let feedback = addDynamicInfo("右下常驻 ✚ 圆钮；滚动内容不影响它；点击计数。")
+            var count = 0
+            let button = HoverButton {
+                count += 1
+                feedback.text = "D1 点击：✚ 圆钮（icon-only 常驻），累计 \(count) 次"
+                feedback.textColor = AppColor.primary
+            }
+            container.addSubview(button)
+            button.snp.makeConstraints { make in
+                make.trailing.equalToSuperview().offset(-AppSpace.md)
+                make.bottom.equalToSuperview().offset(-AppSpace.lg)
+            }
+        }
+        addInfo("icon/text 均缺省 = 默认 ✚ 圆钮（直径 40）；按钮常驻、不随滚动显隐，位置由宿主锚定。")
+    }
+
+    // D2 · icon+text 胶囊（左下，业务动作"记一笔"）
+    private func buildDemo2() {
+        addSection(title: "D2 · 图标+文本胶囊（左下「✎ 记一笔」，点击计数）") { container in
+            makeScroller(container: container, height: 200, rows: 14)
+            let feedback = addDynamicInfo("左下常驻胶囊；icon 与文本间距 8pt；点击计数。")
+            var count = 0
+            let button = HoverButton(icon: "✎", text: "记一笔") {
+                count += 1
+                feedback.text = "D2 点击：胶囊（icon ✎ + text 记一笔），累计 \(count) 次"
+                feedback.textColor = AppColor.primary
+            }
+            container.addSubview(button)
+            button.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.md)
+                make.bottom.equalToSuperview().offset(-AppSpace.lg)
+            }
+        }
+        addInfo("含 text 时 = 胶囊（高 40、圆角 full、水平内边距 16pt、宽随内容自适应），icon 与文本间距 8pt。")
+    }
+
+    // D3 · 纯文本长内容胶囊（icon 缺省不占位）
+    private func buildDemo3() {
+        addSection(title: "D3 · 纯文本长内容胶囊（右侧「打开工具书」）") { container in
+            makeScroller(container: container, height: 200, rows: 12)
+            let feedback = addDynamicInfo("icon 缺省仅 text = 纯文本胶囊（无 icon 位占位）；点击计数。")
+            var count = 0
+            let button = HoverButton(text: "打开工具书") {
+                count += 1
+                feedback.text = "D3 点击：纯文本胶囊「打开工具书」，累计 \(count) 次"
+                feedback.textColor = AppColor.primary
+            }
+            container.addSubview(button)
+            button.snp.makeConstraints { make in
+                make.trailing.equalToSuperview().offset(-AppSpace.md)
+                make.bottom.equalToSuperview().offset(-AppSpace.lg)
+            }
+        }
+        addInfo("胶囊宽度 = 文本自然宽 + 双侧 16pt 内边距，长文本自适应（不写死魔法宽）。")
+    }
+
+    // D4 · 与 BackTop 共存：HoverButton 常驻（点计数）vs BackTop 滚动超阈值出现（点回顶）
+    private func buildDemo4() {
+        addSection(title: "D4 · 与 BackTop 共存（常驻动作钮 vs 滚动触发回顶）") { container in
+            let scroll = makeScroller(container: container, height: 220, rows: 40)
+            let feedback = addDynamicInfo("向下滚动超阈值：BackTop 出现；HoverButton 始终常驻。")
+            var count = 0
+            let hover = HoverButton(icon: "✚") {
+                count += 1
+                feedback.text = "D4 点击：HoverButton 常驻计数 \(count) 次（BackTop 不受影响）"
+                feedback.textColor = AppColor.primary
+            }
+            let backtop = BackTopButton(target: scroll, appearAfter: 120)
+            container.addSubview(hover)
+            container.addSubview(backtop)
+            hover.snp.makeConstraints { make in
+                make.trailing.equalToSuperview().offset(-AppSpace.md)
+                make.bottom.equalToSuperview().offset(-(40 + AppSpace.lg))
+            }
+            backtop.snp.makeConstraints { make in
+                make.trailing.equalToSuperview().offset(-AppSpace.md)
+                make.bottom.equalToSuperview().offset(-AppSpace.lg)
+                make.width.height.equalTo(40)
+            }
+        }
+        addInfo("悬浮族划界对照：HoverButton=单钮常驻自定义动作；BackTop=滚动超阈值才出现的回顶钮（行为互相独立）。")
+    }
+}
+
+// MARK: - SideBar Showcase（SideBar 侧边导航 Demo 页，导航组件 #5 · #18）
+
+/// 4 段排查：D1 基础两栏目录（选中持久高亮 + 切换 + 回调幂等）/ D2 禁用项 + 长标题省略 /
+/// D3 长列表滚动 + 内容联动（点选 ↔ 反向驱动）/ D4 受控复位（外部 value 驱动）。
+/// 双端 1:1：iOS SideBarView（UIButton 行轨 + UIScrollView）vs Android SideBar（LazyColumn）。
+final class SideBarShowcase: ShowcaseViewController, UIScrollViewDelegate {
+
+    // D1/D2 右区信息卡引用
+    private var d1Title: UILabel?
+    private var d1Subtitle: UILabel?
+    private var d1Count = 0
+    private var d1Feedback: UILabel?
+
+    private var d2Count = 0
+    private var d2Feedback: UILabel?
+
+    // D3：月份轨 + 右区滚动容器
+    private var d3Rail: SideBarView?
+    private var d3Scroll: UIScrollView?
+    private var d3Feedback: UILabel?
+    private var d3Count = 0
+    private let monthValues = (1...12).map { "\($0)月" }
+    private let d3SectionHeight: CGFloat = 64
+
+    // D4
+    private var d4Rail: SideBarView?
+    private var d4Title: UILabel?
+    private var d4Subtitle: UILabel?
+    private var d4FirstDesc: String?
+    private var d4Feedback: UILabel?
+    private var d4Count = 0
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "SideBar", version: "v1.0", builtAt: "2026-09-05")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    // MARK: - 共用小工具
+
+    /// 在 rail 右侧铺一张信息卡（白底圆角边框），返回卡片视图
+    private func addInfoPane(container: UIView, rail: UIView, height: CGFloat) -> UIView {
+        let pane = UIView()
+        pane.backgroundColor = AppColor.bgCard
+        pane.layer.cornerRadius = AppRadius.md
+        pane.layer.borderWidth = 1.0
+        pane.layer.borderColor = AppColor.border.cgColor
+        container.addSubview(pane)
+        pane.snp.makeConstraints { make in
+            make.leading.equalTo(rail.snp.trailing).offset(AppSpace.md)
+            make.top.bottom.trailing.equalToSuperview()
+            make.height.equalTo(height)
+        }
+        return pane
+    }
+
+    /// 信息卡布局：主标题 + 副题两行，返回两个 label 供外部回写
+    @discardableResult
+    private func layoutPaneLabels(in pane: UIView, title: String, subtitle: String) -> (UILabel, UILabel) {
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: AppFont.sizeLg, weight: .bold)
+        titleLabel.textColor = AppColor.primary
+        let subLabel = UILabel()
+        subLabel.text = subtitle
+        subLabel.font = .systemFont(ofSize: AppFont.sizeSm)
+        subLabel.textColor = AppColor.textSecondary
+        subLabel.numberOfLines = 0
+        pane.addSubview(titleLabel)
+        pane.addSubview(subLabel)
+        titleLabel.snp.makeConstraints { make in
+            make.top.leading.equalToSuperview().inset(AppSpace.md)
+            make.trailing.lessThanOrEqualToSuperview().offset(-AppSpace.lg)
+        }
+        subLabel.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(AppSpace.sm)
+            make.leading.equalToSuperview().inset(AppSpace.md)
+            make.trailing.lessThanOrEqualToSuperview().offset(-AppSpace.md)
+            make.bottom.lessThanOrEqualToSuperview().offset(-AppSpace.md)
+        }
+        return (titleLabel, subLabel)
+    }
+
+    // MARK: - D1 · 基础两栏目录（账单分类 5 项）
+
+    private func buildDemo1() {
+        let data: [(title: String, desc: String)] = [
+            ("全部", "收入 ¥1,285.50 · 支出 ¥823.00"),
+            ("餐饮", "本月支出 ¥468.20"),
+            ("交通", "本月支出 ¥136.80"),
+            ("购物", "本月支出 ¥523.00"),
+            ("其他", "本月支出 ¥157.50"),
+        ]
+        addSection(title: "D1 · 基础两栏目录（账单分类 5 项，选中持久高亮 + 切换）") { [weak self] container in
+            guard let self else { return }
+            let items = data.map { SideBarItem(title: $0.title, value: $0.title) }
+            let sideBar = SideBarView(items: items) { [weak self] value in
+                guard let self, let entry = data.first(where: { $0.title == value }) else { return }
+                self.d1Count += 1
+                self.d1Title?.text = "「\(entry.title)」"
+                self.d1Subtitle?.text = entry.desc
+                self.d1Feedback?.text = "onChange「\(value)」触发：高亮迁移 + 右侧内容切换（第 \(self.d1Count) 次）"
+                self.d1Feedback?.textColor = AppColor.primary
+            }
+            container.addSubview(sideBar)
+            sideBar.snp.makeConstraints { make in
+                make.leading.top.bottom.equalToSuperview()
+                make.width.equalTo(SideBarView.Metrics.railWidth)
+            }
+            let pane = self.addInfoPane(container: container, rail: sideBar, height: 260)
+            let labels = self.layoutPaneLabels(in: pane, title: "「全部」", subtitle: data[0].desc)
+            self.d1Title = labels.0
+            self.d1Subtitle = labels.1
+        }
+        d1Feedback = addDynamicInfo("点不同分类=高亮迁移并切换右侧内容；点当前已激活项不重复回调（计数不增）。")
+    }
+
+    // MARK: - D2 · 禁用项 + 长标题省略
+
+    private func buildDemo2() {
+        let data: [(title: String, desc: String, disabled: Bool)] = [
+            ("账户管理", "账户资料与登录信息", false),
+            ("数据与隐私", "数据与隐私授权设置", false),
+            ("系统设置", "系统偏好与权限设置（禁用项，点击无反应）", true),
+            ("消息通知与提醒偏好配置", "长标题项：单行显示、超长右缘省略（…）", false),
+            ("关于我们", "版本信息与帮助中心", false),
+        ]
+        addSection(title: "D2 · 禁用项 + 长标题省略（选中持久高亮）") { [weak self] container in
+            guard let self else { return }
+            let items = data.map { SideBarItem(title: $0.title, value: $0.title, disabled: $0.disabled) }
+            let sideBar = SideBarView(items: items, selectedValue: "数据与隐私") { [weak self] value in
+                guard let self, let entry = data.first(where: { $0.title == value }) else { return }
+                self.d2Count += 1
+                self.d2Feedback?.text = "onChange「\(value)」触发（第 \(self.d2Count) 次）：\(entry.desc)"
+                self.d2Feedback?.textColor = AppColor.primary
+            }
+            container.addSubview(sideBar)
+            sideBar.snp.makeConstraints { make in
+                make.leading.top.bottom.equalToSuperview()
+                make.width.equalTo(SideBarView.Metrics.railWidth)
+            }
+            let pane = self.addInfoPane(container: container, rail: sideBar, height: 300)
+            self.layoutPaneLabels(in: pane, title: "「数据与隐私」", subtitle: data[1].desc)
+        }
+        d2Feedback = addDynamicInfo("点击禁用项「系统设置」无反应不触发 onChange；「消息通知与提醒偏好配置」长标题单行省略（右侧 …）。")
+    }
+
+    // MARK: - D3 · 长列表滚动 + 内容联动（点选 ↔ 反向驱动）
+
+    private func buildDemo3() {
+        addSection(title: "D3 · 长列表滚动 + 内容联动（12 个月，点选 ↔ 反向驱动）") { [weak self] container in
+            guard let self else { return }
+            let sideBar = SideBarView(
+                items: self.monthValues.map { SideBarItem(title: $0, value: $0) },
+                selectedValue: "1月"
+            ) { [weak self] value in
+                guard let self else { return }
+                self.d3Count += 1
+                self.d3Feedback?.text = "onChange「\(value)」：右区滚动定位到 \(value) 分段（第 \(self.d3Count) 次）"
+                self.d3Feedback?.textColor = AppColor.primary
+                if let idx = self.monthValues.firstIndex(of: value) {
+                    let y = CGFloat(idx) * self.d3SectionHeight
+                    self.d3Scroll?.setContentOffset(CGPoint(x: 0, y: y), animated: true)
+                }
+            }
+            container.addSubview(sideBar)
+            sideBar.snp.makeConstraints { make in
+                make.leading.top.bottom.equalToSuperview()
+                make.width.equalTo(SideBarView.Metrics.railWidth)
+            }
+            self.d3Rail = sideBar
+
+            // 右区滚动容器：12 个月分段（每段 64pt）
+            let scroll = UIScrollView()
+            scroll.delegate = self
+            scroll.backgroundColor = AppColor.bgCard
+            scroll.layer.cornerRadius = AppRadius.md
+            scroll.layer.borderWidth = 1.0
+            scroll.layer.borderColor = AppColor.border.cgColor
+            scroll.showsVerticalScrollIndicator = false
+            container.addSubview(scroll)
+            scroll.snp.makeConstraints { make in
+                make.leading.equalTo(sideBar.snp.trailing).offset(AppSpace.md)
+                make.top.bottom.trailing.equalToSuperview()
+                make.height.equalTo(300)
+            }
+            self.d3Scroll = scroll
+
+            let content = UIView()
+            scroll.addSubview(content)
+            content.snp.makeConstraints { make in
+                make.top.leading.trailing.equalTo(scroll.contentLayoutGuide)
+                make.bottom.equalTo(scroll.contentLayoutGuide.snp.bottom)
+                make.width.equalTo(scroll.frameLayoutGuide)
+            }
+            var prev: UIView?
+            for (index, month) in self.monthValues.enumerated() {
+                let block = UIView()
+                content.addSubview(block)
+                block.snp.makeConstraints { make in
+                    make.leading.trailing.equalToSuperview()
+                    make.height.equalTo(self.d3SectionHeight)
+                    make.top.equalTo(prev?.snp.bottom ?? content.snp.top)
+                }
+                let title = UILabel()
+                title.text = "\(month) 账单"
+                title.font = .systemFont(ofSize: AppFont.sizeSm, weight: .semibold)
+                title.textColor = AppColor.textPrimary
+                let desc = UILabel()
+                desc.text = "\(month) 账单明细样例 · 支出 ¥1,2xx（第 \(index + 1) 段）"
+                desc.font = .systemFont(ofSize: AppFont.sizeXs)
+                desc.textColor = AppColor.textSecondary
+                block.addSubview(title)
+                block.addSubview(desc)
+                title.snp.makeConstraints { make in
+                    make.top.equalToSuperview().offset(AppSpace.sm)
+                    make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                }
+                desc.snp.makeConstraints { make in
+                    make.top.equalTo(title.snp.bottom).offset(AppSpace.xs)
+                    make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                }
+                prev = block
+            }
+        }
+        d3Feedback = addDynamicInfo("点击月份=右侧内容滚动定位；上下拖动右侧内容时轨高亮反向跟随（受控语义，轨选中自动滚入可视）。")
+    }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard scrollView === d3Scroll else { return }
+        let y = max(0, scrollView.contentOffset.y)
+        let idx = min(max(Int((y / d3SectionHeight).rounded()), 0), monthValues.count - 1)
+        let month = monthValues[idx]
+        d3Rail?.selectedValue = month
+        if scrollView.isDragging || scrollView.isDecelerating {
+            d3Feedback?.text = "右侧滚动 → 轨高亮「\(month)」（反向驱动轨选中态）"
+            d3Feedback?.textColor = AppColor.textSecondary
+        }
+    }
+
+    // MARK: - D4 · 受控复位（外部 value 驱动）
+
+    private func buildDemo4() {
+        let data: [(title: String, desc: String)] = [
+            ("全部", "收入 ¥1,285.50 · 支出 ¥823.00"),
+            ("餐饮", "本月支出 ¥468.20"),
+            ("交通", "本月支出 ¥136.80"),
+            ("购物", "本月支出 ¥523.00"),
+            ("其他", "本月支出 ¥157.50"),
+        ]
+        addSection(title: "D4 · 受控复位（外部 value 驱动，「重置到第一项」）") { [weak self] container in
+            guard let self else { return }
+            let items = data.map { SideBarItem(title: $0.title, value: $0.title) }
+            let sideBar = SideBarView(items: items) { [weak self] value in
+                guard let self, let entry = data.first(where: { $0.title == value }) else { return }
+                self.d4Count += 1
+                self.d4Title?.text = "「\(entry.title)」"
+                self.d4Subtitle?.text = entry.desc
+                self.d4Feedback?.text = "onChange「\(value)」触发（第 \(self.d4Count) 次）"
+                self.d4Feedback?.textColor = AppColor.primary
+            }
+            container.addSubview(sideBar)
+            sideBar.snp.makeConstraints { make in
+                make.leading.top.bottom.equalToSuperview()
+                make.width.equalTo(SideBarView.Metrics.railWidth)
+            }
+            self.d4Rail = sideBar
+            let pane = self.addInfoPane(container: container, rail: sideBar, height: 260)
+            let labels = self.layoutPaneLabels(in: pane, title: "「全部」", subtitle: data[0].desc)
+            self.d4Title = labels.0
+            self.d4Subtitle = labels.1
+            self.d4FirstDesc = data[0].desc
+
+            let resetButton = UIButton(type: .system)
+            resetButton.setTitle("重置到第一项", for: .normal)
+            resetButton.setTitleColor(.white, for: .normal)
+            resetButton.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs, weight: .medium)
+            resetButton.backgroundColor = AppColor.primary
+            resetButton.layer.cornerRadius = 14
+            resetButton.contentEdgeInsets = UIEdgeInsets(top: 6, left: 12, bottom: 6, right: 12)
+            resetButton.addTarget(self, action: #selector(d4Reset), for: .touchUpInside)
+            pane.addSubview(resetButton)
+            resetButton.snp.makeConstraints { make in
+                make.trailing.equalToSuperview().offset(-AppSpace.md)
+                make.bottom.equalToSuperview().offset(-AppSpace.md)
+            }
+        }
+        d4Feedback = addDynamicInfo("「重置到第一项」= 外部赋值 selectedValue：轨高亮同步 + 选中滚入可视；不触发 onChange（幂等）。")
+    }
+
+    @objc private func d4Reset() {
+        guard let first = d4Rail?.items.first else { return }
+        d4Rail?.selectedValue = first.value
+        d4Title?.text = "「\(first.title)」"
+        d4Subtitle?.text = d4FirstDesc
+        d4Feedback?.text = "外部驱动 selectedValue → 第一项「\(first.title)」：高亮已同步（onChange 计数不增，仍为 \(d4Count) 次）"
+        d4Feedback?.textColor = AppColor.primary
     }
 }
 

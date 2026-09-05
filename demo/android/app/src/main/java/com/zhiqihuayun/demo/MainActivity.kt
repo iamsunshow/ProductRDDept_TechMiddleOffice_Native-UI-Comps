@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -40,6 +41,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,6 +58,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppFont
 import com.zhiqihuayun.foundation.design.AppRadius
@@ -90,6 +93,9 @@ import com.zhiqihuayun.sharedui.components.ElevatorFloor
 import com.zhiqihuayun.sharedui.components.FixedNav
 import com.zhiqihuayun.sharedui.components.FixedNavItem
 import com.zhiqihuayun.sharedui.components.FixedNavType
+import com.zhiqihuayun.sharedui.components.HoverButton
+import com.zhiqihuayun.sharedui.components.SideBar
+import com.zhiqihuayun.sharedui.components.SideBarItem
 import com.zhiqihuayun.sharedui.components.LayoutCol
 import com.zhiqihuayun.sharedui.components.LayoutRow
 import com.zhiqihuayun.sharedui.components.Space
@@ -139,7 +145,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("BackTop 返回顶部", reviewed = true, demo = { BackTopDemo() }),
         DemoComponent("Elevator 电梯楼层", reviewed = true, demo = { ElevatorDemo() }),
         DemoComponent("FixedNav 悬浮导航", reviewed = true, demo = { FixedNavDemo() }),
-        DemoComponent("HoverButton 悬浮按钮"),
+        DemoComponent("HoverButton 悬浮按钮", reviewed = true, demo = { HoverButtonDemo() }),
         DemoComponent("NavBar 头部导航"),
         DemoComponent("SideBar 侧边导航"),
         DemoComponent("Tabbar 标签栏"),
@@ -2718,6 +2724,139 @@ private fun FixedNavDemo() {
     }
 }
 
+/** HoverButtonDemo：4 段排查（D1 icon-only 圆钮右侧常驻 / D2 icon+text 胶囊左下 / D3 纯文本长内容胶囊 / D4 与 BackTop 共存划界），与 iOS HoverButtonShowcase 1:1。 */
+@Composable
+private fun HoverButtonDemo() {
+    Text(
+        text = "HoverButton 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① icon-only ✚ 圆钮右侧常驻 ② icon+text 胶囊左下 ③ 纯文本长内容胶囊 ④ 与 BackTop 共存（常驻动作钮 vs 滚动触发回顶）。双端 1:1（iOS HoverButton vs Android HoverButton）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1 · icon-only 圆钮（右侧常驻，点击计数）：默认 ✚（icon/text 均缺省）
+        Text("Demo 1 · icon-only 圆钮（右侧常驻，点击计数）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1Count by remember { mutableStateOf(0) }
+        val s1 = rememberScrollState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(220.dp)
+        ) {
+            BackTopContent(rows = 18, scrollState = s1)
+            HoverButton(
+                onTap = { d1Count++ },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = AppSpace.md, bottom = AppSpace.lg)
+            )
+        }
+        Text(
+            text = if (d1Count > 0) "D1 点击：✚ 圆钮（icon-only 常驻），累计 $d1Count 次" else "右下常驻 ✚ 圆钮；滚动内容不影响它；点击计数。",
+            fontSize = AppFont.sizeXs,
+            color = if (d1Count > 0) AppColor.primary else AppColor.textSecondary
+        )
+        Text("icon/text 均缺省 = 默认 ✚ 圆钮（直径 40dp）；按钮常驻、不随滚动显隐，位置由宿主锚定。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D2 · icon+text 胶囊（左下，业务动作"记一笔"）
+        Text("Demo 2 · 图标+文本胶囊（左下「✎ 记一笔」，点击计数）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2Count by remember { mutableStateOf(0) }
+        val s2 = rememberScrollState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+        ) {
+            BackTopContent(rows = 14, scrollState = s2)
+            HoverButton(
+                icon = "✎",
+                text = "记一笔",
+                onTap = { d2Count++ },
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = AppSpace.md, bottom = AppSpace.lg)
+            )
+        }
+        Text(
+            text = if (d2Count > 0) "D2 点击：胶囊（icon ✎ + text 记一笔），累计 $d2Count 次" else "左下常驻胶囊；icon 与文本间距 8dp；点击计数。",
+            fontSize = AppFont.sizeXs,
+            color = if (d2Count > 0) AppColor.primary else AppColor.textSecondary
+        )
+        Text("含 text 时 = 胶囊（高 40dp、圆角 full、水平内边距 16dp、宽随内容自适应），icon 与文本间距 8dp。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D3 · 纯文本长内容胶囊（icon 缺省不占位）
+        Text("Demo 3 · 纯文本长内容胶囊（右侧「打开工具书」）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3Count by remember { mutableStateOf(0) }
+        val s3 = rememberScrollState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+        ) {
+            BackTopContent(rows = 12, scrollState = s3)
+            HoverButton(
+                text = "打开工具书",
+                onTap = { d3Count++ },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = AppSpace.md, bottom = AppSpace.lg)
+            )
+        }
+        Text(
+            text = if (d3Count > 0) "D3 点击：纯文本胶囊「打开工具书」，累计 $d3Count 次" else "icon 缺省仅 text = 纯文本胶囊（无 icon 位占位）；点击计数。",
+            fontSize = AppFont.sizeXs,
+            color = if (d3Count > 0) AppColor.primary else AppColor.textSecondary
+        )
+        Text("胶囊宽度 = 文本自然宽 + 双侧 16dp 内边距，长文本自适应（不写死魔法宽）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D4 · 与 BackTop 共存：HoverButton 常驻（点计数）vs BackTop 滚动超阈值出现（点回顶）
+        Text("Demo 4 · 与 BackTop 共存（常驻动作钮 vs 滚动触发回顶）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4Count by remember { mutableStateOf(0) }
+        val s4 = rememberScrollState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(220.dp)
+        ) {
+            BackTopContent(rows = 40, scrollState = s4)
+            HoverButton(
+                icon = "✚",
+                onTap = { d4Count++ },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = AppSpace.md, bottom = 40.dp + AppSpace.lg)
+            )
+            BackTop(
+                scrollState = s4,
+                appearAfterPx = BackTopThresholdPx(120),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = AppSpace.md, bottom = AppSpace.lg)
+            )
+        }
+        Text(
+            text = if (d4Count > 0) "D4 点击：HoverButton 常驻计数 $d4Count 次（BackTop 不受影响）" else "向下滚动超阈值：BackTop 出现；HoverButton 始终常驻。",
+            fontSize = AppFont.sizeXs,
+            color = if (d4Count > 0) AppColor.primary else AppColor.textSecondary
+        )
+        Text("悬浮族划界对照：HoverButton=单钮常驻自定义动作；BackTop=滚动超阈值才出现的回顶钮（行为互相独立）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+    }
+}
+
 /** BackTopDemo 滚动内容：rows 条等高文本行，行高 40dp（与 iOS makeScroller 40pt 1:1）。 */
 @Composable
 private fun BackTopContent(rows: Int, scrollState: ScrollState) {
@@ -2859,5 +2998,215 @@ private fun ElevatorDemo() {
                 .height(440.dp)
         )
         Text("12 个月份分组连续滚动：右侧索引随可视首分组连续高亮，验证长列表高亮无跳变。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+    }
+}
+
+// ===== SideBar 侧边导航 · Demo（4 段 1:1 对齐 iOS SideBarShowcase：基础两栏/禁用长标题/长列表联动/受控复位） =====
+@Composable
+private fun SideBarDemo() {
+    Text(
+        text = "SideBar 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 基础两栏目录（选中持久高亮+切换+回调幂等）② 禁用项+长标题省略 ③ 12 项长列表滚动+内容联动（点选↔反向驱动）④ 受控复位（外部 value 驱动）。双端 1:1（iOS SideBarView vs Android SideBar）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1 · 基础两栏目录（账单分类 5 项）
+        val d1Data = listOf(
+            "全部" to "收入 ¥1,285.50 · 支出 ¥823.00",
+            "餐饮" to "本月支出 ¥468.20",
+            "交通" to "本月支出 ¥136.80",
+            "购物" to "本月支出 ¥523.00",
+            "其他" to "本月支出 ¥157.50",
+        )
+        var d1Sel by remember { mutableStateOf("全部") }
+        var d1Count by remember { mutableStateOf(0) }
+        Text("Demo 1 · 基础两栏目录（账单分类 5 项，选中持久高亮 + 切换）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Row(modifier = Modifier.fillMaxWidth().height(260.dp)) {
+            SideBar(
+                items = d1Data.map { SideBarItem(it.first, it.first) },
+                onChange = { value ->
+                    d1Sel = value
+                    d1Count += 1
+                },
+                modifier = Modifier.width(96.dp).fillMaxHeight()
+            )
+            val cur = d1Data.first { it.first == d1Sel }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(AppRadius.md))
+                    .background(AppColor.bgCard)
+                    .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+                    .padding(AppSpace.md)
+            ) {
+                Column {
+                    Text("「${cur.first}」", fontSize = AppFont.sizeLg, fontWeight = FontWeight.Bold, color = AppColor.primary)
+                    Text(cur.second, fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                }
+            }
+        }
+        Text("点不同分类=高亮迁移并切换右侧内容；onChange 已触发 $d1Count 次（点当前已激活项不重复回调，计数不增）。", fontSize = AppFont.sizeXs, color = if (d1Count > 0) AppColor.primary else AppColor.textSecondary)
+
+        // D2 · 禁用项 + 长标题省略
+        val d2Data = listOf(
+            "账户管理" to "账户资料与登录信息",
+            "数据与隐私" to "数据与隐私授权设置",
+            "系统设置" to "系统偏好与权限设置（禁用项，点击无反应）",
+            "消息通知与提醒偏好配置" to "长标题项：单行显示、超长右缘省略（…）",
+            "关于我们" to "版本信息与帮助中心",
+        )
+        val d2Disabled = setOf("系统设置")
+        var d2Sel by remember { mutableStateOf("数据与隐私") }
+        var d2Count by remember { mutableStateOf(0) }
+        Text("Demo 2 · 禁用项 + 长标题省略（选中持久高亮）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Row(modifier = Modifier.fillMaxWidth().height(300.dp)) {
+            SideBar(
+                items = d2Data.map { SideBarItem(it.first, it.first, disabled = it.first in d2Disabled) },
+                selectedValue = d2Sel,
+                onChange = { value ->
+                    d2Sel = value
+                    d2Count += 1
+                },
+                modifier = Modifier.width(96.dp).fillMaxHeight()
+            )
+            val cur2 = d2Data.first { it.first == d2Sel }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(AppRadius.md))
+                    .background(AppColor.bgCard)
+                    .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+                    .padding(AppSpace.md)
+            ) {
+                Column {
+                    Text("「${cur2.first}」", fontSize = AppFont.sizeLg, fontWeight = FontWeight.Bold, color = AppColor.primary)
+                    Text(cur2.second, fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                }
+            }
+        }
+        Text("onChange 已触发 $d2Count 次（点击禁用项「系统设置」无反应）；「消息通知与提醒偏好配置」长标题单行省略（右侧 …）。", fontSize = AppFont.sizeXs, color = if (d2Count > 0) AppColor.primary else AppColor.textSecondary)
+
+        // D3 · 长列表滚动 + 内容联动（12 个月，点选 ↔ 反向驱动）
+        val months = (1..12).map { "${it}月" }
+        val sectionPx = with(LocalDensity.current) { 64.dp.roundToPx() }
+        var d3Clicked by remember { mutableStateOf("1月") }
+        var d3Msg by remember { mutableStateOf("点击月份=右侧内容滚动定位；拖动右侧内容=轨高亮反向跟随（选中自动滚入可视）。") }
+        val d3Scroll = rememberScrollState()
+        val d3Scope = rememberCoroutineScope()
+        val d3ScrollSec = if (sectionPx > 0) d3Scroll.value / sectionPx else 0
+        val d3Current = months[d3ScrollSec.coerceIn(0, months.lastIndex)]
+        val d3IsReverse = d3Current != d3Clicked
+        Text("Demo 3 · 长列表滚动 + 内容联动（12 个月，点选 ↔ 反向驱动）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Row(modifier = Modifier.fillMaxWidth().height(300.dp)) {
+            SideBar(
+                items = months.map { SideBarItem(it, it) },
+                selectedValue = d3Current,
+                onChange = { value ->
+                    d3Clicked = value
+                    d3Msg = "onChange「$value」：右区已滚动定位到 $value 分段"
+                    val idx = months.indexOf(value)
+                    if (idx >= 0) d3Scope.launch { d3Scroll.animateScrollTo(idx * sectionPx) }
+                },
+                modifier = Modifier.width(96.dp).fillMaxHeight()
+            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .verticalScroll(d3Scroll)
+                    .clip(RoundedCornerShape(AppRadius.md))
+                    .background(AppColor.bgCard)
+                    .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+            ) {
+                months.forEach { month ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(64.dp)
+                            .padding(horizontal = AppSpace.lg, vertical = AppSpace.sm)
+                    ) {
+                        Text("$month 账单", fontSize = AppFont.sizeSm, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+                        Text("$month 账单明细样例 · 支出 ¥1,2xx", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+                    }
+                }
+            }
+        }
+        Text(
+            text = if (d3IsReverse) "右侧滚动 → 轨高亮「$d3Current」（反向驱动轨选中态）" else d3Msg,
+            fontSize = AppFont.sizeXs,
+            color = if (d3IsReverse) AppColor.textSecondary else AppColor.primary
+        )
+
+        // D4 · 受控复位（外部 value 驱动）
+        var d4Sel by remember { mutableStateOf("餐饮") }
+        var d4Count by remember { mutableStateOf(0) }
+        var d4External by remember { mutableStateOf(false) }
+        var d4Msg by remember { mutableStateOf("「重置到第一项」= 外部赋值 selectedValue：轨高亮同步 + 选中滚入可视；不触发 onChange（幂等）。") }
+        Text("Demo 4 · 受控复位（外部 value 驱动，「重置到第一项」）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Row(modifier = Modifier.fillMaxWidth().height(260.dp)) {
+            SideBar(
+                items = d1Data.map { SideBarItem(it.first, it.first) },
+                selectedValue = d4Sel,
+                onChange = { value ->
+                    d4Sel = value
+                    d4Count += 1
+                    d4External = false
+                    d4Msg = "onChange「$value」触发（第 $d4Count 次）"
+                },
+                modifier = Modifier.width(96.dp).fillMaxHeight()
+            )
+            val cur4 = d1Data.first { it.first == d4Sel }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(AppRadius.md))
+                    .background(AppColor.bgCard)
+                    .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+                    .padding(AppSpace.md)
+            ) {
+                Column {
+                    Text("「${cur4.first}」", fontSize = AppFont.sizeLg, fontWeight = FontWeight.Bold, color = AppColor.primary)
+                    Text(cur4.second, fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                }
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(AppSpace.md)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(AppColor.primary)
+                        .clickable {
+                            d4Sel = d1Data.first().first
+                            d4External = true
+                            d4Msg = "外部驱动 selectedValue → 第一项「${d1Data.first().first}」：高亮已同步（onChange 计数不增，仍为 $d4Count 次）"
+                        }
+                        .padding(horizontal = AppSpace.md, vertical = 6.dp)
+                ) {
+                    Text("重置到第一项", fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium, color = Color.White)
+                }
+            }
+        }
+        Text(
+            text = d4Msg,
+            fontSize = AppFont.sizeXs,
+            color = if (d4External) AppColor.primary else AppColor.textSecondary
+        )
     }
 }

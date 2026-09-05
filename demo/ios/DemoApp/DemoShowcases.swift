@@ -37,7 +37,7 @@ final class DemoListViewController: UITableViewController {
         ("导航组件", [
             DemoComponent(id: "ui.back-top", name: "BackTop 返回顶部", reviewed: true, create: { BackTopShowcase() }),
             DemoComponent(id: "ui.elevator", name: "Elevator 电梯楼层", reviewed: true, create: { ElevatorShowcase() }),
-            DemoComponent(id: "ui.fixed-nav", name: "FixedNav 悬浮导航", reviewed: false, create: nil),
+            DemoComponent(id: "ui.fixed-nav", name: "FixedNav 悬浮导航", reviewed: true, create: { FixedNavShowcase() }),
             DemoComponent(id: "ui.hover-button", name: "HoverButton 悬浮按钮", reviewed: false, create: nil),
             DemoComponent(id: "ui.nav-bar", name: "NavBar 头部导航", reviewed: false, create: nil),
             DemoComponent(id: "ui.side-bar", name: "SideBar 侧边导航", reviewed: false, create: nil),
@@ -318,6 +318,51 @@ class ShowcaseViewController: UIViewController {
             make.edges.equalToSuperview().inset(UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10))
         }
         contentStack.insertArrangedSubview(badge, at: 0)
+    }
+
+    /// 创建一个可滚动"内容区"（demo 专用）：返回钉在 container 边缘且高度固定的滚动视图，
+    /// 内部按 rows 行生成占位文本，用于演示"悬浮钮浮于滚动内容之上"（内容可滚、钮不动）。
+    /// 说明：组件自身不监听滚动；滚动态只是展示宿主把钮放在非滚动覆盖层后的视觉效果。
+    func makeScroller(container: UIView, height: CGFloat, rows: Int) -> UIScrollView {
+        let scroll = UIScrollView()
+        container.addSubview(scroll)
+        scroll.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.height.equalTo(height)
+        }
+        let content = UIView()
+        scroll.addSubview(content)
+        content.snp.makeConstraints { make in
+            make.top.leading.trailing.equalTo(scroll.contentLayoutGuide)
+            // 底部必须钉 contentLayoutGuide：与组件库 Sticky iOS 同款修复（StickyView.swift
+            // f220dad）——缺底部闭合时 UIScrollView 无法由约束推导 contentSize，内层滚动区
+            // contentSize=0、contentOffset 恒 0，BackTop 永不出现。末尾行 bottom 封口 content
+            // 只定内容高，需 bottom=guide.bottom 才向滚动域传递尺寸。
+            make.bottom.equalTo(scroll.contentLayoutGuide.snp.bottom)
+            make.width.equalTo(scroll.frameLayoutGuide)
+        }
+        var prev: UIView?
+        for i in 1...rows {
+            let l = UILabel()
+            l.text = String(format: "%02d", i) + " · 条目内容第 " + String(i) + " 行"
+            l.font = .systemFont(ofSize: AppFont.sizeXs)
+            l.textColor = AppColor.textSecondary
+            content.addSubview(l)
+            l.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
+                make.height.equalTo(40)
+                if let p = prev {
+                    make.top.equalTo(p.snp.bottom)
+                } else {
+                    make.top.equalToSuperview()
+                }
+            }
+            prev = l
+        }
+        if let last = prev {
+            last.snp.makeConstraints { make in make.bottom.equalToSuperview() }
+        }
+        return scroll
     }
 }
 
@@ -3212,7 +3257,7 @@ final class BackTopShowcase: ShowcaseViewController {
     // D1 · 默认样式：30 行长内容，滚动超阈值（120）右下淡入 ↑ 圆钮，点击回顶
     private func buildDemo1() {
         addSection(title: "D1 · 默认样式（滚动超阈值 120 出现 ↑ 圆钮，点击回顶）") { container in
-            let scroll = Self.makeScroller(container: container, height: 240, rows: 30)
+            let scroll = makeScroller(container: container, height: 240, rows: 30)
             let backtop = BackTopButton(target: scroll, appearAfter: 120)
             container.addSubview(backtop)
             backtop.snp.makeConstraints { make in
@@ -3227,7 +3272,7 @@ final class BackTopShowcase: ShowcaseViewController {
     // D2 · 自定义内容：文字胶囊"回顶"
     private func buildDemo2() {
         addSection(title: "D2 · 自定义内容（setFace 文字胶囊，行为不变）") { container in
-            let scroll = Self.makeScroller(container: container, height: 200, rows: 16)
+            let scroll = makeScroller(container: container, height: 200, rows: 16)
             let backtop = BackTopButton(target: scroll, appearAfter: 40)
             let face = Self.makeCapsuleFace(title: "回顶")
             backtop.setFace(face)
@@ -3245,7 +3290,7 @@ final class BackTopShowcase: ShowcaseViewController {
     // D3 · 点击回调：onTap 接管默认回顶（点击只计数、不回顶），反馈回显在段内下方
     private func buildDemo3() {
         addSection(title: "D3 · 点击回调（接管回顶，记录点击次数）") { container in
-            let scroll = Self.makeScroller(container: container, height: 200, rows: 16)
+            let scroll = makeScroller(container: container, height: 200, rows: 16)
             let backtop = BackTopButton(target: scroll, appearAfter: 40) { [weak self] in
                 guard let self else { return }
                 self.tapCount += 1
@@ -3266,7 +3311,7 @@ final class BackTopShowcase: ShowcaseViewController {
     // D4 · 位置由宿主摆放（左下角）+ 阈值 40
     private func buildDemo4() {
         addSection(title: "D4 · 位置宿主摆放（左下）+ 阈值 40（滚动即现）") { container in
-            let scroll = Self.makeScroller(container: container, height: 200, rows: 12)
+            let scroll = makeScroller(container: container, height: 200, rows: 12)
             let backtop = BackTopButton(target: scroll, appearAfter: 40)
             container.addSubview(backtop)
             backtop.snp.makeConstraints { make in
@@ -3293,49 +3338,6 @@ final class BackTopShowcase: ShowcaseViewController {
         return face
     }
 
-    /// 生成固定高滚动容器 + N 条文本行，返回滚动视图（BackTop target）。
-    @discardableResult
-    private static func makeScroller(container: UIView, height: CGFloat, rows: Int) -> UIScrollView {
-        let scroll = UIScrollView()
-        container.addSubview(scroll)
-        scroll.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-            make.height.equalTo(height)
-        }
-        let content = UIView()
-        scroll.addSubview(content)
-        content.snp.makeConstraints { make in
-            make.top.leading.trailing.equalTo(scroll.contentLayoutGuide)
-            // 底部必须钉 contentLayoutGuide：与组件库 Sticky iOS 同款修复（StickyView.swift
-            // f220dad）——缺底部闭合时 UIScrollView 无法由约束推导 contentSize，内层滚动区
-            // contentSize=0、contentOffset 恒 0，BackTop 永不出现。末尾行 bottom 封口 content
-            // 只定内容高，需 bottom=guide.bottom 才向滚动域传递尺寸。
-            make.bottom.equalTo(scroll.contentLayoutGuide.snp.bottom)
-            make.width.equalTo(scroll.frameLayoutGuide)
-        }
-        var prev: UIView?
-        for i in 1...rows {
-            let l = UILabel()
-            l.text = String(format: "%02d", i) + " · 条目内容第 " + String(i) + " 行"
-            l.font = .systemFont(ofSize: AppFont.sizeXs)
-            l.textColor = AppColor.textSecondary
-            content.addSubview(l)
-            l.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
-                make.height.equalTo(40)
-                if let p = prev {
-                    make.top.equalTo(p.snp.bottom)
-                } else {
-                    make.top.equalToSuperview()
-                }
-            }
-            prev = l
-        }
-        if let last = prev {
-            last.snp.makeConstraints { make in make.bottom.equalToSuperview() }
-        }
-        return scroll
-    }
 }
 
 /// 4 段排查：D1 楼层分组（自动索引）/ D2 城市字母（自定义 index）/ D3 分组行点击 / D4 长分组高联稳定。
@@ -3424,6 +3426,129 @@ final class ElevatorShowcase: ShowcaseViewController {
             }
         }
         addInfo("12 个月份分组连续滚动：右侧索引随可视首分组连续高亮，验证长列表高亮无跳变。")
+    }
+}
+
+// MARK: - FixedNav Showcase（FixedNav 悬浮导航 Demo 页，导航组件 #3 · #15）
+
+/// 4 段排查：D1 右侧基本（角标+自动收起）/ D2 左侧 type=left / D3 自定义文案（无图标无角标长文本）/
+/// D4 多次开合 + 点面板外收起（状态稳定）。双端 1:1（iOS FixedNavView vs Android FixedNav）。
+final class FixedNavShowcase: ShowcaseViewController {
+
+    /// D4：容器（tap 手势作用面，仅"面板外点击"触发收起）+ 组件引用 + 反馈行
+    private weak var d4Host: UIView?
+    private var d4Nav: FixedNavView?
+    private var d4Feedback: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "FixedNav", version: "v1.0", builtAt: "2026-09-05")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    // D1 · 右侧默认：右下胶囊"快速导航"展开面板（首页 num2/订单/购物车 num5/我的），钮文字切"收起导航"；点项自动收起并回显
+    private func buildDemo1() {
+        addSection(title: "D1 · 右侧默认（右下胶囊「快速导航」，面板含角标，点项自动收起）") { container in
+            makeScroller(container: container, height: 230, rows: 18)
+            let feedback = addDynamicInfo("点胶囊展开导航，点某项=选中回传并自动收起。")
+            let nav = FixedNavView(items: [
+                FixedNavItem(key: "home", text: "首页", icon: "⌂", num: 2),
+                FixedNavItem(key: "order", text: "订单", icon: "📄"),
+                FixedNavItem(key: "cart", text: "购物车", icon: "🛒", num: 5),
+                FixedNavItem(key: "mine", text: "我的", icon: "◎"),
+            ]) { item in
+                feedback.text = "D1 选中：\(item.text)（key=\(item.key)），面板已自动收起"
+                feedback.textColor = AppColor.primary
+            }
+            container.addSubview(nav)
+            nav.snp.makeConstraints { make in
+                make.trailing.equalToSuperview().offset(-AppSpace.md)
+                make.bottom.equalToSuperview().offset(-AppSpace.lg)
+            }
+        }
+        addInfo("右下角为悬浮钮（“悬浮”由宿主摆放=非滚动覆盖层右下角）；展开面板随钮右缘向上，内容可滚动不影响钮。")
+    }
+
+    // D2 · 左侧摆放（type=.left）：左下胶囊"更多工具"，面板向右展开
+    private func buildDemo2() {
+        addSection(title: "D2 · 左侧摆放（type=.left，左下胶囊「更多工具」，面板向右展开）") { container in
+            makeScroller(container: container, height: 200, rows: 14)
+            let feedback = addDynamicInfo("胶囊在左下缘；点某项回传并自动收起。")
+            let nav = FixedNavView(items: [
+                FixedNavItem(key: "export", text: "导出报表", icon: "⤓"),
+                FixedNavItem(key: "filter", text: "筛选视图", icon: "≋"),
+                FixedNavItem(key: "share", text: "分享", icon: "↗"),
+            ], type: .left, unActiveText: "更多工具") { item in
+                feedback.text = "D2 选中：\(item.text)（type=left），面板已自动收起"
+                feedback.textColor = AppColor.primary
+            }
+            container.addSubview(nav)
+            nav.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.md)
+                make.bottom.equalToSuperview().offset(-AppSpace.lg)
+            }
+        }
+        addInfo("type 只决定钮靠左/右缘与面板展开方向；钮仍由宿主锚左下/右下。")
+    }
+
+    // D3 · 无图标无角标：长文本项自适应宽 + 自定义钮文案（"操作"/"收起"）
+    private func buildDemo3() {
+        addSection(title: "D3 · 无图标无角标（长文本行自适应宽 + 自定义钮文案「操作 / 收起」）") { container in
+            makeScroller(container: container, height: 170, rows: 10)
+            let feedback = addDynamicInfo("图标位缺省=不显示不占位；点项自动收起。")
+            let nav = FixedNavView(items: [
+                FixedNavItem(key: "month", text: "切换为月度视图"),
+                FixedNavItem(key: "sync", text: "同步至工作台"),
+            ], unActiveText: "操作", activeText: "收起") { item in
+                feedback.text = "D3 选中：\(item.text)，面板已自动收起"
+                feedback.textColor = AppColor.primary
+            }
+            container.addSubview(nav)
+            nav.snp.makeConstraints { make in
+                make.trailing.equalToSuperview().offset(-AppSpace.md)
+                make.bottom.equalToSuperview().offset(-AppSpace.lg)
+            }
+        }
+        addInfo("图标位/角标均为可选数据项；缺省时行不预留空位（行宽=文本+内边距）。")
+    }
+
+    // D4 · 多次开合 + 点面板外收起：状态机稳定
+    private func buildDemo4() {
+        addSection(title: "D4 · 多次开合 + 点面板外收起（状态稳定）") { container in
+            makeScroller(container: container, height: 190, rows: 12)
+            let feedback = addDynamicInfo("连续开合点选；点面板外空白处=收起且不触发选中。")
+            let nav = FixedNavView(items: [
+                FixedNavItem(key: "home", text: "回首页", icon: "A"),
+                FixedNavItem(key: "logout", text: "退出登录", icon: "B"),
+            ], activeText: "收起") { item in
+                feedback.text = "D4 选中：\(item.text)（自动收起）"
+                feedback.textColor = AppColor.primary
+            }
+            container.addSubview(nav)
+            nav.snp.makeConstraints { make in
+                make.trailing.equalToSuperview().offset(-AppSpace.md)
+                make.bottom.equalToSuperview().offset(-AppSpace.lg)
+            }
+            d4Host = container
+            d4Nav = nav
+            d4Feedback = feedback
+            let tap = UITapGestureRecognizer(target: self, action: #selector(d4TapOutside(_:)))
+            container.addGestureRecognizer(tap)
+        }
+    }
+
+    @objc private func d4TapOutside(_ gesture: UITapGestureRecognizer) {
+        guard let host = d4Host, let nav = d4Nav else { return }
+        let point = gesture.location(in: nav)
+        // 钮/面板命中区由组件自行处理（钮=开合、行=选中），此处只管"面板外空白"
+        // 命中查询基于钮/卡片实际 frame，不依赖 nav 容器尺寸（见 FixedNavView.hitTestInteractiveArea）
+        if nav.hitTestInteractiveArea(point: point) { return }
+        nav.collapse(animated: true)
+        d4Feedback?.text = "点击面板外区域 → 已收起（未触发选中）"
+        d4Feedback?.textColor = AppColor.textSecondary
     }
 }
 

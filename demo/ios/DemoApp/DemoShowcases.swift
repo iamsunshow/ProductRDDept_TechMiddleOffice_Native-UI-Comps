@@ -2731,7 +2731,7 @@ final class SafeAreaShowcase: ShowcaseViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        addVersionBadge(componentName: "SafeArea", version: "v1.0.2", builtAt: "2026-09-05")
+        addVersionBadge(componentName: "SafeArea", version: "v1.0.3", builtAt: "2026-09-05")
 
         addSection(title: "D1 · SafeAreaView 真实组件（默认全边避让）") { container in
             container.backgroundColor = AppColor.gray4

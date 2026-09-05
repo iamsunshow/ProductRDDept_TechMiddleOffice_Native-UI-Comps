@@ -1924,7 +1924,7 @@ private fun ContentBlock(text: String) {
 @Composable
 private fun SafeAreaDemo() {
     Text(
-        text = "SafeArea 组件 v1.0.2（修复待复验）",
+        text = "SafeArea 组件 v1.0.3（修复待复验）",
         color = AppColor.primary,
         fontSize = AppFont.sizeXs,
         fontWeight = FontWeight.Medium,
@@ -1953,7 +1953,7 @@ private fun SafeAreaDemo() {
                 .clip(RoundedCornerShape(AppRadius.md))
                 .background(AppColor.gray4)
                 .padding(AppSpace.md)
-                // demo 区中部模拟"普通页面内容区"：消费 safeDrawing 后此处安全区=0（v1.0.2 组件
+                // demo 区中部模拟"普通页面内容区"：消费 safeDrawing 后此处安全区=0（v1.0.3 组件
                 // 走 insets 传播链，消费对组件生效），与 iOS 中部容器（safeAreaLayoutGuide=0）语义 1:1
                 .consumeWindowInsets(WindowInsets.safeDrawing)
         ) {
@@ -2019,7 +2019,7 @@ private fun SafeAreaProbe() {
         verticalArrangement = Arrangement.spacedBy(AppSpace.xs)
     ) {
         Text(
-            "诊断探针 v1.0.2 · 量 SafeArea 实际顶部避让（白卡距色块顶，Logcat tag SafeAreaDbg）：红=不消费（应=窗口级 41/24 类）/ 绿=外层 consume(safeDrawing)（应=0，同 Demo1/3/4 中部容器）",
+            "诊断探针 v1.0.3 · 量 SafeArea 实际顶部避让（白卡距色块顶，Logcat tag SafeAreaDbg）：红=不消费（应=窗口级 41/24 类）/ 绿=外层 consume(safeDrawing)（应=0，同 Demo1/3/4 中部容器）",
             color = Color(0xFFE65100),
             fontSize = AppFont.sizeXs,
             fontWeight = FontWeight.Bold
@@ -2129,7 +2129,7 @@ private fun SafeAreaImmersionCard() {
             .clip(RoundedCornerShape(AppRadius.lg))
             .background(AppColor.bgCard)
             .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.lg))
-            // 模拟沉浸页"页面中部内容层"：消费 safeDrawing 后此处 SafeArea=0（v1.0.2 组件
+            // 模拟沉浸页"页面中部内容层"：消费 safeDrawing 后此处 SafeArea=0（v1.0.3 组件
             // 走 insets 传播链，消费对组件生效），与 iOS 中部容器（safeAreaLayoutGuide=0）1:1
             .consumeWindowInsets(WindowInsets.safeDrawing)
     ) {

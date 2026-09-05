@@ -15,8 +15,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -1917,7 +1920,7 @@ private fun ContentBlock(text: String) {
 @Composable
 private fun SafeAreaDemo() {
     Text(
-        text = "SafeArea 组件 v1.0",
+        text = "SafeArea 组件 v1.0.1",
         color = AppColor.primary,
         fontSize = AppFont.sizeXs,
         fontWeight = FontWeight.Medium,
@@ -1944,6 +1947,9 @@ private fun SafeAreaDemo() {
                 .clip(RoundedCornerShape(AppRadius.md))
                 .background(AppColor.gray4)
                 .padding(AppSpace.md)
+                // demo 区中部模拟"普通页面内容区"：消费 systemBars 后此处安全区=0，
+                // 与 iOS 中部容器（safeAreaLayoutGuide=0）语义 1:1（沉浸页接入时避让自动生效）
+                .consumeWindowInsets(WindowInsets.systemBars)
         ) {
             SafeArea {
                 Box(
@@ -1970,7 +1976,14 @@ private fun SafeAreaDemo() {
         SafeAreaImmersionCard()
 
         Text("Demo 4 · edges 边裁剪（仅避顶 / 仅避底）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(AppSpace.md)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                // 消费 systemBars：本卡处于"普通页面中部"=0，与 iOS 中部容器 1:1；
+                // 沉浸页接入后 edges 指定单边自动让出系统 inset
+                .consumeWindowInsets(WindowInsets.systemBars),
+            horizontalArrangement = Arrangement.spacedBy(AppSpace.md)
+        ) {
             SafeAreaEdgeCard(
                 title = "仅避 top",
                 detail = "顶部自绘背景出血、文字避让；底部内容贴边",
@@ -2032,6 +2045,9 @@ private fun SafeAreaImmersionCard() {
             .clip(RoundedCornerShape(AppRadius.lg))
             .background(AppColor.bgCard)
             .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.lg))
+            // 模拟沉浸页"页面中部内容层"：消费 systemBars 后此处 SafeArea=0，
+            // 与 iOS 中部容器（safeAreaLayoutGuide=0）1:1；接入屏幕边缘时避让自动生效
+            .consumeWindowInsets(WindowInsets.systemBars)
     ) {
         Column {
             Box(

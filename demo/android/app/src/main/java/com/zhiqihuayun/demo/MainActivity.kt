@@ -83,6 +83,8 @@ import com.zhiqihuayun.sharedui.components.Overlay
 import com.zhiqihuayun.sharedui.components.EmptyStateView
 import com.zhiqihuayun.sharedui.components.AvatarOption
 import com.zhiqihuayun.sharedui.components.BackTop
+import com.zhiqihuayun.sharedui.components.Elevator
+import com.zhiqihuayun.sharedui.components.ElevatorFloor
 import com.zhiqihuayun.sharedui.components.LayoutCol
 import com.zhiqihuayun.sharedui.components.LayoutRow
 import com.zhiqihuayun.sharedui.components.Space
@@ -130,7 +132,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
     ),
     "导航组件" to listOf(
         DemoComponent("BackTop 返回顶部", reviewed = true, demo = { BackTopDemo() }),
-        DemoComponent("Elevator 电梯楼层"),
+        DemoComponent("Elevator 电梯楼层", reviewed = true, demo = { ElevatorDemo() }),
         DemoComponent("FixedNav 悬浮导航"),
         DemoComponent("HoverButton 悬浮按钮"),
         DemoComponent("NavBar 头部导航"),
@@ -2577,5 +2579,96 @@ private fun BackTopCapsuleFace() {
             fontWeight = FontWeight.SemiBold,
             color = Color.White
         )
+    }
+}
+
+// ===== Elevator 电梯楼层 · Demo（4 段 1:1 对齐 iOS ElevatorShowcase：自动索引/自定义 index/行点击/长列表） =====
+@Composable
+private fun ElevatorDemo() {
+    Text(
+        text = "Elevator 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 楼层分组（默认自动索引）② 城市字母（显式自定义 index）③ 分组行点击（onSelect 回调）④ 12 组月份长列表滚动高亮稳定。双端 1:1（iOS ElevatorView UITableView vs Android Elevator LazyColumn）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1 · 楼层分组：不传 index=自动取分组 key
+        Text("Demo 1 · 楼层分组（默认自动索引 + 双向联动）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Elevator(
+            floors = listOf(
+                ElevatorFloor("1F", listOf("星巴克", "瑞幸咖啡", "喜茶")),
+                ElevatorFloor("2F", listOf("优衣库", "无印良品", "热风")),
+                ElevatorFloor("3F", listOf("华为体验店", "小米之家")),
+                ElevatorFloor("4F", listOf("乐高", "玩具反斗城")),
+                ElevatorFloor("5F", listOf("万达影城"))
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(320.dp)
+        )
+        Text("不传 index 自动取分组 key（1F-5F）：点右侧「5F」即跳 5F 分组；上下滚动内容时右侧高亮当前楼层分组。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D2 · 城市字母索引：显式 index
+        Text("Demo 2 · 城市字母索引（index 显式自定义）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Elevator(
+            floors = listOf(
+                ElevatorFloor("A", listOf("安庆", "安阳", "鞍山")),
+                ElevatorFloor("B", listOf("北京", "包头", "保定")),
+                ElevatorFloor("G", listOf("广州", "桂林")),
+                ElevatorFloor("S", listOf("上海", "深圳"))
+            ),
+            index = listOf("A", "B", "G", "S"),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(260.dp)
+        )
+        Text("index 显式传字母数组：右侧只展示含数据的字母（A/B/G/S），点击字母跳对应城市分组。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D3 · 分组行点击：onSelect 回传
+        Text("Demo 3 · 分组行点击（onSelect 回调）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var selectText by remember { mutableStateOf("点击分组内的某一行（火锅店/电影院等）：结果回显在本行（与 iOS Demo3 一致）。") }
+        Elevator(
+            floors = listOf(
+                ElevatorFloor("餐饮", listOf("火锅店", "面馆", "烧烤店")),
+                ElevatorFloor("娱乐", listOf("电影院", "KTV"))
+            ),
+            onSelect = { floor, row, name ->
+                selectText = "已选择：第 ${floor + 1} 组「$name」（该组内第 ${row + 1} 行）"
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(240.dp)
+        )
+        Text(
+            text = selectText,
+            fontSize = AppFont.sizeXs,
+            color = if (selectText.startsWith("已选择")) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D4 · 长分组列表（12 组）
+        Text("Demo 4 · 长分组列表（12 组月份，滚动高联稳定）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Elevator(
+            floors = (1..12).map { month ->
+                ElevatorFloor("${month}月", listOf("$month 月账单样例 · 支出 ¥1,2xx"))
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(440.dp)
+        )
+        Text("12 个月份分组连续滚动：右侧索引随可视首分组连续高亮，验证长列表高亮无跳变。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
     }
 }

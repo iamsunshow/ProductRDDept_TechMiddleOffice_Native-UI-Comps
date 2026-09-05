@@ -45,10 +45,10 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.tabs", name: "Tabs 选项卡", reviewed: true, create: { TabsShowcase() }),
         ]),
         ("数据录入", [
-            DemoComponent(id: "ui.address", name: "Address 地址", reviewed: false, create: nil),
+            DemoComponent(id: "ui.address", name: "Address 地址", reviewed: true, create: { AddressShowcase() }),
             DemoComponent(id: "ui.calendar", name: "Calendar 日历", reviewed: false, create: nil),
-            DemoComponent(id: "ui.calendar-card", name: "CalendarCard 日历卡片", reviewed: false, create: nil),
-            DemoComponent(id: "ui.cascader", name: "Cascader 级联选择", reviewed: false, create: nil),
+            DemoComponent(id: "ui.calendar-card", name: "CalendarCard 日历卡片", reviewed: true, create: { CalendarCardShowcase() }),
+            DemoComponent(id: "ui.cascader", name: "Cascader 级联选择", reviewed: true, create: { CascaderShowcase() }),
             DemoComponent(id: "ui.checkbox", name: "Checkbox 复选", reviewed: false, create: nil),
             DemoComponent(id: "ui.date-picker", name: "DatePicker 日期选择", reviewed: false, create: nil),
             DemoComponent(id: "ui.date-picker-view", name: "DatePickerView 视图", reviewed: false, create: nil),
@@ -4497,6 +4497,505 @@ final class TabsShowcase: ShowcaseViewController {
         d4Tabs?.selectedValue = "published" // 受控回写：外部驱动组件高亮
         d4Feedback?.text = "外部驱动 selectedValue → published（未触发 onChange，计数仍为 \(d4Tap) 次）"
         d4Feedback?.textColor = AppColor.primary
+    }
+}
+
+// MARK: - 数据录入区首批三件 Demo 数据（与 Android MainActivity 同名树 1:1）
+
+/// 省份示例数据（广东省完整三级；北京/上海/重庆=直辖市两级收拢）。
+private func demoRegionTree() -> [RegionOption] {
+    [
+        RegionOption(value: "gd", text: "广东省", children: [
+            RegionOption(value: "gd_gz", text: "广州市", children: [
+                RegionOption(value: "gd_gz_tianhe", text: "天河区"),
+                RegionOption(value: "gd_gz_yuexiu", text: "越秀区"),
+                RegionOption(value: "gd_gz_haizhu", text: "海珠区")
+            ]),
+            RegionOption(value: "gd_sz", text: "深圳市", children: [
+                RegionOption(value: "gd_sz_nanshan", text: "南山区"),
+                RegionOption(value: "gd_sz_futian", text: "福田区"),
+                RegionOption(value: "gd_sz_luohu", text: "罗湖区")
+            ]),
+            RegionOption(value: "gd_dg", text: "东莞市", children: [
+                RegionOption(value: "gd_dg_nancheng", text: "南城街道"),
+                RegionOption(value: "gd_dg_changan", text: "长安镇")
+            ])
+        ]),
+        RegionOption(value: "zj", text: "浙江省", children: [
+            RegionOption(value: "zj_hz", text: "杭州市", children: [
+                RegionOption(value: "zj_hz_xihu", text: "西湖区"),
+                RegionOption(value: "zj_hz_shangcheng", text: "上城区"),
+                RegionOption(value: "zj_hz_gongshu", text: "拱墅区")
+            ]),
+            RegionOption(value: "zj_nb", text: "宁波市", children: [
+                RegionOption(value: "zj_nb_haishu", text: "海曙区"),
+                RegionOption(value: "zj_nb_yinzhou", text: "鄞州区")
+            ])
+        ]),
+        RegionOption(value: "js", text: "江苏省", children: [
+            RegionOption(value: "js_nj", text: "南京市", children: [
+                RegionOption(value: "js_nj_xuanwu", text: "玄武区"),
+                RegionOption(value: "js_nj_gulou", text: "鼓楼区")
+            ])
+        ]),
+        RegionOption(value: "bj", text: "北京市", children: [
+            RegionOption(value: "110105", text: "朝阳区"),
+            RegionOption(value: "110108", text: "海淀区"),
+            RegionOption(value: "110101", text: "东城区")
+        ]),
+        RegionOption(value: "sh", text: "上海市", children: [
+            RegionOption(value: "310104", text: "徐汇区"),
+            RegionOption(value: "310101", text: "黄浦区"),
+            RegionOption(value: "310106", text: "静安区")
+        ]),
+        RegionOption(value: "cq", text: "重庆市", children: [
+            RegionOption(value: "500103", text: "渝中区"),
+            RegionOption(value: "500108", text: "南岸区")
+        ])
+    ]
+}
+
+/// D3 长列表：在省级示例基础上补 14 个模拟省份（共 20 项滚动可验）。
+private func demoLongRegionTree() -> [RegionOption] {
+    demoRegionTree() + (1...14).map { i in
+        RegionOption(value: "demo\(i)", text: "示例省份 \(i)", children: [
+            RegionOption(value: "demo\(i)_c1", text: "示例市甲"),
+            RegionOption(value: "demo\(i)_c2", text: "示例市乙")
+        ])
+    }
+}
+
+/// 支出分类树（任意深度 + 节点禁用，Cascader D1/D2）。
+private func demoCategoryTree() -> [CascaderOption] {
+    [
+        CascaderOption(value: "living", text: "生活", children: [
+            CascaderOption(value: "dining", text: "餐饮", children: [
+                CascaderOption(value: "fastfood", text: "快餐"),
+                CascaderOption(value: "dinner", text: "正餐"),
+                CascaderOption(value: "brunch", text: "早午餐")
+            ]),
+            CascaderOption(value: "shopping", text: "购物", children: [
+                CascaderOption(value: "daily", text: "日用百货"),
+                CascaderOption(value: "cloth", text: "衣物鞋包")
+            ]),
+            CascaderOption(value: "transport", text: "出行", children: [
+                CascaderOption(value: "taxi", text: "打车"),
+                CascaderOption(value: "metro", text: "地铁")
+            ])
+        ]),
+        CascaderOption(value: "invest", text: "投资", children: [
+            CascaderOption(value: "fund", text: "基金", children: [
+                CascaderOption(value: "stockfund", text: "股票基金"),
+                CascaderOption(value: "bondfund", text: "债券基金"),
+                CascaderOption(value: "closedfund", text: "封闭期基金", disabled: true)
+            ]),
+            CascaderOption(value: "stock", text: "股票")
+        ]),
+        CascaderOption(value: "medical", text: "医疗", disabled: true)
+    ]
+}
+
+/// 深层组织架构树（5 层路径 + 横滑回退，Cascader D3）。
+private func demoOrgTree() -> [CascaderOption] {
+    [
+        CascaderOption(value: "group", text: "集团", children: [
+            CascaderOption(value: "pl", text: "产品线 A", children: [
+                CascaderOption(value: "mobile", text: "移动端", children: [
+                    CascaderOption(value: "comps", text: "组件组", children: [
+                        CascaderOption(value: "ios", text: "iOS 组件"),
+                        CascaderOption(value: "android", text: "Android 组件")
+                    ]),
+                    CascaderOption(value: "apis", text: "接口组")
+                ]),
+                CascaderOption(value: "web", text: "Web 端")
+            ]),
+            CascaderOption(value: "plb", text: "产品线 B", children: [
+                CascaderOption(value: "data", text: "数据平台")
+            ])
+        ])
+    ]
+}
+
+private func demoWeekdayIndex(_ year: Int, _ month: Int, _ day: Int) -> Int {
+    var comps = DateComponents()
+    comps.year = year
+    comps.month = month
+    comps.day = day
+    guard let date = Calendar.current.date(from: comps) else { return 0 }
+    let weekday = Calendar.current.component(.weekday, from: date) // 1=周日 … 7=周六
+    return (weekday + 6) % 7
+}
+
+private func weekdayCN(_ date: CalendarDate) -> String {
+    "星期" + ["日", "一", "二", "三", "四", "五", "六"][demoWeekdayIndex(date.year, date.month, date.day)]
+}
+
+/// 白色圆角卡片容器（等价 Android demo Box bgCard+圆角+细边框；高度固定由数据需求定）。
+private func demoCard(in container: UIView, height: CGFloat) -> UIView {
+    let card = UIView()
+    card.backgroundColor = AppColor.bgCard
+    card.layer.cornerRadius = AppRadius.md
+    card.layer.borderWidth = 0.5
+    card.layer.borderColor = AppColor.border.cgColor
+    card.layer.masksToBounds = true
+    container.addSubview(card)
+    card.snp.makeConstraints { make in
+        make.edges.equalToSuperview()
+        make.height.equalTo(height)
+    }
+    return card
+}
+
+
+
+// MARK: - Address Showcase（Address 地址 · ui.address · #21）
+
+final class AddressShowcase: ShowcaseViewController {
+    private var d4Address: AddressView?
+    private var d4Feedback: UILabel?
+    private var d4Times = 0
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Address", version: "v1.0", builtAt: "2026-09-05")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 基础省市区三级联动（完整链路 + 结果回显）") { container in
+            let card = demoCard(in: container, height: 320)
+            var info: UILabel!
+            let address = AddressView(options: demoRegionTree(), onChange: { result in
+                info?.text = "onChange → \(result.text)，codes=[\(result.codes.joined(separator: ","))]"
+                info?.textColor = AppColor.primary
+            })
+            card.addSubview(address)
+            address.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+            info = addDynamicInfo("onChange → （未选择）", color: AppColor.primary)
+            addInfo("广东→深圳→南山区 完整链路；选到区（叶子）=回调结构化结果 codes+names+text。")
+        }
+    }
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 直辖市数据两级自动收拢") { container in
+            let card = demoCard(in: container, height: 300)
+            var info: UILabel!
+            let bj = demoRegionTree().first { $0.value == "bj" }
+            let sh = demoRegionTree().first { $0.value == "sh" }
+            let cq = demoRegionTree().first { $0.value == "cq" }
+            let address = AddressView(options: [
+                RegionOption(value: "bj", text: "北京市", children: bj?.children),
+                RegionOption(value: "sh", text: "上海市", children: sh?.children),
+                RegionOption(value: "cq", text: "重庆市", children: cq?.children)
+            ], onChange: { result in
+                info?.text = "onChange → \(result.text)"
+                info?.textColor = AppColor.primary
+            })
+            card.addSubview(address)
+            address.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+            info = addDynamicInfo("onChange → （未选择）", color: AppColor.primary)
+            addInfo("北京/上海/重庆=省层级下 children 直接是区（无市层），选中即两级完成。")
+        }
+    }
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 20 省大列表滚动 + tab 回退重选") { container in
+            let card = demoCard(in: container, height: 230)
+            var info: UILabel!
+            let address = AddressView(options: demoLongRegionTree(), onChange: { result in
+                info?.text = "onChange → \(result.text)"
+                info?.textColor = AppColor.primary
+            })
+            card.addSubview(address)
+            address.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+            info = addDynamicInfo("onChange → （未选择）", color: AppColor.primary)
+            addInfo("列表区可滚动；点顶部已选层 tab（如「广东省」）可回退到对应层重选。")
+        }
+    }
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 受控外部驱动（result 预填回显 / 清空）") { container in
+            let card = demoCard(in: container, height: 320)
+            let address = AddressView(
+                options: demoRegionTree(),
+                onChange: { [weak self] result in
+                    guard let self else { return }
+                    self.d4Times += 1
+                    self.d4Feedback?.text = "onChange → \(result.text)（触发源：用户点选，累计 \(self.d4Times) 次）"
+                    self.d4Feedback?.textColor = AppColor.primary
+                }
+            )
+            self.d4Address = address
+            card.addSubview(address)
+            address.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        demoButtonRow(
+            ("回显 上海市 徐汇区", { [weak self] in
+                guard let self else { return }
+                self.d4Address?.result = AddressResult(codes: ["sh", "310104"], names: ["上海市", "徐汇区"], text: "上海市 徐汇区")
+                self.d4Feedback?.text = "外部 result → 上海市 徐汇区（未触发 onChange，计数仍为 \(self.d4Times) 次）"
+                self.d4Feedback?.textColor = AppColor.primary
+            }),
+            ("清空", { [weak self] in
+                guard let self else { return }
+                self.d4Address?.result = nil
+                self.d4Feedback?.text = "外部清空 result → 回根层（未触发 onChange，计数仍为 \(self.d4Times) 次）"
+                self.d4Feedback?.textColor = AppColor.primary
+            })
+        )
+        d4Feedback = addDynamicInfo("外部 result 驱动高亮定位（选中计数 0 次）；清空=回根层。", color: AppColor.textSecondary)
+    }
+}
+
+// MARK: - CalendarCard Showcase（CalendarCard 日历卡片 · ui.calendar-card）
+
+final class CalendarCardShowcase: ShowcaseViewController {
+    private var d4Calendar: CalendarCardView?
+    private var d4Feedback: UILabel?
+    private var d4Times = 0
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "CalendarCard", version: "v1.0", builtAt: "2026-09-05")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    private func calendarCard(
+        in card: UIView,
+        selected: CalendarDate? = nil,
+        minDate: CalendarDate? = nil,
+        maxDate: CalendarDate? = nil,
+        onChange: @escaping (CalendarDate) -> Void
+    ) {
+        let calendar = CalendarCardView(selected: selected, minDate: minDate, maxDate: maxDate, onChange: onChange)
+        card.addSubview(calendar)
+        calendar.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.top.bottom.equalToSuperview().inset(AppSpace.sm)
+            make.height.equalTo(306) // 44 头 + 22 星期行 + 6×40 网格 = 306
+        }
+    }
+
+    private func buildDemo1() {
+        let today = CalendarDate.today()
+        addSection(title: "Demo 1 · 基础当月单选（今日描边 + 点选高亮回显）") { container in
+            let card = demoCard(in: container, height: 306 + AppSpace.sm * 2)
+            var info: UILabel!
+            calendarCard(in: card, onChange: { date in
+                info?.text = "onChange → \(date.text)（\(weekdayCN(date))）"
+                info?.textColor = AppColor.primary
+            })
+            info = addDynamicInfo("onChange → （未选择）", color: AppColor.primary)
+            addInfo("今日 \(today.text)=主色描边圆；点选=主色实心圆白字；点已选中日幂等不重复回调。")
+        }
+    }
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 月份切换 + 跨月网格稳定") { container in
+            let card = demoCard(in: container, height: 306 + AppSpace.sm * 2)
+            var info: UILabel!
+            calendarCard(in: card, onChange: { date in
+                info?.text = "onChange → \(date.text)（\(weekdayCN(date))）"
+                info?.textColor = AppColor.primary
+            })
+            info = addDynamicInfo("onChange → （未选择）", color: AppColor.primary)
+            addInfo("‹ › 逐月切换，首尾空位占位 7×6 网格稳定不跳行；今日描边跨月仍定位。")
+        }
+    }
+
+    private func buildDemo3() {
+        let today = CalendarDate.today()
+        addSection(title: "Demo 3 · 范围禁用（min=当月 1 日 / max=当月 15 日）") { container in
+            let card = demoCard(in: container, height: 306 + AppSpace.sm * 2)
+            var info: UILabel!
+            calendarCard(
+                in: card,
+                minDate: CalendarDate(year: today.year, month: today.month, day: 1),
+                maxDate: CalendarDate(year: today.year, month: today.month, day: 15),
+                onChange: { date in
+                    info?.text = "onChange → \(date.text)（\(weekdayCN(date))）"
+                    info?.textColor = AppColor.primary
+                }
+            )
+            info = addDynamicInfo("onChange → （未选择）", color: AppColor.primary)
+            addInfo("范围外灰禁不可点；越界翻月=对应箭头置灰禁翻。")
+        }
+    }
+
+    private func buildDemo4() {
+        let today = CalendarDate.today()
+        addSection(title: "Demo 4 · 受控外部驱动（selected 预填回显自动切月 / 清空）") { container in
+            let card = demoCard(in: container, height: 306 + AppSpace.sm * 2)
+            let calendar = CalendarCardView(onChange: { [weak self] date in
+                guard let self else { return }
+                self.d4Times += 1
+                self.d4Feedback?.text = "onChange → \(date.text)（\(weekdayCN(date))）（触发源：用户点选，累计 \(self.d4Times) 次）"
+                self.d4Feedback?.textColor = AppColor.primary
+            })
+            self.d4Calendar = calendar
+            card.addSubview(calendar)
+            calendar.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+                make.top.bottom.equalToSuperview().inset(AppSpace.sm)
+                make.height.equalTo(306)
+            }
+        }
+        demoButtonRow(
+            ("回显 12 月 24 日", { [weak self] in
+                guard let self else { return }
+                self.d4Calendar?.selected = CalendarDate(year: today.year, month: 12, day: 24)
+                self.d4Feedback?.text = "外部 selected → 12-24（自动切 12 月，未触发 onChange，计数仍为 \(self.d4Times) 次）"
+                self.d4Feedback?.textColor = AppColor.primary
+            }),
+            ("清空选中", { [weak self] in
+                guard let self else { return }
+                self.d4Calendar?.selected = nil
+                self.d4Feedback?.text = "外部清空 selected → 网格无选中（保留当前月，未触发 onChange，计数仍为 \(self.d4Times) 次）"
+                self.d4Feedback?.textColor = AppColor.primary
+            })
+        )
+        d4Feedback = addDynamicInfo("外部 selected 变化 → 同步高亮并自动切到所属月；清空=网格无选中。", color: AppColor.textSecondary)
+    }
+}
+
+// MARK: - Cascader Showcase（Cascader 级联选择 · ui.cascader）
+
+final class CascaderShowcase: ShowcaseViewController {
+    private var d4Cascader: CascaderView?
+    private var d4Feedback: UILabel?
+    private var d4Times = 0
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Cascader", version: "v1.0", builtAt: "2026-09-05")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 基础三级品类树（叶子完成 + 路径回显）") { container in
+            let card = demoCard(in: container, height: 320)
+            var info: UILabel!
+            let cascader = CascaderView(options: demoCategoryTree(), onChange: { result in
+                info?.text = "onChange → \(result.text)"
+                info?.textColor = AppColor.primary
+            })
+            card.addSubview(cascader)
+            cascader.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+            info = addDynamicInfo("onChange → （未选择）", color: AppColor.primary)
+            addInfo("生活→餐饮→正餐 任意三级叶子；选中=回调 values+texts+text（/ 拼接）。")
+        }
+    }
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 深浅树混合（2~3 层）+ 节点禁用") { container in
+            let card = demoCard(in: container, height: 320)
+            var info: UILabel!
+            let cascader = CascaderView(options: demoCategoryTree(), onChange: { result in
+                info?.text = "onChange → \(result.text)"
+                info?.textColor = AppColor.primary
+            })
+            card.addSubview(cascader)
+            cascader.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+            info = addDynamicInfo("onChange → （未选择）", color: AppColor.primary)
+            addInfo("同树既有 2 层叶（打车/地铁/股票）又有 3 层枝（…/债券基金）；「封闭期基金」「医疗」禁用灰 40% 不可点。")
+        }
+    }
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 5 层组织路径 + 中间层 tab 回退重选") { container in
+            let card = demoCard(in: container, height: 320)
+            var info: UILabel!
+            let cascader = CascaderView(options: demoOrgTree(), onChange: { result in
+                info?.text = "onChange → \(result.text)"
+                info?.textColor = AppColor.primary
+            })
+            card.addSubview(cascader)
+            cascader.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+            info = addDynamicInfo("onChange → （未选择）", color: AppColor.primary)
+            addInfo("点「产品线 A」等中间层 tab 回退到该层重选其下枝；树深任意由数据决定。")
+        }
+    }
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 受控外部驱动（result 预填回显 / 清空）") { container in
+            let card = demoCard(in: container, height: 320)
+            let cascader = CascaderView(options: demoOrgTree(), onChange: { [weak self] result in
+                guard let self else { return }
+                self.d4Times += 1
+                self.d4Feedback?.text = "onChange → \(result.text)（触发源：用户点选，累计 \(self.d4Times) 次）"
+                self.d4Feedback?.textColor = AppColor.primary
+            })
+            self.d4Cascader = cascader
+            card.addSubview(cascader)
+            cascader.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        demoButtonRow(
+            ("回显 组件组/Android", { [weak self] in
+                guard let self else { return }
+                self.d4Cascader?.result = CascaderResult(
+                    values: ["group", "pl", "mobile", "comps", "android"],
+                    texts: ["集团", "产品线 A", "移动端", "组件组", "Android 组件"],
+                    text: "集团/产品线 A/移动端/组件组/Android 组件"
+                )
+                self.d4Feedback?.text = "外部 result → 集团/产品线 A/移动端/组件组/Android 组件（未触发 onChange，计数仍为 \(self.d4Times) 次）"
+                self.d4Feedback?.textColor = AppColor.primary
+            }),
+            ("清空", { [weak self] in
+                guard let self else { return }
+                self.d4Cascader?.result = nil
+                self.d4Feedback?.text = "外部清空 result → 回根层（未触发 onChange，计数仍为 \(self.d4Times) 次）"
+                self.d4Feedback?.textColor = AppColor.primary
+            })
+        )
+        d4Feedback = addDynamicInfo("外部 result 按 values 逐层展开高亮；清空=回根层。", color: AppColor.textSecondary)
+    }
+}
+
+// MARK: - Demo 通用：外部驱动按钮行（contentStack 独立行，等价 Android Row spacedBy + TextButton）
+
+private extension ShowcaseViewController {
+    func demoButtonRow(_ items: (String, () -> Void)...) {
+        let row = UIStackView()
+        row.axis = .horizontal
+        row.spacing = AppSpace.sm
+        row.distribution = .fillEqually
+        for (title, action) in items {
+            let button = UIButton(type: .system)
+            button.setTitle(title, for: .normal)
+            button.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs)
+            button.setTitleColor(AppColor.primary, for: .normal)
+            button.backgroundColor = AppColor.primaryMuted
+            button.layer.cornerRadius = AppRadius.sm
+            button.contentEdgeInsets = UIEdgeInsets(top: 6, left: 8, bottom: 6, right: 8)
+            button.addAction(UIAction { _ in action() }, for: .touchUpInside)
+            row.addArrangedSubview(button)
+        }
+        contentStack.addArrangedSubview(row)
     }
 }
 

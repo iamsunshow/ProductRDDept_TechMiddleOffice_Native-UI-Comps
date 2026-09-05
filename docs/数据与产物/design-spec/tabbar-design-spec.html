@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tabbar 标签栏 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- Tabbar demo 预览 mock（底部标签栏） ---- */
+.tb-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.tb-pane{height:120px;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--textPrimary);background:#F0FDF4;border-bottom:1px solid var(--border);}
+.tb-pane small{display:block;font-size:12px;color:var(--textSecondary);margin-top:4px;text-align:center;}
+.tb-bar{display:flex;background:var(--bgCard);border-top:0.5px solid var(--border);height:56px;}
+.tb-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;color:var(--textSecondary);position:relative;cursor:pointer;user-select:none;}
+.tb-item .tb-ico{font-size:22px;line-height:22px;color:var(--textSecondary);font-style:normal;}
+.tb-item.tb-on{color:var(--primary);font-weight:700;}
+.tb-item.tb-on .tb-ico{color:var(--primary);}
+.tb-item.tb-dis{opacity:.4;}
+.tb-item.tb-long{font-size:11px;}
+.tb-badge{position:absolute;top:2px;left:calc(50% + 6px);min-width:16px;height:16px;border-radius:999px;background:var(--primary);color:#fff;font-size:12px;line-height:16px;text-align:center;padding:0 3px;font-style:normal;}
+.tb-cnt{display:block;font-size:12px;color:var(--textSecondary);padding:6px 12px 12px;}
+</style>
+</head>
+<body>
+
+<h1>Tabbar 标签栏 · 设计规格（导航组件 #6 · 任务清单 #19，subcategory=navigation · 门禁 A）</h1>
+<p>组件 ID：<code>ui.tabbar</code> ｜ 定位：<b>页面底部的横向多入口主导航栏（底部标签栏）</b>——常驻页面底部一行等分标签项（icon + 文字），点击切换激活并持久高亮，回传 <code>onChange(value)</code>；页面内容/路由切换由宿主接回调自理；对标 iOS <code>UITabBar</code> / Material BottomNavigation / NutUI React Tabbar（<code>value</code> 受控 + <code>TabbarItem title/icon</code> + <code>onSwitch</code>）收敛为库内自有设计语言（等分标签项 + 选中持久态 + 可选角标）。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-04，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 应用"首页级主导航"：页面底部常驻 2–5 个一级功能入口（首页/账单/统计/我的 等），点击在页面间切换、当前标签持久高亮；② 单个 Tab 可带数字角标（如消息未读数）提示业务态；③ 需自定义激活文案颜色的品牌化底部导航；④ 底部导航条上叠内容区（内容滚动上推/吸底由宿主布局自理）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 顶部页签/页内内容切换 → <b>Tabs（ui.tabs，#20）</b>（本组件在页面底部，语义=一级页面切换，非页内内容切换）；② 页面顶部导航/标题 → NavBar（ui.nav-bar，#17）；③ 左侧目录导航轨 → SideBar（ui.side-bar，#18）；④ 悬浮面板多入口导航 → FixedNav（ui.fixed-nav，#15）；⑤ 悬浮单功能动作钮 → HoverButton（ui.hover-button，#16）/ BackTop（ui.back-top，#13）</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 全项文字/图标次色灰；<span class="tag tag-ok">激活态 ✅</span> 当前项 icon + 文字主色加粗（常驻持久）；<span class="tag tag-ok">禁用态 ✅</span> 单项 disabled 置灰不可点；点击（按压）反馈随平台（见 §05）；加载/成功/失败 N/A（底部导航无加载态，业务态由宿主反馈承载）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；与 Tabs 划界：<b>Tabbar=页面级一级导航（页面底部整条、icon+文字、跨页切换）</b>；Tabs=页面内内容切换（顶部页签/横向滚动）。激活视觉=导航项同族基线（主色文字 + 图标，同 Tabs/SideBar 激活态先例，不做胶囊浮底）；"页面内容切换/路由"由宿主完成（组件=纯标签条，不自带页面容器与转场）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>栏高</td><td>默认 56pt/56dp（宿主可覆盖，建议 ≥48）</td><td>行业基线=iOS UITabBar 49pt（不含安全区）/ Material 底部导航 56dp；库内取值 56 对齐导航组件行高惯例；组件=栏内容视图，不含系统底部安全区 inset——由宿主叠 SafeArea/底部约束处理（同 FixedNav/HoverButton "位置宿主锚定"先例）</td></tr>
+<tr><td>项宽</td><td>等分（items 数均分栏宽）</td><td>2–5 项自适配；iOS=UIStackView fillEqually / Android=Row + weight(1f)（表内放行）</td></tr>
+<tr><td>icon 位</td><td>字符 22pt/22dp（=AppFont.sizeXl），icon–文字间距 xs（4）</td><td>icon 一期=文本字符/emoji（同 FixedNav "⌂/⤓/✎" 先例，不走 Icon 组件资源映射=登记二期）；激活随文字变主色（文本字形可染色；emoji 彩色项不随主色=文档明示）</td></tr>
+<tr><td>文字</td><td>字号 Xs（12pt/12dp）；激活=主色 + Bold，默认=次色灰 Regular；单行省略</td><td>icon 无/纯文字项=文字垂直居中整项（无 icon 占位）；长标题单行行尾省略（双端系统行为放行）</td></tr>
+<tr><td>激活/默认色</td><td>可选 activeColor 覆盖（默认=AppColor.primary）；默认态=AppColor.textSecondary</td><td>品牌自定义激活色场景（如底部导航跟深色主题/品牌红）：宿主传色值覆盖，默认不传即主色；非激活色固定次色不开放（克制）</td></tr>
+<tr><td>角标 badge</td><td>高 16pt/dp 圆角 full，bg=primary 白字，字号 12（=AppFont.sizeXs）；右上角悬浮（icon 右上）</td><td>可选数字（Int?，0/缺省=不显示，同 FixedNav num 先例）；红点 dot 形态=登记二期；角标跟随禁用项同 40% 透明度</td></tr>
+<tr><td>禁用态</td><td>同 default 布局 + 文字/icon 透明度 40% + 不可点</td><td>disabled 项点击不触发 onChange（同 Cell/SideBar 禁用先例）</td></tr>
+<tr><td>栏分隔</td><td>栏顶 hairline（iOS 1/scale pt vs Android 0.5dp 表内放行，同 Grid 先例）；栏底=白底（bgCard）无圆角（整条贴底语义）</td><td>顶部细线区分内容区与标签条；圆角由宿主容器裁剪（demo 卡片圆角示意，非组件自带）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：纯底部标签导航条——items 数据驱动等分（2–5 项）、icon+文字、选中持久高亮、角标可选、点选回传 onChange；页面内容切换/路由转场由宿主自理</td><td>✅ 语义=页面底部一级导航（对齐 iOS UITabBar/Material BottomNavigation 的"栏"本体）；单职责组件双端 1:1 清晰；与 Tabs/SideBar/NavBar/FixedNav 全部划界；宿主可用 onChange 切页面/控制器，亦可受控外部驱动</td><td><b>推荐 A</b>：收敛可验收</td></tr>
+<tr><td>B：底部标签条 + 内置页面容器/路由懒加载一体（多页切换 + 保状态栈）</td><td>页面栈/保活/转场双端差异巨大（UINavigationController vs Fragment/Compose Nav），非 UI 组件职责，验收周期失控</td><td>淘汰：页面路由宿主自理（登记二期候选）</td></tr>
+<tr><td>C：直接收编 iOS UITabBarController / Android BottomNavigationView 系统容器</td><td>系统容器与库内 design token/设计语言不兼容（系统 tab 尺寸/配色/材质不可定制到库内基线），且 Android 系统组件跨端契约难统一</td><td>淘汰：系统容器收编已由 NavBar/Tabs 收编先例覆盖业务近似场景</td></tr>
+</table>
+
+<h3>P2 · 数据模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：options 数据驱动——TabBarItem(title, value, icon?, badge?, disabled=false)，items 数组传入；onChange 回传被点 value</td><td>✅ 与 FixedNav/SideBar 等"列表数据驱动 + value 标识"一致；value 稳定可映射页面路由 id；icon/badge 可缺省（纯文字/无角标 tab）；双端契约简单</td><td><b>推荐 A</b>：数据驱动惯例</td></tr>
+<tr><td>B：children 声明式（iOS 子视图 / Android content slot 逐项）</td><td>底部导航为固定样式等分 tab，无自定义插槽诉求；children 使等分/激活统一态维护复杂</td><td>淘汰：二期自定义插槽再评估</td></tr>
+<tr><td>C：仅标题字符串数组（无 value/icon/badge）</td><td>无法带图标与角标（底部导航核心视觉）；无法用稳定 value 做页面路由映射</td><td>淘汰：表达能力不足</td></tr>
+</table>
+
+<h3>P3 · 选中态控制：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：半受控——默认首启用项激活自管理；宿主可传 selectedValue 外部驱动（同步高亮）；点击已激活项不重复回调；禁用项无动作</td><td>✅ 宿主既能"点选即切页"，也能受控驱动（登录态/外部事件跳转 tab 同步高亮，demo D4 可验）；回调幂等便于计数验收；与 SideBar/Tabs 选中语义一致</td><td><b>推荐 A</b>：灵活且行为确定</td></tr>
+<tr><td>B：纯受控——value 必传，所有变更宿主回填</td><td>对常驻底导过重；首项/默认态语义丢给宿主；底部导航普遍场景无强制受控必要</td><td>可接受但过度</td></tr>
+<tr><td>C：纯自管理 + 仅通知点击</td><td>无法由外部（登录后跳首页/深链）驱动 tab 激活，宿主需要自己 hack</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：纯标签条——items 数据驱动（title/value/icon?/badge?/disabled）+ 等分 + 半受控选中 + 角标数字 + 禁用 + 单行省略 + 可选 activeColor + demo 四段（基础/角标禁用/纯文字与省略/受控驱动）</td><td>✅ 覆盖底部导航核心闭环（一级页面切换 + 激活持久 + 业务角标）；D3/D4 分别验证纯文字项布局与外部 value 驱动语义</td><td><b>推荐 A</b>：验收路径清晰</td></tr>
+<tr><td>B：一期内置系统级"中间凸起大按钮/自定义插槽/多级菜单"</td><td>记一笔等中间凸起按钮属业务自定义形态，与等分底导语义冲突；插槽双端实现差异大</td><td>淘汰：登记二期（凸起按钮=宿主叠层/自定义插槽）</td></tr>
+<tr><td>C：一期即支持动画切换（滑动淡入/翻转）与红点 dot、安全区自动避让</td><td>动画与转场属页面容器职责（P1-B 淘汰项）；dot 红点与数字角标并存需双态组件复杂度上升</td><td>淘汰：dot/动画/安全区自避让登记二期（安全区一期宿主叠 SafeArea 处理）</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础底部导航（选中持久高亮 + 切换幂等）</h3>
+<p>底部 5 项（首页/账单/记一笔/统计/我的），点不同项=激活高亮迁移 + onChange 计数；点已激活项=无重复回调。验证等分布局 + 激活持久态 + 回调幂等。</p>
+<div class="tb-stage"><div class="tb-pane">「首页」内容区<small>底部 5 标签点击切换一级页面</small></div>
+<div class="tb-bar"><span class="tb-item tb-on"><i class="tb-ico">⌂</i>首页</span><span class="tb-item"><i class="tb-ico">▤</i>账单</span><span class="tb-item"><i class="tb-ico">✚</i>记一笔</span><span class="tb-item"><i class="tb-ico">◉</i>统计</span><span class="tb-item"><i class="tb-ico">☰</i>我的</span></div></div>
+<span class="tb-cnt">onChange 计数回显 · 点已激活项不重复回调</span>
+
+<h3>D2 · 角标 + 禁用项</h3>
+<p>「消息」带数字角标 3（badge=3），点其它项角标不变；「设置」disabled 置灰点击无反应。验证角标渲染/悬浮 + 禁用交互。</p>
+<div class="tb-stage"><div class="tb-pane">「消息」内容区<small>icon 右上角数字角标 · 禁用项不可点</small></div>
+<div class="tb-bar"><span class="tb-item tb-on"><i class="tb-ico">✉</i>消息<em class="tb-badge">3</em></span><span class="tb-item"><i class="tb-ico">♻</i>动态</span><span class="tb-item"><i class="tb-ico">✎</i>写</span><span class="tb-item tb-dis"><i class="tb-ico">⚙</i>设置</span></div></div>
+<span class="tb-cnt">角标数字 badge 悬浮右上 · 禁用项 40% 不可点</span>
+
+<h3>D3 · 纯文字项 + 长标题省略 + 自定义激活色</h3>
+<p>中间项无 icon 纯文字垂直居中；「长期理财与资产管理」长标题单行省略；activeColor 传品牌红=激活态 icon/文字红色（非默认主色）。验证无 icon 项布局 + 省略 + activeColor 覆盖。</p>
+<div class="tb-stage"><div class="tb-pane">「概览」内容区<small>纯文字 tab 垂直居中 · 长标题省略 · 激活红色</small></div>
+<div class="tb-bar"><span class="tb-item" style="color:#DC2626;font-weight:700;"><i class="tb-ico" style="color:#DC2626;">▤</i>概览</span><span class="tb-item">资产</span><span class="tb-item" style="font-size:12px;padding:0 6px;">理财</span><span class="tb-item tb-long">长期理财与资产管理</span></div></div>
+<span class="tb-cnt">activeColor=#DC2626 激活覆盖 · 无 icon 项垂直居中 · 长标题省略</span>
+
+<h3>D4 · 受控外部驱动（外部 value 同步高亮）</h3>
+<p>栏外按钮「跳转统计」=外部赋值 selectedValue → tab 激活同步迁移；点已激活项不触发回调（计数不增）。验证半受控选中语义 + 外部驱动。</p>
+<div class="tb-stage"><div class="tb-pane">「统计」内容区<small>右上角按钮外部驱动跳转 tab</small></div>
+<div class="tb-bar"><span class="tb-item"><i class="tb-ico">⌂</i>首页</span><span class="tb-item"><i class="tb-ico">▤</i>账单</span><span class="tb-item"><i class="tb-ico">✚</i>记一笔</span><span class="tb-item tb-on"><i class="tb-ico">◉</i>统计</span><span class="tb-item"><i class="tb-ico">☰</i>我的</span></div></div>
+<span class="tb-cnt">外部赋值 selectedValue → 高亮同步（onChange 不触发）</span>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>点击按压反馈</td><td>UIButton touchDown 高亮/压暗瞬态</td><td>clickable 系统 ripple（Material 默认点击反馈）</td><td>系统级原生差异：按压反馈体系不同（表内放行，同 Grid/SideBar 先例）</td></tr>
+<tr><td>等分实现</td><td>UIStackView distribution=.fillEqually</td><td>Row + Modifier.weight(1f)</td><td>系统级布局机制不同、结果同=均分（表内放行）</td></tr>
+<tr><td>文字省略截断</td><td>UILabel 单行 truncateTail</td><td>Text overflow=Ellipsis（maxLines=1）</td><td>两端系统文本省略行为一致指向（表内放行，同全库先例）</td></tr>
+<tr><td>栏顶 hairline</td><td>1/scale pt（≈0.33–0.5pt）</td><td>0.5dp 细线</td><td>线宽单位体系差异（表内放行，同 Grid/全库先例）</td></tr>
+<tr class="diff-row"><td>尺寸数值单位</td><td>pt</td><td>dp</td><td>Token 同一数值不同单位（表内放行，同全库先例）</td></tr>
+<tr class="diff-row"><td>数据模型命名</td><td>struct TabBarItem / TabbarView</td><td>data class TabBarItem / @Composable Tabbar</td><td>契约同构（表内放行，命名差异见门禁 B）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>TabBarItem</code>：<code>title: String</code>（单行省略）+ <code>value: String</code>（稳定标识，映射页面路由）+ <code>icon: String?</code>（文本字符/emoji，可选）+ <code>badge: Int?</code>（数字角标，0/缺省不显示）+ <code>disabled: Boolean = false</code></td></tr>
+<tr><td>iOS</td><td><code>final class TabbarView: UIView</code><br/><code>init(items: [TabBarItem], selectedValue: String? = nil, activeColor: UIColor? = nil, onChange: ((String) -&gt; Void)? = nil)</code><br/>默认 selectedValue=nil → 首启用项激活；<code>var items / var selectedValue / var activeColor</code>（didSet 刷新激活态）；栏高默认 56，宿主可高度约束覆盖；icon 文本字形随激活色染色（emoji 彩色项除外=文档明示）；组件=纯标签条，底部安全区由宿主叠 SafeArea/底部约束</td></tr>
+<tr><td>Android</td><td><code>data class TabBarItem(title: String, value: String, icon: String? = null, badge: Int? = null, disabled: Boolean = false)</code><br/><code>@Composable fun Tabbar(items: List&lt;TabBarItem&gt;, selectedValue: String? = null, activeColor: Color? = null, onChange: (String) -&gt; Unit, modifier: Modifier = Modifier)</code><br/>默认 selectedValue=null → 首启用项激活；内部 Row 等分（weight=1f）；行 clickable + ripple（表内放行）；高度由 modifier 定（宿主传 56.dp 缺省样）；底部安全区宿主用 SafeArea 避让</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：底部一级导航标签条，与 Tabs/NavBar/SideBar/FixedNav/HoverButton/BackTop 划界；页面路由宿主自理）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（栏高 56/icon 22/文字 Xs/角标 16/icon 间距 xs/禁用 40% 全走 token+注释锚定；activeColor 默认 primary 可覆盖）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础/角标禁用/纯文字省略激活色/受控驱动）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，任务清单 #19 ⬜，api.json 无 ui.tabbar 条目待立项，本规格为立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（按压反馈/等分实现/省略/线宽=系统级差异；pt/dp 与模型命名表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（中间凸起按钮/自定义整项插槽/系统 Icon 资源映射/红点 dot/页面容器路由/安全区自避让=二期候选）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

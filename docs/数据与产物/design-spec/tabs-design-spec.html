@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tabs 选项卡 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- Tabs demo 预览 mock（顶部选项卡条 + 内容区切换） ---- */
+.tab-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.tab-pane{height:96px;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--textPrimary);background:#F0FDF4;border-bottom:1px solid var(--border);}
+.tab-pane small{display:block;font-size:12px;color:var(--textSecondary);margin-top:4px;text-align:center;}
+.tab-bar{display:flex;background:var(--bgCard);position:relative;}
+.tab-item{flex:1;height:44px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--textSecondary);cursor:pointer;user-select:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px;}
+.tab-item.tab-on{color:var(--primary);font-weight:700;}
+.tab-item.tab-dis{opacity:.4;}
+.tab-item.tab-long{font-size:12px;}
+.tab-line{position:absolute;bottom:0;height:2px;background:var(--primary);transition:left .2s;}
+.tab-cnt{display:block;font-size:12px;color:var(--textSecondary);padding:6px 12px 12px;}
+</style>
+</head>
+<body>
+
+<h1>Tabs 选项卡 · 设计规格（导航组件 · 任务清单 #20 · 收编缺口补独立立项 · 门禁 A）</h1>
+<p>组件 ID：<code>ui.tabs</code> ｜ 定位：<b>页面内容区的顶部页签切换条</b>——内容区上方一行（或数行）页签，点击在页内内容块间切换，当前页签持久高亮（主色 + 底部指示线），回传 <code>onChange(value)</code>；页签下的内容面板由宿主接回调渲染自理；对标 NutUI React Tabs / Material TabRow（<code>value</code> 受控 + <code>Tab title</code> + <code>onChange</code>）收敛为库内自有设计语言（等分页签 + 主色激活 + 2 高主色指示线）。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-04，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 页内内容分类切换：同一页面顶部按分类/周期/维度切换下方内容块（账单类型 支出/收入/转账、图表周期 周/月/年、明细筛选等）；② 页签数量 2–6 等分（页面宽度足够）；③ 当前页签需持久高亮指示（主色文字 + 底部短指示线）与禁用个别页签；④ 由外部事件驱动页签跳转（如从详情返回切回某页签）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 页面级一级底部导航（跨页）→ <b>Tabbar（ui.tabbar，#19）</b>；② 页面顶部标题/返回导航条 → NavBar（ui.nav-bar，#17）；③ 左侧目录轨 → SideBar（ui.side-bar，#18）；④ 等宽分段互斥选择器（无内容面板语义）→ Segmented（展示 #74）；⑤ 超过 6 个页签/横滑内容联动/自定义面板插槽 → 登记二期（anti_goals）</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 未选中页签次色灰；<span class="tag tag-ok">激活态 ✅</span> 当前页签主色加粗 + 底部 2 高主色指示线（常驻持久）；<span class="tag tag-ok">禁用态 ✅</span> 单页签 disabled 置灰不可点；加载/成功/失败 N/A（内容面板业务态由宿主承载）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；收编现状=<b>iOS TabsView/PeriodTabsView（SharedUI/Components，业务"周/月/年"及双 Tab 切换近似，固定 200 宽居中 32 高胶囊形态，更近 Segmented 语义）为收编近似，非独立 Tabs；Android 未实现独立 Tabs</b>，本规格将近似收编升级为双端统一独立组件（同 Grid v2.0 / NavBar 收编升级先例）；激活视觉=主色文字加粗 + 底部指示线（区别于 SideBar 胶囊浮底，Tabs 内容切换语义用"下划线+文字主色"指示）；"内容面板"由宿主渲染（组件=纯页签条，不自带内容区与滑动手势）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>条高</td><td>默认 44pt/44dp（宿主可覆盖）</td><td>对齐 iOS UINavigationBar 44 / Material TabRow 48 / 库内导航同族行高惯例，取 44；无横向滚动一期（≤6 项等分），滚动式 Tabs=二期</td></tr>
+<tr><td>页签宽</td><td>等分（页签数均分条宽）</td><td>2–6 项自适配；iOS=UIStackView fillEqually / Android=Row + weight(1f)（表内放行）</td></tr>
+<tr><td>文字</td><td>字号 Sm（14pt/14dp）；激活=主色 + Bold，默认=次色灰 Regular；单行省略</td><td>长页签标题单行行尾省略（双端系统行为放行）；页签内无 icon 位（纯文字语义，icon 型页签=二期）</td></tr>
+<tr><td>激活指示</td><td>底部 2pt/2dp 高主色指示线，宽度=页签文字宽（或整项宽，见 §06 定稿）</td><td>指示线横移=二期动画（一期仅静态当前项）</td></tr>
+<tr><td>激活/默认色</td><td>激活=AppColor.primary（可 activeColor 覆盖品牌色）；默认态=AppColor.textSecondary</td><td>品牌自定义激活色场景宿主传值覆盖；非激活色固定次色不开放（克制，同 Tabbar/SideBar 先例）</td></tr>
+<tr><td>禁用态</td><td>同 default 布局 + 文字透明度 40% + 不可点</td><td>disabled 项点击不触发 onChange（同全库禁用先例）</td></tr>
+<tr><td>条底分隔</td><td>hairline（iOS 1/scale pt vs Android 0.5dp 表内放行，同 Grid 先例）可选</td><td>页签条与内容面板间细线分隔可宿主裁（组件底部默认无自带内容背景）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：纯顶部页签条（收编升级）——items 数据驱动等分（2–6 项、title/value/disabled）+ 激活主色加粗 + 底部指示线 + 点选回传 onChange；内容面板由宿主渲染切换</td><td>✅ 语义=页内顶部内容切换（对齐 NutUI Tabs 的"页签条"本体）；单职责组件双端 1:1 清晰；与 Tabbar（底部跨页）/Segmented（无面板语义）/NavBar（标题条）全部划界；宿主可用 onChange 切内容块，亦可受控外部驱动</td><td><b>推荐 A</b>：收敛可验收</td></tr>
+<tr><td>B：页签条 + 内置内容面板容器一体（多面板切换 + 滑动/保活）</td><td>内容面板渲染/滑动/转场/懒加载双端差异大（UIViewController 容器 vs Compose pager），非 UI 组件职责，验收周期失控</td><td>淘汰：内容面板宿主自理（登记二期候选）</td></tr>
+<tr><td>C：直接收编 iOS UISegmentedControl / Android TabLayout 系统容器</td><td>UISegmentedControl=等宽分段胶囊（Segmented #74 语义，非内容切换页签）；TabLayout 系统 tab 需 CoordinatorLayout 联动且定制到库内主色指示线成本高、跨端契约难统一</td><td>淘汰：系统容器收编由 NavBar/Tabs 业务近似场景已覆盖，非组件本体</td></tr>
+</table>
+
+<h3>P2 · 数据模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：options 数据驱动——TabItem(title, value, disabled=false)，items 数组传入；onChange 回传被点 value</td><td>✅ 与 FixedNav/SideBar/Tabbar 等"列表数据驱动 + value 标识"一致；value 稳定可映射内容块 id；disabled 可缺省；双端契约简单</td><td><b>推荐 A</b>：数据驱动惯例</td></tr>
+<tr><td>B：children 声明式（iOS 子视图 / Android content slot 逐项内嵌）</td><td>页签为固定样式等分项，无自定义插槽诉求；children 使等分/激活统一态维护复杂</td><td>淘汰：二期自定义插槽再评估</td></tr>
+<tr><td>C：仅标题字符串数组（无 value/disabled）</td><td>无法禁用单项；value 用于稳定映射内容块 id（字符串标题不稳定，如改文案破坏映射）</td><td>淘汰：表达能力不足</td></tr>
+</table>
+
+<h3>P3 · 选中态控制：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：半受控——默认首启用项激活自管理；宿主可传 selectedValue 外部驱动（同步高亮 + 指示线）；点击已激活项不重复回调；禁用项无动作</td><td>✅ 宿主既能"点选即切内容"，也能受控驱动（外部事件/详情返回跳转 tab 同步高亮，demo D4 可验）；回调幂等便于计数验收；与 Tabbar/SideBar 选中语义一致</td><td><b>推荐 A</b>：灵活且行为确定</td></tr>
+<tr><td>B：纯受控——value 必传，所有变更宿主回填</td><td>页内简单切换普遍自管理即可，强制受控过重</td><td>可接受但过度</td></tr>
+<tr><td>C：纯自管理 + 仅通知点击</td><td>无法由外部（如筛选重置回默认 tab）驱动页签激活，宿主需自己 hack</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：纯页签条——items 数据驱动（title/value/disabled）+ 等分（≤6 项）+ 半受控选中 + 主色激活 + 底部 2 指示线 + 禁用 + 单行省略 + 可选 activeColor + demo 四段（基础/禁用/长标题/受控驱动）</td><td>✅ 覆盖页内内容切换核心闭环（分类切换 + 激活持久 + 内容面板宿主联动）；D4 验证外部 value 驱动语义；与 TabsView 收编近似（双 Tab/周月年胶囊）语义升级 1:1 展示</td><td><b>推荐 A</b>：验收路径清晰</td></tr>
+<tr><td>B：一期即支持横向滚动（>6 项/超宽自适应滚动）/滑动切换内容/懒加载</td><td>滚动式 Tabs 需 ScrollView/LazyRow + 指示线跟随 + 滑动手势双端差异大，一期验收失控；<6 项等分覆盖业务主要诉求</td><td>淘汰：登记二期（滚动/滑动/懒加载）</td></tr>
+<tr><td>C：一期内置图标页签（icon+文字）/红点 dot/面板动画/左侧胶囊</td><td>icon 型页签映射与 dot 红点需双态复杂度；面板动画属宿主内容切换职责；左侧胶囊为 SideBar 语义</td><td>淘汰：二期候选（icon/dot/动画）</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础页签切换（激活持久 + 切换幂等）</h3>
+<p>「支出/收入/转账」3 页签：点不同项=激活主色+指示线迁移 + onChange 计数回显；点已激活项=无重复回调；内容面板显示当前页签值（宿主渲染）。验证等分 + 激活持久 + 回调幂等。</p>
+<div class="tab-stage">
+<div class="tab-pane">「支出」内容面板<small>点选切换下方内容 · 面板由宿主渲染</small></div>
+<div class="tab-bar"><span class="tab-item tab-on">支出</span><span class="tab-item">收入</span><span class="tab-item">转账</span><i class="tab-line" style="left:8%;width:16%;"></i></div>
+</div>
+<span class="tab-cnt">onChange 计数回显 · 点已激活项不重复回调</span>
+
+<h3>D2 · 禁用页签</h3>
+<p>「本月/上月/本季/全部」4 页签，「全部」disabled 置灰不可点（透明度 40%）；点其它项正常切换。验证禁用交互。</p>
+<div class="tab-stage">
+<div class="tab-pane">「本月」内容面板<small>「全部」禁用不可点</small></div>
+<div class="tab-bar"><span class="tab-item tab-on">本月</span><span class="tab-item">上月</span><span class="tab-item">本季</span><span class="tab-item tab-dis">全部</span><i class="tab-line" style="left:8%;width:16%;"></i></div>
+</div>
+<span class="tab-cnt">disabled 页签 40% 置灰不可点不触发回调</span>
+
+<h3>D3 · 长标题省略</h3>
+<p>「周视图/月视图/年度累计分析」3 页签：中间「年度累计分析报告」长标题单行省略；激活项主色加粗正常。验证长标题不破坏等分布局。</p>
+<div class="tab-stage">
+<div class="tab-pane">「周视图」内容面板<small>长标题行尾省略</small></div>
+<div class="tab-bar"><span class="tab-item tab-on">周视图</span><span class="tab-item tab-long">年度累计分析报告</span><span class="tab-item">月视图</span><i class="tab-line" style="left:8%;width:16%;"></i></div>
+</div>
+<span class="tab-cnt">长标题 truncateTail 单行省略不换行不溢出</span>
+
+<h3>D4 · 受控外部驱动（外部 value 同步高亮）</h3>
+<p>内容面板区按钮「跳转收入」=外部赋值 selectedValue → 页签激活 + 指示线同步迁移；点已激活项不触发回调（计数不增）。验证半受控选中语义 + 外部驱动。</p>
+<div class="tab-stage">
+<div class="tab-pane">「收入」内容面板<small>外部按钮驱动页签跳转</small></div>
+<div class="tab-bar"><span class="tab-item">支出</span><span class="tab-item tab-on">收入</span><span class="tab-item">转账</span><i class="tab-line" style="left:37%;width:22%;"></i></div>
+</div>
+<span class="tab-cnt">外部赋值 selectedValue → 高亮迁移（onChange 不触发）</span>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>点击按压反馈</td><td>UIButton touchDown 高亮/压暗瞬态</td><td>clickable 系统 ripple（Material 默认点击反馈）</td><td>系统级原生差异：按压反馈体系不同（表内放行，同 Grid/SideBar/Tabbar 先例）</td></tr>
+<tr><td>等分实现</td><td>UIStackView distribution=.fillEqually</td><td>Row + Modifier.weight(1f)</td><td>系统级布局机制不同、结果同=均分（表内放行）</td></tr>
+<tr><td>文字省略截断</td><td>UILabel 单行 truncateTail</td><td>Text overflow=Ellipsis（maxLines=1）</td><td>两端系统文本省略行为一致指向（表内放行，同全库先例）</td></tr>
+<tr><td>指示线</td><td>UIView 2pt 高主色（宿主宽度锚定当前项）</td><td>Box 2dp 高主色 offset 到当前项</td><td>实现机制不同、视觉同为当前项底 2 高主色线（表内放行）</td></tr>
+<tr class="diff-row"><td>尺寸数值单位</td><td>pt</td><td>dp</td><td>Token 同一数值不同单位（表内放行，同全库先例）</td></tr>
+<tr class="diff-row"><td>数据模型命名</td><td>struct TabItem / TabsView（替换旧收编 TabsView）</td><td>data class TabItem / @Composable Tabs</td><td>契约同构（表内放行，命名差异见门禁 B）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>TabItem</code>：<code>title: String</code>（单行省略）+ <code>value: String</code>（稳定标识，映射内容面板）+ <code>disabled: Boolean = false</code></td></tr>
+<tr><td>iOS</td><td><code>final class TabsView: UIView</code>（组件化替换旧收编 TabsView）<br/><code>init(items: [TabItem], selectedValue: String? = nil, activeColor: UIColor? = nil, onChange: ((String) -&gt; Void)? = nil)</code><br/>默认 selectedValue=nil → 首启用项激活；<code>var items / var selectedValue / var activeColor</code>（didSet 刷新激活态+指示线）；条高默认 44，宿主可高度约束覆盖；内容面板由宿主渲染在下方</td></tr>
+<tr><td>Android</td><td><code>data class TabItem(title: String, value: String, disabled: Boolean = false)</code><br/><code>@Composable fun Tabs(items: List&lt;TabItem&gt;, selectedValue: String? = null, activeColor: Color? = null, onChange: (String) -&gt; Unit, modifier: Modifier = Modifier)</code><br/>默认 selectedValue=null → 首启用项激活；内部 Row 等分（weight=1f）；行 clickable + ripple（表内放行）；指示线 2dp 主色 offset 当前项</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：页内顶部内容切换页签条，与 Tabbar（底部跨页）/NavBar（顶部标题条）/SideBar（左目录轨）/Segmented（无面板语义）划界；内容面板宿主渲染）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（条高 44/文字 Sm 主色激活加粗/指示线 2 主色/禁用 40%/单行省略全走 token+注释锚定；activeColor 默认 primary 可覆盖）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期：滚动/滑动内容/懒加载/icon 页签/dot/面板动画）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础/禁用/长标题省略/受控驱动）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（收编近似=iOS TabsView/PeriodTabsView 业务"周月年/双 Tab"固定 200 宽胶囊形态，非独立 Tabs 且语义更近 Segmented；Android 未实现独立 Tabs；api.json 无 ui.tabs 条目待立项，本规格为立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（按压反馈/等分实现/省略/指示线实现=系统级差异；pt/dp 与模型命名表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（横向滚动/滑动切换/内容面板内置/懒加载/icon 页签/红点 dot/面板动画=二期候选）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

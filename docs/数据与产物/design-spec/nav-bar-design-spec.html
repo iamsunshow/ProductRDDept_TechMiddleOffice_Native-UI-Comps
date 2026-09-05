@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>NavBar 头部导航 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- NavBar demo 预览 mock（顶部导航条） ---- */
+.nb-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.nb-body{height:110px;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--textPrimary);background:#F0FDF4;border-top:1px solid var(--border);}
+.nb-body small{display:block;font-size:12px;color:var(--textSecondary);margin-top:4px;text-align:center;}
+.nb-bar{display:flex;align-items:stretch;background:var(--bgCard);height:44px;position:relative;}
+.nb-back{width:48px;display:flex;align-items:center;justify-content:flex-start;padding-left:8px;font-size:22px;color:var(--primary);font-style:normal;cursor:pointer;user-select:none;}
+.nb-title{flex:1;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;color:var(--textPrimary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nb-title.nb-noedge{padding-left:48px;}
+.nb-action{width:72px;display:flex;align-items:center;justify-content:flex-end;padding-right:16px;font-size:14px;color:var(--textPrimary);font-style:normal;cursor:pointer;user-select:none;}
+.nb-bar::after{content:"";position:absolute;left:0;right:0;bottom:0;height:0.5px;background:var(--border);}
+.nb-cnt{display:block;font-size:12px;color:var(--textSecondary);padding:6px 12px 12px;}
+</style>
+</head>
+<body>
+
+<h1>NavBar 头部导航 · 设计规格（导航组件 · 任务清单 #17 · 收编缺口补独立立项 · 门禁 A）</h1>
+<p>组件 ID：<code>ui.nav-bar</code> ｜ 定位：<b>页面顶部单行头部导航条</b>——页面顶栏常驻一行：可选返回钮（左侧）+ 居中标题 + 可选右侧动作，点击回传 <code>onBack</code> / <code>onAction</code>；页面内容与导航栈由宿主自理；对标 iOS <code>UINavigationBar</code> / Material TopAppBar / NutUI React NavBar（<code>title</code> + 左右插槽 + 返回）收敛为库内自有设计语言（内容行 44pt/44dp + 白底 + 底部 hairline + 标题单行省略）。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-04，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 二级/详情页顶栏：返回上一级 + 当前页标题（最常用）；② 一级页顶栏：仅标题居中（无返回）；③ 顶栏右侧放单动作（"保存/编辑/更多/完成"文字或单字符 icon），点击交业务回调；④ 需要品牌化顶栏标题/动作色的页面；⑤ 顶栏标题为长文案需单行省略的页面</td></tr>
+<tr><td>不适用（N/A）</td><td>① 底部一级页面导航 → <b>Tabbar（ui.tabbar，#19）</b>；② 页面内顶部内容切换（页签+内容区）→ <b>Tabs（ui.tabs，#20）</b>；③ 左侧目录导航轨 → SideBar（ui.side-bar，#18）；④ 悬浮面板/悬浮钮 → FixedNav（ui.fixed-nav，#15）/ HoverButton（ui.hover-button，#16）；⑤ 沉浸式/透明渐变叠加图顶栏 → 二期候选（anti_goals）；⑥ 系统级导航栈容器（UINavigationController 栈管理/转场）→ 宿主自理，组件只出"条"</td></tr>
+<tr><td>五态适配</td><td>默认态=白底（bgCard）+ 主色返回钮 + 主文字标题/动作；激活/按压=返回钮与动作点击有瞬态按压反馈（平台差异见 §05）；禁用/加载/成功/失败 N/A（顶栏非数据态组件，业务态由宿主承载）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；收编现状=<b>Android ScreenTopBar（sharedui/components/CommonComponents.kt，页面内嵌 scaffold 共享件）为业务近似，非库内独立组件；iOS 无独立 NavBar（业务用系统 UINavigationBar）</b>，本规格将近似收编升级为双端统一独立组件（同 Grid v2.0 NavigationGrid→Grid 收编升级先例）；顶部系统 inset（状态栏）避让=宿主（页面）自理：宿主可用 SafeArea 组件包裹，或置于系统导航栈内（demo 用卡片内模拟场景，卡片顶即组件条起点）；与 SafeArea（ui.safe-area，#10）协作而非内置</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>内容行高</td><td>44pt/44dp（宿主可高度约束覆盖）</td><td>对齐 iOS UINavigationBar 标准 44 / Android ScreenTopBar 现状 44；行业基线=M3 TopAppBar 64 含 inset、NutUI NavBar 44+状态栏，库内取 44=业务现状（ScreenTopBar）保持一致；顶部状态栏 inset 不在组件行内（宿主自理，见 §01）</td></tr>
+<tr><td>标题</td><td>字号 Lg（18pt/18dp）Semibold、textPrimary、单行省略（行尾）</td><td>标题在无左右槽/短文案时严格居中；有返回+右动作时以剩余可用区居中（iOS 系统导航标题居中语义），长标题单行省略、双端一致</td></tr>
+<tr><td>返回钮（可选）</td><td>字符 22pt/22dp（=AppFont.sizeXl）主色 primary；点击热区 ≥40×44（整行高）</td><td>onBack 非 nil 时显示；icon=库内文本字形（如 "←"，门禁 B 锁定双端同一 glyph，不走 Icon 组件资源映射=登记二期）；热区左对齐热区含 padding</td></tr>
+<tr><td>右侧动作（可选）</td><td>文字 14pt/14dp（=sizeSm）Regular 或主色，热区 ≥44 高</td><td>rightAction 文案非空时显示（文字形态）；纯文字/单字符均支持；颜色默认 textPrimary（宿主可传 color 覆盖品牌色）；点击交 onAction</td></tr>
+<tr><td>背景/分隔</td><td>白底 bgCard；行底 hairline（iOS 1/scale pt vs Android 0.5dp 表内放行）</td><td>与系统导航条白底 + 底部细线视觉一致；无左右内边距常态（左右热区自带内边距）</td></tr>
+<tr><td>与 Tabbar/Tabs 区分</td><td>NavBar=顶部一行导航条（返回+标题+单动作）</td><td>Tabbar=底部多标签跨页导航（icon+文字、56 行高）；Tabs=页内顶部页签切换内容；NavBar 无选中态概念</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：纯顶部导航条（收编升级）——内容行 44、可选返回钮 + 居中标题 + 可选右侧动作，onBack/onAction 回调；页面内容与导航栈/转场宿主自理；状态栏 inset 宿主叠 SafeArea/系统栈处理</td><td>✅ 与业务现状 ScreenTopBar 语义对齐、双端 1:1 清晰；把"页面内嵌近似"提升为库内独立可验收组件（同 Grid v2.0 先例）；宿主可自由决定嵌系统栈或页面内嵌；无系统容器强绑定</td><td><b>推荐 A</b>：收编升级收敛</td></tr>
+<tr><td>B：收编系统 UINavigationBar / Material TopAppBar 容器本体（含 inset、大标题、导航栈联动）</td><td>系统栏含 inset/大标题/转场联动等多能力，双端行为（大小标题切换、bar 联动、appearance 差异）难 1:1，非单 UI 组件职责；验收周期失控</td><td>淘汰：系统容器联动=宿主/二期</td></tr>
+<tr><td>C：复合功能头（搜索框/下拉选择/多级标题/分段等业务型复合顶栏）</td><td>业务形态差异大（各页顶栏内容完全不同），做成"通用条 + 任意插槽"才可覆盖=插槽化，一期组件边界失守</td><td>淘汰：登记二期候选（通用插槽化顶栏另行立项）</td></tr>
+</table>
+
+<h3>P2 · 数据/API 模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：声明式单参数——NavBar(title: String, onBack: (() -&gt; Void)? = nil, rightAction: (text: String, onTap: () -&gt; Void)? = nil, actionColor: ... = nil)；右动作=文本 + 回调（单动作一期）；onBack=nil 不显示返回钮</td><td>✅ 与 ScreenTopBar(title, onBack) 现状 1:1 升级（仅增右动作）；参数少而直白、Demo 可验；无 children/插槽复杂度；标题/返回/动作全部具名化</td><td><b>推荐 A</b>：声明式最简模型</td></tr>
+<tr><td>B：children 插槽（iOS 任意子视图槽位 / Android content slot，左右槽自由排布）</td><td>自由度过高：等分/间距/热区统一由宿主维护，组件仅"白条容器"，退化为无语义壳；双端契约（任意插槽）难对齐</td><td>淘汰：登记二期（复合头部另行立项）</td></tr>
+<tr><td>C：全配置对象（NavBarConfig 多字段：leftItems[] / rightItems[] / titleStyle / bg / ... 数组化）</td><td>一期只有 返回+标题+右单动作 的确定形态，数组/多按钮/样式字典远超需求=过度设计</td><td>淘汰：形态确定时不做通用配置化</td></tr>
+</table>
+
+<h3>P3 · 返回/动作语义与幂等：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：onBack 回调触发返回（宿主路由自理，可自行决定是否入栈/弹栈/关闭）；onAction 触发右动作；点击即回调（顶栏动作无"选中态"无幂等需求）；同屏重复点按每次均回调</td><td>✅ 顶栏是"命令钮"非"选中钮"——每次点击都应执行（如"保存"连点需宿主侧去抖，不归组件管）；语义与系统导航条一致；组件无内部状态、无需受控</td><td><b>推荐 A</b>：命令式无状态语义</td></tr>
+<tr><td>B：带选中/受控态的"导航条"（selected 概念、幂等、受控高亮）</td><td>顶栏没有选中态语义（无多选一），硬套选中状态=概念错位；受控/高亮需求不存在</td><td>淘汰：概念不适用</td></tr>
+<tr><td>C：自动执行导航栈 pop（iOS 内部 UINavigationController.pop / Android finish）</td><td>组件内部动宿主导航栈=强耦合（pop 目标、present 场景、深链场景都不一致），无法跨宿主复用；违反"宿主自理"总原则</td><td>淘汰：导航动作宿主自理</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：title + 可选返回钮 + 可选右单动作（文本）+ 长标题单行省略 + 白底 hairline + Demo 四段（基础返回/一级页无返回/右动作回调/长标题省略对照）</td><td>✅ 覆盖顶栏 90% 使用（返回+标题+单动作闭环）；Demo 可 1:1 排查返回回调/动作回调/标题省略；双端契约收敛到 5 参数内</td><td><b>推荐 A</b>：验收路径清晰</td></tr>
+<tr><td>B：一期即做 左右双动作 + 自定义背景色/透明沉浸 + 多行标题 + 字号分级</td><td>左右双动作热区挤压标题/沉浸与大标题复杂化（状态栏深浅/渐变），一期验收失控；与"系统导航栈容器"职责边界冲突</td><td>淘汰：登记二期（沉浸/双动作/大标题）</td></tr>
+<tr><td>C：一期内置状态栏 inset 与页面边缘避让（免宿主 SafeArea）</td><td>组件自带 inset 需感知 WindowInsets/safeArea 环境，Demo 卡片内无法正确呈现、双端感知差异大；与 SafeArea 组件职责重叠</td><td>淘汰：inset 宿主自理（同 Tabbar 底部安全区宿主叠 SafeArea 先例）</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础返回 + 标题（二级页形态）</h3>
+<p>标题「账单明细」居中，左返回钮主色 ←；点返回=onBack 回调计数回显；标题无返回钮时不出现返回位。验证基础布局 + 返回回调。</p>
+<div class="nb-stage">
+<div class="nb-bar"><i class="nb-back">←</i><span class="nb-title">账单明细</span><span class="nb-action"></span></div>
+<div class="nb-body">「账单明细」页面内容<small>返回钮主色 ← · 标题居中</small></div>
+</div>
+<span class="nb-cnt">onBack 回调计数回显 · 点返回即触发（每次点击均回调）</span>
+
+<h3>D2 · 一级页无返回（仅标题居中）</h3>
+<p>onBack=nil → 不显示返回钮；标题「资产总览」水平居中且无返回占位。验证无返回形态下标题真正居中。</p>
+<div class="nb-stage">
+<div class="nb-bar"><span class="nb-title">资产总览</span><span class="nb-action"></span></div>
+<div class="nb-body">「资产总览」页面内容<small>一级页无返回 · 标题纯居中</small></div>
+</div>
+<span class="nb-cnt">onBack=nil → 返回位不占宽，标题严格水平居中</span>
+
+<h3>D3 · 右侧动作（保存回调）</h3>
+<p>「编辑分类」返回 + 右动作「保存」；点保存=onAction 回调计数回显；与返回回调计数分开展示。验证右动作渲染与回调。</p>
+<div class="nb-stage">
+<div class="nb-bar"><i class="nb-back">←</i><span class="nb-title">编辑分类</span><i class="nb-action">保存</i></div>
+<div class="nb-body">「编辑分类」页面内容<small>右侧动作文字形态</small></div>
+</div>
+<span class="nb-cnt">右动作 onAction 回调计数回显（与返回计数分开）</span>
+
+<h3>D4 · 长标题省略 + 短标题对照</h3>
+<p>标题「2026年9月个人理财收支明细分析报告」超长单行省略（行尾 …）；下方短标题对照组正常完整显示。验证省略仅作用于长标题。</p>
+<div class="nb-stage">
+<div class="nb-bar"><i class="nb-back">←</i><span class="nb-title">2026年9月个人理财收支明细分析报告</span></div>
+<div class="nb-body">长标题行尾省略<small>与短标题组对照 · 不换行不溢出</small></div>
+</div>
+<span class="nb-cnt">长标题 truncateTail 单行省略 · 短标题完整居中</span>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>点击按压反馈</td><td>UIButton touchDown 高亮/压暗瞬态</td><td>clickable 系统 ripple（Material 默认点击反馈）</td><td>系统级原生差异：按压反馈体系不同（表内放行，同 Grid/SideBar/Tabbar 先例）</td></tr>
+<tr><td>行底 hairline</td><td>1/scale pt（≈0.33–0.5pt）</td><td>0.5dp 细线</td><td>线宽单位体系差异（表内放行，同全库先例）</td></tr>
+<tr><td>文字省略截断</td><td>UILabel 单行 truncateTail</td><td>Text overflow=Ellipsis（maxLines=1）</td><td>两端系统文本省略行为一致指向（表内放行，同全库先例）</td></tr>
+<tr><td>标题严格居中实现</td><td>UIStackView：左右槽为等宽占位或 centerX 标题</td><td>Box + align(Center) / Row weight 对称占位</td><td>系统级布局机制不同、结果同=视觉居中（表内放行）</td></tr>
+<tr class="diff-row"><td>尺寸数值单位</td><td>pt</td><td>dp</td><td>Token 同一数值不同单位（表内放行，同全库先例）</td></tr>
+<tr class="diff-row"><td>数据模型命名</td><td>class NavBar / NavBarAction</td><td>@Composable NavBar(...) / data class NavBarAction</td><td>契约同构（表内放行，命名差异见门禁 B）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>NavBarAction</code>：<code>text: String</code>（文字形态，单行）+ <code>color: ...? = nil</code>（默认 textPrimary 覆盖可选）+ <code>onTap: () -&gt; Void</code></td></tr>
+<tr><td>iOS</td><td><code>final class NavBar: UIView</code><br/><code>init(title: String, onBack: (() -&gt; Void)? = nil, rightAction: NavBarAction? = nil)</code><br/>内容行高 44（宿主可高度约束覆盖）；白底 bgCard；标题字号 Lg Semibold 单行省略居中；onBack=nil 不显示返回钮、标题严格居中；onAction 点击回调；行底 hairline 自绘</td></tr>
+<tr><td>Android</td><td><code>@Composable fun NavBar(title: String, onBack: (() -&gt; Unit)? = null, rightAction: NavBarAction? = null, modifier: Modifier = Modifier)</code><br/><code>data class NavBarAction(text: String, color: Color? = null, onTap: () -&gt; Unit)</code><br/>Row 内容高 44（modifier 定高，宿主传 44.dp 缺省样）；返回钮热区 ≥40；白底 bgCard + 底部 hairline</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：顶部单行导航条，与 Tabbar（底部跨页）/Tabs（页内页签）/SideBar/FixedNav/HoverButton 划界；导航栈/状态栏 inset 宿主自理）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（行高 44/标题 Lg Semibold/返回字形 22 主色/动作文字 sizeSm/hairline/白底 bgCard 全走 token+注释锚定）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期：沉浸透明/双动作/大标题/插槽化复合头/状态栏 inset 内置/系统导航栈联动）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础返回/一级页无返回/右动作回调/长标题省略）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（收编近似=Android ScreenTopBar 页面内嵌非独立组件 + iOS 无独立 NavBar（系统 UINavigationBar）；api.json 无 ui.nav-bar 条目待立项登记；任务清单 #17 ✅ 收编状态，本规格=补独立组件立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（按压反馈/线宽/省略/标题居中实现=系统级差异；pt/dp 与模型命名表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（沉浸透明/双动作/多行标题/插槽化复合头/系统导航栈容器/状态栏 inset 内置=二期候选）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

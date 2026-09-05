@@ -108,6 +108,14 @@ import com.zhiqihuayun.sharedui.components.Space
 import com.zhiqihuayun.sharedui.components.SpaceDirection
 import com.zhiqihuayun.sharedui.components.ZodiacAvatar
 import com.zhiqihuayun.sharedui.components.stickyHeaderItem
+import com.zhiqihuayun.sharedui.components.Address
+import com.zhiqihuayun.sharedui.components.AddressResult
+import com.zhiqihuayun.sharedui.components.RegionOption
+import com.zhiqihuayun.sharedui.components.CalendarCard
+import com.zhiqihuayun.sharedui.components.CalendarDate
+import com.zhiqihuayun.sharedui.components.Cascader
+import com.zhiqihuayun.sharedui.components.CascaderOption
+import com.zhiqihuayun.sharedui.components.CascaderResult
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -158,10 +166,10 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Tabs 选项卡", reviewed = true, demo = { TabsDemo() }),
     ),
     "数据录入" to listOf(
-        DemoComponent("Address 地址"),
+        DemoComponent("Address 地址", reviewed = true, demo = { AddressDemo() }),
         DemoComponent("Calendar 日历"),
-        DemoComponent("CalendarCard 日历卡片"),
-        DemoComponent("Cascader 级联选择"),
+        DemoComponent("CalendarCard 日历卡片", reviewed = true, demo = { CalendarCardDemo() }),
+        DemoComponent("Cascader 级联选择", reviewed = true, demo = { CascaderDemo() }),
         DemoComponent("Checkbox 复选"),
         DemoComponent("DatePicker 日期选择"),
         DemoComponent("DatePickerView 视图"),
@@ -3508,5 +3516,496 @@ private fun SideBarDemo() {
             fontSize = AppFont.sizeXs,
             color = if (d4External) AppColor.primary else AppColor.textSecondary
         )
+    }
+}
+
+// ===== 数据录入区首批三件 Demo（#21 Address / #23 CalendarCard / #24 Cascader，规格与双端 iOS 1:1） =====
+
+private fun weekday0Ex(year: Int, month: Int, day: Int): Int {
+    val c = java.util.Calendar.getInstance()
+    c.clear()
+    c.set(year, month - 1, day)
+    return (c.get(java.util.Calendar.DAY_OF_WEEK) + 6) % 7
+}
+
+private fun weekdayCN(d: CalendarDate): String =
+    "星期" + listOf("日", "一", "二", "三", "四", "五", "六")[weekday0Ex(d.year, d.month, d.day)]
+
+/** 省级示例数据（广东省完整三级；北京/上海/重庆=直辖市两级收拢）。 */
+private val demoRegionTree: List<RegionOption> = listOf(
+    RegionOption("gd", "广东省", children = listOf(
+        RegionOption("gd_gz", "广州市", children = listOf(
+            RegionOption("gd_gz_tianhe", "天河区"),
+            RegionOption("gd_gz_yuexiu", "越秀区"),
+            RegionOption("gd_gz_haizhu", "海珠区")
+        )),
+        RegionOption("gd_sz", "深圳市", children = listOf(
+            RegionOption("gd_sz_nanshan", "南山区"),
+            RegionOption("gd_sz_futian", "福田区"),
+            RegionOption("gd_sz_luohu", "罗湖区")
+        )),
+        RegionOption("gd_dg", "东莞市", children = listOf(
+            RegionOption("gd_dg_nancheng", "南城街道"),
+            RegionOption("gd_dg_changan", "长安镇")
+        ))
+    )),
+    RegionOption("zj", "浙江省", children = listOf(
+        RegionOption("zj_hz", "杭州市", children = listOf(
+            RegionOption("zj_hz_xihu", "西湖区"),
+            RegionOption("zj_hz_shangcheng", "上城区"),
+            RegionOption("zj_hz_gongshu", "拱墅区")
+        )),
+        RegionOption("zj_nb", "宁波市", children = listOf(
+            RegionOption("zj_nb_haishu", "海曙区"),
+            RegionOption("zj_nb_yinzhou", "鄞州区")
+        ))
+    )),
+    RegionOption("js", "江苏省", children = listOf(
+        RegionOption("js_nj", "南京市", children = listOf(
+            RegionOption("js_nj_xuanwu", "玄武区"),
+            RegionOption("js_nj_gulou", "鼓楼区")
+        ))
+    )),
+    RegionOption("bj", "北京市", children = listOf(
+        RegionOption("110105", "朝阳区"),
+        RegionOption("110108", "海淀区"),
+        RegionOption("110101", "东城区")
+    )),
+    RegionOption("sh", "上海市", children = listOf(
+        RegionOption("310104", "徐汇区"),
+        RegionOption("310101", "黄浦区"),
+        RegionOption("310106", "静安区")
+    )),
+    RegionOption("cq", "重庆市", children = listOf(
+        RegionOption("500103", "渝中区"),
+        RegionOption("500108", "南岸区")
+    ))
+)
+
+/** D3 长列表：在省级示例基础上补 14 个模拟省份（共 20 项滚动可验）。 */
+private fun demoLongRegionTree(): List<RegionOption> {
+    val extra = (1..14).map { i ->
+        RegionOption("demo$i", "示例省份 $i", children = listOf(
+            RegionOption("demo${i}_c1", "示例市甲"),
+            RegionOption("demo${i}_c2", "示例市乙")
+        ))
+    }
+    return demoRegionTree + extra
+}
+
+/** 支出分类树（任意深度 + 节点禁用，Cascader D1/D2）。 */
+private val demoCategoryTree: List<CascaderOption> = listOf(
+    CascaderOption("living", "生活", children = listOf(
+        CascaderOption("dining", "餐饮", children = listOf(
+            CascaderOption("fastfood", "快餐"),
+            CascaderOption("dinner", "正餐"),
+            CascaderOption("brunch", "早午餐")
+        )),
+        CascaderOption("shopping", "购物", children = listOf(
+            CascaderOption("daily", "日用百货"),
+            CascaderOption("cloth", "衣物鞋包")
+        )),
+        CascaderOption("transport", "出行", children = listOf(
+            CascaderOption("taxi", "打车"),
+            CascaderOption("metro", "地铁")
+        ))
+    )),
+    CascaderOption("invest", "投资", children = listOf(
+        CascaderOption("fund", "基金", children = listOf(
+            CascaderOption("stockfund", "股票基金"),
+            CascaderOption("bondfund", "债券基金"),
+            CascaderOption("closedfund", "封闭期基金", disabled = true)
+        )),
+        CascaderOption("stock", "股票")
+    )),
+    CascaderOption("medical", "医疗", disabled = true)
+)
+
+/** 深层组织架构树（5 层路径 + 横滑回退，Cascader D3）。 */
+private val demoOrgTree: List<CascaderOption> = listOf(
+    CascaderOption("group", "集团", children = listOf(
+        CascaderOption("pl", "产品线 A", children = listOf(
+            CascaderOption("mobile", "移动端", children = listOf(
+                CascaderOption("comps", "组件组", children = listOf(
+                    CascaderOption("ios", "iOS 组件"),
+                    CascaderOption("android", "Android 组件")
+                )),
+                CascaderOption("apis", "接口组")
+            )),
+            CascaderOption("web", "Web 端")
+        )),
+        CascaderOption("plb", "产品线 B", children = listOf(
+            CascaderOption("data", "数据平台")
+        ))
+    ))
+)
+
+/** AddressDemo：4 段排查（D1 基础三级 / D2 直辖市两级 / D3 长列表+回退 / D4 受控外部驱动）。 */
+@Composable
+private fun AddressDemo() {
+    Text(
+        text = "Address 地址组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 基础省市区三级 ② 直辖市两级收拢 ③ 长列表+层级 tab 回退重选 ④ 受控外部驱动。双端 1:1（iOS AddressView vs Android Address）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 基础省市区三级
+        Text("Demo 1 · 基础省市区三级联动（完整链路 + 结果回显）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1Result by remember { mutableStateOf<AddressResult?>(null) }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(320.dp)
+                .clip(RoundedCornerShape(AppRadius.md))
+                .background(AppColor.bgCard)
+                .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+        ) {
+            Address(
+                options = demoRegionTree,
+                onChange = { d1Result = it },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Text(
+            text = "onChange → ${d1Result?.text ?: "（未选择）"}${if (d1Result != null) "，codes=[${d1Result!!.codes.joinToString(",")}]" else ""}",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.primary
+        )
+        Text("广东→深圳→南山区 完整链路；选到区（叶子）=回调结构化结果 codes+names+text。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D2 · 直辖市两级收拢
+        Text("Demo 2 · 直辖市数据两级自动收拢", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2Result by remember { mutableStateOf<AddressResult?>(null) }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+                .clip(RoundedCornerShape(AppRadius.md))
+                .background(AppColor.bgCard)
+                .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+        ) {
+            Address(
+                options = listOf(
+                    RegionOption("bj", "北京市", children = demoRegionTree.first { it.value == "bj" }.children),
+                    RegionOption("sh", "上海市", children = demoRegionTree.first { it.value == "sh" }.children),
+                    RegionOption("cq", "重庆市", children = demoRegionTree.first { it.value == "cq" }.children)
+                ),
+                onChange = { d2Result = it },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Text(
+            text = "onChange → ${d2Result?.text ?: "（未选择）"}",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.primary
+        )
+        Text("北京/上海/重庆=省层级下 children 直接是区（无市层），选中即两级完成。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D3 · 长列表滚动 + 层级 tab 回退重选
+        Text("Demo 3 · 20 省大列表滚动 + tab 回退重选", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3Result by remember { mutableStateOf<AddressResult?>(null) }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(230.dp)
+                .clip(RoundedCornerShape(AppRadius.md))
+                .background(AppColor.bgCard)
+                .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+        ) {
+            Address(
+                options = remember { demoLongRegionTree() },
+                onChange = { d3Result = it },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Text(
+            text = "onChange → ${d3Result?.text ?: "（未选择）"}",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.primary
+        )
+        Text("列表区可滚动；点顶部已选层 tab（如「广东省」）可回退到对应层重选。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D4 · 受控外部驱动（回显既有地址 / 清空）
+        Text("Demo 4 · 受控外部驱动（result 预填回显 / 清空）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4Result by remember { mutableStateOf<AddressResult?>(null) }
+        var d4Times by remember { mutableStateOf(0) }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(320.dp)
+                .clip(RoundedCornerShape(AppRadius.md))
+                .background(AppColor.bgCard)
+                .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+        ) {
+            Address(
+                options = demoRegionTree,
+                result = d4Result,
+                onChange = { d4Result = it; d4Times++ },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d4Result = AddressResult(listOf("sh", "310104"), listOf("上海市", "徐汇区"), "上海市 徐汇区")
+            }) { Text("回显 上海市 徐汇区", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = { d4Result = null }) { Text("清空", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = "外部 result 驱动高亮定位（选中计数 $d4Times 次）；清空=回根层。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+    }
+}
+
+/** CalendarCardDemo：4 段排查（D1 基础 / D2 翻月+今日 / D3 范围禁用 / D4 受控外部驱动）。 */
+@Composable
+private fun CalendarCardDemo() {
+    val today = remember { CalendarDate.today() }
+    Text(
+        text = "CalendarCard 日历卡片组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 基础单选 ② 翻月+今日定位 ③ min/maxDate 范围禁用 ④ 受控外部驱动。双端 1:1（iOS CalendarCardView vs Android CalendarCard）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 基础当月单选
+        Text("Demo 1 · 基础当月单选（今日描边 + 点选高亮回显）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1 by remember { mutableStateOf<CalendarDate?>(null) }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(AppRadius.md))
+                .background(AppColor.bgCard)
+                .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+        ) {
+            CalendarCard(selected = d1, onChange = { d1 = it }, modifier = Modifier.padding(vertical = AppSpace.sm))
+        }
+        Text(
+            text = "onChange → ${d1?.let { "${it.text}（${weekdayCN(it)}）" } ?: "（未选择）"}",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.primary
+        )
+        Text("今日 ${today.text}=主色描边圆；点选=主色实心圆白字；点已选中日幂等不重复回调。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D2 · 月份切换 + 今日定位
+        Text("Demo 2 · 月份切换 + 跨月网格稳定", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2 by remember { mutableStateOf<CalendarDate?>(null) }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(AppRadius.md))
+                .background(AppColor.bgCard)
+                .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+        ) {
+            CalendarCard(selected = d2, onChange = { d2 = it }, modifier = Modifier.padding(vertical = AppSpace.sm))
+        }
+        Text(
+            text = "onChange → ${d2?.let { "${it.text}（${weekdayCN(it)}）" } ?: "（未选择）"}",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.primary
+        )
+        Text("‹ › 逐月切换，首尾空位占位 7×6 网格稳定不跳行；今日描边跨月仍定位。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D3 · min/maxDate 范围禁用
+        Text("Demo 3 · 范围禁用（min=当月 1 日 / max=当月 15 日）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3 by remember { mutableStateOf<CalendarDate?>(null) }
+        val rangeMax = remember { today.copy(day = 15) }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(AppRadius.md))
+                .background(AppColor.bgCard)
+                .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+        ) {
+            CalendarCard(
+                selected = d3,
+                minDate = today.copy(day = 1),
+                maxDate = rangeMax,
+                onChange = { d3 = it },
+                modifier = Modifier.padding(vertical = AppSpace.sm)
+            )
+        }
+        Text(
+            text = "onChange → ${d3?.let { "${it.text}（${weekdayCN(it)}）" } ?: "（未选择）"}",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.primary
+        )
+        Text("范围外灰禁不可点；越界翻月=对应箭头置灰禁翻。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D4 · 受控外部驱动（回显 12-24 / 清空）
+        Text("Demo 4 · 受控外部驱动（selected 预填回显自动切月 / 清空）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4 by remember { mutableStateOf<CalendarDate?>(null) }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(AppRadius.md))
+                .background(AppColor.bgCard)
+                .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+        ) {
+            CalendarCard(selected = d4, onChange = { d4 = it }, modifier = Modifier.padding(vertical = AppSpace.sm))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = { d4 = CalendarDate(today.year, 12, 24) }) { Text("回显 12 月 24 日", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = { d4 = null }) { Text("清空选中", fontSize = AppFont.sizeXs) }
+        }
+        Text("外部 selected 变化 → 同步高亮并自动切到所属月；清空=网格无选中（保留当前月）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+    }
+}
+
+/** CascaderDemo：4 段排查（D1 基础三级 / D2 深浅混合+禁用 / D3 深层回退 / D4 受控外部驱动）。 */
+@Composable
+private fun CascaderDemo() {
+    Text(
+        text = "Cascader 级联选择组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 基础三级品类树 ② 深浅树混合+节点禁用 ③ 深层路径 tab 回退 ④ 受控外部驱动。双端 1:1（iOS CascaderView vs Android Cascader）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 基础三级品类树
+        Text("Demo 1 · 基础三级品类树（叶子完成 + 路径回显）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1Result by remember { mutableStateOf<CascaderResult?>(null) }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(320.dp)
+                .clip(RoundedCornerShape(AppRadius.md))
+                .background(AppColor.bgCard)
+                .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+        ) {
+            Cascader(
+                options = demoCategoryTree,
+                onChange = { d1Result = it },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Text(
+            text = "onChange → ${d1Result?.text ?: "（未选择）"}",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.primary
+        )
+        Text("生活→餐饮→正餐 任意三级叶子；选中=回调 values+texts+text（/ 拼接）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D2 · 深浅树混合 + 禁用节点
+        Text("Demo 2 · 深浅树混合（2~3 层）+ 节点禁用", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2Result by remember { mutableStateOf<CascaderResult?>(null) }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(320.dp)
+                .clip(RoundedCornerShape(AppRadius.md))
+                .background(AppColor.bgCard)
+                .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+        ) {
+            Cascader(
+                options = demoCategoryTree,
+                onChange = { d2Result = it },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Text(
+            text = "onChange → ${d2Result?.text ?: "（未选择）"}",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.primary
+        )
+        Text("同树既有 2 层叶（打车/地铁/股票）又有 3 层枝（…/债券基金）；「封闭期基金」「医疗」禁用灰 40% 不可点。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D3 · 深层路径 + tab 回退
+        Text("Demo 3 · 5 层组织路径 + 中间层 tab 回退重选", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3Result by remember { mutableStateOf<CascaderResult?>(null) }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(320.dp)
+                .clip(RoundedCornerShape(AppRadius.md))
+                .background(AppColor.bgCard)
+                .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+        ) {
+            Cascader(
+                options = demoOrgTree,
+                onChange = { d3Result = it },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Text(
+            text = "onChange → ${d3Result?.text ?: "（未选择）"}",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.primary
+        )
+        Text("点「产品线 A」等中间层 tab 回退到该层重选其下枝；树深任意由数据决定。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D4 · 受控外部驱动
+        Text("Demo 4 · 受控外部驱动（result 预填回显 / 清空）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4Result by remember { mutableStateOf<CascaderResult?>(null) }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(320.dp)
+                .clip(RoundedCornerShape(AppRadius.md))
+                .background(AppColor.bgCard)
+                .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+        ) {
+            Cascader(
+                options = demoOrgTree,
+                result = d4Result,
+                onChange = { d4Result = it },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d4Result = CascaderResult(
+                    listOf("group", "pl", "mobile", "comps", "android"),
+                    listOf("集团", "产品线 A", "移动端", "组件组", "Android 组件"),
+                    "集团/产品线 A/移动端/组件组/Android 组件"
+                )
+            }) { Text("回显 组件组/Android", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = { d4Result = null }) { Text("清空", fontSize = AppFont.sizeXs) }
+        }
+        Text("外部 result 按 values 逐层展开高亮；清空=回根层。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
     }
 }

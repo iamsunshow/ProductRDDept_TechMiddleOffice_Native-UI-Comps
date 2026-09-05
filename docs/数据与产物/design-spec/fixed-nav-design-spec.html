@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FixedNav 悬浮导航 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+.fn-stage{position:relative;background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);height:150px;margin:var(--spaceMd) 0;overflow:hidden;}
+.fn-stage .fn-page{position:absolute;inset:0;background:repeating-linear-gradient(#F9FAFB,#F9FAFB 22px,#F3F4F6 23px);}
+.fn-stage.left .fn-tip{left:0;transform:none;border-radius:999px 0 0 999px;}
+.fn-open{position:absolute;bottom:14px;display:flex;align-items:center;gap:8px;font-size:13px;}
+.fn-open.right{right:0;flex-direction:row-reverse;}
+.fn-open.left{left:0;}
+.fn-panel{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);box-shadow:0 4px 16px rgba(17,24,39,.10);overflow:hidden;}
+.fn-item{display:flex;align-items:center;gap:8px;padding:0 12px;height:44px;min-width:140px;border-bottom:1px solid #F3F4F6;font-size:14px;}
+.fn-item:last-child{border-bottom:none;}
+.fn-ic{width:20px;height:20px;border-radius:6px;background:var(--primaryMuted);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--primary);}
+.fn-num{margin-left:auto;background:var(--primary);color:#fff;font-size:11px;min-width:16px;height:16px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 4px;box-sizing:border-box;}
+.fn-tip{position:absolute;bottom:14px;background:var(--primary);color:#fff;border-radius:999px 0 0 999px;padding:0 16px;height:40px;display:flex;align-items:center;font-size:14px;right:0;}
+.fn-tip.collapsed{background:#111827;}
+</style>
+</head>
+<body>
+
+<h1>FixedNav 悬浮导航 · 设计规格（导航组件 #3 · 任务清单 #15，subcategory=navigation · 门禁 A）</h1>
+<p>组件 ID：<code>ui.fixed-nav</code> ｜ 定位：<b>页面边缘常驻悬浮入口钮 + 展开导航项列表的"快捷导航器"</b>——收起态=单胶囊钮，点击展开=钮旁列表面板，点项回传并自动收起，对标 NutUI React FixedNav（active/nav-list/type/text）。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-04，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 2-6 个高频功能入口需要"不占主内容区、边缘常驻、随时展开"的悬浮导航（账单页 导出/筛选/分享、报表页切换口径、工具页更多操作）；② 收起态不干扰浏览、展开态一次可见全部入口并点选回传；③ 左/右边缘可切换摆放</td></tr>
+<tr><td>不适用（N/A）</td><td>① 单功能悬浮回顶 → <b>BackTop（ui.back-top）</b>；② 仅一个悬浮按钮且无列表（自定义点击动作）→ <b>HoverButton（ui.hover-button，#16）</b>；③ 底部主导航 Tab → Tabbar（ui.tabbar）；④ 页面顶部导航/面包屑 → NavBar（ui.navbar）</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 收起胶囊钮（un-active-text）；<span class="tag tag-ok">交互态 ✅</span> 点击展开=钮旁弹出导航列表面板（钮文字切 active-text）；<span class="tag tag-ok">选择态 ✅</span> 点项触发 onSelect 并自动收起面板；禁用/加载/成功/失败 N/A（导航入口类组件，数据为空态=钮仍可用但不弹内容，本期不引骨架）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；钮视觉基线对齐 BackTop 悬浮钮（高 40pt/dp 主色系）；面板行=组件自有极简行（圆底图标位+文本+可选角标+间隔线），不依赖 Cell（Cell 语义=页面内容单元格带五态/箭头，FixedNav 面板是短入口列表=行视觉更轻）。与悬浮类划界：BackTop=回顶单功能、HoverButton=无列表单钮自定义、FixedNav=带列表的多入口悬浮导航</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>悬浮钮高/最小宽</td><td>40pt/40dp（对齐 BackTop 悬浮钮直径），圆角=full，水平 padding 16</td><td>文本胶囊钮：图标位（可选）+un-active-text/active-text 文本；钮底=primary 白字（BackTop 主色圆钮同款视觉族）</td></tr>
+<tr><td>面板宽/行高</td><td>面板宽=内容撑开（行 最小 140pt/dp），行高 44pt/44dp</td><td>行=圆底图标位 20 + 间距 8 + 文本 + 可选 num 角标；末行无下边线；面板=卡片壳（bgCard/圆角 md/边框/投影）</td></tr>
+<tr><td>行图标位</td><td>20pt/20dp 圆角 6，bg=primaryMuted，字符 primary</td><td>icon 一期=单字符/emoji 文本（不走 Icon 组件映射，二期接系统图标）</td></tr>
+<tr><td>num 角标</td><td>高 16pt/dp 圆角 full，bg=primary 白字，字号 12pt/dp（=AppFont.sizeXs，令牌零硬编码）</td><td>可省略（0/缺省=不显示）</td></tr>
+<tr><td>位置</td><td>宿主锚定（右下/左下），组件悬浮于滚动内容之上由宿主层级保证</td><td>组件不自带 window 级浮层/滚动监听/拖拽，type 只定面板相对钮展开侧</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 形态与展开交互：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：收起=文本胶囊钮（un-active-text），点钮=钮旁弹出竖排列表面板，展开态钮文字切 active-text（再点收起/点项收起/点外部收起），面板相对钮向左/右展开由 type 定</td><td>✅ 对齐 NutUI 核心交互（active 双向控制）；双端同构（iOS UIButton+UIView 面板 / Compose 按钮+Card）；无额外浮层 API。</td><td><b>推荐 A</b>：范围收敛、可验收直观</td></tr>
+<tr><td>B：展开=底部 Popup/全屏半层弹列表</td><td>接近 ActionSheet/选择器语义，与"悬浮导航"轻量定位冲突，交互偏重。</td><td>淘汰</td></tr>
+<tr><td>C：拖拽自由摆放 + 长按排序（NutUI Drag 组合）</td><td>拖拽涉及手势与布局持久化，一期成本高且非核心。</td><td>淘汰：登记二期（Drag 集成）</td></tr>
+</table>
+
+<h3>P2 · 数据模型与回调：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：FixedNavItem(key/text/icon?/num?) + navItems + type(left/right) + activeText/unActiveText(自定义文案) + onSelect(item)（选中自动收起）</td><td>✅ 对齐 NutUI nav-list/type/active-text/un-active-text/selected；key=唯一标识回传稳定；文案可本地化覆盖。</td><td><b>推荐 A</b>：契约干净、覆盖演示差异</td></tr>
+<tr><td>B：数据用 id/text 命名 + icon 必填图片地址（NutUI 原样）</td><td>原生无"图片地址"数据习惯，icon 需改造为库内资源引用，契约与 iOS/Android 资源系统强耦合。</td><td>淘汰：icon 一期简化文本位</td></tr>
+<tr><td>C：只传文本数组无 key/icon/num</td><td>覆盖不到角标诉求，行内图标位固定空置，观感差。</td><td>淘汰</td></tr>
+</table>
+
+<h3>P3 · 悬浮钮通用层：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：组件=纯内容视图（钮+面板自身排版），"悬浮"=宿主放入非滚动覆盖层并锚定边角；type 仅决定面板展开方向（right 钮在右=面板向左伸；left 对称）</td><td>✅ 与 BackTop 同款宿主定位约定（BackTop 也是宿主摆放）；无 window 侵入；demo 直接复用展示容器。</td><td><b>推荐 A</b>：与 BackTop 先例统一</td></tr>
+<tr><td>B：组件包 window-level overlay + 自动吸附滚动页面边角</td><td>iOS 需 UIWindow 或 keyWindow 注入，Android 需 WindowManager，脱离"组件=可嵌入视图"库定位。</td><td>淘汰</td></tr>
+<tr><td>C：包一层容器自动完成页面滚动区域右侧锚定（复杂 layout 魔法）</td><td>与宿主滚动容器结构强耦合，双端难以 1:1。</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：胶囊钮 40 高 + 展开面板（竖排行 ≤7：图标位/文本/num 角标/分割线）+ 点项 onSelect 自动收起 + 点钮切换展开收起 + 点面板外收起 + type 左右 + 文案自定义 + demo 四段</td><td>✅ 覆盖悬浮导航核心闭环；≤7 行不引滚动=面板内不滚动。</td><td><b>推荐 A</b>：验收路径清晰</td></tr>
+<tr><td>B：面板标题条（active-text 放面板顶部 + 展开收起把手）</td><td>NutUI 有该布局，但组件将多一层内嵌 bar，收起语义有两入口，视觉冗余。</td><td>淘汰：文案放钮本身</td></tr>
+<tr><td>C：行内容插槽/自定义渲染 + 图标系统 Icon 接入 + 拖拽</td><td>三项均为扩展能力，拖慢核心验收。</td><td>淘汰：登记二期（自定义插槽/Icon 映射/Drag）</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 右侧基本用法（展开导航面板 + 角标）</h3>
+<p>右下角胶囊钮（un-active-text"快速导航"）；点钮=钮旁左侧弹出面板 4 项（首页 num 2 / 订单 / 购物车 num 5 / 我的），钮文字切"收起导航"；点行=回传并自动收起。</p>
+<div class="fn-stage"><div class="fn-page"></div>
+<div class="fn-open right"><div class="fn-panel">
+<div class="fn-item"><span class="fn-ic">⌂</span>首页<span class="fn-num">2</span></div>
+<div class="fn-item"><span class="fn-ic">📄</span>订单</div>
+<div class="fn-item"><span class="fn-ic">🛒</span>购物车<span class="fn-num">5</span></div>
+<div class="fn-item"><span class="fn-ic">◎</span>我的</div>
+</div><div class="fn-tip">收起导航</div></div>
+</div>
+
+<h3>D2 · 左侧摆放（type=left）</h3>
+<p>胶囊钮放左下缘（un-active-text"更多工具"），面板向右展开 3 项（导出报表/筛选视图/分享），点击回传自动收起。</p>
+<div class="fn-stage"><div class="fn-page"></div>
+<div class="fn-open left"><div class="fn-tip" style="border-radius:0 999px 999px 0;">更多工具</div><div class="fn-panel">
+<div class="fn-item"><span class="fn-ic">⤓</span>导出报表</div>
+<div class="fn-item"><span class="fn-ic">≋</span>筛选视图</div>
+<div class="fn-item"><span class="fn-ic">↗</span>分享</div>
+</div></div>
+</div>
+
+<h3>D3 · 无图标无角标纯文本（行宽自适应）</h3>
+<p>图标位与 num 均缺省：胶囊钮"操作"，面板 2 行长文本项（"切换为月度视图""同步至工作台"），验证行内容自然撑宽、图标位隐藏不占位。</p>
+<div class="fn-stage"><div class="fn-page"></div>
+<div class="fn-open right"><div class="fn-panel">
+<div class="fn-item">切换为月度视图</div>
+<div class="fn-item">同步至工作台</div>
+</div><div class="fn-tip" style="background:#111827;">操作</div></div>
+</div>
+
+<h3>D4 · 多次开合 + 点外收起（状态稳定）</h3>
+<p>同一容器连续：展开→点项 A 自动收起（回显）→再展开→点项 B（回显累加）→展开后点面板外空白区=收起且不触发选择，验证开合状态机无脏状态。</p>
+<div class="fn-stage"><div class="fn-page"></div>
+<div class="fn-open right"><div class="fn-panel">
+<div class="fn-item"><span class="fn-ic">A</span>回首页</div>
+<div class="fn-item"><span class="fn-ic">B</span>退出登录</div>
+</div><div class="fn-tip">收起</div></div>
+</div>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>展开/收起动画</td><td>UIView animate（透明度+位移/scale）</td><td>animate*AsState + AnimatedVisibility</td><td>系统级原生差异：各自平台动画原语</td></tr>
+<tr><td>点面板外收起</td><td>宿主页 tapGestureRecognizer 回调 onOutsideTap 或容器提供收口（demo 用展示容器 tap）</td><td>Compose 外部 pointerInput/容器级收口</td><td>平台事件模型不同（表内放行，均以"点外部收起"验收对齐）</td></tr>
+<tr><td>钮文本胶囊</td><td>UIButton（主色底白字圆角 full）</td><td>Surface/Button 同视觉</td><td>系统级原生差异：按钮实现不同、视觉契约同</td></tr>
+<tr><td class="diff-row">尺寸数值单位</td><td>pt</td><td>dp</td><td>Token 同一数值不同单位（表内放行，同 Grid/Layout/Elevator 先例）</td></tr>
+<tr><td class="diff-row">数据模型命名</td><td>struct FixedNavItem / FixedNavType</td><td>data class FixedNavItem / enum FixedNavType</td><td>契约同构（表内放行，命名差异见门禁 B）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>iOS</td><td><code>struct FixedNavItem { let key: String; let text: String; let icon: String?; let num: Int? }</code><br/><code>enum FixedNavType { case right, left }</code><br/><code>FixedNavView(items: [FixedNavItem], type: FixedNavType = .right, activeText: String? = nil, unActiveText: String? = nil, onSelect: ((FixedNavItem) -&gt; Void)? = nil)</code>（内容视图：钮+面板自身排版；"悬浮"由宿主置于覆盖层锚定边角）</td></tr>
+<tr><td>Android</td><td><code>data class FixedNavItem(val key: String, val text: String, val icon: String? = null, val num: Int? = null)</code><br/><code>enum class FixedNavType { Right, Left }</code><br/><code>@Composable fun FixedNav(items: List&lt;FixedNavItem&gt;, modifier: Modifier = Modifier, type: FixedNavType = FixedNavType.Right, activeText: String? = null, unActiveText: String? = null, onSelect: ((FixedNavItem) -&gt; Unit)? = null)</code></td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：多入口悬浮导航专属，与 BackTop/HoverButton/Tabbar 划界）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（钮 40/面板行 44/角标 16/行图标位 20 全走 token+注释锚定）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（右/左/纯文本/开合状态机）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，本规格为首立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（动画/点外收起/按钮实现=系统级差异；数值单位表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（拖拽 Drag/自定义插槽/Icon 系统映射/面板滚动 二期）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

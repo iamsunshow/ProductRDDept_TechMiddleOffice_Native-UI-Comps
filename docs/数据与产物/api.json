@@ -1913,6 +1913,61 @@
       ],
       "note": "电梯楼层定位器（导航组件 #2，任务清单 #14）：数据驱动分组内容 + 右侧楼/字母索引导航（点击索引=分组滚顶、内容滚动=可视首分组高亮索引双向联动）；自包含定高（滚动容器 iOS UITableView / Android LazyColumn，高度由宿主约束=组件不代管布局上下文）；分组标题行 32pt/32dp=普通行随内容滚动（不吸顶，anti_goal 二期）；内容行高 56pt/56dp=同库规范行高（对齐 Cell.minHeight）；索引条宽 44pt/44dp；行点击回调可选（onSelect）。2026-09-05 全新立项：规格 elevator-design-spec.html（01 用途边界/02 Token/03 P1–P4 决策/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-elevator-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：自包含定高 + 索引自动/显式 + 双向联动 + 行点击可选；anti_goal=外部容器联动/行内容插槽/标题吸顶=登记二期）+ 双端实现入库（ElevatorView.swift / Elevator.kt + iOS ElevatorShowcase/Android ElevatorDemo 4 段 1:1：D1 楼层自动索引 / D2 城市显式 index / D3 行点击 onSelect / D4 12 组月份长列表）。reviewed=true（2026-09-05 用户 Demo 双端实机验收通过：原话“通过”，见组件进度.md §2.12）。",
       "subcategory": "navigation",
+      "reviewed": true
+    },
+    {
+      "id": "ui.fixed-nav",
+      "name": "悬浮导航 FixedNav",
+      "category": "ui",
+      "summary": "页面边缘常驻悬浮入口钮 + 展开导航项列表的快捷导航器：收起态单胶囊钮，点钮展开钮旁列表面板（图标位/文本/角标），点项回传并自动收起，type 左右可切，文案可自定义，对标 NutUI React FixedNav",
+      "capabilities": [
+        "悬浮导航",
+        "展开收起",
+        "快捷入口",
+        "导航面板",
+        "角标",
+        "悬浮按钮",
+        "快速导航",
+        "FixedNav"
+      ],
+      "platforms": {
+        "ios": { "state": "available", "note": "FixedNavView.swift（UIButton 胶囊钮 + 面板 UIStackView 竖排行：图标位 20 圆角 6/文本/num 角标，点钮开合、点项自动收起 + collapse()）" },
+        "android": { "state": "available", "note": "FixedNav.kt（Compose 受控 expanded + 面板 Column 竖排行，点钮翻转、点项自动收起）" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/FixedNavView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/FixedNav.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": ["拖拽自由定位 Drag（登记二期）", "自定义按钮/面板插槽（登记二期）", "行图标系统 Icon 映射（一期 icon=单字符文本位，登记二期）", "面板长列表滚动（>7 项，登记二期）"],
+      "visual_tokens": [],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "ui.fixed-nav 悬浮导航 悬浮按钮 快捷导航 导航面板 快速导航 常用入口 fixed nav float",
+      "embedding_ref": "",
+      "legacy_id": "ui.fixed-nav",
+      "industry_names": ["FixedNav", "FloatingNav", "悬浮导航", "快捷导航"],
+      "props": [
+        ["items", "导航项列表", "是", "FixedNavItem(key 唯一标识/text 文案/icon 可选字符/num 可选角标)，面板竖排行数=items 数"],
+        ["type", "摆放方向", "否", "right=钮靠右缘面板同右缘弹出 / left 对称；默认 right"],
+        ["activeText / unActiveText", "展开/收起钮文案", "否", "nil=默认 收起导航/快速导航"],
+        ["expanded / onExpandedChange", "展开状态(受控)", "否", "Android 受控参数；iOS 内部状态 + collapse()（平台差异表内放行）"],
+        ["onSelect", "点项回调", "否", "(key/text…) 回传；触发后自动收起面板；nil=点项仅展开收起"]
+      ],
+      "events": [],
+      "demos": [
+        ["右侧默认（角标）", "右下胶囊「快速导航」展开面板 4 项（首页 num2/购物车 num5…），钮文字切「收起导航」，点项自动收起（D1）"],
+        ["左侧摆放 type=left", "左下胶囊「更多工具」，面板向右展开 3 项，点项回传自动收起（D2）"],
+        ["无图标无角标长文本", "图标位缺省=不显示不占位，行宽自适应；自定义钮文案「操作/收起」（D3）"],
+        ["多次开合 + 点面板外收起", "连续开合点选 + 点面板外空白=收起且不触发选中，状态机稳定（D4）"]
+      ],
+      "note": "悬浮导航（导航组件 #3，任务清单 #15）：页面边缘常驻悬浮入口钮 + 展开导航项列表的“快捷导航器”；对标 NutUI React FixedNav（active/nav-list/type/text 语义）；钮视觉基线对齐 BackTop 悬浮钮（高 40pt/40dp 主色白字胶囊钮，圆角 full）；面板=卡片壳（bgCard/圆角 md/边框/阴影）竖排行（行高 44pt/44dp：图标位 20 圆角 6 primaryMuted + 文本 + 可选 num 角标 16 圆角 full，末行无下边线，行最小宽 140）；type 只决定钮靠左/右缘与面板展开方向；“悬浮”定位由宿主完成（组件=纯内容视图放非滚动覆盖层锚定边角，同 BackTop 先例，不做 window 浮层/不监听滚动）；点项自动收起。2026-09-05 全新立项：规格 fixed-nav-design-spec.html（01 用途边界/02 Token/03 P1–P4/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-fixed-nav-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：收起胶囊钮+点钮弹出面板+点项自动收起 / FixedNavItem(key/text/icon?/num?) + type 左右 + 文案自定义 + onSelect / 宿主锚定纯内容视图 / 一期面板行≤7 无滚动；anti_goal=拖拽 Drag/自定义插槽/Icon 系统映射/面板滚动=登记二期）+ 双端实现入库（FixedNavView.swift / FixedNav.kt + iOS FixedNavShowcase/Android FixedNavDemo 4 段 1:1：D1 右侧默认 / D2 左侧 type=left / D3 无图标无角标 / D4 多次开合+点面板外收起）。",
+      "subcategory": "navigation",
       "reviewed": false
     },
     {

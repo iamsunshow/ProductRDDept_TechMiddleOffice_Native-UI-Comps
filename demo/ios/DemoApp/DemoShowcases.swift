@@ -2733,7 +2733,7 @@ final class SafeAreaShowcase: ShowcaseViewController {
         super.viewDidLoad()
         addVersionBadge(componentName: "SafeArea", version: "v1.0", builtAt: "2026-09-04")
 
-        addSection("D1 · SafeAreaView 真实组件（默认全边避让）") { container in
+        addSection(title: "D1 · SafeAreaView 真实组件（默认全边避让）") { container in
             container.backgroundColor = AppColor.gray4
             container.layer.cornerRadius = AppRadius.md
             container.clipsToBounds = true
@@ -2761,7 +2761,7 @@ final class SafeAreaShowcase: ShowcaseViewController {
         }
         addInfo("页面中部运行时安全区=0（视觉等同普通容器）；接入页面边缘时自动避开状态栏/刘海/Home Indicator/圆角。")
 
-        addSection("D2 · 顶部避让语义对照（示意：模拟系统带）") { container in
+        addSection(title: "D2 · 顶部避让语义对照（示意：模拟系统带）") { container in
             let systemBar = Self.simulatedBar(text: "系统区（状态栏/刘海，示意）")
             container.addSubview(systemBar)
             systemBar.snp.makeConstraints { make in
@@ -2785,7 +2785,7 @@ final class SafeAreaShowcase: ShowcaseViewController {
         }
         addInfo("避让数值取系统实时 insets（零硬编码），真机/不同机型自动适配。")
 
-        addSection("D3 · 沉浸式页面四边避让（示意）") { container in
+        addSection(title: "D3 · 沉浸式页面四边避让（示意）") { container in
             let screen = UIView()
             screen.backgroundColor = AppColor.bgCard
             screen.layer.cornerRadius = AppRadius.lg
@@ -2817,7 +2817,7 @@ final class SafeAreaShowcase: ShowcaseViewController {
         }
         addInfo("沉浸式页面：颜色层延伸到屏幕边缘，内容层套 SafeArea 保证文字不压系统区。")
 
-        addSection("D4 · edges 边裁剪（仅避顶 / 仅避底）") { container in
+        addSection(title: "D4 · edges 边裁剪（仅避顶 / 仅避底）") { container in
             let row = UIStackView()
             row.axis = .horizontal
             row.spacing = AppSpace.md
@@ -2928,7 +2928,7 @@ final class StickyShowcase: ShowcaseViewController {
 
     // D1 · 分组列表标题吸顶（真实 StickyView：组标题随滚动依次吸顶/顶替）
     private func buildDemo1() {
-        addSection("D1 · 分组列表标题吸顶（真实组件，多组标题依次顶替）") { container in
+        addSection(title: "D1 · 分组列表标题吸顶（真实组件，多组标题依次顶替）") { container in
             let sticky = Self.makeStickyHost(container: container, height: 260)
             sticky.addStickyHeader(Self.groupBar("今天", trailing: "共 3 笔 · ¥126"), height: 34)
             sticky.addRow(Self.billRow(category: "餐饮", amount: "-¥32"), height: 40)
@@ -2946,7 +2946,7 @@ final class StickyShowcase: ShowcaseViewController {
 
     // D2 · 筛选条吸顶（通用滚动容器路径：内容从吸顶条下穿过）
     private func buildDemo2() {
-        addSection("D2 · 筛选条吸顶（内容行从吸顶条下方穿过）") { container in
+        addSection(title: "D2 · 筛选条吸顶（内容行从吸顶条下方穿过）") { container in
             let sticky = Self.makeStickyHost(container: container, height: 240)
             sticky.addStickyHeader(Self.filterBar(), height: 34)
             sticky.addRow(Self.dateRow(date: "09-01", desc: "餐饮", amount: "-¥32"), height: 40)
@@ -2961,7 +2961,7 @@ final class StickyShowcase: ShowcaseViewController {
 
     // D3 · offset 让位：吸顶条停于固定 AppBar 下方（让位语义 = 滚动区置于 AppBar 之下，双端一致）
     private func buildDemo3() {
-        addSection("D3 · offset 让位（吸顶条停固定 AppBar 下方，不遮挡）") { container in
+        addSection(title: "D3 · offset 让位（吸顶条停固定 AppBar 下方，不遮挡）") { container in
             let appBar = UIView()
             appBar.backgroundColor = AppColor.gray4
             appBar.layer.cornerRadius = AppRadius.sm
@@ -2997,7 +2997,7 @@ final class StickyShowcase: ShowcaseViewController {
 
     // D4 · 吸顶行内容任意：icon+文字+右侧按钮，滚动中整行吸顶且按钮可点
     private func buildDemo4() {
-        addSection("D4 · 吸顶行内容任意（icon+文字+右侧按钮，吸顶中可交互）") { container in
+        addSection(title: "D4 · 吸顶行内容任意（icon+文字+右侧按钮，吸顶中可交互）") { container in
             let sticky = Self.makeStickyHost(container: container, height: 260)
             sticky.addStickyHeader(Self.makeSummaryHeader(target: self, action: #selector(exportTapped)), height: 44)
             sticky.addRow(Self.billRow(category: "收入", amount: "+¥18,240"), height: 40)
@@ -3199,7 +3199,7 @@ final class BackTopShowcase: ShowcaseViewController {
 
     // D1 · 默认样式：30 行长内容，滚动超阈值（120）右下淡入 ↑ 圆钮，点击回顶
     private func buildDemo1() {
-        addSection("D1 · 默认样式（滚动超阈值 120 出现 ↑ 圆钮，点击回顶）") { container in
+        addSection(title: "D1 · 默认样式（滚动超阈值 120 出现 ↑ 圆钮，点击回顶）") { container in
             let scroll = Self.makeScroller(container: container, height: 240, rows: 30)
             let backtop = BackTopButton(target: scroll, appearAfter: 120)
             container.addSubview(backtop)
@@ -3214,7 +3214,7 @@ final class BackTopShowcase: ShowcaseViewController {
 
     // D2 · 自定义内容：文字胶囊"回顶"
     private func buildDemo2() {
-        addSection("D2 · 自定义内容（setFace 文字胶囊，行为不变）") { container in
+        addSection(title: "D2 · 自定义内容（setFace 文字胶囊，行为不变）") { container in
             let scroll = Self.makeScroller(container: container, height: 200, rows: 16)
             let backtop = BackTopButton(target: scroll, appearAfter: 40)
             let face = Self.makeCapsuleFace(title: "回顶")
@@ -3232,7 +3232,7 @@ final class BackTopShowcase: ShowcaseViewController {
 
     // D3 · 点击回调：记录次数不自动回顶
     private func buildDemo3() {
-        addSection("D3 · 点击回调（接管回顶，记录点击次数）") { container in
+        addSection(title: "D3 · 点击回调（接管回顶，记录点击次数）") { container in
             let scroll = Self.makeScroller(container: container, height: 200, rows: 16)
             let backtop = BackTopButton(target: scroll, appearAfter: 40, onTap: { [weak self] in
                 guard let self else { return }
@@ -3251,7 +3251,7 @@ final class BackTopShowcase: ShowcaseViewController {
 
     // D4 · 位置由宿主摆放（左下角）+ 阈值 40
     private func buildDemo4() {
-        addSection("D4 · 位置宿主摆放（左下）+ 阈值 40（滚动即现）") { container in
+        addSection(title: "D4 · 位置宿主摆放（左下）+ 阈值 40（滚动即现）") { container in
             let scroll = Self.makeScroller(container: container, height: 200, rows: 12)
             let backtop = BackTopButton(target: scroll, appearAfter: 40)
             container.addSubview(backtop)

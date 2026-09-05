@@ -1806,6 +1806,61 @@
       "reviewed": true
     },
     {
+      "id": "ui.back-top",
+      "name": "返回顶部 BackTop",
+      "category": "ui",
+      "summary": "绑定滚动源的悬浮返回顶部按钮：滚动位移超过阈值后淡入浮层、点击回滚到顶；视觉内容可整体替换、位置由宿主摆放，对标 Ant Design BackTop / NutUI React BackTop",
+      "capabilities": [
+        "返回顶部",
+        "回顶",
+        "悬浮按钮",
+        "BackTop",
+        "滚动超阈值出现",
+        "点击回顶",
+        "淡入淡出",
+        "自定义内容",
+        "点击回调"
+      ],
+      "platforms": {
+        "ios": { "state": "available", "note": "BackTopButton.swift（UIView + KVO 监听 target.contentOffset + setFace 视觉替换 + onTap 回调，nil=setContentOffset 回顶）" },
+        "android": { "state": "available", "note": "BackTop.kt（Compose snapshotFlow 监听 ScrollState + AnimatedVisibility 淡入淡出 + content 整体替换 + onClick 回调，null=animateScrollTo(0)）" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/BackTopButton.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/BackTop.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": ["平滑滚动策略（回顶动画方式由默认实现，未可配）", "悬停拖拽/位置记忆", "圆钮样式定制（视觉整体替换而非样式参数）", "多滚动源/滚动容器嵌套自动选择"],
+      "visual_tokens": [],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "ui.back-top 返回顶部 BackTop 回顶 悬浮按钮 浮层按钮 滚动超阈值 点击回顶 scroll to top back top",
+      "embedding_ref": "",
+      "legacy_id": "ui.back-top",
+      "industry_names": ["BackTop", "ScrollToTop", "back-top"],
+      "props": [
+        ["scrollState / target", "滚动源", "是", "Android 传 ScrollState（Column verticalScroll/LazyColumn state）；iOS 传 UIScrollView target"],
+        ["appearAfterPx / appearAfter", "出现阈值", "否", "滚动位移超过该值后显示，默认 120（Android px / iOS pt）"],
+        ["onClick / onTap", "点击回调", "否", "nil=默认回顶动画（Android animateScrollTo(0) / iOS setContentOffset(.zero, animated:)）"],
+        ["content / setFace", "按钮内容", "否", "默认主色 ↑ 圆钮（零图片）；Android content 整体替换 / iOS setFace(view)"]
+      ],
+      "events": [],
+      "demos": [
+        ["默认样式滚动回顶", "30 行长内容滚动超阈值 120 右下淡入 ↑ 圆钮，点击回顶（D1）"],
+        ["自定义内容", "content/setFace 文字胶囊「回顶」，点击行为保留（D2）"],
+        ["点击回调", "onClick/onTap 接管回顶，计数不自动回顶（D3）"],
+        ["位置宿主摆放+阈值", "左下角摆放 + 阈值 40 滚动即现（D4）"]
+      ],
+      "note": "悬浮返回顶部按钮（滚动源解耦=组件只监听宿主滚动，位置由宿主摆放，组件不代管布局上下文；显隐淡入淡出不占布局位）。2026-09-04 全新立项：门禁 A AI 代评通过（用户'中间任何询问直接通过'总授权，P1–P4 全 A：浮层按钮模式 + 滚动源解耦 + iOS KVO/Android snapshotFlow 监听 + 默认视觉可替换）+ 双端实现入库（BackTopButton.swift / BackTop.kt + iOS BackTopShowcase 4 段已接，Android :app:assembleDebug 0 error）。2026-09-05 补 Android BackTopDemo 4 段与 iOS 1:1（D1 默认 30 行阈值 120dp 右下 / D2 content 文字胶囊 72x30 / D3 onClick 计数 / D4 左下+阈值 40dp）；组件视觉替换语义对齐 iOS setFace（外层去掉强制默认背景，默认 face 内置 40dp 主色圆钮，替换 content 后不残留默认底）；iOS makeScroller 补 contentLayoutGuide.bottom 滚动域闭合（与 Sticky iOS f220dad 同款坑预修，防 BackTop 同 issue：无底部闭合 contentSize=0 按钮永不出现）。待 C1.5 用户双端实机验收。reviewed=false（未用户实机验收）。",
+      "subcategory": "navigation",
+      "reviewed": false
+    },
+    {
       "id": "ui.card",
       "name": "卡片 Card",
       "category": "ui",

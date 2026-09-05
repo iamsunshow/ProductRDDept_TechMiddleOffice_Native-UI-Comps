@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SideBar 侧边导航 · 设计规格（门禁 A）</title>
+<style>
+::root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- SideBar demo 预览 mock ---- */
+.sb-stage{display:flex;gap:0;background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);height:196px;margin:var(--spaceMd) 0;overflow:hidden;}
+.sb-rail{width:96px;background:#F3F4F6;padding:8px 0;flex:none;display:flex;flex-direction:column;gap:2px;overflow:hidden;}
+.sb-item{padding:12px 6px;margin:0 6px;border-radius:999px;font-size:14px;color:var(--textPrimary);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:relative;}
+.sb-item.sb-on{background:#fff;color:var(--primary);font-weight:700;}
+.sb-item.sb-off{color:var(--textSecondary);}
+.sb-item.sb-dis{color:#9CA3AF;opacity:.5;}
+.sb-item.sb-long{color:var(--textSecondary);font-size:12px;}
+.sb-body{flex:1;padding:var(--spaceLg);position:relative;}
+.sb-pane{height:100%;border-radius:var(--radiusMd);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--textPrimary);background:#F0FDF4;border:1px solid #BBF7D0;}
+.sb-pane small{display:block;font-size:12px;color:var(--textSecondary);margin-top:4px;text-align:center;}
+.sb-reset{position:absolute;right:12px;top:10px;font-size:12px;color:#fff;background:var(--primary);border:none;border-radius:999px;padding:4px 10px;cursor:pointer;}
+.sb-cnt{display:block;font-size:12px;color:var(--textSecondary);margin-bottom:6px;}
+.sb-scroll{height:150px;overflow:hidden;position:relative;background:repeating-linear-gradient(#fff,#fff 24px,#F3F4F6 25px);border:1px solid var(--border);border-radius:var(--radiusMd);}
+.sb-sec{padding:6px 12px;font-size:12px;color:var(--textSecondary);}
+.sb-sec b{color:var(--textPrimary);}
+</style>
+</head>
+<body>
+
+<h1>SideBar 侧边导航 · 设计规格（导航组件 #5 · 任务清单 #18，subcategory=navigation · 门禁 A）</h1>
+<p>组件 ID：<code>ui.side-bar</code> ｜ 定位：<b>页面内容区左侧的竖排目录导航轨（垂直单选导航）</b>——左侧固定窄轨列出分组标题，点选激活并高亮，右侧内容区联动切换/滚动定位由宿主接 <code>onChange</code> 自理；对标 NutUI React SideBar（<code>value</code> 受控 + <code>SideBar.Item</code> + <code>onChange</code>）收敛为库内自有设计语言（目录轨 + 选中持久态）。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-04，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 商品分类/账单分组/城市目录等"左侧目录轨 + 右侧内容联动"的页面形态——左侧窄轨列出分组标题，选中项常驻高亮，点选触发 onChange 由宿主切换右侧内容或滚动定位（设置分组列表、月份/账单类别、字符索引目录等）；② 分组项数量较多时 rail 自身可滚动，选中项自动滚入可视；③ 单轨单选，选中态持久清晰</td></tr>
+<tr><td>不适用（N/A）</td><td>① 页面/业务楼层锚点跳转 + 随内容滚动自动跟随 → <b>Elevator（ui.elevator，#14）</b>（本组件不监听滚动、不做锚点跟随）；② 底部主导航 Tab → Tabbar（ui.tabbar，#19）；③ 顶部横向页签/选项卡 → Tabs（ui.tabs，#20）；④ 页面顶部导航/标题 → NavBar（ui.nav-bar，#17）；⑤ 多入口悬浮面板导航 → FixedNav（ui.fixed-nav，#15）</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> rail 灰底 + 项文字常规；<span class="tag tag-ok">激活态 ✅</span> 选中项白底胶囊 + 主色加粗（常驻持久）；<span class="tag tag-ok">禁用态 ✅</span> 单项 disabled 置灰不可点；点击（按压）反馈随平台（见 §05）；加载/成功/失败 N/A（单选导航类无加载态，业务态由宿主反馈承载）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；与 Elevator 划界：<b>SideBar=目录轨单选、选中态持久、内容联动宿主自理（无锚点跟随）</b>；Elevator=楼层锚点跳转 + 随滚动跟随。激活视觉=导航项同族基线（主色文字 + 白底/浅主色底胶囊，同 Tabs/FixedNav 激活态先例）；"右侧内容联动"由宿主完成（组件=纯导航轨，不自带右内容区）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>导航轨宽度</td><td>默认 96pt/96dp（宿主可覆盖，建议区间 80–128）</td><td>窄轨=语义锚定；数值组件级 token 化并注释锚定（非魔法值），宿主可随布局用 frame/modifier.width 覆盖</td></tr>
+<tr><td>项行</td><td>行高 48pt/48dp，纵向 padding sm（8）；行间距默认 0（无分隔线）</td><td>行内容垂直居中；文本字号 Sm（14）；横向由激活胶囊内衬控制（见下）</td></tr>
+<tr><td>激活胶囊</td><td>行内左右 margin = xs（4）→ 胶囊宽=轨宽−8；圆角 full；底=卡片白；文字=主色 + 加粗</td><td>激活态=白胶囊浮在灰轨上，主色加粗文字（同导航项激活先例）；左侧不另加竖条（胶囊已足够区分）</td></tr>
+<tr><td>禁用态</td><td>同 default 布局 + 文字透明度 40% + 不可点</td><td>disabled 项点击不触发 onChange（同 Cell/FixedNav 禁用先例）</td></tr>
+<tr><td>长标题</td><td>单行 + 行尾省略（truncate）</td><td>一期不换行/两行（登记二期）；双端系统省略行为放行（见 §05）</td></tr>
+<tr><td>滚动</td><td>项数超出可视区→轨内纵向滚动；受控选中/点击选中时自动滚入可视</td><td>一期无滚动指示器皮肤定制（系统级，表内放行）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：纯左侧竖排导航轨（rail）——items 目录项单选、选中持久高亮、rail 内可滚动、点选回传 onChange；右侧内容联动（切换/滚动定位）由宿主自理</td><td>✅ 语义=目录导航（分类页/分组目录）；单职责组件双端 1:1 清晰；与 Elevator（锚点跟随）、Tabs（顶部页签）、FixedNav（悬浮多入口）全部划界；联动灵活（宿主可切换/滚动/外部驱动）</td><td><b>推荐 A</b>：收敛可验收</td></tr>
+<tr><td>B：导航轨 + 右内容滚动联动一体封装（组件内做左右两栏 + 锚点滚动定位）</td><td>右侧内容结构宿主各不相同（列表/卡片/自定义视图），内嵌联动双端重（滚动距离/分栏测量）难 1:1，且与 Elevator 锚点语义重叠</td><td>淘汰：联动登记二期候选</td></tr>
+<tr><td>C：直接复用 Tabs 竖排变体（旋转 90°）</td><td>顶部页签语义/尺寸/激活视觉不适用于左轨目录；单行横排变竖排需重写交互与滚动</td><td>淘汰：语义错位</td></tr>
+</table>
+
+<h3>P2 · 数据模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：options 数据驱动——SideBarItem(title, value, disabled=false)，items 数组传入；onChange 回传被点/切换的 value</td><td>✅ 与 Cell/FixedNav 等库内"列表数据驱动 + value 标识"一致；value 稳定可映射右内容/滚动段 id；双端契约简单</td><td><b>推荐 A</b>：数据驱动惯例</td></tr>
+<tr><td>B：children 声明式（iOS 子视图 / Android content slot 逐项）</td><td>项样式/复用/禁用/滚动需组件内 diff，双端实现差异大；目录轨固定样式场景无插槽诉求</td><td>淘汰：二期自定义插槽再评估</td></tr>
+<tr><td>C：仅标题字符串数组（无 value/disabled）</td><td>无法用稳定 key 做外部驱动/内容映射；禁用态缺失</td><td>淘汰：表达能力不足</td></tr>
+</table>
+
+<h3>P3 · 选中态控制：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：半受控——默认首项激活自管理；宿主可传 value 外部驱动（同步高亮+滚入可视）；点击已激活项不重复回调；点击禁用项无动作</td><td>✅ 宿主既能自取右侧内容切换，也能由右侧滚动反向驱动轨高亮（demo D3/D4 可验）；回调幂等（不重复 onChange）便于计数验收</td><td><b>推荐 A</b>：灵活且行为确定</td></tr>
+<tr><td>B：纯受控——value 必传，所有变更宿主回填</td><td>强约束对简单目录页过重；首项/默认态语义丢给宿主</td><td>可接受但过度</td></tr>
+<tr><td>C：纯自管理 + 仅通知点击</td><td>无法由右侧滚动反向驱动轨高亮（内容联动场景硬缺口）</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：纯导航轨——数据驱动 items + 半受控选中 + 禁用项 + 轨内滚动 + 选中滚入可视 + 单行省略 + demo 四段（基础两栏/禁用长标题/长列表联动/受控复位）</td><td>✅ 覆盖目录导航核心闭环；联动能力经 D3（宿主滚动定位 + 反向驱动高亮）与 D4（外部 value 驱动）直接验证</td><td><b>推荐 A</b>：验收路径清晰</td></tr>
+<tr><td>B：一期即内置右侧内容滚动锚定联动（两栏一体）</td><td>见 P1-B 后果；需测量/滚动双端大量差异，非组件核心</td><td>淘汰：登记二期候选</td></tr>
+<tr><td>C：支持自定义行内容插槽/徽标/分组头</td><td>目录轨场景多为固定文案；插槽双端实现差异大</td><td>淘汰：登记二期（自定义插槽/徽标）</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础两栏目录（选中持久高亮 + 切换）</h3>
+<p>左侧 rail 5 项（全部/餐饮/交通/购物/其他），右侧内容块随选中切换（分类色块 + 标题回显）；点不同项=高亮迁移 + onChange；点已激活项=无重复回调。验证 rail 形态 + 单选切换 + 回调幂等。</p>
+<div class="sb-stage"><div class="sb-rail"><span class="sb-item sb-on">全部</span><span class="sb-item sb-off">餐饮</span><span class="sb-item sb-off">交通</span><span class="sb-item sb-off">购物</span><span class="sb-item sb-off">其他</span></div>
+<div class="sb-body"><div class="sb-pane">「全部」内容区<small>点左轨项切换右区内容</small></div></div></div>
+
+<h3>D2 · 禁用项 + 长标题省略</h3>
+<p>rail 含 disabled 项（"系统设置"置灰，点击无反应）与长标题项（单行省略）；验证 disabled 交互 + 单行截断双端一致。</p>
+<div class="sb-stage"><div class="sb-rail"><span class="sb-item sb-off">账户管理</span><span class="sb-item sb-on">数据与隐私</span><span class="sb-item sb-dis">系统设置</span><span class="sb-item sb-long">消息通知与提醒偏好配置</span><span class="sb-item sb-off">关于我们</span></div>
+<div class="sb-body"><div class="sb-pane">「数据与隐私」内容区<small>长标题单行省略 · 禁用项不可点</small></div></div></div>
+
+<h3>D3 · 长列表滚动 + 内容联动（点选 ↔ 外部驱动）</h3>
+<p>rail 12 项（1–12 月 / 城市目录），点选后 rail 选中项自动滚入可视，右侧长内容区由宿主 onChange 滚动定位到对应分段；宿主反向滚动右内容也驱动轨高亮（受控语义）。验证轨内滚动 + 联动闭环。</p>
+<div class="sb-stage"><div class="sb-rail"><span class="sb-item sb-off">一月</span><span class="sb-item sb-off">二月</span><span class="sb-item sb-on">三月</span><span class="sb-item sb-off">四月</span><span class="sb-item sb-off">五月</span><span class="sb-item sb-off">六月</span></div>
+<div class="sb-body"><div class="sb-scroll"><div class="sb-sec"><b>三月</b> 账单 · 三月明细…</div><div class="sb-sec"><b>四月</b> 账单 · 四月明细…</div><div class="sb-sec"><b>五月</b> 账单 · 五月明细…</div></div><span class="sb-cnt">右侧内容联动 · 点选↔反向驱动</span></div></div></div>
+
+<h3>D4 · 受控复位（外部 value 驱动）</h3>
+<p>rail 全项 + 轨外按钮"重置到第一项"：外部改 value → rail 高亮同步并滚入可视；点已激活项不触发回调（计数不增）。验证半受控选中语义 + 外部驱动。</p>
+<div class="sb-stage"><div class="sb-rail"><span class="sb-item sb-off">全部</span><span class="sb-item sb-on">餐饮</span><span class="sb-item sb-off">交通</span><span class="sb-item sb-off">购物</span><span class="sb-item sb-off">其他</span></div>
+<div class="sb-body"><div class="sb-pane">「餐饮」内容区<small>右上角按钮重置选中到第一项</small></div><button class="sb-reset" disabled>重置</button></div></div>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>点击按压反馈</td><td>UIButton touchDown 高亮/压暗瞬态（点按选中感）</td><td>clickable 系统 ripple（Material 默认点击反馈）</td><td>系统级原生差异：按压反馈体系不同（表内放行，同 Grid/列表先例）</td></tr>
+<tr><td>轨内滚动实现</td><td>UIScrollView + 内容栈（或内部容器），系统弹性回弹</td><td>LazyColumn（懒加载复用），overscroll 默认</td><td>系统级原生差异：滚动容器机制不同（表内放行）</td></tr>
+<tr><td>文字省略截断</td><td>UILabel 单行 truncateTail</td><td>Text overflow=Ellipsis（maxLines=1）</td><td>两端系统文本省略行为一致指向（表内放行，同 Grid/全库先例）</td></tr>
+<tr class="diff-row"><td>尺寸数值单位</td><td>pt</td><td>dp</td><td>Token 同一数值不同单位（表内放行，同全库先例）</td></tr>
+<tr class="diff-row"><td>轨宽可覆盖入口</td><td>frame 宽度约束 / AutoLayout width</td><td>modifier.width / railWidth 参数</td><td>同一覆盖能力两端入口不同（表内放行，语义一致）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>SideBarItem</code>：<code>title: String</code>（单行省略）+ <code>value: String</code>（稳定标识，映射右内容/滚动段）+ <code>disabled: Boolean = false</code></td></tr>
+<tr><td>iOS</td><td><code>final class SideBarView: UIView</code><br/><code>init(items: [SideBarItem], selectedValue: String? = nil, onChange: ((String) -&gt; Void)? = nil)</code><br/>默认 selectedValue=nil → 首项激活；<code>var items / var selectedValue</code>（didSet 刷新高亮 + 滚入可视）；组件=纯导航轨（轨宽默认 96，宿主可宽度约束覆盖）；内容联动完全宿主自理</td></tr>
+<tr><td>Android</td><td><code>data class SideBarItem(title: String, value: String, disabled: Boolean = false)</code><br/><code>@Composable fun SideBar(items: List&lt;SideBarItem&gt;, selectedValue: String? = null, onChange: (String) -&gt; Unit, modifier: Modifier = Modifier)</code><br/>默认 selectedValue=nil → 首项激活；内部 LazyColumn 轨内滚动；行 clickable 语义 + ripple（表内放行）；宽由 modifier 定（宿主传 96.dp 缺省样轨宽）</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：目录轨单选导航，与 Elevator/Tabs/Tabbar/FixedNav/NavBar 划界；联动宿主自理）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（轨宽 96/行高 48/padding sm/胶囊 margin xs/文字 Sm 全走 token+注释锚定；禁用 40% 透明度）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础两栏/禁用长标题/长列表联动/受控复位）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，任务清单 #18 ⬜，api.json 无 ui.side-bar 条目待立项，本规格为立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（按压反馈/轨内滚动/省略=系统级差异；pt/dp 与宽覆盖入口表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（内置右内容联动锚点、自定义行插槽/徽标、多选/分组头=二期候选）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

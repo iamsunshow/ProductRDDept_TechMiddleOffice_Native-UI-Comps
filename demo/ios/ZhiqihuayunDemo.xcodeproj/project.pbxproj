@@ -17,6 +17,7 @@
 				5A6B7C8D9E0F1A2B3C4D5E02 /* Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6B7C8D9E0F1A2B3C4D5E01 /* Layout.swift */; };
 				FEA5000000000000000000A2 /* SafeAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEA5000000000000000000A1 /* SafeAreaView.swift */; };
 				5A11000000000000000000A2 /* StickyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A11000000000000000000A1 /* StickyView.swift */; };
+				5A12000000000000000000A2 /* BackTopButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A12000000000000000000A1 /* BackTopButton.swift */; };
 				EE00000000000000000000A2 /* Space.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE00000000000000000000A1 /* Space.swift */; };		1EB05D2B72FE2F73026A8AB6 /* TabsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F17F2603BDDFC72B15C7406 /* TabsView.swift */; };
 		1F0CE2342A174F4717DC0FA2 /* DemoMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25465F7307A8D784A68E80C1 /* DemoMocks.swift */; };
 		22FF1D0AF3CDF525669996F2 /* Charts in Frameworks */ = {isa = PBXBuildFile; productRef = A1BB258859A836B00224FD3E /* Charts */; };
@@ -79,6 +80,7 @@
 		5A6B7C8D9E0F1A2B3C4D5E01 /* Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Layout.swift; sourceTree = "<group>"; };
 		FEA5000000000000000000A1 /* SafeAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeAreaView.swift; sourceTree = "<group>"; };
 		5A11000000000000000000A1 /* StickyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickyView.swift; sourceTree = "<group>"; };
+		5A12000000000000000000A1 /* BackTopButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackTopButton.swift; sourceTree = "<group>"; };
 		EE00000000000000000000A1 /* Space.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Space.swift; sourceTree = "<group>"; };		978BB17F3FAD3ECDAB39B58A /* PullRefreshTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullRefreshTableView.swift; sourceTree = "<group>"; };
 		9E1C75478994AD561C65338A /* Overlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Overlay.swift; sourceTree = "<group>"; };
 		A2341A26182D931C95A7B3E3 /* Alamofire */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Alamofire; path = ../../ios/Vendor/Alamofire; sourceTree = SOURCE_ROOT; };
@@ -145,6 +147,7 @@
 				5A6B7C8D9E0F1A2B3C4D5E01 /* Layout.swift */,
 				FEA5000000000000000000A1 /* SafeAreaView.swift */,
 				5A11000000000000000000A1 /* StickyView.swift */,
+				5A12000000000000000000A1 /* BackTopButton.swift */,
 				EE00000000000000000000A1 /* Space.swift */,				24C4336791BDD8FE289677BA /* OptionPickerSheetViewController.swift */,
 				9E1C75478994AD561C65338A /* Overlay.swift */,
 				BB0DF74002674A3001F64995 /* PeriodTabsView.swift */,
@@ -404,6 +407,7 @@
 				5A6B7C8D9E0F1A2B3C4D5E02 /* Layout.swift in Sources */,
 				FEA5000000000000000000A2 /* SafeAreaView.swift in Sources */,
 				5A11000000000000000000A2 /* StickyView.swift in Sources */,
+				5A12000000000000000000A2 /* BackTopButton.swift in Sources */,
 				EE00000000000000000000A2 /* Space.swift in Sources */,				ACC0864A442833B9D3AF4430 /* OptionPickerSheetViewController.swift in Sources */,
 				EA57F4DC6F4FAFB5A01379D7 /* Overlay.swift in Sources */,
 				79F91CCE9C91D490B72977B7 /* PeriodTabsView.swift in Sources */,

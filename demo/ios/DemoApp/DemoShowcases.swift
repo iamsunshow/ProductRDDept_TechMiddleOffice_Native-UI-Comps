@@ -4099,16 +4099,20 @@ final class TabbarShowcase: ShowcaseViewController {
     private var d1Value = "home"
     private var d1Tap = 0
     private var d1Feedback: UILabel?
+    private var d1Tab: TabbarView?
 
     private var d2Value = "home"
     private var d2Feedback: UILabel?
+    private var d2Tab: TabbarView?
 
     private var d3Value = "a"
     private var d3Feedback: UILabel?
+    private var d3Tab: TabbarView?
 
     private var d4Value = "chart"
     private var d4Tap = 0
     private var d4Feedback: UILabel?
+    private var d4Tab: TabbarView?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -4178,6 +4182,7 @@ final class TabbarShowcase: ShowcaseViewController {
                 onChange: { [weak self] value in
                     guard let self else { return }
                     self.d1Value = value
+                    self.d1Tab?.selectedValue = value // 受控回写：组件高亮跟随（等价 Android state 重组）
                     self.d1Tap += 1
                     state.text = "当前页面：\(value)（点击回调 \(self.d1Tap) 次）"
                     state.textColor = AppColor.primary
@@ -4185,6 +4190,7 @@ final class TabbarShowcase: ShowcaseViewController {
                     self.d1Feedback?.textColor = AppColor.primary
                 }
             )
+            self.d1Tab = tab
             holder.addSubview(tab)
             tab.snp.makeConstraints { make in
                 make.leading.trailing.bottom.equalToSuperview()
@@ -4209,12 +4215,14 @@ final class TabbarShowcase: ShowcaseViewController {
                 onChange: { [weak self] value in
                     guard let self, value != "mine" else { return }
                     self.d2Value = value
+                    self.d2Tab?.selectedValue = value // 受控回写：组件高亮跟随
                     state.text = "当前：\(value)（消息角标 3，我的=禁用）"
                     state.textColor = AppColor.primary
                     self.d2Feedback?.text = "D2 点击：\(value)（禁用项不可点）"
                     self.d2Feedback?.textColor = AppColor.primary
                 }
             )
+            self.d2Tab = tab
             holder.addSubview(tab)
             tab.snp.makeConstraints { make in
                 make.leading.trailing.bottom.equalToSuperview()
@@ -4239,12 +4247,14 @@ final class TabbarShowcase: ShowcaseViewController {
                 onChange: { [weak self] value in
                     guard let self else { return }
                     self.d3Value = value
+                    self.d3Tab?.selectedValue = value // 受控回写：组件高亮跟随
                     state.text = "当前：\(value)（品牌红激活色）"
                     state.textColor = AppColor.primary
                     self.d3Feedback?.text = "D3 点击：\(value)"
                     self.d3Feedback?.textColor = AppColor.primary
                 }
             )
+            self.d3Tab = tab
             holder.addSubview(tab)
             tab.snp.makeConstraints { make in
                 make.leading.trailing.bottom.equalToSuperview()
@@ -4268,6 +4278,7 @@ final class TabbarShowcase: ShowcaseViewController {
                 onChange: { [weak self] value in
                     guard let self else { return }
                     self.d4Value = value
+                    self.d4Tab?.selectedValue = value // 受控回写：组件高亮跟随
                     self.d4Tap += 1
                     state.text = "当前：\(value)（外部驱动，点击回调 \(self.d4Tap) 次）"
                     state.textColor = AppColor.primary
@@ -4275,6 +4286,7 @@ final class TabbarShowcase: ShowcaseViewController {
                     self.d4Feedback?.textColor = AppColor.primary
                 }
             )
+            self.d4Tab = tab
             holder.addSubview(tab)
             tab.snp.makeConstraints { make in
                 make.leading.trailing.bottom.equalToSuperview()
@@ -4289,12 +4301,14 @@ final class TabbarShowcase: ShowcaseViewController {
 
     @objc private func d4ToChart() {
         d4Value = "chart"
+        d4Tab?.selectedValue = "chart" // 受控回写：外部驱动组件高亮
         d4Feedback?.text = "外部驱动 selectedValue → chart（未触发 onChange，计数仍为 \(d4Tap) 次）"
         d4Feedback?.textColor = AppColor.primary
     }
 
     @objc private func d4ToMine() {
         d4Value = "mine"
+        d4Tab?.selectedValue = "mine" // 受控回写：外部驱动组件高亮
         d4Feedback?.text = "外部驱动 selectedValue → mine（未触发 onChange，计数仍为 \(d4Tap) 次）"
         d4Feedback?.textColor = AppColor.primary
     }
@@ -4308,16 +4322,20 @@ final class TabsShowcase: ShowcaseViewController {
     private var d1Value = "in"
     private var d1Tap = 0
     private var d1Feedback: UILabel?
+    private var d1Tabs: TabsView?
 
     private var d2Value = "week"
     private var d2Feedback: UILabel?
+    private var d2Tabs: TabsView?
 
     private var d3Value = "a"
     private var d3Feedback: UILabel?
+    private var d3Tabs: TabsView?
 
     private var d4Value = "draft"
     private var d4Tap = 0
     private var d4Feedback: UILabel?
+    private var d4Tabs: TabsView?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -4365,11 +4383,13 @@ final class TabsShowcase: ShowcaseViewController {
                 onChange: { [weak self] value in
                     guard let self else { return }
                     self.d1Value = value
+                    self.d1Tabs?.selectedValue = value // 受控回写：组件高亮跟随（等价 Android state 重组）
                     self.d1Tap += 1
                     self.d1Feedback?.text = "当前页签：\(value)（点击回调 \(self.d1Tap) 次）"
                     self.d1Feedback?.textColor = AppColor.primary
                 }
             )
+            self.d1Tabs = tabs
             self.embedTabs(tabs, in: container)
             self.d1Feedback = self.sectionInfo("当前页签：in（点击回调 0 次）", topTo: tabs, in: container)
         }
@@ -4388,10 +4408,12 @@ final class TabsShowcase: ShowcaseViewController {
                 onChange: { [weak self] value in
                     guard let self else { return }
                     self.d2Value = value
+                    self.d2Tabs?.selectedValue = value // 受控回写：组件高亮跟随
                     self.d2Feedback?.text = "当前页签：\(value)"
                     self.d2Feedback?.textColor = AppColor.primary
                 }
             )
+            self.d2Tabs = tabs
             self.embedTabs(tabs, in: container)
             self.d2Feedback = self.sectionInfo("禁用页签 40% 透明且不可点；激活指示线仍在启用的项下方。", topTo: tabs, in: container)
         }
@@ -4411,10 +4433,12 @@ final class TabsShowcase: ShowcaseViewController {
                 onChange: { [weak self] value in
                     guard let self else { return }
                     self.d3Value = value
+                    self.d3Tabs?.selectedValue = value // 受控回写：组件高亮跟随
                     self.d3Feedback?.text = "当前页签：\(value)"
                     self.d3Feedback?.textColor = AppColor.primary
                 }
             )
+            self.d3Tabs = tabs
             self.embedTabs(tabs, in: container)
             self.d3Feedback = self.sectionInfo("标题单行省略；激活项底部 2pt 指示线（宽=当前项整宽）为 activeColor。", topTo: tabs, in: container)
         }
@@ -4433,11 +4457,13 @@ final class TabsShowcase: ShowcaseViewController {
                 onChange: { [weak self] value in
                     guard let self else { return }
                     self.d4Value = value
+                    self.d4Tabs?.selectedValue = value // 受控回写：组件高亮跟随
                     self.d4Tap += 1
                     self.d4Feedback?.text = "当前页签：\(value)（点击回调累计 \(self.d4Tap) 次）"
                     self.d4Feedback?.textColor = AppColor.primary
                 }
             )
+            self.d4Tabs = tabs
             self.embedTabs(tabs, in: container)
             self.d4Feedback = self.sectionInfo("外部 selectedValue 优先级高于自管理；点击回调累计 0 次；点已激活项幂等。", topTo: tabs, in: container)
         }
@@ -4461,12 +4487,14 @@ final class TabsShowcase: ShowcaseViewController {
 
     @objc private func d4ToDraft() {
         d4Value = "draft"
+        d4Tabs?.selectedValue = "draft" // 受控回写：外部驱动组件高亮
         d4Feedback?.text = "外部驱动 selectedValue → draft（未触发 onChange，计数仍为 \(d4Tap) 次）"
         d4Feedback?.textColor = AppColor.primary
     }
 
     @objc private func d4ToPublished() {
         d4Value = "published"
+        d4Tabs?.selectedValue = "published" // 受控回写：外部驱动组件高亮
         d4Feedback?.text = "外部驱动 selectedValue → published（未触发 onChange，计数仍为 \(d4Tap) 次）"
         d4Feedback?.textColor = AppColor.primary
     }

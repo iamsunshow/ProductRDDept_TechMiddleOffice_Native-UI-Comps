@@ -4008,8 +4008,10 @@ final class NavBarShowcase: ShowcaseViewController {
 
     private func pinBar(_ bar: UIView, in container: UIView) {
         container.addSubview(bar)
+        // 四边闭合：容器普通 UIView 无 intrinsic，若只锚 leading/trailing/top 则高度链断裂，
+        // 44pt 导航条溢出压到段下方说明文字（与 Divider 首轮 Demo4 文案重叠同根因）。
         bar.snp.makeConstraints { make in
-            make.leading.trailing.top.equalToSuperview()
+            make.edges.equalToSuperview()
         }
     }
 

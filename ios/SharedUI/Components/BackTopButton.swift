@@ -37,8 +37,13 @@ final class BackTopButton: UIView {
     /// 淡入淡出时长
     private let animationDuration: TimeInterval
 
-    private let tapButton = UIButton(type: .system)
-    private var faceView: UIView?
+    /// 点击承载 + face 容器（自身永不从父视图移除）
+    private let tapButton = UIButton(type: .custom)
+    /// 当前 face 内容视图（默认=默认 ↑ 圆钮视图；setFace 后=宿主传入视图）
+    private var contentView: UIView?
+    /// 当前内容是否为默认 face（默认 face 圆角须随宿主实际尺寸动态=边长一半；
+    /// 自定义 face 全权负责自身视觉，组件不代管圆角——与 Android content 替换语义一致）
+    private var usingDefaultFace = false
     private var observer: NSKeyValueObservation?
     private var isShowing = false
 
@@ -55,17 +60,17 @@ final class BackTopButton: UIView {
         super.init(frame: .zero)
         backgroundColor = .clear
 
-        // 默认视觉：主色圆钮 + 白 ↑
-        tapButton.setTitle("↑", for: .normal)
-        tapButton.titleLabel?.font = .systemFont(ofSize: AppFont.sizeLg, weight: .bold)
-        tapButton.setTitleColor(.white, for: .normal)
-        tapButton.backgroundColor = AppColor.primary
+        // tapButton 只作点击 + 内容承载，自身透明无圆角；
+        // 全部视觉（默认 ↑ 圆钮）由独立 face 内容视图承载——setFace 只替换内容，
+        // 绝不触碰承载按钮本身（2026-09-05 修复：旧实现把默认 face 直接等于
+        // tapButton，setFace 的 faceView?.removeFromSuperview() 把承载按钮从宿主拔除，
+        // 之后内容挂到已脱离层级的按钮上 → 整钮不可见 → iOS Demo D2 滑动后不出现）。
         tapButton.addTarget(self, action: #selector(didTap), for: .touchUpInside)
-        faceView = tapButton
         addSubview(tapButton)
         tapButton.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+        install(face: Self.makeDefaultFaceView(), isDefault: true)
 
         // 初始隐藏（不占位、不可点）
         alpha = 0
@@ -88,25 +93,46 @@ final class BackTopButton: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        // 圆钮：圆角 = 实际边长一半（尺寸由宿主决定，不写死魔法值）
-        tapButton.layer.cornerRadius = min(bounds.width, bounds.height) / 2
-        tapButton.clipsToBounds = true
+        // 默认 face 圆角 = 实际边长一半（尺寸由宿主决定，不写死魔法值）
+        if usingDefaultFace, let contentView {
+            contentView.layer.cornerRadius = min(bounds.width, bounds.height) / 2
+            contentView.clipsToBounds = true
+        }
+    }
+
+    /// 默认视觉：主色圆钮 + 白色 ↑（U+2191）文本，零图片依赖
+    private static func makeDefaultFaceView() -> UIView {
+        let v = UIView()
+        v.backgroundColor = AppColor.primary
+        let l = UILabel()
+        l.text = "↑"
+        l.font = .systemFont(ofSize: AppFont.sizeLg, weight: .bold)
+        l.textColor = .white
+        v.addSubview(l)
+        l.snp.makeConstraints { make in make.center.equalToSuperview() }
+        return v
     }
 
     // MARK: - 视觉替换
 
     /// 替换默认视觉视图（点击行为保留；调用后默认 ↑ 圆钮被替换）。
     func setFace(_ view: UIView) {
-        faceView?.removeFromSuperview()
-        tapButton.setTitle(nil, for: .normal)
-        tapButton.setBackgroundImage(nil, for: .normal)
-        tapButton.backgroundColor = .clear
-        view.isUserInteractionEnabled = false
-        tapButton.addSubview(view)
-        view.snp.makeConstraints { make in
+        install(face: view, isDefault: false)
+    }
+
+    private func install(face: UIView, isDefault: Bool) {
+        contentView?.removeFromSuperview()
+        tapButton.addSubview(face)
+        face.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        faceView = view
+        face.isUserInteractionEnabled = false
+        contentView = face
+        usingDefaultFace = isDefault
+        if isDefault {
+            setNeedsLayout()
+            layoutIfNeeded()
+        }
     }
 
     // MARK: - 行为

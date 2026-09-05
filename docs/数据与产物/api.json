@@ -2122,6 +2122,140 @@
       "reviewed": true
     },
     {
+      "id": "ui.nav-bar",
+      "name": "头部导航 NavBar",
+      "category": "ui",
+      "summary": "页面顶部单行头部导航条（收编升级为库内独立组件）：标题居中单行省略、返回钮（onBack=nil 一级页不显示且标题严格居中）、右侧文字动作（text+color+onTap），内容高 44，导航栈/inset 由宿主自理，对标 NutUI React NavBar 收敛为库内自有设计语言",
+      "capabilities": [
+        "头部导航",
+        "导航条",
+        "返回按钮",
+        "NavBar",
+        "顶部导航",
+        "头部操作栏",
+        "标题栏"
+      ],
+      "platforms": {
+        "ios": { "state": "available", "note": "NavBar.swift（NavBarAction(text/color?/onTap) + title/onBack?/rightAction? + 内容高 44pt（intrinsic）+ 白底 bgCard + 行底 hairline + 标题整条中心定位，长标题向两侧回退省略但不得侵入返回/动作热区）" },
+        "android": { "state": "available", "note": "NavBar.kt（NavBarAction 数据类 + NavBar(title/onBack?/rightAction?/modifier) Row 44dp + bgCard + 行底 0.5dp hairline；onBack=nil 返回槽不占位）" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/NavBar.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/NavBar.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.navbar",
+      "industry_names": ["NavBar", "NavigationBar", "TopBar", "头部导航", "导航栏"],
+      "props": [
+        ["title", "标题", "是", "居中单行省略，Lg 18 semibold textPrimary"],
+        ["onBack", "返回回调", "否", "nil=一级页不显示返回钮（标题严格居中）；非 nil=左侧 ← 主色钮（热区 44×44）"],
+        ["rightAction", "右侧动作", "否", "NavBarAction(text 必填/color 可选默认 textPrimary/onTap)；文字 14"]
+      ],
+      "events": [],
+      "demos": [
+        ["返回钮 + 标题", "账单明细：左侧返回 ← 主色钮 44×44 热区，点击计数回显，标题居中（D1）"],
+        ["一级页无返回", "资产总览：onBack=nil 返回槽不占位、标题严格水平居中（D2）"],
+        ["右侧动作「保存」", "编辑分类：返回+保存双热区，保存文字 14 textPrimary 可 color 覆盖，点击计数（D3）"],
+        ["长标题省略", "超长标题单行省略+两侧返回/保存夹挤不侵入热区（D4）"]
+      ],
+      "note": "头部导航（导航组件 #2 收编，任务清单 #17）：页面顶部单行头部导航条，对标 NutUI React NavBar（title/back/right）与 iOS 系统 UINavigationBar 语义对齐收编为库内独立组件；导航栈管理与状态栏 inset 由宿主自理（一期明确 anti_goal），内容行高 44pt/44dp（宿主可覆盖），白底 bgCard、行底 hairline（iOS 1/scale pt vs Android 0.5dp 表内放行），返回钮热区 44×44、← 字符 22 主色；右侧动作 NavBarAction(text, color?, onTap)。2026-09-05 导航区收官三件门禁 A 总评通过（规格 nav-bar-design-spec.html + review-nav-bar-A.md，P1–P4 全 A）+ 双端实现入库（NavBar.swift / NavBar.kt + iOS NavBarShowcase/Android NavBarDemo 4 段 1:1）+ demo 注册（iOS pbxproj 5A17 登记、Android DemoComponent reviewed=true 接线）。C1.5 待用户实机验收。旧键 ui.navbar 为收编前 legacy 登记（不删，去向以本条目为准）。",
+      "subcategory": "navigation",
+      "reviewed": false
+    },
+    {
+      "id": "ui.tabbar",
+      "name": "标签栏 Tabbar",
+      "category": "ui",
+      "summary": "页面底部一级主导航标签条（2-5 项等分 icon 字符+文字）：半受控选中（默认首启用项自管理 + 外部 selectedValue 驱动高亮 + 点击幂等）、角标数字、禁用 40%、单行省略、activeColor 可覆盖，对标 iOS UITabBar/Material BottomNavigation 语义但为库内独立组件（不收编系统容器）",
+      "capabilities": [
+        "底部标签栏",
+        "主导航",
+        "Tabbar",
+        "TabBar",
+        "标签栏",
+        "底部导航",
+        "角标"
+      ],
+      "platforms": {
+        "ios": { "state": "available", "note": "TabbarView.swift（TabBarItem(title/value/icon?/badge?/disabled) + 半受控 selectedValue + 角标=cell 水平中心 +14/顶 2 高 16 圆角主色白字 + UIStackView fillEqually 等分 + 栏高 56pt + 栏顶 hairline）" },
+        "android": { "state": "available", "note": "Tabbar.kt（TabBarItem 数据类 + Tabbar(items/selectedValue?/activeColor?/onChange/modifier) Row weight 等分 56dp + 角标对齐 iOS 锚点 + 栏顶 hairline）" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/TabbarView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Tabbar.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.tabbar",
+      "industry_names": ["Tabbar", "TabBar", "标签栏", "底部主导航", "BottomNavigation"],
+      "props": [
+        ["items", "标签项列表", "是", "TabBarItem(title/value/icon? 单字符文本位/badge? 角标数字/disabled 禁用不可点)；2-5 项等分"],
+        ["selectedValue", "选中值(半受控)", "否", "nil=默认首启用项自管理；外部赋值=受控高亮同步且不触发 onChange（幂等）"],
+        ["activeColor", "激活色", "否", "默认主色；可覆盖（如品牌红）"],
+        ["onChange", "点选回调", "否", "点选触发；点已激活项不重复回调（幂等）；disabled 项不触发"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础 5 项等分", "首页/明细/记账/报表/我的 5 项：icon 22 + 文字 12 激活主色加粗，点击切换+计数（D1）"],
+        ["角标 + 禁用", "消息项角标数字 3（图标右上）；「我的」禁用 40% 透明不可点不回调（D2）"],
+        ["纯文字 + 长标题省略 + 品牌红", "icon 缺省纯文字项；长标题单行省略；activeColor=品牌红覆盖主色（D3）"],
+        ["受控外部驱动", "外部状态驱动 selectedValue（高亮随外部变化），外部按钮切换演示（D4）"]
+      ],
+      "note": "标签栏（导航组件 #6，任务清单 #19）：页面底部一级主导航标签条（2-5 项等分 icon+文字，页面路由/切换宿主自理，一期不收编 iOS UITabBar/Material BottomNavigation 系统容器=anti_goal）；栏高 56pt/56dp、icon 文本字符 22=sizeXl（emoji 彩色不染色）、文字 12=sizeXs（激活 semibold 主色/默认 textSecondary）、角标高 16 圆角 full 主色白字 12、禁用 40% 透明、单行省略、activeColor 可覆盖、栏顶 hairline（iOS 1/scale pt vs Android 0.5dp 表内放行）；半受控选中语义与库内 SideBar/Elevator 一致（外部 selectedValue 驱动不触发 onChange、点已激活项幂等）。角标锚点对齐 spec preview（cell 水平中心 +14/顶 2）。2026-09-05 导航区收官三件门禁 A 总评通过（规格 tabbar-design-spec.html + review-tabbar-A.md，P1–P4 全 A）+ 双端实现入库（TabbarView.swift / Tabbar.kt + iOS TabbarShowcase/Android TabbarDemo 4 段 1:1）+ demo 注册（iOS pbxproj 5A18 登记、Android DemoComponent reviewed=true 接线）。C1.5 待用户实机验收。",
+      "subcategory": "navigation",
+      "reviewed": false
+    },
+    {
+      "id": "ui.tabs",
+      "name": "选项卡 Tabs",
+      "category": "ui",
+      "summary": "页内顶部页签条（2-5 项等分文字）：半受控选中、激活项底部 2pt 指示线（宽=当前项整宽）、禁用 40%、单行省略、activeColor 可覆盖，内容面板宿主渲染；与 Segmented 划界（Tabs=页签切换顶部条，Segmented=胶囊分段控件）",
+      "capabilities": [
+        "选项卡",
+        "页签",
+        "Tabs",
+        "Tab",
+        "页签条",
+        "切换页签",
+        "顶部页签"
+      ],
+      "platforms": {
+        "ios": { "state": "available", "note": "TabsView.swift（TabItem(title/value/disabled) + 半受控 selectedValue + 激活底部 2pt 指示线=当前项整宽 + 等分 + 条高 44pt；替换旧收编业务双 Tab TabsView/PeriodTabsView 为库内独立组件）" },
+        "android": { "state": "available", "note": "Tabs.kt（TabItem 数据类 + Tabs(items/selectedValue?/activeColor?/onChange/modifier) Row weight 等分 44dp + 激活项底部 2dp 指示线整项宽）" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/TabsView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Tabs.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.tabs",
+      "industry_names": ["Tabs", "Tab", "选项卡", "页签条", "TabStrip"],
+      "props": [
+        ["items", "页签项列表", "是", "TabItem(title/value/disabled)；2-5 项等分"],
+        ["selectedValue", "选中值(半受控)", "否", "nil=默认首启用项自管理；外部赋值=受控高亮同步且不触发 onChange（幂等）"],
+        ["activeColor", "激活色", "否", "默认主色；可覆盖（如品牌红）"],
+        ["onChange", "点选回调", "否", "点选触发；点已激活项不重复回调（幂等）；disabled 项不触发"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础等分 + 指示线", "支出/收入/转账 3 项：文字 14 激活 semibold 主色 + 底部 2pt 整项宽指示线，点击切换+计数（D1）"],
+        ["禁用项", "年视图禁用 40% 透明不可点；指示线仍在启用项下方（D2）"],
+        ["长标题省略 + 品牌红", "长标题单行省略；activeColor=品牌红指示线与文字（D3）"],
+        ["受控外部驱动", "外部状态驱动 selectedValue，外部按钮切换演示（D4）"]
+      ],
+      "note": "选项卡（导航组件 #3 收编，任务清单 #20）：页内顶部页签条（内容面板宿主渲染），对标 iOS TabsView/PeriodTabsView 旧收编业务双 Tab 与 Android 无对应（旧 TabsView 200 宽胶囊形态近 Segmented）→ 收编替换为库内独立等分页签条 Tabs，与 Segmented（#74 胶囊分段控件）划界：本组件=页内顶部页签切换条+底部整项宽指示线；文字 Sm 14、条高 44pt/44dp、激活项底部 2pt/2dp 指示线（宽度定稿=当前项整宽=等分格宽，spec 05 平台差异表内放行：iOS UIView 底条 vs Android Box align bottom）、禁用 40% 透明、单行省略、activeColor 覆盖默认主色；半受控选中语义同库内 SideBar/Elevator/Tabbar。2026-09-05 导航区收官三件门禁 A 总评通过（规格 tabs-design-spec.html + review-tabs-A.md，P1–P4 全 A）+ 双端实现入库（TabsView.swift 重写替换旧收编业务文件 / Tabs.kt + iOS TabsShowcase/Android TabsDemo 4 段 1:1）+ demo 注册（TabsView.swift pbxproj 已登记沿用、Android DemoComponent reviewed=true 接线）。C1.5 待用户实机验收。",
+      "subcategory": "navigation",
+      "reviewed": false
+    },
+    {
       "id": "ui.card",
       "name": "卡片 Card",
       "category": "ui",

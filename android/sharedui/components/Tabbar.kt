@@ -60,9 +60,10 @@ private object TabbarTokens {
     val badgeFont = AppFont.sizeXs
     const val badgeHorizPaddingDp = 3
     const val badgeCornerDp = 8
-    // 角标锚点：cell 水平中心 +14 / 中心垂直 10（顶 2）：对齐 spec preview
+    // 角标锚点：cell 水平中心 +14 / 上缘距 cell 顶 2（= iOS top=2，中心 y=10）：对齐 spec preview。
+    // 注意 align(TopCenter)+offset 的 y 作用于角标上缘，传 2 才是顶 2；旧值 10 使整枚角标下移 8dp。
     const val badgeCenterXOffsetDp = 14
-    const val badgeCenterYOffsetDp = 10
+    const val badgeTopOffsetDp = 2
 }
 
 @Composable
@@ -135,7 +136,7 @@ fun Tabbar(
                                 .align(Alignment.TopCenter)
                                 .offset(
                                     x = TabbarTokens.badgeCenterXOffsetDp.dp,
-                                    y = TabbarTokens.badgeCenterYOffsetDp.dp,
+                                    y = TabbarTokens.badgeTopOffsetDp.dp,
                                 )
                                 .height(TabbarTokens.badgeHeightDp.dp)
                                 .clip(RoundedCornerShape(TabbarTokens.badgeCornerDp.dp))
@@ -150,6 +151,8 @@ fun Tabbar(
                                 color = Color.White,
                                 fontSize = TabbarTokens.badgeFont,
                                 textAlign = TextAlign.Center,
+                                // 行高=字号：去掉默认行高的额外纵向空隙，避免数字在胶囊内视觉偏下
+                                lineHeight = TabbarTokens.badgeFont,
                             )
                         }
                     }

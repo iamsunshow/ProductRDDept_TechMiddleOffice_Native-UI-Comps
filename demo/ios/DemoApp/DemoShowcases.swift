@@ -3536,6 +3536,9 @@ final class FixedNavShowcase: ShowcaseViewController {
             d4Nav = nav
             d4Feedback = feedback
             let tap = UITapGestureRecognizer(target: self, action: #selector(d4TapOutside(_:)))
+            // 关键：cancelsTouchesInView 保持 false——容器手势只负责"面板外空白"收起，
+            // 不得取消钮/面板行按钮的触摸（否则点钮开合、点行选中全部失效，D4 点击无反应根因）。
+            tap.cancelsTouchesInView = false
             container.addGestureRecognizer(tap)
         }
     }

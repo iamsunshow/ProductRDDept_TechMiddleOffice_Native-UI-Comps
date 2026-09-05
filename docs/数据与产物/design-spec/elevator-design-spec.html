@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Elevator 电梯楼层 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+.elevator-sim{display:flex;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;background:#fff;margin:var(--spaceMd) 0;}
+.elevator-body{flex:1;max-height:220px;overflow-y:auto;}
+.floor-block{padding:0 12px;}
+.floor-title{position:sticky;top:0;background:var(--primaryMuted);color:var(--primaryPressed);font-size:12px;font-weight:700;padding:4px 8px;}
+.ev-row{padding:10px 4px;border-bottom:1px solid #F3F4F6;font-size:14px;display:flex;justify-content:space-between;}
+.ev-index{width:44px;border-left:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:6px 0;font-size:11px;color:var(--textSecondary);}
+.ev-index b{color:var(--primary);font-size:13px;line-height:1.9;font-weight:600;}
+</style>
+</head>
+<body>
+
+<h1>Elevator 电梯楼层 · 设计规格（导航组件 #2 · 任务清单 #14，subcategory=nav · 门禁 A）</h1>
+<p>组件 ID：<code>ui.elevator</code> ｜ 定位：<b>数据驱动分组内容 + 右侧楼/字母索引导航的"定位器"</b>——点击索引跳转对应分组、内容滚动联动高亮索引，对标 NutUI React Elevator（楼层/城市选择类）。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-04，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 内容分组多、需快速定位的分组列表（楼层导览/城市选择/账单月份分组/榜单分区）；② 右侧竖排"楼/字母"索引条，点击即跳分组、内容滚动自动高亮当前分组（双向联动）；③ 分组行点击可回传事件（如选中城市/跳业务页）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 悬浮式页面导航菜单 → <b>FixedNav（ui.fixed-nav）</b>；② 单层扁平长列表的右侧快捷跳转（不分组、随屏滚）→ SideBar（ui.side-bar）；③ 联动选择器（左类右子）→ TreeSelect/Cascader；④ 纯滚动吸顶 → Sticky（ui.sticky）</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 分组列表 + 右侧索引；<span class="tag tag-ok">交互态 ✅</span> 索引点击=分组跳转、内容滚动=索引高亮联动；<span class="tag tag-ok">选择态 ✅</span> 分组行点击（onSelect 可选）；禁用/加载/成功/失败 N/A（数据列表组件，由外层数据态控制，本组件一期不含骨架/占位）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]（视觉全 token）；分组行=组件自有极简行视觉（primary 标题 + 细分割线），不依赖 Cell（Cell 带五态/箭头重交互，语义不同）。与导航批划界：SideBar=页面级快速索引；FixedNav=悬浮菜单；Elevator=自带内容的分组定位器</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>分组行高</td><td>56pt/56dp（= Cell.minHeight 同库规范行高）</td><td>行内容=标题 primary 字号 Sm/Md + 细分割线 gray4；视觉与 Cell 一致但不依赖 Cell 组件</td></tr>
+<tr><td>分组标题行高</td><td>32pt/32dp，bg=primaryMuted，标题=primary 强调</td><td>分组 key 竖排在标题条（如 1F/2F、A/B/C）</td></tr>
+<tr><td>右侧索引条</td><td>宽 44pt/44dp，索引字 Sm 级 gray → 当前=primary 加粗</td><td>索引字高 24pt/24dp 热区（可点），垂直居中靠右，一条边线分隔</td></tr>
+<tr><td>内容行文本</td><td>textPrimary / textSecondary（desc 场景）</td><td>标题行名称，副文案二期（desc 数据）</td></tr>
+<tr><td>滚动容器高度</td><td>宿主布局给定（组件不强约束）</td><td>自包含滚动列表：iOS 组件内 UITableView / Android 组件内 LazyColumn</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 容器与联动模式：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：自包含定高——组件=内置分组滚动列表 + 右侧索引，高度由宿主约束（双端同构：iOS UITableView / Android LazyColumn），双向联动在组件内部闭环</td><td>✅ 与楼层/城市页整块使用匹配；联动算法组件内闭环=宿主零配置；滚动 delegate/state 无外部冲突（自包含）。</td><td><b>推荐 A</b>：行为可控、双端 1:1 最稳</td></tr>
+<tr><td>B：外置列表托管（组件只渲染索引条，操作外部滚动容器）</td><td>对应 NutUI containerId 模式，但需要宿主为每分组行暴露定位 API，iOS 逐行 position 映射成本高且脆。</td><td>淘汰：一期登记二期（外部容器联动）</td></tr>
+<tr><td>C：整页全高接管（组件铺满并接管导航栏滚动）</td><td>与页面导航/安全区耦合，破坏"布局上下文宿主定"。</td><td>淘汰</td></tr>
+</table>
+
+<h3>P2 · 索引来源：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：默认由 floors 分组 key 自动生成索引 + index 参数显式覆盖</td><td>✅ 对齐 NutUI（index 不传自动取 key）；自定义场景（城市字母只留含数据字母）用显式 index。</td><td><b>推荐 A</b>：一个 index 参数覆盖两用法</td></tr>
+<tr><td>B：仅自动生成</td><td>场景受限（楼层 key 有 1F/负1F 之外跳脱时无法裁剪）。</td><td>淘汰</td></tr>
+<tr><td>C：仅显式传</td><td>楼层快速场景也要手填索引，冗余。</td><td>淘汰</td></tr>
+</table>
+
+<h3>P3 · 双向联动判定：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：点击索引=分组首行滚动到可视区顶部（跳转动画同系统滚动）；内容滚动中=当前可视首分组标为当前索引高亮（iOS 用 tableView scrollViewDidScroll + 首可见 section；Android snapshotFlow 派生 firstVisibleItemIndex）</td><td>✅ 双向联动闭环；判组依据"可视首分组"与手指滚动直觉一致。</td><td><b>推荐 A</b>：同构且实现直白</td></tr>
+<tr><td>B：按分组中心线判组（更多 anchor 魔法）</td><td>与直觉差异小但实现复杂，收益低。</td><td>淘汰</td></tr>
+<tr><td>C：无滚动高亮（索引只做点击跳转）</td><td>导航体验打折（用户不知身在哪个分组）。</td><td>淘汰：核心语义=A</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：分组标题行 + 文本行（56pt）+ 行点击回调（可选）+ 索引点击/滚动高亮双向联动 + demo 四段可验收</td><td>✅ 覆盖楼层/城市核心；行点击 onSelect 覆盖业务选中/跳转诉求。</td><td><b>推荐 A</b>：范围收敛</td></tr>
+<tr><td>B：一期支持行副标题/图标等富行内容自定义</td><td>需要 cell 复用协议抽象，与 Cell 组件职责重叠。</td><td>淘汰：登记二期（行内容插槽）</td></tr>
+<tr><td>C：吸顶 sticky 分组标题随滚吸附</td><td>与自包含容器内标题吸顶实现可做，但一期分组标题非 sticky（简化，列表定位已够）。</td><td>淘汰：登记二期</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 楼层分组（默认自动索引）</h3>
+<p>商场 5 层分组（1F-5F，每层 3-4 行商户），不传 index=自动取分组 key；点右侧索引跳分组、滚内容高亮当前层。</p>
+<div class="elevator-sim"><div class="elevator-body">
+<div class="floor-block"><div class="floor-title">1F 餐饮美食</div><div class="ev-row">星巴克 <b>›</b></div><div class="ev-row">瑞幸咖啡 <b>›</b></div></div>
+<div class="floor-block"><div class="floor-title">2F 服饰鞋包</div><div class="ev-row">优衣库 <b>›</b></div><div class="ev-row">无印良品 <b>›</b></div></div>
+<div class="floor-block"><div class="floor-title">3F 数码家电</div><div class="ev-row">华为体验店 <b>›</b></div><div class="ev-row">小米之家 <b>›</b></div></div>
+</div><div class="ev-index"><b>1F</b><b>2F</b><b>3F</b><b>4F</b><b>5F</b></div></div>
+
+<h3>D2 · 城市字母索引（显式自定义 index）</h3>
+<p>只含数据的城市分组（A/B/G/S 等），index 显式传字母；仅有的索引出现，点击跳分组。</p>
+<div class="elevator-sim"><div class="elevator-body">
+<div class="floor-block"><div class="floor-title">A</div><div class="ev-row">安庆 <b>›</b></div><div class="ev-row">安阳 <b>›</b></div></div>
+<div class="floor-block"><div class="floor-title">B</div><div class="ev-row">北京 <b>›</b></div><div class="ev-row">包头 <b>›</b></div></div>
+<div class="floor-block"><div class="floor-title">G</div><div class="ev-row">广州 <b>›</b></div><div class="ev-row">桂林 <b>›</b></div></div>
+</div><div class="ev-index"><b>A</b><b>B</b><b>G</b><b>S</b></div></div>
+
+<h3>D3 · 分组行点击（onSelect 回调）</h3>
+<p>点击分组某行 → 容器下方反馈区显示"已选择：xx"，验证行点击事件与索引联动共存。</p>
+<div class="elevator-sim"><div class="elevator-body">
+<div class="floor-block"><div class="floor-title">餐饮</div><div class="ev-row">火锅店 <b>›</b></div><div class="ev-row">面馆 <b>›</b></div></div>
+<div class="floor-block"><div class="floor-title">娱乐</div><div class="ev-row">电影院 <b>›</b></div></div>
+</div><div class="ev-index"><b>餐饮</b><b>娱乐</b></div></div>
+
+<h3>D4 · 长分组列表高联稳定（12 分组）</h3>
+<p>高 440 区域 12 组账单月份分组（1 月-12 月），验证长内容滚动时索引高亮连续稳定无跳变。</p>
+<div class="elevator-sim"><div class="elevator-body">
+<div class="floor-block"><div class="floor-title">1月</div><div class="ev-row">工资 +12000 <b>›</b></div></div>
+<div class="floor-block"><div class="floor-title">2月</div><div class="ev-row">餐饮 -3200 <b>›</b></div></div>
+<div class="floor-block"><div class="floor-title">12月</div><div class="ev-row">购物 -1800 <b>›</b></div></div>
+</div><div class="ev-index"><b>1月</b><b>2月</b><b>…</b><b>12月</b></div></div>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>分组滚动容器</td><td>UITableView（plain）</td><td>LazyColumn</td><td>系统级原生差异：平台列表容器不同</td></tr>
+<tr><td>滚动高亮联动实现</td><td>scrollViewDidScroll + indexPathsForVisibleRows 判当前 section</td><td>snapshotFlow 读 firstVisibleItemIndex 反查分组</td><td>系统级原生差异：Delegate vs 状态快照</td></tr>
+<tr><td>索引跳分组动画</td><td>scrollToRow(at: .top, animated: true)</td><td>animateScrollToItem</td><td>系统级原生差异：各自系统滚动动画</td></tr>
+<tr><td class="diff-row">行高/分组标题高</td><td>56pt / 32pt</td><td>56dp / 32dp</td><td>Token 同一数值不同单位（表内放行，同 Grid/Layout 先例）</td></tr>
+<tr><td class="diff-row">数据模型</td><td>floors: [(key: String, items: [String])]，index: [String]?</td><td>同构数据类 ElevatorFloor(key, items)</td><td>契约同构（表内放行，命名差异见门禁 B）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>iOS</td><td><code>struct ElevatorFloor { let key: String; let items: [String] }</code><br/><code>ElevatorView(floors: [ElevatorFloor], index: [String]? = nil, onSelect: ((_ floor: Int, _ row: Int, _ name: String) -> Void)? = nil)</code>（分组滚动列表 + 右侧索引内建；高度由宿主约束）</td></tr>
+<tr><td>Android</td><td><code>data class ElevatorFloor(val key: String, val items: List&lt;String&gt;)</code><br/><code>@Composable fun Elevator(floors: List&lt;ElevatorFloor&gt;, modifier: Modifier = Modifier, index: List&lt;String&gt;? = null, onSelect: ((floor: Int, row: Int, name: String) -&gt; Unit)? = null)</code></td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：分组定位器专属，与 SideBar/FixedNav/Cascader 划界）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（行高 56/标题 32/索引 44 全走 demo 摆放+组件内计算）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（自动索引/自定义索引/行点击/长列表）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，本规格为首立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（容器/联动实现/动画为系统级差异；行高数值单位表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（外部容器联动/行内容插槽/标题吸顶二期）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

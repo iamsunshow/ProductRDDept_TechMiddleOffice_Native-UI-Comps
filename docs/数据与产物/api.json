@@ -1861,6 +1861,61 @@
       "reviewed": true
     },
     {
+      "id": "ui.elevator",
+      "name": "电梯楼层 Elevator",
+      "category": "ui",
+      "summary": "数据驱动分组内容 + 右侧楼/字母索引导航的定位器：点击索引跳对应分组、内容滚动联动高亮索引，分组行可点击回调，对标 NutUI React Elevator",
+      "capabilities": [
+        "电梯楼层",
+        "楼层定位",
+        "分组列表",
+        "字母索引",
+        "索引导航",
+        "城市选择分组",
+        "点击索引跳转",
+        "滚动联动高亮",
+        "分组行点击回调",
+        "Elevator"
+      ],
+      "platforms": {
+        "ios": { "state": "available", "note": "ElevatorView.swift（UITableView 扁平数据渲染 + 索引条 UIStackView + scrollViewDidScroll 首可视行判组高亮 + scrollToRow 跳转 + onSelect）" },
+        "android": { "state": "available", "note": "Elevator.kt（Compose LazyColumn + snapshotFlow firstVisibleItemIndex 判组高亮 + animateScrollToItem 跳转 + onSelect）" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/ElevatorView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Elevator.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": ["外部滚动容器联动（NutUI containerId 模式，登记二期）", "行内容自定义插槽（分组行固定文本+细分割线，登记二期）", "分组标题吸顶 sticky（登记二期）", "索引气泡提示/两指拖动"],
+      "visual_tokens": [],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "ui.elevator 电梯 楼层 分组列表 索引导航 定位器 字母索引 城市选择 快速跳转 elevator floor index",
+      "embedding_ref": "",
+      "legacy_id": "ui.elevator",
+      "industry_names": ["Elevator", "ElevatorNav", "索引定位", "电梯导航"],
+      "props": [
+        ["floors", "分组数据", "是", "[(key: 分组标题/索引文本, items: 组内文本行)]"],
+        ["index", "右侧索引", "否", "nil=自动取各分组 key；显式传=只展示传的索引项（对齐 NutUI index 覆盖）"],
+        ["onSelect", "分组行点击回调", "否", "(分组序号, 组内行号, 名称)；nil=分组行不可点"]
+      ],
+      "events": [],
+      "demos": [
+        ["楼层分组（默认自动索引）", "1F-5F 商户分组自动索引，点索引跳分组+滚动联动高亮（D1）"],
+        ["城市字母（index 显式自定义）", "A/B/G/S 城市分组，index 显式传只展示含数据字母（D2）"],
+        ["分组行点击", "onSelect 回传 (分组, 行, 名称)，段内反馈回显（D3）"],
+        ["长分组列表", "12 组月份分组连续滚动，索引高亮稳定无跳变（D4）"]
+      ],
+      "note": "电梯楼层定位器（导航组件 #2，任务清单 #14）：数据驱动分组内容 + 右侧楼/字母索引导航（点击索引=分组滚顶、内容滚动=可视首分组高亮索引双向联动）；自包含定高（滚动容器 iOS UITableView / Android LazyColumn，高度由宿主约束=组件不代管布局上下文）；分组标题行 32pt/32dp=普通行随内容滚动（不吸顶，anti_goal 二期）；内容行高 56pt/56dp=同库规范行高（对齐 Cell.minHeight）；索引条宽 44pt/44dp；行点击回调可选（onSelect）。2026-09-05 全新立项：规格 elevator-design-spec.html（01 用途边界/02 Token/03 P1–P4 决策/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-elevator-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：自包含定高 + 索引自动/显式 + 双向联动 + 行点击可选；anti_goal=外部容器联动/行内容插槽/标题吸顶=登记二期）+ 双端实现入库（ElevatorView.swift / Elevator.kt + iOS ElevatorShowcase/Android ElevatorDemo 4 段 1:1：D1 楼层自动索引 / D2 城市显式 index / D3 行点击 onSelect / D4 12 组月份长列表）。reviewed=false（待 C1.5 用户双端实机验收）。",
+      "subcategory": "navigation",
+      "reviewed": false
+    },
+    {
       "id": "ui.card",
       "name": "卡片 Card",
       "category": "ui",

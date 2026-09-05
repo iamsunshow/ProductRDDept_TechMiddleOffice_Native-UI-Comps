@@ -36,7 +36,7 @@ final class DemoListViewController: UITableViewController {
         ]),
         ("导航组件", [
             DemoComponent(id: "ui.back-top", name: "BackTop 返回顶部", reviewed: true, create: { BackTopShowcase() }),
-            DemoComponent(id: "ui.elevator", name: "Elevator 电梯楼层", reviewed: false, create: nil),
+            DemoComponent(id: "ui.elevator", name: "Elevator 电梯楼层", reviewed: true, create: { ElevatorShowcase() }),
             DemoComponent(id: "ui.fixed-nav", name: "FixedNav 悬浮导航", reviewed: false, create: nil),
             DemoComponent(id: "ui.hover-button", name: "HoverButton 悬浮按钮", reviewed: false, create: nil),
             DemoComponent(id: "ui.nav-bar", name: "NavBar 头部导航", reviewed: false, create: nil),
@@ -3335,6 +3335,95 @@ final class BackTopShowcase: ShowcaseViewController {
             last.snp.makeConstraints { make in make.bottom.equalToSuperview() }
         }
         return scroll
+    }
+}
+
+/// 4 段排查：D1 楼层分组（自动索引）/ D2 城市字母（自定义 index）/ D3 分组行点击 / D4 长分组高联稳定。
+/// 双端 1:1：iOS ElevatorView（UITableView 扁平数据）vs Android Elevator（LazyColumn）。
+final class ElevatorShowcase: ShowcaseViewController {
+
+    private var d3Feedback: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Elevator", version: "v1.0", builtAt: "2026-09-05")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    // D1 · 楼层分组：不传 index=自动取分组 key；点右侧索引跳转 + 滚动联动高亮
+    private func buildDemo1() {
+        addSection(title: "D1 · 楼层分组（默认自动索引 + 双向联动）") { container in
+            let elevator = ElevatorView(floors: [
+                ElevatorFloor(key: "1F", items: ["星巴克", "瑞幸咖啡", "喜茶"]),
+                ElevatorFloor(key: "2F", items: ["优衣库", "无印良品", "热风"]),
+                ElevatorFloor(key: "3F", items: ["华为体验店", "小米之家"]),
+                ElevatorFloor(key: "4F", items: ["乐高", "玩具反斗城"]),
+                ElevatorFloor(key: "5F", items: ["万达影城"]),
+            ])
+            container.addSubview(elevator)
+            elevator.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(320)
+            }
+        }
+        addInfo("不传 index 自动取分组 key（1F-5F）：点右侧「5F」即跳 5F 分组；上下滚动内容时右侧高亮当前楼层分组。")
+    }
+
+    // D2 · 城市字母索引：显式 index（只出现含数据的字母），与 Android Demo2 同数据
+    private func buildDemo2() {
+        addSection(title: "D2 · 城市字母索引（index 显式自定义）") { container in
+            let elevator = ElevatorView(floors: [
+                ElevatorFloor(key: "A", items: ["安庆", "安阳", "鞍山"]),
+                ElevatorFloor(key: "B", items: ["北京", "包头", "保定"]),
+                ElevatorFloor(key: "G", items: ["广州", "桂林"]),
+                ElevatorFloor(key: "S", items: ["上海", "深圳"]),
+            ], index: ["A", "B", "G", "S"])
+            container.addSubview(elevator)
+            elevator.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(260)
+            }
+        }
+        addInfo("index 显式传字母数组：右侧只展示含数据的字母（A/B/G/S），点击字母跳对应城市分组。")
+    }
+
+    // D3 · 分组行点击：onSelect 回传 (分组, 行, 名称)，反馈回显在段内下方
+    private func buildDemo3() {
+        addSection(title: "D3 · 分组行点击（onSelect 回调）") { container in
+            let elevator = ElevatorView(floors: [
+                ElevatorFloor(key: "餐饮", items: ["火锅店", "面馆", "烧烤店"]),
+                ElevatorFloor(key: "娱乐", items: ["电影院", "KTV"]),
+            ], onSelect: { [weak self] floor, row, name in
+                guard let self else { return }
+                self.d3Feedback?.text = "已选择：第 \(floor + 1) 组「\(name)」（该组内第 \(row + 1) 行）"
+                self.d3Feedback?.textColor = AppColor.primary
+            })
+            container.addSubview(elevator)
+            elevator.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(240)
+            }
+        }
+        d3Feedback = addDynamicInfo("点击分组内的某一行（火锅店/电影院等）：结果回显在本行（与 Android Demo3 一致）。")
+    }
+
+    // D4 · 长分组列表（12 组）：滚动时索引高亮连续稳定，无跳变
+    private func buildDemo4() {
+        addSection(title: "D4 · 长分组列表（12 组月份，滚动高联稳定）") { container in
+            let floors = (1...12).map { month in
+                ElevatorFloor(key: "\(month)月", items: ["\(month) 月账单样例 · 支出 ¥1,2xx"])
+            }
+            let elevator = ElevatorView(floors: floors)
+            container.addSubview(elevator)
+            elevator.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(440)
+            }
+        }
+        addInfo("12 个月份分组连续滚动：右侧索引随可视首分组连续高亮，验证长列表高亮无跳变。")
     }
 }
 

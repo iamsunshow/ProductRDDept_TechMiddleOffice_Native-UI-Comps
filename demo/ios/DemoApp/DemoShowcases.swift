@@ -3292,6 +3292,11 @@ final class BackTopShowcase: ShowcaseViewController {
         scroll.addSubview(content)
         content.snp.makeConstraints { make in
             make.top.leading.trailing.equalTo(scroll.contentLayoutGuide)
+            // 底部必须钉 contentLayoutGuide：与组件库 Sticky iOS 同款修复（StickyView.swift
+            // f220dad）——缺底部闭合时 UIScrollView 无法由约束推导 contentSize，内层滚动区
+            // contentSize=0、contentOffset 恒 0，BackTop 永不出现。末尾行 bottom 封口 content
+            // 只定内容高，需 bottom=guide.bottom 才向滚动域传递尺寸。
+            make.bottom.equalTo(scroll.contentLayoutGuide.snp.bottom)
             make.width.equalTo(scroll.frameLayoutGuide)
         }
         var prev: UIView?

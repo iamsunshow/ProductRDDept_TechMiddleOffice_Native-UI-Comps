@@ -7,13 +7,17 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -24,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppFont
@@ -134,7 +139,11 @@ private fun FixedNavPanel(
 ) {
     val shape = RoundedCornerShape(AppRadius.md)
     Column(
+        // 面板宽 = 最长行的内容自然宽（>=140），不再跟随父容器全宽。
+        // width(IntrinsicSize.Min) 让每个子 Row 用自身内容宽决定列宽；子 Row fillMaxWidth
+        // 后所有行等宽，保证 num 用 weight 推到行尾时各行右端对齐。
         modifier = Modifier
+            .width(IntrinsicSize.Min)
             .shadow(elevation = 4.dp, shape = shape, clip = false)
             .background(AppColor.bgCard, shape)
             .border(width = 0.5.dp, color = AppColor.border, shape = shape),
@@ -143,7 +152,8 @@ private fun FixedNavPanel(
             val isLast = index == items.lastIndex
             Box(
                 modifier = Modifier
-                    .widthIn(min = 140.dp)
+                    .fillMaxWidth()
+                    .defaultMinSize(minWidth = 140.dp)
                     .height(44.dp)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
@@ -169,6 +179,9 @@ private fun FixedNavPanel(
                                 color = AppColor.primary,
                                 fontSize = AppFont.sizeXs,
                                 fontWeight = FontWeight.SemiBold,
+                                lineHeight = AppFont.sizeXs,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.wrapContentSize(Alignment.Center),
                             )
                         }
                     }
@@ -178,11 +191,13 @@ private fun FixedNavPanel(
                         fontSize = AppFont.sizeSm,
                         maxLines = 1,
                     )
+                    // 占用标题与角标之间的富余空间，把角标推到行尾（margin-left:auto 语义）。
+                    // 无角标时 spacer 同样撑满行尾，保持 title 左对齐。
+                    Spacer(modifier = Modifier.weight(1f))
                     if ((item.num ?: 0) > 0) {
                         Box(
                             modifier = Modifier
-                                .widthIn(min = 16.dp)
-                                .height(16.dp)
+                                .defaultMinSize(minWidth = 16.dp, minHeight = 16.dp)
                                 .background(AppColor.primary, CircleShape)
                                 .padding(horizontal = AppSpace.xs),
                             contentAlignment = Alignment.Center,
@@ -192,6 +207,8 @@ private fun FixedNavPanel(
                                 color = Color.White,
                                 fontSize = AppFont.sizeXs,
                                 fontWeight = FontWeight.SemiBold,
+                                lineHeight = AppFont.sizeXs,
+                                textAlign = TextAlign.Center,
                             )
                         }
                     }

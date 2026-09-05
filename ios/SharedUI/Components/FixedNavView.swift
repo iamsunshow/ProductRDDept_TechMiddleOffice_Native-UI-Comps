@@ -170,7 +170,11 @@ final class FixedNavView: UIView {
         let dismiss: () -> Void = { card.alpha = 0 }
         let finish: (Bool) -> Void = { [weak self] _ in
             card.removeFromSuperview()
-            self?.panelCard = nil
+            // 引用保护（D4 快速开合"多次点击后失灵"根因）：收起动画未完成时若已再次展开
+            // （panelCard 已换新卡），此处只清本卡引用，不能把新卡引用一并置 nil。
+            if self?.panelCard === card {
+                self?.panelCard = nil
+            }
         }
         if animated {
             UIView.animate(withDuration: 0.18, animations: dismiss, completion: finish)
@@ -333,6 +337,13 @@ private final class FixedNavItemRowButton: UIButton {
         title.textColor = AppColor.textPrimary
         title.numberOfLines = 1
         content.addArrangedSubview(title)
+
+        // 弹性占位（标题与角标之间或行尾）：把 UIStackView fill 的富余空间集中到占位件，
+        // 避免 title 被拉宽（与 Android 行内 Spacer(weight) / spec fn-num margin-left:auto 对齐）。
+        let spacer = UIView()
+        spacer.setContentHuggingPriority(.init(rawValue: 1), for: .horizontal)
+        spacer.setContentCompressionResistancePriority(.init(rawValue: 1), for: .horizontal)
+        content.addArrangedSubview(spacer)
 
         if let num = item.num, num > 0 {
             let badge = NumBadgeView(num: num)

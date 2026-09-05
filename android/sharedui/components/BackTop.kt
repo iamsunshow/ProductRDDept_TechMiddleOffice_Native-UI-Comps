@@ -8,7 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
@@ -81,38 +81,43 @@ fun BackTop(
         enter = fadeIn(),
         exit = fadeOut()
     ) {
+        // 外层只负责点击，不叠加任何默认背景/形状——视觉完全由 content 决定
+        // （对齐 iOS setFace：替换 face 即清空默认 ↑ 圆钮背景；默认视觉见 BackTopDefaultFace）。
         Box(
-            modifier = Modifier
-                .clip(CircleShape)
-                .background(AppColor.primary)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = {
-                        if (onClick != null) {
-                            onClick.invoke()
-                        } else {
-                            scope.launch { scrollState.animateScrollTo(0) }
-                        }
+            modifier = Modifier.clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = {
+                    if (onClick != null) {
+                        onClick.invoke()
+                    } else {
+                        scope.launch { scrollState.animateScrollTo(0) }
                     }
-                )
-                .defaultMinSize(minWidth = 40.dp, minHeight = 40.dp),
-            contentAlignment = Alignment.Center
+                }
+            )
         ) {
             content()
         }
     }
 }
 
-/** BackTop 默认视觉：白色 ↑（U+2191）文本。 */
+/** BackTop 默认视觉：主色圆钮（40dp）+ 白色 ↑（U+2191）文本，零图片依赖。 */
 @Composable
 private fun BackTopDefaultFace() {
-    BasicText(
-        text = "↑",
-        style = TextStyle(
-            fontSize = AppFont.sizeLg,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .clip(CircleShape)
+            .background(AppColor.primary),
+        contentAlignment = Alignment.Center
+    ) {
+        BasicText(
+            text = "↑",
+            style = TextStyle(
+                fontSize = AppFont.sizeLg,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
         )
-    )
+    }
 }

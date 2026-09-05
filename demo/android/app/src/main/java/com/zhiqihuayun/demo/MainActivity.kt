@@ -8,6 +8,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -85,6 +87,9 @@ import com.zhiqihuayun.sharedui.components.AvatarOption
 import com.zhiqihuayun.sharedui.components.BackTop
 import com.zhiqihuayun.sharedui.components.Elevator
 import com.zhiqihuayun.sharedui.components.ElevatorFloor
+import com.zhiqihuayun.sharedui.components.FixedNav
+import com.zhiqihuayun.sharedui.components.FixedNavItem
+import com.zhiqihuayun.sharedui.components.FixedNavType
 import com.zhiqihuayun.sharedui.components.LayoutCol
 import com.zhiqihuayun.sharedui.components.LayoutRow
 import com.zhiqihuayun.sharedui.components.Space
@@ -133,7 +138,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
     "导航组件" to listOf(
         DemoComponent("BackTop 返回顶部", reviewed = true, demo = { BackTopDemo() }),
         DemoComponent("Elevator 电梯楼层", reviewed = true, demo = { ElevatorDemo() }),
-        DemoComponent("FixedNav 悬浮导航"),
+        DemoComponent("FixedNav 悬浮导航", reviewed = true, demo = { FixedNavDemo() }),
         DemoComponent("HoverButton 悬浮按钮"),
         DemoComponent("NavBar 头部导航"),
         DemoComponent("SideBar 侧边导航"),
@@ -2526,6 +2531,190 @@ private fun BackTopDemo() {
             )
         }
         Text("位置（右下/左下）是宿主责任，组件不代管布局上下文；阈值作为参数可配。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+    }
+}
+
+/** FixedNavDemo：4 段排查（D1 右侧基本/D2 左侧 type=Left/D3 自定义文案长文本/D4 点面板外收起），与 iOS FixedNavShowcase 1:1。 */
+@Composable
+private fun FixedNavDemo() {
+    Text(
+        text = "FixedNav 组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 右侧基本（角标+自动收起）② 左侧 type=Left ③ 自定义钮文案 / 无图标无角标长文本 ④ 多次开合 + 点面板外收起。双端 1:1（iOS FixedNavView vs Android FixedNav，展开态受控）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1 · 右侧默认：右下胶囊"快速导航"展开面板（首页 num2/订单/购物车 num5/我的），钮文字切"收起导航"；点项自动收起并回显
+        Text("Demo 1 · 右侧默认（右下胶囊「快速导航」，面板含角标，点项自动收起）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1Expanded by remember { mutableStateOf(false) }
+        var d1Picked by remember { mutableStateOf(false) }
+        var d1Info by remember { mutableStateOf("点胶囊展开导航，点某项=选中回传并自动收起。") }
+        val s1 = rememberScrollState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(240.dp)
+        ) {
+            BackTopContent(rows = 26, scrollState = s1)
+            FixedNav(
+                items = listOf(
+                    FixedNavItem("home", "首页", icon = "⌂", num = 2),
+                    FixedNavItem("order", "订单", icon = "📄"),
+                    FixedNavItem("cart", "购物车", icon = "🛒", num = 5),
+                    FixedNavItem("mine", "我的", icon = "◎"),
+                ),
+                expanded = d1Expanded,
+                onExpandedChange = { d1Expanded = it },
+                onSelect = {
+                    d1Picked = true
+                    d1Info = "D1 选中：${it.text}（key=${it.key}），面板已自动收起"
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = AppSpace.md, bottom = AppSpace.lg)
+            )
+        }
+        Text(
+            text = d1Info,
+            fontSize = AppFont.sizeXs,
+            color = if (d1Picked) AppColor.primary else AppColor.textSecondary
+        )
+        Text("右下角为悬浮钮（“悬浮”=宿主摆放=非滚动覆盖层右下角），面板随钮右缘向上弹出，内容可滚动不影响钮。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D2 · 左侧摆放（type=Left）
+        Text("Demo 2 · 左侧摆放（type=Left，左下胶囊「更多工具」，面板向右展开）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2Expanded by remember { mutableStateOf(false) }
+        var d2Picked by remember { mutableStateOf(false) }
+        var d2Info by remember { mutableStateOf("胶囊在左下缘；点某项回传并自动收起。") }
+        val s2 = rememberScrollState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(210.dp)
+        ) {
+            BackTopContent(rows = 22, scrollState = s2)
+            FixedNav(
+                items = listOf(
+                    FixedNavItem("export", "导出报表", icon = "⤓"),
+                    FixedNavItem("filter", "筛选视图", icon = "≋"),
+                    FixedNavItem("share", "分享", icon = "↗"),
+                ),
+                type = FixedNavType.Left,
+                unActiveText = "更多工具",
+                expanded = d2Expanded,
+                onExpandedChange = { d2Expanded = it },
+                onSelect = {
+                    d2Picked = true
+                    d2Info = "D2 选中：${it.text}（type=Left），面板已自动收起"
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = AppSpace.md, bottom = AppSpace.lg)
+            )
+        }
+        Text(
+            text = d2Info,
+            fontSize = AppFont.sizeXs,
+            color = if (d2Picked) AppColor.primary else AppColor.textSecondary
+        )
+        Text("type 只决定钮靠左/右缘与面板展开方向；钮由宿主锚左下/右下。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D3 · 无图标无角标：长文本项自适应宽 + 自定义钮文案（"操作"/"收起"）
+        Text("Demo 3 · 无图标无角标（长文本行自适应宽 + 自定义钮文案「操作 / 收起」）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3Expanded by remember { mutableStateOf(false) }
+        var d3Picked by remember { mutableStateOf(false) }
+        var d3Info by remember { mutableStateOf("图标位缺省=不显示不占位；点项自动收起。") }
+        val s3 = rememberScrollState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(190.dp)
+        ) {
+            BackTopContent(rows = 18, scrollState = s3)
+            FixedNav(
+                items = listOf(
+                    FixedNavItem("month", "切换为月度视图"),
+                    FixedNavItem("sync", "同步至工作台"),
+                ),
+                unActiveText = "操作",
+                activeText = "收起",
+                expanded = d3Expanded,
+                onExpandedChange = { d3Expanded = it },
+                onSelect = {
+                    d3Picked = true
+                    d3Info = "D3 选中：${it.text}，面板已自动收起"
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = AppSpace.md, bottom = AppSpace.lg)
+            )
+        }
+        Text(
+            text = d3Info,
+            fontSize = AppFont.sizeXs,
+            color = if (d3Picked) AppColor.primary else AppColor.textSecondary
+        )
+        Text("图标位/角标均为可选数据项；缺省时行不预留空位（行宽=文本+内边距）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D4 · 多次开合 + 点面板外收起：状态机稳定
+        Text("Demo 4 · 多次开合 + 点面板外收起（状态稳定）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4Expanded by remember { mutableStateOf(false) }
+        var d4Picked by remember { mutableStateOf(false) }
+        var d4Info by remember { mutableStateOf("连续开合点选；点面板外空白处=收起且不触发选中。") }
+        val s4 = rememberScrollState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures {
+                        // 面板外点击=收起（不触发选中）；行/钮内点击被子组件消费，不会走到这里
+                        if (d4Expanded) {
+                            d4Expanded = false
+                            d4Picked = false
+                            d4Info = "点击面板外区域 → 已收起（未触发选中）"
+                        }
+                    }
+                }
+        ) {
+            BackTopContent(rows = 20, scrollState = s4)
+            FixedNav(
+                items = listOf(
+                    FixedNavItem("home", "回首页", icon = "A"),
+                    FixedNavItem("logout", "退出登录", icon = "B"),
+                ),
+                activeText = "收起",
+                expanded = d4Expanded,
+                onExpandedChange = { d4Expanded = it },
+                onSelect = {
+                    d4Picked = true
+                    d4Info = "D4 选中：${it.text}（自动收起）"
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = AppSpace.md, bottom = AppSpace.lg)
+            )
+        }
+        Text(
+            text = d4Info,
+            fontSize = AppFont.sizeXs,
+            color = if (d4Picked) AppColor.primary else AppColor.textSecondary
+        )
+        Text("点钮多次开合稳定；面板/钮内命中由组件消费，点空白仅收起不选中。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
     }
 }
 

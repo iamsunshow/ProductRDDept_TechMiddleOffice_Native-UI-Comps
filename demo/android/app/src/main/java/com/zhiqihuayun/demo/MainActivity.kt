@@ -1,6 +1,7 @@
 package com.zhiqihuayun.demo
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -49,6 +51,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppFont
 import com.zhiqihuayun.foundation.design.AppRadius
@@ -1920,7 +1923,7 @@ private fun ContentBlock(text: String) {
 @Composable
 private fun SafeAreaDemo() {
     Text(
-        text = "SafeArea 组件 v1.0.1",
+        text = "SafeArea 组件 v1.0.1（探针调试版）",
         color = AppColor.primary,
         fontSize = AppFont.sizeXs,
         fontWeight = FontWeight.Medium,
@@ -1940,6 +1943,8 @@ private fun SafeAreaDemo() {
             .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {
+        SafeAreaProbe()
+
         Text("Demo 1 · SafeArea 真实组件（默认全边避让）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
         Box(
             modifier = Modifier
@@ -1997,6 +2002,74 @@ private fun SafeAreaDemo() {
                 modifier = Modifier.weight(1f)
             )
         }
+    }
+}
+
+/** SafeArea 色块调试探针（C1.5 差异排查临时段，闭环后整段移除）。 */
+@Composable
+private fun SafeAreaProbe() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(AppRadius.md))
+            .background(Color(0xFFFFF3E0))
+            .border(1.dp, Color(0xFFFB8C00), RoundedCornerShape(AppRadius.md))
+            .padding(AppSpace.sm),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.xs)
+    ) {
+        Text(
+            "诊断探针 · 中部容器 SafeArea 实测（色块调试：红=不消费 / 橙=消费 systemBars / 绿=消费 safeDrawing；读数看 Logcat tag SafeAreaDbg）",
+            color = Color(0xFFE65100),
+            fontSize = AppFont.sizeXs,
+            fontWeight = FontWeight.Bold
+        )
+        SafeAreaProbeBand("P0 不 consume（红）", Color(0xFFEF9A9A), debugWrap = Modifier)
+        SafeAreaProbeBand("P1 consume(systemBars)（橙）", Color(0xFFFFCC80), debugWrap = Modifier.consumeWindowInsets(WindowInsets.systemBars))
+        SafeAreaProbeBand("P2 consume(safeDrawing)（绿）", Color(0xFFA5D6A7), debugWrap = Modifier.consumeWindowInsets(WindowInsets.safeDrawing))
+    }
+}
+
+/** 探针色块：SafeArea 真实组件 content 内实测读数（= 组件即将应用的避让 padding）。 */
+@Composable
+private fun SafeAreaProbeBand(label: String, color: Color, debugWrap: Modifier) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(AppRadius.sm))
+            .background(color)
+            .padding(2.dp)
+            .then(debugWrap)
+            .onSizeChanged { size -> Log.d("SafeAreaDbg", "$label => 外层色块高度=${size.height}px") }
+    ) {
+        SafeArea {
+            SafeAreaProbeInner(label)
+        }
+    }
+}
+
+@Composable
+private fun SafeAreaProbeInner(label: String) {
+    val density = LocalDensity.current
+    val topPx = WindowInsets.safeDrawing.getTop(density)
+    val bottomPx = WindowInsets.safeDrawing.getBottom(density)
+    val topDp = (topPx / density.density).roundToInt()
+    val bottomDp = (bottomPx / density.density).roundToInt()
+    LaunchedEffect(topPx, bottomPx) {
+        Log.d("SafeAreaDbg", "$label => SafeArea 实际避让 top=${topPx}px(${topDp}dp) bottom=${bottomPx}px(${bottomDp}dp)")
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .background(Color.White),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            "$label · top ${topDp}dp / bottom ${bottomDp}dp",
+            fontSize = AppFont.sizeXs,
+            color = Color.Black,
+            textAlign = TextAlign.Center
+        )
     }
 }
 

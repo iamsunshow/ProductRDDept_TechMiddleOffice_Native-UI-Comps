@@ -95,10 +95,14 @@ final class StickyView: UIView {
         }
         scrollView.alwaysBounceVertical = true
 
-        // 内容容器：宽随可视区，高由内部行链推出（末行 bottom 封口）
+        // 内容容器：宽随可视区，高由内部行链推出（末行 bottom 封口）。
+        // 底部必须钉到 contentLayoutGuide，否则 UIScrollView 无法由约束推导 contentSize
+        // （自动布局只认"子视图相对 contentLayoutGuide 的边约束"算滚动域），contentSize=0
+        // → 内层无法滚动、contentOffset 恒 0 → 吸顶判定永不触发（2026-09-05 C1.5 iOS 人工问题根因 1/2）
         scrollView.addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.leading.trailing.equalTo(scrollView.contentLayoutGuide)
+            make.bottom.equalTo(scrollView.contentLayoutGuide.snp.bottom)
             make.width.equalTo(scrollView.frameLayoutGuide)
         }
 
@@ -205,7 +209,17 @@ final class StickyView: UIView {
         let scrollTop = scrollView.contentOffset.y
         let lineY = scrollTop + offset  // 钉线（内容坐标）
 
-        // 找 flow 态吸顶块中已越过钉线的最近者（flowTop 最大）。
+        // 顶替候选只选"原位比当前钉住者更靠下"的后续吸顶块（pinnedFloor = 钉住者原位底阈值）。
+        // 否则多组顶替时：旧 header 被顶替放回原位后（原位远在钉线上方），下一帧又会被当候选重钉，
+        // 与正钉者逐帧互相顶替振荡、视觉"停不住"（2026-09-05 C1.5 iOS 人工问题根因 2/2）。
+        let pinnedFloor: CGFloat
+        if let p = pinned, let s = spacers[p] {
+            pinnedFloor = s.frame.minY + 0.5
+        } else {
+            pinnedFloor = -.greatestFiniteMagnitude
+        }
+
+        // 找 flow 态吸顶块中已越过钉线、且原位高于钉住者原位的最下方者。
         // flow 态取 header 自身 frame；pinned 态其 flow 位由 spacer 占位（frame 同原位置）。
         var candidate: UIView?
         var candTop: CGFloat = -.greatestFiniteMagnitude
@@ -213,7 +227,7 @@ final class StickyView: UIView {
             let holder = spacers[header] ?? header
             guard holder.superview === contentView else { continue }
             let top = holder.frame.minY
-            if top <= lineY && top > candTop {
+            if top <= lineY && top > pinnedFloor && top > candTop {
                 candidate = header
                 candTop = top
             }

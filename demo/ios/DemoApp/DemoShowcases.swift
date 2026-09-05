@@ -243,6 +243,19 @@ class ShowcaseViewController: UIViewController {
         contentStack.addArrangedSubview(label)
     }
 
+    /// 在内容区追加一条"可更新文本行"（样式同 addInfo），返回 label 供交互事件回写。
+    /// 适用于把点击计数等动态反馈放在对应段下方（与 Android demo 段内 Text 1:1），
+    /// 而非堆在页面顶部共享反馈条（滚动后不可见）。
+    func addDynamicInfo(_ text: String, color: UIColor = AppColor.textSecondary) -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: AppFont.sizeXs)
+        label.textColor = color
+        label.numberOfLines = 0
+        contentStack.addArrangedSubview(label)
+        return label
+    }
+
     /// 在页面顶部（参考块上方）插入一条"常驻反馈条"：点击/长按等事件用它就地更新，
     /// 避免信息追加到页面底部不可见。返回 label，业务通过设置 text 反馈。
     /// 调用时机：须在 addVersionBadge 之后；插入到徽标之后（紧跟高度参考块，若存在）。
@@ -3184,13 +3197,12 @@ final class StickyShowcase: ShowcaseViewController {
 /// 双端 1:1：iOS BackTopButton（KVO 监听 target.contentOffset）vs Android BackTop（scrollState）。
 final class BackTopShowcase: ShowcaseViewController {
 
-    private var feedbackLabel: UILabel?
+    private var d3Feedback: UILabel?
     private var tapCount = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()
         addVersionBadge(componentName: "BackTop", version: "v1.0", builtAt: "2026-09-04")
-        feedbackLabel = addFeedbackBar()
         buildDemo1()
         buildDemo2()
         buildDemo3()
@@ -3230,15 +3242,17 @@ final class BackTopShowcase: ShowcaseViewController {
         addInfo("setFace 替换默认 ↑ 圆钮为文字胶囊（点击行为保留）。")
     }
 
-    // D3 · 点击回调：记录次数不自动回顶
+    // D3 · 点击回调：onTap 接管默认回顶（点击只计数、不回顶），反馈回显在段内下方
     private func buildDemo3() {
         addSection(title: "D3 · 点击回调（接管回顶，记录点击次数）") { container in
             let scroll = Self.makeScroller(container: container, height: 200, rows: 16)
-            let backtop = BackTopButton(target: scroll, appearAfter: 40, onTap: { [weak self] in
+            let backtop = BackTopButton(target: scroll, appearAfter: 40) { [weak self] in
                 guard let self else { return }
                 self.tapCount += 1
-                self.feedbackLabel?.text = "BackTop 已点击 \(self.tapCount) 次（onTap 接管，未自动回顶）"
-            })
+                let count = self.tapCount
+                self.d3Feedback?.text = "BackTop 已点击 \(count) 次（onTap 接管默认回顶：点击不会自动回顶，与 Android Demo3 同语义）"
+                self.d3Feedback?.textColor = AppColor.primary
+            }
             container.addSubview(backtop)
             backtop.snp.makeConstraints { make in
                 make.trailing.equalToSuperview().offset(-AppSpace.md)
@@ -3246,7 +3260,7 @@ final class BackTopShowcase: ShowcaseViewController {
                 make.width.height.equalTo(40)
             }
         }
-        addInfo("传入 onTap 即接管默认回顶；点击后顶部反馈条计数。")
+        d3Feedback = addDynamicInfo("向下滚动出现 ↑ 按钮后点击：计数回显在本行。onTap 接管默认回顶 = 不回顶（与 Android 一致）；要默认回顶请不传 onTap（见 D1/D4）。")
     }
 
     // D4 · 位置由宿主摆放（左下角）+ 阈值 40

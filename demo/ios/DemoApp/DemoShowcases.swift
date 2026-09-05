@@ -3536,8 +3536,10 @@ final class FixedNavShowcase: ShowcaseViewController {
             d4Nav = nav
             d4Feedback = feedback
             let tap = UITapGestureRecognizer(target: self, action: #selector(d4TapOutside(_:)))
-            // 关键：cancelsTouchesInView 保持 false——容器手势只负责"面板外空白"收起，
-            // 不得取消钮/面板行按钮的触摸（否则点钮开合、点行选中全部失效，D4 点击无反应根因）。
+            // 保险项（非根因）：cancelsTouchesInView=false——容器手势只负责"面板外空白"收起，
+            // 不得取消钮/面板行按钮的触摸。真根因=D3/D4"钮可见却点不动"是组件 hitTest 兜底缺失
+            // （FixedNavView 无 intrinsic、宿主只锚两角→父 bounds 不含钮→触摸下钻被拦），
+            // 已在组件层 override hitTest 显式转发命中（见 FixedNavView.swift hitTest）。
             tap.cancelsTouchesInView = false
             container.addGestureRecognizer(tap)
         }

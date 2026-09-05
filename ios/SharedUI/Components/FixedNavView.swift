@@ -141,6 +141,18 @@ final class FixedNavView: UIView {
 
     private func updateButtonTitle() {
         button.setTitle(isExpanded ? activeText : unActiveText, for: .normal)
+        // 标题文字变化→钮宽变化→组件内容尺寸变化；失效缓存让 AutoLayout 重算（钮锚点稳定）。
+        invalidateIntrinsicContentSize()
+    }
+
+    /// 组件自身内容尺寸 = 钮宽（标题+横向内边距自适应）× 钮高 40。
+    ///
+    /// 关键（D3/D4"钮点不动"根因修复）：宿主通常只锚 trailing/bottom 两角、不给组件宽高，
+    /// 若无 intrinsic 内容尺寸，Auto Layout 对父视图尺寸是 ambiguous 的——布局解析结果
+    /// 依赖容器/内容高度等外部因素，导致部分段组件 bounds 不含钮（钮渲染在父外却不可点）。
+    /// 提供确定内容尺寸后，宿主只锚角也能把组件撑到钮大小，钮必然落在自身 bounds 内。
+    override var intrinsicContentSize: CGSize {
+        CGSize(width: button.intrinsicContentSize.width, height: Metrics.buttonHeight)
     }
 
     @objc private func didTapToggle(_ sender: UIButton) {
@@ -177,6 +189,35 @@ final class FixedNavView: UIView {
         if button.frame.contains(point) { return true }
         if let card = panelCard, card.frame.contains(point) { return true }
         return false
+    }
+
+    /// hitTest 兜底（D3/D4"钮可见却点不动"根因修复）：
+    ///
+    /// 本组件是纯容器、无 intrinsic 尺寸，宿主只锚 trailing/bottom 两角；AutoLayout 对
+    /// "父视图无宽高约束、子视图只锚底/角"是 ambiguous 的，FixedNavView 的 bounds 可能小于
+    /// 钮实际 frame（钮渲染在父 bounds 之外——UIView 默认不裁剪所以"看得见"）。而 UIKit 默认
+    /// hitTest 要求命中点落在父 bounds 内才下钻子视图 → 钮永远收不到 touchUpInside。
+    /// 各 demo 段容器/内容高度不同会改变布局解析结果，故 D1/D2 正常、D3/D4 失灵。
+    ///
+    /// 修复：点落在钮或展开面板（含面板内行按钮）的实际 frame 上时，把命中显式转发给对应子视图，
+    /// 使钮开合/行选中不再依赖宿主给足组件 bounds。
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        guard !isHidden, isUserInteractionEnabled, alpha > 0.01 else { return nil }
+
+        let hit = super.hitTest(point, with: event)
+        if let hit, hit !== self { return hit }
+
+        // 点不在自身 bounds（或仅命中容器自身）：向钮与面板卡片递归命中（含面板内行按钮）。
+        let targets: [UIView] = [button] + (panelCard.map { [$0] } ?? [])
+        for target in targets {
+            guard !target.isHidden, target.isUserInteractionEnabled, target.alpha > 0.01 else { continue }
+            let local = convert(point, to: target)
+            if target.bounds.contains(local),
+               let sub = target.hitTest(local, with: event) {
+                return sub
+            }
+        }
+        return nil
     }
 
     private func expand(animated: Bool) {

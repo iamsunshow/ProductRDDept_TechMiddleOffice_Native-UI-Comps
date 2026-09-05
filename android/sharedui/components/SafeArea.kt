@@ -1,15 +1,14 @@
 package com.zhiqihuayun.sharedui.components
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsEndWidth
+import androidx.compose.foundation.layout.windowInsetsStartWidth
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.dp
 
 /**
  * 避让边（P2 全 A：四边可配）。
@@ -36,6 +35,15 @@ val SafeAreaAllEdges: Set<SafeAreaEdges> = SafeAreaEdges.values().toSet()
  * - [edges] 决定避让哪些边（默认四边全避）；未避让的边内容直接铺满
  * - 容器 pass-through：透明零绘制零背景，装饰由内容承担
  *
+ * Android 实现要点（v1.0.2，修复 consume 不生效）：
+ * - v1.0.0/v1.0.1 在组合期 `WindowInsets.safeDrawing.getTop(density)` 直接读窗口全局值转 dp
+ *   再套普通 padding——该读法不经过 insets 传播链，父级 `consumeWindowInsets` 一律拦不住，
+ *   页面中部容器也会叠加上下系统区避让（实机 41/24dp），与 iOS 位置级 safeAreaLayoutGuide
+ *   （容器已在安全区内时自动=0）语义不一致；
+ * - v1.0.2 改为 modifier 链式读取（`windowInsetsTopHeight/BottomHeight/StartWidth/EndWidth`）：
+ *   走 insets 传播树 → 感知祖先 `consumeWindowInsets`（页面中部容器消费窗口 insets 后=0，
+ *   与 iOS 对齐），且随窗口 insets 实时更新。
+ *
  * 用法：
  * ```kotlin
  * SafeArea(edges = setOf(SafeAreaEdges.Top, SafeAreaEdges.Bottom)) { 页面内容 }
@@ -52,15 +60,13 @@ fun SafeArea(
     content: @Composable () -> Unit
 ) {
     val insets = WindowInsets.safeDrawing
-    val density = LocalDensity.current
-    val layoutDirection = LocalLayoutDirection.current
-    val padding = PaddingValues(
-        start = if (SafeAreaEdges.Left in edges) insets.getLeft(density, layoutDirection).dp else 0.dp,
-        top = if (SafeAreaEdges.Top in edges) insets.getTop(density).dp else 0.dp,
-        end = if (SafeAreaEdges.Right in edges) insets.getRight(density, layoutDirection).dp else 0.dp,
-        bottom = if (SafeAreaEdges.Bottom in edges) insets.getBottom(density).dp else 0.dp
-    )
-    Box(modifier = modifier.padding(padding)) {
+    Box(
+        modifier = modifier
+            .then(if (SafeAreaEdges.Top in edges) Modifier.windowInsetsTopHeight(insets) else Modifier)
+            .then(if (SafeAreaEdges.Bottom in edges) Modifier.windowInsetsBottomHeight(insets) else Modifier)
+            .then(if (SafeAreaEdges.Left in edges) Modifier.windowInsetsStartWidth(insets) else Modifier)
+            .then(if (SafeAreaEdges.Right in edges) Modifier.windowInsetsEndWidth(insets) else Modifier)
+    ) {
         content()
     }
 }

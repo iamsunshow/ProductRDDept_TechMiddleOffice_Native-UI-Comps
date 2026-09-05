@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -46,7 +45,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -1923,7 +1924,7 @@ private fun ContentBlock(text: String) {
 @Composable
 private fun SafeAreaDemo() {
     Text(
-        text = "SafeArea 组件 v1.0.1（探针调试版）",
+        text = "SafeArea 组件 v1.0.2（修复待复验）",
         color = AppColor.primary,
         fontSize = AppFont.sizeXs,
         fontWeight = FontWeight.Medium,
@@ -1952,9 +1953,9 @@ private fun SafeAreaDemo() {
                 .clip(RoundedCornerShape(AppRadius.md))
                 .background(AppColor.gray4)
                 .padding(AppSpace.md)
-                // demo 区中部模拟"普通页面内容区"：消费 systemBars 后此处安全区=0，
-                // 与 iOS 中部容器（safeAreaLayoutGuide=0）语义 1:1（沉浸页接入时避让自动生效）
-                .consumeWindowInsets(WindowInsets.systemBars)
+                // demo 区中部模拟"普通页面内容区"：消费 safeDrawing 后此处安全区=0（v1.0.2 组件
+                // 走 insets 传播链，消费对组件生效），与 iOS 中部容器（safeAreaLayoutGuide=0）语义 1:1
+                .consumeWindowInsets(WindowInsets.safeDrawing)
         ) {
             SafeArea {
                 Box(
@@ -1984,9 +1985,9 @@ private fun SafeAreaDemo() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                // 消费 systemBars：本卡处于"普通页面中部"=0，与 iOS 中部容器 1:1；
+                // 消费 safeDrawing：本卡处于"普通页面中部"=0，与 iOS 中部容器 1:1；
                 // 沉浸页接入后 edges 指定单边自动让出系统 inset
-                .consumeWindowInsets(WindowInsets.systemBars),
+                .consumeWindowInsets(WindowInsets.safeDrawing),
             horizontalArrangement = Arrangement.spacedBy(AppSpace.md)
         ) {
             SafeAreaEdgeCard(
@@ -2018,20 +2019,30 @@ private fun SafeAreaProbe() {
         verticalArrangement = Arrangement.spacedBy(AppSpace.xs)
     ) {
         Text(
-            "诊断探针 · 中部容器 SafeArea 实测（色块调试：红=不消费 / 橙=消费 systemBars / 绿=消费 safeDrawing；读数看 Logcat tag SafeAreaDbg）",
+            "诊断探针 v1.0.2 · 量 SafeArea 实际顶部避让（白卡距色块顶，Logcat tag SafeAreaDbg）：红=不消费（应=窗口级 41/24 类）/ 绿=外层 consume(safeDrawing)（应=0，同 Demo1/3/4 中部容器）",
             color = Color(0xFFE65100),
             fontSize = AppFont.sizeXs,
             fontWeight = FontWeight.Bold
         )
         SafeAreaProbeBand("P0 不 consume（红）", Color(0xFFEF9A9A), debugWrap = Modifier)
-        SafeAreaProbeBand("P1 consume(systemBars)（橙）", Color(0xFFFFCC80), debugWrap = Modifier.consumeWindowInsets(WindowInsets.systemBars))
-        SafeAreaProbeBand("P2 consume(safeDrawing)（绿）", Color(0xFFA5D6A7), debugWrap = Modifier.consumeWindowInsets(WindowInsets.safeDrawing))
+        SafeAreaProbeBand("P1 consume(safeDrawing)（绿）", Color(0xFFA5D6A7), debugWrap = Modifier.consumeWindowInsets(WindowInsets.safeDrawing))
     }
 }
 
-/** 探针色块：SafeArea 真实组件 content 内实测读数（= 组件即将应用的避让 padding）。 */
+/** 探针色块：白卡相对色块顶的位置差 − 色块内边距(2dp) = SafeArea 组件实际顶部避让 px。 */
 @Composable
 private fun SafeAreaProbeBand(label: String, color: Color, debugWrap: Modifier) {
+    val density = LocalDensity.current
+    var bandTopY by remember { mutableStateOf(0f) }
+    var contentTopY by remember { mutableStateOf(0f) }
+    var bandHeightPx by remember { mutableStateOf(0) }
+    var lastLoggedPadPx by remember { mutableStateOf(-1) }
+
+    fun actualTopPadPx(): Int {
+        val raw = (contentTopY - bandTopY) - with(density) { 2.dp.toPx() }
+        return raw.roundToInt().coerceAtLeast(0)
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -2039,37 +2050,37 @@ private fun SafeAreaProbeBand(label: String, color: Color, debugWrap: Modifier) 
             .background(color)
             .padding(2.dp)
             .then(debugWrap)
-            .onSizeChanged { size -> Log.d("SafeAreaDbg", "$label => 外层色块高度=${size.height}px") }
+            .onSizeChanged { size -> bandHeightPx = size.height }
+            .onGloballyPositioned { bandTopY = it.positionInRoot().y }
     ) {
         SafeArea {
-            SafeAreaProbeInner(label)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .background(Color.White)
+                    .onGloballyPositioned { contentTopY = it.positionInRoot().y },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "$label · 实际避让 top ${(actualTopPadPx() / density.density).roundToInt()}dp",
+                    fontSize = AppFont.sizeXs,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
-}
 
-@Composable
-private fun SafeAreaProbeInner(label: String) {
-    val density = LocalDensity.current
-    val topPx = WindowInsets.safeDrawing.getTop(density)
-    val bottomPx = WindowInsets.safeDrawing.getBottom(density)
-    val topDp = (topPx / density.density).roundToInt()
-    val bottomDp = (bottomPx / density.density).roundToInt()
-    LaunchedEffect(topPx, bottomPx) {
-        Log.d("SafeAreaDbg", "$label => SafeArea 实际避让 top=${topPx}px(${topDp}dp) bottom=${bottomPx}px(${bottomDp}dp)")
-    }
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(40.dp)
-            .background(Color.White),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            "$label · top ${topDp}dp / bottom ${bottomDp}dp",
-            fontSize = AppFont.sizeXs,
-            color = Color.Black,
-            textAlign = TextAlign.Center
-        )
+    LaunchedEffect(bandTopY, contentTopY, bandHeightPx) {
+        val padTopPx = actualTopPadPx()
+        if (padTopPx != lastLoggedPadPx) {
+            lastLoggedPadPx = padTopPx
+            Log.d(
+                "SafeAreaDbg",
+                "$label => SafeArea 实际顶部避让=${padTopPx}px(${(padTopPx / density.density).roundToInt()}dp) 外层色块高=${bandHeightPx}px"
+            )
+        }
     }
 }
 
@@ -2118,9 +2129,9 @@ private fun SafeAreaImmersionCard() {
             .clip(RoundedCornerShape(AppRadius.lg))
             .background(AppColor.bgCard)
             .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.lg))
-            // 模拟沉浸页"页面中部内容层"：消费 systemBars 后此处 SafeArea=0，
-            // 与 iOS 中部容器（safeAreaLayoutGuide=0）1:1；接入屏幕边缘时避让自动生效
-            .consumeWindowInsets(WindowInsets.systemBars)
+            // 模拟沉浸页"页面中部内容层"：消费 safeDrawing 后此处 SafeArea=0（v1.0.2 组件
+            // 走 insets 传播链，消费对组件生效），与 iOS 中部容器（safeAreaLayoutGuide=0）1:1
+            .consumeWindowInsets(WindowInsets.safeDrawing)
     ) {
         Column {
             Box(

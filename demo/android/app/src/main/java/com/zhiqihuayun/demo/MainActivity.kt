@@ -2019,13 +2019,13 @@ private fun SafeAreaProbe() {
         verticalArrangement = Arrangement.spacedBy(AppSpace.xs)
     ) {
         Text(
-            "诊断探针 v1.0.3 · 量 SafeArea 实际顶部避让（白卡距色块顶，Logcat tag SafeAreaDbg）：红=不消费（应=窗口级 41/24 类）/ 绿=外层 consume(safeDrawing)（应=0，同 Demo1/3/4 中部容器）",
+            "诊断探针 v1.0.3 · 量 SafeArea 实际避让（白卡距色块顶，Logcat tag SafeAreaDbg）：详情页壳已 statusBarsPadding 消费顶部 → 红/绿 top 均应=0（同 iOS 中部容器 safeAreaLayoutGuide=0）。红=不额外 consume：底部 inset 未消费 → 组件加底部避让（红底可见）；绿=外层 consume(safeDrawing) 全边：四边剩余均 0（无避让红/绿边）→ 证明组件逐边感知祖先消费",
             color = Color(0xFFE65100),
             fontSize = AppFont.sizeXs,
             fontWeight = FontWeight.Bold
         )
-        SafeAreaProbeBand("P0 不 consume（红）", Color(0xFFEF9A9A), debugWrap = Modifier)
-        SafeAreaProbeBand("P1 consume(safeDrawing)（绿）", Color(0xFFA5D6A7), debugWrap = Modifier.consumeWindowInsets(WindowInsets.safeDrawing))
+        SafeAreaProbeBand("P0 不额外消费（红）", Color(0xFFEF9A9A), debugWrap = Modifier)
+        SafeAreaProbeBand("P1 额外 consume 全边（绿）", Color(0xFFA5D6A7), debugWrap = Modifier.consumeWindowInsets(WindowInsets.safeDrawing))
     }
 }
 

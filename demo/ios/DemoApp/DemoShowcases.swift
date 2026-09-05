@@ -38,7 +38,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.back-top", name: "BackTop 返回顶部", reviewed: true, create: { BackTopShowcase() }),
             DemoComponent(id: "ui.elevator", name: "Elevator 电梯楼层", reviewed: true, create: { ElevatorShowcase() }),
             DemoComponent(id: "ui.fixed-nav", name: "FixedNav 悬浮导航", reviewed: true, create: { FixedNavShowcase() }),
-            DemoComponent(id: "ui.hover-button", name: "HoverButton 悬浮按钮", reviewed: false, create: { HoverButtonShowcase() }),
+            DemoComponent(id: "ui.hover-button", name: "HoverButton 悬浮按钮", reviewed: true, create: { HoverButtonShowcase() }),
             DemoComponent(id: "ui.nav-bar", name: "NavBar 头部导航", reviewed: false, create: nil),
             DemoComponent(id: "ui.side-bar", name: "SideBar 侧边导航", reviewed: true, create: { SideBarShowcase() }),
             DemoComponent(id: "ui.tabbar", name: "Tabbar 标签栏", reviewed: false, create: nil),
@@ -3673,6 +3673,10 @@ final class SideBarShowcase: ShowcaseViewController, UIScrollViewDelegate {
     private var d1Count = 0
     private var d1Feedback: UILabel?
 
+    private var d2Rail: SideBarView?
+    private var d2Title: UILabel?
+    private var d2Subtitle: UILabel?
+    private var d2SelectedValue = "数据与隐私"
     private var d2Count = 0
     private var d2Feedback: UILabel?
 
@@ -3689,6 +3693,7 @@ final class SideBarShowcase: ShowcaseViewController, UIScrollViewDelegate {
     private var d4Title: UILabel?
     private var d4Subtitle: UILabel?
     private var d4FirstDesc: String?
+    private var d4SelectedValue = "全部"
     private var d4Feedback: UILabel?
     private var d4Count = 0
 
@@ -3793,21 +3798,29 @@ final class SideBarShowcase: ShowcaseViewController, UIScrollViewDelegate {
         addSection(title: "D2 · 禁用项 + 长标题省略（选中持久高亮）") { [weak self] container in
             guard let self else { return }
             let items = data.map { SideBarItem(title: $0.title, value: $0.title, disabled: $0.disabled) }
-            let sideBar = SideBarView(items: items, selectedValue: "数据与隐私") { [weak self] value in
+            let sideBar = SideBarView(items: items, selectedValue: self.d2SelectedValue) { [weak self] value in
                 guard let self, let entry = data.first(where: { $0.title == value }) else { return }
+                // 半受控回写：外部赋值 selectedValue 驱动高亮迁移（同 Android d2Sel 回写语义）
+                self.d2SelectedValue = value
+                self.d2Rail?.selectedValue = value
                 self.d2Count += 1
+                self.d2Title?.text = "「\(entry.title)」"
+                self.d2Subtitle?.text = entry.desc
                 self.d2Feedback?.text = "onChange「\(value)」触发（第 \(self.d2Count) 次）：\(entry.desc)"
                 self.d2Feedback?.textColor = AppColor.primary
             }
+            self.d2Rail = sideBar
             container.addSubview(sideBar)
             sideBar.snp.makeConstraints { make in
                 make.leading.top.bottom.equalToSuperview()
                 make.width.equalTo(SideBarView.Metrics.railWidth)
             }
             let pane = self.addInfoPane(container: container, rail: sideBar, height: 300)
-            self.layoutPaneLabels(in: pane, title: "「数据与隐私」", subtitle: data[1].desc)
+            let labels = self.layoutPaneLabels(in: pane, title: "「数据与隐私」", subtitle: data[1].desc)
+            self.d2Title = labels.0
+            self.d2Subtitle = labels.1
         }
-        d2Feedback = addDynamicInfo("点击禁用项「系统设置」无反应不触发 onChange；「消息通知与提醒偏好配置」长标题单行省略（右侧 …）。")
+        d2Feedback = addDynamicInfo("点击可用项=高亮迁移并联动右侧说明；点击禁用项「系统设置」无反应不触发 onChange；「消息通知与提醒偏好配置」长标题单行省略（右侧 …）。")
     }
 
     // MARK: - D3 · 长列表滚动 + 内容联动（点选 ↔ 反向驱动）
@@ -3916,8 +3929,12 @@ final class SideBarShowcase: ShowcaseViewController, UIScrollViewDelegate {
         addSection(title: "D4 · 受控复位（外部 value 驱动，「重置到第一项」）") { [weak self] container in
             guard let self else { return }
             let items = data.map { SideBarItem(title: $0.title, value: $0.title) }
-            let sideBar = SideBarView(items: items) { [weak self] value in
+            // 受控模式创建（同 Android d4Sel 全程受控）：外部 selectedValue 驱动高亮，onChange 宿主回写
+            let sideBar = SideBarView(items: items, selectedValue: self.d4SelectedValue) { [weak self] value in
                 guard let self, let entry = data.first(where: { $0.title == value }) else { return }
+                // 半受控回写：外部赋值 selectedValue 驱动高亮迁移（否则受控态点击不迁移=“菜单没法点”）
+                self.d4SelectedValue = value
+                self.d4Rail?.selectedValue = value
                 self.d4Count += 1
                 self.d4Title?.text = "「\(entry.title)」"
                 self.d4Subtitle?.text = entry.desc
@@ -3955,6 +3972,8 @@ final class SideBarShowcase: ShowcaseViewController, UIScrollViewDelegate {
 
     @objc private func d4Reset() {
         guard let first = d4Rail?.items.first else { return }
+        // 外部赋值受控值 → 高亮同步回第一项（若已为第一项则 didSet 幂等跳过刷新，UI 仍就地更新）
+        d4SelectedValue = first.value
         d4Rail?.selectedValue = first.value
         d4Title?.text = "「\(first.title)」"
         d4Subtitle?.text = d4FirstDesc

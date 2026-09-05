@@ -117,11 +117,28 @@ fun SideBar(
             }
         }
     }
-    // 选中项自动滚入可视（受控/内部变化均同步；与 iOS scrollRectToVisible 同构）
+    // 选中项滚入可视：已可见不滚、上方滚到顶、下方最小滚动到恰好进入可视
+    // （对齐 iOS scrollRectToVisible 语义，避免点选把选中项"置顶"导致整轨跳变；
+    // 轨行高等高 48dp，同 iOS 固定行高先例）
     LaunchedEffect(currentValue) {
-        val index = items.indexOfFirst { it.value == currentValue }
-        if (index >= 0) {
-            listState.animateScrollToItem(index)
+        val targetIndex = items.indexOfFirst { it.value == currentValue }
+        if (targetIndex < 0) return@LaunchedEffect
+        val layout = listState.layoutInfo
+        val firstVisible = layout.visibleItemsInfo.firstOrNull()?.index ?: return@LaunchedEffect
+        val last = layout.visibleItemsInfo.lastOrNull() ?: return@LaunchedEffect
+        when {
+            // 目标在可视区内：不滚动（iOS scrollRectToVisible 同语义）
+            targetIndex in firstVisible..last.index -> Unit
+            // 目标在可视区上方：滚到顶部可见
+            targetIndex < firstVisible -> listState.animateScrollToItem(targetIndex)
+            // 目标在可视区下方：最小滚动使目标恰好进入可视（对齐 iOS 向下滚动到可见）
+            else -> {
+                val rowPx = last.size
+                // 视口高 = 视口底 − 视口顶内容坐标；目标行底部贴视口底所需目标行顶部偏移
+                val viewportPx = layout.viewportEndOffset - layout.viewportStartOffset
+                val scrollOffset = (viewportPx - rowPx).coerceAtLeast(0)
+                listState.animateScrollToItem(targetIndex, scrollOffset = scrollOffset)
+            }
         }
     }
 }

@@ -147,7 +147,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("FixedNav 悬浮导航", reviewed = true, demo = { FixedNavDemo() }),
         DemoComponent("HoverButton 悬浮按钮", reviewed = true, demo = { HoverButtonDemo() }),
         DemoComponent("NavBar 头部导航"),
-        DemoComponent("SideBar 侧边导航"),
+        DemoComponent("SideBar 侧边导航", reviewed = true, demo = { SideBarDemo() }),
         DemoComponent("Tabbar 标签栏"),
         DemoComponent("Tabs 选项卡"),
     ),

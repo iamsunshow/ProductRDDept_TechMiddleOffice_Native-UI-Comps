@@ -81,10 +81,12 @@ fun HoverButton(
         Row(
             modifier = inner,
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = if (effIcon != null && hasText) {
-                Arrangement.spacedBy(HoverTokens.iconGap)
-            } else {
-                Arrangement.Start
+            // icon-only：行被强制 40×40，内容需水平居中（Arrangement.Start 会把 ✚ 顶到左侧=未水平居中）；
+            // pill：icon+text 中间隔 spacing；纯文本胶囊内容自带 padding 居中即可。
+            horizontalArrangement = when {
+                hasText && effIcon != null -> Arrangement.spacedBy(HoverTokens.iconGap)
+                effIcon != null && !hasText -> Arrangement.Center
+                else -> Arrangement.Start
             },
         ) {
             if (effIcon != null) {

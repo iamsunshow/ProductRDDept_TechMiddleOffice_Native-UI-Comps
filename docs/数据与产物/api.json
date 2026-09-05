@@ -1911,7 +1911,7 @@
         ["分组行点击", "onSelect 回传 (分组, 行, 名称)，段内反馈回显（D3）"],
         ["长分组列表", "12 组月份分组连续滚动，索引高亮稳定无跳变（D4）"]
       ],
-      "note": "电梯楼层定位器（导航组件 #2，任务清单 #14）：数据驱动分组内容 + 右侧楼/字母索引导航（点击索引=分组滚顶、内容滚动=可视首分组高亮索引双向联动）；自包含定高（滚动容器 iOS UITableView / Android LazyColumn，高度由宿主约束=组件不代管布局上下文）；分组标题行 32pt/32dp=普通行随内容滚动（不吸顶，anti_goal 二期）；内容行高 56pt/56dp=同库规范行高（对齐 Cell.minHeight）；索引条宽 44pt/44dp；行点击回调可选（onSelect）。2026-09-05 全新立项：规格 elevator-design-spec.html（01 用途边界/02 Token/03 P1–P4 决策/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-elevator-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：自包含定高 + 索引自动/显式 + 双向联动 + 行点击可选；anti_goal=外部容器联动/行内容插槽/标题吸顶=登记二期）+ 双端实现入库（ElevatorView.swift / Elevator.kt + iOS ElevatorShowcase/Android ElevatorDemo 4 段 1:1：D1 楼层自动索引 / D2 城市显式 index / D3 行点击 onSelect / D4 12 组月份长列表）。reviewed=false（待 C1.5 用户双端实机验收）。",
+      "note": "电梯楼层定位器（导航组件 #2，任务清单 #14）：数据驱动分组内容 + 右侧楼/字母索引导航（点击索引=分组滚顶、内容滚动=可视首分组高亮索引双向联动）；自包含定高（滚动容器 iOS UITableView / Android LazyColumn，高度由宿主约束=组件不代管布局上下文）；分组标题行 32pt/32dp=普通行随内容滚动（不吸顶，anti_goal 二期）；内容行高 56pt/56dp=同库规范行高（对齐 Cell.minHeight）；索引条宽 44pt/44dp；行点击回调可选（onSelect）。2026-09-05 全新立项：规格 elevator-design-spec.html（01 用途边界/02 Token/03 P1–P4 决策/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-elevator-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：自包含定高 + 索引自动/显式 + 双向联动 + 行点击可选；anti_goal=外部容器联动/行内容插槽/标题吸顶=登记二期）+ 双端实现入库（ElevatorView.swift / Elevator.kt + iOS ElevatorShowcase/Android ElevatorDemo 4 段 1:1：D1 楼层自动索引 / D2 城市显式 index / D3 行点击 onSelect / D4 12 组月份长列表）。reviewed=true（2026-09-05 用户 Demo 双端实机验收通过：原话“通过”，见组件进度.md §2.12）。",
       "subcategory": "navigation",
       "reviewed": false
     },

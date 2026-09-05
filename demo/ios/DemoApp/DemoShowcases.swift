@@ -3502,7 +3502,7 @@ final class FixedNavShowcase: ShowcaseViewController {
             let nav = FixedNavView(items: [
                 FixedNavItem(key: "month", text: "切换为月度视图"),
                 FixedNavItem(key: "sync", text: "同步至工作台"),
-            ], unActiveText: "操作", activeText: "收起") { item in
+            ], activeText: "收起", unActiveText: "操作") { item in
                 feedback.text = "D3 选中：\(item.text)，面板已自动收起"
                 feedback.textColor = AppColor.primary
             }

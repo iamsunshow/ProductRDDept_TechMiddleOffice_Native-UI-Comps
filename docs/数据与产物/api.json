@@ -1740,9 +1740,9 @@
         ["offset 让位", "吸顶条停固定 AppBar 下方不遮挡（D3）"],
         ["吸顶行内容任意", "icon+文字+右侧按钮的吸顶行，滚动中整行吸顶且按钮可点（D4）"]
       ],
-      "note": "粘性布局容器/行封装（吸顶行为容器级语义，吸顶块视觉由内容自带，组件零视觉零硬编码）。2026-09-04 全新立项：门禁 A AI 代评通过（用户'中间任何询问直接通过'总授权，P1–P4 全 A：单吸顶行封装 + 列表/通用滚动双路径 + iOS contentOffset 监听 pinned 平移方案（不依赖系统 section 模型）/ Android LazyColumn 原生 stickyHeader + 一期单吸顶点 + offset）+ 双端实现入库（StickyView.swift / Sticky.kt + 双端 Demo 4 段 1:1：D1 分组标题 / D2 筛选条 / D3 offset 让位 / D4 任意可交互内容，Android :app:assembleDebug 0 error + iOS pbxproj 补登记 SafeAreaView/StickyView）。iOS 工程受预存 SPM 依赖阻塞未本机编译，iOS 实机验证待用户 Xcode 确认。待 C1 单测 + C1.5 用户实机 + C2 CR/CI + D 发版。2026-09-05 C1.5 iOS 用户人工发现问题（D1-D4 拖动不悬停，Android 正常）→ iOS StickyView 双根因修复（待用户 Xcode 复验）：根因1=contentView 未锚 contentLayoutGuide.bottom，UIScrollView 无法由约束推导 contentSize=0，内层无法滚动、contentOffset 恒 0、吸顶判定永不触发 → 补 bottom 锚点建立滚动域；根因2=多组顶替时旧 header 被顶替放回原位（原位远在钉线上方）后下一帧又被当候选重钉，与正钉者逐帧互相顶替振荡停不住 → 顶替候选加 pinnedFloor 阈值（只选原位高于当前钉住者的后续 header）。Swift 语法解析通过；iOS 命令行编译仍被预存 SPM 依赖（swift-algorithms 等 Vendor）阻塞，iOS 实机复验待用户 Xcode。reviewed=false（Android 实机验收通过，iOS 待复验）。",
+      "note": "粘性布局容器/行封装（吸顶行为容器级语义，吸顶块视觉由内容自带，组件零视觉零硬编码）。2026-09-04 全新立项：门禁 A AI 代评通过（用户'中间任何询问直接通过'总授权，P1–P4 全 A：单吸顶行封装 + 列表/通用滚动双路径 + iOS contentOffset 监听 pinned 平移方案（不依赖系统 section 模型）/ Android LazyColumn 原生 stickyHeader + 一期单吸顶点 + offset）+ 双端实现入库（StickyView.swift / Sticky.kt + 双端 Demo 4 段 1:1：D1 分组标题 / D2 筛选条 / D3 offset 让位 / D4 任意可交互内容，Android :app:assembleDebug 0 error + iOS pbxproj 补登记 SafeAreaView/StickyView）。iOS 工程受预存 SPM 依赖阻塞未本机编译，iOS 实机验证待用户 Xcode 确认。待 C1 单测 + C1.5 用户实机 + C2 CR/CI + D 发版。2026-09-05 C1.5 iOS 用户人工发现问题（D1-D4 拖动不悬停，Android 正常）→ iOS StickyView 双根因修复（待用户 Xcode 复验）：根因1=contentView 未锚 contentLayoutGuide.bottom，UIScrollView 无法由约束推导 contentSize=0，内层无法滚动、contentOffset 恒 0、吸顶判定永不触发 → 补 bottom 锚点建立滚动域；根因2=多组顶替时旧 header 被顶替放回原位（原位远在钉线上方）后下一帧又被当候选重钉，与正钉者逐帧互相顶替振荡停不住 → 顶替候选加 pinnedFloor 阈值（只选原位高于当前钉住者的后续 header）。Swift 语法解析通过；iOS 命令行编译仍被预存 SPM 依赖（swift-algorithms 等 Vendor）阻塞，iOS 实机复验待用户 Xcode。2026-09-05 用户 Xcode 复验通过（原话「可以」）：D1 分组标题依次吸顶/顶替/回滚、D2/D3 单条稳定吸住不振荡、D4 吸顶行按钮可点，双端 4 段 1:1，Sticky v1.0 C1.5 双端齐。reviewed=true（2026-09-05 用户双端实机验收）。",
       "subcategory": "layout",
-      "reviewed": false
+      "reviewed": true
     },
     {
       "id": "ui.space",

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Cascader 级联选择 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- Cascader demo 预览 mock（通用级联选择） ---- */
+.cs-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.cs-head{height:44px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;background:#F0FDF4;border-bottom:1px solid var(--border);}
+.cs-tabs{display:flex;border-bottom:1px solid var(--border);background:#fff;}
+.cs-tab{flex:1;text-align:center;line-height:44px;font-size:13px;color:var(--textSecondary);cursor:pointer;user-select:none;}
+.cs-tab.on{color:var(--primary);font-weight:700;box-shadow:inset 0 -2px 0 var(--primary);}
+.cs-list{max-height:180px;overflow:hidden;background:#fff;}
+.cs-row{display:flex;justify-content:space-between;align-items:center;padding:0 16px;height:44px;font-size:14px;border-bottom:0.5px solid #F3F4F6;cursor:pointer;color:var(--textPrimary);}
+.cs-row.on{color:var(--primary);font-weight:600;}
+.cs-row small{color:var(--textSecondary);font-size:13px;}
+.cs-row.dis{color:#D1D5DB;cursor:default;}
+.cs-cnt{display:block;font-size:12px;color:var(--textSecondary);padding:6px 12px 12px;}
+</style>
+</head>
+<body>
+
+<h1>Cascader 级联选择 · 设计规格（数据录入组件 #3 · 任务清单 #24，subcategory=form · 门禁 A）</h1>
+<p>组件 ID：<code>ui.cascader</code> ｜ 定位：<b>任意层级树形数据的通用级联选择视图（内嵌内容组件，不含弹层）</b>——宿主传入多级嵌套 options（品类/组织/多级分类等任意树），组件以"顶部层级路径 tab + 当前层列表"逐级联动，用户选到叶子（无 children）即完成，回传选中路径（各级 value + text 拼接）；弹层/遮罩/确认由宿主自理（Popup #54 未实现）。对标 Vant Cascader（options 嵌套树 + 顶部 tabs 级联 + 选中回传 {value, selectedOptions}）收敛为库内自有设计语言（任意深度树 + tabs 级联 + 叶子完成）。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-05，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 多级树形单选：品类树（支出/收入多级分类）、组织架构、商品类目等任意层数（2~N）数据；② 与"地区/地址"无关的任意层级选择——从一组树状选项中选一个叶子并带上完整路径；③ 编辑回显：宿主已有选中路径（values），组件同步展开到对应层并高亮</td></tr>
+<tr><td>不适用（N/A）</td><td>① 省市区地域专用选择 → <b>Address（ui.address，#21）</b>（固定 省→市→区 三级语义 + 结构化 AddressResult 直接落地址字段；本组件=任意树、返回值仅 path）；② 单选一层选项/下拉 → Picker（#33）/ Menu（#31）；③ 左侧目录轨+右侧内容联动 → SideBar（#18）/ Elevator（#14）；④ 弹层/遮罩容器 → 宿主自理（Popup #54 未实现）</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 当前层列表行默认次色文字；<span class="tag tag-ok">选中态 ✅</span> 顶部路径 tab + 列表已选项主色加粗；<span class="tag tag-ok">禁用态 ✅</span> 节点级 disabled 置灰 40% 不可点；完成态=到达叶子（无 children）即 onChange；加载/失败 N/A（树数据异步加载=宿主职责，组件=纯渲染已给数据）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；与 Address 划界=Address 固定地域三级语义返回结构化地址；Cascader 任意树深（2~N）返回路径值。树数据驱动=value 稳定标识（同全库"列表数据驱动"惯例）；视图内列表=原生滚动（不依赖 VirtualList #81）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>路径 tab 栏</th><td>高 44pt/44dp，文字 Sm=14（激活主色 Semibold + 底部 2pt/2dp 主色指示线=当前层 tab 整宽，同 Tabs #20）；tab 数量=已选层数+1（≥1=根层"请选择"占位可点展开根）</td><td>点击非激活 tab=回退到对应层重选；路径 tab 横向放不下时=左侧起单行省略+可横向滚动（深层路径场景 demo 用 5 层验证）；tab 文案=所选节点 text</td></tr>
+<tr><td>列表区</td><td>行高 44pt/44dp（=Address/Elevator 同基线）；字号 Md=16（默认 textSecondary、选中 primary Semibold）</td><td>行=节点 text + 有 children 时右侧">"指示符（次色）；叶子无箭头；行整宽可点；disabled 节点=灰 40% 不可点无箭头高亮</td></tr>
+<tr><td>容器/高度</td><td>组件不固定整体高度：tab 44 + 列表高度宿主约束（建议 ≤360 滚动）</td><td>弹层内高度=弹层内容；内嵌卡片=宿主约束；列表原生滚动</td></tr>
+<tr><td>激活/默认色</td><td>激活=AppColor.primary；默认=AppColor.textSecondary；tab 指示线=primary</td><td>树形选择为功能组件，不做 activeColor 覆盖（二期按需）</td></tr>
+<tr><td>路径回显</td><td>宿主传 result（CascaderResult values[]）→ 组件按 values 逐层匹配展开到末层并高亮选中</td><td>半受控语义（见 P3）；values 匹配不到=忽略回显仅回根层（同 Address 容错策略）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：通用树形级联选择视图（内嵌内容组件）——宿主传任意深度嵌套 options，组件 顶部路径 tab + 当前层列表 逐级联动，叶子完成回传路径；弹层宿主自理</td><td>✅ 品类/组织/任意树通用（层数数据驱动 2~N）；不依赖未实现的 Popup；与 Address 分工清晰（地域专用 vs 任意树）；宿主弹层/内嵌两种形态都支持</td><td><b>推荐 A</b>：收敛可验收</td></tr>
+<tr><td>B：内置弹层+搜索+多选+懒加载子级一体的"通用级联选择器"</td><td>弹层=Popup 职责（#54 未实现）；搜索=需对整树扁平化+过滤展示态；懒加载=异步层级协议双端差异大；多选=另一语义</td><td>淘汰：登记二期（多选/搜索/懒加载逐项单独立项）</td></tr>
+<tr><td>C：退化为"逐级下拉"（每层一个 Picker 按需弹出）</td><td>多列并排原生 picker（iOS UIPickerView 多 component / Android 无等价）双端差极大；树深未知时组件无法定列数；非级联 tabs 交互</td><td>淘汰：跨端不平权</td></tr>
+</table>
+
+<h3>P2 · 数据模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：CascaderOption(value, text, children?, disabled?) 嵌套树传入 + 结果 CascaderResult(values[], texts[], text=texts 路径拼接)</td><td>✅ 任意深度由 children 递归自然表达；value 稳定（落库/回显键）；texts 供展示/回显；text 供一次性展示；与 RegionOption/AddressResult 同构但语义通用（不绑定地域）</td><td><b>推荐 A</b>：数据驱动惯例</td></tr>
+<tr><td>B：扁平列表 + parentId 关联表</td><td>组件需自己建索引树；宿主数据通常是接口返回的嵌套 JSON，改扁平=宿主侧多一次转换且易错</td><td>淘汰：宿主给嵌套即渲染（转换成本宿主承担不值）</td></tr>
+<tr><td>C：仅展示字符串路径（无 value 仅 text 数组）</td><td>无法做稳定回显匹配（text 重复节点会歧义）；落库只能用文案不可改</td><td>淘汰：缺 value 无法满足编辑场景</td></tr>
+</table>
+
+<h3>P3 · 选中态控制：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：半受控结果——内部维护当前层级与已选路径；宿主可传 result 外部回显（按 values 展开到末层+高亮）；用户选到叶子=onChange(result)；点已选层 tab 回退重选</td><td>✅ 编辑预填/外部重置/路径驱动都成立；过程中间态（选到第 2 层未完成）由组件内部持有，宿主只接最终结果；与库内半受控语义一致</td><td><b>推荐 A</b>：灵活且行为确定</td></tr>
+<tr><td>B：纯受控——每进一层都回调宿主回填当前路径</td><td>树深不定、中间态回填繁琐；宿主需维护"当前层 state"与组件同步，重复状态易漂移</td><td>可接受但过度</td></tr>
+<tr><td>C：纯自管理仅叶子通知</td><td>编辑回显/外部清空无门；"先选第 1 层再外部跳到第 3 层"无法驱动</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：通用树级联——嵌套 options + 顶部路径 tab（回退）+ 当前层列表（选中高亮+叶子无箭头）+ 节点禁用 + 叶子 onChange(result) + 外部 result 回显 + demo 四段（基础三级品类/深浅树混合含禁用/深层路径滚动回退/受控驱动）</td><td>✅ 覆盖"任意树单选叶子"核心闭环；2 层浅树到 5 层深树=children 深度自然（demo D2/D3 可验）；禁用=节点级置灰（demo D2 可验）；半受控回显（demo D4 可验）</td><td><b>推荐 A</b>：验收路径清晰</td></tr>
+<tr><td>B：一期即含 搜索过滤 + 懒加载子级 + 多选</td><td>搜索=整树扁平过滤双端算法一致但状态面大；懒加载=宿主异步协议；多选=独立选择模型；三者叠加一期不可控</td><td>淘汰：登记二期（逐项单独立项）</td></tr>
+<tr><td>C：一期即做"整页全屏级联步骤向导"（每层一屏下一步）</td><td>层级多时每层一屏跳转=导航容器职责（与 PageView 耦合）；非轻量表单选择语义</td><td>淘汰：宿主可用 Navigation/PageView 自组</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础三级品类树（叶子完成 + 路径回显）</h3>
+<p>mock：记账支出分类 生活→餐饮→(快餐/正餐)；逐级选到叶子=onChange 触发，段下回显 完整路径文本 + values。验证多级联动完整链路。</p>
+<div class="cs-stage"><div class="cs-head">选择支出分类</div>
+<div class="cs-tabs"><span class="cs-tab on">生活</span><span class="cs-tab">餐饮</span></div>
+<div class="cs-list"><div class="cs-row">快餐 <small>›</small></div><div class="cs-row on">正餐 <small>✓</small></div></div></div>
+<span class="cs-cnt">onChange → 生活/餐饮/正餐（[life,dining,meal]）段下回显</span>
+
+<h3>D2 · 深浅树混合 + 节点禁用</h3>
+<p>mock：根层含 2 层浅叶（出行→打车，无第 3 层）与 4 层深枝（投资→基金→…→叶子）+「就医」disabled。验证任意深度混排 + 禁用节点不可点。</p>
+<div class="cs-stage"><div class="cs-head">选择支出分类</div>
+<div class="cs-tabs"><span class="cs-tab">根分类</span><span class="cs-tab on">投资</span><span class="cs-tab">基金</span></div>
+<div class="cs-list"><div class="cs-row">股票基金 <small>›</small></div><div class="cs-row">债券基金 <small>›</small></div><div class="cs-row dis">封闭期基金 <small> ›</small></div></div></div>
+<span class="cs-cnt">树深 2~5 层同源混排 · disabled 节点灰禁不可点</span>
+
+<h3>D3 · 深层路径 + 横向路径 tab 回退重选</h3>
+<p>mock：5 层组织架构路径；路径 tab 超宽时横滑/单行显示，点中间层 tab（如第 2 层）回退重选其下枝。验证深路径展示 + 任意层回退。</p>
+<div class="cs-stage"><div class="cs-head">选择组织</div>
+<div class="cs-tabs"><span class="cs-tab">集团</span><span class="cs-tab on">产品线 A</span><span class="cs-tab">移动端</span><span class="cs-tab">组件组</span></div>
+<div class="cs-list"><div class="cs-row">iOS 组件 <small>›</small></div><div class="cs-row on">Android 组件 <small>✓</small></div></div></div>
+<span class="cs-cnt">路径 tab 横滑/省略 · 点「产品线 A」回退第 2 层重选</span>
+
+<h3>D4 · 受控外部驱动（预填回显 / 清空）</h3>
+<p>段外按钮「回显 服饰→上衣→衬衫」=外部传 result → 组件按 values 逐层展开高亮；「清空」=回根层。验证半受控回显语义。</p>
+<div class="cs-stage"><div class="cs-head">选择商品分类</div>
+<div class="cs-tabs"><span class="cs-tab">服饰</span><span class="cs-tab">上衣</span><span class="cs-tab on">衬衫</span></div>
+<div class="cs-list"><div class="cs-row on">衬衫 <small>✓</small></div><div class="cs-row">T 恤 <small>›</small></div></div></div>
+<span class="cs-cnt">外部 result 驱动逐层展开高亮 · 清空回根层</span>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>点击按压反馈</td><td>UIButton touchDown 高亮/压暗瞬态</td><td>clickable 系统 ripple（Material 默认点击反馈）</td><td>系统级原生差异：按压反馈体系不同（表内放行，同全库先例）</td></tr>
+<tr><td>tab 等分/横滑</td><td>UIStackView / UIScrollView 横滑</td><td>Row weight / horizontalScroll</td><td>系统级布局机制不同、结果一致（表内放行）</td></tr>
+<tr><td>列表滚动</td><td>UIScrollView/UITableView 原生滚动</td><td>LazyColumn/verticalScroll 原生滚动</td><td>平台滚动容器实现不同、行为一致（表内放行）</td></tr>
+<tr><td>文本省略截断</td><td>UILabel 单行 truncateTail</td><td>Text overflow=Ellipsis（maxLines=1）</td><td>两端系统文本省略行为一致指向（表内放行）</td></tr>
+<tr class="diff-row"><td>尺寸数值单位</td><td>pt</td><td>dp</td><td>Token 同一数值不同单位（表内放行，同全库先例）</td></tr>
+<tr class="diff-row"><td>数据模型命名</td><td>struct CascaderOption / CascaderResult / CascaderView</td><td>data class CascaderOption / CascaderResult / @Composable Cascader</td><td>契约同构（表内放行，命名差异见门禁 B）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>CascaderOption</code>：<code>value: String</code> + <code>text: String</code> + <code>children: [CascaderOption]?</code>（nil/空=叶子）+ <code>disabled: Boolean = false</code><br/><code>CascaderResult</code>：<code>values: [String]</code> + <code>texts: [String]</code> + <code>text: String</code>（texts 以 "/" 拼接，如"生活/餐饮/正餐"）</td></tr>
+<tr><td>iOS</td><td><code>final class CascaderView: UIView</code><br/><code>init(options: [CascaderOption], result: CascaderResult? = nil, onChange: ((CascaderResult) -&gt; Void)? = nil)</code><br/>result=nil → 根层起步；传 result → 按 values 逐层展开高亮（未匹配仅回根层）；<code>var options / var result</code>（didSet 重载联动）；tab 高 44、列表高宿主约束、无弹层</td></tr>
+<tr><td>Android</td><td><code>data class CascaderOption(val value: String, val text: String, val children: List&lt;CascaderOption&gt;? = null, val disabled: Boolean = false)</code>、<code>data class CascaderResult(val values: List&lt;String&gt;, val texts: List&lt;String&gt;, val text: String)</code><br/><code>@Composable fun Cascader(options: List&lt;CascaderOption&gt;, result: CascaderResult? = null, onChange: (CascaderResult) -&gt; Unit, modifier: Modifier = Modifier)</code><br/>内部 Column + 横滑 tab 行 + 滚动列表 + 联动状态</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：任意树通用级联单选视图，与 Address 地域专用/Picker 单层/SideBar 目录轨划界；弹层宿主自理）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（tab 44/列表行高 44/指示线 2/字号色全走 token+注释锚定）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础三级/深浅树禁用/深路径回退/受控回显）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，任务清单 #24 ⬜，api.json 无 ui.cascader 条目待立项，本规格为立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（按压反馈/tab 等分横滑/滚动/省略=系统级差异；pt/dp 与模型命名表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（内置弹层遮罩/搜索/多选/懒加载子级/整页向导=二期或宿主职责）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

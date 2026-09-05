@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CalendarCard 日历卡片 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- CalendarCard demo 预览 mock（月历卡片） ---- */
+.cc-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusLg);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.cc-nav{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:15px;}
+.cc-arr{width:28px;height:28px;line-height:28px;text-align:center;border-radius:8px;cursor:pointer;color:var(--textPrimary);}
+.cc-arr.dis{color:#D1D5DB;cursor:default;}
+.cc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:8px 10px 12px;}
+.cc-dow{text-align:center;font-size:12px;color:var(--textSecondary);height:22px;line-height:22px;}
+.cc-day{text-align:center;font-size:14px;height:40px;line-height:40px;border-radius:999px;color:var(--textPrimary);cursor:pointer;}
+.cc-day.today{box-shadow:inset 0 0 0 1.5px var(--primary);color:var(--primary);}
+.cc-day.on{background:var(--primary);color:#fff;font-weight:600;}
+.cc-day.off{color:#D1D5DB;cursor:default;}
+.cc-cnt{display:block;font-size:12px;color:var(--textSecondary);padding:6px 12px 12px;}
+</style>
+</head>
+<body>
+
+<h1>CalendarCard 日历卡片 · 设计规格（数据录入组件 #2 · 任务清单 #23，subcategory=form · 门禁 A）</h1>
+<p>组件 ID：<code>ui.calendar-card</code> ｜ 定位：<b>内嵌卡片式单月日历视图（单选日期，不含弹层）</b>——月历 7 列网格展示年月，点选日期高亮并回传 onChange(date)；头部显示 年-月 + 上/下月切换；宿主把视图放表单页/自定义弹层（库内通用 Popup 未实现，#54 待立项，弹层宿主自理）。对标 Vant Calendar / NutUI Calendar（可交互日期选择）收敛为库内自有设计语言（卡片月历网格 + 单选 + 范围禁用）。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-05，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 表单内"单选一个日期"：记账日期/单据日期/到期日等（页面内嵌卡片，所见即所选的月历格）；② 需要直观年月切换、今日定位、区间外禁选的日期选择；③ 双端一致展示的月历（代替平台系统日历 picker 保持库内设计语言统一）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 黄历/节气/年历推算工具 → <b>foundation.calendar（#22）</b>（业务日历计算域，非交互选择器）；② 滚轮式日期（年/月/日分列滚动）→ DatePicker（#26）/ DatePickerView（#27）；③ 日期范围/区间多选 → 登记二期；④ 弹层/全屏日历容器 → 宿主自理（Popup #54 未实现）</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 普通日次色文字；<span class="tag tag-ok">今日态 ✅</span> 今日=主色描边圆 + 主色文字；<span class="tag tag-ok">选中态 ✅</span> 选中日=主色实心圆白字加粗；<span class="tag tag-ok">禁用态 ✅</span> min/maxDate 范围外=灰 40% 不可点；加载/失败 N/A（纯本地渲染日期逻辑无网络态）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；双端实现可复用 <code>foundation.calendar-tools</code>（#89，weekday/月天数等纯计算）但为可选依赖（不强制耦合）；与 foundation.calendar（#22）划界：<b>本组件=可交互选择控件（产出 Date）</b>，foundation.calendar=黄历工具（ChineseCalendar）；网格布局=7 列等分 + 空位占位（不依赖 Grid 组件，内部自排，避免方向性耦合）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>卡片容器</td><td>白底（bgCard）+ 圆角 lg（14）+ 1 边框 + 内边距 xs（4）水平内衬</td><td>同 Grid 卡壳先例；卡片外壳=组件自身（含边框圆角，宿主外层叠卡片可不重复描边）；阴影=AppShadow 可选（demo 不用阴影）</td></tr>
+<tr><td>导航头</td><td>高 44pt/44dp，标题=Sm Semibold 文本 "yyyy 年 M 月"；左右箭头=点击区 28×28 圆角 sm，符号用字符 ‹ ›（系统文本符号，同库 icon 字符先例）</td><td>箭头点击区 ≥28 保证可点；当月已到 min/maxDate 边界对应方向箭头置灰禁点（D3 验证）；导航区非月份滚动手势（滑切=二期）</td></tr>
+<tr><td>星期行</td><td>高 22pt/dp，字号 Xs=12，文字=textSecondary；行首=周日（周起始固定周日=双端一致，可配=二期）</td><td>星期简写=日 一 二 三 四 五 六（单字=无国际化歧义，双端统一）；周起始周日与原生常见日历一致</td></tr>
+<tr><td>日期格</td><td>7 列等分；格高 40pt/40dp（含选中圆形半径=格高/2）；字号 Md=16；选中=primary 实心圆白字；今日=inset 1.5 主色描边圆+主色字；范围外=textDisabled 灰</td><td>圆形视觉半径=格高一半（同 Cell/Grid 图标圆先例）；6 行自适应（首/尾月空位用空白占位保证 7×6 网格稳定）；横向无滚动</td></tr>
+<tr><td>选中语义</td><td>selected: Date?（半受控）+ onChange(date)</td><td>点选中日=整格触发 onChange（幂等=点已选中日不重复回调）；外部 selected didSet=同步高亮并自动切到所属月；今日与选中并存=选中圆覆盖今日描边（选中优先）</td></tr>
+<tr><td>范围禁用</td><td>minDate: Date? / maxDate: Date?（默认 nil=不限）</td><td>范围外日=不可点不回调；month 内部切换被边界限制时=对应箭头置灰（不改列表则日格本身灰+不可点）</td></tr>
+<tr><td>跨月/翻月</td><td>组件内部自管理当前展示月（yearMonth）；外部可驱动 selected 自动切月；month 边界=1900-01 ~ 2099-12 软限制</td><td>不做无限翻页（年范围足够业务用）；首尾空位占位=保证网格 7×6 稳定（多平台 1:1）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：内嵌卡片式月历网格单选组件（无弹层）——7×6 网格 + 年-月导航 + 今日/选中/范围禁用 + onChange(date)</td><td>✅ 与日历"选择器"语义纯粹（产出 Date）；宿主可直接放表单卡片或装入自定义弹层复用；实现不依赖未立项组件，双端 1:1 简单；与 foundation.calendar 黄历工具天然划界</td><td><b>推荐 A</b>：收敛可验收</td></tr>
+<tr><td>B：一体式弹层日历（遮罩+弹出+选择+确认按钮）</td><td>遮罩/弹层/确认=Popup 类职责（#54 未实现）；确认按钮=表单容器职责；组件职责膨胀</td><td>淘汰：登记二期（Popup 立项后宿主弹层装本卡片）</td></tr>
+<tr><td>C：直接套 UIDatePicker / DatePickerDialog 系统日历</td><td>系统日历视觉/语言/区域设置与库内 design token 不可控；iOS 滚轮/UIPicker 与 Android 日历弹窗形态差极大，双端契约难统一</td><td>淘汰：系统控件不一致（收编先例只覆盖简单近似场景）</td></tr>
+</table>
+
+<h3>P2 · 数据模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：Date 值模型——selected: Date?（选中）+ onChange(Date)；minDate/maxDate 控制范围；组件内部管理 yearMonth 展示月</td><td>✅ 双端原生 Date 直接落地（业务落库即 Date）；范围禁用=日期比较天然；所选即 Date 无中间字符串/组件态歧义</td><td><b>推荐 A</b>：值语义最简单</td></tr>
+<tr><td>B：字符串 yyyy-MM-dd 模型（值与展示双字符串）</td><td>时区/本地化/比较（范围禁用）都要宿主/组件反复 parse，双端日期格式化实现不同易出差异</td><td>淘汰：字符串仅展示层表达</td></tr>
+<tr><td>C：年/月/日整型元组 (y,m,d) 模型</td><td>与双端原生日期转换繁琐，业务侧落地成本高；范围比较手工构造日期</td><td>淘汰：无收益</td></tr>
+</table>
+
+<h3>P3 · 选中态控制：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：半受控 selected——内部自管理当前展示月；selected 可外部传入（didSet 同步高亮并自动切月）；点选触发 onChange；点已选中日不重复回调（幂等）</td><td>✅ 宿主"页面带已有日期=预填回显""外部重置=驱动切月"都成立（编辑场景/表单联动）；与库内半受控语义一致（同 Tabbar/Tabs/SideBar）</td><td><b>推荐 A</b>：灵活且行为确定</td></tr>
+<tr><td>B：纯受控——value 必传，选中态完全宿主回填</td><td>对纯月历选择过重（内部无多状态可回填）；默认"当月无选中"起始态宿主也要管理</td><td>可接受但过度</td></tr>
+<tr><td>C：纯自管理 + 仅通知点击</td><td>编辑场景无法预填回显；表单需要把用户选的日期存宿主时仅靠事件回调（state 靠宿主另存），双份状态易漂移</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：单月卡片网格单选——年-月导航头 + 7×6 网格（周起始周日）+ 今日态 + 选中态 + min/maxDate 范围禁用 + 首尾空位占位 + 外部 selected 回显自动切月 + demo 四段（基础/翻月与今日/范围禁用/受控驱动）</td><td>✅ 覆盖"卡片选单个日期"核心闭环；D3 范围禁用=D2 边界箭头置灰 + 日格灰禁 可验；D4 外部回显=编辑预填语义可验</td><td><b>推荐 A</b>：验收路径清晰</td></tr>
+<tr><td>B：一期即含 日期范围/区间多选（起止双选）</td><td>范围选择=双日期高亮+中间段态，状态机/触摸跨度处理双端复杂，且非当前业务诉求</td><td>淘汰：登记二期（卡片+范围两态）</td></tr>
+<tr><td>C：一期即含 农历/节日/周起始可配/月滑动切月/多语言星期</td><td>黄历节日=foundation.calendar 职责；周起始可配/滑切=配置与手势双端差异面拉大</td><td>淘汰：农历交 foundation；滑切/周配置=二期</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础当月单选（今日描边 + 点选高亮回显）</h3>
+<p>显示当前月：星期行「日一二三四五六」，今日主色描边圆，点选某日=主色实心圆 + 段下方回显 yyyy-MM-dd + 周几。验证 7×6 网格 + 选中态 + onChange。</p>
+<div class="cc-stage"><div class="cc-nav"><span class="cc-arr">‹</span>2026 年 9 月<span class="cc-arr">›</span></div>
+<div class="cc-grid"><span class="cc-dow">日</span><span class="cc-dow">一</span><span class="cc-dow">二</span><span class="cc-dow">三</span><span class="cc-dow">四</span><span class="cc-dow">五</span><span class="cc-dow">六</span><span class="cc-day off"> </span><span class="cc-day off"> </span><span class="cc-day">1</span><span class="cc-day">2</span><span class="cc-day">3</span><span class="cc-day">4</span><span class="cc-day">5</span><span class="cc-day today">6</span><span class="cc-day">7</span><span class="cc-day">8</span><span class="cc-day on">9</span><span class="cc-day">10</span><span class="cc-day">11</span><span class="cc-day">12</span></div></div>
+<span class="cc-cnt">onChange → 2026-09-09（星期三）· 今日 9-06 主色描边 · 点已选中日不重复回调</span>
+
+<h3>D2 · 月份切换 + 今日定位（跨月网格稳定）</h3>
+<p>点右箭头翻到下月、左箭头翻回；跨月后 7×6 首尾空位仍占位网格稳定不跳行；非当月日不参与选中（翻月后 selected 若在旧月=保持数值高亮仅当回显该月才可见）。</p>
+<div class="cc-stage"><div class="cc-nav"><span class="cc-arr">‹</span>2026 年 10 月<span class="cc-arr">›</span></div>
+<div class="cc-grid"><span class="cc-dow">日</span><span class="cc-dow">一</span><span class="cc-dow">二</span><span class="cc-dow">三</span><span class="cc-dow">四</span><span class="cc-dow">五</span><span class="cc-dow">六</span><span class="cc-day off"> </span><span class="cc-day off"> </span><span class="cc-day off"> </span><span class="cc-day off"> </span><span class="cc-day">1</span><span class="cc-day">2</span><span class="cc-day">3</span><span class="cc-day">4</span><span class="cc-day today">5</span><span class="cc-day">6</span><span class="cc-day">7</span><span class="cc-day">8</span><span class="cc-day">9</span><span class="cc-day">10</span><span class="cc-day">11</span><span class="cc-day">12</span></div></div>
+<span class="cc-cnt">左右箭头逐月切换 · 首尾空位占位网格稳定 · 十月 5 日=今日</span>
+
+<h3>D3 · 范围禁用（min/maxDate 边界）</h3>
+<p>minDate=当月 1 日、maxDate=当月 15 日：1 日前空位 + 15 日后日格灰禁不可点；翻月超出范围月份=对应方向箭头置灰（如不可再往前/后翻）。验证边界控制。</p>
+<div class="cc-stage"><div class="cc-nav"><span class="cc-arr dis">‹</span>2026 年 9 月<span class="cc-arr dis">›</span></div>
+<div class="cc-grid"><span class="cc-dow">日</span><span class="cc-dow">一</span><span class="cc-dow">二</span><span class="cc-dow">三</span><span class="cc-dow">四</span><span class="cc-dow">五</span><span class="cc-dow">六</span><span class="cc-day on">1</span><span class="cc-day">2</span><span class="cc-day">3</span><span class="cc-day">4</span><span class="cc-day">5</span><span class="cc-day">6</span><span class="cc-day">7</span><span class="cc-day">8</span><span class="cc-day">9</span><span class="cc-day">10</span><span class="cc-day">11</span><span class="cc-day">12</span><span class="cc-day off">16</span><span class="cc-day off">17</span><span class="cc-day off">18</span><span class="cc-day off">19</span><span class="cc-day off">20</span></div></div>
+<span class="cc-cnt">范围外=灰禁不可点 · 边界月=箭头置灰禁翻</span>
+
+<h3>D4 · 受控外部驱动（预填回显 / 重置）</h3>
+<p>段外按钮「回显 12-24」=外部传 selected → 组件自动切到 12 月并高亮 24 日；「清空选中」=selected=nil 网格无选中。验证半受控回显 + 自动切月。</p>
+<div class="cc-stage"><div class="cc-nav"><span class="cc-arr">‹</span>2026 年 12 月<span class="cc-arr">›</span></div>
+<div class="cc-grid"><span class="cc-dow">日</span><span class="cc-dow">一</span><span class="cc-dow">二</span><span class="cc-dow">三</span><span class="cc-dow">四</span><span class="cc-dow">五</span><span class="cc-dow">六</span><span class="cc-day off"> </span><span class="cc-day off"> </span><span class="cc-day">1</span><span class="cc-day">2</span><span class="cc-day">3</span><span class="cc-day">4</span><span class="cc-day">5</span><span class="cc-day">6</span><span class="cc-day">7</span><span class="cc-day">8</span><span class="cc-day">9</span><span class="cc-day">10</span><span class="cc-day">11</span><span class="cc-day">12</span><span class="cc-day">13</span><span class="cc-day">14</span><span class="cc-day">15</span><span class="cc-day">16</span><span class="cc-day">17</span><span class="cc-day">18</span><span class="cc-day">19</span><span class="cc-day">20</span><span class="cc-day">21</span><span class="cc-day">22</span><span class="cc-day">23</span><span class="cc-day on">24</span><span class="cc-day">25</span></div></div>
+<span class="cc-cnt">外部 selected → 自动切 12 月 + 高亮 24 · 清空=无选中</span>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>日期纯计算</td><td>Calendar/DateComponents（当前语言区域公历）</td><td>java.time.YearMonth/LocalDate</td><td>两端标准日期库均按公历（格列=ISO 周序号换算固定 日=0），结果一致（表内放行）</td></tr>
+<tr><td>点击按压反馈</td><td>UIButton touchDown 高亮/压暗瞬态</td><td>clickable 系统 ripple（Material 默认点击反馈）</td><td>系统级原生差异：按压反馈体系不同（表内放行，同全库先例）</td></tr>
+<tr><td>网格布局</td><td>UIStackView 7 列（等分）+ 6 行</td><td>Compose Column 6 行 × Row 7 格 weight=1f</td><td>系统布局机制不同、结果同=7×6 等分网格（表内放行）</td></tr>
+<tr><td>文本省略截断</td><td>UILabel 系统文本</td><td>Text 系统文本</td><td>日期数字单格短文本无省略场景（表内放行）</td></tr>
+<tr class="diff-row"><td>尺寸数值单位</td><td>pt</td><td>dp</td><td>Token 同一数值不同单位（表内放行，同全库先例）</td></tr>
+<tr class="diff-row"><td>数据模型命名</td><td>final class CalendarCardView: UIView</td><td>@Composable fun CalendarCard</td><td>契约同构（表内放行，命名差异见门禁 B）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>selected: Date?</code>（半受控选中，nil=无选中）+ <code>minDate: Date?</code> / <code>maxDate: Date?</code>（范围禁用，nil=不限）+ <code>onChange(Date)</code>（点选触发；点已选中日幂等不触发）<br/>卡片自身含 卡片壳（白底圆角 lg 边框）+ 导航头（yyyy 年 M 月 + ‹ ›）+ 星期行（日 一 二 三 四 五 六）+ 7×6 日网格；首尾空位占位；周起始固定周日（可配=二期）；内部自管理展示月，外部 selected 变化自动切月</td></tr>
+<tr><td>iOS</td><td><code>final class CalendarCardView: UIView</code><br/><code>init(selected: Date? = nil, minDate: Date? = nil, maxDate: Date? = nil, onChange: ((Date) -&gt; Void)? = nil)</code><br/><code>var selected / var minDate / var maxDate</code>（didSet 刷新网格，selected 切月）；当前展示月属性 <code>var displayedMonth</code>（可外部读写）；卡片含自身容器样式</td></tr>
+<tr><td>Android</td><td><code>@Composable fun CalendarCard(selected: LocalDate? = null, minDate: LocalDate? = null, maxDate: LocalDate? = null, onChange: (LocalDate) -&gt; Unit, modifier: Modifier = Modifier)</code><br/>月份导航点击回退/前进由内部 state 管理；外部 selected 变化经 LaunchedEffect/remember 同步高亮并切月</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：内嵌卡片月历单选，与 foundation.calendar 黄历工具/DatePicker 滚轮/范围多选划界；弹层宿主自理）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（导航 44/星期行 22/日格 40/字号色全走 token+注释锚定；无魔法日期逻辑）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础/翻月今日/范围禁用/受控驱动）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，任务清单 #23 ⬜，api.json 无 ui.calendar-card 条目待立项，本规格为立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（日期库/按压反馈/网格布局=系统级差异；pt/dp 与模型命名表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（弹层遮罩/范围多选/农历节日/周起始可配/月滑动切月/多语言星期=二期或交 foundation）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

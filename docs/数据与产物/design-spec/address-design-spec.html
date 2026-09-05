@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Address 地址 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- Address demo 预览 mock（内嵌卡片级联选择） ---- */
+.ad-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.ad-head{height:44px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;background:#F0FDF4;border-bottom:1px solid var(--border);}
+.ad-tabs{display:flex;border-bottom:1px solid var(--border);background:#fff;}
+.ad-tab{flex:1;text-align:center;line-height:44px;font-size:13px;color:var(--textSecondary);cursor:pointer;user-select:none;}
+.ad-tab.on{color:var(--primary);font-weight:700;box-shadow:inset 0 -2px 0 var(--primary);}
+.ad-list{max-height:180px;overflow:hidden;background:#fff;}
+.ad-row{display:flex;justify-content:space-between;align-items:center;padding:0 16px;height:44px;font-size:14px;border-bottom:0.5px solid #F3F4F6;cursor:pointer;color:var(--textPrimary);}
+.ad-row.on{color:var(--primary);font-weight:600;}
+.ad-row small{color:var(--textSecondary);font-size:13px;}
+.ad-cnt{display:block;font-size:12px;color:var(--textSecondary);padding:6px 12px 12px;}
+</style>
+</head>
+<body>
+
+<h1>Address 地址 · 设计规格（数据录入组件 #1 · 任务清单 #21，subcategory=form · 门禁 A）</h1>
+<p>组件 ID：<code>ui.address</code> ｜ 定位：<b>省市区地域选择视图（内嵌内容组件，不携带弹层）</b>——宿主传入省市区三级 region 数据，组件内部按 省→市→区 逐级联动展示并完成选择，回传选中地址（各层 code + 中文文本 + 拼接地址串）；弹层/遮罩/确认按钮由宿主自理（库内通用 Popup 组件未实现，#54 待立项）。对标 NutUI React Address / Vant Area（均为"省市区区域数据 + 逐级联动 + onChange 回传"），收敛为库内自有设计语言（固定三级地域语义 + 数据驱动 + 顶部层级 tab 联动）。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-05，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 表单内省市区选择：收货地址/发票抬头地址/默认地址设置（数据层通常由接口下发 省→市→区 三级列表）；② 已选地址回显与重选：宿主已有地址（省市区 code/text）时，组件同步定位高亮各层，用户可逐级回退重选；③ 结果用于业务下单/地址簿落库，onChange 回传结构化结果供宿主存储</td></tr>
+<tr><td>不适用（N/A）</td><td>① 任意层级（非地域）树形数据选择 → <b>Cascader（ui.cascader，#24）</b>（通用级联，本组件=省市区固定三级语义）；② 日期类选择 → DatePicker（#26）/ CalendarCard（ui.calendar-card，#23）；③ 单列可滚动选择 → Picker（#33）；④ 弹层/遮罩容器 → 宿主自理（Popup #54 未实现；宿主用任意自定义弹层承载本视图）</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 当前层级列表行默认次色文字；<span class="tag tag-ok">选中态 ✅</span> 顶部层级 tab + 列表已选项主色加粗；<span class="tag tag-ok">禁用态 ✅</span> 节点级 disabled 置灰 40% 不可点；完成态=到达末级节点（无 children）即回调 onChange 完成选择；加载/失败 N/A（区域数据异步加载为宿主职责，本组件=纯渲染已给数据）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；与 Cascader 划界：<b>Address=地域专用（固定 省→市→区 三级语义，结果=结构化 AddressResult 含拼接文本，可直接落地址字段）</b>；Cascader=任意层级通用树（品类/组织等，文本仅为所选路径展示）。弹层承载走宿主叠层先例（同 FixedNav/HoverButton 位置宿主锚定）；视图内列表=原生滚动视图（不依赖 VirtualList）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>层级 tab 栏</td><td>高 44pt/44dp，文字 Sm=14（激活主色 Semibold + 底部 2pt/2dp 主色指示线=当前层 tab 整宽，同 Tabs #20 指示线语义）；tab 数量=已选层级数+1（至少=根层）</td><td>点击已选层 tab=回退该层重选；tab 文字单行省略（层名过长）；未知层级占位"请选择"文案待定=由宿主语言包定（demo 用"选择省/市/区"）</td></tr>
+<tr><td>列表区</td><td>行高 44pt/44dp（=导航列表行高惯例，同 Elevator/SideBar）；字号 Md=16（默认态 textSecondary、选中态 primary Semibold）</td><td>行=区域名 + 存在子级时右侧">"指示符（次色）；叶子行不显示箭头；行整宽可点</td></tr>
+<tr><td>容器/高度</td><td>组件自身不固定高度：tab 栏固定 44，列表区高度由宿主/父容器约束（默认建议高 ≤360 滚动）</td><td>弹层内高度=弹层内容区；内嵌卡片=宿主约束（demo 卡片示意）；列表可滚动=原生滚动视图</td></tr>
+<tr><td>激活/默认色</td><td>激活=AppColor.primary；默认=AppColor.textSecondary；tab 指示线=primary</td><td>不做 activeColor 覆盖（地域选择为功能组件非品牌装饰场景；如业务确需可二期开放）</td></tr>
+<tr><td>禁用态</td><td>同默认布局 + 文字透明度 40% + 不可点</td><td>disabled 区域节点点击不前进（数据异常防御，常规省市区数据无禁用，demo 演示备用）</td></tr>
+<tr><td>选中结果回显</td><td>宿主传入既有 AddressResult（codes/text）→ 组件逐层匹配高亮并定位列表</td><td>半受控语义（见 P3）；codes 不匹配树内节点=忽略回显仅重置为根层</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：纯地域选择视图（内嵌内容组件）——宿主传 省→市→区 三级嵌套 RegionOption[]，内部逐级联动 tab+列表，到叶子回调 onChange(AddressResult)；弹层/确认按钮/异步加载=宿主自理</td><td>✅ 语义纯粹（=区域数据选择器），双端 1:1 简单；不依赖未实现的 Popup；宿主可装进自定义弹层/内嵌卡片两种形态；结果结构化（code+text+拼接串）直接落业务地址字段</td><td><b>推荐 A</b>：收敛可验收</td></tr>
+<tr><td>B：内置弹层+遮罩+确认栏一体的"完整地址选择器"（含搜索/常用地址）</td><td>遮罩/弹层动画/确认栏=Popup 类职责（#54 未实现）；搜索/常用/定位=业务态，双端差异大，一期验收失控</td><td>淘汰：登记二期（Popup 立项后宿主弹层复用本视图）</td></tr>
+<tr><td>C：基于通用 Cascader 直接改（不做固定三级语义，由 region 数据自然决定层数）</td><td>实现可省，但"地址结果"语义（结构化省市区分量+文本拼接）无处安放；用户最终拿到的只是 path 文本，落库/回显要宿主二次拼装，与 Cascader 职责混淆</td><td>淘汰：Address/Cascader 双组件语义互补并存（互不替代，见 §01 划界）</td></tr>
+</table>
+
+<h3>P2 · 数据模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：RegionOption(value, text, children?) 嵌套树传入 + 结果 AddressResult(codes[], names[], text)（text=各层 names 拼接，分隔符默认空格）</td><td>✅ 与库内"数据驱动+value 稳定标识"惯例一致（同 TabBarItem/SideBarOption）；省市区层数由 children 深度自然表达（直辖市=两级）；宿主既可存 codes 又可直接存 text 展示</td><td><b>推荐 A</b>：数据驱动惯例</td></tr>
+<tr><td>B：系统地区码内置（组件内置全国省市区静态库）</td><td>数据更新/定制与包体双端维护重；行政区划随国家调整，内置=死数据</td><td>淘汰：数据由宿主/接口下发（组件不持有地域库）</td></tr>
+<tr><td>C：仅字符串数组（省/市/区三个可选下拉各给字符串列表）</td><td>三层耦合硬编码（无法表达直辖市两级/缺失层）；无 value 无法稳定回显与落库</td><td>淘汰：表达能力不足</td></tr>
+</table>
+
+<h3>P3 · 选中态控制：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：半受控结果——内部维护当前联动层级；宿主可传 result（AddressResult）外部驱动回显（同步高亮各层 tab+列表定位）；用户选到叶子=onChange(result)；层数自然（末级无 children 即完成）</td><td>✅ 宿主"选择即得结构化结果"，也可带既有地址回显重选（编辑地址场景）；与库内半受控选中语义一致（同 SideBar/Elevator/Tabbar）</td><td><b>推荐 A</b>：灵活且行为确定</td></tr>
+<tr><td>B：纯受控——每步（选省/市/区）都触发 onChange，由宿主回填当前层</td><td>过程态回填对宿主过重（省未选完就要 state 回写）；"只关心最终地址"的常见用法被迫处理中间态</td><td>可接受但过度</td></tr>
+<tr><td>C：纯自管理仅终选通知</td><td>无法预填回显既有地址（编辑场景缺失）；重置/外部跳层无门</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：三级联动视图——RegionOption 嵌套数据 + 顶部层级 tab（含回退）+ 当前层列表（选中主色高亮 + 叶子无箭头）+ 到叶子 onChange(AddressResult) + 外部 result 回显 + demo 四段（基础三级/两级直辖市/大列表滚动回退/受控驱动）</td><td>✅ 覆盖"选地址"核心闭环（含编辑回显）；两级数据=children 缺失自动收拢（demo D2 可验）；31 省大数据=滚动性能（demo D3 可验）；半受控=外部驱动（demo D4 可验）</td><td><b>推荐 A</b>：验收路径清晰</td></tr>
+<tr><td>B：一期即含 最近使用/历史地址/定位/搜索 业务增强</td><td>定位/搜索=业务+平台能力（CoreLocation/地图 SDK），非 UI 组件职责；最近使用=宿主存储逻辑</td><td>淘汰：登记二期（宿主可在弹层内自组）</td></tr>
+<tr><td>C：一期即支持任意层级（不限三级）通用树 + 多选 + 联动异步懒加载子级</td><td>懒加载子级=异步层级协议，双端差异大；多选=另一语义（与 Cascader/Address 单选定位冲突）</td><td>淘汰：登记二期/交 Cascader 演进（异步懒加载留宿主预取）</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础省市区三级联动（完整链路 + 结果回显）</h3>
+<p>mock：广东省→（广州/深圳/东莞）→区。逐级点选到区=onChange 触发，段下方回显 完整地址串 + codes。验证三级联动完整链路。</p>
+<div class="ad-stage"><div class="ad-head">选择收货地址</div>
+<div class="ad-tabs"><span class="ad-tab on">广东省</span><span class="ad-tab">深圳市</span><span class="ad-tab">请选择区</span></div>
+<div class="ad-list"><div class="ad-row on">南山区 <small>✓</small></div><div class="ad-row">福田区 <small>›</small></div><div class="ad-row">罗湖区 <small>›</small></div></div></div>
+<span class="ad-cnt">onChange → 广东省 深圳市 南山区（[44,4403,440305]）段下回显</span>
+
+<h3>D2 · 两级数据（直辖市自动收拢）</h3>
+<p>mock：北京市→（朝阳/海淀/东城）区=children 缺失层自动收拢（市层不存在直接到区），回显"北京市 朝阳区"。验证层数自适应。</p>
+<div class="ad-stage"><div class="ad-head">选择收货地址</div>
+<div class="ad-tabs"><span class="ad-tab on">北京市</span><span class="ad-tab">请选择区</span></div>
+<div class="ad-list"><div class="ad-row">朝阳区 <small>›</small></div><div class="ad-row on">海淀区 <small>✓</small></div></div></div>
+<span class="ad-cnt">末级=无 children 节点即完成 → 北京市 海淀区</span>
+
+<h3>D3 · 31 省大列表滚动 + 层级回退重选</h3>
+<p>mock：31 省数据首屏只露 5 行需滚动；点"广东省"tab 回退省列表重选"浙江省"，再进市。验证长列表滚动 + tab 回退重选。</p>
+<div class="ad-stage"><div class="ad-head">选择收货地址</div>
+<div class="ad-tabs"><span class="ad-tab on">广东省</span><span class="ad-tab">浙江省</span></div>
+<div class="ad-list"><div class="ad-row">杭州市 <small>›</small></div><div class="ad-row">宁波市 <small>›</small></div></div></div>
+<span class="ad-cnt">列表可滚动 · tab 回退已选层重选（点「广东省」回省列表）</span>
+
+<h3>D4 · 受控外部驱动（回显既有地址 / 重置）</h3>
+<p>段外按钮「回显 上海市」=外部传 AddressResult → 组件同步高亮定位；「重置」=清空 result 回根层。验证半受控回显语义。</p>
+<div class="ad-stage"><div class="ad-head">选择收货地址</div>
+<div class="ad-tabs"><span class="ad-tab on">上海市</span><span class="ad-tab">上海市</span><span class="ad-tab on">徐汇区</span></div>
+<div class="ad-list"><div class="ad-row on">徐汇区 <small>✓</small></div><div class="ad-row">黄浦区 <small>›</small></div></div></div>
+<span class="ad-cnt">外部 result 驱动高亮回显 · 重置回根层</span>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>点击按压反馈</td><td>UIButton touchDown 高亮/压暗瞬态</td><td>clickable 系统 ripple（Material 默认点击反馈）</td><td>系统级原生差异：按压反馈体系不同（表内放行，同全库先例）</td></tr>
+<tr><td>tab 等分实现</td><td>UIStackView distribution=.fillEqually</td><td>Row + Modifier.weight(1f)</td><td>系统级布局机制不同、结果同=均分（表内放行）</td></tr>
+<tr><td>列表滚动</td><td>UIScrollView/UITableView 原生滚动</td><td>LazyColumn/verticalScroll 原生滚动</td><td>平台滚动容器实现不同、行为一致（表内放行）</td></tr>
+<tr><td>文本省略截断</td><td>UILabel 单行 truncateTail</td><td>Text overflow=Ellipsis（maxLines=1）</td><td>两端系统文本省略行为一致指向（表内放行）</td></tr>
+<tr class="diff-row"><td>尺寸数值单位</td><td>pt</td><td>dp</td><td>Token 同一数值不同单位（表内放行，同全库先例）</td></tr>
+<tr class="diff-row"><td>数据模型命名</td><td>struct RegionOption / AddressResult / AddressView</td><td>data class RegionOption / AddressResult / @Composable Address</td><td>契约同构（表内放行，命名差异见门禁 B）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>RegionOption</code>：<code>value: String</code>（稳定标识，如区划 code）+ <code>text: String</code>（区域中文名）+ <code>children: [RegionOption]?</code>（子级；nil/空=叶子即末级）+ <code>disabled: Boolean = false</code><br/><code>AddressResult</code>：<code>codes: [String]</code>（所选各级 value）+ <code>names: [String]</code>（各级中文）+ <code>text: String</code>（names 空格拼接，如"广东省 深圳市 南山区"）</td></tr>
+<tr><td>iOS</td><td><code>final class AddressView: UIView</code><br/><code>init(options: [RegionOption], result: AddressResult? = nil, onChange: ((AddressResult) -&gt; Void)? = nil)</code><br/>result=nil → 根层起步；传 result → 按 codes 逐层定位高亮（未匹配则仅回根层）；<code>var options / var result</code>（didSet 重载联动）；到叶子 onChange；tab 高 44、列表高度由宿主约束、组件不含弹层</td></tr>
+<tr><td>Android</td><td><code>data class RegionOption(val value: String, val text: String, val children: List&lt;RegionOption&gt;? = null, val disabled: Boolean = false)</code>、<code>data class AddressResult(val codes: List&lt;String&gt;, val names: List&lt;String&gt;, val text: String)</code><br/><code>@Composable fun Address(options: List&lt;RegionOption&gt;, result: AddressResult? = null, onChange: (AddressResult) -&gt; Unit, modifier: Modifier = Modifier)</code><br/>列表高度由 modifier 约束；内部 Column + 滚动 + 联动状态；点击行 ripple（表内放行）</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：省市区三级地域选择视图，与 Cascader/DatePicker/Picker/Popup 划界；弹层宿主自理）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（tab 44/列表行高 44/指示线 2/字号与色全走 token+注释锚定）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础三级/两级收拢/大列表回退/受控回显）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，任务清单 #21 ⬜，api.json 无 ui.address 条目待立项，本规格为立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（按压反馈/tab 等分/滚动/省略=系统级差异；pt/dp 与模型命名表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（内置弹层遮罩/搜索/最近使用/定位/内置地域库/懒加载子级/任意层数/多选=二期或宿主职责）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

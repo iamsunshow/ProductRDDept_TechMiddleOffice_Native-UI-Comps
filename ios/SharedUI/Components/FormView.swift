@@ -188,13 +188,14 @@ final class FormFieldRow: UIView {
         // 内容行（label + content）垂直居中于 minHeight 之上（超高随内容）
         let labelW = max(Metrics.labelWidth, 0)
         var body: CGFloat = Metrics.minHeight
-        let attr = labelLabel.attributedText
         let labelH: CGFloat
         if labelLabel.isHidden {
             labelH = 0
-        } else {
+        } else if let attr = labelLabel.attributedText, attr.length > 0 {
             labelH = attributedHeight(attr, width: labelW)
             body = max(body, labelH)
+        } else {
+            labelH = 0
         }
         let contentW = contentSlotWidth(total: w)
         let contentH = contentHeight(contentWidth: contentW)
@@ -221,7 +222,12 @@ final class FormFieldRow: UIView {
         var total = body
         if !hintLabel.isHidden {
             let hintW = max(w - Metrics.horizontalInset * 2, 0)
-            let hintH = attributedHeight(hintLabel.attributedText, width: hintW)
+            let hintH: CGFloat
+            if let hint = hintLabel.attributedText, hint.length > 0 {
+                hintH = attributedHeight(hint, width: hintW)
+            } else {
+                hintH = 0
+            }
             hintLabel.frame = CGRect(
                 x: Metrics.horizontalInset,
                 y: body + Metrics.hintGap,

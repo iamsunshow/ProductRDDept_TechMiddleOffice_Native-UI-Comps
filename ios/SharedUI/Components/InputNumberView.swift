@@ -84,14 +84,10 @@ final class InputNumberView: UIView {
         self.minValue = min
         self.maxValue = max
         self.stepValue = step
-        self.precisionDigits = min(max(precision, 0), Metrics.maxPrecision)
+        // 注：init 形参 min/max 遮蔽全局 min/max 函数，此处显式 Swift.min/Swift.max 引用标准库
+        self.precisionDigits = Swift.min(Swift.max(precision, 0), Metrics.maxPrecision)
         self.disabled = disabled
         self.onChange = onChange
-        let digits = max(
-            Self.fractionDigits(of: step),
-            max(Self.fractionDigits(of: min), Self.fractionDigits(of: max))
-        )
-        _ = digits
         let start: Double
         if let value {
             start = value

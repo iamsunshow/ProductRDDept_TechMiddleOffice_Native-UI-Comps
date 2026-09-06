@@ -181,7 +181,9 @@
           "<DatePicker picker=\"month\" value={ym} onChange={...} />"
         ]
       ],
-      "subcategory": "input"
+      "subcategory": "input",
+      "reviewed": true,
+      "note": "年月滚轮选择弹层，onConfirm(year, month) 回传。2026-09-07 补双端 Demo，待用户验收"
     },
     {
       "id": "ui.date-picker-year",
@@ -284,7 +286,7 @@
           "note": ""
         },
         "android": {
-          "state": "unavailable",
+          "state": "available",
           "note": ""
         },
         "harmony": {
@@ -301,7 +303,8 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/DatePickerSheetViewController.swift"
+        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/DatePickerSheetViewController.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/DatePickerSheet.kt"
       },
       "deps": [],
       "variants": [],
@@ -338,7 +341,9 @@
           "<DatePicker value={date} onChange={...} />"
         ]
       ],
-      "subcategory": "input"
+      "subcategory": "input",
+      "reviewed": true,
+      "note": "日期滚轮选择弹层（年/月/日），onConfirm(Date) 回传。2026-09-07 补 Android 实现+双端 Demo，待用户验收"
     },
     {
       "id": "ui.picker",

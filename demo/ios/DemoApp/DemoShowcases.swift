@@ -46,19 +46,17 @@ final class DemoListViewController: UITableViewController {
         ]),
         ("数据录入", [
             DemoComponent(id: "ui.address", name: "Address 地址", reviewed: true, create: { AddressShowcase() }),
-            DemoComponent(id: "ui.calendar", name: "Calendar 日历", reviewed: false, create: nil),
             DemoComponent(id: "ui.calendar-card", name: "CalendarCard 日历卡片", reviewed: true, create: { CalendarCardShowcase() }),
             DemoComponent(id: "ui.cascader", name: "Cascader 级联选择", reviewed: true, create: { CascaderShowcase() }),
             DemoComponent(id: "ui.checkbox", name: "Checkbox 复选", reviewed: true, create: { CheckboxShowcase() }),
-            DemoComponent(id: "ui.date-picker", name: "DatePicker 日期选择", reviewed: false, create: nil),
-            DemoComponent(id: "ui.date-picker-view", name: "DatePickerView 视图", reviewed: false, create: nil),
+            DemoComponent(id: "ui.date-picker", name: "DatePicker 日期选择", reviewed: true, create: { DatePickerShowcase() }),
+            DemoComponent(id: "ui.date-picker-month", name: "DatePickerMonth 月份选择", reviewed: true, create: { DatePickerMonthShowcase() }),
             DemoComponent(id: "ui.form", name: "Form 表单", reviewed: true, create: { FormShowcase() }),
             DemoComponent(id: "ui.input", name: "Input 输入框", reviewed: true, create: { InputShowcase() }),
             DemoComponent(id: "ui.input-number", name: "InputNumber 数字输入", reviewed: true, create: { InputNumberShowcase() }),
             DemoComponent(id: "ui.menu", name: "Menu 菜单", reviewed: true, create: { MenuShowcase() }),
             DemoComponent(id: "ui.number-keyboard", name: "NumberKeyboard 数字键盘", reviewed: true, create: { NumberKeyboardShowcase() }),
             DemoComponent(id: "ui.picker", name: "Picker 选择器", reviewed: true, create: { PickerShowcase() }),
-            DemoComponent(id: "ui.picker-view", name: "PickerView 视图", reviewed: false, create: nil),
             DemoComponent(id: "ui.radio", name: "Radio 单选", reviewed: true, create: { RadioShowcase() }),
             DemoComponent(id: "ui.range", name: "Range 区间选择", reviewed: true, create: { RangeShowcase() }),
             DemoComponent(id: "ui.rate", name: "Rate 评分", reviewed: true, create: { RateShowcase() }),
@@ -7667,5 +7665,122 @@ final class CalendarShowcase: ShowcaseViewController {
         }
 
         addInfo("foundation.calendar = 公历日期区间计算工具（非 UI 组件）。CalendarCard #23 复用本工具渲染日历。")
+    }
+}
+
+// MARK: - DatePicker 日期选择（ui.date-picker #26）
+
+final class DatePickerShowcase: ShowcaseViewController {
+
+    private let dateFmt: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "DatePicker 日期选择"
+
+        // D1: 基础日期选择
+        addSection(title: "D1 · 基础日期选择") { container in
+            let btn = UIButton(type: .system)
+            btn.setTitle("选择日期", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeMd)
+            btn.addTarget(self, action: #selector(self.d1Pick), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { $0.edges.equalToSuperview() }
+        }
+        let d1Label = addDynamicInfo("未选择", color: AppColor.textPrimary)
+        d1Labels.append(d1Label)
+
+        // D2: 最大日期限制（不可选未来）
+        addSection(title: "D2 · 最大日期限制（默认=今天）") { container in
+            let btn = UIButton(type: .system)
+            btn.setTitle("选择日期（不可超今天）", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeMd)
+            btn.addTarget(self, action: #selector(self.d2Pick), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { $0.edges.equalToSuperview() }
+        }
+        let d2Label = addDynamicInfo("未选择", color: AppColor.textPrimary)
+        d1Labels.append(d2Label)
+
+        addInfo("DatePicker = 日期滚轮选择弹层（年/月/日），onConfirm(Date) 回传。弹层由宿主 present。")
+    }
+
+    private var d1Labels: [UILabel] = []
+
+    @objc private func d1Pick() {
+        let sheet = DatePickerSheetViewController(date: Date(), maximumDate: nil)
+        sheet.onConfirm = { [weak self] date in
+            self?.d1Labels[0].text = "已选: \(self?.dateFmt.string(from: date) ?? "")"
+        }
+        present(sheet, animated: true)
+    }
+
+    @objc private func d2Pick() {
+        let sheet = DatePickerSheetViewController(date: Date())
+        sheet.onConfirm = { [weak self] date in
+            self?.d1Labels[1].text = "已选: \(self?.dateFmt.string(from: date) ?? "")"
+        }
+        present(sheet, animated: true)
+    }
+}
+
+// MARK: - DatePickerMonth 月份选择（ui.date-picker-month #27）
+
+final class DatePickerMonthShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "DatePickerMonth 月份选择"
+
+        let comp = CalendarFormatter.components()
+
+        // D1: 基础月份选择
+        addSection(title: "D1 · 基础月份选择") { container in
+            let btn = UIButton(type: .system)
+            btn.setTitle("选择月份", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeMd)
+            btn.addTarget(self, action: #selector(self.d1Pick), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { $0.edges.equalToSuperview() }
+        }
+        d1Label = addDynamicInfo("未选择", color: AppColor.textPrimary)
+
+        // D2: 指定初始月份
+        addSection(title: "D2 · 指定初始月份（2026年1月）") { container in
+            let btn = UIButton(type: .system)
+            btn.setTitle("选择月份", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeMd)
+            btn.addTarget(self, action: #selector(self.d2Pick), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { $0.edges.equalToSuperview() }
+        }
+        d2Label = addDynamicInfo("未选择", color: AppColor.textPrimary)
+
+        _ = comp
+        addInfo("DatePickerMonth = 年月滚轮选择弹层，onConfirm(year, month) 回传。年份范围=当前年±10。")
+    }
+
+    private var d1Label: UILabel!
+    private var d2Label: UILabel!
+
+    @objc private func d1Pick() {
+        let comp = CalendarFormatter.components()
+        let sheet = MonthPickerViewController(year: comp.year, month: comp.month)
+        sheet.onConfirm = { [weak self] year, month in
+            self?.d1Label.text = "已选: \(year)年\(month)月"
+        }
+        present(sheet, animated: true)
+    }
+
+    @objc private func d2Pick() {
+        let sheet = MonthPickerViewController(year: 2026, month: 1)
+        sheet.onConfirm = { [weak self] year, month in
+            self?.d2Label.text = "已选: \(year)年\(month)月"
+        }
+        present(sheet, animated: true)
     }
 }

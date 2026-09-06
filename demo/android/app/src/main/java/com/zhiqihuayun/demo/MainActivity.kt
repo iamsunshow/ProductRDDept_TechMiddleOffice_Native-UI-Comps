@@ -82,6 +82,8 @@ import com.zhiqihuayun.sharedui.components.SafeAreaEdges
 import androidx.core.view.drawToBitmap
 import com.zhiqihuayun.foundation.design.AppSpace
 import com.zhiqihuayun.foundation.util.CalendarMonth
+import com.zhiqihuayun.sharedui.components.DatePickerSheet
+import com.zhiqihuayun.sharedui.components.MonthPickerSheet
 import com.zhiqihuayun.sharedui.components.AppButton
 import com.zhiqihuayun.sharedui.components.AppButtonStyle
 import com.zhiqihuayun.sharedui.components.AppIcon
@@ -211,19 +213,17 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
     ),
     "数据录入" to listOf(
         DemoComponent("Address 地址", reviewed = true, demo = { AddressDemo() }),
-        DemoComponent("Calendar 日历"),
         DemoComponent("CalendarCard 日历卡片", reviewed = true, demo = { CalendarCardDemo() }),
         DemoComponent("Cascader 级联选择", reviewed = true, demo = { CascaderDemo() }),
         DemoComponent("Checkbox 复选", reviewed = true, demo = { CheckboxDemo() }),
-        DemoComponent("DatePicker 日期选择"),
-        DemoComponent("DatePickerView 视图"),
+        DemoComponent("DatePicker 日期选择", reviewed = true, demo = { DatePickerDemo() }),
+        DemoComponent("DatePickerMonth 月份选择", reviewed = true, demo = { DatePickerMonthDemo() }),
         DemoComponent("Form 表单", reviewed = true, demo = { FormDemo() }),
         DemoComponent("Input 输入框", reviewed = true, demo = { InputDemo() }),
         DemoComponent("InputNumber 数字输入", reviewed = true, demo = { InputNumberDemo() }),
         DemoComponent("Menu 菜单", reviewed = true, demo = { MenuDemo() }),
         DemoComponent("NumberKeyboard 数字键盘", reviewed = true, demo = { NumberKeyboardDemo() }),
         DemoComponent("Picker 选择器", reviewed = true, demo = { PickerDemo() }),
-        DemoComponent("PickerView 视图"),
         DemoComponent("Radio 单选", reviewed = true, demo = { RadioDemo() }),
         DemoComponent("Range 区间选择", reviewed = true, demo = { RangeDemo() }),
         DemoComponent("Rate 评分", reviewed = true, demo = { RateDemo() }),
@@ -6362,5 +6362,98 @@ private fun CalendarDemo() {
 
         Text("foundation.calendar = 公历日期区间计算工具（非 UI 组件）。CalendarCard #23 复用本工具渲染日历。",
             fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+    }
+}
+
+// ── DatePicker 日期选择 Demo（ui.date-picker #26）──
+
+@Composable
+private fun DatePickerDemo() {
+    val fmt = remember { java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()) }
+    var d1Date by remember { mutableStateOf<Long?>(null) }
+    var d2Date by remember { mutableStateOf<Long?>(null) }
+    var showD1 by remember { mutableStateOf(false) }
+    var showD2 by remember { mutableStateOf(false) }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        DemoSection("D1 · 基础日期选择") {
+            TextButton(onClick = { showD1 = true }) { Text("选择日期", fontSize = AppFont.sizeMd) }
+            Text("已选: ${d1Date?.let { fmt.format(java.util.Date(it)) } ?: "未选择"}",
+                fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+        }
+        DemoSection("D2 · 最大日期限制（默认=今天）") {
+            TextButton(onClick = { showD2 = true }) { Text("选择日期（不可超今天）", fontSize = AppFont.sizeMd) }
+            Text("已选: ${d2Date?.let { fmt.format(java.util.Date(it)) } ?: "未选择"}",
+                fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+        }
+        Text("DatePicker = 日期滚轮选择弹层（年/月/日），onConfirm(dateMillis) 回传。弹层由宿主控制显隐。",
+            fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+    }
+    if (showD1) {
+        DatePickerSheet(
+            dateMillis = d1Date ?: System.currentTimeMillis(),
+            maximumDateMillis = null,
+            onDismiss = { showD1 = false },
+            onConfirm = { d1Date = it; showD1 = false }
+        )
+    }
+    if (showD2) {
+        DatePickerSheet(
+            dateMillis = d2Date ?: System.currentTimeMillis(),
+            onDismiss = { showD2 = false },
+            onConfirm = { d2Date = it; showD2 = false }
+        )
+    }
+}
+
+// ── DatePickerMonth 月份选择 Demo（ui.date-picker-month #27）──
+
+@Composable
+private fun DatePickerMonthDemo() {
+    val (curYear, curMonth) = CalendarMonth.components()
+    var d1 by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    var d2 by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    var showD1 by remember { mutableStateOf(false) }
+    var showD2 by remember { mutableStateOf(false) }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        DemoSection("D1 · 基础月份选择") {
+            TextButton(onClick = { showD1 = true }) { Text("选择月份", fontSize = AppFont.sizeMd) }
+            Text("已选: ${d1?.let { "${it.first}年${it.second}月" } ?: "未选择"}",
+                fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+        }
+        DemoSection("D2 · 指定初始月份（2026年1月）") {
+            TextButton(onClick = { showD2 = true }) { Text("选择月份", fontSize = AppFont.sizeMd) }
+            Text("已选: ${d2?.let { "${it.first}年${it.second}月" } ?: "未选择"}",
+                fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+        }
+        Text("DatePickerMonth = 年月滚轮选择弹层，onConfirm(year, month) 回传。年份范围=当前年±10。",
+            fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+    }
+    if (showD1) {
+        MonthPickerSheet(
+            year = d1?.first ?: curYear,
+            month = d1?.second ?: curMonth,
+            onDismiss = { showD1 = false },
+            onConfirm = { y, m -> d1 = y to m; showD1 = false }
+        )
+    }
+    if (showD2) {
+        MonthPickerSheet(
+            year = 2026,
+            month = 1,
+            onDismiss = { showD2 = false },
+            onConfirm = { y, m -> d2 = y to m; showD2 = false }
+        )
     }
 }

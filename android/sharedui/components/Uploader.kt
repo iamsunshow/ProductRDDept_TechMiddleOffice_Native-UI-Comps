@@ -26,8 +26,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -200,7 +202,12 @@ private fun UploaderCell(
                     .clickable(enabled = !disabled) { onDelete() },
                 contentAlignment = Alignment.Center
             ) {
-                Text("×", color = Color.White, fontSize = 11.sp)
+                androidx.compose.foundation.Canvas(modifier = Modifier.size(DeleteSize * 0.6f)) {
+                    val s = size.width
+                    val stroke = 2.dp.toPx()
+                    drawLine(Color.White, Offset(s * 0.25f, s * 0.25f), Offset(s * 0.75f, s * 0.75f), strokeWidth = stroke, cap = StrokeCap.Round)
+                    drawLine(Color.White, Offset(s * 0.75f, s * 0.25f), Offset(s * 0.25f, s * 0.75f), strokeWidth = stroke, cap = StrokeCap.Round)
+                }
             }
         }
 

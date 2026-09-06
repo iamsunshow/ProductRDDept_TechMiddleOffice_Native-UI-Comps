@@ -3915,6 +3915,107 @@
           "setSystemBars('light')"
         ]
       ]
+    },
+    {
+      "id": "ui.checkbox",
+      "name": "复选 Checkbox",
+      "category": "ui",
+      "summary": "通用复选双形态（单只 Checkbox + CheckboxGroup 垂直多选 options 数据驱动）：方形圆角勾选框 20/选中 primary 白勾/未选中白底 textSecondary 描边（radiusSm 6 圆角）；label Md16 后置间距 8；半受控 selected/checked 可选传=外部赋值驱动回显不触发 onChange、nil 内部自持；组点击回传 (value, checked)；disabled 整体/单项灰 40% 不可点（已选禁用灰勾保留）；行距 4+纵向 padding 10 行高 40",
+      "capabilities": ["复选", "多选", "Checkbox", "CheckboxGroup", "勾选"],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "CheckboxView.swift：CheckboxOption(value,label,disabled) + CheckboxView 单只（label 可选，checked: Bool? 半受控）+ CheckboxGroupView（options:selected:onChange:）；CheckGlyph 自绘 20 box（bg/border 按 checked/disabled）+ 白勾 path 1:1 对齐 Android Canvas"
+        },
+        "android": {
+          "state": "available",
+          "note": "Checkbox.kt：data class CheckboxOption + @Composable Checkbox（checked: Boolean? 半受控）+ CheckboxGroup（selected: Set<String>? 半受控、onChange(value,checked)）；Canvas 勾 path 与 iOS 同坐标"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.checkbox",
+      "industry_names": ["Checkbox", "CheckboxGroup", "复选", "多选", "勾选框"],
+      "props": [
+        ["options", "CheckboxOption[]", "组=是", "选项数据 [{value,label,disabled}]；单只 Checkbox 用 label 参数"],
+        ["checked?", "Boolean", "单只", "单只选中态；null=内部自持，外部赋值=同步回显（半受控，不触发 onChange）"],
+        ["selected?", "Set<String>", "组", "选中值集合；null=内部自持，外部重新赋值=同步回显（半受控）"],
+        ["disabled?", "Boolean", "否", "单只/组整体禁用（灰 40% 不可点）；选项级 disabled 用 CheckboxOption.disabled"],
+        ["onChange", "回调", "是", "切换回调：单只 onChange(Bool)、组 onChange(value, checked)"]
+      ],
+      "events": [],
+      "demos": [
+        ["组基础", "3 项 options 内部自持多选；勾选行整行命中，选中项实时回显 value（D1）"],
+        ["单只各态", "未选/已选/禁用未选/禁用已选（灰勾保留）/长 label（D2）"],
+        ["受控组+外部重置", "selected 外部 set（初始 A/C）；「重置」外部回写同步不触发 onChange（半受控，D3）"],
+        ["组禁用+混禁用项", "组整体禁用开关 + 单项 disabled 混合 + 长 label 单行省略（D4）"]
+      ],
+      "note": "复选双形态组件（数据录入区缺口补齐批之一，任务清单 #25）：2026-09-06 门禁 A AI 代评通过（规格 design-spec/checkbox-design-spec.html + review-checkbox-A.md，P1–P4 全 A；与协议行 AgreementCheckRow（android foundation/design/AgreementCheckbox.kt=圆形 12dp 富文本业务收编）划界不混入=收编不动；通用 Checkbox=方形 20 圆角 6 与 Vant 对齐）+ 双端实现入库（CheckboxView.swift=CheckboxView 单只+CheckboxGroupView 组+CheckGlyphView 自绘 / Checkbox.kt=Checkbox+CheckboxGroup Canvas 同坐标 1:1）+ iOS CheckboxShowcase/Android CheckboxDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。半受控 checked/selected=外部赋值同步回显不触发 onChange；disabled 单只/组/选项级三态（已选禁用灰勾保留）。验证版本 v1.4.0；待 C1.5 用户 Demo 实机验收后补验收记录；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
+    },
+    {
+      "id": "ui.input",
+      "name": "输入框 Input",
+      "category": "ui",
+      "summary": "通用单行文本输入内容组件（受控 value 必传 + onTextChange 直通；label/必填星/校验=FormFieldRow 壳职责）：壳 48 高 bgPage 底 radiusLg 无边框、行内水平 padding 16；placeholder textSecondary Md16；非空显示清除钮（20 圆灰底 gray15 + 白叉 14）；trailing 尾槽宿主自放；keyboard 四值 text/number/phone/email 两端映射；secure 掩码回调原文无显隐切换；disabled 灰 40% 不可编辑；maxLength 仅输入路径截断",
+      "capabilities": ["输入", "文本框", "Input", "TextField", "文本输入"],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "InputView.swift：UITextField 受控（text=value 外部回写）+ onTextChange 直通；keyboard 映射 default/numberPad/phonePad/emailAddress；secure isSecureTextEntry；清除钮=自绘白叉 CALayer；trailing 宿主视图尾槽；maxLength delegate 截断（含 paste）"
+        },
+        "android": {
+          "state": "available",
+          "note": "Input.kt：BasicTextField 受控 + decorationBox placeholder；KeyboardType 映射；PasswordVisualTransformation 掩码；清除钮 20dp gray15 白叉（Canvas）；trailing 尾槽 @Composable；disabled alpha 40% 禁输入"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.input",
+      "industry_names": ["Input", "TextField", "文本框", "输入框"],
+      "props": [
+        ["value", "String", "是（受控必传）", "当前文本；外部赋值=同步回显"],
+        ["placeholder?", "String", "否", "占位提示（textSecondary Md16）"],
+        ["keyboard?", "String", "否，默认 text", "text|number|phone|email（两端映射系统键盘）"],
+        ["secure?", "Boolean", "否", "密码掩码（回调仍传原文；一期无显隐切换钮）"],
+        ["maxLength?", "Int", "否", "最大长度（仅输入路径截断，外部赋值不限）"],
+        ["disabled?", "Boolean", "否", "禁用（灰 40% 不可编辑，清除钮隐藏）"],
+        ["trailing?", "节点", "否", "尾部附加槽（宿主自放，如单位/按钮）"],
+        ["onTextChange", "回调", "是", "文本变更直通回调 onTextChange(newText)"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础输入", "受控回显即时文本；非空出清除钮点清（D1）"],
+        ["类型与占位", "数字/手机/邮箱键盘 + 占位灰字（D2）"],
+        ["密码与 maxLength", "secure 掩码回调原文 + 截断到 6 位（D3）"],
+        ["禁用/trailing/外部赋值", "disabled 开关 + 单位尾槽 + 外部赋值回显（D4）"]
+      ],
+      "note": "通用单行文本输入组件（数据录入区缺口补齐批之二，任务清单 #29）：2026-09-06 门禁 A AI 代评通过（规格 design-spec/input-design-spec.html + review-input-A.md，P1–P4 全 A；label/必填星/校验=FormFieldRow 职责壳不变红=本组件纯输入不含校验红线）+ 双端实现入库（InputView.swift=UITextField 受控+自绘白叉清除钮 / Input.kt=BasicTextField 受控+Canvas 清除钮）+ iOS InputShowcase/Android InputDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。受控 value 必传+onTextChange 直通（外部赋值=同步回显）；keyboard 四值 text/number/phone/email 两端映射；secure 掩码回调原文；maxLength 仅输入路径截断（含 paste）；Android sharedui AppInputField 系列=视觉前身可平滑迁移。验证版本 v1.4.0；待 C1.5 用户 Demo 实机验收后补验收记录；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
     }
   ],
   "businessExtensions": [

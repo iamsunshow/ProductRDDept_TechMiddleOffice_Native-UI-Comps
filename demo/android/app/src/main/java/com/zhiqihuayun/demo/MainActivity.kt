@@ -119,6 +119,10 @@ import com.zhiqihuayun.sharedui.components.CascaderResult
 import com.zhiqihuayun.sharedui.components.Form
 import com.zhiqihuayun.sharedui.components.FormFieldRow
 import com.zhiqihuayun.sharedui.components.InputNumber
+import com.zhiqihuayun.sharedui.components.Checkbox
+import com.zhiqihuayun.sharedui.components.CheckboxGroup
+import com.zhiqihuayun.sharedui.components.CheckboxOption
+import com.zhiqihuayun.sharedui.components.Input
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -173,11 +177,11 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Calendar 日历"),
         DemoComponent("CalendarCard 日历卡片", reviewed = true, demo = { CalendarCardDemo() }),
         DemoComponent("Cascader 级联选择", reviewed = true, demo = { CascaderDemo() }),
-        DemoComponent("Checkbox 复选"),
+        DemoComponent("Checkbox 复选", reviewed = true, demo = { CheckboxDemo() }),
         DemoComponent("DatePicker 日期选择"),
         DemoComponent("DatePickerView 视图"),
         DemoComponent("Form 表单", reviewed = true, demo = { FormDemo() }),
-        DemoComponent("Input 输入框"),
+        DemoComponent("Input 输入框", reviewed = true, demo = { InputDemo() }),
         DemoComponent("InputNumber 数字输入", reviewed = true, demo = { InputNumberDemo() }),
         DemoComponent("Menu 菜单"),
         DemoComponent("NumberKeyboard 数字键盘"),
@@ -4232,3 +4236,221 @@ private fun InputNumberDemo() {
 /** 步进值整数展示去小数点（1.0 → 1）。 */
 private fun fmtStep(value: Double): String =
     if (value % 1.0 == 0.0) value.toInt().toString() else value.toString()
+
+// ===== 数据录入区缺口补齐批 Checkbox Demo（#25 ui.checkbox，规格 checkbox-design-spec.html，双端 iOS 1:1） =====
+
+/** CheckboxDemo：4 段（① 组多选自持 ② 单只各态 ③ 受控组+外部回写 ④ 组禁用+混禁+长标签）。 */
+@Composable
+private fun CheckboxDemo() {
+    Text(
+        text = "Checkbox 复选组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 组多选内部自持（整行命中）② 单只各态 ③ 受控组+外部回写（半受控）④ 组禁用+混入禁用项+长标签省略。双端 1:1（iOS CheckboxView vs Android Checkbox）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 组多选（内部自持）
+        Text("Demo 1 · CheckboxGroup 多选（内部自持 · 整行命中）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1Msg by remember { mutableStateOf<String?>(null) }
+        CheckboxGroup(
+            options = listOf(
+                CheckboxOption("apple", "苹果 Apple"),
+                CheckboxOption("banana", "香蕉 Banana"),
+                CheckboxOption("orange", "橙子 Orange")
+            ),
+            onChange = { value, checked ->
+                d1Msg = "onChange → $value（${if (checked) "勾选" else "取消勾选"}）"
+            }
+        )
+        Text(
+            text = d1Msg ?: "三选项组：勾选行=整行 40dp 命中（非仅勾选框）；选中集内部自持。",
+            fontSize = AppFont.sizeXs,
+            color = if (d1Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D2 · 单只各态
+        Text("Demo 2 · 单只 Checkbox 各态", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Column(verticalArrangement = Arrangement.spacedBy(AppSpace.xs)) {
+            Checkbox("未勾选（可点切换）", checked = false)
+            Checkbox("默认已勾选", checked = true)
+            Checkbox("已勾选 · 禁用（灰勾保留不可点）", checked = true, disabled = true)
+            Checkbox("未勾选 · 禁用", checked = false, disabled = true)
+        }
+        Text("单只=20 方形 radiusSm + label 后置间距 8；禁用态统一灰、已选禁用保留勾形。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D3 · 受控组 + 外部回写（半受控）
+        Text("Demo 3 · 受控组 + 外部回写（半受控）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var sel3 by remember { mutableStateOf(setOf("tv", "phone")) }
+        var d3Msg by remember { mutableStateOf<String?>(null) }
+        CheckboxGroup(
+            options = listOf(
+                CheckboxOption("tv", "电视"),
+                CheckboxOption("phone", "手机"),
+                CheckboxOption("laptop", "笔记本"),
+                CheckboxOption("pad", "平板")
+            ),
+            selected = sel3,
+            onChange = { value, checked ->
+                sel3 = if (checked) sel3 + value else sel3 - value
+                val names = listOf("tv", "phone", "laptop", "pad").filter { it in sel3 }
+                    .joinToString("、") { value2 ->
+                        when (value2) { "tv" -> "电视"; "phone" -> "手机"; "laptop" -> "笔记本"; "pad" -> "平板"; else -> value2 }
+                    }
+                d3Msg = "onChange → $value（${if (checked) "已选" else "已取消"}）；当前=$names"
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                sel3 = setOf("tv", "phone")
+                d3Msg = "外部 selected=电视/手机 回写（半受控同步勾选，不触发 onChange）"
+            }) { Text("重置 A：电视+手机", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                sel3 = setOf("laptop")
+                d3Msg = "外部 selected=仅笔记本 回写"
+            }) { Text("重置 B：仅笔记本", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d3Msg ?: "半受控：点行=组件自管并 onChange 上报；外部 selected 赋值仅同步刷新勾选。",
+            fontSize = AppFont.sizeXs,
+            color = if (d3Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D4 · 组禁用 + 混禁 + 长标签
+        Text("Demo 4 · 组禁用开关 + 混入禁用项 + 长标签省略", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4Disabled by remember { mutableStateOf(false) }
+        var d4Msg by remember { mutableStateOf<String?>(null) }
+        CheckboxGroup(
+            options = listOf(
+                CheckboxOption("a", "普通选项 A"),
+                CheckboxOption("b", "禁用选项 B（单项灰 40% 不可点）", disabled = true),
+                CheckboxOption(
+                    "long",
+                    "很长很长的演示标签很长很长的演示标签很长很长的演示标签很长很长的演示标签 单行省略验证…"
+                ),
+                CheckboxOption("c", "普通选项 C")
+            ),
+            disabled = d4Disabled,
+            onChange = { value, checked ->
+                d4Msg = "onChange → $value（${if (checked) "勾选" else "取消"}）"
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d4Disabled = !d4Disabled
+                d4Msg = if (d4Disabled) "整组禁用：统一 40% 置灰、全部行不可点" else "整组已启用（选项 B 仍单项禁用）"
+            }) { Text(if (d4Disabled) "启用整组" else "禁用整组", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d4Msg ?: "组 disabled=整体 40% 灰；option.disabled 单项独立生效（B）；长标签单行省略。",
+            fontSize = AppFont.sizeXs,
+            color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+    }
+}
+
+// ===== 数据录入区缺口补齐批 Input Demo（#29 ui.input，规格 input-design-spec.html，双端 iOS 1:1） =====
+
+/** InputDemo：4 段（① 基础回显+清除钮 ② 键盘类型 ③ 密码掩码+maxLength ④ 禁用/trailing/外部赋值）。 */
+@Composable
+private fun InputDemo() {
+    Text(
+        text = "Input 输入框组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 基础输入+清除钮 ② 键盘类型 ③ 密码掩码+maxLength ④ 禁用+trailing 尾槽+外部赋值。双端 1:1（iOS InputView vs Android Input）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 基础回显 + 清除钮
+        Text("Demo 1 · 基础输入（受控 · 清除钮 · 回显）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1 by remember { mutableStateOf("") }
+        Input(
+            value = d1,
+            onTextChange = { d1 = it },
+            placeholder = "请输入昵称（实时直通 onTextChange）"
+        )
+        Text(
+            text = if (d1.isEmpty()) "受控 value + onTextChange 直通；非空即显示清除钮（点击回传空串）。"
+            else "onTextChange → $d1",
+            fontSize = AppFont.sizeXs,
+            color = if (d1.isEmpty()) AppColor.textSecondary else AppColor.primary
+        )
+
+        // D2 · 键盘类型
+        Text("Demo 2 · 键盘类型（number / phone / email）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Input(value = "", onTextChange = {}, keyboard = "number", placeholder = "数字键盘：请输入购买数量")
+        Input(value = "", onTextChange = {}, keyboard = "phone", placeholder = "电话键盘：请输入手机号")
+        Input(value = "", onTextChange = {}, keyboard = "email", placeholder = "邮箱键盘：请输入邮箱")
+        Text("聚焦实机可见对应键盘：number=数字、phone=电话、email=邮箱；placeholder 灰字。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D3 · 密码掩码 + maxLength
+        Text("Demo 3 · 密码掩码 + maxLength=6 截断", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3 by remember { mutableStateOf("") }
+        var d3c by remember { mutableStateOf("") }
+        Input(value = d3, onTextChange = { d3 = it }, placeholder = "登录密码（secure 掩码，回调仍传原文）", secure = true)
+        Text(
+            text = if (d3.isEmpty()) "secure=视觉掩码、onTextChange 仍传原文（一期无显隐切换钮）。"
+            else "secure 回调原文 → $d3",
+            fontSize = AppFont.sizeXs,
+            color = if (d3.isEmpty()) AppColor.textSecondary else AppColor.primary
+        )
+        Input(value = d3c, onTextChange = { d3c = it }, placeholder = "优惠券码（最多 6 位，超长截断）", maxLength = 6)
+        Text("maxLength 仅输入路径截断（外部赋值不限）。当前：${d3c.length}/6 位", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D4 · 禁用 / trailing / 外部赋值
+        Text("Demo 4 · 禁用 + trailing 尾槽 + 外部赋值（半受控）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var amount by remember { mutableStateOf("") }
+        var amountDisabled by remember { mutableStateOf(false) }
+        var ext by remember { mutableStateOf("") }
+        var d4Msg by remember { mutableStateOf<String?>(null) }
+        Input(
+            value = amount,
+            onTextChange = { amount = it },
+            placeholder = "金额（trailing 尾槽=元）",
+            keyboard = "number",
+            disabled = amountDisabled,
+            trailing = { Text("元", fontSize = AppFont.sizeMd, color = AppColor.textSecondary) }
+        )
+        Input(value = ext, onTextChange = { ext = it; d4Msg = null }, placeholder = "可点按钮做外部赋值回写")
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                ext = "你好 Native"
+                d4Msg = "外部 value 赋值=同步回显（受控组件宿主直接写 value）"
+            }) { Text("外部赋值", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                amountDisabled = !amountDisabled
+                d4Msg = if (amountDisabled) "首行已禁用：40% 置灰、清除钮隐藏、不可编辑" else "首行已启用"
+            }) { Text(if (amountDisabled) "启用首行" else "禁用首行", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d4Msg ?: "trailing=宿主尾槽（本例「元」）；disabled 40% 置灰；外部赋值仅同步显示。",
+            fontSize = AppFont.sizeXs,
+            color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+    }
+}

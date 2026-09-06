@@ -49,11 +49,11 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.calendar", name: "Calendar 日历", reviewed: false, create: nil),
             DemoComponent(id: "ui.calendar-card", name: "CalendarCard 日历卡片", reviewed: true, create: { CalendarCardShowcase() }),
             DemoComponent(id: "ui.cascader", name: "Cascader 级联选择", reviewed: true, create: { CascaderShowcase() }),
-            DemoComponent(id: "ui.checkbox", name: "Checkbox 复选", reviewed: false, create: nil),
+            DemoComponent(id: "ui.checkbox", name: "Checkbox 复选", reviewed: true, create: { CheckboxShowcase() }),
             DemoComponent(id: "ui.date-picker", name: "DatePicker 日期选择", reviewed: false, create: nil),
             DemoComponent(id: "ui.date-picker-view", name: "DatePickerView 视图", reviewed: false, create: nil),
             DemoComponent(id: "ui.form", name: "Form 表单", reviewed: true, create: { FormShowcase() }),
-            DemoComponent(id: "ui.input", name: "Input 输入框", reviewed: false, create: nil),
+            DemoComponent(id: "ui.input", name: "Input 输入框", reviewed: true, create: { InputShowcase() }),
             DemoComponent(id: "ui.input-number", name: "InputNumber 数字输入", reviewed: true, create: { InputNumberShowcase() }),
             DemoComponent(id: "ui.menu", name: "Menu 菜单", reviewed: false, create: nil),
             DemoComponent(id: "ui.number-keyboard", name: "NumberKeyboard 数字键盘", reviewed: false, create: nil),
@@ -5240,6 +5240,260 @@ final class InputNumberShowcase: ShowcaseViewController {
     }
 }
 
+// MARK: - Checkbox Showcase（复选 · ui.checkbox · #25）
+
+/// 双形态（单只 + 组）：Demo 1 组多选内部自持；Demo 2 单只各态；Demo 3 受控组 + 外部回写；
+/// Demo 4 组禁用 + 混入禁用项 + 长标签省略。与 Android CheckboxDemo 4 段 1:1 同构。
+final class CheckboxShowcase: ShowcaseViewController {
+    private var d1Feedback: UILabel?
+    private var d3Feedback: UILabel?
+    private var d4Feedback: UILabel?
+    private var d3Group: CheckboxGroupView?
+    private var d4Group: CheckboxGroupView?
+
+    private static let displayNames: [String: String] = [
+        "tv": "电视", "phone": "手机", "laptop": "笔记本", "pad": "平板",
+    ]
+    private var selected3: Set<String> = ["tv", "phone"]
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Checkbox", version: "v1.0", builtAt: "2026-09-06")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · CheckboxGroup 多选（内部自持 · 整行命中）") { container in
+            let group = CheckboxGroupView(options: [
+                CheckboxOption(value: "apple", label: "苹果 Apple"),
+                CheckboxOption(value: "banana", label: "香蕉 Banana"),
+                CheckboxOption(value: "orange", label: "橙子 Orange"),
+            ]) { [weak self] value, checked in
+                guard let self else { return }
+                self.d1Feedback?.text = "onChange → \(value)（\(checked ? "勾选" : "取消勾选")）"
+                self.d1Feedback?.textColor = AppColor.primary
+            }
+            pinFullWidth(group, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(group.snp.bottom) }
+        }
+        d1Feedback = addDynamicInfo("三选项组：勾选行=整行 40pt 命中（非仅勾选框）；选中集内部自持。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 单只 CheckboxView 各态") { container in
+            var previous: UIView?
+            let rows: [(String, Bool?, Bool)] = [
+                ("未勾选（可点切换）", false, false),
+                ("默认已勾选", true, false),
+                ("已勾选 · 禁用（灰勾保留不可点）", true, true),
+                ("未勾选 · 禁用", false, true),
+            ]
+            for (label, checked, disabled) in rows {
+                let cb = CheckboxView(label: label, checked: checked, disabled: disabled)
+                container.addSubview(cb)
+                cb.snp.makeConstraints { make in
+                    make.top.equalTo(previous?.snp.bottom ?? container.snp.top).offset(previous == nil ? 0 : AppSpace.sm)
+                    make.leading.equalToSuperview().offset(AppSpace.lg)
+                    make.trailing.lessThanOrEqualToSuperview().offset(-AppSpace.lg)
+                }
+                previous = cb
+            }
+            container.snp.makeConstraints { $0.bottom.equalTo(previous?.snp.bottom ?? container.snp.top) }
+        }
+        _ = addDynamicInfo("单只=20 方形 radiusSm + label 后置间距 8；禁用态统一灰、已选禁用保留勾形。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 受控组 + 外部回写（半受控）") { container in
+            let group = CheckboxGroupView(
+                options: [
+                    CheckboxOption(value: "tv", label: "电视"),
+                    CheckboxOption(value: "phone", label: "手机"),
+                    CheckboxOption(value: "laptop", label: "笔记本"),
+                    CheckboxOption(value: "pad", label: "平板"),
+                ],
+                selected: ["tv", "phone"]
+            ) { [weak self] value, checked in
+                guard let self else { return }
+                if checked { self.selected3.insert(value) } else { self.selected3.remove(value) }
+                let names = Self.displayNames[value] ?? value
+                self.d3Feedback?.text = "onChange → \(value)（\(names)\(checked ? "已选" : "已取消")；当前=\(Self.summary(of: self.selected3))）"
+                self.d3Feedback?.textColor = AppColor.primary
+            }
+            d3Group = group
+            pinFullWidth(group, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(group.snp.bottom) }
+        }
+        demoButtonRow(
+            ("重置 A：电视 + 手机", { [weak self] in
+                guard let self else { return }
+                self.selected3 = ["tv", "phone"]
+                self.d3Group?.selected = self.selected3
+                self.d3Feedback?.text = "外部 selected=电视/手机 回写（半受控同步勾选，不触发 onChange）"
+                self.d3Feedback?.textColor = AppColor.textSecondary
+            }),
+            ("重置 B：仅笔记本", { [weak self] in
+                guard let self else { return }
+                self.selected3 = ["laptop"]
+                self.d3Group?.selected = self.selected3
+                self.d3Feedback?.text = "外部 selected=仅笔记本 回写"
+                self.d3Feedback?.textColor = AppColor.textSecondary
+            })
+        )
+        d3Feedback = addDynamicInfo("半受控：点行=组件自管并 onChange 上报；外部 selected 赋值仅同步刷新勾选。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 组禁用开关 + 混入禁用项 + 长标签省略") { container in
+            let group = CheckboxGroupView(
+                options: [
+                    CheckboxOption(value: "a", label: "普通选项 A"),
+                    CheckboxOption(value: "b", label: "禁用选项 B（单项灰 40% 不可点）", disabled: true),
+                    CheckboxOption(
+                        value: "long",
+                        label: "很长很长的演示标签很长很长的演示标签很长很长的演示标签很长很长的演示标签 单行省略验证…"
+                    ),
+                    CheckboxOption(value: "c", label: "普通选项 C"),
+                ],
+                disabled: false
+            ) { [weak self] value, checked in
+                guard let self else { return }
+                self.d4Feedback?.text = "onChange → \(value)（\(checked ? "勾选" : "取消")）"
+                self.d4Feedback?.textColor = AppColor.primary
+            }
+            d4Group = group
+            pinFullWidth(group, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(group.snp.bottom) }
+        }
+        demoButtonRow(
+            ("禁用 / 启用整组", { [weak self] in
+                guard let self, let group = self.d4Group else { return }
+                group.disabled.toggle()
+                self.d4Feedback?.text = group.disabled
+                    ? "整组禁用：统一 40% 置灰、全部行不可点"
+                    : "整组已启用（选项 B 仍单项禁用）"
+                self.d4Feedback?.textColor = group.disabled ? AppColor.textSecondary : AppColor.primary
+            })
+        )
+        d4Feedback = addDynamicInfo("组 disabled=整体 40% 灰；option.disabled 单项独立生效（B）；长标签单行省略。", color: AppColor.textSecondary)
+    }
+
+    /// 「电视/手机」摘要。
+    private static func summary(of values: Set<String>) -> String {
+        let ordered = ["tv", "phone", "laptop", "pad"].filter { values.contains($0) }
+        let names = ordered.map { displayNames[$0] ?? $0 }
+        return names.isEmpty ? "无" : names.joined(separator: "、")
+    }
+}
+
+// MARK: - Input Showcase（输入框 · ui.input · #29）
+
+/// 受控单行输入：Demo 1 基础回显/清除钮；Demo 2 键盘类型；Demo 3 密码掩码 + maxLength；
+/// Demo 4 禁用 + trailing 尾槽 + 外部赋值。与 Android InputDemo 4 段 1:1 同构。
+final class InputShowcase: ShowcaseViewController {
+    private var d1Feedback: UILabel?
+    private var d3Feedback: UILabel?
+    private var d4Feedback: UILabel?
+    private var d4Input: InputView?
+    private var d4DisableTarget: InputView?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Input", version: "v1.0", builtAt: "2026-09-06")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 基础输入（受控 · 清除钮 · 回显）") { container in
+            let input = InputView(value: "", placeholder: "请输入昵称（实时直通 onTextChange）") { [weak self] text in
+                guard let self else { return }
+                self.d1Feedback?.text = text.isEmpty
+                    ? "onTextChange → 空串（清除钮点击回传 \"\"）"
+                    : "onTextChange → \(text)"
+                self.d1Feedback?.textColor = AppColor.primary
+            }
+            pinFullWidth(input, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(input.snp.bottom) }
+        }
+        d1Feedback = addDynamicInfo("受控 value + onTextChange 直通；非空即显示清除钮（点击回传空串）。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 键盘类型（number / phone / email）") { container in
+            let num = InputView(value: "", placeholder: "数字键盘：请输入购买数量", keyboard: "number")
+            let phone = InputView(value: "", placeholder: "电话键盘：请输入手机号", keyboard: "phone")
+            let email = InputView(value: "", placeholder: "邮箱键盘：请输入邮箱", keyboard: "email")
+            pinFullWidth(num, in: container)
+            pinFullWidth(phone, in: container, after: num)
+            pinFullWidth(email, in: container, after: phone)
+            container.snp.makeConstraints { $0.bottom.equalTo(email.snp.bottom) }
+        }
+        _ = addDynamicInfo("聚焦实机可见对应键盘：number=数字、phone=电话、email=邮箱；placeholder 灰字。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 密码掩码 + maxLength=6 截断") { container in
+            let pwd = InputView(value: "", placeholder: "登录密码（secure 掩码，回调仍传原文）", secure: true) { [weak self] text in
+                guard let self else { return }
+                self.d3Feedback?.text = "secure 回调原文 → \(text.isEmpty ? "（空）" : text)"
+                self.d3Feedback?.textColor = AppColor.primary
+            }
+            let code = InputView(value: "", placeholder: "优惠券码（最多 6 位，超长截断）", maxLength: 6)
+            pinFullWidth(pwd, in: container)
+            pinFullWidth(code, in: container, after: pwd)
+            container.snp.makeConstraints { $0.bottom.equalTo(code.snp.bottom) }
+        }
+        d3Feedback = addDynamicInfo("secure=视觉掩码、onTextChange 仍传原文（一期无显隐切换钮）；maxLength 仅输入路径截断。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 禁用 + trailing 尾槽 + 外部赋值（半受控）") { container in
+            let amount = InputView(value: "", placeholder: "金额（trailing 尾槽=元）", keyboard: "number", trailing: unitLabel("元"))
+            let external = InputView(value: "") { [weak self] text in
+                guard let self else { return }
+                self.d4Feedback?.text = "onTextChange → \(text.isEmpty ? "（空）" : text)"
+                self.d4Feedback?.textColor = AppColor.primary
+            }
+            d4Input = external
+            d4DisableTarget = amount
+            pinFullWidth(amount, in: container)
+            pinFullWidth(external, in: container, after: amount)
+            container.snp.makeConstraints { $0.bottom.equalTo(external.snp.bottom) }
+        }
+        demoButtonRow(
+            ("外部赋值：你好 Native", { [weak self] in
+                guard let self, let input = self.d4Input else { return }
+                input.value = "你好 Native"
+                self.d4Feedback?.text = "外部 value 赋值=同步回显（半受控不触发 onChange）"
+                self.d4Feedback?.textColor = AppColor.textSecondary
+            }),
+            ("禁用 / 启用首行", { [weak self] in
+                guard let self, let input = self.d4DisableTarget else { return }
+                input.disabled.toggle()
+                self.d4Feedback?.text = input.disabled ? "首行已禁用：40% 置灰、清除钮隐藏、不可编辑" : "首行已启用"
+                self.d4Feedback?.textColor = input.disabled ? AppColor.textSecondary : AppColor.primary
+            })
+        )
+        d4Feedback = addDynamicInfo("trailing=宿主尾槽（本例「元」）；disabled 40% 置灰；外部 value 赋值仅同步显示。", color: AppColor.textSecondary)
+    }
+
+    /// 「元」尾槽标签。
+    private func unitLabel(_ text: String) -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: AppFont.sizeMd)
+        label.textColor = AppColor.textSecondary
+        label.sizeToFit()
+        return label
+    }
+}
+
 // MARK: - Demo 通用：外部驱动按钮行（contentStack 独立行，等价 Android Row spacedBy + TextButton）
 
 private extension ShowcaseViewController {
@@ -5260,6 +5514,19 @@ private extension ShowcaseViewController {
             row.addArrangedSubview(button)
         }
         contentStack.addArrangedSubview(row)
+    }
+
+    /// 整宽行：容器内 leading/trailing 内缩 lg 铺满（Input/CheckboxGroup 等占满容器宽的组件）。
+    func pinFullWidth(_ view: UIView, in container: UIView, after previous: UIView? = nil) {
+        view.snp.makeConstraints { make in
+            if let previous {
+                make.top.equalTo(previous.snp.bottom).offset(AppSpace.md)
+            } else {
+                make.top.equalToSuperview()
+            }
+            make.leading.equalToSuperview().offset(AppSpace.lg)
+            make.trailing.equalToSuperview().offset(-AppSpace.lg)
+        }
     }
 }
 

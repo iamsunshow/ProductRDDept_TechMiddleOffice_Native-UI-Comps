@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Picker 选择器 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--textTertiary:#9CA3AF;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+code{background:#F3F4F6;padding:1px 5px;border-radius:4px;font-size:13px;}
+/* ---- Picker demo 预览 mock（工具栏 + 单列滚轮） ---- */
+.pk-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);width:320px;}
+.pk-bar{display:flex;align-items:center;justify-content:space-between;height:44px;padding:0 16px;border-bottom:1px solid var(--border);background:#fff;}
+.pk-bar .pk-cancel{font-size:14px;color:var(--textSecondary);}
+.pk-bar .pk-title{font-size:16px;color:var(--textPrimary);font-weight:600;}
+.pk-bar .pk-confirm{font-size:16px;color:var(--primary);font-weight:600;}
+.pk-wheel{position:relative;height:220px;overflow:hidden;background:#fff;}
+.pk-wheel::before,.pk-wheel::after{content:"";position:absolute;left:0;right:0;height:70px;pointer-events:none;z-index:1;}
+.pk-wheel::before{top:0;background:linear-gradient(rgba(255,255,255,.92),rgba(255,255,255,0));}
+.pk-wheel::after{bottom:0;background:linear-gradient(rgba(255,255,255,0),rgba(255,255,255,.92));}
+.pk-band{position:absolute;top:88px;left:0;right:0;height:44px;border-top:1px solid #E5E7EB;border-bottom:1px solid #E5E7EB;pointer-events:none;z-index:2;}
+.pk-col{position:absolute;inset:0;transition:transform .22s ease;text-align:center;will-change:transform;}
+.pk-row{height:44px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--textPrimary);}
+.pk-row.dim{opacity:.35;}
+.pk-row.on{color:var(--primary);font-weight:600;}
+.pk-row.dis{color:#D1D5DB;}
+.pk-cnt{display:block;font-size:12px;color:var(--textSecondary);padding:6px 12px 12px;}
+</style>
+</head>
+<body>
+
+<h1>Picker 选择器 · 设计规格（数据录入组件 · 任务清单 #33，subcategory=input · 门禁 A）</h1>
+<p>组件 ID：<code>ui.picker</code> ｜ 定位：<b>单列滚轮选择器内容视图（数据驱动 options → 滚轮列选 → 顶部工具栏取消/标题/确定确认回调）</b>——组件=「工具栏（44）+ 单列滚轮可视区（220=5 行×44）」的完整选择内容块，无遮罩无自绘浮层，宿主自行承载（页面卡片内嵌 / 系统 sheet 弹层承载均成立）；受控 <code>value</code> 决定初始滚停与外部回滚定位，用户滚动后点「确定」回调 <code>onChange(value)</code>、点「取消」不回调；选项级 <code>disabled</code> 灰显且滚掠不可停靠。对标 NutUI Picker 收敛为库内自有设计语言（单列 + 工具栏 + 滚轮吸附）；iOS 收编自 <code>OptionPickerSheetViewController</code>（pageSheet 320pt 单列滚轮 + 顶栏取消/确定）组件化重构，Android 从零实现；滚动吸附/阻尼行为表内放行。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-06，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 弹层单选枚举：宿主用系统 sheet/页面弹层承载本组件内容块，用户滚轮选值 → 确定回调（对齐既有记账「OptionPicker 单列滚轮弹层」用法）；② 卡片内嵌直接选择：页面表单卡片中嵌入 220pt 滚轮，滚动 + 确定确认；③ 连续/长枚举单选：频率/天数/额度/省份等 12+ 项的纵向滚动选择（行高 44 点按精度高于横向多选项）；④ 编辑回显：宿主已持 value，组件初始滚停该项并外部可回滚定位</td></tr>
+<tr><td>不适用（N/A）</td><td>① 级联/多级联动列选 → Cascader #24 / 二期多列；② 菜单条驱动下拉单选（平铺面板）→ Menu #31；③ 日期/年月日专用选择 → date-picker #26 / date-picker-month #27（未来可复用 #34 基础滚轮，不属本件）；④ 基础多列滚轮视图（无工具栏、滚动即回调）→ picker-view #34（二期基础件）；⑤ 文本输入/搜索 → Input #29；⑥ 记账分类五列网格（强业务 BookkeepingCategory）→ business.category-picker 收编件不动</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 工具栏（取消/标题/确定）+ 单列滚轮，value 对应行居中等高亮（primary 加粗）；<span class="tag tag-ok">滚动态 ✅</span> 行纵向滑动、顶部/底部渐隐，停靠行=临时选中；<span class="tag tag-ok">选中态 ✅</span> 确定后 onChange 回调 value、行保持高亮；<span class="tag tag-ok">禁用态 ✅</span> 选项级 disabled=行灰 40% 且滚掠不可停靠；组件级 disabled=滚轮整体灰不可滚；加载/失败 N/A（无网络语义）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；iOS 收编 <code>OptionPickerSheetViewController</code>（modal .pageSheet detent 320pt、UINavigationBar 取消/确定、UIPickerView 单列、onConfirm(Int index)）→ 组件化：OptionPickerOption{value,text,disabled} 数据驱动 + 回调改传 value；宿主演示沿用系统 sheet 呈现法（弹层机制=宿主职责，不依赖 Popup #54）；与 #34 picker-view 划界=picker-view=无工具栏纯多列滚轮基础件（滚动即回调 onChangeIndex，供 Picker/DatePicker 复用，二期立项），Picker=带确认语义的完整单列选择器（确认前不提交、取消可撤销）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>工具栏</td><td>高 44pt/44dp 白底 bgCard；取消=左 14（sizeSm）textSecondary；标题=中 16（sizeMd）textPrimary 加粗 600、可省略；确定=右 16（sizeMd）primary 加粗 600；底部 hairline 与滚轮区分隔</td><td>取消=关闭不回调；确定=onChange 回调（可隐藏确定=纯取消关闭？一期固定显示）；标题默认「请选择」宿主可传 title</td></tr>
+<tr><td>滚轮可视区</td><td>高 220pt/220dp=5 行×44（固定，宿主无需传）；行高 44pt/44dp；行内文字 Md=16 textPrimary 居中；选中行 primary 加粗 600</td><td>iOS 用 UIPickerView 设置 rowHeight=44 + 原生渐隐/分隔线；Android 自绘 LazyColumn 滚轮=上/下 1pt hairline 夹选中带 + 顶底 70dp 线性渐隐（同右侧 mock）</td></tr>
+<tr><td>选中带</td><td>选中行上下分隔 hairline 细线（iOS 系统内置灰线样式 vs Android 自绘 0.5/1px 线，表内放行）</td><td>视觉=中部第 3 行为当前候选（5 行中的中心带）</td></tr>
+<tr><td>禁用/状态色</td><td>选项 disabled=textTertiary（40% 灰）；组件 disabled=整体 alpha 40% + 不可滚</td><td>disabled 行滚掠不可停靠：拖动/惯性结束后校正吸附到最近可用行（两平台实现见平台差异表）</td></tr>
+<tr><td>数据驱动</td><td>options: [PickerOption{value,text,disabled}] → 单列映射行；value=受控选中值</td><td>行文案=text；行值=value；text 超宽单行省略居中（max 90% 列宽）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：嵌入内容式「单列滚轮选择器块」——工具栏(取消/标题/确定)+单列滚轮(220)完整内容组件，无遮罩无自绘浮层，宿主自行承载（页面卡片内嵌 / 系统 sheet 弹层承载）；确定=onChange、取消=不回调；受控 value</td><td>✅ 收敛可验收：继承 iOS OptionPicker 既有用法（宿主系统 sheet）语义不回归；内容组件与全库无弹层先例一致（Address/Cascader/Menu/NumberKeyboard 同构）；单列范围=验收路径清晰；确认/取消语义=编辑撤销天然成立</td><td><b>推荐 A</b>：内容块+宿主承载收敛</td></tr>
+<tr><td>B：自带底部弹出浮层完整 Picker（含遮罩+背景+容器+动画）</td><td>Popup #54 未实现；双端浮层机制不齐（iOS 可用原生 sheet 但组件自绘遮罩=重造 Overlay）；遮罩/点外部/动画面大</td><td>淘汰：登记二期（随浮层机制立项，宿主弹层已可用）</td></tr>
+<tr><td>C：淘汰登记、只留 picker-view #34 纯滚轮基础件</td><td>通用确认语义（取消/确定/标题）+禁用滚掠校正+受控回滚定位将无处安放（#34 定位=无确认的裸滚轮）；业务「弹层选一项确认」高频场景仍需宿主拼工具条=重复代码</td><td>淘汰：#33 独立价值成立</td></tr>
+</table>
+
+<h3>P2 · 数据模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：options: [PickerOption{value, text, disabled?}] + value（受控）——value=稳定落库值、text=滚轮行文案、disabled=禁停靠灰显行</td><td>✅ 与 api.json ui.picker 现有契约一致（props options{label,value}[] + value:string + onChange(value)）；value 稳定、双端 demo 回显匹配无歧义；禁用行可在滚轮内可视化</td><td><b>推荐 A</b>：延续 api.json 契约</td></tr>
+<tr><td>B：仅纯文案数组 [String]（iOS 收编现状）</td><td>文案重复歧义；外部驱动 value 无法稳定匹配；disabled 行无法表达</td><td>淘汰：升级为 value/text 数据驱动（同库惯例）</td></tr>
+<tr><td>C：泛型值（T 任意类型）</td><td>双端桥接序列化/相等性歧义；库内惯例 value 均为 string（Cascader/Menu/TabItem）</td><td>淘汰：value 统一 string</td></tr>
+</table>
+
+<h3>P3 · 状态控制：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：受控 value（外部持有）+ 滚动临时选中（内部可视态）——初始 value 滚停定位；滚动过程内部临时态（可视高亮跟随滚轮）；点确定=onChange(value) 提交、点取消=丢弃临时态不回调；外部 value 变更→滚轮回滚定位（不触发 onChange）</td><td>✅ 与 api.json「value 必填 + onChange 确认」契约一致；确认前不提交=编辑安全；外部回滚定位=编辑回显成立；组件内部仅临时可视态=状态面小</td><td><b>推荐 A</b>：受控+确认提交</td></tr>
+<tr><td>B：半受控（value 可缺省内部自持、外部可选驱动）</td><td>缺省自持=「滚动即改值」语义需另定（无外部同步源）；取消/确定存在两套内部值同步回路=易错</td><td>可接受但确认语义下冗余</td></tr>
+<tr><td>C：纯自管理仅通知最终值</td><td>编辑回显/外部重置 value 无门；与 api.json 契约（value 必填受控）冲突</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：一期=单列滚轮选择器：工具栏（取消/标题/确定）+ 受控 value + 选项 disabled（灰显滚掠不可停靠）+ 组件级 disabled + 行高 44 滚轮 220 + demo 四段（单列基础确认/取消回显、长列表+禁用掠行、受控外部回滚定位、宿主 sheet 弹层用法）</td><td>✅ 覆盖「单选枚举确认」核心闭环；四段把滚动/确认/禁用/受控/弹层宿主路径逐验；iOS UIPickerView 直接封装+Android 自绘滚轮工作量收敛；与 #34 picker-view 划界清晰（多列/滚动即回调二期）</td><td><b>推荐 A</b>：验收路径清晰</td></tr>
+<tr><td>B：一期即含多列/联动列选</td><td>联动=Cascader 已覆盖；多列滚轮=#34 基础件范畴；单列未闭环前扩列面失控</td><td>淘汰：登记二期（随 #34 picker-view 基础件）</td></tr>
+<tr><td>C：一期即做搜索/虚拟长列表/循环滚轮</td><td>枚举单选一般 ≤ 200 项（LazyColumn/UITableView 均原生支持）；搜索=Input 组合职责；循环滚轮双端惯性机制不对齐</td><td>淘汰：登记二期或 N/A</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 单列基础（确定提交 + 取消不提交）</h3>
+<p>mock：付款方式单选（微信支付/支付宝/银行卡/现金），初始 value=支付宝。滚轮滚动→可视选中行变临时值→点「确定」=onChange 回显并保留高亮；点「取消」=临时值丢弃、滚轮回滚到支付宝。</p>
+<div class="pk-stage">
+<div class="pk-bar"><span class="pk-cancel">取消</span><span class="pk-title">付款方式</span><span class="pk-confirm">确定</span></div>
+<div class="pk-wheel">
+<div class="pk-band"></div>
+<div class="pk-col" style="transform:translateY(-44px)">
+<div class="pk-row dim">微信支付</div>
+<div class="pk-row on">支付宝</div>
+<div class="pk-row">银行卡</div>
+<div class="pk-row dim">现金</div>
+</div>
+</div></div>
+<span class="pk-cnt">初始支付宝居中高亮 · 滚轮改选 → 确定 onChange(\"银行卡\") / 取消回滚支付宝</span>
+
+<h3>D2 · 长列表滚动 + 选项禁用（掠行不可停靠）</h3>
+<p>mock：账本单选 12 项（全部/家庭账本/旅行账本/…），末项「删除的账本」disabled。滚轮 220pt 内滚动超出 5 行自动滚扫；disabled 行灰 40%，拖动/惯性结束后自动吸附到最近可用行。</p>
+<div class="pk-stage">
+<div class="pk-bar"><span class="pk-cancel">取消</span><span class="pk-title">选择账本</span><span class="pk-confirm">确定</span></div>
+<div class="pk-wheel">
+<div class="pk-band"></div>
+<div class="pk-col" style="transform:translateY(-44px)">
+<div class="pk-row on">全部</div>
+<div class="pk-row">家庭账本</div>
+<div class="pk-row">旅行账本</div>
+<div class="pk-row dim">装修账本</div>
+</div>
+</div></div>
+<span class="pk-cnt">长列表 220 内滚扫 · 「删除的账本」灰显不可停靠（自动吸附最近可用行）</span>
+
+<h3>D3 · 受控外部驱动（外部 value 回滚定位）</h3>
+<p>mock：段内显示当前 value；段外按钮「回显=现金/微信支付」外部更新 value → 滚轮自动滚动定位到对应行并高亮（不触发 onChange）。验证受控回滚与内部确认路径互不干扰。</p>
+<div class="pk-stage">
+<div class="pk-bar"><span class="pk-cancel">取消</span><span class="pk-title">付款方式</span><span class="pk-confirm">确定</span></div>
+<div class="pk-wheel">
+<div class="pk-band"></div>
+<div class="pk-col" style="transform:translateY(-44px)">
+<div class="pk-row">微信支付</div>
+<div class="pk-row dim">支付宝</div>
+<div class="pk-row on">银行卡</div>
+<div class="pk-row dim">现金</div>
+</div>
+</div></div>
+<span class="pk-cnt">外部 set value → 滚轮 scrollTo 对应行高亮（不触发 onChange）</span>
+
+<h3>D4 · 宿主 sheet 弹层用法（系统呈现承载）</h3>
+<p>mock：段内按钮「选择支付方式」→ 宿主用系统 sheet（iOS .pageSheet / Android 宿主 Dialog）承载 Picker 完整内容块，滚轮选择→确定回调→demo 段文字回显「已选：现金」。验证弹层路径（宿主职责）与组件内容复用。</p>
+<div class="pk-stage">
+<div class="pk-bar"><span class="pk-cancel">取消</span><span class="pk-title">选择支付方式</span><span class="pk-confirm">确定</span></div>
+<div class="pk-wheel">
+<div class="pk-band"></div>
+<div class="pk-col" style="transform:translateY(-44px)">
+<div class="pk-row dim">微信支付</div>
+<div class="pk-row on">现金</div>
+<div class="pk-row">银行卡</div>
+<div class="pk-row dim">优惠券</div>
+</div>
+</div></div>
+<span class="pk-cnt">系统 sheet 承载组件内容块 · 确定 → demo 回显「已选：现金」</span>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>滚轮本体</td><td>UIPickerView 原生（rowHeight=44、原生渐隐/阻尼）</td><td>自绘 LazyColumn 滚轮（上/下 hairline 夹选中带 + 顶底线性渐隐）</td><td>滚轮=系统差异最大的控件，视觉五态（选中带/渐隐/行高 44）双端对齐、内层实现表内放行</td></tr>
+<tr><td>滚动阻尼/惯性</td><td>UIScrollView 原生 deceleration</td><td>snapFlingBehavior 最近行吸附</td><td>系统滚动物理差异（表内放行），停靠行语义双端一致（第 3 行=候选）</td></tr>
+<tr><td>disabled 掠行校正</td><td>willEndDragging 时吸附最近可用行；选中行变更即临时态</td><td>fling/拖动停止后 snap 到最近可用行</td><td>触发时机平台实现不同、结果一致=不可停靠禁用行（表内放行）</td></tr>
+<tr><td>工具栏承载</td><td>原生 UINavigationBar item 风格（iOS 收编既有形态）</td><td>Row 自绘（左次色/右 primary 文本钮）</td><td>平台导航栏规范差异、布局结果一致（表内放行）</td></tr>
+<tr><td>弹层承载</td><td>宿主 .pageSheet modal（收编原用法）</td><td>宿主 Dialog/sheet 承载内容</td><td>组件=内容块无遮罩，弹层机制宿主自理（表内放行）</td></tr>
+<tr class="diff-row"><td>尺寸单位 / 命名</td><td>pt；struct PickerOption + PickerView（UIKit）</td><td>dp；data class PickerOption + @Composable Picker</td><td>Token 同值不同单位；命名差异见门禁 B（表内放行）</td></tr>
+</table>
+</div>
+
+<h2>06 · 接口契约草案（门禁 B 定稿）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:16%">类别</th><th>名称</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td rowspan="4">参数 props</td><td>options</td><td>PickerOption[]</td><td>是</td><td>单列选项池；PickerOption{value:string, text:string, disabled?:boolean}</td></tr>
+<tr><td>value</td><td>string</td><td>是（受控）</td><td>当前选中值；决定初始滚停与外部回滚定位；非法/disabled 值回落首个可用行展示</td></tr>
+<tr><td>disabled</td><td>boolean</td><td>否</td><td>组件级禁用=滚轮整体 40% 灰不可滚</td></tr>
+<tr><td>title / cancelText / confirmText</td><td>string</td><td>否</td><td>工具栏文案，默认 请选择 / 取消 / 确定</td></tr>
+<tr><td rowspan="2">事件 events</td><td>onChange</td><td>(value: string) =&gt; void</td><td>—</td><td>点「确定」提交当前可视行 value；点「取消」不回调</td></tr>
+<tr><td>（取消）</td><td>—</td><td>—</td><td>取消=组件无事件、临时态丢弃、滚轮回滚 value 行；关闭动作宿主自理</td></tr>
+<tr><td>数据模型</td><td>PickerOption</td><td>struct / data class</td><td>—</td><td>value（稳定值）、text（行文案）、disabled（禁停靠灰显）</td></tr>
+</table>
+<pre><code>// 使用（受控 + 确认语义，宿主持 value）
+&lt;Picker
+  options={[{value:'alipay',text:'支付宝'},{value:'cash',text:'现金'}]}
+  value={payMethod}
+  onChange={setPayMethod}
+/&gt;
+// 宿主如需弹层：以系统 sheet/Dialog 承载 Picker（取消/确定交互在组件内，关闭宿主自理）
+</code></pre>
+</div>
+
+<h2>07 · 验收清单（门禁 A → 双端实现 → C1.5 demo 实机）</h2>
+<div class="spec-card">
+<ul>
+<li>视觉：工具栏 44 + 滚轮 220 = 整件 264pt/dp；选中带=第 3 行候选语义；行高 44；选中行 primary 加粗、普通 textPrimary、禁用 textTertiary 40%；顶底渐隐双端目视一致</li>
+<li>交互：滚轮惯性滚动停靠整行；disabled 行灰显且掠行不可停靠（自动吸附最近可用行）；确定=onChange 提交可视行；取消=回滚 value 行</li>
+<li>受控：外部 value 变更滚轮 scrollTo 定位（不触发 onChange）；初始 value 定位</li>
+<li>禁用：组件级 disabled 滚轮不可滚整体 40%</li>
+<li>Demo：D1 基础确认/取消、D2 长列表+禁用掠行、D3 外部回滚定位、D4 宿主 sheet 承载用法——双端 1:1 可逐验</li>
+<li>工程：无新依赖（UI 系统自带）；iOS UIPickerView 封装 + Android 自绘滚轮；demo 注册占位接线</li>
+</ul>
+</div>
+
+<h2>08 · 版本与演进</h2>
+<div class="spec-card">
+<table>
+<tr><th>版本</th><th>内容</th></tr>
+<tr><td>v1.4.0 基线（设计锁定）</td><td>本规格锁定设计；双端实现入库与验证均基于组件库 v1.4.0（未过 C2/D 不升版，验证记录逐项填验证版本）</td></tr>
+<tr><td>二期候选</td><td>多列滚轮/联动（随 #34 picker-view 基础件）；遮罩/底部滑出容器（随 Popup #54/Overlay 浮层机制）；循环滚轮/搜索列表；iOS OptionPicker 收编件迁移为对 #33 的宿主承载封装</td></tr>
+</table>
+</div>
+
+</body>
+</html>

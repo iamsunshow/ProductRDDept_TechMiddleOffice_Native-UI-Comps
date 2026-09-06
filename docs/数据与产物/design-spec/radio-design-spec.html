@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Radio 单选 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--textTertiary:#9CA3AF;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- Radio demo 预览 mock（圆形单选点 + 排他组） ---- */
+.rd-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.rd-list{display:flex;flex-direction:column;padding:6px 0;}
+.rd-row{display:flex;align-items:center;gap:8px;padding:10px 16px;font-size:14px;color:var(--textPrimary);cursor:pointer;user-select:none;white-space:nowrap;}
+.rd-row small{color:var(--textSecondary);font-size:13px;margin-left:4px;font-weight:400;}
+.rd-dot{width:20px;height:20px;border:1.5px solid var(--textTertiary);border-radius:50%;background:#fff;display:inline-flex;align-items:center;justify-content:center;flex:none;box-sizing:border-box;}
+.rd-dot::after{content:"";width:8px;height:8px;border-radius:50%;background:transparent;}
+.rd-dot.on{border-color:var(--primary);}
+.rd-dot.on::after{background:var(--primary);}
+.rd-row.on .rd-label{color:var(--primary);font-weight:600;}
+.rd-row.dis{color:#D1D5DB;cursor:default;}
+.rd-row.dis .rd-dot{border-color:#D1D5DB;background:#F9FAFB;}
+.rd-row.dis.on .rd-dot{border-color:#D1D5DB;}
+.rd-row.dis.on .rd-dot::after{background:#D1D5DB;}
+.rd-cnt{display:block;font-size:12px;color:var(--textSecondary);padding:6px 12px 12px;}
+.rd-btn{margin:2px 16px 14px;padding:6px 14px;font-size:13px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--textPrimary);cursor:pointer;display:inline-block;user-select:none;}
+.rd-btn:active{background:#F3F4F6;}
+</style>
+</head>
+<body>
+
+<h1>Radio 单选 · 设计规格（数据录入组件 #35 · 任务清单 #35，subcategory=form · 门禁 A）</h1>
+<p>组件 ID：<code>ui.radio</code> ｜ 定位：<b>通用排他单选标记（圆形单选点 + 可选 label）</b>——单只 <code>Radio</code>（独立选中标记，行尾/宿主行内嵌用）与 <code>RadioGroup</code>（垂直排他单选列表，数据驱动，一选一）两种形态；单选点 20pt/20dp 圆形、选中外圈 primary + 中心实心点、label 后置；点按切换=onChange(value) 回调并回显；选中值半受控（value 外部可驱动回显）。对标 NutUI radio / Ant Radio 收敛为库内自有设计语言；<b>与 Checkbox #25 明确区分：Radio=圆形排他一选一（点选即确定、点击已选行忽略）；Checkbox=方形复选可多选可取消</b>。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-06，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 排他单选（性别、支付方式、默认账本、配送方式等"几选一"）；② RadioGroup 垂直列表逐项点选切换（表单/设置页主场景）；③ 编辑回显：宿主已持选中 value，RadioGroup 回显圆点并高亮；④ 行尾/单元格内单选标记（Cell 尾槽"本项为默认"圆点，宿主组合多行时用单只 Radio + 外部 value 驱动互斥）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 复选多选（可多选/可取消/需集合结果）→ Checkbox #25（方形勾选）；② 二元即时开关（拨动式开/关、状态持久切换）→ Switch 类独立组件/既有开关；③ 下拉式页面选填（占空间大/选项多需承载层）→ Picker #33 / Menu #31 / 列表宿主；④ 页面主导航/分段高频切换 → Tabbar/Tabs/Segmented #74（页签类语义非表单排他）</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 未选=白底圆外圈描边（边框 textTertiary）+label 主文字；<span class="tag tag-ok">选中态 ✅</span> 圆外圈 primary 描边 + 中心实心 primary 圆点，label 保持主文字加粗；<span class="tag tag-ok">禁用态 ✅</span> 整项灰 40%（textTertiary）不可点；选中+禁用=灰外圈灰中心点保留呈现（只读回显）；加载/失败 N/A（宿主自理）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；与 FormFieldRow #28 兼容=RadioGroup 作内容槽放入字段行（行高随组件撑开，配合 Form 校验宿主自理）；与 Cell（内容区）兼容=单只 Radio 可置于 Cell 内容/尾槽；与 Checkbox #25 状态惯例同构=半受控 value 外部驱动不触发 onChange；与 Menu #31 半受控惯例、InputNumber #30 外部驱动=同一状态惯例</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>单选点</td><td>20pt/20dp 圆形，未选=白底、外圈描边 1.5pt/1.5dp 边框 textTertiary；选中=外圈描边 primary + 中心实心圆点 8pt/8dp（primary）</td><td>圆形=库内单选视觉（区别于 Checkbox 方形圆角 6 复选）</td></tr>
+<tr><td>label</td><td>后置、与单选点间距 8（spaceSm）、Md16 主文字、单行省略</td><td>无 label=纯单选点（尺寸仍 20）</td></tr>
+<tr><td>组行高/间距</td><td>RadioGroup 垂直列表，行间距 4（spaceXs 组内紧凑）+行上下内 padding 10；整组内容宽=宿主容器宽</td><td>列表项右缘不拉伸（单选点+label 左起、命中区=整行可点）</td></tr>
+<tr><td>禁用态</td><td>disabled=textTertiary 40% 灰（外圈/实心点/label 全灰）；disabled 项不可点无回调；value 指向 disabled 项=灰回显只读</td><td>选中 disabled=灰点灰圈保留语义可读（与 Checkbox 已选禁用同则）</td></tr>
+<tr><td>数据驱动</td><td>RadioOption(value, label, disabled) → 选中 value 落库；RadioGroup(options, value?, onChange) 排他单选唯一选中</td><td>与 CheckboxOption/CascaderOption/TabItem 数据驱动惯例同构</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件形态：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：独立通用单选组件双形态——单只 <code>Radio</code>（单选点+可选 label，行尾/宿主组合标记用）+ <code>RadioGroup</code>（options 数据驱动垂直排他列表）；圆形单选点 20 + 选中外圈 primary 中心实心点视觉</td><td>✅ 场景覆盖完整：整组排他一选一与分散单选标记（宿主外部 value 驱动互斥）都落库级 API；圆形视觉与 Checkbox 方形严格区分、语义零混淆；垂直列表一期足够（表单主场景）；双端纯绘制+点击=轻量可靠</td><td><b>推荐 A</b>：单只+组双形态（对齐 Checkbox 先例）</td></tr>
+<tr><td>B：仅做 RadioGroup 垂直列表（不做单只）</td><td>分散单选标记（每行尾一枚、互斥由宿主排他）无组件可用，宿主被迫自绘圆点</td><td>淘汰：单只是最小原子（对齐 Checkbox 先例）</td></tr>
+<tr><td>C：复用/模拟系统单选（iOS 无系统 radio 控件、Android 套系统 RadioButton/Material 样式）</td><td>iOS 无现成件=仍须自绘；Android 系统 radio 视觉/主题与库设计语言脱节、受 Material 主题变量约束=组件库自绘惯例违背</td><td>淘汰：双端自绘圆点，库内自有设计语言</td></tr>
+</table>
+
+<h3>P2 · 数据模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：RadioOption(value, label, disabled) 数据驱动 + RadioGroup(options, value: String?, onChange)；单只=Radio(label?, checked: Bool?, onChange)</td><td>✅ value 稳定落库、disabled 项内联可配；外部按 value 回显（编辑场景）；排他=唯一选中 value（String），与复选集 Set 区分清晰；与库内 option 数据驱动惯例同构</td><td><b>推荐 A</b>：数据驱动惯例</td></tr>
+<tr><td>B：仅 label 字符串数组（无独立 value）</td><td>选中结果落库歧义（同名文案/文案变体）；外部回显无法按 value 稳定匹配</td><td>淘汰：同库惯例已弃（见 Menu P2 / Checkbox P2）</td></tr>
+<tr><td>C：value 可含图片/富文本/副标题卡片结构</td><td>整项自定义（图标+标题+副文案）卡片单选=二期形态，一期纯文字 label 足矣（宿主自定义行布局可自行组装）</td><td>淘汰：登记二期</td></tr>
+</table>
+
+<h3>P3 · 状态控制：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：半受控——value（String?）可选传；nil=内部自持（初始=无选中=合法未选态，点选即选中该行并回调 onChange(value)；不自动回填首项=避免改变宿主表单语义）；外部赋值 value=同步刷新渲染（编辑回显/重置），<b>不触发 onChange</b>（同 InputNumber/Menu/Checkbox 惯例）；点击当前已选中行=幂等忽略（无变化不回调，同 Menu 已激活惯例）；单只 checked 同规则（nil 自持 false，点选置 true；取消只能外部驱动）</td><td>✅ 表单提交=宿主拿 onChange 回传值；编辑回显=外部 value 驱动；未选态合法=配合必选校验宿主自理；库内状态惯例一致</td><td><b>推荐 A</b>：库内半受控惯例</td></tr>
+<tr><td>B：纯受控（value 必传，每次点击宿主回写）</td><td>简单受控无内部态；但宿主每次点按都要回写新值，未传即不可用（灵活性弱于 A）</td><td>可接受但过度（A 的受控超集）</td></tr>
+<tr><td>C：纯自管理（不暴露 value 外设）</td><td>编辑回显/重置驱动无门（同 Menu P3-C 结论）</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：圆形单选点+label 后置+Radio/RadioGroup 双形态+disabled（项级/组级/已选禁用灰点保留）+半受控 value+demo 四段（单只/组排他/禁用/受控外部驱动）</td><td>✅ 单选核心闭环（排他切换/禁用/外部回显/回调）逐项可验；无动画无嵌套=验收路径清晰</td><td><b>推荐 A</b>：核心闭环可验收</td></tr>
+<tr><td>B：一期含整项卡片单选（图标+标题+副文案自定义行）</td><td>自定义行=内容槽复杂度+双端 demo 对仗成本高，非单选基础需求</td><td>淘汰：登记二期</td></tr>
+<tr><td>C：一期含横向/换行排列/圆点动画/点击已选中取消（toggle 式）</td><td>横向排列=新布局方向；radio 传统语义不可 toggle 取消（与 Checkbox 混淆）；动画范围膨胀</td><td>淘汰：登记二期/不做</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 单只基础（未选→点选，取消由外部驱动）</h3>
+<p>mock：单只 Radio「设为默认账本」（未选 → 点选=外圈 primary 中心实心点+段内回显 checked=true → 段内「取消选中」按钮外部置 false 回显未选）。验证单只最小原子：点选置 true 回调、外部驱动取消回显不触发 onChange。</p>
+<div class="rd-stage">
+<div class="rd-list">
+<div class="rd-row"><span class="rd-dot"></span><span class="rd-label">设为默认账本</span><small>checked=false（段内回显）</small></div>
+</div></div>
+<div class="rd-cnt">点选 → onChange(true) 段内回显 · 「取消选中」外部 checked=false 驱动回显（不触发 onChange）</div>
+
+<h3>D2 · Group 排他单选（垂直列表一选一）</h3>
+<p>mock：RadioGroup「性别」（男/女，排他）；点「女」→ 男圆点熄灭、女点亮，段内回显 value=女。验证 options 数据驱动+唯一选中+点选即确定。</p>
+<div class="rd-stage">
+<div class="rd-list">
+<div class="rd-row on"><span class="rd-dot on"></span><span class="rd-label">男</span></div>
+<div class="rd-row"><span class="rd-dot"></span><span class="rd-label">女</span></div>
+</div></div>
+<div class="rd-cnt">当前选中：男（value 回显）· 点「女」切换排他选中并 onChange("女")</div>
+
+<h3>D3 · disabled（项级禁用 + 已选禁用保留）</h3>
+<p>mock：Group「配送方式」（快递/到店自提（暂不可用，disabled）/预约配送）；value 指向 disabled 项=灰点灰圈只读保留。验证禁用不响应、选中禁用回显。</p>
+<div class="rd-stage">
+<div class="rd-list">
+<div class="rd-row on"><span class="rd-dot on"></span><span class="rd-label">快递</span></div>
+<div class="rd-row dis"><span class="rd-dot"></span><span class="rd-label">到店自提（暂不可用）</span></div>
+<div class="rd-row dis on"><span class="rd-dot on"></span><span class="rd-label">预约配送（已停用·保持选中）</span></div>
+</div></div>
+<div class="rd-cnt">disabled 不可点无回调 · value 指向 disabled=灰点灰圈只读回显</div>
+
+<h3>D4 · 受控外部驱动（外部重置/指定选中回显）</h3>
+<p>mock：RadioGroup「语言」（中文/English/日本語）+ 段内「重置」「选 English」按钮外部改 value → 组回显同步点亮/熄灭。验证外部驱动不触发 onChange、仅渲染同步。</p>
+<div class="rd-stage">
+<div class="rd-list">
+<div class="rd-row on"><span class="rd-dot on"></span><span class="rd-label">中文</span></div>
+<div class="rd-row"><span class="rd-dot"></span><span class="rd-label">English</span></div>
+<div class="rd-row"><span class="rd-dot"></span><span class="rd-label">日本語</span></div>
+</div>
+<div class="rd-btn">重置</div><div class="rd-btn">选 English</div></div>
+<div class="rd-cnt">外部 value=English → 同步点亮（不触发 onChange）· 重置=未选态</div>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>圆点绘制</td><td>CALayer/CAShapeLayer 圆描边+内圆填充（20pt/8pt）</td><td>Canvas drawCircle 外圈描边+中心实心（20dp/8dp）</td><td>平台绘制机制不同、视觉一致（表内放行，同 Checkbox 勾绘先例）</td></tr>
+<tr><td>点击按压反馈</td><td>touchDown 压暗瞬态（无系统 ripple）</td><td>clickable 系统 ripple / 组行无涟漪（agreement 无涟漪先例）</td><td>系统级原生差异（同全库先例，表内放行）</td></tr>
+<tr><td>命中区</td><td>整行 UIControl/UITapGestureRecognizer，label 一并可点</td><td>Row.clickable 整行可点</td><td>两端命中区一致=整行（表内放行机制差异）</td></tr>
+<tr><td>状态回写</td><td>命令式：外部赋值 value → 显式刷新子单选点视图（demo onChange 宿主回写 value 属性）</td><td>声明式：value State/参数变化自动重组</td><td>命令式/声明式机制不同、宿主回写后视觉一致（库内惯例，表内放行）</td></tr>
+<tr><td>文字省略/折行</td><td>UILabel truncateTail</td><td>Text maxLines=1 ellipsis</td><td>两端单行省略一致指向（表内放行）</td></tr>
+<tr><td>无障碍</td><td>VoiceOver：单选点 isAccessibilityElement+label+value 选中态（selected 语义）</td><td>TalkBack：语义/selected 状态</td><td>系统无障碍层各读屏实现不同（表内放行）</td></tr>
+<tr class="diff-row"><td>尺寸单位 / 命名</td><td>pt；RadioOption struct + RadioView/RadioGroupView（独立 Radio.swift）</td><td>dp；data class RadioOption + @Composable Radio/RadioGroup（Radio.kt）</td><td>Token 同值不同单位；命名差异见门禁 B（表内放行）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>RadioOption(value, label, disabled=false)</code><br/><code>value: String?</code>（当前选中值；nil=内部自持且初始未选=合法态）；<code>onChange(value: String)</code>（有效点选触发：点未选行=切中并回调；点当前已选中行=幂等忽略；disabled 无回调；外部赋值 value 不触发 onChange）；单只=<code>Radio(label?, checked: Bool?, onChange(Bool))</code>（点选置 true，取消只能外部驱动 false）</td></tr>
+<tr><td>iOS</td><td><code>final class RadioView: UIView</code>（单选点+label+整行命中）；<code>final class RadioGroupView: UIView</code><br/><code>init(options: [RadioOption], value: String? = nil, onChange: ((String) -&gt; Void)? = nil)</code>；`var value` 外部赋值驱动回显刷新；`var options` 可更新（disabled 变化重渲染）</td></tr>
+<tr><td>Android</td><td><code>@Composable fun Radio(label: String? = null, checked: Boolean?, onCheckedChange: (Boolean) -&gt; Unit, ...)</code><br/><code>@Composable fun RadioGroup(options: List&lt;RadioOption&gt;, value: String? = null, onChange: (String) -&gt; Unit, modifier)</code><br/>内部 Column 垂直排列，value 参数变化自动重组回显</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：通用排他单选双形态=单只 Radio+RadioGroup 垂直排他列表；与 Checkbox #25 方形复选/Switch 开关/Picker #33·Menu #31 下拉/Segmented #74 页签划界；整项卡片=二期）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（单选点 20 圆/外圈描边 1.5 textTertiary/选中外圈 primary+中心实心点 8/label Md16 间距 8/行距 4+padding 10/禁用 40% 灰）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期：整项卡片/横向排列/圆点动画；不做：点击已选中 toggle 取消=Checkbox 语义不混入）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（单只/组排他/禁用/受控外部驱动）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均无 Radio 近似件=纯从零全新立项：iOS 无系统单选控件需自绘、Android Compose 无库内单选组件（Material3 系统 RadioButton 视觉/主题不符库内设计语言不使用）；api.json 无 ui.radio 条目待立项登记；任务清单 #35 ⬜ 双端未实现 → 本次立项 📐）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（圆点绘制/按压反馈/命中区机制/状态回写/省略/无障碍=系统级差异；pt/dp 与命名表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（整项卡片 icon+标题+副文案/横向换行排列/点选动画=二期或不做；toggle 取消=Checkbox 职责；富文本 label=协议行/宿主职责不混入）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

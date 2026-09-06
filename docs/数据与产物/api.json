@@ -4333,6 +4333,44 @@
       "note": "短密码（数据录入区 #39，全新立项，2026-09-06）：定长数字掩码短密码/PIN 输入内容组件=无壳水平居中掩码点行（系统密文点随字号 22、无灰底壳/清除钮/明文显隐切换）+ 纯数字限定（键盘与粘贴滤除非数字）+ 定长 length 默认 6 字符满=自动 onComplete 一次满后拒收 + 半受控 value String? nil=内部自持/外部赋值仅回显不触发回调 + onChange 每字符 + disabled 40% 灰无回调 + placeholder（默认「请输入 N 位数字密码」居中灰字）；真实校验/错误/重试=宿主自理（校验失败宿主外部 value=\"\" 清空重输）；掩码基座沿用 Input #29 secure 惯例复用不复制；与 Input #29（secure=任意长密文表单行）/验证码分格 OTP（码类二期）/NumberKeyboard #32（键盘=宿主组合件）/Android sharedui PasswordInputField（业务库收编不动）划界。2026-09-06 门禁 A AI 代评通过（规格 design-spec/short-password-design-spec.html + review-short-password-A.md，P1–P4 全 A，用户 2026-09-06 SearchBar #38 收编后原话「通过，下一个组件吧」指示接棒启动）+ 同日门禁 B 双端实现入库（ShortPasswordView.swift=命令式 UIKit UITextField secureTextEntry+numberPad+delegate 数字过滤/满位拒收；ShortPassword.kt=声明式 Compose BasicTextField KeyboardType.Number+透明输入层叠掩码点展示层），iOS ShortPasswordShowcase / Android ShortPasswordDemo 4 段 1:1（D1 基础 6 位满位 onComplete/D2 定长 4 位+外部预填仅回显/D3 禁用+粘贴过滤/D4 宿主校验+NumberKeyboard #32 组装示意），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过，继续吧」，D1~D4 双端 1:1 全过，组件进度.md §3.4 行 39 🔧→✅ 已回写）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
+    },
+    {
+      "id": "ui.signature",
+      "name": "签名 Signature",
+      "category": "ui",
+      "summary": "手写签名画板内容组件（数据录入区 #40，全新立项）：内容级横长白底画板（宽宿主填充、高默认 96=2×48 表单交互行基准注释锚定、bgCard 白底+hairline 描边+radiusLg 圆角对齐 Input #29 壳语言、height 参数可调）+ 手指/笔自绘圆头笔画（线帽 round、strokeWidth 默认 2、strokeColor 默认 textPrimary=参数可调）+ 空态水印「请在此区域签名」（textSecondary 30% 居中、首笔落下即消失、nil/空=无水印）+ 底缘引导线（hairline 左右留 spaceLg 距底 spaceLg）；签名=异步笔迹流非表单值=**无受控文本 value**：onInkChange(Boolean hasInk)（首笔落下 true/clear 清空回 false=驱动宿主「提交」钮可用态）+ clear() 命令式（宿主「重新签名」钮调用、disabled 期间忽略）+ disabled=整板 40% 灰（含已有笔迹）不可绘无回调（签署提交后锁定语义）；签名图导出=宿主截取组件渲染（iOS UIGraphicsImageRenderer+drawHierarchy / Android 根视图 drawToBitmap+裁剪板区域），组件不内置图形对象（UIImage vs Bitmap 类型无法跨端统一）；页面/弹层承载、上传保存防篡改、空签名与锁定业务校验=宿主自理；签署确认/签收单/对账单/验收单/审批签署场景；与 Input #29/textarea #42（键盘文本）、ShortPassword #39/NumberKeyboard #32（数字键盘系）、Popup #54/Overlay #6（承载宿主）划界；anti_goals=内置撤销/重做栈与压感（编辑器职责=重签已覆盖）二期、水印多行文案参数/内置清除钮/整壳签名组件/内置上传保存失败态=宿主或不做、iOS PencilKit（PKDrawing 生态样式不可统一）与 Android 三方签名库=不收编",
+      "capabilities": ["签名", "Signature", "手写签名", "签署", "签名板", "SignaturePad", "画板签名"],
+      "platforms": {
+        "ios": { "state": "available", "note": "SignatureView.swift：命令式 UIKit UIView（touchesBegan/Moved/Ended 换算 bounds 坐标追加离散 stroke 点集+draw(_:) 逐 path 圆帽描线=随指跟手；bgCard 白底+layer.cornerRadius radiusLg+hairline border+clipsToBounds=笔画越界裁剪圆角内；空态水印 draw 居中 textSecondary30%；disabled=alpha 0.4+isUserInteractionEnabled=false+clear 忽略；intrinsicContentSize 高 boardHeight 默认 96；导出=宿主 UIGraphicsImageRenderer+drawHierarchy 截板" },
+        "android": { "state": "available", "note": "Signature.kt：声明式 Compose（Box clip(RoundedCornerShape lg)+bgCard+border 0.5dp hairline；Canvas drawPath 逐 stroke 圆帽描线+drawLine 底缘引导线；pointerInput awaitEachGesture down 起 stroke/drag 采点/up 收=单自旋（Range #36 经验）；disabled=alpha 0.4+不挂手势+clear 忽略；空态水印 Text textSecondary30% 居中；SignatureController=命令式 clear() 句柄（宿主 remember 传入、默认组件自持）；导出=宿主根视图 drawToBitmap+裁剪板区域=Demo DrawingCache 辅助" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/SignatureView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Signature.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.signature",
+      "industry_names": ["签名", "Signature", "手写签名", "签名板", "SignaturePad", "签署确认", "签收"],
+      "props": [
+        ["onInkChange", "回调", "是", "(Boolean hasInk)：首笔落下（空→非空）=true 一次性；clear() 清空（非空→空）=false 一次性（驱动宿主「提交」钮可用态）；disabled 无回调"],
+        ["clear()", "命令式", "—", "宿主「重新签名」钮调用=清空画板并回 onInkChange(false)；无笔迹=幂等不回调；disabled（签署锁定）期间忽略"],
+        ["height", "数值", "否", "画板高，默认 96=2×48 表单交互行基准注释锚定（宽=宿主填充）"],
+        ["placeholder", "String?", "否", "空态水印文案，默认「请在此区域签名」textSecondary 30% 居中；nil/空=无水印"],
+        ["strokeWidth", "数值", "否", "笔画线宽，默认 2（圆头线帽 round）"],
+        ["strokeColor", "颜色", "否", "笔画颜色，默认 textPrimary"],
+        ["disabled", "Boolean", "否", "整板 40% 灰（含已有笔迹）、不可绘制、clear() 忽略、无任何回调（签署提交后锁定）"],
+        ["导出/撤销栈/压感", "—", "—", "签名图导出=宿主截取组件渲染（组件不内置图形对象）；撤销/重做栈、压感、水印多行=二期（anti_goals 登记）"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础签名与重签", "空态水印「请在此区域签名」→手指/笔绘制跟手（笔画 textPrimary 圆头线宽 2）→首笔落下 onInkChange(true)（水印即隐）；「重新签名」=宿主 clear() 清空回 false（无笔迹幂等）（D1）"],
+        ["导出收编（宿主截取组件渲染=缩略展示）", "「生成签名图」=宿主 UIGraphicsImageRenderer+drawHierarchy（iOS）/ 根视图 drawToBitmap+裁剪板区域（Android Demo DrawingCache）=段内缩略展示=证宿主可拿矢量签名图（D2）"],
+        ["参数变体（strokeWidth=1/2/4 · 板高 72）", "三块板 1:1 对比（strokeColor 参数可变=默认 textPrimary 宿主可改深浅粗细）；「全部重签」=clear ×3（D3）"],
+        ["禁用锁定与空笔迹提交流", "「提交锁定」disabled=true=整板 40% 灰不可绘 clear() 忽略无回调；空板点「提交」=宿主 onInkChange(false) 禁用钮并提示「请先签名」（D4）"]
+      ],
+      "note": "签名（数据录入区 #40，全新立项，2026-09-06）：内容级手写签名画板=白底圆角板（bgCard+hairline+radiusLg 对齐 Input #29 壳语言、高默认 96=2×48 交互行基准）+ 自绘圆头笔画（strokeWidth/strokeColor 参数可调）+ 水印「请在此区域签名」textSecondary 30%（首笔即隐）+ 底缘引导线；无受控文本值（签名=异步笔迹流非表单值）=onInkChange(Boolean)（首笔落 true/clear 回 false=驱动宿主提交钮）+ clear() 命令式重签 + disabled 整板 40% 灰锁定（clear 忽略）；签名图导出=宿主截取组件渲染（iOS UIGraphicsImageRenderer+drawHierarchy / Android 根视图截图裁剪板区域=Demo 自定义 DrawingCache 辅助），组件不内置图形对象；宿主自理=页面/弹层承载、上传保存防篡改、空签名与锁定业务校验；与 Input #29/textarea #42（键盘文本）、ShortPassword #39/NumberKeyboard #32（数字键盘系）、Popup #54/Overlay #6（承载）划界；iOS PencilKit（PKDrawing 生态样式不可统一）与 Android 三方签名库=不收编；撤销栈/压感/导出对象 API/板内清除钮/整壳组件=二期或宿主（anti_goals）。2026-09-06 门禁 A AI 代评通过（规格 design-spec/signature-design-spec.html + review-signature-A.md，P1–P4 全 A，用户 2026-09-06 ShortPassword #39 收编后原话「通过，继续吧」指示接棒启动）+ 同日门禁 B 双端实现入库（SignatureView.swift=命令式 UIKit 触摸三件套采集离散 stroke+draw(_:) 逐 path；Signature.kt=声明式 Compose pointerInput awaitEachGesture 单自旋+Canvas 逐 path），iOS SignatureShowcase / Android SignatureDemo 4 段 1:1（D1 基础签名与重签/D2 导出收编缩略/D3 参数变体 width 1/2/4/D4 禁用锁定+空笔迹提交流），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0；待 C1.5 用户双端 Demo 实机验收收编（组件进度.md §3.4 行 40 📐 设计中）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
     }
   ],
   "businessExtensions": [

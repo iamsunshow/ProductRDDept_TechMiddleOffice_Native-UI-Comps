@@ -128,6 +128,9 @@ import com.zhiqihuayun.sharedui.components.InputNumber
 import com.zhiqihuayun.sharedui.components.Checkbox
 import com.zhiqihuayun.sharedui.components.CheckboxGroup
 import com.zhiqihuayun.sharedui.components.CheckboxOption
+import com.zhiqihuayun.sharedui.components.Radio
+import com.zhiqihuayun.sharedui.components.RadioGroup
+import com.zhiqihuayun.sharedui.components.RadioOption
 import com.zhiqihuayun.sharedui.components.Input
 import com.zhiqihuayun.sharedui.components.NumberKeyboard
 import com.zhiqihuayun.sharedui.components.Picker
@@ -196,7 +199,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("NumberKeyboard 数字键盘", reviewed = true, demo = { NumberKeyboardDemo() }),
         DemoComponent("Picker 选择器", reviewed = true, demo = { PickerDemo() }),
         DemoComponent("PickerView 视图"),
-        DemoComponent("Radio 单选"),
+        DemoComponent("Radio 单选", reviewed = true, demo = { RadioDemo() }),
         DemoComponent("Range 区间选择"),
         DemoComponent("Rate 评分"),
         DemoComponent("SearchBar 搜索栏"),
@@ -4727,6 +4730,143 @@ private fun CheckboxDemo() {
         }
         Text(
             text = d4Msg ?: "组 disabled=整体 40% 灰；option.disabled 单项独立生效（B）；长标签单行省略。",
+            fontSize = AppFont.sizeXs,
+            color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+    }
+}
+
+// ===== 数据录入区全新立项 Radio Demo（#35 ui.radio，规格 radio-design-spec.html，双端 iOS 1:1） =====
+
+/** RadioDemo：4 段（① 单只点选+外部取消驱动 ② 组排他内部自持 ③ 组禁用+禁用项+已选禁用保留 ④ 受控外部驱动）。 */
+@Composable
+private fun RadioDemo() {
+    Text(
+        text = "Radio 单选组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 单只 Radio（点选置 true/取消仅外部驱动）② 组排他单选（一选一）③ 组禁用+禁用项+已选禁用保留 ④ 受控外部 value 驱动回显。双端 1:1（iOS RadioView vs Android Radio）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 单只 Radio（点选置 true + 外部取消驱动）
+        Text("Demo 1 · 单只 Radio（点选置 true · 取消仅外部驱动）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1Checked by remember { mutableStateOf(false) }
+        var d1Msg by remember { mutableStateOf<String?>(null) }
+        Radio(
+            label = "设为默认账本",
+            checked = d1Checked,
+            onCheckedChange = { v ->
+                d1Checked = v
+                d1Msg = "onChange → true（点选即确定）"
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d1Checked = false
+                d1Msg = "外部 checked=false 驱动取消回显（不触发 onChange）"
+            }) { Text("取消选中", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d1Msg ?: "单只=圆形点 20 + label 后置；半受控：点选置 true、已选再点幂等忽略（无 toggle 取消）。",
+            fontSize = AppFont.sizeXs,
+            color = if (d1Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D2 · RadioGroup 组排他（内部自持）
+        Text("Demo 2 · RadioGroup 排他单选（内部自持 · 未选态合法）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2Msg by remember { mutableStateOf<String?>(null) }
+        RadioGroup(
+            options = listOf(
+                RadioOption("male", "男"),
+                RadioOption("female", "女")
+            ),
+            onChange = { value ->
+                val name = if (value == "male") "男" else "女"
+                d2Msg = "onChange → $value（$name）；当前选中行圆点亮"
+            }
+        )
+        Text(
+            text = d2Msg ?: "无初值=合法未选态（不自动回填首项）；点未选行=排他切中并回调；再点已选中行=幂等忽略。",
+            fontSize = AppFont.sizeXs,
+            color = if (d2Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D3 · 组禁用 + 禁用项 + 已选禁用保留
+        Text("Demo 3 · 禁用态（组开关 + 禁用项 + value 指向禁用灰保留）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3Disabled by remember { mutableStateOf(false) }
+        var d3Value by remember { mutableStateOf("store") }
+        var d3Msg by remember { mutableStateOf<String?>(null) }
+        RadioGroup(
+            options = listOf(
+                RadioOption("express", "快递"),
+                RadioOption("store", "到店自提（暂停服务 · value 初始指向=灰点灰圈保留）", disabled = true),
+                RadioOption("reserve", "预约配送（已停用）", disabled = true)
+            ),
+            value = d3Value,
+            disabled = d3Disabled,
+            onChange = { value ->
+                d3Value = value
+                d3Msg = "onChange → $value（快递）"
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d3Disabled = !d3Disabled
+                d3Msg = if (d3Disabled) "整组禁用：统一 40% 置灰、全部行不可点" else "整组已启用（禁用项仍单项灰）"
+            }) { Text(if (d3Disabled) "启用整组" else "禁用整组", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d3Value = "express"
+                d3Msg = "外部 value=快递 切走（原选中禁用项灰圈熄灭）"
+            }) { Text("外部选快递", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d3Msg ?: "禁用项不可点；value 指向 disabled 项=灰点灰圈只读保留；label 选中行加粗。",
+            fontSize = AppFont.sizeXs,
+            color = if (d3Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D4 · 受控外部 value 驱动
+        Text("Demo 4 · 受控外部 value 驱动回显（半受控）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4Value by remember { mutableStateOf("zh") }
+        var d4Msg by remember { mutableStateOf<String?>(null) }
+        RadioGroup(
+            options = listOf(
+                RadioOption("zh", "中文"),
+                RadioOption("en", "English"),
+                RadioOption("ja", "日本語")
+            ),
+            value = d4Value,
+            onChange = { value ->
+                d4Value = value
+                val name = when (value) { "zh" -> "中文"; "en" -> "English"; else -> "日本語" }
+                d4Msg = "onChange → $value（$name）"
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d4Value = "en"
+                d4Msg = "外部 value=English 回写（同步点亮，不触发 onChange）"
+            }) { Text("选 English", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d4Value = "zh"
+                d4Msg = "外部 value=中文 重置回显（不触发 onChange）"
+            }) { Text("重置中文", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d4Msg ?: "受控：外部 value 赋值仅同步刷新高亮（不触发 onChange）；点行=组件上报并宿主回写。",
             fontSize = AppFont.sizeXs,
             color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
         )

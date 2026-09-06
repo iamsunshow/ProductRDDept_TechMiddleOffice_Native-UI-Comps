@@ -116,6 +116,8 @@ import com.zhiqihuayun.sharedui.components.CalendarDate
 import com.zhiqihuayun.sharedui.components.Cascader
 import com.zhiqihuayun.sharedui.components.CascaderOption
 import com.zhiqihuayun.sharedui.components.CascaderResult
+import com.zhiqihuayun.sharedui.components.Form
+import com.zhiqihuayun.sharedui.components.FormFieldRow
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -173,7 +175,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Checkbox 复选"),
         DemoComponent("DatePicker 日期选择"),
         DemoComponent("DatePickerView 视图"),
-        DemoComponent("Form 表单"),
+        DemoComponent("Form 表单", reviewed = true, demo = { FormDemo() }),
         DemoComponent("Input 输入框"),
         DemoComponent("InputNumber 数字输入"),
         DemoComponent("Menu 菜单"),
@@ -4007,5 +4009,140 @@ private fun CascaderDemo() {
             TextButton(onClick = { d4Result = null }) { Text("清空", fontSize = AppFont.sizeXs) }
         }
         Text("外部 result 按 values 逐层展开高亮；清空=回根层。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+    }
+}
+
+/** FormDemo：4 段排查（D1 基础字段布局 / D2 校验错误渲染 / D3 长 label 与无 label / D4 多分组提交）。 */
+@Composable
+private fun FormDemo() {
+    Text(
+        text = "Form 表单组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 基础字段布局 ② 校验错误渲染（行内红字+无错不占位）③ 长 label 折行+无 label 行 ④ 多分组卡片+提交槽。双端 1:1（iOS FormView vs Android Form）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 基础字段布局
+        Text("Demo 1 · 基础字段布局（label 左 + 内容右 + 必填星 + help）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Form(groupTitle = "登录信息") {
+            FormFieldRow(label = "手机号", required = true) {
+                Text("138****8888", modifier = Modifier.weight(1f), fontSize = AppFont.sizeMd, color = AppColor.textSecondary, textAlign = TextAlign.End)
+            }
+            FormFieldRow(label = "昵称", required = true) {
+                Text("有鱼记账", modifier = Modifier.weight(1f), fontSize = AppFont.sizeMd, color = AppColor.textSecondary, textAlign = TextAlign.End)
+            }
+            FormFieldRow(label = "简介", help = "选填，一句话介绍自己") {
+                Text("有鱼记账小助手", modifier = Modifier.weight(1f), fontSize = AppFont.sizeMd, color = AppColor.textSecondary, textAlign = TextAlign.End)
+            }
+        }
+        Text("字段行 label 左内容右 · 必填星主色 · 行间 hairline 全卡宽分隔 · help 行内次色小字。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D2 · 校验错误渲染
+        Text("Demo 2 · 校验错误渲染（行内红字 + 无错不占位）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2PhoneError by remember { mutableStateOf<String?>(null) }
+        var d2NickError by remember { mutableStateOf<String?>(null) }
+        Form {
+            FormFieldRow(label = "手机号", required = true, error = d2PhoneError) {
+                Text("请输入手机号", modifier = Modifier.weight(1f), fontSize = AppFont.sizeMd, color = AppColor.textPrimary, textAlign = TextAlign.End)
+            }
+            FormFieldRow(label = "昵称", required = true, error = d2NickError) {
+                Text("A", modifier = Modifier.weight(1f), fontSize = AppFont.sizeMd, color = AppColor.textPrimary, textAlign = TextAlign.End)
+            }
+            FormFieldRow(label = "简介", help = "选填，一句话介绍自己") {
+                Text("已通过", modifier = Modifier.weight(1f), fontSize = AppFont.sizeMd, color = AppColor.primary, textAlign = TextAlign.End)
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d2PhoneError = "手机号不能为空"
+                d2NickError = "昵称至少 2 个字符"
+            }) { Text("触发校验", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d2PhoneError = null
+                d2NickError = null
+            }) { Text("清空校验", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = if (d2PhoneError != null) {
+                "校验失败：两行 error 红字展开（帮助文案被 error 顶替）"
+            } else {
+                "首屏无错误：点「触发校验」展开 error 行；「清空校验」红字收起不占位（简介 help 恢复灰字）。"
+            },
+            fontSize = AppFont.sizeXs,
+            color = if (d2PhoneError != null) AppColor.error else AppColor.textSecondary
+        )
+
+        // D3 · 长 label 折行 + 无 label 行
+        Text("Demo 3 · 长 label 折行 + 无 label 行（内容全宽）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        Form {
+            FormFieldRow(label = "账单导出文件名前缀（支持中文，最长 20 字）") {
+                Text("2026-09 消费", modifier = Modifier.weight(1f), fontSize = AppFont.sizeMd, color = AppColor.textPrimary, textAlign = TextAlign.End)
+            }
+            FormFieldRow(label = null) {
+                Text(
+                    "我已阅读并同意《用户协议》与《隐私政策》",
+                    modifier = Modifier.weight(1f),
+                    fontSize = AppFont.sizeXs,
+                    color = AppColor.textSecondary,
+                    textAlign = TextAlign.Start
+                )
+            }
+        }
+        Text("label 超长在 96dp 区内自动折行（行随内容增高）；无 label 字段内容占整行。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D4 · 多分组卡片 + 提交按钮槽
+        Text("Demo 4 · 多分组卡片 + 提交按钮槽（宿主按钮）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4Msg by remember { mutableStateOf<String?>(null) }
+        Form(groupTitle = "账户信息") {
+            FormFieldRow(label = "用户名") {
+                Text("damon88131787", modifier = Modifier.weight(1f), fontSize = AppFont.sizeMd, color = AppColor.textSecondary, textAlign = TextAlign.End)
+            }
+            FormFieldRow(label = "邮箱") {
+                Text("da****@opc.local", modifier = Modifier.weight(1f), fontSize = AppFont.sizeMd, color = AppColor.textSecondary, textAlign = TextAlign.End)
+            }
+            FormFieldRow(label = "手机号") {
+                Text("138****8888", modifier = Modifier.weight(1f), fontSize = AppFont.sizeMd, color = AppColor.textSecondary, textAlign = TextAlign.End)
+            }
+        }
+        Form(groupTitle = "安全设置") {
+            FormFieldRow(label = "登录密码") {
+                Text("已设置 · 去修改 ›", modifier = Modifier.weight(1f), fontSize = AppFont.sizeMd, color = AppColor.primary, textAlign = TextAlign.End)
+            }
+            FormFieldRow(label = "二次验证") {
+                Text("已开启 ›", modifier = Modifier.weight(1f), fontSize = AppFont.sizeMd, color = AppColor.primary, textAlign = TextAlign.End)
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+                contentAlignment = Alignment.Center
+            ) {
+                AppButton(
+                    text = "保存修改",
+                    style = AppButtonStyle.Primary,
+                    onClick = { d4Msg = "提交：表单内容与校验结论=宿主职责（本 demo 无业务校验）" },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+        Text(
+            text = d4Msg ?: "多分组卡上下排（间距 md）· 提交槽=库内 Button 置于 Form content 内。",
+            fontSize = AppFont.sizeXs,
+            color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
+        )
     }
 }

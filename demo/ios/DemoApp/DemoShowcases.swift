@@ -52,7 +52,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.checkbox", name: "Checkbox 复选", reviewed: false, create: nil),
             DemoComponent(id: "ui.date-picker", name: "DatePicker 日期选择", reviewed: false, create: nil),
             DemoComponent(id: "ui.date-picker-view", name: "DatePickerView 视图", reviewed: false, create: nil),
-            DemoComponent(id: "ui.form", name: "Form 表单", reviewed: false, create: nil),
+            DemoComponent(id: "ui.form", name: "Form 表单", reviewed: true, create: { FormShowcase() }),
             DemoComponent(id: "ui.input", name: "Input 输入框", reviewed: false, create: nil),
             DemoComponent(id: "ui.input-number", name: "InputNumber 数字输入", reviewed: false, create: nil),
             DemoComponent(id: "ui.menu", name: "Menu 菜单", reviewed: false, create: nil),
@@ -4973,6 +4973,146 @@ final class CascaderShowcase: ShowcaseViewController {
             })
         )
         d4Feedback = addDynamicInfo("外部 result 按 values 逐层展开高亮；清空=回根层。", color: AppColor.textSecondary)
+    }
+}
+
+// MARK: - Form Showcase（Form 表单 · ui.form · #28）
+
+final class FormShowcase: ShowcaseViewController {
+    private var d2Phone: FormFieldRow?
+    private var d2Nick: FormFieldRow?
+    private var d2Feedback: UILabel?
+    private var d4Feedback: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Form", version: "v1.0", builtAt: "2026-09-06")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    /// 内容槽 mock（宿主控件示意）：右侧值/占位文案，供 FormFieldRow 内容槽嵌入。
+    private func valueLabel(_ text: String, color: UIColor = AppColor.textSecondary) -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: AppFont.sizeMd)
+        label.textColor = color
+        label.textAlignment = .right
+        return label
+    }
+
+    private func agreementLabel() -> UILabel {
+        let label = UILabel()
+        label.text = "我已阅读并同意《用户协议》与《隐私政策》"
+        label.font = .systemFont(ofSize: AppFont.sizeXs)
+        label.textColor = AppColor.textSecondary
+        label.textAlignment = .left
+        return label
+    }
+
+    /// 宿主提交按钮（全宽主色胶囊），用于 Form.submitView 槽。
+    private func primaryButton(title: String, action: @escaping () -> Void) -> UIButton {
+        let button = UIButton(type: .custom)
+        button.setTitle(title, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .semibold)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = AppColor.primary
+        button.contentEdgeInsets = UIEdgeInsets(top: 10, left: AppSpace.lg, bottom: 10, right: AppSpace.lg)
+        button.layer.cornerRadius = 20
+        button.clipsToBounds = true
+        button.addAction(UIAction { _ in action() }, for: .touchUpInside)
+        return button
+    }
+
+    /// 把自适应高视图钉入段容器（top/leading/trailing），由内容高推出容器高。
+    private func pinFitted(_ view: UIView, in container: UIView, after previous: UIView? = nil) {
+        container.addSubview(view)
+        view.snp.makeConstraints { make in
+            if let previous {
+                make.top.equalTo(previous.snp.bottom).offset(AppSpace.md)
+            } else {
+                make.top.equalToSuperview()
+            }
+            make.leading.trailing.equalToSuperview()
+        }
+    }
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 基础字段布局（label 左 + 内容右 + 必填星 + help）") { container in
+            let phone = FormFieldRow(label: "手机号", required: true, content: valueLabel("138****8888"))
+            let nick = FormFieldRow(label: "昵称", required: true, content: valueLabel("有鱼记账"))
+            let intro = FormFieldRow(label: "简介", help: "选填，一句话介绍自己", content: valueLabel("有鱼记账小助手"))
+            let form = Form(groupTitle: "登录信息", rows: [phone, nick, intro])
+            pinFitted(form, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(form.snp.bottom) }
+        }
+        addInfo("字段行 label 左内容右 · 必填星主色 · 行间 hairline 全卡宽分隔 · help 行内次色小字。")
+    }
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 校验错误渲染（行内红字 + 无错不占位）") { container in
+            let phone = FormFieldRow(label: "手机号", required: true, content: valueLabel("请输入手机号", color: AppColor.textPrimary))
+            let nick = FormFieldRow(label: "昵称", required: true, content: valueLabel("A"))
+            let intro = FormFieldRow(label: "简介", help: "选填，一句话介绍自己", content: valueLabel("已通过", color: AppColor.primary))
+            d2Phone = phone
+            d2Nick = nick
+            let form = Form(rows: [phone, nick, intro])
+            pinFitted(form, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(form.snp.bottom) }
+        }
+        demoButtonRow(
+            ("触发校验", { [weak self] in
+                guard let self else { return }
+                self.d2Phone?.error = "手机号不能为空"
+                self.d2Nick?.error = "昵称至少 2 个字符"
+                self.d2Feedback?.text = "校验失败：两行 error 红字展开（帮助文案被 error 顶替）"
+                self.d2Feedback?.textColor = AppColor.error
+            }),
+            ("清空校验", { [weak self] in
+                guard let self else { return }
+                self.d2Phone?.error = nil
+                self.d2Nick?.error = nil
+                self.d2Feedback?.text = "校验通过：error 清空=红字收起不占位（简介 help 恢复灰字）"
+                self.d2Feedback?.textColor = AppColor.primary
+            })
+        )
+        d2Feedback = addDynamicInfo("首屏无错误；点「触发校验」展开 error 行，点「清空校验」收起。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 长 label 折行 + 无 label 行（内容全宽）") { container in
+            let longLabel = FormFieldRow(label: "账单导出文件名前缀（支持中文，最长 20 字）", content: valueLabel("2026-09 消费", color: AppColor.textPrimary))
+            let agreement = FormFieldRow(label: nil, content: agreementLabel())
+            let form = Form(rows: [longLabel, agreement])
+            pinFitted(form, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(form.snp.bottom) }
+        }
+        addInfo("label 超长在 96pt 区内自动折行（行随内容增高）；无 label 字段内容占整行。")
+    }
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 多分组卡片 + 提交按钮槽（宿主按钮）") { container in
+            let form1 = Form(groupTitle: "账户信息", rows: [
+                FormFieldRow(label: "用户名", content: valueLabel("damon88131787")),
+                FormFieldRow(label: "邮箱", content: valueLabel("da****@opc.local")),
+                FormFieldRow(label: "手机号", content: valueLabel("138****8888")),
+            ])
+            pinFitted(form1, in: container)
+            let form2 = Form(groupTitle: "安全设置", rows: [
+                FormFieldRow(label: "登录密码", content: valueLabel("已设置 · 去修改 ›", color: AppColor.primary)),
+                FormFieldRow(label: "二次验证", content: valueLabel("已开启 ›", color: AppColor.primary)),
+            ])
+            form2.submitView = primaryButton(title: "保存修改") { [weak self] in
+                guard let self else { return }
+                self.d4Feedback?.text = "提交：表单内容与校验结论=宿主职责（本 demo 无业务校验）"
+                self.d4Feedback?.textColor = AppColor.primary
+            }
+            pinFitted(form2, in: container, after: form1)
+            container.snp.makeConstraints { $0.bottom.equalTo(form2.snp.bottom) }
+        }
+        d4Feedback = addDynamicInfo("多分组卡上下排（间距 md）· 提交槽=库内/宿主按钮（置于 Form.submitView）。", color: AppColor.textSecondary)
     }
 }
 

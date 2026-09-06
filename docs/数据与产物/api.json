@@ -2391,6 +2391,53 @@
       "reviewed": true
     },
     {
+      "id": "ui.form",
+      "name": "表单 Form",
+      "category": "ui",
+      "summary": "表单布局容器（分组卡片排版，不承载输入渲染）：Form 单分组卡（可选 groupTitle + 字段行 + 可选提交区槽）+ FormFieldRow（label 96pt/96dp 固定区超长折行 + required 必填星 primary + 内容槽宿主自理 + 行内 help/error 共用提示槽）；行高 min 48、行间 hairline 全卡宽分隔；校验算法与表单状态=宿主职责，组件只渲染文案",
+      "capabilities": [
+        "表单",
+        "Form",
+        "字段",
+        "form-item",
+        "表单布局",
+        "表单校验渲染"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "FormView.swift（Form + FormFieldRow：内容槽=content: UIView 宿主自理；手动 frame 布局高度由内容推出 + intrinsicContentSize）"
+        },
+        "android": {
+          "state": "available",
+          "note": "Form.kt（Form + FormFieldRow：内容槽=RowScope lambda 宿主 weight 占余宽；content 语法差异表内放行）"
+        }
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.form",
+      "industry_names": ["Form", "表单", "form-item", "字段"],
+      "props": [
+        ["groupTitle", "分组标题", "否", "可选；置于卡内顶部，Xs 字号次色"],
+        ["rows", "字段行列表", "是", "FormFieldRow 数组（iOS）；Android 侧=content lambda 内顺序放置 FormFieldRow（语法差异表内放行）"],
+        ["submitView", "提交区槽", "否", "宿主自放按钮等；置于字段行下方并收底边距（Android=content 内放置，库内 Button）"],
+        ["label", "字段标签", "否", "FormFieldRow；96pt/96dp 固定区自动折行（≤约 6 汉字/行）；空/缺=内容全宽"],
+        ["required", "必填星", "否", "FormFieldRow；星 primary 前置（纯展示不参与校验）"],
+        ["help", "帮助文案", "否", "FormFieldRow；error 为空时显示，行内次色 Xs 小字"],
+        ["error", "校验错误文案", "否", "FormFieldRow；非空=行内红字 Xs 并顶替 help；error 出现/清空行随提示行增高/收起不占位"],
+        ["content", "内容槽", "是", "宿主自放输入控件/mock；iOS=UIView（高可经 intrinsicContentSize/sizeThatFits 解析）、Android=RowScope lambda"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础字段布局", "登录信息分组：手机号/昵称必填 + 简介 help；label 左内容右 + 行间 hairline 全卡宽（D1）"],
+        ["校验错误渲染", "点「触发校验」手机号/昵称 error 红字行展开、help 被顶替；「清空校验」红字收起不占位（D2）"],
+        ["长 label 折行 + 无 label 行", "96 区自动折行行随内容增高；无 label 字段内容占整行（协议勾选行 mock）（D3）"],
+        ["多分组卡片 + 提交槽", "账户信息/安全设置两卡（间距 md）+ submitView 保存按钮槽，点按钮段内回显（D4）"]
+      ],
+      "note": "表单布局容器（数据录入区第二批三件之一，任务清单 #28）：分组卡片 + 字段行排版 + help/error 文案渲染管道，不含输入控件（对标 Vant Form 收敛为库内设计语言）；与基础 Cell/配置 ConfigProvider 划界=本组件为字段级表单语义（label 区 96 固定/必填星/校验文案槽）；校验算法=宿主职责（同 Vant rules 收敛）。2026-09-06 门禁 A AI 代评通过（规格 form-design-spec.html + review-form-A.md，P1–P4 全 A：P1-A 分组卡片表单容器不承载输入渲染/校验宿主自理、P2-A Form+FormFieldRow API、P3-A label 空内容全宽/help error 共用槽、P4-A 一期=分组卡+长 label 折行+提交槽+多分组+demo 四段）+ 双端实现入库（FormView.swift / Form.kt + iOS FormShowcase/Android FormDemo 4 段 1:1，demo 徽标 v1.0；Android assembleDebug 编译通过）。待 C1.5 用户实机验收；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
+    },
+    {
       "id": "ui.card",
       "name": "卡片 Card",
       "category": "ui",

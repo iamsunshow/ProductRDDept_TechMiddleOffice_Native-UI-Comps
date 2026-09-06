@@ -65,7 +65,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.search-bar", name: "SearchBar 搜索栏", reviewed: true, create: { SearchBarShowcase() }),
             DemoComponent(id: "ui.short-password", name: "ShortPassword 短密码", reviewed: true, create: { ShortPasswordShowcase() }),
             DemoComponent(id: "ui.signature", name: "Signature 签名", reviewed: true, create: { SignatureShowcase() }),
-            DemoComponent(id: "ui.switch", name: "Switch 开关", reviewed: false, create: nil),
+            DemoComponent(id: "ui.switch", name: "Switch 开关", reviewed: true, create: { SwitchShowcase() }),
             DemoComponent(id: "ui.text-area", name: "TextArea 文本域", reviewed: false, create: nil),
             DemoComponent(id: "ui.uploader", name: "Uploader 上传", reviewed: false, create: nil),
         ]),
@@ -7059,4 +7059,179 @@ final class PickerShowcase: ShowcaseViewController {
     private var feedbackLabel2: UILabel?
     private var feedbackLabel3: UILabel?
     private var feedbackLabel4: UILabel?
+}
+
+final class SwitchShowcase: ShowcaseViewController {
+    private var d1Feedback: UILabel?
+    private var d1Switch: SwitchView?
+    private var d2Feedback: UILabel?
+    private var d2RowA: SwitchView?
+    private var d2RowB: SwitchView?
+    private var d3Feedback: UILabel?
+    private var d3LockedA: SwitchView?
+    private var d3LockedB: SwitchView?
+    private var d4Feedback: UILabel?
+    private var d4Switch: SwitchView?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Switch", version: "v1.0", builtAt: "2026-09-06")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    /// 宿主行尾开关（label 行首 + Switch 行尾=FormFieldRow #28 / Cell trailing 嵌用示意）。
+    /// 高度 28 随行内嵌（宿主行高 min48 内容垂直居中），核组件无内置 label。
+    private func addRowSwitch(label: String, on switchView: SwitchView, container: UIView, after: UIView? = nil) {
+        let row = UIView()
+        container.addSubview(row)
+        row.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            if let after {
+                make.top.equalTo(after.snp.bottom).offset(AppSpace.sm)
+            } else {
+                make.top.equalToSuperview()
+            }
+            make.height.equalTo(48)
+        }
+
+        let labelView = UILabel()
+        labelView.text = label
+        labelView.font = .systemFont(ofSize: AppFont.sizeMd)
+        labelView.textColor = AppColor.textPrimary
+        row.addSubview(labelView)
+        row.addSubview(switchView)
+        labelView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(AppSpace.lg)
+            make.centerY.equalToSuperview()
+        }
+        switchView.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().offset(-AppSpace.lg)
+            make.centerY.equalToSuperview()
+        }
+    }
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 基础开/关（默认 off → 点按翻转 + 段内回显）") { container in
+            let sw = SwitchView(checked: nil, disabled: false) { [weak self] checked in
+                guard let self else { return }
+                self.d1Feedback?.text = checked ? "onChange → true（primary 轨道 + 滑块右移）" : "onChange → false（灰轨道 + 滑块归左）"
+                self.d1Feedback?.textColor = AppColor.primary
+            }
+            d1Switch = sw
+            container.addSubview(sw)
+            sw.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(AppSpace.md)
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.width.equalTo(48)
+                make.height.equalTo(28)
+            }
+            container.snp.makeConstraints { $0.bottom.equalTo(sw.snp.bottom).offset(AppSpace.md) }
+        }
+        demoButtonRow(
+            ("读当前值", { [weak self] in
+                guard let self, let sw = self.d1Switch else { return }
+                let state = sw.checked.map { $0 ? "true" : "false" } ?? "nil"
+                self.d1Feedback?.text = "checked 外部读取 → \(state)"
+                self.d1Feedback?.textColor = AppColor.textSecondary
+            })
+        )
+        d1Feedback = addDynamicInfo("点按=整枚翻转（off→on / on→off 均回调）；nil 内部自持初始 off；已开再点=关闭回灰。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 行尾嵌用（宿主行首 label · 行尾核组件；初始开态回显）") { container in
+            let rowA = SwitchView(checked: true, disabled: false) { [weak self] checked in
+                guard let self else { return }
+                self.d2Feedback?.text = checked ? "新消息通知 → 开（onChange）" : "新消息通知 → 关（onChange）"
+                self.d2Feedback?.textColor = AppColor.primary
+            }
+            d2RowA = rowA
+            addRowSwitch(label: "新消息通知（初始开态回显）", on: rowA, container: container)
+
+            let rowB = SwitchView(checked: false, disabled: false) { [weak self] checked in
+                guard let self else { return }
+                self.d2Feedback?.text = checked ? "仅 Wi-Fi 下载 → 开（onChange）" : "仅 Wi-Fi 下载 → 关（onChange）"
+                self.d2Feedback?.textColor = AppColor.primary
+            }
+            d2RowB = rowB
+            addRowSwitch(label: "仅 Wi-Fi 下载", on: rowB, container: container, after: rowA)
+            container.snp.makeConstraints { $0.bottom.equalTo(rowB.snp.bottom) }
+        }
+        demoButtonRow(
+            ("外部回显开", { [weak self] in
+                guard let self else { return }
+                self.d2RowB?.checked = true
+                self.d2Feedback?.text = "外部 checked=true 驱动回显（不触发 onChange=仅渲染路径）"
+                self.d2Feedback?.textColor = AppColor.textSecondary
+            }),
+            ("外部回显关", { [weak self] in
+                guard let self else { return }
+                self.d2RowB?.checked = false
+                self.d2Feedback?.text = "外部 checked=false 驱动回显（不触发 onChange=仅渲染路径）"
+                self.d2Feedback?.textColor = AppColor.textSecondary
+            })
+        )
+        d2Feedback = addDynamicInfo("label 文案=宿主行首（FormFieldRow #28 / Cell trailing 嵌用=开关只出核、无内置 label）。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · disabled 锁定（on/off 双灰锁 + 外部使能）") { container in
+            let lockedA = SwitchView(checked: true, disabled: true) { _ in }
+            d3LockedA = lockedA
+            addRowSwitch(label: "深色模式（开 · 已锁定=灰开态保留只读）", on: lockedA, container: container)
+
+            let lockedB = SwitchView(checked: false, disabled: true) { _ in }
+            d3LockedB = lockedB
+            addRowSwitch(label: "桌面小组件（关 · 已锁定）", on: lockedB, container: container, after: lockedA)
+            container.snp.makeConstraints { $0.bottom.equalTo(lockedB.snp.bottom) }
+        }
+        demoButtonRow(
+            ("锁定 / 解锁", { [weak self] in
+                guard let self else { return }
+                let next = !(self.d3LockedA?.disabled ?? true)
+                self.d3LockedA?.disabled = next
+                self.d3LockedB?.disabled = next
+                self.d3Feedback?.text = next ? "整组禁用：40% 灰 + on 灰开态保留、不可点无回调" : "整组已解锁（可点翻转）"
+                self.d3Feedback?.textColor = next ? AppColor.textSecondary : AppColor.primary
+            })
+        )
+        d3Feedback = addDynamicInfo("disabled=整件 alpha0.4 不可点无回调；on+disabled=灰 primary 轨道灰滑块保留开态（只读回显）。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 受控外部 checked 驱动（外部回显不触发 onChange）") { container in
+            let sw = SwitchView(checked: false, disabled: false) { [weak self] checked in
+                guard let self else { return }
+                self.d4Feedback?.text = checked ? "onChange → true（用户点按触发）" : "onChange → false（用户点按触发）"
+                self.d4Feedback?.textColor = AppColor.primary
+            }
+            d4Switch = sw
+            container.addSubview(sw)
+            sw.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(AppSpace.md)
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.width.equalTo(48)
+                make.height.equalTo(28)
+            }
+            container.snp.makeConstraints { $0.bottom.equalTo(sw.snp.bottom).offset(AppSpace.md) }
+        }
+        demoButtonRow(
+            ("外部打开", { [weak self] in
+                guard let self else { return }
+                self.d4Switch?.checked = true
+                self.d4Feedback?.text = "外部 checked=true → 回显开（无 onChange 日志=仅渲染路径）"
+                self.d4Feedback?.textColor = AppColor.textSecondary
+            }),
+            ("外部关闭", { [weak self] in
+                guard let self else { return }
+                self.d4Switch?.checked = false
+                self.d4Feedback?.text = "外部 checked=false → 回显关（无 onChange 日志=仅渲染路径）"
+                self.d4Feedback?.textColor = AppColor.textSecondary
+            })
+        )
+        d4Feedback = addDynamicInfo("半受控两条路径语义：外部赋值=同步回显不触发回调；用户点按翻转=回调 onChange(Bool)。", color: AppColor.textSecondary)
+    }
 }

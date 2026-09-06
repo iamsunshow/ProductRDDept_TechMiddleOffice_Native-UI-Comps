@@ -152,6 +152,7 @@ import com.zhiqihuayun.sharedui.components.Picker
 import com.zhiqihuayun.sharedui.components.PickerOption
 import com.zhiqihuayun.sharedui.components.Signature
 import com.zhiqihuayun.sharedui.components.SignatureController
+import com.zhiqihuayun.sharedui.components.Switch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -222,7 +223,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("SearchBar 搜索栏", reviewed = true, demo = { SearchBarDemo() }),
         DemoComponent("ShortPassword 短密码", reviewed = true, demo = { ShortPasswordDemo() }),
         DemoComponent("Signature 签名", reviewed = true, demo = { SignatureDemo() }),
-        DemoComponent("Switch 开关"),
+        DemoComponent("Switch 开关", reviewed = true, demo = { SwitchDemo() }),
         DemoComponent("TextArea 文本域"),
         DemoComponent("Uploader 上传"),
     ),
@@ -5893,6 +5894,161 @@ private fun SignatureDemo() {
         }
         Text(
             text = d4Msg ?: "disabled=签署提交后锁定（整板 40% 灰含已有笔迹、clear() 忽略）；宿主以 onInkChange(false) 禁用「提交」钮=空板点提交提示「请先签名」。",
+            fontSize = AppFont.sizeXs,
+            color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+    }
+}
+
+@Composable
+private fun SwitchDemo() {
+    Text(
+        text = "Switch 开关组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 基础开/关（半受控 nil 内部自持初始 off → 点按翻转 onChange 段内回显） ② 行尾嵌用（宿主行首 label · 行尾核组件=无内置 label；初始开态回显 + 外部回显驱动） ③ disabled 锁定（on/off 双灰锁=整件 40% 灰不可点无回调 + 外部使能） ④ 受控外部 checked 驱动（外部赋值=同步回显不触发 onChange / 用户点按翻转=回调）。双端 1:1（Android Switch vs iOS SwitchView）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 基础开/关（checked=nil 半受控内部自持初始 off → 点按翻转 onChange 回显；已开再点=关闭回灰）
+        Text("Demo 1 · 基础开/关（半受控 nil 自持 off → 点按翻转）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1Msg by remember { mutableStateOf<String?>(null) }
+        Switch(
+            checked = null,
+            onCheckedChange = { on ->
+                d1Msg = if (on) "onChange → true（primary 轨道 + 滑块右移）" else "onChange → false（灰轨道 + 滑块归左）"
+            }
+        )
+        Text(
+            text = d1Msg ?: "点按=整枚翻转（off→on / on→off 均回调）；checked=nil=内部自持初始 off；已开再点=关闭回灰。",
+            fontSize = AppFont.sizeXs,
+            color = if (d1Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D2 · 行尾嵌用（宿主行首 label · 行尾核组件；无内置 label；初始开态回显 + 外部 checked 驱动）
+        Text("Demo 2 · 行尾嵌用（宿主行首 label · 行尾核组件=无内置 label）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2RowA by remember { mutableStateOf(true) }
+        var d2RowB by remember { mutableStateOf(false) }
+        var d2Msg by remember { mutableStateOf<String?>(null) }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("新消息通知（初始开态回显）", fontSize = AppFont.sizeMd, color = AppColor.textPrimary)
+            Spacer(modifier = Modifier.weight(1f))
+            Switch(
+                checked = d2RowA,
+                onCheckedChange = { on ->
+                    d2RowA = on
+                    d2Msg = "新消息通知 → ${if (on) "开" else "关"}（onChange）"
+                }
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("仅 Wi-Fi 下载", fontSize = AppFont.sizeMd, color = AppColor.textPrimary)
+            Spacer(modifier = Modifier.weight(1f))
+            Switch(
+                checked = d2RowB,
+                onCheckedChange = { on ->
+                    d2RowB = on
+                    d2Msg = "仅 Wi-Fi 下载 → ${if (on) "开" else "关"}（onChange）"
+                }
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d2RowB = true
+                d2Msg = "外部 checked=true 驱动回显（不触发 onChange=仅渲染路径）"
+            }) { Text("外部回显开", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d2RowB = false
+                d2Msg = "外部 checked=false 驱动回显（不触发 onChange=仅渲染路径）"
+            }) { Text("外部回显关", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d2Msg ?: "label 文案=宿主行首（FormFieldRow #28 / Cell trailing 嵌用=开关只出核、无内置 label）；行高 48=交互行基准。",
+            fontSize = AppFont.sizeXs,
+            color = if (d2Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D3 · disabled 锁定（on/off 双灰锁=整件 40% 灰不可点无回调；on+disabled=灰开态保留只读 + 外部使能）
+        Text("Demo 3 · disabled 锁定（on/off 双灰锁 + 外部使能）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3Locked by remember { mutableStateOf(true) }
+        var d3Msg by remember { mutableStateOf<String?>(null) }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("深色模式（开 · 已锁定=灰开态保留只读）", fontSize = AppFont.sizeMd, color = AppColor.textPrimary)
+            Spacer(modifier = Modifier.weight(1f))
+            Switch(checked = true, disabled = d3Locked, onCheckedChange = {})
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("桌面小组件（关 · 已锁定）", fontSize = AppFont.sizeMd, color = AppColor.textPrimary)
+            Spacer(modifier = Modifier.weight(1f))
+            Switch(checked = false, disabled = d3Locked, onCheckedChange = {})
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d3Locked = !d3Locked
+                d3Msg = if (d3Locked) "整组禁用：40% 灰 + on 灰开态保留、不可点无回调" else "整组已解锁（可点翻转）"
+            }) { Text(if (d3Locked) "解锁" else "锁定 / 解锁", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d3Msg ?: "disabled=整件 alpha0.4 不可点无回调；on+disabled=灰 primary 轨道灰滑块保留开态（只读回显）。",
+            fontSize = AppFont.sizeXs,
+            color = if (d3Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D4 · 受控外部 checked 驱动（外部赋值=同步回显不触发 onChange；用户点按翻转=回调 onChange）
+        Text("Demo 4 · 受控外部 checked 驱动（外部回显不触发 onChange）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4Checked by remember { mutableStateOf(false) }
+        var d4Msg by remember { mutableStateOf<String?>(null) }
+        Switch(
+            checked = d4Checked,
+            onCheckedChange = { on ->
+                d4Checked = on
+                d4Msg = if (on) "onChange → true（用户点按触发）" else "onChange → false（用户点按触发）"
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d4Checked = true
+                d4Msg = "外部 checked=true → 回显开（无 onChange 日志=仅渲染路径）"
+            }) { Text("外部打开", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d4Checked = false
+                d4Msg = "外部 checked=false → 回显关（无 onChange 日志=仅渲染路径）"
+            }) { Text("外部关闭", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d4Msg ?: "半受控两条路径语义：外部赋值=同步回显不触发回调；用户点按翻转=回调 onChange(Bool)。",
             fontSize = AppFont.sizeXs,
             color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
         )

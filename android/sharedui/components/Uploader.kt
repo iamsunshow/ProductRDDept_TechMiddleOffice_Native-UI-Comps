@@ -99,19 +99,16 @@ fun Uploader(
     val allItems: List<Any?> = value.map { it as Any? } + if (showAdd) listOf(null) else emptyList()
     val columns = 4
 
+    val half = GridSpacing / 2
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .alpha(if (disabled) 0.4f else 1f),
-        verticalArrangement = Arrangement.spacedBy(GridSpacing)
+            .alpha(if (disabled) 0.4f else 1f)
     ) {
         allItems.chunked(columns).forEach { row ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(GridSpacing)
-            ) {
+            Row(modifier = Modifier.fillMaxWidth()) {
                 row.forEach { item ->
-                    Box(modifier = Modifier.weight(1f)) {
+                    Box(modifier = Modifier.weight(1f).padding(half)) {
                         when (item) {
                             is UploadItem -> {
                                 val index = value.indexOf(item)
@@ -128,12 +125,10 @@ fun Uploader(
                             )
                         }
                     }
-                    // 不足 4 列时用空 Box 占位保持列宽一致
-                    if (row.size < columns) {
-                        repeat(columns - row.size) {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-                    }
+                }
+                // 不足 4 列时用空 Box 占位保持列宽一致
+                repeat(columns - row.size) {
+                    Spacer(modifier = Modifier.weight(1f).padding(half))
                 }
             }
         }

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rate 评分 · 设计规格（数据录入区 #37 · 门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--textTertiary:#9CA3AF;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+/* ---- Rate demo 预览 mock（整星行评价点，示意=真实字形双端自绘五角星） ---- */
+.rt-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);padding:10px 16px 12px;}
+.rt-head{font-size:13px;color:var(--textPrimary);margin:2px 0 4px;font-weight:600;}
+.rt-sub{font-size:12px;color:var(--textSecondary);margin:0 0 6px;}
+.rt-row{display:flex;align-items:center;height:40px;font-size:24px;line-height:1;letter-spacing:6px;}
+.rt-stars.on{color:var(--primary);}
+.rt-stars.off{color:rgba(107,114,128,.3);}
+.rt-stars.dis{color:rgba(107,114,128,.4);}
+.rt-value{font-size:12px;color:var(--textPrimary);background:#F3F4F6;border-radius:6px;padding:3px 8px;margin-left:8px;font-weight:600;}
+.rt-btn{margin:4px 4px 0 0;padding:6px 14px;font-size:13px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--textPrimary);cursor:pointer;display:inline-block;user-select:none;}
+.rt-btn:active{background:#F3F4F6;}
+</style>
+</head>
+<body>
+<h1>Rate 评分 · 设计规格</h1>
+<p><span class="tag tag-meta">组件 ID：ui.rate</span> <span class="tag tag-meta">数据录入区 #37</span> <span class="tag tag-meta">subcategory=form</span> <span class="tag tag-meta">全新立项（双端从零，无近似收编）</span> <span class="tag tag-meta">设计稿 2026-09-06</span> <span class="tag tag-meta">门禁 A</span></p>
+
+<h2>01 · SCQA 组件定位与边界</h2>
+<div class="spec-card">
+<h3>适用场景（S）</h3>
+<p>「按程度给个整数评价」的录入与展示：① 服务/商品/订单评价=下单后打分（商家服务、物流、售后的星级）；② 满意度调研=选项做成 1–5 星点击（比单选文本档更省空间、直觉）；③ 详情页只读展示既有评分=彩色星排不可点（readonly）；④ 十分制/其它自定义刻度=count 可配。宿主自带 label 文案与提交，组件只出「n 颗星点」内容行。</p>
+<h3>目标与冲突（C）</h3>
+<p>需求=「点星/滑星定整数分」的直觉且可再次取消；冲突=离散 RadioGroup #35 带长文本适合少量枚举互斥、Range #36 是连续数值区间（评分非区间）、Switch #41 只是二元；双端系统控件（Android RatingBar 视觉脱离库内设计语言、iOS 无系统评分控件）不可直接入库；字符 ★ 在 iOS/Android 字形渲染不一致（Android 默认字体缺实心★字形会 fallback）不能双端 1:1。</p>
+<h3>问题（Q）</h3>
+<p>库内是否新增通用「Rate 整数星级评分」内容组件？</p>
+<h3>答案（A）</h3>
+<p><span class="tag tag-ok">定位</span> 是。新增 <b>ui.rate=行内 n 颗自绘星形评价点</b>（默认 5）：值=已点亮整星数 Int（0~count，0=未评合法态），点击某颗=点亮到该颗并回调、再点当前值同一颗=清空归 0（评价可取消）；横向滑动=随手指连续点亮/收回松手定值（拖选语义，超左端熄灭、超右端全亮）；半受控 value + count + readonly（只读彩色）+ disabled（灰 40%）+ onChange；星形双端自绘五角星 path（不用字符、不依赖字体）；无 label/文案/提交=宿主自理。</p>
+<h3>五态适配</h3>
+<p><span class="tag tag-ok">默认态 ✅</span> 点亮星=primary 填充、未点亮=textSecondary 30% 灰（空心同色描边视觉），value=0 时全灰（未评合法）；<span class="tag tag-ok">拖动态 ✅</span> 点击/滑动随手指实时点亮，松手回调定值（星本身无按压缩放、无涟漪，命中行=整行 40）；<span class="tag tag-ok">只读态 ✅</span> readonly=点亮星保持 primary 彩色展示、不可交互无回调（详情展示评分场景）；<span class="tag tag-ok">禁用态 ✅</span> disabled=整行 40% 灰（点亮星灰填、未点亮更浅灰）、不可交互无回调（与 readonly 并存时 disabled 压过=灰）；<span class="tag tag-ok">边缘态 ✅</span> value=0 合法（无评价=未评）、value=count 全亮合法；外部改 value 超界（<0 或 &gt;count）=clamp 回显不触发 onChange；<span class="tag tag-ok">加载/失败 N/A</span>（无内部异步态）。</p>
+<h3>划界与依赖</h3>
+<p>依赖=DesignTokens（AppColor/AppSpace）。与同区组件划界：<b>RadioGroup #35</b>=文本选项离散互斥一选一（Rate=无文本程度刻度、可清零可滑选）；<b>Menu #31 / Picker #33</b>=下拉选填大选项集；<b>Range #36</b>=双钮连续数值区间（Rate=整数离散等级点非区间）；<b>Switch #41</b>=二元开/关（Rate=0~n 多级评分）；<b>InputNumber #30</b>=步进改数值带数字回显（Rate=纯星级点选无数字编辑）。业务方（订单/服务评价、满意度调研、详情只读评分展示）复用本组件，宿主自理 label/分值文案/提交动作；与记账业务既有「月记账趋势」等图表星标无关（无星级前身件=纯从零）。</p>
+</div>
+
+<h2>02 · 尺寸与 Token 规格（零硬编码锚定）</h2>
+<div class="spec-card">
+<table>
+<tr><th>项</th><th>规格（iOS pt / Android dp 一一对应）</th><th>备注</th></tr>
+<tr><td>星形外接圆直径</td><td>22（星尖顶点在外接圆上；五角星凹点内接半径=外接半径×0.3820≈8.4）</td><td>22=sizeXl 视觉档（对齐 Tabbar 图标 22 视觉基准）；一期固定不做 size 参数（同库内钮/点 20 固定先例）</td></tr>
+<tr><td>星形形状</td><td>正五角星 path：10 顶点交替外接（R=11）/内接（R≈4.2）半径，起始角顶点朝上（-90°），步进 36°，iOS UIBezierPath / Android Path 同坐标算法</td><td>内凹比 0.382=黄金比=五角星标准比例（R_in=R×sin18°/sin54°）</td></tr>
+<tr><td>点亮 / 未点亮</td><td>点亮星=primary 填充；未点亮星=textSecondary alpha 0.3（描边同色 alpha0.3、内部留白=空心星视觉，描边宽 1.5）</td><td>textSecondary 30%=全库统一灰刻度惯例（同 #25/#35/#36）</td></tr>
+<tr><td>只读 / 禁用</td><td>readonly=点亮星仍 primary 彩色仅不可交互；disabled=点亮星 textSecondary alpha0.4 灰填、未点亮 textSecondary alpha0.2（整行降灰）不可交互</td><td>同全库 disabled 灰度惯例；readonly 不降色</td></tr>
+<tr><td>星间距</td><td>8（sm）水平等距；星间不含额外 padding</td><td>间距=AppSpace.sm</td></tr>
+<tr><td>行高 / 命中</td><td>行高 40（对齐 Radio #35/Checkbox #25/InputNumber #30 行基准），星 22 垂直居中，宽度=wrap content（仅星与间距总和=count×22+(count−1)×8，宿主组合不撑满）</td><td>整行为命中区；垂直上下 9 空白=命中扩展；组件 intrinsicContentSize 高=40</td></tr>
+<tr><td>数值模型</td><td>Int：value 0~count；count 默认 5（&gt;0 注释断言）</td><td>整数等级点=无小数无步长参数；半星=二期 allowHalf</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策（P1–P4 投票表）</h2>
+<div class="spec-card">
+<h3>P1 组件形态与星形实现</h3>
+<table>
+<tr><th>选项</th><th>方案</th><th>后果</th><th>结论</th></tr>
+<tr><td>A</td><td>整星行评价点（默认 5 颗）+ 双端自绘五角星 path：点亮 primary 填充、未点亮 textSecondary30% 描边空心；点击/滑动选整颗、可清零</td><td>双端 1:1 字形可控、视觉贴合库内设计语言、无字体依赖；实现=五角星 path 复用一算法两端生成</td><td><b>A 推荐 ✅</b></td></tr>
+<tr><td>B</td><td>字符星「★/☆」渲染点亮/未点亮</td><td>iOS SF 与 Android 默认字体 ★ 字形不一致（部分字体缺失实心★ fallback 变形）=双端无法保证 1:1</td><td>淘汰</td></tr>
+<tr><td>C</td><td>系统 RatingBar（Android）+ 自定义（iOS）不对齐</td><td>Android 系统星级样式/间距脱离库内设计语言，双端体验分裂</td><td>淘汰</td></tr>
+</table>
+<h3>P2 数值模型（值类型与刻度）</h3>
+<table>
+<tr><th>选项</th><th>方案</th><th>后果</th><th>结论</th></tr>
+<tr><td>A</td><td>Int 0~count 整星计数：value=已点亮颗数，0=未评合法态；count 可配（默认 5，&gt;0）</td><td>评价=整数档最直觉；0 未评=宿主表单语义保留；十分制等用 count=10 即可</td><td><b>A 推荐 ✅</b></td></tr>
+<tr><td>B</td><td>Double 0.5 步长半星（allowHalf）</td><td>半星展示/命中=需单独半星 path 与滑到半星逻辑=一期膨胀</td><td>二期候选（allowHalf）</td></tr>
+<tr><td>C</td><td>固定 5 星不许配 count</td><td>十分制/自定义刻度场景（招聘技能、问卷 1–10）无法表达</td><td>淘汰</td></tr>
+</table>
+<h3>P3 状态与事件（半受控/回调/只读/禁用/可取消）</h3>
+<table>
+<tr><th>选项</th><th>方案</th><th>后果</th><th>结论</th></tr>
+<tr><td>A</td><td>半受控：value Int? 可选（nil=内部自持初始 0）；外部赋值（含 clamp 后）仅同步回显不触发 onChange；点/滑选 k=onChange(k) 宿主回写、点当前值同一颗=onChange(0) 清空可取消；readonly=只读彩色不可交互无回调；disabled=整行 40% 灰不可交互无回调（与 readonly 并存 disabled 压过）</td><td>与 #25/#35/#36 半受控惯例一致；录入（可清零）+ 展示（只读）双场景通吃</td><td><b>A 推荐 ✅</b></td></tr>
+<tr><td>B</td><td>纯受控必传 value</td><td>宿主须自管初始与每次事件=API 繁重；详情只读展示也强制绑值</td><td>淘汰</td></tr>
+<tr><td>C</td><td>点击已亮星=幂等忽略（不可取消）</td><td>误选无出路=体验差（主流评分均支持再点取消）</td><td>淘汰（对齐 allowClear 惯例）</td></tr>
+</table>
+<h3>P4 一期裁剪与 Demo 四段</h3>
+<table>
+<tr><th>选项</th><th>方案</th><th>后果</th><th>结论</th></tr>
+<tr><td>A</td><td>一期=整星点击+横向滑动连选+再点清空+count+半受控+readonly+disabled+demo 四段：D1 基础评分点选（5 星点第 3 颗=3、点当前值清空=0，实时回显）｜D2 滑动连选（横滑连续点亮/收回松手定值）｜D3 只读与禁用（readonly 展示评分彩色不可点+禁用开关灰 40%+外部驱动 value）｜D4 自定义 count 与受控外部 value（count=10 十分制+外部 value=7/重置 0=仅回显不触发 onChange）</td><td>主路径+取消/只读/禁用/计数关键边界全覆盖；无半星=视觉与命中保持最简</td><td><b>A 推荐 ✅</b></td></tr>
+<tr><td>B</td><td>一期含半星 allowHalf + 数值文案气泡</td><td>半星命中/展示路径翻倍+气泡=一期不必要</td><td>二期候选</td></tr>
+<tr><td>C</td><td>一期含 label/评分文案/图标槽参数</td><td>壳类职责=宿主与 Form 自理，参数面扩大</td><td>淘汰（宿主自理）</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（D1–D4 mock，静态示意=真实字形双端自绘五角星）</h2>
+<div class="spec-card">
+<div class="rt-stage">
+<div class="rt-head">Demo 1 · 基础评分点选（count 5，当前 value=3）</div>
+<div class="rt-sub">点第 3 颗=3 并回调回显；再点当前值第 3 颗=清空归 0（评价可取消）；「重置」外部 value=0 驱动（不触发 onChange）。</div>
+<div class="rt-row"><span class="rt-stars on">★</span><span class="rt-stars on">★</span><span class="rt-stars on">★</span><span class="rt-stars off">★</span><span class="rt-stars off">★</span><span class="rt-value">3 分</span></div>
+</div>
+<div class="rt-stage">
+<div class="rt-head">Demo 2 · 滑动连选（count 5，松手定值回显）</div>
+<div class="rt-sub">手指横向滑动=随位点亮/收回连续变化，松手回调定值；超左=0 超右=5。</div>
+<div class="rt-row"><span class="rt-stars on">★</span><span class="rt-stars on">★</span><span class="rt-stars on">★</span><span class="rt-stars off">★</span><span class="rt-stars off">★</span><span class="rt-value">滑动中</span></div>
+</div>
+<div class="rt-stage">
+<div class="rt-head">Demo 3 · 只读与禁用（readonly 展示 value=4）</div>
+<div class="rt-sub">readonly=4 星彩色展示点不动；「禁用/启用」开关=整行 40% 灰（已评保留灰星）不可交互。</div>
+<div class="rt-row"><span class="rt-stars on">★</span><span class="rt-stars on">★</span><span class="rt-stars on">★</span><span class="rt-stars on">★</span><span class="rt-stars off">★</span><span class="rt-value">4 分</span></div>
+</div>
+<div class="rt-stage">
+<div class="rt-head">Demo 4 · 自定义 count 与受控（count 10 十分制，value=7）</div>
+<div class="rt-sub">「外部 value=10」「重置 0」=外部赋值仅回显不触发 onChange；拖动/点选=组件上报宿主回写。</div>
+<div class="rt-row"><span class="rt-stars on">★</span><span class="rt-stars on">★</span><span class="rt-stars on">★</span><span class="rt-stars on">★</span><span class="rt-stars on">★</span><span class="rt-stars on">★</span><span class="rt-stars on">★</span><span class="rt-stars off">★</span><span class="rt-stars off">★</span><span class="rt-stars off">★</span><span class="rt-value">7/10</span></div>
+</div>
+</div>
+
+<h2>05 · 平台差异表（表内放行）</h2>
+<div class="spec-card">
+<table>
+<tr><th>差异</th><th>iOS</th><th>Android</th><th>放行/说明</th></tr>
+<tr><td>手势实现</td><td>UITapGestureRecognizer+UIPanGestureRecognizer（点选+横滑连续）经 x→index 换算</td><td>Compose pointerInput awaitEachGesture 单自旋（down 即定 index 连点带滑统一处理）</td><td>实现机制差异，行为语义以本规格为准 ✅（Range #36 Android 双 detector 串行教训=统一自旋）</td></tr>
+<tr><td>状态回写</td><td>命令式：value didSet 同步回显 + setNeedsDisplay 刷新星形点亮数</td><td>声明式：value 参数驱动重组</td><td>全库先例（#25/#35/#36 同构）✅</td></tr>
+<tr><td>按压反馈</td><td>无涟漪/无按压缩放（命中即变亮）；自绘星不上系统交互样式</td><td>无系统涟漪（自绘 Canvas 不上 clickable ripple）</td><td>保持两端一致=无按压视觉 ✅</td></tr>
+<tr><td>尺寸单位/命名</td><td>pt；RateView/RateGlyphView</td><td>dp；Rate(count=5, value, onValueChange…)</td><td>pt/dp 一一对应（全库先例）✅</td></tr>
+<tr><td>无障碍</td><td>VoiceOver：容器 UIAccessibilityTraitAdjustable（value=当前分/count 语意+调节步进 1）</td><td>TalkBack：整行 ContentDescription（「评分 X/共 Y」）+可调节语义</td><td>系统级 ✅</td></tr>
+</table>
+</div>
+
+<h2>06 · API 契约（供门禁 B api.json 立项登记）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>字段/参数</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>1</td><td>value</td><td>Int?</td><td>否</td><td>半受控：nil=内部自持初始 0；外部赋值（含 clamp 0~count）仅同步回显不触发 onChange；0=未评合法态</td></tr>
+<tr><td>2</td><td>onChange / onValueChange</td><td>回调</td><td>是</td><td>(Int)：点第 k 颗或滑定 k=回调 k（1~count）；点当前值同一颗=回调 0 清空；readonly/disabled 无回调</td></tr>
+<tr><td>3</td><td>count</td><td>Int</td><td>否</td><td>星数，默认 5；&gt;0（注释断言）</td></tr>
+<tr><td>4</td><td>readonly</td><td>Boolean</td><td>否</td><td>只读彩色展示、不可交互无回调（详情评分场景）</td></tr>
+<tr><td>5</td><td>disabled</td><td>Boolean</td><td>否</td><td>整行 40% 灰、不可交互无回调；与 readonly 并存 disabled 压过</td></tr>
+<tr><td>6</td><td>allowHalf</td><td>Boolean</td><td>—</td><td>二期候选（本版本不做，登记 anti_goals）</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：行内 n 颗自绘星形整数评分内容组件、无 label 无提交=宿主自理；与 #35 RadioGroup/#31 Menu/#33 Picker/#36 Range/#41 Switch/#30 InputNumber 划界；业务订单评价/满意度调研/只读详情评分=复用）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（星外接圆 22/内凹比 0.382/星间距 8/行高 40/点亮 primary/未点亮 textSecondary30%/readonly 彩色/disabled 40% 灰）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A：整星自绘行评价点、Int 0~count 可配、半受控 value+点/滑回调+再点清空+readonly+disabled、一期无半星 demo 四段；反目标登记=半星 allowHalf/尺寸 size 参数/评分文案槽=二期或宿主）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础点选+清空/count5 滑动连选/只读+禁用/十分制+受控外部驱动）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均无 Rate/星级近似件=纯从零全新立项：Android 系统 RatingBar 视觉脱离库内设计语言不使用=Compose Canvas 自绘 Path；iOS 无系统评分控件=UIBezierPath 自绘；字符★有双端字形 fallback 风险=不自绘不采用；api.json 无 ui.rate 条目待门禁 B 立项登记；任务清单 #37 ⬜ 双端未实现 → 本次立项 📐）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（手势机制/命令式声明式回写/无涟漪一致/pt-dp/无障碍=系统级）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（半星 allowHalf=二期、size 参数化=二期候选、label/评分文案/提交=宿主与 Form 职责、震动/动画反馈=不做或宿主）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

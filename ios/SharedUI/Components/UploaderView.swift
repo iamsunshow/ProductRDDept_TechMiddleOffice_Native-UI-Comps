@@ -28,11 +28,11 @@ enum UploadStatus {
 struct UploadItem {
     let id: String
     let name: String
-    let size: Int64?
-    let thumbnailUrl: String?   // 网络缩略图 URL
-    let localPath: String?      // 本地文件路径
-    let status: UploadStatus
-    let progress: Float         // 0...1
+    let size: Int64? = nil
+    let thumbnailUrl: String? = nil   // 网络缩略图 URL
+    let localPath: String? = nil      // 本地文件路径
+    let status: UploadStatus = .pending
+    let progress: Float = 0           // 0...1
 }
 
 final class UploaderView: UIView {

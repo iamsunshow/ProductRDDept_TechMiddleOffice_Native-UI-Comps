@@ -4172,7 +4172,7 @@
         ["RadioGroup 禁用态", "组禁用开关整体 40% 灰；到店自提/预约配送选项级禁用不可点；value 初始指向禁用项=灰点灰圈只读保留（D3）"],
         ["RadioGroup 受控外部 value", "外部选 English/重置中文=value 赋值同步点亮（不触发 onChange）；点行=组件上报宿主回写（D4）"]
       ],
-      "note": "单选（数据录入区 #35，全新立项，2026-09-06）：通用排他单选双形态（单只 Radio + RadioGroup 垂直排他单选列表），圆形单选点 20 外圈描边 1.5 未选 textSecondary 30%/选中外圈 primary+中心实心点 8（与 Checkbox 方形复选划界=圆形排他点选即确定无 toggle 取消）；半受控 value 点选即确定/外部回显不触发/已选行幂等；禁用项/组禁/已选禁用灰保留；label 选中加粗。2026-09-06 门禁 A AI 代评通过（规格 design-spec/radio-design-spec.html + review-radio-A.md，P1–P4 全 A，用户「radio吧」选型）+ 同日双端实现入库（RadioView.swift=命令式 UIKit 自绘 RadioGlyphView / Radio.kt=声明式 Compose）+ iOS RadioShowcase / Android RadioDemo 4 段 1:1（D1 单只/D2 组排他/D3 禁用态/D4 受控外部），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0（C1.5 用户双端 Demo 实机验收通过后补记验收记录）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "单选（数据录入区 #35，全新立项，2026-09-06）：通用排他单选双形态（单只 Radio + RadioGroup 垂直排他单选列表），圆形单选点 20 外圈描边 1.5 未选 textSecondary 30%/选中外圈 primary+中心实心点 8（与 Checkbox 方形复选划界=圆形排他点选即确定无 toggle 取消）；半受控 value 点选即确定/外部回显不触发/已选行幂等；禁用项/组禁/已选禁用灰保留；label 选中加粗。2026-09-06 门禁 A AI 代评通过（规格 design-spec/radio-design-spec.html + review-radio-A.md，P1–P4 全 A，用户「radio吧」选型）+ 同日双端实现入库（RadioView.swift=命令式 UIKit 自绘 RadioGlyphView / Radio.kt=声明式 Compose）+ iOS RadioShowcase / Android RadioDemo 4 段 1:1（D1 单只/D2 组排他/D3 禁用态/D4 受控外部），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0（2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「radio通过，继续下一个组件」，4 段双端 1:1 全过，组件进度.md §3.4 行 35 📐→✅ 已回写）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     }

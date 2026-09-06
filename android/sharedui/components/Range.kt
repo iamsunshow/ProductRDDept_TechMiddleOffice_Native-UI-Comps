@@ -1,8 +1,9 @@
 package com.zhiqihuayun.sharedui.components
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +21,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.unit.dp
 import com.zhiqihuayun.foundation.design.AppColor
 import kotlin.math.abs
@@ -102,12 +104,11 @@ fun Range(
         modifier = modifier
             .fillMaxWidth()
             .height(RANGE_HEIGHT_DP.dp)
-            .pointerInput(value, min, max, step, disabled) {
+            .pointerInput(min, max, step, disabled) {
                 if (disabled) return@pointerInput
-                var active = RangeThumb.Start
                 fun commit(thumb: RangeThumb, atX: Float, widthPx: Float) {
                     val cur = internalValue
-                    var raw = snapToStep(xToValue(atX, widthPx, min, max), min, max, step)
+                    val raw = snapToStep(xToValue(atX, widthPx, min, max), min, max, step)
                     val next = when (thumb) {
                         RangeThumb.Start -> RangeValue(raw.coerceAtMost(cur.end), cur.end)
                         RangeThumb.End -> RangeValue(cur.start, raw.coerceAtLeast(cur.start))
@@ -122,24 +123,23 @@ fun Range(
                     val cur = internalValue
                     return if (abs(v - cur.start) <= abs(cur.end - v)) RangeThumb.Start else RangeThumb.End
                 }
-                // 点击轨道空段=吸附最近滑块到点击值
-                detectTapGestures { offset ->
+                // 统一手势自旋（同 Material Slider 模式，规避串行 detect* 第二者永不到达的陷阱）：
+                // down=吸附最近滑块到点击值并锁定活动钮；拖动=同一钮连续调整（step 对齐后回调）。
+                // key 仅放 min/max/step/disabled（不放 value）：拖动 onChange→宿主回写→recompose
+                // 若 key 含 value 会每帧取消重启手势 coroutine，拖动即断。
+                awaitEachGesture {
+                    val down = awaitFirstDown()
                     val w = size.width.toFloat()
-                    commit(thumb = nearest(offset.x, w), atX = offset.x, widthPx = w)
+                    val thumb = nearest(down.position.x, w)
+                    commit(thumb = thumb, atX = down.position.x, widthPx = w)
+                    drag(down.id) { change ->
+                        // 纵向位移=外层滚动容器主导（列表可滚），不消费不吸附
+                        val delta = change.positionChange()
+                        if (abs(delta.x) < abs(delta.y)) return@drag
+                        change.consume()
+                        commit(thumb = thumb, atX = change.position.x, widthPx = w)
+                    }
                 }
-                // 拖动活动滑块（start/end 硬钳制不可互相越过、可相等零宽单点）
-                detectDragGestures(
-                    onDragStart = { offset ->
-                        val w = size.width.toFloat()
-                        active = nearest(offset.x, w)
-                    },
-                    onDrag = { change, _ ->
-                        val w = size.width.toFloat()
-                        commit(thumb = active, atX = change.position.x, widthPx = w)
-                    },
-                    onDragEnd = { },
-                    onDragCancel = { }
-                )
             }
     ) {
         Canvas(Modifier.fillMaxSize()) {

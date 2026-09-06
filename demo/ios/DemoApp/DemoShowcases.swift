@@ -7361,7 +7361,7 @@ final class TextAreaShowcase: ShowcaseViewController {
             }
             let star = UILabel()
             star.text = "*"
-            star.textColor = AppColor.danger
+            star.textColor = AppColor.error
             star.font = .systemFont(ofSize: AppFont.sizeMd)
             labelRow.addSubview(star)
             star.snp.makeConstraints { make in
@@ -7399,7 +7399,7 @@ final class TextAreaShowcase: ShowcaseViewController {
             // 校验错误（宿主）
             let error = UILabel()
             error.font = .systemFont(ofSize: AppFont.sizeXs)
-            error.textColor = AppColor.danger
+            error.textColor = AppColor.error
             d4ErrorLabel = error
             container.addSubview(error)
             error.snp.makeConstraints { make in
@@ -7414,7 +7414,7 @@ final class TextAreaShowcase: ShowcaseViewController {
                 guard let self, let ta = self.d4TextArea else { return }
                 if ta.text.isEmpty {
                     self.d4ErrorLabel?.text = "请填写简介"
-                    self.d4ErrorLabel?.textColor = AppColor.danger
+                    self.d4ErrorLabel?.textColor = AppColor.error
                 } else {
                     self.d4ErrorLabel?.text = "校验通过 ✓（已输入 \(ta.text.count) 字）"
                     self.d4ErrorLabel?.textColor = AppColor.primary

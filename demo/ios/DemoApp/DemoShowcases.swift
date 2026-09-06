@@ -60,7 +60,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.picker", name: "Picker 选择器", reviewed: true, create: { PickerShowcase() }),
             DemoComponent(id: "ui.picker-view", name: "PickerView 视图", reviewed: false, create: nil),
             DemoComponent(id: "ui.radio", name: "Radio 单选", reviewed: true, create: { RadioShowcase() }),
-            DemoComponent(id: "ui.range", name: "Range 区间选择", reviewed: false, create: nil),
+            DemoComponent(id: "ui.range", name: "Range 区间选择", reviewed: true, create: { RangeShowcase() }),
             DemoComponent(id: "ui.rate", name: "Rate 评分", reviewed: false, create: nil),
             DemoComponent(id: "ui.search-bar", name: "SearchBar 搜索栏", reviewed: false, create: nil),
             DemoComponent(id: "ui.short-password", name: "ShortPassword 短密码", reviewed: false, create: nil),
@@ -5722,6 +5722,135 @@ final class RadioShowcase: ShowcaseViewController {
             })
         )
         d4Feedback = addDynamicInfo("受控：外部 value 赋值仅同步刷新高亮（不触发 onChange）；点行=组件上报并宿主回写。", color: AppColor.textSecondary)
+    }
+}
+
+// MARK: - Range Showcase（区间选择 · ui.range · #36）
+
+/// 横向双钮区间滑块：D1 基础区间拖动实时回显/重置外部驱动；D2 step5 离散吸附+点轨跳最近钮；
+/// D3 min 越界 clamp+禁用开关；D4 受控外部 value 驱动。与 Android RangeDemo 4 段 1:1 同构。
+final class RangeShowcase: ShowcaseViewController {
+    private var d1Feedback: UILabel?
+    private var d2Feedback: UILabel?
+    private var d3Feedback: UILabel?
+    private var d4Feedback: UILabel?
+    private var d1Range: RangeView?
+    private var d2Range: RangeView?
+    private var d3Range: RangeView?
+    private var d4Range: RangeView?
+
+    private static func fmt(_ v: Double) -> String {
+        v.rounded() == v ? String(Int(v)) : String(v)
+    }
+
+    private func rangeText(_ v: RangeValue, suffix: String = "") -> String {
+        "onChange → start \(Self.fmt(v.start)) · end \(Self.fmt(v.end))" + suffix
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Range", version: "v1.0", builtAt: "2026-09-06")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 基础区间（min 0 · max 100 · step 1 · 初始 25–75）") { container in
+            let range = RangeView(value: RangeValue(start: 25, end: 75)) { [weak self] v in
+                self?.d1Feedback?.text = self?.rangeText(v)
+                self?.d1Feedback?.textColor = AppColor.primary
+            }
+            d1Range = range
+            pinFullWidth(range, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(range.snp.bottom) }
+        }
+        demoButtonRow(
+            ("重置 25–75", { [weak self] in
+                guard let self else { return }
+                self.d1Range?.value = RangeValue(start: 25, end: 75)
+                self.d1Feedback?.text = "外部 value=(25,75) 赋值=同步回显（不触发 onChange）"
+                self.d1Feedback?.textColor = AppColor.textSecondary
+            })
+        )
+        d1Feedback = addDynamicInfo("拖动任一端钮=step 对齐后连续回调；start/end 硬钳制不可互相越过；点已激活区域外轨道=最近钮吸附。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 离散步进（min 0 · max 100 · step 5 · 初始 20–60）") { container in
+            let range = RangeView(value: RangeValue(start: 20, end: 60), step: 5) { [weak self] v in
+                self?.d2Feedback?.text = self?.rangeText(v, suffix: "（按 5 吸附）")
+                self?.d2Feedback?.textColor = AppColor.primary
+            }
+            d2Range = range
+            pinFullWidth(range, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(range.snp.bottom) }
+        }
+        d2Feedback = addDynamicInfo("拖动按 step5 档位吸附；点击轨道空段=吸附最近滑块跳到点击档位（如点 0–20 间=动 start）。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 值域与禁用（min 10→60 越界自动 clamp · step 10 · 初始 10–40）") { container in
+            let range = RangeView(value: RangeValue(start: 10, end: 40), min: 10, max: 90, step: 10) { [weak self] v in
+                self?.d3Feedback?.text = self?.rangeText(v)
+                self?.d3Feedback?.textColor = AppColor.primary
+            }
+            d3Range = range
+            pinFullWidth(range, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(range.snp.bottom) }
+        }
+        demoButtonRow(
+            ("改 min=60", { [weak self] in
+                guard let self else { return }
+                self.d3Range?.min = 60
+                self.d3Feedback?.text = "外部 min=60：start/end 越界端自动 clamp 回调（零宽单点 60=合法）"
+                self.d3Feedback?.textColor = AppColor.textSecondary
+            }),
+            ("禁用 / 启用", { [weak self] in
+                guard let self, let range = self.d3Range else { return }
+                range.disabled.toggle()
+                self.d3Feedback?.text = range.disabled
+                    ? "整条禁用：textSecondary 40% 灰、不可拖不可点无回调"
+                    : "整条已启用"
+                self.d3Feedback?.textColor = range.disabled ? AppColor.textSecondary : AppColor.primary
+            }),
+            ("重置", { [weak self] in
+                guard let self, let range = self.d3Range else { return }
+                range.min = 10
+                range.value = RangeValue(start: 10, end: 40)
+                self.d3Feedback?.text = "重置 min=10 value=(10,40)（外部回显不触发 onChange）"
+                self.d3Feedback?.textColor = AppColor.textSecondary
+            })
+        )
+        d3Feedback = addDynamicInfo("min/max 动态改=越界端自动 clamp（start/end 贴 min 边界=零宽单点合法）；disabled 整条灰。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 受控外部 value 驱动（min 0 · max 100 · 初始 40–80）") { container in
+            let range = RangeView(value: RangeValue(start: 40, end: 80)) { [weak self] v in
+                self?.d4Feedback?.text = self?.rangeText(v, suffix: "（宿主回写）")
+                self?.d4Feedback?.textColor = AppColor.primary
+            }
+            d4Range = range
+            pinFullWidth(range, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(range.snp.bottom) }
+        }
+        demoButtonRow(
+            ("预设 0–30", { [weak self] in
+                guard let self else { return }
+                self.d4Range?.value = RangeValue(start: 0, end: 30)
+                self.d4Feedback?.text = "外部 value=(0,30) 预设=仅同步回显（不触发 onChange）"
+                self.d4Feedback?.textColor = AppColor.textSecondary
+            }),
+            ("预设 60–100", { [weak self] in
+                guard let self else { return }
+                self.d4Range?.value = RangeValue(start: 60, end: 100)
+                self.d4Feedback?.text = "外部 value=(60,100) 预设=仅同步回显（不触发 onChange）"
+                self.d4Feedback?.textColor = AppColor.textSecondary
+            })
+        )
+        d4Feedback = addDynamicInfo("半受控：外部 value 赋值仅同步刷新滑块位置与激活段（不触发 onChange）；拖动=组件上报并宿主回写。", color: AppColor.textSecondary)
     }
 }
 

@@ -13,9 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -94,30 +93,46 @@ fun Uploader(
     modifier: Modifier = Modifier
 ) {
     val showAdd = value.size < maxCount
-    val itemCount = value.size + (if (showAdd) 1 else 0)
+    // 构建完整列表（文件项 + 添加按钮占位）
+    val allItems: List<Any?> = value.map { it as Any? } + if (showAdd) listOf(null) else emptyList()
+    val columns = 4
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(4),
-        horizontalArrangement = Arrangement.spacedBy(GridSpacing),
-        verticalArrangement = Arrangement.spacedBy(GridSpacing),
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .alpha(if (disabled) 0.4f else 1f)
+            .alpha(if (disabled) 0.4f else 1f),
+        verticalArrangement = Arrangement.spacedBy(GridSpacing)
     ) {
-        itemsIndexed(value) { index, item ->
-            UploaderCell(
-                item = item,
-                disabled = disabled,
-                onDelete = { onRemove(index) },
-                onRetry = { onRetry(index) }
-            )
-        }
-        if (showAdd) {
-            item {
-                UploaderAddCell(
-                    disabled = disabled,
-                    onClick = onAdd
-                )
+        allItems.chunked(columns).forEach { row ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(GridSpacing)
+            ) {
+                row.forEach { item ->
+                    Box(modifier = Modifier.weight(1f)) {
+                        when (item) {
+                            is UploadItem -> {
+                                val index = value.indexOf(item)
+                                UploaderCell(
+                                    item = item,
+                                    disabled = disabled,
+                                    onDelete = { onRemove(index) },
+                                    onRetry = { onRetry(index) }
+                                )
+                            }
+                            null -> UploaderAddCell(
+                                disabled = disabled,
+                                onClick = onAdd
+                            )
+                        }
+                    }
+                    // 不足 4 列时用空 Box 占位保持列宽一致
+                    if (row.size < columns) {
+                        repeat(columns - row.size) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
             }
         }
     }

@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,7 +33,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -127,6 +130,8 @@ import com.zhiqihuayun.sharedui.components.CheckboxGroup
 import com.zhiqihuayun.sharedui.components.CheckboxOption
 import com.zhiqihuayun.sharedui.components.Input
 import com.zhiqihuayun.sharedui.components.NumberKeyboard
+import com.zhiqihuayun.sharedui.components.Picker
+import com.zhiqihuayun.sharedui.components.PickerOption
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -189,8 +194,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("InputNumber 数字输入", reviewed = true, demo = { InputNumberDemo() }),
         DemoComponent("Menu 菜单", reviewed = true, demo = { MenuDemo() }),
         DemoComponent("NumberKeyboard 数字键盘", reviewed = true, demo = { NumberKeyboardDemo() }),
-        DemoComponent("NumberKeyboard 数字键盘"),
-        DemoComponent("Picker 选择器"),
+        DemoComponent("Picker 选择器", reviewed = true, demo = { PickerDemo() }),
         DemoComponent("PickerView 视图"),
         DemoComponent("Radio 单选"),
         DemoComponent("Range 区间选择"),
@@ -4820,5 +4824,199 @@ private fun InputDemo() {
             fontSize = AppFont.sizeXs,
             color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
         )
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PickerDemo() {
+    val payOptions = remember {
+        listOf(
+            PickerOption("wechat", "微信支付"),
+            PickerOption("alipay", "支付宝"),
+            PickerOption("bank", "银行卡"),
+            PickerOption("cash", "现金")
+        )
+    }
+    val ledgers = remember {
+        listOf(
+            PickerOption("all", "全部"),
+            PickerOption("home", "家庭账本"),
+            PickerOption("trip", "旅行账本"),
+            PickerOption("decor", "装修账本"),
+            PickerOption("food", "餐饮账本"),
+            PickerOption("daily", "日用账本"),
+            PickerOption("trans", "交通账本"),
+            PickerOption("medical", "医疗账本"),
+            PickerOption("edu", "教育账本"),
+            PickerOption("fun", "娱乐账本"),
+            PickerOption("social", "人情账本"),
+            PickerOption("deleted", "删除的账本", disabled = true)
+        )
+    }
+    fun labelOf(options: List<PickerOption>, value: String): String =
+        options.firstOrNull { it.value == value }?.text ?: value
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.xl)
+            .padding(top = AppSpace.lg, bottom = AppSpace.xl)
+    ) {
+        Text(
+            "Picker 选择器组件 v1.0",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.primary,
+            modifier = Modifier.padding(bottom = AppSpace.xs)
+        )
+        Text(
+            "单列滚轮选择器内容块=工具栏 44（取消/标题/确定）+滚轮 220=5 行×44；受控 value 初始滚停+外部回滚定位；确定=onChange、取消=滚回 value 行不回调（宿主依 onCancel 自理关闭）。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary,
+            modifier = Modifier.padding(bottom = AppSpace.xs)
+        )
+        Text(
+            "选项 disabled：行灰 40% 且滚掠不可停靠（自动吸附最近可用行）；与 Menu（平铺下拉）/Cascader（级联）划界。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary,
+            modifier = Modifier.padding(bottom = AppSpace.sm)
+        )
+
+        // D1 单列基础（确定提交 / 取消不提交）
+        var d1Value by remember { mutableStateOf("alipay") }
+        var d1Msg by remember { mutableStateOf("") }
+        Text(
+            "Demo 1 · 单列基础（确定提交 / 取消不提交）",
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(top = AppSpace.sm, bottom = AppSpace.xs)
+        )
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(AppRadius.md),
+            color = AppColor.bgCard,
+            border = BorderStroke(1.dp, AppColor.border)
+        ) {
+            Picker(
+                options = payOptions,
+                value = d1Value,
+                title = "付款方式",
+                onChange = { v ->
+                    d1Value = v
+                    d1Msg = "确定 → ${labelOf(payOptions, v)}（value 受控同步）"
+                }
+            )
+        }
+        Text(
+            if (d1Msg.isNotEmpty()) d1Msg else "初始支付宝居中高亮：滚轮改选→「确定」回调回显并保持选中；点「取消」滚回 value 行不回调。",
+            fontSize = AppFont.sizeXs,
+            color = if (d1Msg.isNotEmpty()) AppColor.primary else AppColor.textSecondary,
+            modifier = Modifier.padding(top = AppSpace.xs, bottom = AppSpace.sm)
+        )
+
+        // D2 长列表 + 选项禁用（掠行不可停靠）
+        var d2Value by remember { mutableStateOf("all") }
+        var d2Msg by remember { mutableStateOf("") }
+        Text(
+            "Demo 2 · 长列表 + 选项禁用（掠行不可停靠）",
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(top = AppSpace.sm, bottom = AppSpace.xs)
+        )
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(AppRadius.md),
+            color = AppColor.bgCard,
+            border = BorderStroke(1.dp, AppColor.border)
+        ) {
+            Picker(
+                options = ledgers,
+                value = d2Value,
+                title = "选择账本",
+                onChange = { v ->
+                    d2Value = v
+                    d2Msg = "确定 → ${labelOf(ledgers, v)}"
+                }
+            )
+        }
+        Text(
+            if (d2Msg.isNotEmpty()) d2Msg else "12 项滚动；末项「删除的账本」灰显滚掠不可停靠（停靠自动吸附最近可用行）。",
+            fontSize = AppFont.sizeXs,
+            color = if (d2Msg.isNotEmpty()) AppColor.primary else AppColor.textSecondary,
+            modifier = Modifier.padding(top = AppSpace.xs, bottom = AppSpace.sm)
+        )
+
+        // D3 受控外部驱动（外部 value 回滚定位）
+        var d3Value by remember { mutableStateOf("bank") }
+        var d3Msg by remember { mutableStateOf("") }
+        Text(
+            "Demo 3 · 受控外部驱动（外部 value 回滚定位）",
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(top = AppSpace.sm, bottom = AppSpace.xs)
+        )
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(AppRadius.md),
+            color = AppColor.bgCard,
+            border = BorderStroke(1.dp, AppColor.border)
+        ) {
+            Picker(
+                options = payOptions,
+                value = d3Value,
+                title = "付款方式",
+                onChange = { v ->
+                    d3Value = v
+                    d3Msg = "确定 → ${labelOf(payOptions, v)}（内部确认路径正常）"
+                }
+            )
+        }
+        Row(modifier = Modifier.padding(top = AppSpace.xs)) {
+            TextButton(onClick = { d3Value = "cash" }) { Text("外部回显：现金", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = { d3Value = "wechat" }) { Text("外部回显：微信支付", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            if (d3Msg.isNotEmpty()) d3Msg else "外部 set value → 滚轮 animate 定位对应行并高亮（不触发 onChange）；「确定」仍走内部确认。",
+            fontSize = AppFont.sizeXs,
+            color = if (d3Msg.isNotEmpty()) AppColor.primary else AppColor.textSecondary,
+            modifier = Modifier.padding(top = AppSpace.xs, bottom = AppSpace.sm)
+        )
+
+        // D4 宿主 sheet 弹层用法（系统承载内容块）
+        var showSheet by remember { mutableStateOf(false) }
+        var d4Value by remember { mutableStateOf("cash") }
+        var d4Msg by remember { mutableStateOf("") }
+        Text(
+            "Demo 4 · 宿主 sheet 弹层用法（系统承载内容块）",
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(top = AppSpace.sm, bottom = AppSpace.xs)
+        )
+        TextButton(onClick = { showSheet = true }) {
+            Text("打开选择支付方式（宿主 ModalBottomSheet）", fontSize = AppFont.sizeXs)
+        }
+        Text(
+            if (d4Msg.isNotEmpty()) d4Msg else "弹层机制=宿主职责：本组件无遮罩无自绘浮层，host 用系统 sheet 承载内容块，确定/取消按回调自理关闭。",
+            fontSize = AppFont.sizeXs,
+            color = if (d4Msg.isNotEmpty()) AppColor.primary else AppColor.textSecondary,
+            modifier = Modifier.padding(top = AppSpace.xs)
+        )
+        if (showSheet) {
+            ModalBottomSheet(onDismissRequest = { showSheet = false }, containerColor = AppColor.bgCard) {
+                Picker(
+                    options = payOptions,
+                    value = d4Value,
+                    title = "选择支付方式",
+                    onChange = { v ->
+                        d4Value = v
+                        d4Msg = "已选：${labelOf(payOptions, v)}"
+                        showSheet = false
+                    },
+                    onCancel = { showSheet = false }
+                )
+            }
+        }
     }
 }

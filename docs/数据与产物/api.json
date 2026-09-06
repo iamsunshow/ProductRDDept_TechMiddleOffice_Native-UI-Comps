@@ -344,7 +344,7 @@
       "id": "ui.picker",
       "name": "选择器 Picker",
       "category": "ui",
-      "summary": "单列选项选择（对标 UIPickerView / Ant Select·Picker）",
+      "summary": "单列滚轮选择器内容块（数据录入区，iOS 收编近似 OptionPickerSheetViewController 组件化升级转双端通用立项）=工具栏 44（取消/标题/确定）+ 单列滚轮可视区 220=5 行×44：受控 value 初始滚停与外部回滚定位（外部 set 驱动滚轮 animate 定位不触发 onChange）；点「确定」=onChange(选中行 value) 提交、点「取消」=丢弃临时滚动态滚回 value 行并回调可选 onCancel（宿主据此自理关闭）；无遮罩无自绘浮层=宿主页面卡片内嵌/系统 sheet 承载均可；选项级 disabled=行灰 40% 且滚掠不可停靠自动吸附最近可用行、组件级 disabled=整体 40% 灰不可滚；与 Cascader（级联）/Menu（平铺下拉）/date-picker 系（日期专用）/业务 CategoryPicker（记账分类网格）划界；picker-view #34=二期无工具栏纯多列滚轮基础件",
       "capabilities": [
         "选项选择",
         "OptionPicker",
@@ -352,6 +352,8 @@
         "Picker",
         "Select",
         "UIPickerView",
+        "滚轮选择",
+        "单列选择",
         "选择器 Picker",
         "basic.picker",
         "ui.option-picker"
@@ -359,11 +361,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": ""
+          "note": "PickerView.swift：UIPickerView 单列 rowHeight=44 可视 220=5 行 + 工具栏 44 取消/标题/确定；受控 value（didSet 滚轮 selectRow animate 定位）；禁用行 didSelectRow 自动吸附最近启用行；组件级 disabled 整体 40% 灰不可交互；intrinsicContentSize=264=bar44+wheel220"
         },
         "android": {
-          "state": "unavailable",
-          "note": ""
+          "state": "available",
+          "note": "Picker.kt：LazyColumn 自绘滚轮 220dp（行 44dp，contentPadding top88/bottom132 使首末项可停中心带）+ SnapPosition.Center 滚掠吸附（foundation 1.7.6 嵌套 object）；derivedStateOf 视口中心行推导 + 禁用行 LaunchedEffect 吸附；上/下 70dp 线性渐变遮罩 + 选中带 hairline 夹线；半受控 value LaunchedEffect animate 定位"
         },
         "harmony": {
           "state": "unavailable",
@@ -379,16 +381,26 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/OptionPickerSheetViewController.swift"
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/PickerView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Picker.kt"
       },
       "deps": [],
       "variants": [],
-      "anti_goals": [],
-      "visual_tokens": [],
+      "anti_goals": [
+        "二期=Popup 悬浮弹层+遮罩/滑入动画（随 Popup/Overlay 组合，组件自身无遮罩无浮层）",
+        "二期=多列滚轮/级联组合",
+        "picker-view #34=无工具栏纯多列滚轮基础件（独立立项不并入本组件）"
+      ],
+      "visual_tokens": [
+        "AppColor",
+        "AppFont"
+      ],
       "apis": "",
-      "visual_refs": [],
+      "visual_refs": [
+        "ProductRDDept/TechMiddleOffice/Native-UI-Comps/docs/数据与产物/design-spec/picker-design-spec.html"
+      ],
       "status": "stable",
-      "search_text": "basic.picker 选择器 Picker 单列选项选择（对标 UIPickerView / Ant Select·Picker） basic Picker Select UIPickerView 选项选择 OptionPicker 枚举选择 Picker Select UIPickerView 选择器 Picker basic.picker ui.option-picker ui.option-picker",
+      "search_text": "basic.picker 选择器 Picker 单列选项选择 滚轮选择 Picker Select UIPickerView 选项选择 OptionPicker 枚举选择 选择器 Picker basic.picker ui.option-picker",
       "embedding_ref": "vector-store/ui_picker.json",
       "legacy_id": "ui.option-picker",
       "industry_names": [
@@ -399,31 +411,62 @@
       "props": [
         [
           "options",
-          "{label,value}[]",
+          "PickerOption[]",
           "是",
-          "选项"
+          "选项池：PickerOption(value/text/disabled)；text=滚轮行文案、disabled=禁停靠灰显行（滚掠不可停靠自动吸附最近启用行）"
         ],
         [
           "value",
           "string",
           "是",
-          "选中值"
+          "受控选中值：初始滚停+外部 set 驱动 animate 定位回显（不触发 onChange）；不在池中=回落首个启用项"
+        ],
+        [
+          "disabled",
+          "boolean",
+          "否",
+          "组件级禁用：整体 40% 灰不可滚 + 工具栏按钮不可点"
+        ],
+        [
+          "title/cancelText/confirmText",
+          "string",
+          "否",
+          "工具栏文案，默认 请选择/取消/确定"
         ]
       ],
       "events": [
         [
           "onChange",
           "(value) => void",
-          "确认"
+          "点「确定」提交当前选中行 value"
+        ],
+        [
+          "onCancel",
+          "() => void",
+          "点「取消」滚回 value 行后回调（宿主据此自理关闭；组件无遮罩不处理弹层关闭）"
         ]
       ],
       "demos": [
         [
-          "选择",
-          "<Picker options={...} value={...} onChange={...} />"
+          "单列基础（确定提交/取消不提交）",
+          "付款方式 4 项（D1）：初始支付宝居中高亮，确定回调回显保持选中、取消滚回 value 行不回调"
+        ],
+        [
+          "长列表 + 选项禁用（掠行不可停靠）",
+          "账本 12 项 + 末项「删除的账本」disabled 灰显（D2）"
+        ],
+        [
+          "受控外部驱动（外部 value 回滚定位）",
+          "外部 set value 滚轮 animate 定位不触发 onChange；「确定」仍走内部确认（D3）"
+        ],
+        [
+          "宿主 sheet 弹层用法（系统承载内容块）",
+          "Android ModalBottomSheet / iOS pageSheet 承载，确定/取消按回调自理关闭（D4）"
         ]
       ],
-      "subcategory": "input"
+      "note": "选择器 Picker（数据录入区第二批立项件，任务清单 #33）：单列滚轮选择器内容块=工具栏 44+滚轮 220（5 行×44），iOS 收编近似 OptionPickerSheetViewController（legacy ui.option-picker，pageSheet 320pt UIPickerView 单列+顶栏）组件化升级为双端通用立项、Android 从零自绘滚轮（sharedui 仅 MonthPickerSheet 日期专用轮盘无通用滚轮基础件）；受控 value+确定提交/取消回滚不回调、选项 disabled 掠行不可停靠自动吸附、无遮罩宿主承载（页面内嵌/系统 sheet）。2026-09-06 门禁 A AI 代评通过（design-spec/picker-design-spec.html + review-picker-A.md，P1–P4 全 A）+ 同日门禁 B 双端实现入库（PickerView.swift=命令式 UIKit UIPickerView / Picker.kt=声明式 Compose LazyColumn+SnapPosition.Center）+ iOS PickerShowcase/Android PickerDemo 4 段 1:1，demo 徽标 v1.0（builtAt 2026-09-06），Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0；统一待 C1 单测补建 + C1.5 用户双端 Demo 实机验收 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
     },
     {
       "id": "ui.webview",

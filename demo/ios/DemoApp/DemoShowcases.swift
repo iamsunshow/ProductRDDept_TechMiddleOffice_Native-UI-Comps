@@ -57,7 +57,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.input-number", name: "InputNumber 数字输入", reviewed: true, create: { InputNumberShowcase() }),
             DemoComponent(id: "ui.menu", name: "Menu 菜单", reviewed: true, create: { MenuShowcase() }),
             DemoComponent(id: "ui.number-keyboard", name: "NumberKeyboard 数字键盘", reviewed: true, create: { NumberKeyboardShowcase() }),
-            DemoComponent(id: "ui.picker", name: "Picker 选择器", reviewed: false, create: nil),
+            DemoComponent(id: "ui.picker", name: "Picker 选择器", reviewed: true, create: { PickerShowcase() }),
             DemoComponent(id: "ui.picker-view", name: "PickerView 视图", reviewed: false, create: nil),
             DemoComponent(id: "ui.radio", name: "Radio 单选", reviewed: false, create: nil),
             DemoComponent(id: "ui.range", name: "Range 区间选择", reviewed: false, create: nil),
@@ -5924,3 +5924,193 @@ final class NumberKeyboardShowcase: ShowcaseViewController {
     }
 }
 
+
+// MARK: - Picker 选择器（ui.picker #33）
+
+/// 宿主弹层载体（Demo D4）：系统 pageSheet 承载 Picker 内容块（弹层机制=宿主职责，组件无遮罩无自绘浮层）
+private final class PickerSheetHostViewController: UIViewController {
+    private let options: [PickerOption]
+    private let initialValue: String
+    private let sheetTitle: String
+    private let onSelect: ((String) -> Void)?
+
+    init(options: [PickerOption], value: String, title: String, onSelect: @escaping (String) -> Void) {
+        self.options = options
+        self.initialValue = value
+        self.sheetTitle = title
+        self.onSelect = onSelect
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError("init(coder:) 未支持") }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = AppColor.bgCard
+        let picker = PickerView(
+            options: options,
+            value: initialValue,
+            title: sheetTitle,
+            onChange: { [weak self] v in
+                self?.dismiss(animated: true) { self?.onSelect?(v) }
+            },
+            onCancel: { [weak self] in
+                self?.dismiss(animated: true)
+            }
+        )
+        view.addSubview(picker)
+        picker.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            picker.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
+            picker.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            picker.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            picker.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -16)
+        ])
+    }
+}
+
+final class PickerShowcase: ShowcaseViewController {
+    private let payOptions: [PickerOption] = [
+        PickerOption(value: "wechat", text: "微信支付"),
+        PickerOption(value: "alipay", text: "支付宝"),
+        PickerOption(value: "bank", text: "银行卡"),
+        PickerOption(value: "cash", text: "现金")
+    ]
+    private let ledgers: [PickerOption] = [
+        PickerOption(value: "all", text: "全部"),
+        PickerOption(value: "home", text: "家庭账本"),
+        PickerOption(value: "trip", text: "旅行账本"),
+        PickerOption(value: "decor", text: "装修账本"),
+        PickerOption(value: "food", text: "餐饮账本"),
+        PickerOption(value: "daily", text: "日用账本"),
+        PickerOption(value: "trans", text: "交通账本"),
+        PickerOption(value: "medical", text: "医疗账本"),
+        PickerOption(value: "edu", text: "教育账本"),
+        PickerOption(value: "fun", text: "娱乐账本"),
+        PickerOption(value: "social", text: "人情账本"),
+        PickerOption(value: "deleted", text: "删除的账本", disabled: true)
+    ]
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Picker 选择器", version: "v1.0", builtAt: "2026-09-06")
+        addInfo("单列滚轮选择器内容块=工具栏 44（取消/标题/确定）+滚轮 220=5 行×44；受控 value 初始滚停+外部回滚定位；确定=onChange、取消=滚回 value 行不回调（宿主依 onCancel 自理关闭）。")
+        addInfo("选项 disabled：行灰 40% 且滚掠不可停靠（自动吸附最近可用行）；与 Menu（平铺下拉）/Cascader（级联）划界。")
+
+        // D1 单列基础（确定提交 / 取消不提交）
+        addSection(title: "Demo 1 · 单列基础（确定提交 / 取消不提交）") { container in
+            var current = "alipay"
+            let picker = PickerView(
+                options: self.payOptions,
+                value: current,
+                title: "付款方式",
+                onChange: { [weak self] v in
+                    current = v
+                    self?.setD1Message("确定 → \(self?.label(of: self!.payOptions, value: v) ?? v)（value 受控同步）")
+                }
+            )
+            picker.backgroundColor = AppColor.bgCard
+            self.pinFullWidth(picker, in: container)
+            picker.snp.makeConstraints { $0.bottom.equalToSuperview() }
+        }
+        feedbackLabel1 = addDynamicInfo("初始支付宝居中高亮：滚轮改选→「确定」回调回显并保持选中；点「取消」滚回 value 行不回调。")
+
+        // D2 长列表 + 选项禁用（掠行不可停靠）
+        addSection(title: "Demo 2 · 长列表 + 选项禁用（掠行不可停靠）") { container in
+            var current = "all"
+            let picker = PickerView(
+                options: self.ledgers,
+                value: current,
+                title: "选择账本",
+                onChange: { [weak self] v in
+                    current = v
+                    self?.setD2Message("确定 → \(self?.label(of: self!.ledgers, value: v) ?? v)")
+                }
+            )
+            picker.backgroundColor = AppColor.bgCard
+            self.pinFullWidth(picker, in: container)
+            picker.snp.makeConstraints { $0.bottom.equalToSuperview() }
+        }
+        feedbackLabel2 = addDynamicInfo("12 项滚动；末项「删除的账本」灰显滚掠不可停靠（停靠自动吸附最近可用行）。")
+
+        // D3 受控外部驱动（外部 value 回滚定位）
+        addSection(title: "Demo 3 · 受控外部驱动（外部 value 回滚定位）") { container in
+            var current = "bank"
+            let picker = PickerView(
+                options: self.payOptions,
+                value: current,
+                title: "付款方式",
+                onChange: { [weak self] v in
+                    current = v
+                    self?.setD3Message("确定 → \(self?.label(of: self!.payOptions, value: v) ?? v)（内部确认路径正常）")
+                }
+            )
+            picker.backgroundColor = AppColor.bgCard
+            self.pinFullWidth(picker, in: container)
+
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.spacing = AppSpace.xs
+            row.distribution = .fillEqually
+            let toCash = UIButton(type: .system)
+            toCash.setTitle("外部回显：现金", for: .normal)
+            toCash.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs)
+            toCash.addAction(UIAction { _ in current = "cash"; picker.value = "cash" }, for: .touchUpInside)
+            let toWechat = UIButton(type: .system)
+            toWechat.setTitle("外部回显：微信支付", for: .normal)
+            toWechat.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs)
+            toWechat.addAction(UIAction { _ in current = "wechat"; picker.value = "wechat" }, for: .touchUpInside)
+            row.addArrangedSubview(toCash)
+            row.addArrangedSubview(toWechat)
+            self.pinFullWidth(row, in: container, after: picker)
+            row.snp.makeConstraints { $0.bottom.equalToSuperview() }
+        }
+        feedbackLabel3 = addDynamicInfo("外部 set value → 滚轮 animate 定位对应行并高亮（不触发 onChange）；「确定」仍走内部确认。")
+
+        // D4 宿主 sheet 弹层用法（系统承载内容块）
+        addSection(title: "Demo 4 · 宿主 sheet 弹层用法（系统承载内容块）") { container in
+            var current = "cash"
+            let open = UIButton(type: .system)
+            open.setTitle("打开选择支付方式（pageSheet）", for: .normal)
+            open.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs)
+            open.addAction(UIAction { [weak self] _ in
+                guard let self else { return }
+                let host = PickerSheetHostViewController(
+                    options: self.payOptions,
+                    value: current,
+                    title: "选择支付方式"
+                ) { v in
+                    current = v
+                    self.setD4Message("已选：\(self.label(of: self.payOptions, value: v))")
+                }
+                host.modalPresentationStyle = .pageSheet
+                if let sheet = host.sheetPresentationController {
+                    sheet.detents = [.custom(resolver: { _ in 300 })]
+                    sheet.prefersGrabberVisible = true
+                }
+                self.present(host, animated: true)
+            }, for: .touchUpInside)
+            self.pinFullWidth(open, in: container)
+            open.snp.makeConstraints { $0.bottom.equalToSuperview() }
+        }
+        feedbackLabel4 = addDynamicInfo("弹层机制=宿主职责：本组件无遮罩无自绘浮层，host 用系统 sheet 承载内容块，确定/取消按回调自理关闭。")
+    }
+
+    private func label(of options: [PickerOption], value: String) -> String {
+        options.first(where: { $0.value == value })?.text ?? value
+    }
+
+    private func setD1Message(_ text: String) { feedbackText1 = text }
+    private func setD2Message(_ text: String) { feedbackText2 = text }
+    private func setD3Message(_ text: String) { feedbackText3 = text }
+    private func setD4Message(_ text: String) { feedbackText4 = text }
+    private var feedbackText1 = "" { didSet { if !feedbackText1.isEmpty { feedbackLabel1?.text = feedbackText1 } } }
+    private var feedbackText2 = "" { didSet { if !feedbackText2.isEmpty { feedbackLabel2?.text = feedbackText2 } } }
+    private var feedbackText3 = "" { didSet { if !feedbackText3.isEmpty { feedbackLabel3?.text = feedbackText3 } } }
+    private var feedbackText4 = "" { didSet { if !feedbackText4.isEmpty { feedbackLabel4?.text = feedbackText4 } } }
+    private var feedbackLabel1: UILabel?
+    private var feedbackLabel2: UILabel?
+    private var feedbackLabel3: UILabel?
+    private var feedbackLabel4: UILabel?
+}

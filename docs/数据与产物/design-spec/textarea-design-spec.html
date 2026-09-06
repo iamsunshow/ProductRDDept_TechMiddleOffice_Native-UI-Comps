@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>TextArea 文本域 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--textTertiary:#9CA3AF;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- TextArea demo 预览 mock（多行文本域） ---- */
+.ta-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.ta-wrap{padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+.ta-field{background:#F9FAFB;border-radius:12px;padding:12px;font-size:16px;color:var(--textPrimary);line-height:24px;white-space:pre-wrap;word-break:break-word;}
+.ta-field .ta-ph{color:#9CA3AF;}
+.ta-line{color:var(--textPrimary);}
+.ta-field.dis{opacity:.5;color:var(--textTertiary);}
+.ta-field.small{height:120px;overflow:hidden;}
+.ta-rows{display:block;font-size:12px;color:var(--textSecondary);padding:0 14px 12px;margin-top:-4px;}
+.ta-btn{margin:2px 12px 12px;padding:6px 14px;font-size:13px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--textPrimary);cursor:pointer;display:inline-block;user-select:none;}
+.ta-btn:active{background:#F3F4F6;}
+.ta-formlabel{font-size:14px;font-weight:600;margin:2px 0 6px;}
+.ta-star{color:var(--error);}
+.ta-err{font-size:12px;color:var(--error);margin-top:6px;}
+.ta-count{font-size:12px;color:var(--textSecondary);margin-top:6px;text-align:right;}
+</style>
+</head>
+<body>
+
+<h1>TextArea 文本域 · 设计规格（数据录入组件 #42 · 任务清单 #42，subcategory=form · 门禁 A）</h1>
+<p>组件 ID：<code>ui.textarea</code> ｜ 定位：<b>通用多行文本输入内容组件（受控）</b>——宿主容器给定宽度（表单内容槽/页面布局），TextArea 提供文本域壳（灰底圆角多行输入区，沿用 Input #29 壳视觉语言）+ placeholder（顶部左对齐）+ 受控 value/onTextChange + rows 可视行 + 内部滚动 + maxLength（输入路径截断）+ disabled；label/必填/校验文案/字数统计/提交=宿主职责。对标 Ant Design TextArea 收敛为库内自有设计语言；业务端备注/简介类多行录入迄今为宿主直拼系统控件未沉淀=本件双端纯从零（视觉语言对齐已收编 Input #29）。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-06，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 表单单字段多行文本录入（个人简介/备注/留言/收货说明/地址详情等，置于 FormFieldRow #28 内容槽，行高随控件撑开）；② 页内长文本编辑（意见反馈/补充说明）；③ 受控回显：宿主持 value 预填/清空/追加外部驱动（编辑页、草稿恢复）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 富文本/格式文本（加粗/颜色/图片粘贴/提及@/表情面板）→ 专项组件或宿主自研；② 自动增高（autoGrow 随输入撑高）→ 二期（一期固定可视行+内部滚动）；③ 字数统计角标 → 宿主或二期（宿主读 value 自理=展示语义归宿主）；④ 单行输入/掩码/键盘类型/尾槽/清除钮 → ui.input #29（Input=单行文本域、TextArea=多行文本域=同一壳语言的两形态）；⑤ label/必填星/帮助/错误文案 → FormFieldRow #28 职责（TextArea 壳内不嵌 label/error，校验态壳不变红）</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 空值=placeholder 灰字（textSecondary）顶部左对齐；<span class="tag tag-ok">输入态 ✅</span> 值 textPrimary Md16 行高 24 多行换行+原生光标；<span class="tag tag-ok">聚焦态 ✅</span> 壳视觉不变（灰底无边框），光标与系统键盘为原生聚焦反馈（无额外描边强调=二期可加 primary 细边方案）；<span class="tag tag-ok">禁用态 ✅</span> 整壳 textSecondary 40% 灰、不可编辑不可滚动不可聚焦（已填灰文可读）；错误/校验态=FormFieldRow 行内红字呈现（壳不变红=表单语义归 Form）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；与 Form #28=TextArea 作为内容槽放入 FormFieldRow（label/错误行）+ 宿主定宽定高；与 Input #29=同壳语言同受控模型同 maxLength/disabled 惯例（单行→多行形态）、复用为升级路径；键盘弹出避让=宿主页面容器职责（滚动/inset，双端同语义）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>文本域壳</td><td>底 bgPage 灰（无描边无阴影）；圆角 lg（radius lg=同 Input #29 壳）；内边距 md（12）四向（上下与左右一致=内容与壳留白呼吸感）</td><td>灰底圆角多行输入区=库内输入壳视觉（与 Input 灰底圆角条同语言，仅单行 48→多行按行排版）</td></tr>
+<tr><td>文本排版</td><td>文本 Md16 textPrimary；行高 24=cellTitleLineHeight 库 token（Md16 文本基准行高，两端同值注释锚定）；多行顶部对齐可换行；光标原生</td><td>行高 24 为库内已有 token（Android AppTokens.cellTitleLineHeight=24sp / iOS cellTitleLineHeight=24pt 注释锚定），非新造硬编码</td></tr>
+<tr><td>可视行高</td><td>rows 参数（Int，默认 3）决定可视行数；整件高 = rows × 行高24 + 上下内边距 md12×2；默认 3 行 = 3×24+24 = 96pt/96dp（96=2×48 交互行基准，同 Signature #40 默认板高 96 注释锚定）</td><td>rows 由宿主传（1~N），空态/输入态/长文态同高（超限内部滚动，不抖动）；宽度=宿主决定</td></tr>
+<tr><td>placeholder</td><td>textSecondary Md16 顶部左对齐（不居中=多行阅读起点在左上）</td><td>库内无 textTertiary token=placeholder 用 textSecondary（同 Input #29 实现惯例=InputView/Input.kt placeholder=textSecondary，注释锚定）</td></tr>
+<tr><td>滚动</td><td>内容行数超过可视 rows 时内部滚动（内容滚动查看+光标随键入滚到可视底部）</td><td>iOS UITextView 原生滚动 / Android 内容容器 verticalScroll（平台差异表 §05）</td></tr>
+<tr><td>禁用/限制</td><td>disabled=整壳 textSecondary 40% 灰+不可编辑不可滚动不可点；maxLength（0/缺省=不限）仅对输入路径截断（外部赋值不强制截断）</td><td>disabled 优先级最高（灰态可读不可编辑）；maxLength 含粘贴/连续输入只收前 N（同 Input #29 惯例）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：通用多行文本域内容组件（受控）——灰底圆角壳+多行文本排版（Md16 行高 24）+placeholder（顶部左）+受控 value/onTextChange+rows 可视行+内部滚动+maxLength 截断+disabled；宿主容器/Form 决定宽度与 label/校验</td><td>✅ 长文本录入核心闭环收敛；视觉语言复用 Input #29 壳=同一输入语言的两形态（单行/多行）；无内嵌 label/校验=与 Form 划界干净；双端实现=系统多行控件（UITextView/BasicTextField）+壳+滚动，轻量可靠</td><td><b>推荐 A</b>：通用内容组件（多行形态）</td></tr>
+<tr><td>B：做成 Form 绑定"文本行"（内置 label/必填星/错误渲染/字数）</td><td>与 FormFieldRow #28（label+required+help/error）职责重复；脱离 Form 不可用=复用性差；字数=宿主展示语义</td><td>淘汰：label/校验/字数=Form/宿主职责</td></tr>
+<tr><td>C：承载富文本编辑（加粗/颜色/图片/emoji 面板）</td><td>体量与原生控件能力远超文本录入域；双端富文本内核各自体系（iOS TextKit vs Android Span）1:1 极难；与组件库文本录入主线无关</td><td>淘汰：专项自研/宿主场景，二期候选专项</td></tr>
+</table>
+
+<h3>P2 · 数据/接口模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：String value + onTextChange(String) 直通——value 唯一真源、每次编辑回传新文本；配套 placeholder/rows/maxLength/disabled 参数</td><td>✅ 与 Input #29 完全同构（单行直通模型升多行），两端原生多行控件（UITextView.text/BasicTextField value+onValueChange）零转译；宿主天然持全量文本（字数统计/校验/提交都需要）</td><td><b>推荐 A</b>：直通模型（同 Input）</td></tr>
+<tr><td>B：细分事件模型（onFocus/onBlur/onChange 分段）</td><td>一期无聚焦态 UI 需求=过度；与 Input #29 惯例不一致</td><td>淘汰：二期（若聚焦强调视觉立项再补）</td></tr>
+<tr><td>C：双向绑定包装（宿主传对象引用、组件直接改对象字段）</td><td>跨端契约对象引用语义不同、回写链隐晦难排查；与库内值+回调惯例不符</td><td>淘汰</td></tr>
+</table>
+
+<h3>P3 · 状态控制：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：受控 value（必传，外部 setValue=直接刷新文本；onTextChange 仅在用户编辑触发）——iOS 命令式 text 属性外部赋值即时刷新；Android value 参数变化自动重组</td><td>✅ 文本组件天然受控（宿主必须存文本=双源不可能）；外部预填/清空/追加=直接改 value 即回显且不触发编辑回调（D2 demo）；两端编辑回调与外部赋值路径清晰分离（同 Input #29）</td><td><b>推荐 A</b>：文本=受控真源</td></tr>
+<tr><td>B：半受控（value 可选，nil=组件内部持值自管理）</td><td>内部自持文本=宿主字数统计/提交时不可得；与"宿主需全量文本"诉求冲突</td><td>淘汰：多行文本不自持双源</td></tr>
+<tr><td>C：纯自管理+onSubmit 才回传</td><td>实时编辑过程宿主不知=字数/校验/联动无法做</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：多行文本域=灰壳+多行排版（Md16 行高 24）+placeholder（顶部左）+受控 value+rows 可视行（默认 3）+内部滚动+maxLength（输入截断）+disabled+demo 四段</td><td>✅ 长文本录入完整闭环（空态/输入/长文滚动/禁用/外部驱动/截断）可逐验；rows 宿主可控高度=适用简介/备注/留言多场景；无 label/校验/字数=与 Form 组合由宿主演示</td><td><b>推荐 A</b>：核心闭环可验收</td></tr>
+<tr><td>B：一期含 autoGrow 随内容自动增高 + 字数统计角标</td><td>autoGrow=内容变化改组件高（需测量/回写宿主布局=交互面大）；字数=宿主可读 value 自理（TextArea 内置角标=越界展示职责）</td><td>淘汰：登记二期（autoGrow/字数=宿主或二期）</td></tr>
+<tr><td>C：一期含工具栏（emoji/@/图片附件）或富文本片段</td><td>工具栏=宿主场景能力；富文本=P1-C 已淘汰</td><td>淘汰：宿主自理</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础多行输入（placeholder 空态 → 键入回显）</h3>
+<p>mock：备注输入（placeholder「请输入备注」rows=3 高 96）。空值灰占位顶部左对齐 → 点入聚焦弹系统键盘（软键盘回车=插入换行）→ 键入两行文本 onTextChange 段内回显；验证多行排版（行高 24 顶部对齐）+placeholder+真实键盘多行输入链路。</p>
+<div class="ta-stage">
+<div class="ta-wrap">
+<div class="ta-field"><span class="ta-line">第一次到店消费，体验很好。</span><br/><span class="ta-line">店员服务热情，环境干净整洁。</span></div>
+</div>
+<span class="ta-rows">当前值：第一次到店消费，体验很好。\n店员服务热情，环境干净整洁。（段内回显 · 多行换行正常）</span>
+</div>
+
+<h3>D2 · 受控外部赋值 + 长文内部滚动</h3>
+<p>mock：默认 rows=3 高 96。「预填长文」按钮外部 value=50 行长文 → 文本域仅可视首 3 行、内容内部滚动（滑动查看全文）+外部赋值 0 次 onTextChange；「读当前值」段内回显 value；「清空」外部 value="";。验证受控回显+内部滚动+编辑/外部路径分离。</p>
+<div class="ta-stage">
+<div class="ta-wrap">
+<div class="ta-field small"><span class="ta-line">第一行……第二行……第三行（可视 3 行，后续行内部滚动可达）……</span></div>
+</div>
+<span class="ta-btn">预填长文</span><span class="ta-btn">读当前值</span><span class="ta-btn">清空</span>
+<span class="ta-rows">外部 value 变更 → 文本域同步刷新（不触发 onTextChange）；超长内容内部滚动查看</span>
+</div>
+
+<h3>D3 · maxLength 截断 + disabled 锁定</h3>
+<p>mock：上=可编辑文本域 maxLength=20（键入/粘贴超长内容仅保留前 20 字符，段内回显截断结果）；下=disabled 禁用域（已填内容整壳 40% 灰、不可编辑不可滚动不可点）。验证输入路径截断与禁用态。</p>
+<div class="ta-stage">
+<div class="ta-wrap">
+<div class="ta-field"><span class="ta-line">最多 20 个字符，超出自动截断仅</span></div>
+<div class="ta-field dis"><span class="ta-line">这是只读的禁用文本域内容（40% 灰可读不可编辑）</span></div>
+</div>
+<span class="ta-rows">上=maxLength 输入/粘贴只收前 N · 下=disabled 整壳灰不可交互</span>
+</div>
+
+<h3>D4 · 宿主表单组装（label/校验/字数=宿主职责）</h3>
+<p>mock：FormFieldRow「个人简介」+必填星 → TextArea rows=4（高 120）placeholder「介绍一下自己吧」；段下「提交」空值=宿主 error「请填写简介」（红字）、字数计数「已输入 0/100」由宿主读 value 计算实时联动。验证 TextArea 只做多行输入、表单语义由宿主承载（壳不变红）。</p>
+<div class="ta-stage">
+<div class="ta-wrap">
+<div class="ta-formlabel">个人简介 <span class="ta-star">*</span></div>
+<div class="ta-field"><span class="ta-ph">介绍一下自己吧（rows=4 · 高 120 · 由宿主指定）</span></div>
+<span class="ta-err">请填写简介（宿主 Form 校验红字 · 壳不变红）</span>
+<span class="ta-count">已输入 0/100（宿主读 value 计数）</span>
+</div>
+</div>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>文本编辑内核</td><td>UITextView（scrollEnabled=true；delegate textViewDidChange/shouldChangeCharacters 截断；textContainerInset=0 对齐壳内边距由组件布局给）</td><td>BasicTextField 多行（同 Input #29 同源；onValueChange 截断；外层容器 verticalScroll）</td><td>系统输入控件不同、多行编辑行为一致（表内放行）</td></tr>
+<tr><td>placeholder</td><td>UITextView 无原生 placeholder=自绘 UILabel 叠放（textSecondary Md16 顶部左；空值且有输入焦点仍显示=轻量实现/输入即隐）</td><td>decorationBox 内空值 Text（textSecondary Md16 顶部左）</td><td>平台 placeholder 机制不同、视觉一致（表内放行）</td></tr>
+<tr><td>行高排版</td><td>textView.font=Md16 + attributedText/typingAttributes 段落行高 24（NSMutableParagraphStyle minimum/maximum lineHeight）</td><td>textStyle Md16 + lineHeight 24sp（Compose TextLineHeightStyle 默认）</td><td>平台排版 API 不同、行高 24 数值同（表内放行）</td></tr>
+<tr><td>内部滚动</td><td>UITextView 原生 scrollEnabled（内容超高自动可滚、光标随输入滚入可视）</td><td>内容 BasicTextField 外层 verticalScroll(rememberScrollState)（光标跟随=ScrollableTextState 焦点滚动，见实现）</td><td>平台滚动机制不同、行为一致（表内放行）</td></tr>
+<tr><td>软键盘回车</td><td>UITextView return 默认=换行（无 done 键）；键盘收起=宿主外部（demo 提供"收起键盘"段内钮）</td><td>KeyboardOptions imeAction=Default 多行换行；键盘收起=宿主 IME 避让/外部钮</td><td>多行文本语义=换行非提交；收起宿主职责（表内放行）</td></tr>
+<tr><td>禁用机制</td><td>isEditable=false + isSelectable=false + 整壳灰化 40%</td><td>enabled=false（BasicTextField 只读语义）+ 整壳灰化 40%</td><td>平台禁用实现不同（表内放行）</td></tr>
+<tr><td>状态回写</td><td>命令式：外部 text 属性赋值即时刷新（不触发 delegate）</td><td>声明式：value 参数变化自动重组</td><td>受控组件两端真源一致、刷新机制不同（表内放行）</td></tr>
+<tr class="diff-row"><td>尺寸单位 / 命名</td><td>pt；TextAreaView（独立 TextAreaView.swift，含灰壳+UITextView+placeholder 层）</td><td>dp；@Composable TextArea（TextArea.kt）</td><td>Token 同值不同单位；命名差异见门禁 B（表内放行）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>TextArea(value: String, onTextChange: (String) -&gt; Void)</code><br/><code>placeholder: String? = nil</code>（顶部左对齐 textSecondary）；<code>rows: Int = 3</code>（可视行数，默认 3=高 96）；<code>maxLength: Int = 0</code>（0=不限，仅输入路径截断含粘贴）；<code>disabled: Boolean = false</code></td></tr>
+<tr><td>iOS</td><td><code>final class TextAreaView: UIView</code>（灰底 radiusLg 壳 + 内嵌 UITextView + placeholderLabel 自绘层）<br/><code>init(value: String, placeholder: String?, rows: Int, maxLength: Int, disabled: Bool, onTextChange: ((String) -&gt; Void)?)</code>；<code>var text: String</code> 外部赋值驱动刷新（D2）；<code>var isDisabled: Bool</code> 可运行期更新；intrinsicContentSize 高=rows×24+24（宽度随宿主）</td></tr>
+<tr><td>Android</td><td><code>@Composable fun TextArea(value: String, onTextChange: (String) -&gt; Unit, placeholder: String? = null, rows: Int = 3, maxLength: Int = 0, enabled: Boolean = true, modifier: Modifier = Modifier)</code><br/>壳 Box（bg bgPage、clip radiusLg、padding 12、高 rows×24+24dp 可被宿主 modifier 覆盖）+ BasicTextField 多行 + decorationBox placeholder + verticalScroll</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：通用多行文本输入内容组件；与 Input #29（单行文本域）/Form（label 校验职责）/富文本/搜索 划界；键盘收起与避让=宿主；label/字数/校验=宿主）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（壳 bgPage/圆角 lg/内距 md 四向/文本 Md16 textPrimary 行高 24=cellTitleLineHeight token/整件高 rows×24+24 默认 96=2×48 交互行基准注释锚定/placeholder textSecondary/禁用 40% 灰）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期：autoGrow 自动增高/字数统计角标/富文本与工具栏；不做：内嵌 label 校验=Form 职责/清除钮尾槽键盘类型=Input 形态）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础多行输入/受控外部+长文内滚/maxLength 截断+disabled/宿主表单组装 rows=4）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（iOS SharedUI/Components 52 组件无 textarea/UITextView 封装=未实现；Android sharedui/components 45 组件无 textarea=未实现；业务备注/简介场景迄今宿主直拼系统控件未沉淀=双端纯从零；api.json 无 ui.textarea 条目待门禁 B 立项登记；任务清单 #42 ⬜→本规格=双端通用多行文本域立项入口；视觉语言对齐已收编 Input #29 灰底圆角壳）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（编辑内核/placeholder 自绘/行高排版 API/内部滚动/回车语义/禁用机制/状态回写/键盘收起宿主=系统级差异；pt/dp 与命名表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（富文本/autoGrow/字数角标/工具栏=二期或宿主；label/必填星/校验文案=FormFieldRow 职责不混入（壳不变红）；清除钮/secure/尾槽/键盘类型=Input #29 单行形态不混入）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

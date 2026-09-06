@@ -64,7 +64,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.rate", name: "Rate 评分", reviewed: true, create: { RateShowcase() }),
             DemoComponent(id: "ui.search-bar", name: "SearchBar 搜索栏", reviewed: true, create: { SearchBarShowcase() }),
             DemoComponent(id: "ui.short-password", name: "ShortPassword 短密码", reviewed: true, create: { ShortPasswordShowcase() }),
-            DemoComponent(id: "ui.signature", name: "Signature 签名", reviewed: false, create: nil),
+            DemoComponent(id: "ui.signature", name: "Signature 签名", reviewed: true, create: { SignatureShowcase() }),
             DemoComponent(id: "ui.switch", name: "Switch 开关", reviewed: false, create: nil),
             DemoComponent(id: "ui.text-area", name: "TextArea 文本域", reviewed: false, create: nil),
             DemoComponent(id: "ui.uploader", name: "Uploader 上传", reviewed: false, create: nil),
@@ -6363,6 +6363,167 @@ final class ShortPasswordShowcase: ShowcaseViewController {
             })
         )
         d4Feedback = addDynamicInfo("组件可嵌入宿主弹层并与 #32 NumberKeyboard 组装（由键盘回调驱动 value=宿主自理）；满 6 位 onComplete=宿主校验：123456=通过 / 其它=自动清空重输。", color: AppColor.textSecondary)
+    }
+}
+
+// MARK: - Signature Showcase（Signature 签名 · ui.signature · 数据录入 #40）
+
+/// 内容级手写签名画板（白底圆角板+自绘圆头笔画+onInkChange/clear() 命令式+disabled 锁定；导出=宿主截板）。
+/// 规格 signature-design-spec.html（门禁 A P1–P4 全 A）。Demo 1-4 与 Android SignatureDemo 1:1 同构。
+final class SignatureShowcase: ShowcaseViewController {
+    private var d1Sig: SignatureView?
+    private var d2Sig: SignatureView?
+    private var d3Sigs: [SignatureView] = []
+    private var d4Sig: SignatureView?
+    private var d4Signed = false
+    private var d4Locked = false
+    private var d1Feedback: UILabel?
+    private var d2Feedback: UILabel?
+    private var d3Feedback: UILabel?
+    private var d4Feedback: UILabel?
+    private let d2Thumb = UIImageView()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Signature 签名", version: "v1.0", builtAt: "2026-09-06")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    private func emit(_ label: UILabel?, _ text: String, color: UIColor = AppColor.primary) {
+        label?.text = text
+        label?.textColor = color
+    }
+
+    /// 板整宽入容器：宽=容器，高=intrinsic（默认 96pt）；容器底=板底闭合（高度链由板 intrinsic 推出）。
+    private func attach(_ sig: SignatureView, into container: UIView) {
+        container.addSubview(sig)
+        sig.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+        }
+        container.snp.makeConstraints { make in
+            make.bottom.equalTo(sig.snp.bottom)
+        }
+    }
+
+    // MARK: Demo 1 · 基础签名与重签（水印空态→绘制跟手→onInkChange 回显→「重新签名」宿主 clear()）
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 基础签名与重签") { container in
+            let sig = SignatureView(onInkChange: { [weak self] has in
+                self?.emit(self?.d1Feedback, has ? "onInkChange → true（已签名，可提交）" : "onInkChange → false（未签名）")
+            })
+            d1Sig = sig
+            attach(sig, into: container)
+        }
+        demoButtonRow(("重新签名（clear）", { [weak self] in
+            guard let self else { return }
+            self.d1Sig?.clear()
+            self.emit(self.d1Feedback, "「重新签名」clear()=清空画板并回 onInkChange(false)；无笔迹再点=幂等")
+        }))
+        d1Feedback = addDynamicInfo("空态水印「请在此区域签名」（textSecondary 30% 居中）；首笔落下水印即隐并 onInkChange(true)；请实机手指/笔绘制=笔画跟手（textPrimary 圆头线宽 2）。", color: AppColor.textSecondary)
+    }
+
+    // MARK: Demo 2 · 导出收编（「生成签名图」=宿主截取组件渲染→段内缩略展示）
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 导出收编（宿主截取组件渲染=缩略展示）") { container in
+            let sig = SignatureView(onInkChange: { [weak self] has in
+                self?.emit(self?.d2Feedback, has ? "onInkChange → true（可生成签名图）" : "onInkChange → false（未签名）")
+            })
+            d2Sig = sig
+            attach(sig, into: container)
+        }
+        demoButtonRow(("生成签名图（宿主导出）", { [weak self] in
+            guard let self, let sig = self.d2Sig else { return }
+            // 宿主导出=UIGraphicsImageRenderer + drawHierarchy 截取组件渲染（矢量不失真）；组件不内置图形对象。
+            let renderer = UIGraphicsImageRenderer(bounds: sig.bounds)
+            let image = renderer.image { _ in
+                sig.drawHierarchy(in: sig.bounds, afterScreenUpdates: true)
+            }
+            self.d2Thumb.image = image
+            self.emit(self.d2Feedback, "已导出：\(Int(image.size.width))×\(Int(image.size.height))pt（宿主 UIGraphicsImageRenderer+drawHierarchy 截取组件渲染）")
+        }))
+        d2Thumb.contentMode = .scaleAspectFit
+        d2Thumb.backgroundColor = AppColor.bgPage
+        contentStack.addArrangedSubview(d2Thumb)
+        d2Thumb.snp.makeConstraints { make in
+            make.height.equalTo(72)
+        }
+        d2Feedback = addDynamicInfo("签名图导出=宿主截取组件渲染（组件不内置图形对象）：iOS=UIGraphicsImageRenderer+drawHierarchy 直接截板；请实机签名后点「生成签名图」=上方缩略展示。", color: AppColor.textSecondary)
+    }
+
+    // MARK: Demo 3 · 参数变体（strokeWidth=1/2/4 · 板高 72pt，与 Android 三块板 1:1）
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 参数变体（strokeWidth=1/2/4 · 板高 72pt）") { container in
+            let stack = UIStackView()
+            stack.axis = .horizontal
+            stack.spacing = AppSpace.sm
+            stack.distribution = .fillEqually
+            container.addSubview(stack)
+            stack.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+            for (i, spec) in [("线宽 1", CGFloat(1)), ("线宽 2（默认）", CGFloat(2)), ("线宽 4", CGFloat(4))].enumerated() {
+                let col = UIStackView()
+                col.axis = .vertical
+                col.spacing = 2
+                let label = UILabel()
+                label.text = spec.0
+                label.font = .systemFont(ofSize: AppFont.sizeXs)
+                label.textColor = AppColor.textSecondary
+                col.addArrangedSubview(label)
+                let sig = SignatureView(
+                    onInkChange: { [weak self] has in
+                        self?.emit(self?.d3Feedback, "onInkChange → \(has)（\(spec.0)）")
+                    },
+                    strokeWidth: spec.1,
+                    boardHeight: 72
+                )
+                d3Sigs.append(sig)
+                col.addArrangedSubview(sig)
+                stack.addArrangedSubview(col)
+                _ = i
+            }
+        }
+        demoButtonRow(("全部重签（clear ×3）", { [weak self] in
+            guard let self else { return }
+            self.d3Sigs.forEach { $0.clear() }
+            self.emit(self.d3Feedback, "全部重签（三块板 clear()）")
+        }))
+        d3Feedback = addDynamicInfo("strokeWidth=1/2/4 三块板 1:1 对比（strokeColor 参数可变=默认 textPrimary，宿主可改 primary 等深浅粗细）；height 参数=板高（此处 72pt 便于三块并排）。", color: AppColor.textSecondary)
+    }
+
+    // MARK: Demo 4 · 禁用锁定与空笔迹提交流（提交锁定=disabled 整板 40% 灰不可绘；空板点提交=宿主提示「请先签名」）
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 禁用锁定与空笔迹提交流") { container in
+            let sig = SignatureView(onInkChange: { [weak self] has in
+                guard let self else { return }
+                self.d4Signed = has
+                self.emit(self.d4Feedback, has ? "onInkChange → true（已签名）" : "onInkChange → false（未签名）")
+            })
+            d4Sig = sig
+            attach(sig, into: container)
+        }
+        demoButtonRow(
+            ("提交锁定 / 解锁", { [weak self] in
+                guard let self, let sig = self.d4Sig else { return }
+                sig.disabled.toggle()
+                self.d4Locked = sig.disabled
+                self.emit(self.d4Feedback, self.d4Locked ? "提交锁定=disabled：整板 40% 灰、不可绘制、clear() 忽略、无任何回调" : "已解锁（可继续签名）",
+                          color: self.d4Locked ? AppColor.textSecondary : AppColor.primary)
+            }),
+            ("提交（空笔迹提示）", { [weak self] in
+                guard let self else { return }
+                self.emit(self.d4Feedback, self.d4Signed ? "宿主校验通过=已签名可提交（业务文案由宿主自理）"
+                                                        : "宿主空笔迹提交校验：onInkChange=false=「请先签名」（提交钮由宿主禁用）")
+            })
+        )
+        d4Feedback = addDynamicInfo("disabled=签署提交后锁定（整板 40% 灰含已有笔迹、clear() 忽略）；宿主以 onInkChange(false) 禁用「提交」钮=空板点提交提示「请先签名」。", color: AppColor.textSecondary)
     }
 }
 

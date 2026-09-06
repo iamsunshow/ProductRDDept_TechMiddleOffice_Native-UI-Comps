@@ -1,7 +1,9 @@
 package com.zhiqihuayun.demo
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ScrollState
@@ -49,17 +51,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.view.drawToBitmap
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import com.zhiqihuayun.foundation.design.AppColor
@@ -68,6 +77,7 @@ import com.zhiqihuayun.foundation.design.AppRadius
 import com.zhiqihuayun.sharedui.components.SafeArea
 import com.zhiqihuayun.sharedui.components.SafeAreaAllEdges
 import com.zhiqihuayun.sharedui.components.SafeAreaEdges
+import androidx.core.view.drawToBitmap
 import com.zhiqihuayun.foundation.design.AppSpace
 import com.zhiqihuayun.sharedui.components.AppButton
 import com.zhiqihuayun.sharedui.components.AppButtonStyle
@@ -140,6 +150,8 @@ import com.zhiqihuayun.sharedui.components.Input
 import com.zhiqihuayun.sharedui.components.NumberKeyboard
 import com.zhiqihuayun.sharedui.components.Picker
 import com.zhiqihuayun.sharedui.components.PickerOption
+import com.zhiqihuayun.sharedui.components.Signature
+import com.zhiqihuayun.sharedui.components.SignatureController
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -209,7 +221,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Rate 评分", reviewed = true, demo = { RateDemo() }),
         DemoComponent("SearchBar 搜索栏", reviewed = true, demo = { SearchBarDemo() }),
         DemoComponent("ShortPassword 短密码", reviewed = true, demo = { ShortPasswordDemo() }),
-        DemoComponent("Signature 签名"),
+        DemoComponent("Signature 签名", reviewed = true, demo = { SignatureDemo() }),
         DemoComponent("Switch 开关"),
         DemoComponent("TextArea 文本域"),
         DemoComponent("Uploader 上传"),
@@ -5724,6 +5736,163 @@ private fun ShortPasswordDemo() {
         }
         Text(
             text = d4Msg ?: "组件可嵌入宿主弹层并与 #32 NumberKeyboard 组装（由键盘回调驱动 value=宿主自理）；满 6 位 onComplete=宿主校验：123456=通过 / 其它=自动清空重输。",
+            fontSize = AppFont.sizeXs,
+            color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+    }
+}
+
+@Composable
+private fun SignatureDemo() {
+    Text(
+        text = "Signature 签名组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 基础签名与重签（水印空态→绘制跟手→onInkChange 回显→「重新签名」宿主 clear()） ② 导出收编（「生成签名图」宿主截图裁剪=段内缩略） ③ 参数变体（strokeWidth 1/2/4 三块板） ④ 禁用锁定与空笔迹提交流。双端 1:1（Android Signature vs iOS SignatureView）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 基础签名与重签（水印空态→绘制跟手→onInkChange 回显→「重新签名」宿主 clear()）
+        Text("Demo 1 · 基础签名与重签", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        val c1 = remember { SignatureController() }
+        var d1Msg by remember { mutableStateOf<String?>(null) }
+        Signature(
+            controller = c1,
+            onInkChange = { has -> d1Msg = if (has) "onInkChange → true（已签名，可提交）" else "onInkChange → false（未签名）" }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                c1.clear()
+                d1Msg = "「重新签名」clear()=清空画板并回 onInkChange(false)；无笔迹再点=幂等"
+            }) { Text("重新签名（clear）", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d1Msg ?: "空态水印「请在此区域签名」（textSecondary 30% 居中）；首笔落下水印即隐并 onInkChange(true)；手指/笔绘制跟手=笔画 textPrimary 圆头线宽 2。",
+            fontSize = AppFont.sizeXs,
+            color = if (d1Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D2 · 导出收编（宿主截取组件渲染=根视图截图裁剪板区域→段内缩略展示）
+        Text("Demo 2 · 导出收编（宿主截取组件渲染=缩略展示）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        val c2 = remember { SignatureController() }
+        var d2Msg by remember { mutableStateOf<String?>(null) }
+        var d2Thumb by remember { mutableStateOf<ImageBitmap?>(null) }
+        var d2Pos by remember { mutableStateOf<LayoutCoordinates?>(null) }
+        Signature(
+            controller = c2,
+            onInkChange = { has -> d2Msg = if (has) "onInkChange → true（可生成签名图）" else "onInkChange → false（未签名）" },
+            modifier = Modifier.onGloballyPositioned { d2Pos = it }
+        )
+        val rootView = LocalView.current
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                val coords = d2Pos ?: return@TextButton
+                // 板区域 rect（root 像素坐标；boundsInRoot 随 compose 版本可选=用 positionInRoot+size 等价推导）
+                val tl = coords.positionInRoot()
+                val rect = Rect(tl.x, tl.y, tl.x + coords.size.width, tl.y + coords.size.height)
+                try {
+                    val full = rootView.drawToBitmap()
+                    if (rect.left < 0 || rect.top < 0 || rect.right > full.width || rect.bottom > full.height) {
+                        d2Msg = "签名板需完整可见=请滚动使其完整入屏后重试（宿主截图裁剪要求板在视口内）"
+                        d2Thumb = null
+                    } else {
+                        val crop = Bitmap.createBitmap(
+                            full, rect.left.toInt(), rect.top.toInt(), rect.width.toInt(), rect.height.toInt()
+                        )
+                        d2Thumb = crop.asImageBitmap()
+                        d2Msg = "已导出：宿主根视图 drawToBitmap()+裁剪板区域=${rect.width.toInt()}×${rect.height.toInt()}px（Demo 自定义 DrawingCache 辅助）"
+                    }
+                } catch (e: Exception) {
+                    d2Msg = "导出失败：${e.message}"
+                }
+            }) { Text("生成签名图（宿主导出）", fontSize = AppFont.sizeXs) }
+        }
+        d2Thumb?.let {
+            Image(
+                bitmap = it,
+                contentDescription = "导出的签名图缩略",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(64.dp)
+            )
+        }
+        Text(
+            text = d2Msg ?: "签名图导出=宿主截取组件渲染（组件不内置图形对象）：Android=根视图 drawToBitmap()+裁剪板区域=本段缩略展示；请实机签名后点「生成签名图」。",
+            fontSize = AppFont.sizeXs,
+            color = if (d2Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D3 · 参数变体（strokeWidth=1/2/4 三块板，strokeColor 可变=宿主可调深浅粗细）
+        Text("Demo 3 · 参数变体（strokeWidth=1/2/4 · 板高 72dp）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        val c3a = remember { SignatureController() }
+        val c3b = remember { SignatureController() }
+        val c3c = remember { SignatureController() }
+        var d3Msg by remember { mutableStateOf<String?>(null) }
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text("线宽 1", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+                Signature(controller = c3a, strokeWidth = 1.dp, height = 72.dp, onInkChange = { d3Msg = "onInkChange → $it（线宽 1）" })
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text("线宽 2（默认）", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+                Signature(controller = c3b, strokeWidth = 2.dp, height = 72.dp, onInkChange = { d3Msg = "onInkChange → $it（线宽 2 默认）" })
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text("线宽 4", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+                Signature(controller = c3c, strokeWidth = 4.dp, height = 72.dp, onInkChange = { d3Msg = "onInkChange → $it（线宽 4）" })
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                c3a.clear(); c3b.clear(); c3c.clear()
+                d3Msg = "全部重签（三块板 clear()）"
+            }) { Text("全部重签（clear ×3）", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d3Msg ?: "strokeWidth=1/2/4 三块板 1:1 对比（strokeColor 参数可变=默认 textPrimary，宿主可改 primary 等深浅粗细）；height 参数=板高（此处 72dp 便于三块并排）。",
+            fontSize = AppFont.sizeXs,
+            color = if (d3Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D4 · 禁用锁定与空笔迹提交流（提交锁定=disabled 整板 40% 灰不可绘；空板点提交=宿主提示「请先签名」）
+        Text("Demo 4 · 禁用锁定与空笔迹提交流", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        val c4 = remember { SignatureController() }
+        var d4Locked by remember { mutableStateOf(false) }
+        var d4Signed by remember { mutableStateOf(false) }
+        var d4Msg by remember { mutableStateOf<String?>(null) }
+        Signature(
+            controller = c4,
+            disabled = d4Locked,
+            onInkChange = { has ->
+                d4Signed = has
+                d4Msg = if (has) "onInkChange → true（已签名）" else "onInkChange → false（未签名）"
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d4Locked = !d4Locked
+                d4Msg = if (d4Locked) "提交锁定=disabled：整板 40% 灰、不可绘制、clear() 忽略、无任何回调" else "已解锁（可继续签名）"
+            }) { Text(if (d4Locked) "解锁" else "提交锁定", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d4Msg = if (!d4Signed) "宿主空笔迹提交校验：onInkChange=false=「请先签名」（提交钮由宿主禁用）"
+                else "宿主校验通过=已签名可提交（业务文案由宿主自理）"
+            }) { Text("提交（空笔迹提示）", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d4Msg ?: "disabled=签署提交后锁定（整板 40% 灰含已有笔迹、clear() 忽略）；宿主以 onInkChange(false) 禁用「提交」钮=空板点提交提示「请先签名」。",
             fontSize = AppFont.sizeXs,
             color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
         )

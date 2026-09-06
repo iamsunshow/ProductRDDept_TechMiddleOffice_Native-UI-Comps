@@ -186,7 +186,7 @@ fileprivate final class UploaderCell: UICollectionViewCell {
     private let deleteButton = UIButton(type: .custom)
     private let statusLabel = UILabel()
     private let progressView = UIProgressView(progressViewStyle: .bar)
-    private let maskView = UIView()
+    private let statusOverlayView = UIView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -211,18 +211,18 @@ fileprivate final class UploaderCell: UICollectionViewCell {
         contentView.addSubview(deleteButton)
 
         // 状态蒙层
-        maskView.isHidden = true
-        contentView.addSubview(maskView)
+        statusOverlayView.isHidden = true
+        contentView.addSubview(statusOverlayView)
 
         statusLabel.textColor = .white
         statusLabel.font = .systemFont(ofSize: 10)
         statusLabel.textAlignment = .center
-        maskView.addSubview(statusLabel)
+        statusOverlayView.addSubview(statusLabel)
 
         progressView.trackTintColor = UIColor.white.withAlphaComponent(0.3)
         progressView.progressTintColor = AppColor.primary
         progressView.isHidden = true
-        maskView.addSubview(progressView)
+        statusOverlayView.addSubview(progressView)
     }
 
     @available(*, unavailable)
@@ -233,10 +233,10 @@ fileprivate final class UploaderCell: UICollectionViewCell {
         thumbnailView.frame = contentView.bounds
         let ds = UploaderView.deleteSize
         deleteButton.frame = CGRect(x: contentView.bounds.width - ds - 2, y: 2, width: ds, height: ds)
-        maskView.frame = contentView.bounds
-        statusLabel.frame = CGRect(x: 0, y: 0, width: maskView.bounds.width, height: maskView.bounds.height - UploaderView.progressHeight)
-        progressView.frame = CGRect(x: 0, y: maskView.bounds.height - UploaderView.progressHeight,
-                                    width: maskView.bounds.width, height: UploaderView.progressHeight)
+        statusOverlayView.frame = contentView.bounds
+        statusLabel.frame = CGRect(x: 0, y: 0, width: statusOverlayView.bounds.width, height: statusOverlayView.bounds.height - UploaderView.progressHeight)
+        progressView.frame = CGRect(x: 0, y: statusOverlayView.bounds.height - UploaderView.progressHeight,
+                                    width: statusOverlayView.bounds.width, height: UploaderView.progressHeight)
     }
 
     func configure(with item: UploadItem) {
@@ -259,19 +259,19 @@ fileprivate final class UploaderCell: UICollectionViewCell {
         // 状态
         switch item.status {
         case .pending, .success:
-            maskView.isHidden = true
+            statusOverlayView.isHidden = true
             progressView.isHidden = true
             deleteButton.isHidden = (item.status == .pending)
         case .uploading:
-            maskView.isHidden = false
-            maskView.backgroundColor = AppColor.primary.withAlphaComponent(0.8)
+            statusOverlayView.isHidden = false
+            statusOverlayView.backgroundColor = AppColor.primary.withAlphaComponent(0.8)
             statusLabel.text = "上传中"
             progressView.isHidden = false
             progressView.progress = item.progress
             deleteButton.isHidden = true
         case .failed:
-            maskView.isHidden = false
-            maskView.backgroundColor = AppColor.error.withAlphaComponent(0.8)
+            statusOverlayView.isHidden = false
+            statusOverlayView.backgroundColor = AppColor.error.withAlphaComponent(0.8)
             statusLabel.text = "失败"
             progressView.isHidden = true
             deleteButton.isHidden = true

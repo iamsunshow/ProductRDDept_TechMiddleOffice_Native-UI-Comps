@@ -106,8 +106,10 @@ final class AddressView: UIView, UITableViewDataSource, UITableViewDelegate {
         self.onChange = onChange
         super.init(frame: .zero)
         backgroundColor = AppColor.bgCard
-        setupList()
+        // 必须先搭 chipsBar 再搭列表：setupList 中 hairline.top 锚定 chipsBar.snp.bottom，
+        // 若 chipsBar 尚未 addSubview，激活该约束时两视图无共同祖先（"no common ancestor" 崩溃）。
         setupChipsBar()
+        setupList()
         sync(from: result)
     }
 

@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -53,6 +54,7 @@ fun TextArea(
 
     Box(
         modifier
+            .testTag("textarea-root")
             .fillMaxWidth()
             .height(shellHeight)
             .alpha(if (disabled) 0.4f else 1f)
@@ -97,7 +99,9 @@ fun TextArea(
                         }
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("textarea-field")
             )
         }
     }

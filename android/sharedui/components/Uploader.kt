@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -114,6 +115,7 @@ fun Uploader(
                                 val index = value.indexOf(item)
                                 UploaderCell(
                                     item = item,
+                                    index = index,
                                     disabled = disabled,
                                     onDelete = { onRemove(index) },
                                     onRetry = { onRetry(index) }
@@ -141,6 +143,7 @@ fun Uploader(
 @Composable
 private fun UploaderCell(
     item: UploadItem,
+    index: Int,
     disabled: Boolean,
     onDelete: () -> Unit,
     onRetry: () -> Unit
@@ -169,6 +172,7 @@ private fun UploaderCell(
 
     Box(
         modifier = Modifier
+            .testTag("uploader-cell-$index")
             .aspectRatio(1f)
             .background(AppColor.bgPage, RoundedCornerShape(CellRadius))
             .border(1.dp, AppColor.border, RoundedCornerShape(CellRadius))
@@ -190,6 +194,7 @@ private fun UploaderCell(
         if (item.status == UploadStatus.SUCCESS || item.status == UploadStatus.PENDING) {
             Box(
                 modifier = Modifier
+                    .testTag("uploader-delete-$index")
                     .align(Alignment.TopEnd)
                     .padding(2.dp)
                     .size(DeleteSize)
@@ -261,6 +266,7 @@ private fun UploaderAddCell(
 ) {
     Box(
         modifier = Modifier
+            .testTag("uploader-add")
             .aspectRatio(1f)
             .background(AppColor.bgPage, RoundedCornerShape(CellRadius))
             .border(

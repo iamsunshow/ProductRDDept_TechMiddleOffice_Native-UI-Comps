@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -70,6 +71,7 @@ fun Switch(
 
     Box(
         modifier = modifier
+            .testTag("switch-root")
             .size(TrackWidth, TrackHeight)
             .alpha(if (disabled) 0.4f else 1f)
             .clip(RoundedCornerShape(50))

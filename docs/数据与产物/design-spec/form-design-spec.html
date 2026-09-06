@@ -50,11 +50,11 @@ table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:
 <tr><th>要素</th><th>Token</th><th>说明</th></tr>
 <tr><td>字段行</td><td>行 min 高 48pt/48dp；label 字号 Md=16 主色；内容区字号 Md=16（宿主控件/文案自定）；行内左右 padding=spaceLg（16）</td><td>一行=label 区 + 内容区同高基线；内容超高时行随内容增高（min-height 语义）；行间不设固定间距=直接纵排</td></tr>
 <tr><td>必填星</td><td>* 字号 Md=16、主色 primary、位于 label 前</td><td>required=true 显示；可选字段不显示</td></tr>
-<tr><td>帮助文案</td><td>字号 Sm=12、次色 textSecondary；位置=行内 label 右侧/内容下方？=行内（label 后紧跟，仅一行 max 单行省略）</td><td>help 可空；默认字段无 help 不占位</td></tr>
+<tr><td>帮助文案</td><td>字号 Sm=12、次色 textSecondary；位置=字段内容下方提示行（与校验错误共用该槽位：error 非空=显示 error 红字，否则显示 help 灰字）</td><td>help 可空；默认字段无 help/error 不占位（行高不塌陷）</td></tr>
 <tr><td>校验错误</td><td>字号 Sm=12、错误红 error（库红 token，实现时对齐 DesignTokens）；位于字段行内容下方独立行</td><td>error 非空=行高展开追加一行红字；error 空=不占位（校验通过/未校验无错误行）</td></tr>
 <tr><td>分组</td><td>Form 分组卡片：卡片容器=DesignTokens 卡片（bgCard/圆角 lg/border 线宽 hairline/padding lg 内容）复用既有 Grid 卡片语言；分组标题=字号 Sm=12 次色（可选，卡片间空档 spacingMd）</td><td>Form 可嵌套 1~N 分组；单组（无分组标题）即纯字段卡</td></tr>
 <tr><td>分隔线</td><td>字段行间 hairline（iOS 1/scale pt vs Android 0.5dp，表内放行）；卡内边距 inset 16、分隔线 inset=0 通卡（同 Cell）</td><td>本卡片内相邻字段行以 hairline 分隔</td></tr>
-<tr><td>label 换行</td><td>label 单行优先；超长时可占多行（label 顶部对齐、行高保持 20+），最大宽=行宽的 45%</td><td>长 label 不强制省略（表单语义=完整标题可见）</td></tr>
+<tr><td>label 区</td><td>label 区固定宽 96pt/96dp（Md16 约 6 汉字，含必填星占位）；超长 label 在区内自动折行（行高随内容，整行 min 高 48，label 区与内容区垂直居中）</td><td>长 label 不省略（表单语义=完整标题可见）；宽 96 固定=双端排版确定</td></tr>
 </table>
 </div>
 

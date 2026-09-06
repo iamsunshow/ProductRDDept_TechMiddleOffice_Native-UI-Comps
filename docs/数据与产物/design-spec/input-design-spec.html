@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Input 输入 · 设计规格（门禁 A）</title>
+<style>
+::root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--textTertiary:#9CA3AF;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- Input demo 预览 mock（单行输入框） ---- */
+.in-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.in-wrap{padding:16px 18px;display:flex;flex-direction:column;gap:12px;}
+.in-field{display:flex;align-items:center;gap:8px;background:#F9FAFB;border-radius:12px;padding:0 12px;height:48px;font-size:16px;color:var(--textPrimary);}
+.in-field .in-ph{color:#B7BEC9;font-size:16px;}
+.in-field .in-val{color:var(--textPrimary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.in-field .in-dots{color:var(--textPrimary);letter-spacing:2px;}
+.in-field.dis{opacity:.5;}
+.in-field.dis .in-val,.in-field.dis .in-ph{color:var(--textTertiary);}
+.in-clear{width:20px;height:20px;border-radius:999px;background:#D1D5DB;color:#fff;font-size:13px;line-height:20px;text-align:center;flex:none;cursor:pointer;user-select:none;}
+.in-act{color:var(--primary);font-size:14px;white-space:nowrap;flex:none;cursor:pointer;user-select:none;font-weight:500;}
+.in-cnt{display:block;font-size:12px;color:var(--textSecondary);padding:0 12px 12px;margin-top:-4px;}
+.in-btn{margin:2px 16px 14px;padding:6px 14px;font-size:13px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--textPrimary);cursor:pointer;display:inline-block;user-select:none;}
+.in-btn:active{background:#F3F4F6;}
+</style>
+</head>
+<body>
+
+<h1>Input 输入 · 设计规格（数据录入组件 #29 · 任务清单 #29，subcategory=form · 门禁 A）</h1>
+<p>组件 ID：<code>ui.input</code> ｜ 定位：<b>通用单行文本输入内容组件（受控）</b>——宿主容器给定宽度（Form 字段内容槽/页面布局），Input 提供输入壳（灰底圆角输入条）+ placeholder + 受控 value + 清除钮 + 尾部动作槽 + 键盘类型 + 密码掩码 + disabled；文本校验算法与提交=宿主职责。对标 NutUI field / Ant Input 收敛为库内自有设计语言；Android 业务收编 AppInputField 系列（52dp 灰底圆角壳=同视觉）为前身=新组件视觉无缝可平滑迁移。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-06，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 表单单行文本录入（昵称/标题/金额字符等，置于 FormFieldRow #28 内容槽）；② 页内轻输入（备注一行/筛选词/验证码）；③ 需清除/尾部动作的输入（验证码+发送按钮、可清空关键字）；④ 受控回显：宿主持 value 预填/清空外部驱动（编辑表单、重置）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 多行长文本 → 二期或随 TextArea 类组件立项（本件=单行）；② 标签/必填星/帮助/错误文案 → FormFieldRow #28 职责（Input 壳内不嵌 label/error，表单语义由 Form 承载）；③ 步进式数字改值（无键盘）→ ui.input-number #30；④ 搜索框（放大镜+防抖+回车触发）→ Search 类组件/宿主（若清单立项）；⑤ 登录专用 手机号/邮箱/密码 业务形态 → Android 业务收编 AppInputField/PhoneInputField/EmailInputField/PasswordInputField 先例（未来可平滑迁移 ui.input，见 A5）</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 空值=placeholder 灰字（textTertiary）；<span class="tag tag-ok">输入态 ✅</span> 值主色 Md16+原生光标；<span class="tag tag-ok">聚焦态 ✅</span> 壳视觉不变（灰底无边框），光标与系统键盘为原生聚焦反馈（无额外描边强调=二期可加 primary 细边方案）；<span class="tag tag-ok">禁用态 ✅</span> 整壳 40% 灰、不可点不可聚焦；错误/校验态=FormFieldRow 行内红字呈现（壳不变红=表单语义归 Form）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；与 Form #28=Input 作为内容槽放入 FormFieldRow（行高随控件撑开=行高 min48 与 Input 48 对齐）；与 InputNumber #30 划界=Number=−/+/值 步进无键盘、Input=自由文本+键盘；与 Button 尾槽组合=宿主在 trailing 放"获取验证码"按钮；键盘弹出避让=宿主页面容器职责（滚动/inset，双端同语义）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>输入壳</td><td>高 48pt/48dp（与 FormFieldRow min48 对齐）；圆角 lg（radius lg）；底 bgPage 灰（无描边无阴影）；内水平 padding md（12）</td><td>灰底圆角条=库内输入壳视觉（延续 Android AppInputField 52dp 灰底壳同语言，高度 48 对齐表单行）</td></tr>
+<tr><td>文本</td><td>Md16 textPrimary 单行；placeholder Md16 textTertiary</td><td>文本不自动缩放；超长内部滚动/省略随系统光标位移</td></tr>
+<tr><td>清除钮</td><td>20pt/20dp 圆（radius full）底灰 40%（#D1D5DB 系）+ 白叉 14 居中；非空显示、点击=清空回调；清除钮后置（若有 trailing 槽则清除钮在文本与 trailing 之间）</td><td>延续 Android 收编 ClearIconButton（20dp 圆灰底白 14 叉）</td></tr>
+<tr><td>尾部动作槽</td><td>宿主自放（宽度自定、垂直居中、与文本间距 sm 8）</td><td>如"获取验证码"按钮等；Input 不渲染默认尾部内容</td></tr>
+<tr><td>键盘/安全</td><td>keyboard 四值映射：text/number/phone/email；secure=true=密文掩码（输入内容圆点/掩码显示、回调始终回原文）</td><td>键盘映射两端平台差异表内放行（见 §05）；secure 无显隐切换（=二期）</td></tr>
+<tr><td>禁用/限制</td><td>disabled=整壳 textTertiary 40% 灰+不可点；maxLength（0/缺省=不限）仅对输入路径截断（外部赋值不强制截断）</td><td>disabled 优先级最高（灰态可读不可编辑）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：通用单行文本输入内容组件（受控）——输入壳视觉+placeholder+受控 value+清除钮+尾部槽+keyboardType+secure+disabled+maxLength；宿主容器/Form 决定宽度</td><td>✅ 文本录入核心闭环收敛；与 Android AppInputField（灰底圆角+清除钮+尾槽+keyboardType+掩码）同视觉同 API 家族=业务可平滑迁移；无内嵌 label/校验=与 Form 划界干净；双端实现=基础输入控件包装（UITextField/BasicTextField）+壳，轻量可靠</td><td><b>推荐 A</b>：通用内容组件</td></tr>
+<tr><td>B：做成 Form 绑定"输入行"（内置 label/必填星/错误渲染）</td><td>与 FormFieldRow #28（label+required+help/error）职责重复；脱离 Form 不可用=复用性差</td><td>淘汰：label/校验=Form 职责</td></tr>
+<tr><td>C：保持多端业务专用输入不收敛（登录/手机号/邮箱/密码各自为政）</td><td>Android 收编已 4+ 个专用变体；iOS 无任何独立输入=长期业务自绘</td><td>淘汰：需库级基础件承载通用场景（专用键盘类型经 keyboardType 参数表达）</td></tr>
+</table>
+
+<h3>P2 · 数据/接口模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：String value + onTextChange(String) 直通——value 唯一真源、每次编辑回传新文本；配套 placeholder/keyboard/secure/maxLength/clearable/trailing/disabled 参数</td><td>✅ 与两端原生输入控件（UITextField text/BasicTextField value+onValueChange）同构=实现零转译；宿主天然持全量文本（校验/提交都需要）</td><td><b>推荐 A</b>：直通模型</td></tr>
+<tr><td>B：细分事件模型（onFocus/onBlur/onChange 分段）</td><td>iOS UITextField delegate 有 focus/blur 但需宿主多监听点；一期无聚焦态 UI 需求=过度</td><td>淘汰：二期（若聚焦强调视觉立项再补 onFocus/onBlur）</td></tr>
+<tr><td>C：双向绑定包装（宿主传对象引用、组件直接改对象字段）</td><td>跨端契约对象引用语义不同（iOS 引用类型 vs Android State），回写链隐晦难排查</td><td>淘汰：与库内值+回调惯例不符</td></tr>
+</table>
+
+<h3>P3 · 状态控制：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：受控 value（必传，外部 setValue=直接刷新文本；onTextChange 仅在用户编辑/清空钮触发）——iOS 命令式 text 属性外部赋值即时刷新；Android value 参数变化自动重组</td><td>✅ 文本组件天然受控（宿主必须存文本=双源不可能）；外部预填/清空/重置=直接改 value 即回显且不触发编辑回调（D4 demo）；两端编辑回调与外部赋值路径清晰分离</td><td><b>推荐 A</b>：文本=受控真源</td></tr>
+<tr><td>B：半受控（value 可选，nil=组件内部持值自管理）</td><td>内部自持文本=宿主提交时才问值（UITextField/BasicTextField 已自带内部 text，不传即失联）；与"宿主需全量文本"诉求冲突</td><td>淘汰：文本组件不自持双源</td></tr>
+<tr><td>C：纯自管理+onSubmit 才回传</td><td>实时编辑过程宿主不知=校验/字数/联动无法做</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：单行通用输入=壳+placeholder+受控 value+clearable+trailing 槽+keyboard 四值映射+secure 掩码（无显隐切换）+disabled+maxLength（输入截断）+demo 四段</td><td>✅ 文本录入完整闭环（空态/输入/清空/掩码/禁用/外部驱动/键盘类型）可逐验；secure 覆盖密码表单场景（无显隐切换=UI 简洁）；无 label/校验=与 Form 组合由宿主演示</td><td><b>推荐 A</b>：核心闭环可验收</td></tr>
+<tr><td>B：一期含 secure 显隐切换（眼睛钮）+字数角标计数 + 前后缀 icon</td><td>显隐钮/计数/前后缀=各自独立交互面；范围膨胀且非文本录入必需</td><td>淘汰：登记二期</td></tr>
+<tr><td>C：一期含多行 TextArea/搜索框形态</td><td>多行=独立组件职责（行高/换行策略不同）；搜索=语义+交互独立（防抖/回车触发）</td><td>淘汰：随对应组件立项/二期</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础输入（placeholder 空态 → 键入回显）</h3>
+<p>mock：昵称输入（placeholder「请输入昵称」）。空值灰占位 → 点入聚焦弹系统键盘 → 键入「小满」onTextChange 段内回显；验证输入壳视觉+placeholder+真实键盘输入链路（键盘避让=宿主 demo 容器处理）。</p>
+<div class="in-stage">
+<div class="in-wrap">
+<div class="in-field"><span class="in-val">小满</span><span class="in-clear">✕</span></div>
+</div>
+<span class="in-cnt">当前值：小满（段内回显 · 键盘弹出可正常键入）</span>
+</div>
+
+<h3>D2 · 清除钮 + 尾部动作槽（验证码）</h3>
+<p>mock：验证码输入（keyboard=number、maxLength=6）输入非空出现清除叉；trailing 槽宿主放「获取验证码」占位钮（点击=回显"已发送"文本态）；验证清除钮点击清空回调。</p>
+<div class="in-stage">
+<div class="in-wrap">
+<div class="in-field"><span class="in-val">8 6 2 5</span><span class="in-clear">✕</span><span class="in-act">获取验证码</span></div>
+</div>
+<span class="in-cnt">数字键盘 · 输入非空显示清除叉 · 点叉=onTextChange("") · 尾部动作=宿主自放</span>
+</div>
+
+<h3>D3 · disabled + 密码掩码</h3>
+<p>mock：上=disabled 禁用框（灰不可点，placeholder 灰）；下=secure 密码输入（键入内容以掩码圆点显示、onTextChange 收到原文）。验证禁用态与密文掩码。</p>
+<div class="in-stage">
+<div class="in-wrap">
+<div class="in-field dis"><span class="in-val">只读示例（禁用态）</span></div>
+<div class="in-field"><span class="in-dots">••••••</span><span class="in-clear">✕</span></div>
+</div>
+<span class="in-cnt">上=disabled 整壳灰不可点 · 下=secure 掩码显示（回调始终原文）</span>
+</div>
+
+<h3>D4 · 受控外部驱动（预填/清空）</h3>
+<p>mock：备注输入「预填：按时记账」；段外「清空」「预填」按钮外部改 value → 文本同步刷新（外部赋值不触发编辑回调）。验证受控回显。</p>
+<div class="in-stage">
+<div class="in-wrap">
+<div class="in-field"><span class="in-val">按时记账，天天坚持</span><span class="in-clear">✕</span></div>
+</div>
+<span class="in-btn">清空</span><span class="in-btn">预填</span>
+<span class="in-cnt">外部 value 变更 → 输入框同步刷新（不触发 onTextChange）</span>
+</div>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>文本编辑内核</td><td>UITextField（delegate editingChanged/shouldChangeCharacters 截断）</td><td>BasicTextField（AppInputField 同源，onValueChange 截断）</td><td>系统输入控件不同、编辑行为一致（表内放行）</td></tr>
+<tr><td>键盘映射</td><td>text→UIKeyboardType.default / number→numberPad / phone→phonePad / email→emailAddress</td><td>KeyboardType.Text / Number / Phone / Email</td><td>平台枚举不同、语义映射固定（表内放行）</td></tr>
+<tr><td>密文掩码</td><td>UITextField.isSecureTextEntry</td><td>PasswordVisualTransformation</td><td>掩码实现不同、视觉一致（表内放行）</td></tr>
+<tr><td>清除钮</td><td>自绘圆叉 UIButton（trailing 动态显隐）</td><td>Icons.Default.Clear 圆钮（同收编 ClearIconButton）</td><td>平台图标机制不同、视觉一致（表内放行）</td></tr>
+<tr><td>禁用机制</td><td>isUserInteractionEnabled=false + 灰化</td><td>enabled=false（BasicTextField readOnly 语义）</td><td>平台禁用实现不同（表内放行）</td></tr>
+<tr><td>状态回写</td><td>命令式：外部 text 属性赋值即时刷新</td><td>声明式：value 参数变化自动重组</td><td>受控组件两端真源一致、刷新机制不同（表内放行）</td></tr>
+<tr><td>键盘避让</td><td>宿主 scrollView insets/keyboardWillShow 通知</td><td>宿主 adjustResize/imePadding</td><td>宿主职责双端同语义（表内放行）</td></tr>
+<tr class="diff-row"><td>尺寸单位 / 命名</td><td>pt；InputView（独立 InputView.swift，含 UITextField+清除钮+尾槽壳）</td><td>dp；@Composable Input（Input.kt）</td><td>Token 同值不同单位；命名差异见门禁 B（表内放行）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>Input(value: String, onTextChange: (String) -&gt; Void)</code><br/><code>placeholder: String</code>；<code>keyboard: text|number|phone|email</code>（两端映射见 §05）；<code>secure: Boolean=false</code>（掩码，回调原文）；<code>clearable: Boolean=true</code>（非空显示清除钮）；<code>maxLength: Int=0</code>（0=不限，仅输入路径截断）；<code>disabled: Boolean=false</code>；<code>trailing: 尾槽视图?</code>（宿主自放，宽度自定）</td></tr>
+<tr><td>iOS</td><td><code>final class InputView: UIView</code>（灰底圆角壳 + 内部 UITextField + 清除钮 + 尾槽容器）<br/><code>init(placeholder: String, keyboardType/UIKeyboardType?, secure: Bool, clearable: Bool, maxLength: Int, onChange: ((String) -&gt; Void)?)</code>；<code>var text: String</code> 外部赋值驱动刷新（D4）；<code>var trailingView: UIView?</code> 尾槽；整壳高 48</td></tr>
+<tr><td>Android</td><td><code>@Composable fun Input(value: String, onTextChange: (String) -&gt; Unit, placeholder: String, modifier: Modifier = Modifier, keyboard: KeyboardType = KeyboardType.Text, secure: Boolean = false, clearable: Boolean = true, maxLength: Int = 0, enabled: Boolean = true, trailing: (@Composable RowScope.() -&gt; Unit)? = null)</code><br/>壳 Box 高 48dp + BasicTextField 单行 + decorationBox 内 clear/trailing 布局</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：通用单行文本输入内容组件；与 InputNumber/Form（label 校验职责）/TextArea/搜索/业务专用输入 划界；键盘避让=宿主）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（壳 48/圆角 lg/bgPage/内距 md/文本 Md16/placeholder textTertiary/清除钮 20 灰底白叉 14/尾槽间距 sm/禁用 40% 灰）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期：secure 显隐切换/字数计数/前后缀/TextArea/搜索形态；不做：内嵌 label 校验=Form 职责）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础输入/清除+尾槽/禁用+掩码/受控外部）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（iOS SharedUI/Components 无输入组件=未实现；Android sharedui/components/CommonComponents.kt 有业务收编 AppInputField/PhoneInputField/EmailInputField/PasswordInputField 系列（BasicTextField 52dp 灰底 radius lg 清除钮+尾槽=新组件视觉前身）；api.json 无 ui.input 条目待立项；任务清单 #29 ✅缺口→本规格=双端通用组件立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（编辑内核/键盘映射/掩码/清除钮图标/禁用机制/状态回写/键盘避让=系统级差异；pt/dp 与命名表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（显隐切换/字数计数/前后缀 icon/多行 TextArea/搜索形态=二期或对应组件；label/必填星/校验文案=FormFieldRow 职责不混入）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

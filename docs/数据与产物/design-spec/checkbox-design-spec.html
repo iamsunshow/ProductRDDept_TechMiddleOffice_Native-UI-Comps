@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Checkbox 复选 · 设计规格（门禁 A）</title>
+<style>
+::root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--textTertiary:#9CA3AF;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- Checkbox demo 预览 mock（方形勾选框 + 复选组） ---- */
+.ck-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.ck-list{display:flex;flex-direction:column;padding:6px 0;}
+.ck-row{display:flex;align-items:center;gap:8px;padding:10px 16px;font-size:14px;color:var(--textPrimary);cursor:pointer;user-select:none;white-space:nowrap;}
+.ck-row small{color:var(--textSecondary);font-size:13px;margin-left:4px;font-weight:400;}
+.ck-box{width:20px;height:20px;border:1.5px solid var(--textTertiary);border-radius:6px;background:#fff;display:inline-flex;align-items:center;justify-content:center;flex:none;}
+.ck-box.on{background:var(--primary);border-color:var(--primary);}
+.ck-box .ck-tick{color:#fff;font-size:13px;line-height:1;display:none;}
+.ck-box.on .ck-tick{display:inline;}
+.ck-row.on .ck-label{color:var(--primary);}
+.ck-row.dis{color:#D1D5DB;cursor:default;}
+.ck-row.dis .ck-box{border-color:#D1D5DB;background:#F9FAFB;}
+.ck-row.dis.on .ck-box{background:#D1D5DB;border-color:#D1D5DB;}
+.ck-cnt{display:block;font-size:12px;color:var(--textSecondary);padding:6px 12px 12px;}
+.ck-btn{margin:2px 16px 14px;padding:6px 14px;font-size:13px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--textPrimary);cursor:pointer;display:inline-block;user-select:none;}
+.ck-btn:active{background:#F3F4F6;}
+</style>
+</head>
+<body>
+
+<h1>Checkbox 复选 · 设计规格（数据录入组件 #25 · 任务清单 #25，subcategory=form · 门禁 A）</h1>
+<p>组件 ID：<code>ui.checkbox</code> ｜ 定位：<b>通用复选勾选框（方形圆角勾选框 + 可选 label）</b>——单只 <code>Checkbox</code>（独立二态勾选标记）与 <code>CheckboxGroup</code>（垂直多选列表，数据驱动）两种形态；勾选框 20pt/20dp、选中 primary 底白勾、label 后置；点按切换=onChange(选中集) 回调并回显；选中态半受控（selectedValues 外部可驱动回显）。对标 NutUI checkbox / Ant Checkbox 收敛为库内自有设计语言；<b>与业务收编 AgreementCheckRow（协议富文本行=圆形 12dp 小勾）明确区分</b>：协议场景继续用收编行，本组件=通用方框复选。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-06，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 多选标签/偏好（兴趣、账本、提醒日），CheckboxGroup 垂直列表逐项勾选；② 单只独立勾选（Cell 行尾"启用/开启 XX"二态标记）；③ 编辑回显：宿主已持选中 value 集，CheckboxGroup 回显勾选并高亮；④ 条件筛选多选（列表页筛选项勾选组合）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 「已阅读并同意协议」富文本行（协议名主色可点跳转）→ AgreementCheckRow 业务收编（android/foundation/design/AgreementCheckbox.kt），本组件不承载富文本链接；② 二元即时开关（拨动式开/关、状态持久切换）→ Switch 类独立组件/既有开关（若清单立项）；③ 单选排他（多选组内只能选一）→ Radio 单选（清单另行立项）</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 未选=白底描边方框（边框 textTertiary）+label 主文字；<span class="tag tag-ok">选中态 ✅</span> 勾选框 primary 实心底+白色对勾，label 保持主文字（可加主色? 不加=与协议行一致不加色，纯框区分）；<span class="tag tag-ok">禁用态 ✅</span> 整项灰 40%（textTertiary）不可点；已选中+禁用=灰底灰勾保留勾选呈现；加载/失败 N/A（宿主自理）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；与 FormFieldRow #28 兼容=Checkbox/CheckboxGroup 作为内容槽放入字段行（行高随组件撑开）；与 Cell（内容区）兼容=单只 Checkbox 可置于 Cell 内容位；与 Menu 半受控回显、InputNumber 外部驱动=同一状态惯例；与 AgreementCheckRow（业务收编，不进库级清单）=场景重叠仅协议行</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>勾选框</td><td>20pt/20dp 方形，圆角 6（radiusSm 系）；未选描边 1.5pt/1.5dp 边框 textTertiary、白底；选中=底 primary、勾白</td><td>方形圆角勾选框=库内复选视觉（区别于协议行圆形 12dp）</td></tr>
+<tr><td>对勾</td><td>白色对勾字符/矢量 13pt/13dp，勾选框内居中</td><td>文本字符 or 矢量实现平台差异表内放行（见 §05）</td></tr>
+<tr><td>label</td><td>后置、与勾选框间距 8（spaceSm）、Md16 主文字、单行省略</td><td>无 label=纯勾选框（高仍 20+ 命中区 20）</td></tr>
+<tr><td>组行高/间距</td><td>CheckboxGroup 垂直列表，行间距 4（spaceXs 组内紧凑）+行上下内 padding 10；整组内容宽=宿主容器宽</td><td>列表项右缘不拉伸（勾选框+label 左起、命中区=整行可点）</td></tr>
+<tr><td>禁用态</td><td>disabled=textTertiary 40% 灰（勾选框描边/实底/对勾与 label 全灰）；disabled 项不可点无回调</td><td>已选中 disabled=灰底灰勾=保留勾选语义可读</td></tr>
+<tr><td>数据驱动</td><td>CheckboxOption(value, label, disabled) → 独立 value 落库；CheckboxGroup(options, selected?, onSelect) 集合同步</td><td>与 CascaderOption/TabItem/MenuOption 数据驱动惯例同构</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件形态：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：独立通用复选组件双形态——单只 <code>Checkbox</code>（勾选框+可选 label，Cell/表单内嵌用）+ <code>CheckboxGroup</code>（options 数据驱动垂直多选列表）双端各自实现；方形圆角勾选框 20 + primary 底白勾视觉</td><td>✅ 场景覆盖完整：列表多选与单只二态都落库级 API；方形圆角=区别于协议行圆形视觉、互不干扰；垂直列表一期足够（表单/筛选主场景）；双端实现纯绘制+点击=轻量可靠</td><td><b>推荐 A</b>：单只+组双形态</td></tr>
+<tr><td>B：仅做 CheckboxGroup 垂直列表（不做单只）</td><td>Cell 内嵌/表单行内"启用 XX"场景无组件可用（宿主被迫自绘方框）</td><td>淘汰：单只是最小原子</td></tr>
+<tr><td>C：复用/改造 AgreementCheckRow 圆形勾选为通用复选（圆形视觉全面铺开）</td><td>协议行=场景专用富文本+小号 12dp 圆点+点击区分协议链接，通用复选语义（标签列表多选）硬套会带出富文本复杂度与视觉错位</td><td>淘汰：业务收编不动，独立新视觉</td></tr>
+</table>
+
+<h3>P2 · 数据模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：CheckboxOption(value, label, disabled) 数据驱动 + CheckboxGroup(options, selected: Set&lt;value&gt;?, onSelect)；单只=Checkbox(label?, checked, onChange)</td><td>✅ value 稳定落库、disabled 项内联可配；外部按 set 回显（编辑场景）；与库内 option 数据驱动惯例同构；label 纯展示（富文本=协议行职责）</td><td><b>推荐 A</b>：数据驱动惯例</td></tr>
+<tr><td>B：仅 label 字符串数组（无独立 value）</td><td>多选结果落库歧义（同名文案/文案变体）；外部回显无法按 value 稳定匹配</td><td>淘汰：同库惯例已弃（见 Menu P2）</td></tr>
+<tr><td>C：Node 多态结构（value 可嵌套 children 组）</td><td>分组多选=树形嵌套复杂度一期不需要；垂直扁平列表足矣（分组标题=宿主分组渲染多组 CheckboxGroup）</td><td>淘汰：二期（嵌套分组再议）</td></tr>
+</table>
+
+<h3>P3 · 状态控制：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：半受控——selected（Set）可选传；nil=内部自持当前勾选集，每次点按=切换该 value 并回调 onChange(newSet)；外部赋值 selected=同步刷新渲染（编辑回显/重置），<b>不触发 onChange</b>（同 InputNumber/Menu 惯例）；单只 checked 同规则（nil 自持）</td><td>✅ 表单提交=宿主拿 onChange 回传集；编辑回显=外部 selected 驱动；自持=轻量可用；库内状态惯例一致</td><td><b>推荐 A</b>：库内半受控惯例</td></tr>
+<tr><td>B：纯受控（selected 必传，每次点击宿主回写）</td><td>简单受控无内部态；但宿主每次点按都要回写新集合（多数场景宿主本就要存结果，可接受）；灵活性弱于 A（不传即不可用）</td><td>可接受但过度（A 的受控超集）</td></tr>
+<tr><td>C：纯自管理（不暴露 selected 外设）</td><td>编辑回显/重置驱动无门（同 Menu P3-C 结论）</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：方形勾选框+label 后置+Checkbox/CheckboxGroup 双形态+disabled（项级/已选禁用保留勾）+半受控 selected+demo 四段（单只基础/组多选/禁用/受控外部驱动）；对勾=白勾单字符/矢量</td><td>✅ 复选核心闭环（勾/取消/禁用/外部回显/集合同步）逐项可验；无动画无嵌套=验收路径清晰</td><td><b>推荐 A</b>：核心闭环可验收</td></tr>
+<tr><td>B：一期含 indeterminate 半选（组内部分选中父项横杠）</td><td>半选=三态复杂度+宿主全选/批量父项语义耦合，非复选基础需求</td><td>淘汰：登记二期</td></tr>
+<tr><td>C：一期含勾选动画/横向 wrap 排列/勾选 label 主色联动</td><td>动画与多方向布局=范围膨胀；label 变色与协议行视觉惯例不一致</td><td>淘汰：登记二期/不做</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 单只基础（未选→点选→取消）</h3>
+<p>mock：单只 Checkbox「设为默认账本」（无选中 → 点选=主色白勾+段内回显 checked=true → 再点取消）。验证单只勾选框最小原子与回调。</p>
+<div class="ck-stage">
+<div class="ck-list">
+<div class="ck-row on"><span class="ck-box"><span class="ck-tick">✓</span></span><span class="ck-label">设为默认账本</span><small>checked=true（段内回显）</small></div>
+</div></div>
+<span class="ck-cnt">点选 → onChange(true) 段内回显 · 再点 → onChange(false) 取消</span>
+
+<h3>D2 · Group 多选（垂直列表独立勾选）</h3>
+<p>mock：CheckboxGroup「想吃的早餐」（包子/豆浆/油条/鸡蛋 4 项，多选）；勾选集合段内回显（如 包子、鸡蛋）。验证 options 数据驱动+独立多选+onChange 回集合。</p>
+<div class="ck-stage">
+<div class="ck-list">
+<div class="ck-row on"><span class="ck-box"><span class="ck-tick">✓</span></span><span class="ck-label">包子</span></div>
+<div class="ck-row"><span class="ck-box"></span><span class="ck-label">豆浆</span></div>
+<div class="ck-row"><span class="ck-box"></span><span class="ck-label">油条</span></div>
+<div class="ck-row on"><span class="ck-box"><span class="ck-tick">✓</span></span><span class="ck-label">鸡蛋</span></div>
+</div></div>
+<span class="ck-cnt">当前选中：包子、鸡蛋（集合回显）</span>
+
+<h3>D3 · disabled（项级禁用 + 已选禁用保留）</h3>
+<p>mock：Group 里「油条（已售罄）」disabled 灰 40% 不可点；单只演示 disabled+checked 灰勾（只读展示，点按无回调）。验证禁用态不响应。</p>
+<div class="ck-stage">
+<div class="ck-list">
+<div class="ck-row"><span class="ck-box"></span><span class="ck-label">包子</span></div>
+<div class="ck-row dis"><span class="ck-box"></span><span class="ck-label">油条（售罄）</span></div>
+<div class="ck-row dis on"><span class="ck-box"><span class="ck-tick" style="color:#D1D5DB;">✓</span></span><span class="ck-label">鸡蛋（已下架·保持勾选）</span></div>
+</div></div>
+<span class="ck-cnt">disabled 不可点无回调 · checked+disabled=灰勾保留语义</span>
+
+<h3>D4 · 受控外部驱动（外部重置/全选回显）</h3>
+<p>mock：段内「重置」「全选」按钮外部改 selected 集 → 组勾选同步刷新（全选 4 项全勾、重置清空）；验证外部驱动不触发 onChange、仅渲染同步。</p>
+<div class="ck-stage">
+<div class="ck-list">
+<div class="ck-row on"><span class="ck-box"><span class="ck-tick">✓</span></span><span class="ck-label">包子</span></div>
+<div class="ck-row on"><span class="ck-box"><span class="ck-tick">✓</span></span><span class="ck-label">豆浆</span></div>
+<div class="ck-row on"><span class="ck-box"><span class="ck-tick">✓</span></span><span class="ck-label">油条</span></div>
+<div class="ck-row on"><span class="ck-box"><span class="ck-tick">✓</span></span><span class="ck-label">鸡蛋</span></div>
+</div>
+<span class="ck-btn">重置</span><span class="ck-btn">全选</span></div>
+<span class="ck-cnt">外部 selected=全选 4 项 → 同步勾选（不触发 onChange）</span>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>勾绘制</td><td>UILabel "✓" 字符 / 或 CAShapeLayer 描勾</td><td>Icons.Filled.Check ImageVector（agreement 收编同款）</td><td>平台矢量机制不同、视觉一致（表内放行）</td></tr>
+<tr><td>点击按压反馈</td><td>touchDown 压暗瞬态（无系统 ripple）</td><td>clickable 系统 ripple / 组行 combosable 点击无涟漪（agreement 无涟漪先例）</td><td>系统级原生差异（同全库先例，表内放行）</td></tr>
+<tr><td>命中区</td><td>整行 UIControl/UITapGestureRecognizer，label 一并可点</td><td>Row.clickable 整行可点</td><td>两端命中区一致=整行（表内放行机制差异）</td></tr>
+<tr><td>状态回写</td><td>命令式：外部赋值 selected → 显式刷新子勾选框视图（demo onChange 宿主回写 selected 属性）</td><td>声明式：selected State/参数变化自动重组</td><td>命令式/声明式机制不同、宿主回写后视觉一致（库内惯例，表内放行）</td></tr>
+<tr><td>文字省略/折行</td><td>UILabel truncateTail</td><td>Text maxLines=1 ellipsis</td><td>两端单行省略一致指向（表内放行）</td></tr>
+<tr><td>无障碍</td><td>VoiceOver：勾选框 isAccessibilityElement+label+value 选中态</td><td>TalkBack：语义/selected 状态</td><td>系统无障碍层各读屏实现不同（表内放行）</td></tr>
+<tr class="diff-row"><td>尺寸单位 / 命名</td><td>pt；CheckboxOption/CheckboxGroup struct + CheckboxView（独立 Checkbox.swift）</td><td>dp；data class CheckboxOption + @Composable Checkbox/CheckboxGroup（Checkbox.kt）</td><td>Token 同值不同单位；命名差异见门禁 B（表内放行）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>CheckboxOption(value, label, disabled=false)</code><br/><code>selected: Set&lt;String&gt;?</code>（选中 value 集；nil=内部自持）；<code>onSelect(value: String, checked: Bool)</code> 或 <code>onChange(selectedSet)</code>（有效点按触发；disabled 幂等无回调；外部赋值 selected 不触发 onChange）；单只=<code>Checkbox(label? , checked: Bool?, onChange(Bool))</code></td></tr>
+<tr><td>iOS</td><td><code>final class CheckboxView: UIView</code>（勾选框+label+整行命中）；<code>final class CheckboxGroupView: UIView</code><br/><code>init(options: [CheckboxOption], selected: Set&lt;String&gt;? = nil, onChange: ((String, Bool) -&gt; Void)? = nil)</code>；`var selected` 外部赋值驱动回显刷新；`var options` 可更新（disabled 变化重渲染）</td></tr>
+<tr><td>Android</td><td><code>@Composable fun Checkbox(label: String? = null, checked: Boolean?, onCheckedChange: (Boolean) -&gt; Unit, ...)</code><br/><code>@Composable fun CheckboxGroup(options: List&lt;CheckboxOption&gt;, selected: Set&lt;String&gt;? = null, onChange: (String, Boolean) -&gt; Unit, modifier)</code><br/>内部 Column 垂直排列，selected 参数变化自动重组回显</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：通用复选双形态=单只 Checkbox+CheckboxGroup 垂直多选；与协议行 AgreementCheckRow/开关/Switch/单选 Radio 划界；富文本=协议行职责）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（勾选框 20/圆角 6/描边 1.5 textTertiary/选中 primary 白勾 13/label Md16 间距 8/行距 4+padding 10/禁用 40% 灰）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期：indeterminate 半选/嵌套分组；不做：label 变色/圆形通用化=协议行职责）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（单只基础/组多选/禁用/受控外部驱动）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（iOS SharedUI/Components 无 Checkbox；Android 仅业务收编 AgreementCheckRow（foundation/design/AgreementCheckbox.kt，协议富文本场景专用）非通用组件；api.json 无 ui.checkbox 条目待立项；任务清单 #25 ✅缺口→本规格=补齐 iOS/双端通用组件立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（勾绘制/按压反馈/命中区机制/状态回写/省略/无障碍=系统级差异；pt/dp 与命名表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（indeterminate 半选/嵌套分组/勾选动画/横向排列=二期或不做；富文本协议行=AgreementCheckRow 职责不混入）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

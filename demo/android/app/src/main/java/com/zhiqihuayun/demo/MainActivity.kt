@@ -134,6 +134,7 @@ import com.zhiqihuayun.sharedui.components.RadioOption
 import com.zhiqihuayun.sharedui.components.Range
 import com.zhiqihuayun.sharedui.components.RangeValue
 import com.zhiqihuayun.sharedui.components.Rate
+import com.zhiqihuayun.sharedui.components.SearchBar
 import com.zhiqihuayun.sharedui.components.Input
 import com.zhiqihuayun.sharedui.components.NumberKeyboard
 import com.zhiqihuayun.sharedui.components.Picker
@@ -205,7 +206,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Radio 单选", reviewed = true, demo = { RadioDemo() }),
         DemoComponent("Range 区间选择", reviewed = true, demo = { RangeDemo() }),
         DemoComponent("Rate 评分", reviewed = true, demo = { RateDemo() }),
-        DemoComponent("SearchBar 搜索栏"),
+        DemoComponent("SearchBar 搜索栏", reviewed = true, demo = { SearchBarDemo() }),
         DemoComponent("ShortPassword 短密码"),
         DemoComponent("Signature 签名"),
         DemoComponent("Switch 开关"),
@@ -5305,6 +5306,154 @@ private fun PickerDemo() {
                 )
             }
         }
+    }
+}
+
+// ── SearchBar 搜索栏 Demo（ui.search-bar · #38）──
+
+@Composable
+private fun SearchBarDemo() {
+    Text(
+        text = "SearchBar 搜索栏组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 基础搜索输入+清除钮（半受控内部自持）② 键盘搜索键 onSearch+宿主列表过滤 ③ 禁用+外部 value 驱动 ④ trailing 尾槽搜索按钮双路径。双端 1:1（Android SearchBar vs iOS SearchBarView）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 基础搜索输入（半受控 value=nil 内部自持）
+        Text("Demo 1 · 基础搜索输入（半受控内部自持 · 清除钮）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1Msg by remember { mutableStateOf<String?>(null) }
+        SearchBar(
+            value = null,
+            onTextChange = { t ->
+                d1Msg = if (t.isEmpty()) "清除钮点击 → 回传空串并清空"
+                else "onTextChange → $t"
+            },
+            placeholder = "请输入搜索关键词（软键盘=搜索键）"
+        )
+        Text(
+            text = d1Msg ?: "value=nil=内部自持（宿主拿回调词即可无需回写）；非空即显示清除钮（点击清空回传空串）。",
+            fontSize = AppFont.sizeXs,
+            color = if (d1Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D2 · 键盘搜索键 onSearch + 宿主列表过滤（检索执行宿主自理）
+        Text("Demo 2 · 键盘搜索键 onSearch + 宿主列表过滤", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        val foods = remember { listOf("苹果", "香蕉", "橙子", "猕猴桃", "米饭", "面条", "酸奶") }
+        var d2Text by remember { mutableStateOf("") }
+        var d2Msg by remember { mutableStateOf<String?>(null) }
+        SearchBar(
+            value = d2Text,
+            onTextChange = { d2Text = it; d2Msg = null },
+            onSearch = { kw ->
+                val keyword = kw.trim()
+                d2Msg = if (keyword.isEmpty()) "onSearch →（空串，宿主自行忽略）"
+                else "onSearch → 「$keyword」（键盘搜索键触发，宿主执行真实检索）"
+            },
+            placeholder = "输入过滤示例数据（软键盘搜索键=提交检索）"
+        )
+        Text(
+            text = d2Msg ?: "下方列表=宿主 onTextChange 实时过滤示例（输入即筛，检索/结果=宿主自理）。",
+            fontSize = AppFont.sizeXs,
+            color = if (d2Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+        val keyword2 = d2Text.trim()
+        val filtered = if (keyword2.isEmpty()) foods else foods.filter { it.contains(keyword2) }
+        Column {
+            filtered.forEach { item ->
+                Text(
+                    text = item,
+                    fontSize = AppFont.sizeSm,
+                    color = AppColor.textPrimary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                )
+                if (item != filtered.last()) {
+                    androidx.compose.material3.HorizontalDivider(color = AppColor.border)
+                }
+            }
+            if (filtered.isEmpty()) {
+                Text("无命中（宿主空态自理）", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+            }
+        }
+
+        // D3 · 禁用 + 外部驱动
+        Text("Demo 3 · 禁用 + 外部 value 驱动", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3Text by remember { mutableStateOf("春天") }
+        var d3Disabled by remember { mutableStateOf(false) }
+        var d3Count by remember { mutableStateOf(0) }
+        var d3Msg by remember { mutableStateOf<String?>(null) }
+        SearchBar(
+            value = d3Text,
+            onTextChange = { d3Text = it; d3Count++; d3Msg = null },
+            disabled = d3Disabled,
+            placeholder = "禁用态演示"
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d3Text = "记账"
+                d3Msg = "外部 value 赋值=仅回显（onTextChange 不触发、计数不变）"
+            }) { Text("外部赋值=记账", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d3Text = ""
+                d3Msg = "外部 value=空串=仅回显清空（不触发 onTextChange）"
+            }) { Text("外部置空", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d3Disabled = !d3Disabled
+                d3Msg = if (d3Disabled) "已禁用：整行 40% 灰、不可输入、清除钮隐藏、无任何回调"
+                else "已启用（可输入）"
+            }) { Text(if (d3Disabled) "启用" else "禁用", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = "onTextChange 触发次数：$d3Count（外部赋值不计数）。${d3Msg ?: ""}",
+            fontSize = AppFont.sizeXs,
+            color = if (d3Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D4 · trailing 尾槽搜索按钮（与键盘搜索键双路径）
+        Text("Demo 4 · trailing 尾槽宿主搜索按钮（与键盘搜索键双路径）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4Text by remember { mutableStateOf("") }
+        var d4Msg by remember { mutableStateOf<String?>(null) }
+        val runSearch: (String) -> Unit = { kw ->
+            val k = kw.trim()
+            d4Msg = "搜索动作 →「${if (k.isEmpty()) "（空）" else k}」（按钮点击=调用 onSearch 同语义，宿主执行检索）"
+        }
+        SearchBar(
+            value = d4Text,
+            onTextChange = { d4Text = it; d4Msg = null },
+            onSearch = runSearch,
+            placeholder = "尾槽「搜索」按钮与键盘搜索键双路径",
+            trailing = {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(percent = 50))
+                        .background(AppColor.primary)
+                        .clickable { runSearch(d4Text) }
+                        .padding(horizontal = AppSpace.md, vertical = 6.dp)
+                ) {
+                    Text("搜索", fontSize = AppFont.sizeSm, color = Color.White)
+                }
+            }
+        )
+        Text(
+            text = d4Msg ?: "组件不内置提交钮=trailing 槽宿主自放「搜索」按钮，点击与软键盘搜索键同走 onSearch 语义。",
+            fontSize = AppFont.sizeXs,
+            color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
+        )
     }
 }
 

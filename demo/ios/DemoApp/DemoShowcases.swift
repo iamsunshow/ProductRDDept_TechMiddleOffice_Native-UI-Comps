@@ -62,7 +62,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.radio", name: "Radio 单选", reviewed: true, create: { RadioShowcase() }),
             DemoComponent(id: "ui.range", name: "Range 区间选择", reviewed: true, create: { RangeShowcase() }),
             DemoComponent(id: "ui.rate", name: "Rate 评分", reviewed: true, create: { RateShowcase() }),
-            DemoComponent(id: "ui.search-bar", name: "SearchBar 搜索栏", reviewed: false, create: nil),
+            DemoComponent(id: "ui.search-bar", name: "SearchBar 搜索栏", reviewed: true, create: { SearchBarShowcase() }),
             DemoComponent(id: "ui.short-password", name: "ShortPassword 短密码", reviewed: false, create: nil),
             DemoComponent(id: "ui.signature", name: "Signature 签名", reviewed: false, create: nil),
             DemoComponent(id: "ui.switch", name: "Switch 开关", reviewed: false, create: nil),
@@ -5851,6 +5851,247 @@ final class RangeShowcase: ShowcaseViewController {
             })
         )
         d4Feedback = addDynamicInfo("半受控：外部 value 赋值仅同步刷新滑块位置与激活段（不触发 onChange）；拖动=组件上报并宿主回写。", color: AppColor.textSecondary)
+    }
+}
+
+// MARK: - SearchBar Showcase（搜索栏 · ui.search-bar · #38）
+
+/// 搜索输入壳+放大镜+非空清除钮+软键盘「搜索」键 onSearch+trailing 尾槽双路径：
+/// Demo 1 基础搜索输入（半受控内部自持+清除钮）；Demo 2 键盘搜索键 onSearch+宿主列表过滤；
+/// Demo 3 禁用+外部 value 驱动；Demo 4 trailing 尾槽宿主搜索按钮（与键盘搜索键双路径）。
+/// 与 Android SearchBarDemo 4 段 1:1 同构。
+final class SearchBarShowcase: ShowcaseViewController {
+    private var d1Search: SearchBarView?
+    private var d2Search: SearchBarView?
+    private var d3Search: SearchBarView?
+    private var d4Search: SearchBarView?
+    private var d1Feedback: UILabel?
+    private var d2Feedback: UILabel?
+    private var d3Feedback: UILabel?
+    private var d4Feedback: UILabel?
+    private var d2List: UIStackView?
+    private var d2Keyword = ""
+    private var d3Count = 0
+    private let d2Foods = ["苹果", "香蕉", "橙子", "猕猴桃", "米饭", "面条", "酸奶"]
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "SearchBar 搜索栏", version: "v1.0", builtAt: "2026-09-06")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    private func emit(_ label: UILabel?, _ text: String, color: UIColor = AppColor.primary) {
+        label?.text = text
+        label?.textColor = color
+    }
+
+    /// 段内容贴顶放搜索栏（48 高由 intrinsicContentSize 提供），容器底闭合到底部视图。
+    private func attach(_ search: SearchBarView, into container: UIView, bottomItem: UIView? = nil) {
+        container.addSubview(search)
+        search.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview()
+        }
+        let tail = bottomItem ?? search
+        container.snp.makeConstraints { make in
+            make.bottom.equalTo(tail.snp.bottom)
+        }
+    }
+
+    // MARK: Demo 1 · 基础搜索输入（半受控内部自持 · 清除钮）
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 基础搜索输入（半受控内部自持 · 清除钮）") { container in
+            let search = SearchBarView(
+                placeholder: "请输入搜索关键词（软键盘=搜索键）",
+                onTextChange: { [weak self] text in
+                    let t = text.isEmpty ? "清除钮点击 → 回传空串并清空" : "onTextChange → \(text)"
+                    self?.emit(self?.d1Feedback, t)
+                }
+            )
+            d1Search = search
+            attach(search, into: container)
+        }
+        d1Feedback = addDynamicInfo(
+            "value=nil=内部自持（宿主拿回调词即可无需回写）；非空即显示清除钮（点击清空回传空串）。",
+            color: AppColor.textSecondary
+        )
+    }
+
+    // MARK: Demo 2 · 键盘搜索键 onSearch + 宿主列表过滤
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 键盘搜索键 onSearch + 宿主列表过滤") { container in
+            let search = SearchBarView(
+                placeholder: "输入过滤示例数据（软键盘搜索键=提交检索）",
+                onTextChange: { [weak self] text in self?.updateD2(text) },
+                onSearch: { [weak self] kw in self?.runD2(kw) }
+            )
+            container.addSubview(search)
+            search.snp.makeConstraints { make in
+                make.leading.top.trailing.equalToSuperview()
+            }
+            d2Search = search
+
+            let list = UIStackView()
+            list.axis = .vertical
+            list.spacing = 0
+            container.addSubview(list)
+            list.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+                make.top.equalTo(search.snp.bottom).offset(AppSpace.md)
+            }
+            d2List = list
+            container.snp.makeConstraints { make in
+                make.bottom.equalTo(list.snp.bottom)
+            }
+        }
+        d2Feedback = addDynamicInfo(
+            "下方列表=宿主 onTextChange 实时过滤示例（输入即筛，检索/结果=宿主自理）。",
+            color: AppColor.textSecondary
+        )
+        rebuildD2List()
+    }
+
+    private func updateD2(_ text: String) {
+        d2Keyword = text
+        emit(d2Feedback, "下方列表=宿主 onTextChange 实时过滤示例（输入即筛，检索/结果=宿主自理）。", color: AppColor.textSecondary)
+        rebuildD2List()
+    }
+
+    private func runD2(_ raw: String) {
+        let kw = raw.trimmingCharacters(in: .whitespaces)
+        emit(
+            d2Feedback,
+            kw.isEmpty ? "onSearch →（空串，宿主自行忽略）" : "onSearch → 「\(kw)」（键盘搜索键触发，宿主执行真实检索）"
+        )
+    }
+
+    private func rebuildD2List() {
+        guard let list = d2List else { return }
+        list.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        let kw = d2Keyword.trimmingCharacters(in: .whitespaces)
+        let hits = kw.isEmpty ? d2Foods : d2Foods.filter { $0.contains(kw) }
+        if hits.isEmpty {
+            let empty = UILabel()
+            empty.text = "无命中（宿主空态自理）"
+            empty.font = .systemFont(ofSize: AppFont.sizeXs)
+            empty.textColor = AppColor.textSecondary
+            list.addArrangedSubview(empty)
+            return
+        }
+        for (index, item) in hits.enumerated() {
+            let row = UILabel()
+            row.text = item
+            row.font = .systemFont(ofSize: AppFont.sizeSm)
+            row.textColor = AppColor.textPrimary
+            row.heightAnchor.constraint(equalToConstant: 29).isActive = true
+            list.addArrangedSubview(row)
+            if index != hits.count - 1 {
+                let hair = UIView()
+                hair.backgroundColor = AppColor.border
+                hair.heightAnchor.constraint(equalToConstant: 1).isActive = true
+                list.addArrangedSubview(hair)
+            }
+        }
+    }
+
+    // MARK: Demo 3 · 禁用 + 外部 value 驱动
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 禁用 + 外部 value 驱动") { container in
+            let search = SearchBarView(
+                value: "春天",
+                placeholder: "禁用态演示",
+                onTextChange: { [weak self] _ in
+                    guard let self else { return }
+                    self.d3Count += 1
+                    self.refreshD3("")
+                }
+            )
+            d3Search = search
+            attach(search, into: container)
+        }
+        demoButtonRow(
+            ("外部赋值=记账", { [weak self] in
+                guard let self else { return }
+                self.d3Search?.value = "记账"
+                self.refreshD3("外部 value 赋值=仅回显（onTextChange 不触发、计数不变）")
+            }),
+            ("外部置空", { [weak self] in
+                guard let self else { return }
+                self.d3Search?.value = ""
+                self.refreshD3("外部 value=空串=仅回显清空（不触发 onTextChange）")
+            }),
+            ("禁用/启用", { [weak self] in
+                guard let self, let search = self.d3Search else { return }
+                search.disabled.toggle()
+                self.refreshD3(
+                    search.disabled
+                        ? "已禁用：整行 40% 灰、不可输入、清除钮隐藏、无任何回调"
+                        : "已启用（可输入）"
+                )
+            })
+        )
+        d3Feedback = addDynamicInfo("", color: AppColor.textSecondary)
+        refreshD3("外部赋值=仅回显不触发 onTextChange。")
+    }
+
+    private func refreshD3(_ message: String, color: UIColor = AppColor.textSecondary) {
+        guard let label = d3Feedback else { return }
+        let prefix = "onTextChange 触发次数：\(d3Count)（外部赋值不计数）。"
+        label.text = message.isEmpty ? prefix + "外部赋值=仅回显不触发 onTextChange。" : prefix + message
+        label.textColor = color
+    }
+
+    // MARK: Demo 4 · trailing 尾槽宿主搜索按钮（与键盘搜索键双路径）
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · trailing 尾槽宿主搜索按钮（与键盘搜索键双路径）") { container in
+            let button = UIButton(type: .system)
+            button.setTitle("搜索", for: .normal)
+            button.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .semibold)
+            button.setTitleColor(.white, for: .normal)
+            button.backgroundColor = AppColor.primary
+            button.layer.cornerRadius = 14
+            button.clipsToBounds = true
+            button.contentEdgeInsets = UIEdgeInsets(top: 6, left: 14, bottom: 6, right: 14)
+            button.addTarget(self, action: #selector(d4TrailingTapped), for: .touchUpInside)
+
+            let search = SearchBarView(
+                placeholder: "尾槽「搜索」按钮与键盘搜索键双路径",
+                trailing: button,
+                onTextChange: { [weak self] _ in
+                    guard let self else { return }
+                    self.emit(
+                        self.d4Feedback,
+                        "组件不内置提交钮=trailing 槽宿主自放「搜索」按钮，点击与软键盘搜索键同走 onSearch 语义。",
+                        color: AppColor.textSecondary
+                    )
+                },
+                onSearch: { [weak self] kw in self?.runD4(kw) }
+            )
+            d4Search = search
+            attach(search, into: container)
+        }
+        d4Feedback = addDynamicInfo(
+            "组件不内置提交钮=trailing 槽宿主自放「搜索」按钮，点击与软键盘搜索键同走 onSearch 语义。",
+            color: AppColor.textSecondary
+        )
+    }
+
+    private func runD4(_ raw: String) {
+        let kw = raw.trimmingCharacters(in: .whitespaces)
+        emit(
+            d4Feedback,
+            "搜索动作 →「\(kw.isEmpty ? "（空）" : kw)」（按钮点击=调用 onSearch 同语义，宿主执行检索）"
+        )
+    }
+
+    @objc private func d4TrailingTapped() {
+        runD4(d4Search?.currentText ?? "")
     }
 }
 

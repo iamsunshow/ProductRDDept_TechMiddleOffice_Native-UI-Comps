@@ -71,6 +71,11 @@ final class RateView: UIView {
         self.disabled = disabled
         self.onChange = onChange
         super.init(frame: .zero)
+        // 纯 draw(_:) 自绘且无背景色：必须显式透明（isOpaque=false + backgroundColor=clear），
+        // 否则 UIView 默认 opaque=true 时未绘制区域（星间距等透明间隙）会被当作不透明黑块。
+        isOpaque = false
+        backgroundColor = .clear
+        contentMode = .redraw
         refreshInteraction()
         syncFromExternal()
     }

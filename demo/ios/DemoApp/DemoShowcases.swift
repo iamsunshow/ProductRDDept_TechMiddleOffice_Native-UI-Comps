@@ -67,7 +67,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.signature", name: "Signature 签名", reviewed: true, create: { SignatureShowcase() }),
             DemoComponent(id: "ui.switch", name: "Switch 开关", reviewed: true, create: { SwitchShowcase() }),
             DemoComponent(id: "ui.textarea", name: "TextArea 文本域", reviewed: true, create: { TextAreaShowcase() }),
-            DemoComponent(id: "ui.uploader", name: "Uploader 上传", reviewed: false, create: nil),
+            DemoComponent(id: "ui.uploader", name: "Uploader 上传", reviewed: true, create: { UploaderShowcase() }),
         ]),
         ("操作反馈", [
             DemoComponent(id: "ui.action-sheet", name: "ActionSheet 动作面板", reviewed: false, create: nil),
@@ -7425,4 +7425,172 @@ final class TextAreaShowcase: ShowcaseViewController {
     }
 
     private var d4Value: String = ""
+}
+
+// MARK: - Uploader 上传 Demo（任务清单 #43，验证组件库 v1.4.0，demo 徽标 v1.0）
+// D1 基础多图上传（添加→pending→uploading→success 流转） / D2 单文件 maxCount=1 /
+// D3 失败重试+disabled 锁定 / D4 受控外部驱动
+final class UploaderShowcase: ShowcaseViewController {
+    private var d1Items: [UploadItem] = []
+    private var d1Uploader: UploaderView?
+    private var d1Feedback: UILabel?
+
+    private var d2Items: [UploadItem] = []
+    private var d2Uploader: UploaderView?
+
+    private var d3Items: [UploadItem] = []
+    private var d3Uploader: UploaderView?
+    private var d3Disabled: Bool = false
+
+    private var d4Items: [UploadItem] = []
+    private var d4Uploader: UploaderView?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Uploader", version: "v1.0", builtAt: "2026-09-07")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    // MARK: - D1 基础多图上传
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 基础多图上传（添加→pending→uploading→success 流转）") { [weak self] container in
+            guard let self else { return }
+            let uploader = UploaderView(value: self.d1Items, maxCount: 9) { [weak self] in
+                guard let self else { return }
+                let id = UUID().uuidString
+                self.d1Items.append(UploadItem(id: id, name: "图片\(self.d1Items.count + 1).jpg", size: 102400, status: .pending))
+                self.d1Uploader?.value = self.d1Items
+                self.d1Feedback?.text = "onAdd → 追加 pending 项"
+                self.d1Feedback?.textColor = AppColor.primary
+                // 模拟上传：1s 后变 uploading，2s 后变 success
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    if let idx = self.d1Items.firstIndex(where: { $0.id == id }) {
+                        self.d1Items[idx] = UploadItem(id: id, name: self.d1Items[idx].name, size: self.d1Items[idx].size, status: .uploading, progress: 0.6)
+                        self.d1Uploader?.value = self.d1Items
+                    }
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    if let idx = self.d1Items.firstIndex(where: { $0.id == id }) {
+                        self.d1Items[idx] = UploadItem(id: id, name: self.d1Items[idx].name, size: self.d1Items[idx].size, status: .success, progress: 1.0)
+                        self.d1Uploader?.value = self.d1Items
+                    }
+                }
+            } onRemove: { [weak self] index in
+                guard let self else { return }
+                self.d1Items.remove(at: index)
+                self.d1Uploader?.value = self.d1Items
+                self.d1Feedback?.text = "onRemove(\(index)) → 已删除"
+                self.d1Feedback?.textColor = AppColor.primary
+            }
+            self.d1Uploader = uploader
+            self.pinFullWidth(uploader, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(uploader.snp.bottom) }
+        }
+        d1Feedback = addDynamicInfo("点击 + 触发 onAdd（宿主模拟选择器+上传流程）；uploading 态=primary 蒙层+进度条；success 态=删除角标。", color: AppColor.textSecondary)
+    }
+
+    // MARK: - D2 单文件 maxCount=1
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 单文件 maxCount=1（头像/证件照场景）") { [weak self] container in
+            guard let self else { return }
+            let uploader = UploaderView(value: self.d2Items, maxCount: 1) { [weak self] in
+                guard let self else { return }
+                let id = UUID().uuidString
+                self.d2Items.append(UploadItem(id: id, name: "avatar.jpg", size: 51200, status: .success))
+                self.d2Uploader?.value = self.d2Items
+            } onRemove: { [weak self] index in
+                guard let self else { return }
+                self.d2Items.remove(at: index)
+                self.d2Uploader?.value = self.d2Items
+            }
+            self.d2Uploader = uploader
+            self.pinFullWidth(uploader, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(uploader.snp.bottom) }
+        }
+        addDynamicInfo("maxCount=1：已有 1 张=添加按钮隐藏；删除后=添加按钮重现。", color: AppColor.textSecondary)
+    }
+
+    // MARK: - D3 失败重试 + disabled 锁定
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 失败重试 + disabled 锁定") { [weak self] container in
+            guard let self else { return }
+            let failedId = UUID().uuidString
+            self.d3Items = [
+                UploadItem(id: failedId, name: "failed.jpg", size: 204800, status: .failed),
+                UploadItem(id: UUID().uuidString, name: "ok.jpg", size: 102400, status: .success)
+            ]
+            let uploader = UploaderView(value: self.d3Items, maxCount: 9) { [weak self] in
+                guard let self else { return }
+                let id = UUID().uuidString
+                self.d3Items.append(UploadItem(id: id, name: "new.jpg", status: .success))
+                self.d3Uploader?.value = self.d3Items
+            } onRemove: { [weak self] index in
+                guard let self else { return }
+                self.d3Items.remove(at: index)
+                self.d3Uploader?.value = self.d3Items
+            } onRetry: { [weak self] index in
+                guard let self else { return }
+                // 模拟重试：failed→uploading→success
+                let item = self.d3Items[index]
+                self.d3Items[index] = UploadItem(id: item.id, name: item.name, size: item.size, status: .uploading, progress: 0.5)
+                self.d3Uploader?.value = self.d3Items
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self.d3Items[index] = UploadItem(id: item.id, name: item.name, size: item.size, status: .success, progress: 1.0)
+                    self.d3Uploader?.value = self.d3Items
+                }
+            }
+            self.d3Uploader = uploader
+            self.pinFullWidth(uploader, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(uploader.snp.bottom) }
+        }
+        demoButtonRow(
+            ("锁定/解锁", { [weak self] in
+                guard let self else { return }
+                self.d3Disabled.toggle()
+                self.d3Uploader?.disabled = self.d3Disabled
+            })
+        )
+        addDynamicInfo("失败项点击触发 onRetry（宿主重置 status 重新上传）；disabled=整件 40% 灰不可点。", color: AppColor.textSecondary)
+    }
+
+    // MARK: - D4 受控外部驱动
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 受控外部驱动（宿主直接操作 value）") { [weak self] container in
+            guard let self else { return }
+            let uploader = UploaderView(value: self.d4Items, maxCount: 9) { [weak self] in
+                guard let self else { return }
+                let id = UUID().uuidString
+                self.d4Items.append(UploadItem(id: id, name: "added.jpg", status: .success))
+                self.d4Uploader?.value = self.d4Items
+            } onRemove: { [weak self] index in
+                guard let self else { return }
+                self.d4Items.remove(at: index)
+                self.d4Uploader?.value = self.d4Items
+            }
+            self.d4Uploader = uploader
+            self.pinFullWidth(uploader, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(uploader.snp.bottom) }
+        }
+        demoButtonRow(
+            ("清空全部", { [weak self] in
+                guard let self else { return }
+                self.d4Items.removeAll()
+                self.d4Uploader?.value = self.d4Items
+            }),
+            ("追加 1 张", { [weak self] in
+                guard let self else { return }
+                let id = UUID().uuidString
+                self.d4Items.append(UploadItem(id: id, name: "ext_\(self.d4Items.count).jpg", status: .success))
+                self.d4Uploader?.value = self.d4Items
+            })
+        )
+        addDynamicInfo("外部直接改 value=列表同步刷新（不触发 onAdd/onRemove）；数据源归宿主。", color: AppColor.textSecondary)
+    }
 }

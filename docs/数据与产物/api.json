@@ -4444,7 +4444,46 @@
         ["maxLength 截断 + disabled 锁定", "上=可编辑 maxLength=20：键入/粘贴超长仅保留前 20 字符（段内回显截断结果）；下=disabled 禁用域已填文本=整壳 40% 灰不可编辑滚动（D3）"],
         ["宿主表单组装（label/校验/字数=宿主）", "FormFieldRow「个人简介」label+必填星 + TextArea rows=4（高 120）placeholder「介绍一下自己吧」；「提交」空值=宿主 error「请填写简介」红字；实时字数「已输入 X/100」宿主读 value 联动（壳不变红=表单语义归宿主）（D4）"]
       ],
-      "note": "文本域（数据录入区 #42，全新立项，2026-09-06）：通用多行文本输入内容组件=灰底圆角文本域壳（底 bgPage+radius lg+内边距 md 四向=与 Input #29 同壳语言=单行/多行两形态）+placeholder（textSecondary Md16 顶部左）+文本 Md16 textPrimary 行高 24=cellTitleLineHeight token+rows 可视行默认 3=整件高 rows×24+24=96=2×48 交互行基准（同 Signature #40）+内容超可视行内部滚动+maxLength 仅输入路径截断含粘贴+disabled 整壳 40% 灰；受控 value String 必传+onTextChange 直通（同 Input #29）；label/必填/校验/字数统计=宿主（FormFieldRow #28 承载、壳不变红）；软键盘回车=换行、键盘收起避让=宿主；与富文本/autoGrow 自动增高/字数角标（二期或宿主）、清除钮/secure/尾槽/键盘类型（Input #29 单行形态）、工具栏（emoji/@/附件=宿主）划界。2026-09-06 门禁 A AI 代评通过（规格 design-spec/textarea-design-spec.html + review-textarea-A.md，P1–P4 全 A 0 保留意见，用户 Switch #41 收编后原话「继续下一个组件」指示接棒启动）+ 同日门禁 B 双端实现入库（TextAreaView.swift=命令式 UIKit UITextView 内嵌+placeholderLabel 自绘层；TextArea.kt=声明式 Compose TextFieldState 多行+verticalScroll），iOS TextAreaShowcase / Android TextAreaDemo 4 段 1:1（D1 基础多行输入/D2 受控外部赋值+长文内滚/D3 maxLength 截断+disabled/D4 宿主表单组装），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "文本域（数据录入区 #42，全新立项，2026-09-06）：通用多行文本输入内容组件=灰底圆角文本域壳（底 bgPage+radius lg+内边距 md 四向=与 Input #29 同壳语言=单行/多行两形态）+placeholder（textSecondary Md16 顶部左）+文本 Md16 textPrimary 行高 24=cellTitleLineHeight token+rows 可视行默认 3=整件高 rows×24+24=96=2×48 交互行基准（同 Signature #40）+内容超可视行内部滚动+maxLength 仅输入路径截断含粘贴+disabled 整壳 40% 灰；受控 value String 必传+onTextChange 直通（同 Input #29）；label/必填/校验/字数统计=宿主（FormFieldRow #28 承载、壳不变红）；软键盘回车=换行、键盘收起避让=宿主；与富文本/autoGrow 自动增高/字数角标（二期或宿主）、清除钮/secure/尾槽/键盘类型（Input #29 单行形态）、工具栏（emoji/@/附件=宿主）划界。2026-09-06 门禁 A AI 代评通过（规格 design-spec/textarea-design-spec.html + review-textarea-A.md，P1–P4 全 A 0 保留意见，用户 Switch #41 收编后原话「继续下一个组件」指示接棒启动）+ 同日门禁 B 双端实现入库（TextAreaView.swift=命令式 UIKit UITextView 内嵌+placeholderLabel 自绘层；TextArea.kt=声明式 Compose TextFieldState 多行+verticalScroll），iOS TextAreaShowcase / Android TextAreaDemo 4 段 1:1（D1 基础多行输入/D2 受控外部赋值+长文内滚/D3 maxLength 截断+disabled/D4 宿主表单组装），demo 徽标 v1.0，Android assembleDebug + iOS Xcode 编译通过（修复 pbxproj 漏登 PBXGroup children 致 Build input file cannot be found、修复 AppColor.danger→AppColor.error）。**2026-09-07 C1.5 用户双端 Demo 实机验收通过收编（原话「通过，最后一个组件吧，Uploader」）**。验证版本 v1.4.0。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
+    },
+    {
+      "id": "ui.uploader",
+      "name": "Uploader 上传",
+      "category": "ui",
+      "summary": "通用文件/图片上传 UI 组件（数据录入区 #43，全新立项）：网格展示已选文件列表（缩略图/文件名/上传状态/进度）+ 添加按钮触发宿主选择 + 删除已选文件 + 失败重试；组件不内置系统选择器和网络上传逻辑=宿主职责（选择器由宿主调起后回写 value、上传请求/进度/结果由宿主驱动 status+progress）；UploadItem 完整状态机{id,name,size,thumbnailUrl,localPath,status:pending/uploading/success/failed,progress:0-1}；value 受控必传+onAdd/onRemove/onRetry 三回调；maxCount 默认 9（达上限隐藏添加按钮）；disabled 整件 40% 灰不可点；与 Image 纯展示/Avatar 头像圆形裁切划界；拖拽排序/大图预览=二期",
+      "capabilities": ["上传", "Uploader", "文件上传", "图片上传", "多图上传", "附件", "上传列表"],
+      "platforms": {
+        "ios": { "state": "available", "note": "UploaderView.swift：命令式 UIKit（UICollectionView 4 列网格 spacing 8；cell=正方形缩略图+删除角标 16 圆半透明黑+状态蒙层 uploading primary 80%+进度条 3pt / failed error 80%；添加格 dashed border+ 号 textTertiary；value 受控命令式 reloadData；onAdd/onRemove/onRetry 三回调；disabled alpha0.4 不可点）" },
+        "android": { "state": "available", "note": "Uploader.kt：声明式 Compose（LazyVerticalGrid columns=4 spacing 8；cell=Box 正方形缩略图+删除角标+状态蒙层+进度条；添加格 dashed border+ 号；value 受控自动重组；onAdd/onRemove/onRetry 三回调；disabled alpha0.4）" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/UploaderView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Uploader.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.uploader",
+      "industry_names": ["上传", "Uploader", "图片上传", "文件上传", "多图上传", "附件上传", "上传组件"],
+      "props": [
+        ["value", "List<UploadItem>", "是", "受控必传=文件列表（宿主真源）：外部赋值=同步刷新渲染；UploadItem{id,name,size,thumbnailUrl,localPath,status:pending/uploading/success/failed,progress:0-1}"],
+        ["onAdd", "回调", "是", "()：点击添加按钮触发=宿主调起系统选择器后向 value 追加 UploadItem（status=pending）"],
+        ["onRemove", "回调", "是", "(Int)：点击删除角标触发=宿主从 value 删除 index 项"],
+        ["onRetry", "回调", "否", "(Int)：点击失败项触发=宿主重置 status 为 uploading 重新上传"],
+        ["maxCount", "Int", "否", "最大文件数，默认 9；value.count>=maxCount 时隐藏添加按钮；单文件传 maxCount=1"],
+        ["disabled", "Boolean", "否", "整件 40% 灰，添加/删除/重试均不可点无回调"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础多图上传（添加→pending→uploading→success 流转）", "空列表+添加按钮；点击 onAdd→宿主追加 3 张 pending→依次变 uploading（进度条 0→100%）→success；验证添加回调+状态流转+进度条渲染（D1）"],
+        ["单文件 maxCount=1（头像/证件照场景）", "maxCount=1；已有 1 张=添加按钮隐藏；删除后=添加按钮重现；验证单文件上限+添加按钮显隐（D2）"],
+        ["失败重试 + disabled 锁定", "1 张 failed（点击格子触发 onRetry→宿主重置 status 为 uploading）；「锁定/解锁」外部按钮驱动 disabled；验证失败态展示+重试回调+禁用态（D3）"],
+        ["受控外部驱动（宿主直接操作 value）", "「清空全部」「追加 1 张」按钮直接改 value→列表同步刷新（不触发 onAdd/onRemove）；验证受控 value 数据源归宿主（D4）"]
+      ],
+      "note": "上传（数据录入区 #43，全新立项，2026-09-07）：通用文件/图片上传 UI 组件=网格展示已选文件列表+添加/删除/重试回调，不内置系统选择器（宿主调起 PHPicker/PhotoPicker 后回写 value）和网络上传逻辑（宿主驱动 status+progress）；UploadItem 完整状态机 pending/uploading/success/failed+progress 0-1；value 受控必传+onAdd/onRemove/onRetry 三回调；maxCount 默认 9；disabled 整件 40% 灰；与 Image 纯展示/Avatar 头像划界；拖拽排序/大图预览=二期。2026-09-07 门禁 A AI 代评通过（规格 design-spec/uploader-design-spec.html + review-uploader-A.md，P1–P4 全 A 0 保留意见，用户 TextArea #42 收编后原话「通过，最后一个组件吧，Uploader」指示接棒启动）+ 同日门禁 B 双端实现入库（UploaderView.swift=命令式 UIKit UICollectionView 4 列+cell 缩略图+删除角标+状态蒙层+进度条+添加格；Uploader.kt=声明式 Compose LazyVerticalGrid 4 列+BitmapFactory 本地/URL 加载+状态蒙层+进度条），iOS UploaderShowcase / Android UploaderDemo 4 段 1:1（D1 基础多图上传 pending→uploading→success / D2 单文件 maxCount=1 / D3 失败重试+disabled / D4 受控外部驱动），demo 徽标 v1.0，Android assembleDebug BUILD SUCCESSFUL（iOS 待用户本地 Xcode 编译验证）。验证版本 v1.4.0（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     }

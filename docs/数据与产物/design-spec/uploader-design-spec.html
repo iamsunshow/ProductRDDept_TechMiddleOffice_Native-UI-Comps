@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Uploader 上传 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--textTertiary:#9CA3AF;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+/* ---- Uploader preview mock ---- */
+.up-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceMd);margin:var(--spaceMd) 0;}
+.up-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.up-cell{aspect-ratio:1;border-radius:var(--radiusSm);background:var(--bgPage);border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.up-cell.add{color:var(--textTertiary);font-size:28px;cursor:pointer;}
+.up-cell.img{border-style:solid;background:#E5E7EB;}
+.up-cell .thumb{width:100%;height:100%;object-fit:cover;}
+.up-del{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.up-status{position:absolute;bottom:0;left:0;right:0;padding:2px 4px;font-size:10px;color:#fff;text-align:center;}
+.up-status.uploading{background:rgba(22,163,74,.8);}
+.up-status.failed{background:rgba(220,38,38,.8);}
+.up-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.3);}
+.up-progress-bar{height:100%;background:var(--primary);}
+.up-cnt{display:block;font-size:12px;color:var(--textSecondary);padding:6px 0 0;}
+</style>
+</head>
+<body>
+
+<h1>Uploader 上传 · 设计规格（数据录入组件 #43 · subcategory=form · 门禁 A）</h1>
+<p>组件 ID：<code>ui.uploader</code> ｜ 定位：<b>通用文件/图片上传 UI 组件</b>——网格展示已选文件列表（缩略图/文件名/上传状态/进度）+ 添加按钮触发宿主选择 + 删除已选文件。<b>组件不负责真实文件选择</b>（系统相册/相机/文件选择器由宿主调起后回写 value）<b>和网络上传</b>（上传请求/进度/结果由宿主驱动 status+progress 字段）；组件纯渲染 + onAdd/onRemove 交互回调。对标 NutUI uploader / Ant Design Upload 收敛为库内自有设计语言；<b>与 Image 图片展示组件（纯展示无交互）、Avatar（头像圆形裁切）划界</b>。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-07，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 图片/文件上传表单（头像、反馈截图、证件照、附件等）；② 多文件批量上传（网格展示 + 逐个状态/进度）；③ 编辑回显：宿主已持文件列表，外部 value 驱动展示；④ 受限上传（maxCount 上限、disabled 锁定）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 纯图片展示画廊（无上传/删除交互）→ Image 图片组件；② 头像圆形裁切展示 → Avatar；③ 大文件分片上传/断点续传逻辑 → 宿主网络层；④ 拖拽排序、图片预览大图 → 二期；⑤ 视频上传专用播放器 → 宿主自理</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 空列表=仅显示添加按钮；<span class="tag tag-ok">上传中 ✅</span> 缩略图蒙层 + 进度条 + "上传中"文案；<span class="tag tag-ok">成功态 ✅</span> 缩略图正常展示 + 右上角删除按钮；<span class="tag tag-ok">失败态 ✅</span> 缩略图灰蒙 + "失败"红字 + 点击重试回调宿主；<span class="tag tag-ok">禁用态 ✅</span> 整件 40% 灰，添加/删除均不可点无回调</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；与 FormFieldRow #28 兼容=Uploader 作字段内容区（label/必填/校验走行）；与 Cell 内容区兼容；与 Image 图片组件划界=Uploader 含上传交互+状态机，Image 纯展示；受控 value 惯例同 Input #29（必传+回调直通）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>网格布局</td><td>每行 4 列，列间距 spaceSm(8)，行间距 spaceSm(8)</td><td>4 列=移动端常见上传网格密度（同微信/支付宝上传）；间距 8=spaceSm 紧凑</td></tr>
+<tr><td>文件格子</td><td>正方形（aspect-ratio 1:1），圆角 radiusSm(6)，bgPage 底</td><td>正方形缩略图=图片/文件统一视觉；圆角 radiusSm 对齐输入控件壳</td></tr>
+<tr><td>添加按钮格</td><td>同文件格尺寸，1px dashed border（textSecondary 30%），居中 + 号 textTertiary sizeXl</td><td>虚线框=可添加语义；+ 号居中=通用添加图标语义</td></tr>
+<tr><td>删除按钮</td><td>右上角 16pt/16dp 圆形半透明黑底(rgba0,0,0,.5)，白色 × 号 11pt</td><td>悬浮角标=不遮挡缩略图主体；16=最小可点击视觉</td></tr>
+<tr><td>上传状态蒙层</td><td>上传中=primary 80% 底 + 白字"上传中" + 底部进度条 3pt；失败=error 80% 底 + 白字"失败"</td><td>状态蒙层=一眼可读；进度条 3pt 细条不抢视觉</td></tr>
+<tr><td>进度条</td><td>高 3pt/3dp，底 rgba(255,255,255,.3)，填充 primary</td><td>细条=轻量进度反馈；宽度随 progress(0-1) 线性</td></tr>
+<tr><td>禁用态</td><td>disabled=整件 alpha 0.4，添加/删除均不可点无回调</td><td>同全库 disabled 惯例</td></tr>
+<tr><td>maxCount</td><td>默认 9（九宫格）；达上限=隐藏添加按钮</td><td>9=常见多图上限；可配置；单文件传 maxCount=1</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件形态：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：纯 UI 展示 + 交互回调组件——网格文件列表（缩略图/状态/进度）+ 添加按钮（onAdd 回调宿主调起选择器后回写 value）+ 删除按钮（onRemove 回调）；上传状态/进度由宿主驱动 UploadItem.status+progress 字段；组件不内置文件选择器、不内置网络上传</td><td>✅ 职责单一=纯渲染+交互回调，与库内"组件不做业务"惯例一致（同 Signature 导出由宿主截取渲染）；文件选择/上传逻辑平台差异大（iOS PHPicker/Android PhotoPicker/各端文件系统），放宿主=双端同构；宿主可自由组合选择器（相册/相机/文件）</td><td><b>推荐 A</b>：纯 UI + 回调</td></tr>
+<tr><td>B：内置文件选择器（调起系统相册/相机/文件选择器）</td><td>选择器封装=开箱即用；但平台选择器 API 差异大（iOS UIImagePickerController/PHPickerViewController vs Android ActivityResultContracts.PickVisualMedia），权限处理复杂，组件库内聚平台差异=维护成本高+宿主定制空间小</td><td>淘汰：选择器放宿主</td></tr>
+<tr><td>C：内置网络上传逻辑（URLSession/OkHttp 请求 + 进度回调）</td><td>上传全链路=一组件闭环；但上传接口/鉴权/断点续传/错误码=业务强相关，组件库不应内置网络层</td><td>淘汰：上传放宿主网络层</td></tr>
+</table>
+
+<h3>P2 · 数据模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：UploadItem { id:String, name:String, size:Long?, thumbnailUrl:String?, localPath:String?, status:UploadStatus(.pending/.uploading/.success/.failed), progress:Float(0-1) }；value: [UploadItem] 受控必传</td><td>✅ 完整状态机=pending（等待上传）/uploading（上传中+进度）/success（成功）/failed（失败可重试）；thumbnailUrl/localPath 双路=网络缩略图与本地文件均可展示；size 可选展示；progress 0-1 驱动进度条；受控必传=文件列表数据源归宿主</td><td><b>推荐 A</b>：完整状态机 + 受控</td></tr>
+<tr><td>B：value: [String]（仅文件路径/URL），无状态/进度</td><td>极简但无上传状态反馈=用户不知上传中/失败=体验缺失；上传进度无展示</td><td>淘汰：状态机是上传组件核心</td></tr>
+<tr><td>C：value 半受控（可选传，内部自持）</td><td>文件列表=强业务数据源，必须宿主持有（上传结果/提交表单均需宿主数据），内部自持=宿主无法获取完整列表</td><td>淘汰：受控必传</td></tr>
+</table>
+
+<h3>P3 · 交互回调：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：onAdd() → 宿主调起选择器后向 value 追加 UploadItem（status=.pending）；onRemove(index) → 宿主从 value 删除对应项；onRetry(index) → 失败项点击重试回调宿主重新上传（宿主更新 status→.uploading）</td><td>✅ 三条交互路径全覆盖=添加/删除/重试；回调语义清晰=宿主全权管理数据源；失败项点击=重试语义（非删除，删除走角标）</td><td><b>推荐 A</b>：三回调全覆盖</td></tr>
+<tr><td>B：仅 onAdd + onRemove，无重试</td><td>失败项无法重试=用户只能删除重选=体验差</td><td>淘汰：重试是上传必备</td></tr>
+<tr><td>C：组件内部管理上传状态机（点击添加自动选择+上传）</td><td>内部状态机=宿主无法介入上传流程=鉴权/自定义上传/错误处理无门</td><td>淘汰：状态归宿主</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：一期=网格文件列表 + 添加按钮 + 删除角标 + 状态展示（pending/uploading/success/failed）+ 进度条 + maxCount + disabled + onAdd/onRemove/onRetry 三回调 + demo 四段</td><td>✅ 上传核心闭环（添加/展示/状态/进度/删除/重试/上限/禁用）逐项可验；无拖拽排序/大图预览膨胀=验收路径清晰</td><td><b>推荐 A</b>：核心闭环可验收</td></tr>
+<tr><td>B：一期含拖拽排序</td><td>拖拽排序=双端手势几何对仗成本高+一期网格展示已满足主场景</td><td>淘汰：登记二期</td></tr>
+<tr><td>C：一期含图片预览大图（点击缩略图全屏预览）</td><td>大图预览=独立浏览组件范畴（含手势缩放/左右滑动），Uploader 不应内聚浏览能力</td><td>淘汰：登记二期或宿主自理</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础多图上传（添加 → 展示 → 上传中 → 成功）</h3>
+<p>mock：空列表 + 添加按钮；点击添加 → 宿主追加 3 张 pending 图片 → 依次变 uploading（进度条 0→100%）→ success。验证添加回调 + 状态流转 + 进度条渲染。</p>
+<div class="up-stage">
+<div class="up-grid">
+<div class="up-cell img"><span class="up-status uploading">上传中</span><div class="up-progress"><div class="up-progress-bar" style="width:60%"></div></div></div>
+<div class="up-cell img"><div class="up-del">×</div></div>
+<div class="up-cell img"><div class="up-del">×</div></div>
+<div class="up-cell add">+</div>
+</div>
+<div class="up-cnt">第 1 张上传中（进度 60%）· 第 2/3 张成功 · + 添加更多（maxCount=9）</div>
+</div>
+
+<h3>D2 · 单文件 + maxCount=1（头像/证件照场景）</h3>
+<p>mock：maxCount=1；已有 1 张 → 添加按钮隐藏；删除后 → 添加按钮重现。验证单文件上限 + 添加按钮显隐。</p>
+<div class="up-stage">
+<div class="up-grid" style="grid-template-columns:repeat(4,1fr);">
+<div class="up-cell img"><div class="up-del">×</div></div>
+</div>
+<div class="up-cnt">maxCount=1=已有 1 张隐藏添加按钮 · 删除后重现</div>
+</div>
+
+<h3>D3 · 失败重试 + disabled 锁定</h3>
+<p>mock：1 张失败（点击重试 → 宿主重置 status 为 uploading 重新上传）；段内「锁定/解锁」按钮驱动 disabled。验证失败态展示 + 重试回调 + 禁用态。</p>
+<div class="up-stage">
+<div class="up-grid">
+<div class="up-cell img"><span class="up-status failed">失败</span></div>
+<div class="up-cell img"><div class="up-del">×</div></div>
+<div class="up-cell add">+</div>
+</div>
+<div class="up-cnt">第 1 张失败=点击格子触发 onRetry 重试 · disabled=整件 40% 灰不可点</div>
+</div>
+
+<h3>D4 · 受控外部驱动（宿主直接操作 value）</h3>
+<p>mock：段内「清空全部」「追加 1 张」按钮直接改 value → 列表同步刷新（不触发 onAdd/onRemove）。验证受控 value 数据源归宿主。</p>
+<div class="up-stage">
+<div class="up-grid">
+<div class="up-cell img"><div class="up-del">×</div></div>
+<div class="up-cell img"><div class="up-del">×</div></div>
+<div class="up-cell add">+</div>
+</div>
+<div class="up-cnt">外部 value 变更=列表同步刷新（不触发组件回调）· 数据源归宿主</div>
+</div>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>网格布局</td><td>UICollectionView（ UICollectionViewFlowLayout，4 列，spacing 8）</td><td>Compose LazyVerticalGrid（columns=4，spacing 8）</td><td>平台列表机制不同、视觉一致（表内放行）</td></tr>
+<tr><td>缩略图加载</td><td>UIImage(contentsOfFile:) 本地 / 三方图片库加载网络 URL（宿主可注入）</td><td>Coil/Glide 加载（宿主可注入）</td><td>图片加载库选型由宿主决定、组件提供 localPath/thumbnailUrl 字段（表内放行）</td></tr>
+<tr><td>点击命中</td><td>UIControl / UITapGestureRecognizer（添加格/删除角标/失败重试格分别命中）</td><td>Modifier.clickable（各区域独立点击）</td><td>两端命中一致、机制差异（表内放行）</td></tr>
+<tr><td>状态回写</td><td>命令式：value setter → reloadData / 刷新 items</td><td>声明式：value 参数变化自动重组</td><td>命令式/声明式机制不同、宿主回写后视觉一致（库内惯例，表内放行）</td></tr>
+<tr><td>尺寸单位 / 命名</td><td>pt；UploaderView（独立 UploaderView.swift）</td><td>dp；@Composable Uploader（Uploader.kt）</td><td>Token 同值不同单位；命名差异见门禁 B（表内放行）</td></tr>
+<tr><td>无障碍</td><td>VoiceOver：isAccessibilityElement+label（"添加图片"/"删除"/"上传中 60%"/"失败 点击重试"）</td><td>TalkBack：语义/状态描述</td><td>系统无障碍层各读屏实现不同（表内放行）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>value: [UploadItem]</code>（文件列表，受控必传）；<code>onAdd: () -&gt; Void</code>（点击添加按钮，宿主调起选择器后向 value 追加）；<code>onRemove: (Int) -&gt; Void</code>（点击删除角标，宿主从 value 删除 index 项）；<code>onRetry: (Int) -&gt; Void</code>（点击失败项，宿主重置 status 重新上传）；<code>maxCount: Int = 9</code>（最大文件数，达上限隐藏添加按钮）；<code>disabled: Bool = false</code>（整件 40% 灰，添加/删除/重试均不可点无回调）<br/><b>UploadItem</b>：{ id:String, name:String, size:Long?, thumbnailUrl:String?, localPath:String?, status:UploadStatus(.pending/.uploading/.success/.failed), progress:Float(0-1) }<br/><b>UploadStatus</b>：.pending（等待上传，无蒙层）/ .uploading（上传中，primary 蒙层+进度条）/ .success（成功，无蒙层+删除角标）/ .failed（失败，error 蒙层+点击重试）</td></tr>
+<tr><td>iOS</td><td><code>final class UploaderView: UIView</code><br/><code>init(value: [UploadItem] = [], maxCount: Int = 9, disabled: Bool = false, onAdd: (() -&gt; Void)? = nil, onRemove: ((Int) -&gt; Void)? = nil, onRetry: ((Int) -&gt; Void)? = nil)</code>；`var value` 外部赋值驱动刷新；`var disabled` 可运行期更新</td></tr>
+<tr><td>Android</td><td><code>@Composable fun Uploader(value: List&lt;UploadItem&gt;, onAdd: () -&gt; Unit, onRemove: (Int) -&gt; Unit, onRetry: (Int) -&gt; Unit = {}, maxCount: Int = 9, disabled: Boolean = false, modifier)</code><br/>value 参数变化自动重组；LazyVerticalGrid 渲染</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：通用文件/图片上传 UI 组件=网格展示+添加/删除/重试回调，不内置选择器和上传逻辑；与 Image 纯展示/Avatar 头像划界；状态五态 pending/uploading/success/failed/disabled）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（4 列网格 spacing 8 / 格子正方形 radiusSm bgPage / 添加格 dashed border + 号 textTertiary / 删除角标 16 圆半透明黑 / 状态蒙层 primary·error 80% / 进度条 3pt / disabled alpha 0.4 / maxCount 默认 9）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期：拖拽排序/大图预览；不做：内置选择器/内置上传逻辑=宿主职责）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础多图上传/单文件 maxCount=1/失败重试+disabled/受控外部驱动）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均无 Uploader 近似件=纯从零全新立项；api.json 无 ui.uploader 条目待门禁 B 立项登记；任务清单 #43 ⬜ 双端未实现 → 本次立项 📐）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（网格布局 UICollectionView vs LazyVerticalGrid / 图片加载库由宿主注入 / 点击命中机制 / 状态回写 / 无障碍=系统级差异；pt/dp 与命名表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（内置文件选择器/内置网络上传=宿主职责；拖拽排序/大图预览=二期；视频上传播放器=宿主自理）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

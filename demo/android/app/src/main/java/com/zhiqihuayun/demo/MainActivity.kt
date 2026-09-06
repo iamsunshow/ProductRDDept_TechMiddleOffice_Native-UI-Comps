@@ -44,6 +44,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -70,6 +71,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.view.drawToBitmap
 import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppFont
@@ -154,6 +156,9 @@ import com.zhiqihuayun.sharedui.components.Signature
 import com.zhiqihuayun.sharedui.components.SignatureController
 import com.zhiqihuayun.sharedui.components.Switch
 import com.zhiqihuayun.sharedui.components.TextArea
+import com.zhiqihuayun.sharedui.components.UploadItem
+import com.zhiqihuayun.sharedui.components.UploadStatus
+import com.zhiqihuayun.sharedui.components.Uploader
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -226,7 +231,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Signature 签名", reviewed = true, demo = { SignatureDemo() }),
         DemoComponent("Switch 开关", reviewed = true, demo = { SwitchDemo() }),
         DemoComponent("TextArea 文本域", reviewed = true, demo = { TextAreaDemo() }),
-        DemoComponent("Uploader 上传"),
+        DemoComponent("Uploader 上传", reviewed = true, demo = { UploaderDemo() }),
     ),
     "操作反馈" to listOf(
         DemoComponent("ActionSheet 动作面板"),
@@ -6192,5 +6197,118 @@ private fun TextAreaDemo() {
                 else -> AppColor.primary
             }
         )
+    }
+}
+
+// Uploader 上传 Demo（任务清单 #43，验证组件库 v1.4.0，demo 徽标 v1.0）
+// D1 基础多图上传（添加→pending→uploading→success 流转） / D2 单文件 maxCount=1 /
+// D3 失败重试+disabled 锁定 / D4 受控外部驱动
+@Composable
+private fun UploaderDemo() {
+    val scope = rememberCoroutineScope()
+    Text(
+        text = "Uploader 上传组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 基础多图上传 ② 单文件 maxCount=1 ③ 失败重试+disabled ④ 受控外部驱动。双端 1:1（iOS UploaderView vs Android Uploader）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 基础多图上传
+        Text("Demo 1 · 基础多图上传（添加→pending→uploading→success 流转）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        val d1Items = remember { mutableStateListOf<UploadItem>() }
+        Uploader(
+            value = d1Items,
+            maxCount = 9,
+            onAdd = {
+                val id = java.util.UUID.randomUUID().toString()
+                d1Items.add(UploadItem(id = id, name = "图片${d1Items.size + 1}.jpg", size = 102400, status = UploadStatus.PENDING))
+                scope.launch {
+                    delay(1000)
+                    val idx = d1Items.indexOfFirst { it.id == id }
+                    if (idx >= 0) d1Items[idx] = d1Items[idx].copy(status = UploadStatus.UPLOADING, progress = 0.6f)
+                    delay(1000)
+                    val idx2 = d1Items.indexOfFirst { it.id == id }
+                    if (idx2 >= 0) d1Items[idx2] = d1Items[idx2].copy(status = UploadStatus.SUCCESS, progress = 1f)
+                }
+            },
+            onRemove = { index -> d1Items.removeAt(index) }
+        )
+        Text("点击 + 触发 onAdd（宿主模拟选择器+上传流程）；uploading 态=primary 蒙层+进度条；success 态=删除角标。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D2 · 单文件 maxCount=1
+        Text("Demo 2 · 单文件 maxCount=1（头像/证件照场景）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        val d2Items = remember { mutableStateListOf<UploadItem>() }
+        Uploader(
+            value = d2Items,
+            maxCount = 1,
+            onAdd = {
+                d2Items.add(UploadItem(id = java.util.UUID.randomUUID().toString(), name = "avatar.jpg", size = 51200, status = UploadStatus.SUCCESS))
+            },
+            onRemove = { index -> d2Items.removeAt(index) }
+        )
+        Text("maxCount=1：已有 1 张=添加按钮隐藏；删除后=添加按钮重现。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D3 · 失败重试 + disabled 锁定
+        Text("Demo 3 · 失败重试 + disabled 锁定", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        val d3Items = remember {
+            mutableStateListOf(
+                UploadItem(id = java.util.UUID.randomUUID().toString(), name = "failed.jpg", size = 204800, status = UploadStatus.FAILED),
+                UploadItem(id = java.util.UUID.randomUUID().toString(), name = "ok.jpg", size = 102400, status = UploadStatus.SUCCESS)
+            )
+        }
+        var d3Disabled by remember { mutableStateOf(false) }
+        Uploader(
+            value = d3Items,
+            maxCount = 9,
+            disabled = d3Disabled,
+            onAdd = {
+                d3Items.add(UploadItem(id = java.util.UUID.randomUUID().toString(), name = "new.jpg", status = UploadStatus.SUCCESS))
+            },
+            onRemove = { index -> d3Items.removeAt(index) },
+            onRetry = { index ->
+                val item = d3Items[index]
+                d3Items[index] = item.copy(status = UploadStatus.UPLOADING, progress = 0.5f)
+                scope.launch {
+                    delay(1000)
+                    d3Items[index] = item.copy(status = UploadStatus.SUCCESS, progress = 1f)
+                }
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = { d3Disabled = !d3Disabled }) { Text("锁定/解锁", fontSize = AppFont.sizeXs) }
+        }
+        Text("失败项点击触发 onRetry（宿主重置 status 重新上传）；disabled=整件 40% 灰不可点。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D4 · 受控外部驱动
+        Text("Demo 4 · 受控外部驱动（宿主直接操作 value）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        val d4Items = remember { mutableStateListOf<UploadItem>() }
+        Uploader(
+            value = d4Items,
+            maxCount = 9,
+            onAdd = {
+                d4Items.add(UploadItem(id = java.util.UUID.randomUUID().toString(), name = "added.jpg", status = UploadStatus.SUCCESS))
+            },
+            onRemove = { index -> d4Items.removeAt(index) }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = { d4Items.clear() }) { Text("清空全部", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d4Items.add(UploadItem(id = java.util.UUID.randomUUID().toString(), name = "ext_${d4Items.size}.jpg", status = UploadStatus.SUCCESS))
+            }) { Text("追加 1 张", fontSize = AppFont.sizeXs) }
+        }
+        Text("外部直接改 value=列表同步刷新（不触发 onAdd/onRemove）；数据源归宿主。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
     }
 }

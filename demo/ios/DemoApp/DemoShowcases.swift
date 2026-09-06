@@ -66,7 +66,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.short-password", name: "ShortPassword 短密码", reviewed: true, create: { ShortPasswordShowcase() }),
             DemoComponent(id: "ui.signature", name: "Signature 签名", reviewed: true, create: { SignatureShowcase() }),
             DemoComponent(id: "ui.switch", name: "Switch 开关", reviewed: true, create: { SwitchShowcase() }),
-            DemoComponent(id: "ui.text-area", name: "TextArea 文本域", reviewed: false, create: nil),
+            DemoComponent(id: "ui.textarea", name: "TextArea 文本域", reviewed: true, create: { TextAreaShowcase() }),
             DemoComponent(id: "ui.uploader", name: "Uploader 上传", reviewed: false, create: nil),
         ]),
         ("操作反馈", [
@@ -7234,4 +7234,195 @@ final class SwitchShowcase: ShowcaseViewController {
         )
         d4Feedback = addDynamicInfo("半受控两条路径语义：外部赋值=同步回显不触发回调；用户点按翻转=回调 onChange(Bool)。", color: AppColor.textSecondary)
     }
+}
+
+// MARK: - TextArea 文本域 Demo（任务清单 #42，验证组件库 v1.4.0，demo 徽标 v1.0）
+// D1 基础多行输入+placeholder+回车换行 / D2 受控外部赋值+长文内部滚动+0 次回调 /
+// D3 maxLength 截断+disabled 锁定 / D4 宿主表单组装（label/校验/字数=宿主）
+final class TextAreaShowcase: ShowcaseViewController {
+    private var d1Feedback: UILabel?
+    private var d2Value: String = ""
+    private var d2TextArea: TextAreaView?
+    private var d2Feedback: UILabel?
+    private var d3Editable: TextAreaView?
+    private var d3Disabled: TextAreaView?
+    private var d3Feedback: UILabel?
+    private var d4TextArea: TextAreaView?
+    private var d4CountLabel: UILabel?
+    private var d4ErrorLabel: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "TextArea", version: "v1.0", builtAt: "2026-09-06")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    // MARK: - D1 基础多行输入
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 基础多行输入（placeholder · 回车换行 · 实时回显）") { container in
+            let ta = TextAreaView(value: "", placeholder: "请输入备注（多行，回车换行）") { [weak self] text in
+                guard let self else { return }
+                self.d1Feedback?.text = text.isEmpty
+                    ? "onTextChange → 空串"
+                    : "onTextChange → \(text)"
+                self.d1Feedback?.textColor = AppColor.primary
+            }
+            pinFullWidth(ta, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(ta.snp.bottom) }
+        }
+        d1Feedback = addDynamicInfo("空态=placeholder textSecondary 顶部左对齐；软键盘回车=插入换行（多行语义）；行高 24 顶部对齐。", color: AppColor.textSecondary)
+    }
+
+    // MARK: - D2 受控外部赋值 + 长文内部滚动
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 受控外部赋值 + 长文内部滚动（rows=3 高 96）") { container in
+            let ta = TextAreaView(value: "", rows: 3) { [weak self] _ in
+                // 用户输入=统计回调次数（外部赋值不应触发）
+                self?.d2CallbackCount += 1
+            }
+            d2TextArea = ta
+            pinFullWidth(ta, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(ta.snp.bottom) }
+        }
+        demoButtonRow(
+            ("预填长文（50 行）", { [weak self] in
+                guard let self else { return }
+                let long = (1...50).map { "第 \($0) 行内容" }.joined(separator: "\n")
+                self.d2Value = long
+                self.d2TextArea?.text = long
+                self.d2CallbackCount = 0
+                self.d2Feedback?.text = "外部 value=50 行长文=可视首 3 行、内容内部滚动查看（onTextChange 回调 0 次=外部路径）"
+                self.d2Feedback?.textColor = AppColor.primary
+            }),
+            ("读当前值", { [weak self] in
+                guard let self, let ta = self.d2TextArea else { return }
+                let lines = ta.text.components(separatedBy: "\n").count
+                self.d2Feedback?.text = "当前值共 \(lines) 行 / \(ta.text.count) 字符（外部读取路径）"
+                self.d2Feedback?.textColor = AppColor.textSecondary
+            }),
+            ("清空", { [weak self] in
+                guard let self else { return }
+                self.d2Value = ""
+                self.d2TextArea?.text = ""
+                self.d2CallbackCount = 0
+                self.d2Feedback?.text = "外部 value=\"\"=同步回显（0 次回调）"
+                self.d2Feedback?.textColor = AppColor.textSecondary
+            })
+        )
+        d2Feedback = addDynamicInfo("受控两条路径：外部赋值=同步回显不触发 onTextChange；用户编辑=回调。长文超可视行=内部滚动。", color: AppColor.textSecondary)
+    }
+
+    private var d2CallbackCount: Int = 0
+
+    // MARK: - D3 maxLength 截断 + disabled 锁定
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · maxLength=20 截断 + disabled 锁定") { container in
+            let editable = TextAreaView(value: "", placeholder: "最多 20 字符，超长截断", maxLength: 20) { [weak self] text in
+                guard let self else { return }
+                self.d3Feedback?.text = "onTextChange → \(text)（\(text.count)/20）"
+                self.d3Feedback?.textColor = AppColor.primary
+            }
+            d3Editable = editable
+            let disabled = TextAreaView(value: "已填文本只读回显，不可编辑不可滚动", disabled: true)
+            d3Disabled = disabled
+            pinFullWidth(editable, in: container)
+            pinFullWidth(disabled, in: container, after: editable)
+            container.snp.makeConstraints { $0.bottom.equalTo(disabled.snp.bottom) }
+        }
+        d3Feedback = addDynamicInfo("maxLength=仅输入路径截断（含粘贴/IME 只收前 N）；disabled=整壳 40% 灰、不可编辑不可滚动。", color: AppColor.textSecondary)
+    }
+
+    // MARK: - D4 宿主表单组装（label/校验/字数=宿主）
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 宿主表单组装（label+必填星 · 校验红字 · 字数计数=宿主）") { container in
+            // 宿主 label 行
+            let labelRow = UIView()
+            container.addSubview(labelRow)
+            labelRow.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.leading.trailing.equalToSuperview()
+                make.height.equalTo(32)
+            }
+            let label = UILabel()
+            label.text = "个人简介"
+            label.font = .systemFont(ofSize: AppFont.sizeMd, weight: .medium)
+            label.textColor = AppColor.textPrimary
+            labelRow.addSubview(label)
+            label.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.centerY.equalToSuperview()
+            }
+            let star = UILabel()
+            star.text = "*"
+            star.textColor = AppColor.danger
+            star.font = .systemFont(ofSize: AppFont.sizeMd)
+            labelRow.addSubview(star)
+            star.snp.makeConstraints { make in
+                make.leading.equalTo(label.snp.trailing).offset(2)
+                make.centerY.equalToSuperview()
+            }
+
+            let ta = TextAreaView(value: "", placeholder: "介绍一下自己吧（最多 100 字）", rows: 4, maxLength: 100) { [weak self] text in
+                guard let self else { return }
+                self.d4Value = text
+                self.d4CountLabel?.text = "已输入 \(text.count)/100"
+                if text.isEmpty {
+                    self.d4ErrorLabel?.text = ""
+                } else if text.count >= 100 {
+                    self.d4ErrorLabel?.text = "已达字数上限"
+                    self.d4ErrorLabel?.textColor = AppColor.textSecondary
+                }
+            }
+            d4TextArea = ta
+            pinFullWidth(ta, in: container, after: labelRow)
+
+            // 字数计数（宿主读 value 联动）
+            let count = UILabel()
+            count.text = "已输入 0/100"
+            count.font = .systemFont(ofSize: AppFont.sizeXs)
+            count.textColor = AppColor.textSecondary
+            count.textAlignment = .right
+            d4CountLabel = count
+            container.addSubview(count)
+            count.snp.makeConstraints { make in
+                make.top.equalTo(ta.snp.bottom).offset(AppSpace.xs)
+                make.trailing.equalToSuperview().offset(-AppSpace.lg)
+            }
+
+            // 校验错误（宿主）
+            let error = UILabel()
+            error.font = .systemFont(ofSize: AppFont.sizeXs)
+            error.textColor = AppColor.danger
+            d4ErrorLabel = error
+            container.addSubview(error)
+            error.snp.makeConstraints { make in
+                make.top.equalTo(count.snp.bottom).offset(AppSpace.xs)
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.trailing.equalToSuperview().offset(-AppSpace.lg)
+                make.bottom.equalToSuperview().offset(-AppSpace.md)
+            }
+        }
+        demoButtonRow(
+            ("提交校验", { [weak self] in
+                guard let self, let ta = self.d4TextArea else { return }
+                if ta.text.isEmpty {
+                    self.d4ErrorLabel?.text = "请填写简介"
+                    self.d4ErrorLabel?.textColor = AppColor.danger
+                } else {
+                    self.d4ErrorLabel?.text = "校验通过 ✓（已输入 \(ta.text.count) 字）"
+                    self.d4ErrorLabel?.textColor = AppColor.primary
+                }
+            })
+        )
+        _ = addDynamicInfo("label/必填星/校验红字/字数计数=宿主职责（FormFieldRow #28 承载）；本组件壳不变红、不含 label。", color: AppColor.textSecondary)
+    }
+
+    private var d4Value: String = ""
 }

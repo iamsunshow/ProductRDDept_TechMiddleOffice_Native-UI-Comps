@@ -153,6 +153,7 @@ import com.zhiqihuayun.sharedui.components.PickerOption
 import com.zhiqihuayun.sharedui.components.Signature
 import com.zhiqihuayun.sharedui.components.SignatureController
 import com.zhiqihuayun.sharedui.components.Switch
+import com.zhiqihuayun.sharedui.components.TextArea
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -224,7 +225,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("ShortPassword 短密码", reviewed = true, demo = { ShortPasswordDemo() }),
         DemoComponent("Signature 签名", reviewed = true, demo = { SignatureDemo() }),
         DemoComponent("Switch 开关", reviewed = true, demo = { SwitchDemo() }),
-        DemoComponent("TextArea 文本域"),
+        DemoComponent("TextArea 文本域", reviewed = true, demo = { TextAreaDemo() }),
         DemoComponent("Uploader 上传"),
     ),
     "操作反馈" to listOf(
@@ -6051,6 +6052,145 @@ private fun SwitchDemo() {
             text = d4Msg ?: "半受控两条路径语义：外部赋值=同步回显不触发回调；用户点按翻转=回调 onChange(Bool)。",
             fontSize = AppFont.sizeXs,
             color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+    }
+}
+
+// TextArea 文本域 Demo（任务清单 #42，验证组件库 v1.4.0，demo 徽标 v1.0）
+// D1 基础多行输入+placeholder+回车换行 / D2 受控外部赋值+长文内部滚动+0 次回调 /
+// D3 maxLength 截断+disabled 锁定 / D4 宿主表单组装（label/校验/字数=宿主）
+@Composable
+private fun TextAreaDemo() {
+    Text(
+        text = "TextArea 文本域组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 基础多行输入 ② 受控外部赋值+长文内滚 ③ maxLength 截断+disabled ④ 宿主表单组装。双端 1:1（iOS TextAreaView vs Android TextArea）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 基础多行输入
+        Text("Demo 1 · 基础多行输入（placeholder · 回车换行 · 实时回显）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1 by remember { mutableStateOf("") }
+        TextArea(
+            value = d1,
+            onTextChange = { d1 = it },
+            placeholder = "请输入备注（多行，回车换行）"
+        )
+        Text(
+            text = if (d1.isEmpty()) "空态=placeholder textSecondary 顶部左对齐；软键盘回车=插入换行（多行语义）；行高 24 顶部对齐。"
+            else "onTextChange → $d1",
+            fontSize = AppFont.sizeXs,
+            color = if (d1.isEmpty()) AppColor.textSecondary else AppColor.primary
+        )
+
+        // D2 · 受控外部赋值 + 长文内部滚动
+        Text("Demo 2 · 受控外部赋值 + 长文内部滚动（rows=3 高 96）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2 by remember { mutableStateOf("") }
+        var d2CallbackCount by remember { mutableStateOf(0) }
+        var d2Msg by remember { mutableStateOf<String?>(null) }
+        TextArea(
+            value = d2,
+            onTextChange = { d2 = it; d2CallbackCount++; d2Msg = null },
+            rows = 3
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                val long = (1..50).joinToString("\n") { "第 $it 行内容" }
+                d2 = long
+                d2CallbackCount = 0
+                d2Msg = "外部 value=50 行长文=可视首 3 行、内容内部滚动查看（onTextChange 回调 0 次=外部路径）"
+            }) { Text("预填长文", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                val lines = d2.split("\n").size
+                d2Msg = "当前值共 $lines 行 / ${d2.length} 字符（外部读取路径）"
+            }) { Text("读当前值", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d2 = ""
+                d2CallbackCount = 0
+                d2Msg = "外部 value=\"\"=同步回显（0 次回调）"
+            }) { Text("清空", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d2Msg ?: "受控两条路径：外部赋值=同步回显不触发 onTextChange；用户编辑=回调。长文超可视行=内部滚动。",
+            fontSize = AppFont.sizeXs,
+            color = if (d2Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D3 · maxLength 截断 + disabled 锁定
+        Text("Demo 3 · maxLength=20 截断 + disabled 锁定", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3 by remember { mutableStateOf("") }
+        var d3Msg by remember { mutableStateOf<String?>(null) }
+        TextArea(
+            value = d3,
+            onTextChange = {
+                d3 = it
+                d3Msg = "onTextChange → $it（${it.length}/20）"
+            },
+            placeholder = "最多 20 字符，超长截断",
+            maxLength = 20
+        )
+        TextArea(
+            value = "已填文本只读回显，不可编辑不可滚动",
+            onTextChange = {},
+            disabled = true
+        )
+        Text(
+            text = d3Msg ?: "maxLength=仅输入路径截断（含粘贴/IME 只收前 N）；disabled=整壳 40% 灰、不可编辑不可滚动。",
+            fontSize = AppFont.sizeXs,
+            color = if (d3Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D4 · 宿主表单组装
+        Text("Demo 4 · 宿主表单组装（label+必填星 · 校验红字 · 字数计数=宿主）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4 by remember { mutableStateOf("") }
+        var d4Error by remember { mutableStateOf<String?>(null) }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("个人简介", fontSize = AppFont.sizeMd, fontWeight = FontWeight.Medium, color = AppColor.textPrimary)
+            Text("*", fontSize = AppFont.sizeMd, color = AppColor.error)
+        }
+        TextArea(
+            value = d4,
+            onTextChange = {
+                d4 = it
+                d4Error = null
+            },
+            placeholder = "介绍一下自己吧（最多 100 字）",
+            rows = 4,
+            maxLength = 100
+        )
+        Text(
+            text = "已输入 ${d4.length}/100",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.End
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d4Error = if (d4.isEmpty()) "请填写简介" else "校验通过 ✓（已输入 ${d4.length} 字）"
+            }) { Text("提交校验", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d4Error ?: "label/必填星/校验红字/字数计数=宿主职责（FormFieldRow #28 承载）；本组件壳不变红、不含 label。",
+            fontSize = AppFont.sizeXs,
+            color = when {
+                d4Error == null -> AppColor.textSecondary
+                d4Error == "请填写简介" -> AppColor.error
+                else -> AppColor.primary
+            }
         )
     }
 }

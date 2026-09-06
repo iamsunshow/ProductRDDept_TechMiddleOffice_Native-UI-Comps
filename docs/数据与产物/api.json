@@ -4408,6 +4408,45 @@
       "note": "开关（数据录入区 #41，全新立项，2026-09-06）：通用二元即时开关核组件=自绘轨道+滑块（轨道 48×28 radiusFull、on=primary/off=textSecondary 30%、滑块 20 白色圆、行程 20、动画 0.18s）+ 无内置 label（=宿主 FormFieldRow #28/Cell 行尾嵌用）+ checked Boolean? 半受控（nil=内部自持初始 off 点按翻转回调/外部赋值同步回显不触发 onChange/双向均回调）+ disabled 整件 40% 灰不可点（on+disabled 灰开态保留只读）；与 #25 Checkbox/#35 Radio/#36 Range/#30 InputNumber/#33 Picker·#31 Menu/#20 Tabs·#19 Tabbar·#74 Segmented 划界=二元即时持久开/关；系统 UISwitch/Material3 Switch 视觉脱离库内设计语言=双端从零自绘。2026-09-06 门禁 A AI 代评通过（规格 design-spec/switch-design-spec.html + review-switch-A.md，P1–P4 全 A 0 保留意见，用户 Signature #40 收编后原话「继续」指示接棒启动）+ 同日门禁 B 双端实现入库（SwitchView.swift=命令式 UIKit 轨道壳+滑块子视图 layoutSubviews/frame 摆位+tapButton 整枚命中；Switch.kt=声明式 Compose 自绘 Box+动画 state），iOS SwitchShowcase / Android SwitchDemo 4 段 1:1（D1 基础开/关/D2 行尾嵌用/D3 disabled 锁定/D4 受控外部驱动），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0（C1.5 用户双端 Demo 实机验收通过收编：2026-09-06 用户原话「验收通过。继续下一个组件」，D1 基础开/关翻转回显+「读当前值」/ D2 行尾嵌用开态回显+外部回显不触发 onChange / D3 on/off 双灰锁+外部解锁运行期更新 / D4 受控外部 checked 驱动全过 0 改动，行 41 🔧→✅）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
+    },
+    {
+      "id": "ui.textarea",
+      "name": "TextArea 文本域",
+      "category": "ui",
+      "summary": "通用多行文本输入内容组件（数据录入区 #42，全新立项）：灰底圆角文本域壳（底 bgPage+radius lg+内边距 md 四向=同 Input #29 壳语言=单行/多行两形态）+ placeholder（textSecondary Md16 顶部左对齐，多行不居中）+ 文本 Md16 textPrimary 行高 24=cellTitleLineHeight token（注释锚定）+ rows 可视行数默认 3（整件高=rows×24+24=默认 96=2×48 交互行基准同 Signature）+ 内容超可视行内部滚动（iOS UITextView scrollEnabled / Android 内容容器 verticalScroll）+ maxLength（0/缺省=不限，仅输入路径截断含粘贴=外部赋值不强制截断）+ disabled（整壳 40% 灰不可编辑不可滚动）；受控 value String 必传+onTextChange 直通（同 Input #29）；软键盘回车=插入换行（多行语义）、键盘收起与避让=宿主；label/必填星/校验错误/字数统计=宿主（ui.form FormFieldRow 承载、壳不变红）；与富文本/autoGrow/字数角标（二期或宿主）/清除钮·secure·尾槽·键盘类型（Input #29 单行形态）/工具栏（宿主）=划界",
+      "capabilities": ["多行文本域", "TextArea", "文本域", "多行输入", "备注", "简介", "长文本"],
+      "platforms": {
+        "ios": { "state": "available", "note": "TextAreaView.swift：命令式 UIKit（灰壳 radius lg + 内嵌 UITextView scrollEnabled + placeholderLabel 自绘叠层 top-left 12/12；textContainerInset=(12,12,12,12)+lineFragmentPadding=0；行高 24=NSMutableParagraphStyle min/max 对 textStorage 全局应用、typingAttributes 预置；受控 text 属性命令式外部赋值=同步回显不触发 delegate 回调、delegate textViewDidChange=onTextChange；maxLength 截断=shouldChangeTextIn 对 candidate 超限取前缀命令式回写并手动触发 didChange；disabled=isEditable/isSelectable false+alpha0.4；intrinsicContentSize 高=rows×24+24）" },
+        "android": { "state": "available", "note": "TextArea.kt：声明式 Compose（Box 灰壳 bgPage+clip radiusLg+height(rows×24+24)+alpha0.4 disabled；内层 padding md 12 固定，内容容器 verticalScroll（内容超高手动可滚）内 BasicTextField(TextFieldState) 多行 wrap；textStyle Md16 textPrimary lineHeight cellTitleLineHeight；decorationBox placeholder（空态 BasicText textSecondary top 左）；LaunchedEffect(value) 受控外部赋值=setText 同步回显不触发回调、onTextValueChange 输入路径截断 maxLength 后回调；disabled=enabled=false+alpha0.4 无回调）" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/TextAreaView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/TextAreaComposable.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.textarea",
+      "industry_names": ["多行文本域", "TextArea", "textarea", "备注", "简介", "留言本", "长文本输入"],
+      "props": [
+        ["value", "String", "是", "受控必传=当前全文（宿主真源）：外部赋值=同步回显（不触发 onTextChange）；用户编辑（输入/粘贴/换行）每次变更回传全文"],
+        ["onTextChange", "回调", "是", "(String)：用户输入路径触发（含截断后文本）；外部赋值不触发"],
+        ["placeholder", "String?", "否", "空值占位文案，textSecondary Md16 顶部左对齐（多行不垂直居中）；库内无 textTertiary token=同 Input #29 实现惯例"],
+        ["rows", "Int", "否", "可视行数，默认 3=整件高 rows×24+24（行高 24=cellTitleLineHeight token 注释锚定、默认 96=2×48 交互行基准同 Signature）"],
+        ["maxLength", "Int?", "否", "0/缺省=不限；仅输入路径截断（含粘贴/IME 只收前 N）；外部赋值不强制截断"],
+        ["disabled", "Boolean", "否", "整壳 40% 灰不可编辑不可滚动不可点（含已填文本只读回显）"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础多行输入（placeholder 空态 → 真实键盘键入）", "空态=placeholder「请输入备注」textSecondary 顶部左；点入聚焦弹系统键盘、软键盘回车=插入换行；键入两行 onTextChange 段内回显（行高 24 顶部对齐多行排版）（D1）"],
+        ["受控外部赋值 + 长文内部滚动", "rows=3 高 96；「预填长文」外部 value=50 行长文=可视首 3 行、内容内部滚动查看+0 次 onTextChange（外部路径）；「读当前值」段内回显；「清空」外部 value=\"\"（D2）"],
+        ["maxLength 截断 + disabled 锁定", "上=可编辑 maxLength=20：键入/粘贴超长仅保留前 20 字符（段内回显截断结果）；下=disabled 禁用域已填文本=整壳 40% 灰不可编辑滚动（D3）"],
+        ["宿主表单组装（label/校验/字数=宿主）", "FormFieldRow「个人简介」label+必填星 + TextArea rows=4（高 120）placeholder「介绍一下自己吧」；「提交」空值=宿主 error「请填写简介」红字；实时字数「已输入 X/100」宿主读 value 联动（壳不变红=表单语义归宿主）（D4）"]
+      ],
+      "note": "文本域（数据录入区 #42，全新立项，2026-09-06）：通用多行文本输入内容组件=灰底圆角文本域壳（底 bgPage+radius lg+内边距 md 四向=与 Input #29 同壳语言=单行/多行两形态）+placeholder（textSecondary Md16 顶部左）+文本 Md16 textPrimary 行高 24=cellTitleLineHeight token+rows 可视行默认 3=整件高 rows×24+24=96=2×48 交互行基准（同 Signature #40）+内容超可视行内部滚动+maxLength 仅输入路径截断含粘贴+disabled 整壳 40% 灰；受控 value String 必传+onTextChange 直通（同 Input #29）；label/必填/校验/字数统计=宿主（FormFieldRow #28 承载、壳不变红）；软键盘回车=换行、键盘收起避让=宿主；与富文本/autoGrow 自动增高/字数角标（二期或宿主）、清除钮/secure/尾槽/键盘类型（Input #29 单行形态）、工具栏（emoji/@/附件=宿主）划界。2026-09-06 门禁 A AI 代评通过（规格 design-spec/textarea-design-spec.html + review-textarea-A.md，P1–P4 全 A 0 保留意见，用户 Switch #41 收编后原话「继续下一个组件」指示接棒启动）+ 同日门禁 B 双端实现入库（TextAreaView.swift=命令式 UIKit UITextView 内嵌+placeholderLabel 自绘层；TextArea.kt=声明式 Compose TextFieldState 多行+verticalScroll），iOS TextAreaShowcase / Android TextAreaDemo 4 段 1:1（D1 基础多行输入/D2 受控外部赋值+长文内滚/D3 maxLength 截断+disabled/D4 宿主表单组装），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
     }
   ],
   "businessExtensions": [

@@ -116,9 +116,12 @@ final class NumberKeyboardView: UIView {
         keyButtons = []
         // 行 1-3：数字 1~9
         for digit in 1...9 {
-            let button = makeKey("\(digit)")
-            keyButtons.append(button)
-            addSubview(button)
+            let digitText = "\(digit)"
+            keyButtons.append(
+                makeKey(digitText) { [weak self] in
+                    self?.onInput(digitText)
+                }
+            )
         }
         // 底行首格：extraKey / . / 空占位「·」不可点
         if let extraKey {

@@ -133,6 +133,7 @@ import com.zhiqihuayun.sharedui.components.RadioGroup
 import com.zhiqihuayun.sharedui.components.RadioOption
 import com.zhiqihuayun.sharedui.components.Range
 import com.zhiqihuayun.sharedui.components.RangeValue
+import com.zhiqihuayun.sharedui.components.Rate
 import com.zhiqihuayun.sharedui.components.Input
 import com.zhiqihuayun.sharedui.components.NumberKeyboard
 import com.zhiqihuayun.sharedui.components.Picker
@@ -203,7 +204,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("PickerView 视图"),
         DemoComponent("Radio 单选", reviewed = true, demo = { RadioDemo() }),
         DemoComponent("Range 区间选择", reviewed = true, demo = { RangeDemo() }),
-        DemoComponent("Rate 评分"),
+        DemoComponent("Rate 评分", reviewed = true, demo = { RateDemo() }),
         DemoComponent("SearchBar 搜索栏"),
         DemoComponent("ShortPassword 短密码"),
         DemoComponent("Signature 签名"),
@@ -5304,5 +5305,139 @@ private fun PickerDemo() {
                 )
             }
         }
+    }
+}
+
+// ── Rate 评分 Demo（ui.rate · #37）──
+
+@Composable
+private fun RateDemo() {
+    Text(
+        text = "Rate 评分组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 点选定值+再点同颗清空归 0+重置外部驱动 ② 横滑连选松手定值 ③ 只读+禁用（灰星压过）④ 自定义 count10+受控外部驱动。双端 1:1（Android Rate vs iOS RateView）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 基础评分点选（点选定值 + 再点同颗清空 + 重置外部驱动）
+        Text("Demo 1 · 基础评分点选（count 5 · 初始 0 未评）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1Value by remember { mutableStateOf<Int?>(null) }
+        var d1Msg by remember { mutableStateOf<String?>(null) }
+        Rate(
+            count = 5,
+            value = d1Value,
+            onValueChange = { v ->
+                d1Value = v
+                d1Msg = if (v == 0) "onChange → 0（清空=评价可取消）" else "onChange → $v（点选定值）"
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d1Value = 0
+                d1Msg = "外部 value=0 赋值=同步回显（不触发 onChange）"
+            }) { Text("重置外部 value=0", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d1Msg ?: "点击第 k 颗=点亮到该颗并回调 k；再点当前值同一颗=清空归 0（评价可取消）；未评=全灰合法态。",
+            fontSize = AppFont.sizeXs,
+            color = if (d1Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D2 · 滑动连选（随指点亮/收回、松手定值）
+        Text("Demo 2 · 滑动连选（count 5 · 随指点亮/收回松手定值）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2Value by remember { mutableStateOf<Int?>(null) }
+        var d2Msg by remember { mutableStateOf<String?>(null) }
+        Rate(
+            count = 5,
+            value = d2Value,
+            onValueChange = { v ->
+                d2Value = v
+                d2Msg = "onChange → $v（滑定回写）"
+            }
+        )
+        Text(
+            text = d2Msg ?: "手指横向滑动=星随位置连续点亮/收回（拖出左缘=熄灭归 0），松手一次性回调定值；纵向位移不消费=外层可滚动。",
+            fontSize = AppFont.sizeXs,
+            color = if (d2Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D3 · 只读与禁用（readonly 彩色展示 + disabled 灰星压过 + 外部驱动）
+        Text("Demo 3 · 只读与禁用（初始 readonly 展示 value=4 彩色不可点）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3Value by remember { mutableStateOf<Int?>(4) }
+        var d3Readonly by remember { mutableStateOf(true) }
+        var d3Disabled by remember { mutableStateOf(false) }
+        var d3Msg by remember { mutableStateOf<String?>(null) }
+        Rate(
+            count = 5,
+            value = d3Value,
+            readonly = d3Readonly,
+            disabled = d3Disabled,
+            onValueChange = { v ->
+                d3Value = v
+                d3Msg = "onChange → $v（只读/禁用无回调）"
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d3Readonly = !d3Readonly
+                d3Msg = if (d3Readonly) "已切换为只读：primary 彩色仅展示不可交互" else "已退出只读（可点选）"
+            }) { Text(if (d3Readonly) "退出只读" else "进入只读", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d3Disabled = !d3Disabled
+                d3Msg = if (d3Disabled) "已禁用：整行 40% 灰星不可交互（与 readonly 并存=disabled 压过灰）" else "已启用（可交互）"
+            }) { Text(if (d3Disabled) "启用" else "禁用", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d3Value = 2
+                d3Readonly = false
+                d3Disabled = false
+                d3Msg = "外部 value=2 赋值=同步回显（不触发 onChange），同时恢复可交互"
+            }) { Text("重置", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d3Msg ?: "readonly=primary 彩色仅展示不可点（详情评分场景）；disabled=点亮灰填 40%/未点亮 20% 描边不可点。",
+            fontSize = AppFont.sizeXs,
+            color = if (d3Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D4 · 自定义 count 与受控（count 10 十分制 + 外部驱动仅回显）
+        Text("Demo 4 · 自定义 count 与受控（count 10 十分制 · 初始 7）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4Value by remember { mutableStateOf<Int?>(7) }
+        var d4Msg by remember { mutableStateOf<String?>(null) }
+        Rate(
+            count = 10,
+            value = d4Value,
+            onValueChange = { v ->
+                d4Value = v
+                d4Msg = "onChange → $v/10（宿主回写）"
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d4Value = 10
+                d4Msg = "外部 value=10 赋值=仅同步回显（不触发 onChange）"
+            }) { Text("外部 value=10", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d4Value = 0
+                d4Msg = "外部 value=0 赋值=仅同步回显（不触发 onChange）"
+            }) { Text("重置 0", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d4Msg ?: "count 可配（十分制等）：星数=count；外部赋值仅回显不触发 onChange；点/滑=组件上报宿主回写。",
+            fontSize = AppFont.sizeXs,
+            color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
+        )
     }
 }

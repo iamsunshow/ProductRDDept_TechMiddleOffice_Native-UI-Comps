@@ -4293,6 +4293,46 @@
       "note": "搜索栏（数据录入区 #38，全新立项，2026-09-06）：搜索输入壳（48 灰底 radiusLg 对齐已收编 Input #29 壳 token=壳语言统一复用不复制）+ 前置放大镜（自绘 glyph 14 灰）+ Md16 文本输入 + 非空清除钮（点击清空回传空串）+ trailing 尾槽（宿主搜索按钮=与键盘搜索键双路径）+ 软键盘「搜索」键 onSearch 检索触发；半受控 value String? nil=内部自持（搜索宿主拿词即用免回写）、外部赋值仅回显不触发回调、disabled 40% 灰、maxLength 仅截断键盘输入路径；真实检索/结果/历史/联想=宿主自理（组件零内部异步态）；胶囊 shape/自动聚焦/防抖/历史联想=二期或宿主（anti_goals）。系统搜索控件（iOS UISearchBar=36 高白底+自动取消钮 / Android Material SearchBar=Material 3 样式）视觉脱离库内设计语言=不收编；与 Input #29（无检索语义基座）/ShortPassword #39/Picker #33/Menu #31/Cascader #24 划界。2026-09-06 门禁 A AI 代评通过（规格 design-spec/search-bar-design-spec.html + review-search-bar-A.md，P1–P4 全 A，用户 2026-09-06 Rate #37 收编后原话「通过，继续下一个组件」指示接棒启动）+ 同日门禁 B 双端实现入库（SearchBarView.swift=命令式 UIKit UITextField returnKey.search+delegate shouldReturn + MagGlyphView/XGlyphView 自绘；SearchBar.kt=声明式 Compose BasicTextField imeAction=Search+KeyboardActions + Canvas 自绘放大镜/清除钮），iOS SearchBarShowcase / Android SearchBarDemo 4 段 1:1（D1 基础输入+清除钮/D2 键盘搜索键 onSearch+宿主列表过滤/D3 禁用+外部 value 驱动/D4 trailing 尾槽按钮双路径），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过，下一个组件吧」，数据录入区 #21~#38 全闭环、缺 #34 picker-view 暂缓）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
+    },
+    {
+      "id": "ui.short-password",
+      "name": "短密码 ShortPassword",
+      "category": "ui",
+      "summary": "定长数字短密码/PIN 输入内容组件（数据录入区 #39，全新立项）：无壳水平居中掩码圆点行（无灰底壳/清除钮/明文显隐切换，密文=输入法系统掩码点随字号 sizeXl 22=掩码基座沿用 Input #29 secure 惯例复用不复制）+ 纯数字限定（keyboardType numberPad / KeyboardType.Number，键盘与粘贴均滤除非数字）+ 定长 length（默认 6）字符满=自动 onComplete(明文字符串) 一次、满后继续输入拒收（take/截断不进入）；行高 min 48=对齐库内 FormFieldRow/Input 交互行基准（注释锚定）；空态 placeholder 居中灰字（默认「请输入 N 位数字密码」textSecondary 22）；半受控 value String?：nil=内部自持输入（宿主拿 onChange 每字符即可、无需回写）、外部赋值=仅同步回显不触发 onChange/onComplete（外部满位也不触发=仅输入路径触发）；onChange 每字符实时直通；disabled=整行 40% 灰不可输入无任何回调；真实校验/错误提示/重试（校验失败宿主外部 value=\"\" 清空重输）/键盘与弹层组合（可配 #32 NumberKeyboard=键盘回调驱动 value=宿主自理）=宿主自理（组件零内部异步态）；支付/交易/二次验证短密码、安全码/PIN 4~8 位定长码场景；与 Input #29（secure=任意长任意字符密文、灰底壳+清除钮+trailing、无满位回调=表单行语境，划界不混入）/验证码分格 OTP（短信码类形态=码类二期）/SearchBar #38（明文）/Android sharedui PasswordInputField（业务库带显隐通用长密码=收编不动）划界；anti_goals 二期/不做=明文显隐切换（安全默认）/分格 OTP 逐格跳（码类二期）/内置确定钮/校验错误弹层=宿主/自动聚焦=宿主",
+      "capabilities": ["短密码", "ShortPassword", "PIN", "支付密码", "定长密码", "掩码输入", "交易密码", "安全码"],
+      "platforms": {
+        "ios": { "state": "available", "note": "ShortPasswordView.swift：命令式 UIKit UITextField（isSecureTextEntry 系统掩码点随字号 + keyboardType .numberPad + delegate shouldChange 纯数字收敛/满位拒收/粘贴过滤、textAlignment .center 居中、无壳透明底、placeholder 默认「请输入 N 位数字密码」textSecondary 22）；半受控 value String? didSet 外部赋值=仅同步回显不触发 onChange/onComplete（onChange 走 editingChanged 输入路径）；disabled=alpha 0.4 不可输入无回调；intrinsicContentSize 高 48" },
+        "android": { "state": "available", "note": "ShortPassword.kt：声明式 Compose BasicTextField（KeyboardOptions KeyboardType.Number、value 参数 nil=内部自持 mutableStateOf、onValueChange 数字 filter+take(length) 截断=满位拒收、外部赋值直读参数=回显不触发回调）；输入层透明（文字 Transparent+光标 Transparent）叠内层掩码点展示（Text「•」repeat 随字数据中 textPrimary/空态 placeholder 居中 textSecondary）；disabled alpha 0.4+enabled=false 无回调；Box 48dp 行高" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/ShortPasswordView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/ShortPassword.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.short-password",
+      "industry_names": ["短密码", "ShortPassword", "支付密码输入", "PIN 输入", "安全码输入", "密码点"],
+      "props": [
+        ["value", "String?", "否", "半受控：nil=内部自持输入（宿主无需回写、onChange 实时拿明文即可）；外部赋值=仅同步回显不触发 onChange/onComplete（外部满位也不触发=仅输入路径触发）"],
+        ["onChange", "回调", "是", "(String)：每字符实时直通（含外部 value=\"\" 后输入路径）；disabled 无回调"],
+        ["onComplete", "回调", "否", "(String)：字符满 length 自动触发一次（仅键盘输入路径）；宿主接走真实校验；disabled 无回调"],
+        ["length", "Int", "否", "定长位数，默认 6（支付/二次验证常规 4~8，实现接受 ≥2）"],
+        ["placeholder", "String", "否", "空态提示文案，默认「请输入 N 位数字密码」；textSecondary sizeXl 22 居中灰字"],
+        ["disabled", "Boolean", "否", "整行 40% 灰、不可输入、无任何回调"],
+        ["可见切换/OTP", "—", "—", "明文显隐切换=一期不做（安全默认）；分格 OTP 逐格跳=码类二期（anti_goals 登记）"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础 6 位输入（默认 length=6·半受控内部自持）", "value=nil 内部自持；键入=密文点随位递增；onChange 每字符回显；满 6 位自动 onComplete（宿主执行校验）；「清空」=外部 value=\"\"（D1）"],
+        ["定长 4 位 + 受控外部驱动（外部预填 1234）", "外部预填 4 位=同步回显满位但不触发 onComplete（证仅输入路径触发）；清空重输后键盘输满 4 位将触发（D2）"],
+        ["禁用与粘贴过滤", "disabled=整行 40% 灰不可输入无回调；粘贴「ab3#9x」=仅取数字按位截断（39）并入=非数字不进入（实机验证）（D3）"],
+        ["宿主校验流程 + NumberKeyboard #32 组装示意", "正确码 123456：满 6 位 onComplete=宿主校验（123456=通过 / 其它=错误码自动外部清空重输）；外部注入 999999=满位仅回显不触发 onComplete；组件可嵌入宿主弹层配 #32 NumberKeyboard（键盘回调驱动 value=宿主自理）（D4）"]
+      ],
+      "note": "短密码（数据录入区 #39，全新立项，2026-09-06）：定长数字掩码短密码/PIN 输入内容组件=无壳水平居中掩码点行（系统密文点随字号 22、无灰底壳/清除钮/明文显隐切换）+ 纯数字限定（键盘与粘贴滤除非数字）+ 定长 length 默认 6 字符满=自动 onComplete 一次满后拒收 + 半受控 value String? nil=内部自持/外部赋值仅回显不触发回调 + onChange 每字符 + disabled 40% 灰无回调 + placeholder（默认「请输入 N 位数字密码」居中灰字）；真实校验/错误/重试=宿主自理（校验失败宿主外部 value=\"\" 清空重输）；掩码基座沿用 Input #29 secure 惯例复用不复制；与 Input #29（secure=任意长密文表单行）/验证码分格 OTP（码类二期）/NumberKeyboard #32（键盘=宿主组合件）/Android sharedui PasswordInputField（业务库收编不动）划界。2026-09-06 门禁 A AI 代评通过（规格 design-spec/short-password-design-spec.html + review-short-password-A.md，P1–P4 全 A，用户 2026-09-06 SearchBar #38 收编后原话「通过，下一个组件吧」指示接棒启动）+ 同日门禁 B 双端实现入库（ShortPasswordView.swift=命令式 UIKit UITextField secureTextEntry+numberPad+delegate 数字过滤/满位拒收；ShortPassword.kt=声明式 Compose BasicTextField KeyboardType.Number+透明输入层叠掩码点展示层），iOS ShortPasswordShowcase / Android ShortPasswordDemo 4 段 1:1（D1 基础 6 位满位 onComplete/D2 定长 4 位+外部预填仅回显/D3 禁用+粘贴过滤/D4 宿主校验+NumberKeyboard #32 组装示意），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0；待 C1.5 用户双端 Demo 实机验收。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
     }
   ],
   "businessExtensions": [

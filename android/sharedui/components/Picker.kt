@@ -22,6 +22,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -33,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppFont
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -52,7 +54,10 @@ import kotlin.math.abs
  * Md=16 primary；滚轮可视 220dp=5 行×44dp、选中带上下 hairline 夹线、行文字 Md=16 居中；
  * 选中行=primary Semibold、其余=textPrimary；滚轮上下 70dp 线性渐变遮罩模拟纵向衰减
  * （与 iOS UIPickerView 原生渐隐的视觉差异表内放行）；滚掠吸附=SnapPosition.Center
- * 停靠行中心（foundation 1.7.6 以嵌套 object 提供，无 CenteredSnapPosition 类）；禁用=textPrimary
+ * 停靠行中心（foundation 1.7.6 以嵌套 object 提供，无 CenteredSnapPosition 类）+ 松手吸附兜底：
+ * fling snap 仅在松手带速度的惯性结束时触发，慢拖/原地松手（velocity≈0 不启动 fling）会停在两行
+ * 中间，故监听 isScrollInProgress 翻转、滚动一结束即把中心行对齐停靠（animateScrollToItem 像素级
+ * 校准），与 UIPickerView 松手必停整行同构（2026-09-06 用户验收补发问题修复）；禁用=textPrimary
  * @35%、组件级 disabled 整体 40%。
  */
 data class PickerOption(
@@ -116,6 +121,33 @@ fun Picker(
         if (opt.disabled) {
             nearestEnabledIndex(options, selectedIndex)?.let { listState.animateScrollToItem(it) }
         }
+    }
+
+    // 松手吸附：fling snap 只在松手带速度（惯性滚动）结束后触发；缓慢拖动/原地松手
+    // （velocity≈0 不启动 fling）会停在两行中间 → 滚动一结束就校正一次：把视口中心最近行
+    // （若为禁用行则取最近可用行）精确对准视口中心，与 UIPickerView 松手必停整行同构。
+    // 对齐完成后 delta≈0 不再触发动画（顺带兜底 fling 吸附的浮点残差）。
+    LaunchedEffect(listState, options) {
+        snapshotFlow { listState.isScrollInProgress }
+            .distinctUntilChanged()
+            .collect { inProgress ->
+                if (inProgress) return@collect
+                val idx = selectedIndex
+                val target = if (options.getOrNull(idx)?.disabled == true) {
+                    nearestEnabledIndex(options, idx) ?: return@collect
+                } else {
+                    idx
+                }
+                val item = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == target }
+                    ?: return@collect
+                val viewportCenter =
+                    (listState.layoutInfo.viewportStartOffset + listState.layoutInfo.viewportEndOffset) / 2f
+                val delta = viewportCenter - (item.offset + item.size / 2f)
+                if (abs(delta) > 0.5f) {
+                    // animateScrollToItem 按像素把 target 行顶对齐 contentPadding 上缘（88dp）→ 行中心恰为视口中心
+                    listState.animateScrollToItem(index = target)
+                }
+            }
     }
 
     // 受控 value：初始/外部变更滚轮 animate 定位到 value 行（滚动不触发 onChange）

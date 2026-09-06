@@ -55,7 +55,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.form", name: "Form 表单", reviewed: true, create: { FormShowcase() }),
             DemoComponent(id: "ui.input", name: "Input 输入框", reviewed: true, create: { InputShowcase() }),
             DemoComponent(id: "ui.input-number", name: "InputNumber 数字输入", reviewed: true, create: { InputNumberShowcase() }),
-            DemoComponent(id: "ui.menu", name: "Menu 菜单", reviewed: false, create: nil),
+            DemoComponent(id: "ui.menu", name: "Menu 菜单", reviewed: true, create: { MenuShowcase() }),
             DemoComponent(id: "ui.number-keyboard", name: "NumberKeyboard 数字键盘", reviewed: false, create: nil),
             DemoComponent(id: "ui.picker", name: "Picker 选择器", reviewed: false, create: nil),
             DemoComponent(id: "ui.picker-view", name: "PickerView 视图", reviewed: false, create: nil),
@@ -5237,6 +5237,198 @@ final class InputNumberShowcase: ShowcaseViewController {
     private static func trimDecimal(_ value: Double, precision: Int) -> String {
         let f = pow(10, Double(precision))
         return String(format: "%.\(precision)f", (value * f).rounded() / f)
+    }
+}
+
+// MARK: - Menu Showcase（菜单 · ui.menu · #31）
+
+/// 4 段排查：D1 单列基础（默认取首个启用项）；D2 四列独立筛选来回切（同列收起幂等）；
+/// D3 长列表滚动 + 末项禁用；D4 受控外部 selectedValues 驱动（回显/重置，不触发 onChange）。
+/// 与 Android MenuDemo 4 段 1:1 同构（嵌入式内联面板：展开会推挤下方宿主内容）。
+final class MenuShowcase: ShowcaseViewController {
+    private var d2Menu: MenuView?
+    private var d3Menu: MenuView?
+    private var d4Menu: MenuView?
+    private var d1Feedback: UILabel?
+    private var d2Feedback: UILabel?
+    private var d3Feedback: UILabel?
+    private var d4Feedback: UILabel?
+    private var d4Times = 0
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Menu", version: "v1.0", builtAt: "2026-09-06")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    /// 数据对齐 design-spec menu-design-spec.html 04 排查段；双端 MenuOption/MenuColumn 同构。
+    private func columns1() -> [MenuColumn] {
+        [MenuColumn(key: "sort", title: "排序方式", options: [
+            MenuOption(value: "latest", text: "时间最新"),
+            MenuOption(value: "recommend", text: "推荐排序"),
+            MenuOption(value: "price", text: "价格最低"),
+        ])]
+    }
+
+    private func columns2() -> [MenuColumn] {
+        [
+            MenuColumn(key: "sort", title: "排序", options: [
+                MenuOption(value: "amount", text: "金额最多"),
+                MenuOption(value: "latest", text: "时间最新"),
+                MenuOption(value: "count", text: "笔数最多"),
+            ]),
+            MenuColumn(key: "time", title: "时间", options: [
+                MenuOption(value: "all", text: "全部"),
+                MenuOption(value: "w7", text: "近 7 天"),
+                MenuOption(value: "w30", text: "近 30 天"),
+                MenuOption(value: "m3", text: "近 3 个月"),
+                MenuOption(value: "year", text: "今年"),
+            ]),
+            MenuColumn(key: "type", title: "类型", options: [
+                MenuOption(value: "all", text: "全部"),
+                MenuOption(value: "expense", text: "支出"),
+                MenuOption(value: "income", text: "收入"),
+            ]),
+            MenuColumn(key: "status", title: "状态", options: [
+                MenuOption(value: "all", text: "全部"),
+                MenuOption(value: "cleared", text: "已入账"),
+                MenuOption(value: "pending", text: "待入账"),
+            ]),
+        ]
+    }
+
+    private func columns3() -> [MenuColumn] {
+        // 12 项 = 超过面板 max 高 220（5 行 × 44），末项禁用演示不可点灰行。
+        [MenuColumn(key: "ledger", title: "账本", options: [
+            MenuOption(value: "all", text: "全部"),
+            MenuOption(value: "home", text: "家庭账本"),
+            MenuOption(value: "travel", text: "旅行账本"),
+            MenuOption(value: "decorate", text: "装修账本"),
+            MenuOption(value: "shopping", text: "购物账本"),
+            MenuOption(value: "transport", text: "交通账本"),
+            MenuOption(value: "fun", text: "娱乐账本"),
+            MenuOption(value: "food", text: "餐饮账本"),
+            MenuOption(value: "medical", text: "医疗账本"),
+            MenuOption(value: "edu", text: "教育账本"),
+            MenuOption(value: "invest", text: "投资账本"),
+            MenuOption(value: "deleted", text: "删除的账本", disabled: true),
+        ])]
+    }
+
+    private func columns4() -> [MenuColumn] {
+        [
+            MenuColumn(key: "time", title: "时间", options: [
+                MenuOption(value: "all", text: "全部"),
+                MenuOption(value: "w30", text: "近 30 天"),
+                MenuOption(value: "year", text: "今年"),
+            ]),
+            MenuColumn(key: "type", title: "类型", options: [
+                MenuOption(value: "all", text: "全部"),
+                MenuOption(value: "expense", text: "支出"),
+                MenuOption(value: "income", text: "收入"),
+            ]),
+            MenuColumn(key: "sort", title: "排序", options: [
+                MenuOption(value: "latest", text: "时间最新"),
+                MenuOption(value: "amount", text: "金额最多"),
+            ]),
+        ]
+    }
+
+    private func demoMenuCard(in container: UIView, menu: UIView) {
+        let card = UIView()
+        card.backgroundColor = AppColor.bgCard
+        card.layer.cornerRadius = AppRadius.md
+        card.layer.borderWidth = 0.5
+        card.layer.borderColor = AppColor.border.cgColor
+        card.layer.masksToBounds = true
+        container.addSubview(card)
+        menu.backgroundColor = AppColor.bgCard
+        card.addSubview(menu)
+        card.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        menu.snp.makeConstraints { make in make.edges.equalToSuperview() }
+    }
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 单列基础（默认取首个启用项）") { container in
+            let menu = MenuView(columns: self.columns1(), onChange: { [weak self] key, value in
+                guard let self else { return }
+                let text = self.text(forKey: key, in: self.columns1(), value: value)
+                self.d1Feedback?.text = "onChange → \(key)=\(value)（\(text)），展开面板已收起"
+                self.d1Feedback?.textColor = AppColor.primary
+            })
+            self.demoMenuCard(in: container, menu: menu)
+            d1Feedback = addDynamicInfo("onChange → （未选择，默认=时间最新）", color: AppColor.primary)
+            addInfo("点列=展开内联面板（推挤下方内容）；再点=收起；选中小字回显（标题右侧 Sm 值 + 主色高亮）。")
+        }
+    }
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 四列独立筛选（同列收起幂等，选后自动收起）") { container in
+            let menu = MenuView(columns: self.columns2(), onChange: { [weak self] key, value in
+                guard let self else { return }
+                let text = self.text(forKey: key, in: self.columns2(), value: value)
+                self.d2Feedback?.text = "onChange → \(key)=\(value)（\(text)）"
+                self.d2Feedback?.textColor = AppColor.primary
+            })
+            self.d2Menu = menu
+            self.demoMenuCard(in: container, menu: menu)
+            d2Feedback = addDynamicInfo("onChange → （未选择；每列默认取自身首个启用项）", color: AppColor.primary)
+            addInfo("任意两列来回切：展开列自动收起；点当前展开列=幂等收起；选完自动收起并回显。")
+        }
+    }
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 长列表（12 项，面板超 5 行内部滚动）+ 末项禁用") { container in
+            let menu = MenuView(columns: self.columns3(), onChange: { [weak self] key, value in
+                guard let self else { return }
+                let text = self.text(forKey: key, in: self.columns3(), value: value)
+                self.d3Feedback?.text = "onChange → \(key)=\(value)（\(text)）"
+                self.d3Feedback?.textColor = AppColor.primary
+            })
+            self.d3Menu = menu
+            self.demoMenuCard(in: container, menu: menu)
+            d3Feedback = addDynamicInfo("onChange → （未选择；默认=全部）", color: AppColor.primary)
+            addInfo("展开面板 max 高 220pt（5 行×44），12 项内部滚动可触达「删除的账本」灰行=禁用不可点。")
+        }
+    }
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 受控外部驱动（回显 时间=今年 + 类型=支出 / 重置默认）") { container in
+            let menu = MenuView(columns: self.columns4(), onChange: { [weak self] key, value in
+                guard let self else { return }
+                self.d4Times += 1
+                let text = self.text(forKey: key, in: self.columns4(), value: value)
+                self.d4Feedback?.text = "onChange → \(key)=\(value)（\(text)）（触发源：用户点选，累计 \(self.d4Times) 次）"
+                self.d4Feedback?.textColor = AppColor.primary
+            })
+            self.d4Menu = menu
+            self.demoMenuCard(in: container, menu: menu)
+            demoButtonRow(
+                ("回显 时间=今年/类型=支出", { [weak self] in
+                    guard let self else { return }
+                    self.d4Menu?.selectedValues = ["time": "year", "type": "expense"]
+                    self.d4Feedback?.text = "外部 selectedValues → 时间=今年、类型=支出（未触发 onChange，累计仍 \(self.d4Times) 次）"
+                    self.d4Feedback?.textColor = AppColor.primary
+                }),
+                ("重置为默认", { [weak self] in
+                    guard let self else { return }
+                    self.d4Menu?.selectedValues = nil
+                    self.d4Feedback?.text = "外部重置 selectedValues=nil → 各列回落首个启用项（未触发 onChange，累计仍 \(self.d4Times) 次）"
+                    self.d4Feedback?.textColor = AppColor.primary
+                })
+            )
+            d4Feedback = addDynamicInfo("onChange → （未选择）", color: AppColor.primary)
+            addInfo("外部 selectedValues 驱动回显（高亮 + 标题小字），不触发 onChange；仅用户点选才计数。")
+        }
+    }
+
+    /// 供 onChange 反馈回填 option 文本（双端同构：Android 直接展示列内当前文案）。
+    private func text(forKey key: String, in columns: [MenuColumn], value: String) -> String {
+        columns.first(where: { $0.key == key })?
+            .options.first(where: { $0.value == value })?.text ?? value
     }
 }
 

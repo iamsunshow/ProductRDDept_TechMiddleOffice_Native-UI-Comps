@@ -90,6 +90,9 @@ import com.zhiqihuayun.sharedui.components.AvatarOption
 import com.zhiqihuayun.sharedui.components.BackTop
 import com.zhiqihuayun.sharedui.components.Elevator
 import com.zhiqihuayun.sharedui.components.ElevatorFloor
+import com.zhiqihuayun.sharedui.components.Menu
+import com.zhiqihuayun.sharedui.components.MenuColumn
+import com.zhiqihuayun.sharedui.components.MenuOption
 import com.zhiqihuayun.sharedui.components.FixedNav
 import com.zhiqihuayun.sharedui.components.FixedNavItem
 import com.zhiqihuayun.sharedui.components.FixedNavType
@@ -183,7 +186,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Form 表单", reviewed = true, demo = { FormDemo() }),
         DemoComponent("Input 输入框", reviewed = true, demo = { InputDemo() }),
         DemoComponent("InputNumber 数字输入", reviewed = true, demo = { InputNumberDemo() }),
-        DemoComponent("Menu 菜单"),
+        DemoComponent("Menu 菜单", reviewed = true, demo = { MenuDemo() }),
         DemoComponent("NumberKeyboard 数字键盘"),
         DemoComponent("Picker 选择器"),
         DemoComponent("PickerView 视图"),
@@ -3887,6 +3890,203 @@ private fun CalendarCardDemo() {
         }
         Text("外部 selected 变化 → 同步高亮并自动切到所属月；清空=网格无选中（保留当前月）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
     }
+}
+
+/** MenuDemo：4 段排查（D1 单列基础 / D2 四列独立切换 / D3 长列表滚动+禁用 / D4 受控外部驱动）。
+ * 与 iOS MenuShowcase 4 段 1:1 同构（嵌入式内联面板，展开推挤下方内容）。 */
+@Composable
+private fun MenuDemo() {
+    Text(
+        text = "Menu 菜单组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 单列基础 ② 四列独立筛选 ③ 长列表滚动+末项禁用 ④ 外部 selectedValues 驱动。双端 1:1（iOS MenuView vs Android Menu）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+    // 顶部对齐 iOS：数据/文本与 MenuShowcase 一致
+    val columns1 = remember {
+        listOf(
+            MenuColumn(
+                key = "sort", title = "排序方式",
+                options = listOf(
+                    MenuOption("latest", "时间最新"),
+                    MenuOption("recommend", "推荐排序"),
+                    MenuOption("price", "价格最低")
+                )
+            )
+        )
+    }
+    val columns2 = remember {
+        listOf(
+            MenuColumn("sort", "排序", listOf(
+                MenuOption("amount", "金额最多"),
+                MenuOption("latest", "时间最新"),
+                MenuOption("count", "笔数最多")
+            )),
+            MenuColumn("time", "时间", listOf(
+                MenuOption("all", "全部"),
+                MenuOption("w7", "近 7 天"),
+                MenuOption("w30", "近 30 天"),
+                MenuOption("m3", "近 3 个月"),
+                MenuOption("year", "今年")
+            )),
+            MenuColumn("type", "类型", listOf(
+                MenuOption("all", "全部"),
+                MenuOption("expense", "支出"),
+                MenuOption("income", "收入")
+            )),
+            MenuColumn("status", "状态", listOf(
+                MenuOption("all", "全部"),
+                MenuOption("cleared", "已入账"),
+                MenuOption("pending", "待入账")
+            ))
+        )
+    }
+    val columns3 = remember {
+        listOf(
+            MenuColumn(
+                key = "ledger", title = "账本",
+                options = listOf(
+                    MenuOption("all", "全部"),
+                    MenuOption("home", "家庭账本"),
+                    MenuOption("travel", "旅行账本"),
+                    MenuOption("decorate", "装修账本"),
+                    MenuOption("shopping", "购物账本"),
+                    MenuOption("transport", "交通账本"),
+                    MenuOption("fun", "娱乐账本"),
+                    MenuOption("food", "餐饮账本"),
+                    MenuOption("medical", "医疗账本"),
+                    MenuOption("edu", "教育账本"),
+                    MenuOption("invest", "投资账本"),
+                    MenuOption("deleted", "删除的账本", disabled = true)
+                )
+            )
+        )
+    }
+    val columns4 = remember {
+        listOf(
+            MenuColumn("time", "时间", listOf(
+                MenuOption("all", "全部"),
+                MenuOption("w30", "近 30 天"),
+                MenuOption("year", "今年")
+            )),
+            MenuColumn("type", "类型", listOf(
+                MenuOption("all", "全部"),
+                MenuOption("expense", "支出"),
+                MenuOption("income", "收入")
+            )),
+            MenuColumn("sort", "排序", listOf(
+                MenuOption("latest", "时间最新"),
+                MenuOption("amount", "金额最多")
+            ))
+        )
+    }
+
+    // D1 · 单列基础
+    Text("Demo 1 · 单列基础（默认取首个启用项）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+    var d1Info by remember { mutableStateOf("onChange → （未选择，默认=时间最新）") }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(AppRadius.md))
+            .background(AppColor.bgCard)
+            .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+    ) {
+        Menu(columns = columns1, onChange = { key, value ->
+            val text = optionText(columns1, key, value)
+            d1Info = "onChange → $key=$value（$text），展开面板已收起"
+        })
+    }
+    Text(d1Info, fontSize = AppFont.sizeXs, color = AppColor.primary)
+    Text("点列=展开内联面板（推挤下方内容）；再点=收起；选中小字回显（标题右侧 Xs 值 + 主色高亮）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+    // D2 · 四列独立筛选
+    Text("Demo 2 · 四列独立筛选（同列收起幂等，选后自动收起）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+    var d2Info by remember { mutableStateOf("onChange → （未选择；每列默认取自身首个启用项）") }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(AppRadius.md))
+            .background(AppColor.bgCard)
+            .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+    ) {
+        Menu(columns = columns2, onChange = { key, value ->
+            val text = optionText(columns2, key, value)
+            d2Info = "onChange → $key=$value（$text）"
+        })
+    }
+    Text(d2Info, fontSize = AppFont.sizeXs, color = AppColor.primary)
+    Text("任意两列来回切：展开列自动收起；点当前展开列=幂等收起；选完自动收起并回显。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+    // D3 · 长列表 + 禁用
+    Text("Demo 3 · 长列表（12 项，面板超 5 行内部滚动）+ 末项禁用", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+    var d3Info by remember { mutableStateOf("onChange → （未选择；默认=全部）") }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(AppRadius.md))
+            .background(AppColor.bgCard)
+            .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+    ) {
+        Menu(columns = columns3, onChange = { key, value ->
+            val text = optionText(columns3, key, value)
+            d3Info = "onChange → $key=$value（$text）"
+        })
+    }
+    Text(d3Info, fontSize = AppFont.sizeXs, color = AppColor.primary)
+    Text("展开面板 max 高 220dp（5 行×44），12 项内部滚动可触达「删除的账本」灰行=禁用不可点。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+    // D4 · 受控外部驱动
+    Text("Demo 4 · 受控外部驱动（回显 时间=今年 + 类型=支出 / 重置默认）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+    var d4External by remember { mutableStateOf<Map<String, String>?>(null) }
+    var d4Count by remember { mutableStateOf(0) }
+    var d4Info by remember { mutableStateOf("onChange → （未选择）") }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(AppRadius.md))
+            .background(AppColor.bgCard)
+            .border(0.5.dp, AppColor.border, RoundedCornerShape(AppRadius.md))
+    ) {
+        Menu(columns = columns4, selectedValues = d4External, onChange = { key, value ->
+            d4Count += 1
+            val text = optionText(columns4, key, value)
+            d4Info = "onChange → $key=$value（$text）（触发源：用户点选，累计 $d4Count 次）"
+        })
+    }
+    Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+        TextButton(onClick = {
+            d4External = mapOf("time" to "year", "type" to "expense")
+            d4Info = "外部 selectedValues → 时间=今年、类型=支出（未触发 onChange，累计仍 $d4Count 次）"
+        }) { Text("回显 时间=今年/类型=支出", fontSize = AppFont.sizeXs) }
+        TextButton(onClick = {
+            d4External = null
+            d4Info = "外部重置 selectedValues=nil → 各列回落首个启用项（未触发 onChange，累计仍 $d4Count 次）"
+        }) { Text("重置为默认", fontSize = AppFont.sizeXs) }
+    }
+    Text(d4Info, fontSize = AppFont.sizeXs, color = AppColor.primary)
+        Text("外部 selectedValues 驱动回显（高亮 + 标题小字），不触发 onChange；仅用户点选才计数。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+    }
+}
+
+/** 供 onChange 反馈回填 option 文本（与 iOS MenuShowcase.text(forKey:) 同构）。 */
+private fun optionText(columns: List<MenuColumn>, key: String, value: String): String {
+    return columns.firstOrNull { it.key == key }
+        ?.options?.firstOrNull { it.value == value }?.text ?: value
 }
 
 /** CascaderDemo：4 段排查（D1 基础三级 / D2 深浅混合+禁用 / D3 深层回退 / D4 受控外部驱动）。 */

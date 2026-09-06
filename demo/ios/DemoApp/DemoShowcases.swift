@@ -5764,6 +5764,10 @@ final class NumberKeyboardShowcase: ShowcaseViewController {
                 }
             )
             self.pinFullWidth(keyboard, in: container, after: field)
+            keyboard.snp.makeConstraints { make in
+                make.height.equalTo(208)
+                make.bottom.equalToSuperview()
+            }
             keyboard.confirmDisabled = true
         }
         feedbackLabel1 = addDynamicInfo("金额输入为 0 或空时「确认」置灰不可点。")
@@ -5796,6 +5800,10 @@ final class NumberKeyboardShowcase: ShowcaseViewController {
                 showDot: false
             )
             self.pinFullWidth(keyboard, in: container, after: field)
+            keyboard.snp.makeConstraints { make in
+                make.height.equalTo(208)
+                make.bottom.equalToSuperview()
+            }
             keyboard.confirmDisabled = true
         }
         feedbackLabel2 = addDynamicInfo("showDot=false → 底行首格空占位；满 6 位确认转 primary。")
@@ -5827,6 +5835,10 @@ final class NumberKeyboardShowcase: ShowcaseViewController {
                 extraKey: "X"
             )
             self.pinFullWidth(keyboard, in: container, after: field)
+            keyboard.snp.makeConstraints { make in
+                make.height.equalTo(208)
+                make.bottom.equalToSuperview()
+            }
             keyboard.confirmDisabled = true
         }
         feedbackLabel3 = addDynamicInfo("extraKey=\"X\" 替换底行首格，X 与数字同走 onInput。")
@@ -5879,6 +5891,9 @@ final class NumberKeyboardShowcase: ShowcaseViewController {
             row.addArrangedSubview(disableButton)
             row.addArrangedSubview(confirmButton)
             self.pinFullWidth(row, in: container, after: keyboard)
+            row.snp.makeConstraints { make in
+                make.bottom.equalToSuperview()
+            }
         }
         feedbackLabel4 = addDynamicInfo("disabled=整键盘 40% 灰不可点；confirmDisabled=仅确认列灰（其余键可用）。")
     }

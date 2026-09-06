@@ -77,6 +77,10 @@ final class NumberKeyboardView: UIView {
         self.extraKey = extraKey
         super.init(frame: .zero)
         backgroundColor = AppColor.border
+        // 注意：本组件固定高 208pt（intrinsicContentSize），宿主在使用 AutoLayout 时
+        // 必须同时约束 bottom 或 height，否则容器高度链不闭合，frame 子视图会溢出
+        // 父 bounds，导致超出部分无法响应 touch（实测 pinFullWidth 只给 top/leading/trailing 时
+        // 容器高度仅取到 field 56pt，键盘 208pt 溢出被截断）。
         buildKeys()
         buildConfirm()
     }

@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>NumberKeyboard 数字键盘 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- NumberKeyboard demo 预览 mock（块状数字键盘：白底网格 + 右列确认竖条） ---- */
+.kb-out{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);overflow:hidden;}
+.kb-field{height:52px;display:flex;align-items:center;justify-content:flex-end;padding:0 16px;font-size:18px;color:var(--textPrimary);border-bottom:1px solid var(--border);}
+.kb-field.dis{color:#D1D5DB;}
+.kb-grid{display:grid;grid-template-columns:repeat(3,1fr) 1.25fr;height:208px;}
+.kb-key{display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--textPrimary);background:#fff;border-right:0.5px solid var(--border);border-bottom:0.5px solid var(--border);user-select:none;cursor:pointer;}
+.kb-key:nth-child(3n){border-right:none;}
+.kb-key.del{font-size:14px;color:var(--textSecondary);}
+.kb-key.fn{grid-column:4;grid-row:1 / span 4;background:var(--primary);color:#fff;font-size:18px;border:none;}
+.kb-key.fn.dis{background:#D1D5DB;color:#fff;cursor:default;}
+.kb-key.gray{color:#D1D5DB;cursor:default;}
+.kb-cnt{display:block;font-size:12px;color:var(--textSecondary);padding:6px 12px 12px;}
+</style>
+</head>
+<body>
+
+<h1>NumberKeyboard 数字键盘 · 设计规格（数据录入组件 #? · 任务清单 #32，subcategory=form · 门禁 A）</h1>
+<p>组件 ID：<code>ui.number-keyboard</code> ｜ 定位：<b>内嵌式数字键盘面板（常驻内容视图、无自带遮罩/浮层）</b>——3 数字列＋1 操作列（右列「确认」竖条）的 4×4 键格；数字键 1~9、底行（小数/自定义底键、0、退格）由开关与 <code>extraKey</code> 配置；点键=纯事件回调（数字/小数/自定义文本走 <code>onInput</code>，退格走 <code>onDelete</code>，确认走 <code>onConfirm</code>），键盘自身不持有文本值（值由宿主输入模型持有）。对标 NutUI NumberKeyboard 收敛为库内自有设计语言；一期无遮罩/弹层/乱序（弹层随 Popup #54 / Overlay #6 二期组合），业务金额键盘 AmountKeyboard 为强业务独立扩展不混入。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-06，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 敏感/高定制输入键盘：支付金额、短信验证码、身份证号等不希望唤起系统键盘的受控输入区底部放置的自绘数字键盘（宿主用 Stack/Column 把键盘固定到输入区下方=底部常驻或随 Overlay/Popup 二期悬浮）；② 记账/转账类"金额数字 + 确认"录入面板的通用键盘底座（金额格式化/校验=宿主或业务 AmountKeyboard）；③ 需要固定按键尺寸与盲打的数字输入位</td></tr>
+<tr><td>不适用（N/A）</td><td>① 键盘自带的遮罩/弹层/底部抽屉过渡与点击外部收起 → 二期（随 Popup #54 / Overlay #6 组合）；② 金额语义（¥、千分位、两位小数、最大金额）→ 业务 AmountKeyboard（business.amount-keyboard）或宿主封装；③ 非数字自定义键盘（字母/符号/乱序 randomKey/振动/连击删除动画）→ 二期或宿主；④ 替代系统键盘的全局输入法 → 系统能力不收敛</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 白底灰网格键格，数字键主文字 22、退格键次文字 14、右列确认 primary 白字；<span class="tag tag-ok">禁用态 ✅</span> disabled=整键盘灰 40% 不可点、confirmDisabled=仅确认列灰不可点（其余键正常）；<span class="tag tag-ok">可点态 ✅</span> 点键=立即回调（无延迟）；加载/失败 N/A；选中/展开 N/A（键盘无选项态）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；与 Input #29 划界=Input=单行文本输入控件（唤起系统键盘），NumberKeyboard=自绘键盘面板（配 Input 显隐/系统键盘关闭由宿主组合）；与业务 AmountKeyboard（business.amount-keyboard，记账金额专用=自带千分位/小数/确认金额）划界=本组件=通用裸键格仅事件回调、无金额语义；与 Popup #54/Overlay #6=一期键盘无浮层，宿主若需底部弹出用 Overlay/自身容器承载（二期再对齐 Popup）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>键格布局</td><td>4 列（3 数字列+1 操作列）等分；整件高=52×4=208pt/208dp（4 行）</td><td>行 1-3=数字 1~9；行 4=底行三格（首格=自定义 extraKey 文本，否则 showDot=true 时显示 .、showDot=false 且无 extraKey 时空占位不可点；中格=0；末格=退格）；右操作列=跨 4 行整列「确认」竖条</td></tr>
+<tr><td>键样式</td><td>白底（bgCard）；键间网格线 hairline（iOS 1/scale pt vs Android 0.5dp=同库先例表内放行）；数字字号 22=sizeXl 主文字；退格键字号 14=sizeSm 次文字「删除」；确认列=primary 底白字 16=Md</td><td>块状键盘惯例（无键间距圆角）；整件无外框=宿主决定圆角/背景；面板 intrinsic 高=208</td></tr>
+<tr><td>状态色</td><td>disabled/confirmDisabled=textTertiary 40% 灰（整面板或确认列）；空占位格=灰 40% 且不响应</td><td>禁用点键不回调；灰格不可点</td></tr>
+<tr><td>事件</td><td>数字/小数/extraKey 文本 → onInput(字符)；退格 → onDelete()；确认 → onConfirm()</td><td>键盘无文本状态（值在宿主）；confirmDisabled/disabled 外部受控</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：内嵌式数字键盘面板（常驻内容视图）——4 行×4 列键格（1~9/.或 extraKey/0/退格 + 右列确认竖条），无自带遮罩/弹层/动画；宿主置于输入区下方（Stack 底部）或放入 Overlay/Popup 容器由宿主控制弹出；高度固定 208</td><td>✅ 内容组件语义（同 Address/Cascader/Menu 无弹层先例）；双端实现=纯网格布局+按钮=轻量可靠；键盘"出现在哪/是否悬浮"由宿主容器决定=职责清晰、验收路径清晰；支付/验证码/身份证 demo 可直接验证按键与宿主文本联动</td><td><b>推荐 A</b>：无浮层收敛（悬浮版二期随 Popup/Overlay 组合）</td></tr>
+<tr><td>B：键盘自带底部弹层+遮罩+滑入动画（NutUI NumberKeyboard 默认形态）</td><td>Popup #54 未实现、Overlay #6 为通用遮罩层=弹层/动画机制需自建或等二期；键盘被"弹层"耦合=无法单独复用；双端弹层机制不齐（iOS 需 window/自绘浮层先例少）</td><td>淘汰：登记二期（随 Popup/浮层机制立项）</td></tr>
+<tr><td>C：不做通用，直接复用业务记账 AmountKeyboard</td><td>AmountKeyboard=强业务（金额千分位/两位小数/记账语义）不可跨产品；通用数字键盘仍是表单/验证码等高频需求</td><td>淘汰：业务收编≠通用组件</td></tr>
+</table>
+
+<h3>P2 · 键结构：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：内置固定键格（1~9 / 底行首格=extraKey 或 . 或空占位 / 0 / 退格 + 右列确认），以 showDot/extraKey 少量开关表达整数/小数/自定义场景；数字/小数字符与自定义文本统一走 onInput</td><td>✅ 覆盖支付金额（.）、验证码（纯整数）、身份证（extraKey=X）三主流场景；键面稳定=双端 1:1 排布零歧义；键盘无配置复杂度</td><td><b>推荐 A</b>：固定键格+少量开关</td></tr>
+<tr><td>B：键矩阵数据驱动（二维数组 rows=每键文本，可乱序/完全自定义）</td><td>灵活但配置面大（键缺失/重复/宽高权重难约束）；随机乱序 randomKey=二期；绝大多数场景用默认键格</td><td>可接受但过度（乱序二期再说）</td></tr>
+<tr><td>C：按键文案即值模型（无 key 无 extraKey 概念）</td><td>自定义底键（身份证 X）与确认列文案无法与数字事件区分</td><td>淘汰：缺事件分类</td></tr>
+</table>
+
+<h3>P3 · 状态与事件：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：纯事件驱动无内部值——onInput(字符)/onDelete()/onConfirm()；键盘不持文本；disabled/confirmDisabled 外部受控（改值与校验=宿主 Input 模型职责）</td><td>✅ 键盘零状态=复用最纯、无回显一致性问题；与 Input #29 受控 value 宿主持有惯例对齐（键盘=输入源之一）；demo 用宿主 text 状态验证输入回路</td><td><b>推荐 A</b>：库内输入控件惯例（值在宿主）</td></tr>
+<tr><td>B：键盘内持 value 半受控（onChange 直通+外部可赋值）</td><td>键盘与宿主各存一份文本=双状态源（同步/幂等面大）；键盘并无展示文本区=内部持值无收益</td><td>淘汰：无展示区持值冗余</td></tr>
+<tr><td>C：受控 value+onChange 键盘负责拼串</td><td>把"输入文本校验/格式化"逻辑挤进键盘；与 Input 受控惯例重复且键盘职责越界</td><td>淘汰：值处理宿主自理</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：一期=4×4 键格（1~9/底行 extraKey or . or 空/0/退格/右列确认竖条）+ confirmText 可改 + showDot/extraKey/confirmDisabled/disabled 开关 + demo 四段（金额/验证码整数限位/身份证 extraKey/禁用与外部确认禁用），键盘纯事件无内部值</td><td>✅ 覆盖数字键盘三主流场景核心闭环；键格固定实现轻量；demo 逐验 onInput/onDelete/onConfirm/禁用四态清晰</td><td><b>推荐 A</b>：验收路径清晰</td></tr>
+<tr><td>B：一期即含 遮罩弹层 + 滑入动画 + 点击外部收起</td><td>浮层/弹层机制未立项（P1-B 问题）；动画与层级双端不齐</td><td>淘汰：登记二期（随 Popup/Overlay 组合）</td></tr>
+<tr><td>C：一期即做 乱序 randomKey + 长按退格连删 + 键盘振动</td><td>安全乱序/触觉反馈=设备能力差异与动效面大，非核心输入回路；可后续扩展</td><td>淘汰：登记二期</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 金额录入（小数 + 确认）</h3>
+<p>mock：顶部输入回显区（宿主 text 初始空，前缀 ￥）；键盘底行首格=.；点数字/小数点/退格=宿主 text 拼接（小数点已存在则忽略）；点确认=onConfirm 段内回显「确认：￥text」；空 text 时确认列灰（confirmDisabled）。</p>
+<div class="kb-out">
+<div class="kb-field">￥86.50</div>
+<div class="kb-grid">
+<span class="kb-key">1</span><span class="kb-key">2</span><span class="kb-key">3</span>
+<span class="kb-key">4</span><span class="kb-key">5</span><span class="kb-key">6</span>
+<span class="kb-key">7</span><span class="kb-key">8</span><span class="kb-key">9</span>
+<span class="kb-key">.</span><span class="kb-key">0</span><span class="kb-key del">删除</span>
+<span class="kb-key fn">确认</span>
+</div></div>
+<span class="kb-cnt">底行首格=.（showDot）· 确认列整列 primary · 空值时确认灰不可点</span>
+
+<h3>D2 · 短信验证码（纯整数限位，无小数点）</h3>
+<p>mock：宿主限定 6 位数字、showDot=false → 底行首格空占位灰不可点；点数字满 6 位后继续点=宿主忽略；确认列在未满位时灰、满 6 位转 primary（外部 confirmDisabled 联动）。</p>
+<div class="kb-out">
+<div class="kb-field">482913</div>
+<div class="kb-grid">
+<span class="kb-key">1</span><span class="kb-key">2</span><span class="kb-key">3</span>
+<span class="kb-key">4</span><span class="kb-key">5</span><span class="kb-key">6</span>
+<span class="kb-key">7</span><span class="kb-key">8</span><span class="kb-key">9</span>
+<span class="kb-key gray">·</span><span class="kb-key">0</span><span class="kb-key del">删除</span>
+<span class="kb-key fn">确认</span>
+</div></div>
+<span class="kb-cnt">showDot=false → 底行首格空占位（灰不可点）· 确认列由宿主满位状态驱动</span>
+
+<h3>D3 · 身份证号（自定义底键 extraKey=X，18 位）</h3>
+<p>mock：宿主限定 18 位、extraKey=&quot;X&quot; → 底行首格显示 X（点击走 onInput(&quot;X&quot;) 上屏）；退格/满位逻辑同上。</p>
+<div class="kb-out">
+<div class="kb-field">11010119900101123X</div>
+<div class="kb-grid">
+<span class="kb-key">1</span><span class="kb-key">2</span><span class="kb-key">3</span>
+<span class="kb-key">4</span><span class="kb-key">5</span><span class="kb-key">6</span>
+<span class="kb-key">7</span><span class="kb-key">8</span><span class="kb-key">9</span>
+<span class="kb-key">X</span><span class="kb-key">0</span><span class="kb-key del">删除</span>
+<span class="kb-key fn">确认</span>
+</div></div>
+<span class="kb-cnt">extraKey=「X」替换底行首格（showDot 自动关）· X 与数字同走 onInput 上屏</span>
+
+<h3>D4 · 禁用态 + 外部驱动</h3>
+<p>mock：段外「禁用/启用」开关 → disabled=true 整键盘灰 40% 不可点；段外「确认置灰/可用」开关 → confirmDisabled 联动确认列；验证禁用四态与外部回显。</p>
+<div class="kb-out">
+<div class="kb-field dis">135****4737</div>
+<div class="kb-grid">
+<span class="kb-key gray">1</span><span class="kb-key gray">2</span><span class="kb-key gray">3</span>
+<span class="kb-key gray">4</span><span class="kb-key gray">5</span><span class="kb-key gray">6</span>
+<span class="kb-key gray">7</span><span class="kb-key gray">8</span><span class="kb-key gray">9</span>
+<span class="kb-key gray">·</span><span class="kb-key gray">0</span><span class="kb-key del gray">删除</span>
+<span class="kb-key fn dis">确认</span>
+</div></div>
+<span class="kb-cnt">disabled=整键盘灰 40% 不可点 · confirmDisabled 独立控制确认列</span>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>点击按压反馈</td><td>UIButton touchDown 压暗瞬态</td><td>clickable 系统 ripple</td><td>系统级原生差异（同全库先例，表内放行）</td></tr>
+<tr><td>键格实现</td><td>UIStackView 等分（3+1 列）或 frame/NSLayoutConstraint 网格 + 网格线 CALayer/子视图</td><td>Row weight + Column 堆叠 / Box 网格</td><td>平台布局机制不同、视觉与命中区域一致（表内放行）</td></tr>
+<tr><td>整件高度</td><td>intrinsicContentSize=208（52×4）+ AutoLayout 链</td><td>固定 heightIn/height 52×4 dp</td><td>命令式/声明式高度机制不同、数值 208 一致（表内放行）</td></tr>
+<tr><td>文字渲染</td><td>UILabel（数字 22/删除 14/确认 16）</td><td>Text 同字号</td><td>两端字形一致（表内放行）</td></tr>
+<tr class="diff-row"><td>网格线宽 / 尺寸单位 / 命名</td><td>hairline=1/scale pt；pt；NumberKeyboardView（UIView 子类）</td><td>hairline=0.5dp；dp；@Composable NumberKeyboard</td><td>Token 同值不同单位；线宽为系统级差异表内放行；命名差异见门禁 B</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>onInput: (String) -&gt; Void</code>（必传：数字 0-9、小数 . 或 extraKey 文本上屏）；<code>onDelete: (() -&gt; Void)?</code>（退格）；<code>onConfirm: (() -&gt; Void)?</code>（点确认列）；<code>confirmText: String = "确认"</code>；<code>showDot: Bool = true</code>（false 且无 extraKey=底行首格空占位不可点）；<code>extraKey: String? = nil</code>（自定义底键文本，如 "X"；设置时覆盖 . 且 showDot 语义由宿主决定）；<code>confirmDisabled: Bool = false</code>（仅确认列灰 40% 不可点）；<code>disabled: Bool = false</code>（整键盘灰 40% 不可点）</td></tr>
+<tr><td>iOS</td><td><code>final class NumberKeyboardView: UIView</code><br/><code>init(onInput: @escaping (String) -&gt; Void, onDelete: (() -&gt; Void)? = nil, onConfirm: (() -&gt; Void)? = nil, confirmText: String = "确认", showDot: Bool = true, extraKey: String? = nil)</code>；<code>var confirmDisabled: Bool</code>/<code>var disabled: Bool</code> didSet 刷新对应灰态；intrinsicContentSize=宿主宽无约束、高 208</td></tr>
+<tr><td>Android</td><td><code>@Composable fun NumberKeyboard(onInput: (String) -&gt; Unit, onDelete: (() -&gt; Unit)? = null, onConfirm: (() -&gt; Unit)? = null, confirmText: String = "确认", showDot: Boolean = true, extraKey: String? = null, confirmDisabled: Boolean = false, disabled: Boolean = false, modifier: Modifier = Modifier)</code></td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：内嵌数字键盘面板=4×4 键格纯事件回调；无遮罩/弹层；与业务 AmountKeyboard/Input/Popup 划界）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（行高 52×4=208/键字号 22/删除 14/确认 16/灰 40%/hairline 网格/primary 确认列）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期：遮罩弹层/滑入动画/乱序 randomKey/长按连删/振动/键盘持值）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（金额小数/验证码整数限位/身份证 extraKey/禁用与确认禁用外部驱动）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，任务清单 #32 ⬜，api.json 无 ui.number-keyboard 条目待立项；双端 demo 注册已留占位=reviewed:false；本规格为立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（按压反馈/键格实现/高度机制/文字=系统级差异；hairline 线宽+pt/dp+命名表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（遮罩/弹层/滑入动画/乱序/长按连删/振动/键盘持值/金额语义=二期或宿主或业务职责）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

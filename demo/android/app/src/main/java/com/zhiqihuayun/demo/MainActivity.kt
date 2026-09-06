@@ -131,6 +131,8 @@ import com.zhiqihuayun.sharedui.components.CheckboxOption
 import com.zhiqihuayun.sharedui.components.Radio
 import com.zhiqihuayun.sharedui.components.RadioGroup
 import com.zhiqihuayun.sharedui.components.RadioOption
+import com.zhiqihuayun.sharedui.components.Range
+import com.zhiqihuayun.sharedui.components.RangeValue
 import com.zhiqihuayun.sharedui.components.Input
 import com.zhiqihuayun.sharedui.components.NumberKeyboard
 import com.zhiqihuayun.sharedui.components.Picker
@@ -200,7 +202,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Picker 选择器", reviewed = true, demo = { PickerDemo() }),
         DemoComponent("PickerView 视图"),
         DemoComponent("Radio 单选", reviewed = true, demo = { RadioDemo() }),
-        DemoComponent("Range 区间选择"),
+        DemoComponent("Range 区间选择", reviewed = true, demo = { RangeDemo() }),
         DemoComponent("Rate 评分"),
         DemoComponent("SearchBar 搜索栏"),
         DemoComponent("ShortPassword 短密码"),
@@ -4867,6 +4869,150 @@ private fun RadioDemo() {
         }
         Text(
             text = d4Msg ?: "受控：外部 value 赋值仅同步刷新高亮（不触发 onChange）；点行=组件上报并宿主回写。",
+            fontSize = AppFont.sizeXs,
+            color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+    }
+}
+
+// ===== 数据录入区全新立项 Range Demo（#36 ui.range，规格 range-design-spec.html，双端 iOS 1:1） =====
+
+/** 数值展示：整数值去小数点。 */
+private fun rangeFmt(v: Double): String =
+    if (v % 1.0 == 0.0) v.toLong().toString() else v.toString()
+
+/** RangeDemo：4 段（① 基础区间拖动实时回显 ② step 离散步进+点轨吸附 ③ 动态 min 越界 clamp+禁用 ④ 受控外部 value 驱动）。 */
+@Composable
+private fun RangeDemo() {
+    Text(
+        text = "Range 区间选择组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 基础区间（拖动实时回显+重置外部驱动）② step 5 离散吸附+点击轨道跳最近钮 ③ min 越界 clamp+整组禁用 ④ 受控外部 value 驱动。双端 1:1（iOS RangeView vs Android Range）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 基础区间（受控 value 拖动回显 + 重置外部驱动）
+        Text("Demo 1 · 基础区间（min 0 · max 100 · step 1 · 初始 25–75）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1Value by remember { mutableStateOf(RangeValue(25.0, 75.0)) }
+        var d1Msg by remember { mutableStateOf<String?>(null) }
+        Range(
+            value = d1Value,
+            min = 0.0,
+            max = 100.0,
+            step = 1.0,
+            onValueChange = { v ->
+                d1Value = v
+                d1Msg = "onChange → start ${rangeFmt(v.start)} · end ${rangeFmt(v.end)}（激活段实时刷新）"
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d1Value = RangeValue(25.0, 75.0)
+                d1Msg = "外部 value=(25,75) 赋值=同步回显（不触发 onChange）"
+            }) { Text("重置 25–75", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d1Msg ?: "拖动任一端钮=step 对齐后连续回调；start/end 硬钳制不可互相越过；点已激活区域外轨道=最近钮吸附。",
+            fontSize = AppFont.sizeXs,
+            color = if (d1Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D2 · 离散步进 step 5（拖动按档吸附 + 点击轨道空段=最近钮跳档）
+        Text("Demo 2 · 离散步进（min 0 · max 100 · step 5 · 初始 20–60）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2Value by remember { mutableStateOf(RangeValue(20.0, 60.0)) }
+        var d2Msg by remember { mutableStateOf<String?>(null) }
+        Range(
+            value = d2Value,
+            min = 0.0,
+            max = 100.0,
+            step = 5.0,
+            onValueChange = { v ->
+                d2Value = v
+                d2Msg = "onChange → start ${rangeFmt(v.start)} · end ${rangeFmt(v.end)}（按 5 吸附）"
+            }
+        )
+        Text(
+            text = d2Msg ?: "拖动按 step5 档位吸附；点击轨道空段=吸附最近滑块跳到点击档位（如点 0–20 间=动 start）。",
+            fontSize = AppFont.sizeXs,
+            color = if (d2Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D3 · 值域与禁用（动态 min 越界 clamp + 整组禁用 + 重置）
+        Text("Demo 3 · 值域与禁用（min 10→60 越界自动 clamp · step 10 · 初始 10–40）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3Min by remember { mutableStateOf(10.0) }
+        var d3Value by remember { mutableStateOf(RangeValue(10.0, 40.0)) }
+        var d3Disabled by remember { mutableStateOf(false) }
+        var d3Msg by remember { mutableStateOf<String?>(null) }
+        Range(
+            value = d3Value,
+            min = d3Min,
+            max = 90.0,
+            step = 10.0,
+            disabled = d3Disabled,
+            onValueChange = { v ->
+                d3Value = v
+                d3Msg = "onChange → start ${rangeFmt(v.start)} · end ${rangeFmt(v.end)}"
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d3Min = 60.0
+                d3Msg = "外部 min=60：start 10/end 40 越界端自动 clamp → (60,60) 零宽单点（值域级 clamp 回调一次）"
+            }) { Text("改 min=60", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d3Disabled = !d3Disabled
+                d3Msg = if (d3Disabled) "整条禁用：textSecondary 40% 灰、不可拖不可点无回调" else "整条已启用"
+            }) { Text(if (d3Disabled) "启用" else "禁用", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d3Min = 10.0
+                d3Value = RangeValue(10.0, 40.0)
+                d3Msg = "重置 min=10 value=(10,40)（外部回显不触发 onChange）"
+            }) { Text("重置", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d3Msg ?: "min/max 动态改=越界端自动 clamp（start/end 贴 min 边界=零宽单点合法）；disabled 整条灰。",
+            fontSize = AppFont.sizeXs,
+            color = if (d3Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D4 · 受控外部 value 驱动（预设外部赋值仅同步回显；拖动=组件上报宿主回写）
+        Text("Demo 4 · 受控外部 value 驱动（min 0 · max 100 · 初始 40–80）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4Value by remember { mutableStateOf(RangeValue(40.0, 80.0)) }
+        var d4Msg by remember { mutableStateOf<String?>(null) }
+        Range(
+            value = d4Value,
+            min = 0.0,
+            max = 100.0,
+            onValueChange = { v ->
+                d4Value = v
+                d4Msg = "onChange → start ${rangeFmt(v.start)} · end ${rangeFmt(v.end)}（宿主回写）"
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d4Value = RangeValue(0.0, 30.0)
+                d4Msg = "外部 value=(0,30) 预设=仅同步回显（不触发 onChange）"
+            }) { Text("预设 0–30", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d4Value = RangeValue(60.0, 100.0)
+                d4Msg = "外部 value=(60,100) 预设=仅同步回显（不触发 onChange）"
+            }) { Text("预设 60–100", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d4Msg ?: "半受控：外部 value 赋值仅同步刷新滑块位置与激活段（不触发 onChange）；拖动=组件上报并宿主回写。",
             fontSize = AppFont.sizeXs,
             color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
         )

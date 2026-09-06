@@ -59,7 +59,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.number-keyboard", name: "NumberKeyboard 数字键盘", reviewed: true, create: { NumberKeyboardShowcase() }),
             DemoComponent(id: "ui.picker", name: "Picker 选择器", reviewed: true, create: { PickerShowcase() }),
             DemoComponent(id: "ui.picker-view", name: "PickerView 视图", reviewed: false, create: nil),
-            DemoComponent(id: "ui.radio", name: "Radio 单选", reviewed: false, create: nil),
+            DemoComponent(id: "ui.radio", name: "Radio 单选", reviewed: true, create: { RadioShowcase() }),
             DemoComponent(id: "ui.range", name: "Range 区间选择", reviewed: false, create: nil),
             DemoComponent(id: "ui.rate", name: "Rate 评分", reviewed: false, create: nil),
             DemoComponent(id: "ui.search-bar", name: "SearchBar 搜索栏", reviewed: false, create: nil),
@@ -5578,6 +5578,150 @@ final class CheckboxShowcase: ShowcaseViewController {
         let ordered = ["tv", "phone", "laptop", "pad"].filter { values.contains($0) }
         let names = ordered.map { displayNames[$0] ?? $0 }
         return names.isEmpty ? "无" : names.joined(separator: "、")
+    }
+}
+
+// MARK: - Radio Showcase（单选 · ui.radio · #35）
+
+/// 通用排他单选：Demo 1 单只点选/外部取消驱动；Demo 2 组排他内部自持；
+/// Demo 3 组禁用+禁用项+已选禁用保留；Demo 4 受控外部 value 驱动。与 Android RadioDemo 4 段 1:1 同构。
+final class RadioShowcase: ShowcaseViewController {
+    private var d1Feedback: UILabel?
+    private var d2Feedback: UILabel?
+    private var d3Feedback: UILabel?
+    private var d4Feedback: UILabel?
+    private var d1Radio: RadioView?
+    private var d3Group: RadioGroupView?
+    private var d4Group: RadioGroupView?
+
+    private static let languageNames: [String: String] = [
+        "zh": "中文", "en": "English", "ja": "日本語",
+    ]
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Radio", version: "v1.0", builtAt: "2026-09-06")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 单只 Radio（点选置 true · 取消仅外部驱动）") { container in
+            let radio = RadioView(label: "设为默认账本", checked: false) { [weak self] checked in
+                guard let self else { return }
+                self.d1Feedback?.text = checked ? "onChange → true（点选即确定）" : "onChange → false"
+                self.d1Feedback?.textColor = AppColor.primary
+            }
+            d1Radio = radio
+            container.addSubview(radio)
+            radio.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(AppSpace.sm)
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.trailing.lessThanOrEqualToSuperview().offset(-AppSpace.lg)
+            }
+            container.snp.makeConstraints { $0.bottom.equalTo(radio.snp.bottom).offset(AppSpace.sm) }
+        }
+        demoButtonRow(
+            ("取消选中", { [weak self] in
+                guard let self else { return }
+                self.d1Radio?.checked = false
+                self.d1Feedback?.text = "外部 checked=false 驱动取消回显（不触发 onChange）"
+                self.d1Feedback?.textColor = AppColor.textSecondary
+            })
+        )
+        d1Feedback = addDynamicInfo("单只=圆形点 20 + label 后置；半受控：点选置 true、已选再点幂等忽略（无 toggle 取消）。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · RadioGroup 排他单选（内部自持 · 未选态合法）") { container in
+            let group = RadioGroupView(options: [
+                RadioOption(value: "male", label: "男"),
+                RadioOption(value: "female", label: "女"),
+            ]) { [weak self] value in
+                guard let self else { return }
+                let name = value == "male" ? "男" : "女"
+                self.d2Feedback?.text = "onChange → \(value)（\(name)）；当前选中行圆点亮"
+                self.d2Feedback?.textColor = AppColor.primary
+            }
+            pinFullWidth(group, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(group.snp.bottom) }
+        }
+        d2Feedback = addDynamicInfo("无初值=合法未选态（不自动回填首项）；点未选行=排他切中并回调；再点已选中行=幂等忽略。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 禁用态（组开关 + 禁用项 + value 指向禁用灰保留）") { container in
+            let group = RadioGroupView(
+                options: [
+                    RadioOption(value: "express", label: "快递"),
+                    RadioOption(value: "store", label: "到店自提（暂停服务 · value 初始指向=灰点灰圈保留）", disabled: true),
+                    RadioOption(value: "reserve", label: "预约配送（已停用）", disabled: true),
+                ],
+                value: "store"
+            ) { [weak self] value in
+                guard let self else { return }
+                self.d3Feedback?.text = value == "express" ? "onChange → express（快递）" : "onChange → \(value)"
+                self.d3Feedback?.textColor = AppColor.primary
+            }
+            d3Group = group
+            pinFullWidth(group, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(group.snp.bottom) }
+        }
+        demoButtonRow(
+            ("禁用 / 启用整组", { [weak self] in
+                guard let self, let group = self.d3Group else { return }
+                group.disabled.toggle()
+                self.d3Feedback?.text = group.disabled
+                    ? "整组禁用：统一 40% 置灰、全部行不可点"
+                    : "整组已启用（禁用项仍单项灰）"
+                self.d3Feedback?.textColor = group.disabled ? AppColor.textSecondary : AppColor.primary
+            }),
+            ("外部选快递", { [weak self] in
+                guard let self else { return }
+                self.d3Group?.value = "express"
+                self.d3Feedback?.text = "外部 value=快递 切走（原选中禁用项灰圈熄灭）"
+                self.d3Feedback?.textColor = AppColor.textSecondary
+            })
+        )
+        d3Feedback = addDynamicInfo("禁用项不可点；value 指向 disabled 项=灰点灰圈只读保留；label 选中行加粗。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 受控外部 value 驱动回显（半受控）") { container in
+            let group = RadioGroupView(
+                options: [
+                    RadioOption(value: "zh", label: "中文"),
+                    RadioOption(value: "en", label: "English"),
+                    RadioOption(value: "ja", label: "日本語"),
+                ],
+                value: "zh"
+            ) { [weak self] value in
+                guard let self else { return }
+                let name = Self.languageNames[value] ?? value
+                self.d4Feedback?.text = "onChange → \(value)（\(name)）"
+                self.d4Feedback?.textColor = AppColor.primary
+            }
+            d4Group = group
+            pinFullWidth(group, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(group.snp.bottom) }
+        }
+        demoButtonRow(
+            ("选 English", { [weak self] in
+                guard let self else { return }
+                self.d4Group?.value = "en"
+                self.d4Feedback?.text = "外部 value=English 回写（同步点亮，不触发 onChange）"
+                self.d4Feedback?.textColor = AppColor.textSecondary
+            }),
+            ("重置中文", { [weak self] in
+                guard let self else { return }
+                self.d4Group?.value = "zh"
+                self.d4Feedback?.text = "外部 value=中文 重置回显（不触发 onChange）"
+                self.d4Feedback?.textColor = AppColor.textSecondary
+            })
+        )
+        d4Feedback = addDynamicInfo("受控：外部 value 赋值仅同步刷新高亮（不触发 onChange）；点行=组件上报并宿主回写。", color: AppColor.textSecondary)
     }
 }
 

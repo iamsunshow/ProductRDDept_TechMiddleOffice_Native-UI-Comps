@@ -3961,7 +3961,7 @@
         ["受控组+外部重置", "selected 外部 set（初始 A/C）；「重置」外部回写同步不触发 onChange（半受控，D3）"],
         ["组禁用+混禁用项", "组整体禁用开关 + 单项 disabled 混合 + 长 label 单行省略（D4）"]
       ],
-      "note": "复选双形态组件（数据录入区缺口补齐批之一，任务清单 #25）：2026-09-06 门禁 A AI 代评通过（规格 design-spec/checkbox-design-spec.html + review-checkbox-A.md，P1–P4 全 A；与协议行 AgreementCheckRow（android foundation/design/AgreementCheckbox.kt=圆形 12dp 富文本业务收编）划界不混入=收编不动；通用 Checkbox=方形 20 圆角 6 与 Vant 对齐）+ 双端实现入库（CheckboxView.swift=CheckboxView 单只+CheckboxGroupView 组+CheckGlyphView 自绘 / Checkbox.kt=Checkbox+CheckboxGroup Canvas 同坐标 1:1）+ iOS CheckboxShowcase/Android CheckboxDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。半受控 checked/selected=外部赋值同步回显不触发 onChange；disabled 单只/组/选项级三态（已选禁用灰勾保留）。验证版本 v1.4.0；待 C1.5 用户 Demo 实机验收后补验收记录；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "复选双形态组件（数据录入区缺口补齐批之一，任务清单 #25）：2026-09-06 门禁 A AI 代评通过（规格 design-spec/checkbox-design-spec.html + review-checkbox-A.md，P1–P4 全 A；与协议行 AgreementCheckRow（android foundation/design/AgreementCheckbox.kt=圆形 12dp 富文本业务收编）划界不混入=收编不动；通用 Checkbox=方形 20 圆角 6 与 Vant 对齐）+ 双端实现入库（CheckboxView.swift=CheckboxView 单只+CheckboxGroupView 组+CheckGlyphView 自绘 / Checkbox.kt=Checkbox+CheckboxGroup Canvas 同坐标 1:1）+ iOS CheckboxShowcase/Android CheckboxDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。半受控 checked/selected=外部赋值同步回显不触发 onChange；disabled 单只/组/选项级三态（已选禁用灰勾保留）。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过了，继续两个新组件吧」；复验前 iOS Showcase 运行期崩溃修复=DemoShowcases 共享辅助 pinFullWidth 缺 container.addSubview 先建 equalToSuperview 约束 → 补入树再建约束，子仓 77d56ad）；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -4013,7 +4013,7 @@
         ["密码与 maxLength", "secure 掩码回调原文 + 截断到 6 位（D3）"],
         ["禁用/trailing/外部赋值", "disabled 开关 + 单位尾槽 + 外部赋值回显（D4）"]
       ],
-      "note": "通用单行文本输入组件（数据录入区缺口补齐批之二，任务清单 #29）：2026-09-06 门禁 A AI 代评通过（规格 design-spec/input-design-spec.html + review-input-A.md，P1–P4 全 A；label/必填星/校验=FormFieldRow 职责壳不变红=本组件纯输入不含校验红线）+ 双端实现入库（InputView.swift=UITextField 受控+自绘白叉清除钮 / Input.kt=BasicTextField 受控+Canvas 清除钮）+ iOS InputShowcase/Android InputDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。受控 value 必传+onTextChange 直通（外部赋值=同步回显）；keyboard 四值 text/number/phone/email 两端映射；secure 掩码回调原文；maxLength 仅输入路径截断（含 paste）；Android sharedui AppInputField 系列=视觉前身可平滑迁移。验证版本 v1.4.0；待 C1.5 用户 Demo 实机验收后补验收记录；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "通用单行文本输入组件（数据录入区缺口补齐批之二，任务清单 #29）：2026-09-06 门禁 A AI 代评通过（规格 design-spec/input-design-spec.html + review-input-A.md，P1–P4 全 A；label/必填星/校验=FormFieldRow 职责壳不变红=本组件纯输入不含校验红线）+ 双端实现入库（InputView.swift=UITextField 受控+自绘白叉清除钮 / Input.kt=BasicTextField 受控+Canvas 清除钮）+ iOS InputShowcase/Android InputDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。受控 value 必传+onTextChange 直通（外部赋值=同步回显）；keyboard 四值 text/number/phone/email 两端映射；secure 掩码回调原文；maxLength 仅输入路径截断（含 paste）；Android sharedui AppInputField 系列=视觉前身可平滑迁移。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过了，继续两个新组件吧」；复验前 iOS Showcase 运行期崩溃修复=DemoShowcases 共享辅助 pinFullWidth 缺 container.addSubview 先建 equalToSuperview 约束 → 补入树再建约束，子仓 77d56ad）；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     }

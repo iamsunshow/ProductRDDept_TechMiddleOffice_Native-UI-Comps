@@ -118,6 +118,7 @@ import com.zhiqihuayun.sharedui.components.CascaderOption
 import com.zhiqihuayun.sharedui.components.CascaderResult
 import com.zhiqihuayun.sharedui.components.Form
 import com.zhiqihuayun.sharedui.components.FormFieldRow
+import com.zhiqihuayun.sharedui.components.InputNumber
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -177,7 +178,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("DatePickerView 视图"),
         DemoComponent("Form 表单", reviewed = true, demo = { FormDemo() }),
         DemoComponent("Input 输入框"),
-        DemoComponent("InputNumber 数字输入"),
+        DemoComponent("InputNumber 数字输入", reviewed = true, demo = { InputNumberDemo() }),
         DemoComponent("Menu 菜单"),
         DemoComponent("NumberKeyboard 数字键盘"),
         DemoComponent("Picker 选择器"),
@@ -4146,3 +4147,88 @@ private fun FormDemo() {
         )
     }
 }
+
+/** InputNumberDemo：4 段排查（D1 数量 / D2 人数 / D3 小数步进 / D4 禁用+重置半受控）。 */
+@Composable
+private fun InputNumberDemo() {
+    Text(
+        text = "InputNumber 数字输入组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 数量步进 ② 人数 min/max ③ step 0.5 precision 1 小数定点 ④ 禁用+外部重置（半受控）。双端 1:1（iOS InputNumberView vs Android InputNumber）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 数量步进
+        Text("Demo 1 · 数量步进（min 1 · max 99 · step 1，onChange 回显）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1 by remember { mutableStateOf(1.0) }
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text("购买数量", fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+            Spacer(Modifier.weight(1f))
+            InputNumber(value = d1, min = 1.0, max = 99.0, onChange = { d1 = it })
+        }
+        Text("数量 1；点 − / + 步进 1，到 1 / 99 对应钮灰 40% 幂等。当前：${fmtStep(d1)}", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D2 · 提前预约人数
+        Text("Demo 2 · 提前预约人数（min 1 · max 6，value=3）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2 by remember { mutableStateOf(3.0) }
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text("提前预约人数", fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+            Spacer(Modifier.weight(1f))
+            InputNumber(value = d2, min = 1.0, max = 6.0, onChange = { d2 = it })
+        }
+        Text("初始 3；仅 −/+ 步进，无键盘直输（一期）。当前：${fmtStep(d2)}", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D3 · 体重小数步进
+        Text("Demo 3 · 体重小数步进（min 20 · max 200 · step 0.5 · precision 1）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3 by remember { mutableStateOf(50.0) }
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text("体重（kg）", fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+            Spacer(Modifier.weight(1f))
+            InputNumber(value = d3, min = 20.0, max = 200.0, step = 0.5, precision = 1, onChange = { d3 = it })
+        }
+        Text("定点运算防浮点尾差（BigDecimal HALF_UP）；50.0 保留 1 位。当前：${"%.1f".format(d3)}", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D4 · 禁用/重置（半受控）
+        Text("Demo 4 · 组队人数 + 禁用/重置（半受控）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4 by remember { mutableStateOf(2.0) }
+        var d4Disabled by remember { mutableStateOf(false) }
+        var d4Msg by remember { mutableStateOf<String?>(null) }
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text("组队人数", fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+            Spacer(Modifier.weight(1f))
+            InputNumber(value = d4, min = 1.0, max = 10.0, disabled = d4Disabled, onChange = { d4 = it })
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d4 = 2.0
+                d4Msg = "外部 value=2 回显（不触发 onChange，组件纯回写）"
+            }) { Text("重置为 2", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d4Disabled = !d4Disabled
+                d4Msg = if (d4Disabled) "已禁用：整控件 40% 置灰不可点" else "已启用"
+            }) { Text(if (d4Disabled) "启用" else "禁用", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d4Msg ?: "半受控：点按增减=组件自管并 onChange；外部重置 value 仅同步显示。",
+            fontSize = AppFont.sizeXs,
+            color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+    }
+}
+
+/** 步进值整数展示去小数点（1.0 → 1）。 */
+private fun fmtStep(value: Double): String =
+    if (value % 1.0 == 0.0) value.toInt().toString() else value.toString()

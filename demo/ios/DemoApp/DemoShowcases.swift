@@ -54,7 +54,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.date-picker-view", name: "DatePickerView 视图", reviewed: false, create: nil),
             DemoComponent(id: "ui.form", name: "Form 表单", reviewed: true, create: { FormShowcase() }),
             DemoComponent(id: "ui.input", name: "Input 输入框", reviewed: false, create: nil),
-            DemoComponent(id: "ui.input-number", name: "InputNumber 数字输入", reviewed: false, create: nil),
+            DemoComponent(id: "ui.input-number", name: "InputNumber 数字输入", reviewed: true, create: { InputNumberShowcase() }),
             DemoComponent(id: "ui.menu", name: "Menu 菜单", reviewed: false, create: nil),
             DemoComponent(id: "ui.number-keyboard", name: "NumberKeyboard 数字键盘", reviewed: false, create: nil),
             DemoComponent(id: "ui.picker", name: "Picker 选择器", reviewed: false, create: nil),
@@ -5113,6 +5113,130 @@ final class FormShowcase: ShowcaseViewController {
             container.snp.makeConstraints { $0.bottom.equalTo(form2.snp.bottom) }
         }
         d4Feedback = addDynamicInfo("多分组卡上下排（间距 md）· 提交槽=库内/宿主按钮（置于 Form.submitView）。", color: AppColor.textSecondary)
+    }
+}
+
+// MARK: - InputNumber Showcase（数字输入 · ui.input-number · #30）
+
+final class InputNumberShowcase: ShowcaseViewController {
+    private var d1Feedback: UILabel?
+    private var d2Feedback: UILabel?
+    private var d3Feedback: UILabel?
+    private var d4Feedback: UILabel?
+    private var d4Stepper: InputNumberView?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "InputNumber", version: "v1.0", builtAt: "2026-09-06")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    /// 步进行：左侧 label + 右侧步进器（垂直居中）。
+    @discardableResult
+    private func fieldRow(label: String, input: UIView, in container: UIView, after previous: UIView? = nil) -> UIView {
+        let labelView = UILabel()
+        labelView.text = label
+        labelView.font = .systemFont(ofSize: AppFont.sizeSm)
+        labelView.textColor = AppColor.textPrimary
+        container.addSubview(labelView)
+        container.addSubview(input)
+        labelView.snp.makeConstraints { make in
+            if let previous {
+                make.top.equalTo(previous.snp.bottom).offset(AppSpace.md)
+            } else {
+                make.top.equalToSuperview()
+            }
+            make.leading.equalToSuperview().offset(AppSpace.lg)
+            make.height.equalTo(32)
+        }
+        input.snp.makeConstraints { make in
+            make.centerY.equalTo(labelView.snp.centerY)
+            make.trailing.equalToSuperview().offset(-AppSpace.lg)
+        }
+        labelView.snp.makeConstraints { make in
+            make.trailing.lessThanOrEqualTo(input.snp.leading).offset(-AppSpace.sm)
+        }
+        return labelView
+    }
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 数量步进（min 1 · max 99 · step 1，onChange 回显）") { container in
+            let stepper = InputNumberView(value: 1, min: 1, max: 99) { [weak self] newValue in
+                guard let self else { return }
+                self.d1Feedback?.text = "onChange → 数量 \(Self.trim0(newValue))（边界自动禁用 −/+）"
+                self.d1Feedback?.textColor = AppColor.primary
+            }
+            let last = fieldRow(label: "购买数量", input: stepper, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(last.snp.bottom) }
+        }
+        d1Feedback = addDynamicInfo("数量 1；点 − / + 步进 1，到 1 / 99 对应钮灰 40% 幂等。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 提前预约人数（min 1 · max 6，value=3）") { container in
+            let stepper = InputNumberView(value: 3, min: 1, max: 6) { [weak self] newValue in
+                guard let self else { return }
+                self.d2Feedback?.text = "onChange → 预约 \(Self.trim0(newValue)) 人"
+                self.d2Feedback?.textColor = AppColor.primary
+            }
+            let last = fieldRow(label: "提前预约人数", input: stepper, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(last.snp.bottom) }
+        }
+        d2Feedback = addDynamicInfo("初始 3；仅 −/＋ 步进，无键盘直输（一期）。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 体重小数步进（min 20 · max 200 · step 0.5 · precision 1）") { container in
+            let stepper = InputNumberView(value: 50, min: 20, max: 200, step: 0.5, precision: 1) { [weak self] newValue in
+                guard let self else { return }
+                self.d3Feedback?.text = "onChange → \(Self.trimDecimal(newValue, precision: 1)) kg（step 0.5 定点，50.0 保留 1 位）"
+                self.d3Feedback?.textColor = AppColor.primary
+            }
+            let last = fieldRow(label: "体重（kg）", input: stepper, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(last.snp.bottom) }
+        }
+        d3Feedback = addDynamicInfo("定点运算防浮点尾差（BigDecimal 语义等价 Android）；精度位数=precision。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 组队人数 + 禁用/重置（半受控）") { container in
+            let stepper = InputNumberView(value: 2, min: 1, max: 10) { [weak self] newValue in
+                guard let self else { return }
+                self.d4Feedback?.text = "onChange → 组队 \(Self.trim0(newValue)) 人"
+                self.d4Feedback?.textColor = AppColor.primary
+            }
+            d4Stepper = stepper
+            let last = fieldRow(label: "组队人数", input: stepper, in: container)
+            container.snp.makeConstraints { $0.bottom.equalTo(last.snp.bottom) }
+        }
+        demoButtonRow(
+            ("重置为 2", { [weak self] in
+                guard let self else { return }
+                self.d4Stepper?.value = 2
+                self.d4Feedback?.text = "外部 value=2 回显（不触发 onChange，组件纯回写）"
+                self.d4Feedback?.textColor = AppColor.textSecondary
+            }),
+            ("禁用 / 启用", { [weak self] in
+                guard let self, let stepper = self.d4Stepper else { return }
+                stepper.disabled.toggle()
+                self.d4Feedback?.text = stepper.disabled ? "已禁用：整控件 40% 置灰不可点" : "已启用"
+                self.d4Feedback?.textColor = stepper.disabled ? AppColor.textSecondary : AppColor.primary
+            })
+        )
+        d4Feedback = addDynamicInfo("半受控：点按增减=组件自管并 onChange；外部重置 value 仅同步显示。", color: AppColor.textSecondary)
+    }
+
+    /// 整数展示（precision=0）去小数点。
+    private static func trim0(_ value: Double) -> String {
+        value.truncatingRemainder(dividingBy: 1) == 0 ? String(Int(value)) : "\(value)"
+    }
+
+    private static func trimDecimal(_ value: Double, precision: Int) -> String {
+        let f = pow(10, Double(precision))
+        return String(format: "%.\(precision)f", (value * f).rounded() / f)
     }
 }
 

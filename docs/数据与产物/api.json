@@ -1577,6 +1577,45 @@
       "reviewed": true
     },
     {
+      "id": "ui.input-number",
+      "name": "数字输入 InputNumber",
+      "category": "ui",
+      "summary": "步进式数字输入内容组件（无弹层/无键盘拉起面）：− 值 +，宿主传值按 step 增减、中段显示当前值；一期无键盘直输/长按连续（键盘=Input #29 职责）；半受控 value、min/max 边界对应按钮禁用灰 40%、step/precision 定点收敛防浮点、disabled 整控件禁用；每次有效增减触发 onChange",
+      "capabilities": ["数字输入", "步进器", "InputNumber", "数字", "step", "stepper"],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "InputNumberView.swift（− 值 + 三区；壳 bgPage+hairline+radiusSm；定点=value×10^precision 整数步进再÷回，展示固定 precision 位；intrinsicContentSize 推宽）"
+        },
+        "android": {
+          "state": "available",
+          "note": "InputNumber.kt（Row 32dp 壳；BigDecimal 定点 HALF_UP + LaunchedEffect 外部 value 回写 internal；语法差异表内放行）"
+        }
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.input-number",
+      "industry_names": ["InputNumber", "数字输入", "步进器", "step"],
+      "props": [
+        ["value?", "Double", "否，默认 min 否则 0", "当前值；外部重新赋值=同步刷新显示（半受控，不触发 onChange）"],
+        ["min?", "Double", "否", "最小值；到达边界 − 钮禁用"],
+        ["max?", "Double", "否", "最大值；到达边界 + 钮禁用"],
+        ["step", "Double", "否，默认 1", "步进量（可与 precision 组合，如 0.5/1）"],
+        ["precision", "Int", "否，默认 0", "显示与运算收敛精度（定点 10^precision 防浮点尾差）；固定小数位展示"],
+        ["disabled?", "Boolean", "否", "整控件禁用（灰 40% 不可点，优先级高于边界）"],
+        ["onChange", "回调", "是", "有效增减回调 onChange(newValue)；边界/禁用幂等不回调"]
+      ],
+      "events": [],
+      "demos": [
+        ["数量步进", "购买数量 min1 max99 step1；onChange 回显；到 1/99 边界 −/+ 禁用灰 40% 幂等（D1）"],
+        ["预约人数", "提前预约人数 min1 max6 value3；仅步进无键盘（一期）（D2）"],
+        ["体重小数步进", "min20 max200 step0.5 precision1；定点运算 50.0 保留 1 位（D3）"],
+        ["禁用与外部重置", "组队人数 min1 max10；「禁用/启用」整控件 40% 置灰、外部 value=2 回显不触发 onChange（半受控）（D4）"]
+      ],
+      "note": "步进式数字输入内容组件（数据录入区第二批三件之二，任务清单 #30）：对标 Vant Stepper 收敛半受控+无键盘（一期无直输/长按，键盘=Input #29 职责、悬浮面板=不承载）；Double 宿主值 + 显式 precision 定点（不引入 Decimal 类型，避免与宿主 Double 契约异构）；金额大数精度=MoneyFormat/宿主策略。2026-09-06 门禁 A AI 代评通过（规格 input-number-design-spec.html + review-input-number-A.md，P1–P4 全 A）+ 双端实现入库（InputNumberView.swift / InputNumber.kt + iOS InputNumberShowcase/Android InputNumberDemo 4 段 1:1，demo 徽标 v1.0；Android assembleDebug 编译通过）。待 C1.5 用户实机验收；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
+    },
+    {
       "id": "ui.layout",
       "name": "布局 Layout",
       "category": "ui",

@@ -126,6 +126,7 @@ import com.zhiqihuayun.sharedui.components.Checkbox
 import com.zhiqihuayun.sharedui.components.CheckboxGroup
 import com.zhiqihuayun.sharedui.components.CheckboxOption
 import com.zhiqihuayun.sharedui.components.Input
+import com.zhiqihuayun.sharedui.components.NumberKeyboard
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -187,6 +188,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Input 输入框", reviewed = true, demo = { InputDemo() }),
         DemoComponent("InputNumber 数字输入", reviewed = true, demo = { InputNumberDemo() }),
         DemoComponent("Menu 菜单", reviewed = true, demo = { MenuDemo() }),
+        DemoComponent("NumberKeyboard 数字键盘", reviewed = true, demo = { NumberKeyboardDemo() }),
         DemoComponent("NumberKeyboard 数字键盘"),
         DemoComponent("Picker 选择器"),
         DemoComponent("PickerView 视图"),
@@ -4087,6 +4089,172 @@ private fun MenuDemo() {
 private fun optionText(columns: List<MenuColumn>, key: String, value: String): String {
     return columns.firstOrNull { it.key == key }
         ?.options?.firstOrNull { it.value == value }?.text ?: value
+}
+
+/** 数字键盘受控输入显示行（高 56 白底右对齐，与 iOS NumberKeyboardShowcase 数字行同构）。 */
+@Composable
+private fun KeyboardDisplay(text: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .background(AppColor.bgCard),
+        contentAlignment = Alignment.CenterEnd
+    ) {
+        Text(
+            text = text,
+            fontSize = AppFont.sizeMd,
+            color = AppColor.textPrimary,
+            maxLines = 1,
+            modifier = Modifier.padding(end = AppSpace.lg)
+        )
+    }
+}
+
+/** NumberKeyboardDemo：4 段排查（D1 金额小数 / D2 验证码纯整数限位 / D3 身份证 extraKey=X / D4 禁用态+外部驱动）。双端 1:1（iOS NumberKeyboardView vs Android NumberKeyboard）。 */
+@Composable
+private fun NumberKeyboardDemo() {
+    Text(
+        text = "NumberKeyboard 数字键盘组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 金额录入（小数+确认置灰）② 验证码（纯整数 6 位）③ 身份证（extraKey=X）④ 禁用态+确认列外部驱动。双端 1:1。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 金额录入（小数 + 确认置灰）
+        Text("Demo 1 · 金额录入（点 . 上屏，空值时确认置灰）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1Value by remember { mutableStateOf("") }
+        var d1ConfirmDis by remember { mutableStateOf(true) }
+        var d1Info by remember { mutableStateOf("金额输入为 0 或空时「确认」置灰不可点。") }
+        KeyboardDisplay(text = if (d1Value.isEmpty()) "¥0" else "¥$d1Value")
+        NumberKeyboard(
+            onInput = { ch ->
+                if (d1Value.length >= 9) return@NumberKeyboard
+                if (ch == ".") {
+                    if (d1Value.isEmpty() || d1Value.contains('.')) return@NumberKeyboard
+                }
+                d1Value += ch
+                d1ConfirmDis = d1Value.isEmpty()
+            },
+            onDelete = {
+                if (d1Value.isNotEmpty()) {
+                    d1Value = d1Value.dropLast(1)
+                    d1ConfirmDis = d1Value.isEmpty()
+                }
+            },
+            onConfirm = {
+                d1ConfirmDis = false
+                d1Info = "确认金额：¥${if (d1Value.isEmpty()) "0" else d1Value}"
+            },
+            confirmDisabled = d1ConfirmDis
+        )
+        Text(d1Info, fontSize = AppFont.sizeXs, color = AppColor.primary)
+        Text("底行首格=.；点数字/小数点=onInput 上屏、删除=onDelete、右列确认=onConfirm（空值灰不可点）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D2 · 短信验证码（纯整数 6 位，无小数点）
+        Text("Demo 2 · 短信验证码（6 位整数，showDot=false）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2Value by remember { mutableStateOf("") }
+        var d2ConfirmDis by remember { mutableStateOf(true) }
+        var d2Info by remember { mutableStateOf("满 6 位确认转 primary；未满置灰不可点。") }
+        KeyboardDisplay(text = d2Value)
+        NumberKeyboard(
+            onInput = { ch ->
+                if (d2Value.length >= 6 || ch == ".") return@NumberKeyboard
+                d2Value += ch
+                d2ConfirmDis = d2Value.length != 6
+            },
+            onDelete = {
+                if (d2Value.isNotEmpty()) {
+                    d2Value = d2Value.dropLast(1)
+                    d2ConfirmDis = d2Value.length != 6
+                }
+            },
+            onConfirm = {
+                d2ConfirmDis = false
+                d2Info = "验证码确认：$d2Value"
+            },
+            showDot = false,
+            confirmDisabled = d2ConfirmDis
+        )
+        Text(d2Info, fontSize = AppFont.sizeXs, color = AppColor.primary)
+        Text("showDot=false → 底行首格空占位不可点；仅数字上屏。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D3 · 身份证（extraKey="X"，限 18 位）
+        Text("Demo 3 · 身份证号（extraKey=X，限 18 位）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3Value by remember { mutableStateOf("") }
+        var d3ConfirmDis by remember { mutableStateOf(true) }
+        var d3Info by remember { mutableStateOf("extraKey=\"X\" 替换底行首格，X 与数字同走 onInput。") }
+        KeyboardDisplay(text = d3Value)
+        NumberKeyboard(
+            onInput = { ch ->
+                if (d3Value.length >= 18) return@NumberKeyboard
+                d3Value += ch
+                d3ConfirmDis = d3Value.isEmpty()
+            },
+            onDelete = {
+                if (d3Value.isNotEmpty()) {
+                    d3Value = d3Value.dropLast(1)
+                    d3ConfirmDis = d3Value.isEmpty()
+                }
+            },
+            onConfirm = {
+                d3ConfirmDis = false
+                d3Info = "已录入身份证号：$d3Value（共 ${d3Value.length} 位）"
+            },
+            extraKey = "X",
+            confirmDisabled = d3ConfirmDis
+        )
+        Text(d3Info, fontSize = AppFont.sizeXs, color = AppColor.primary)
+        Text("点 X 底键=X 文本上屏（onInput），删除/退格/确认同上。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+
+        // D4 · 禁用态 + 确认列外部驱动
+        Text("Demo 4 · 禁用态 + 确认列外部驱动", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4Value by remember { mutableStateOf("") }
+        var d4Disabled by remember { mutableStateOf(false) }
+        var d4ConfirmDis by remember { mutableStateOf(false) }
+        var d4Info by remember { mutableStateOf("disabled=整键盘 40% 灰不可点；confirmDisabled=仅确认列灰（其余键可用）。") }
+        KeyboardDisplay(text = if (d4Value.isEmpty()) "135****4737" else d4Value)
+        NumberKeyboard(
+            onInput = { ch ->
+                if (d4Value.length >= 11 || ch == ".") return@NumberKeyboard
+                d4Value += ch
+            },
+            onDelete = {
+                if (d4Value.isNotEmpty()) d4Value = d4Value.dropLast(1)
+            },
+            onConfirm = {
+                d4ConfirmDis = false
+                d4Info = "确认：${if (d4Value.isEmpty()) "135****4737" else d4Value}"
+            },
+            confirmDisabled = d4ConfirmDis,
+            disabled = d4Disabled
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d4Disabled = !d4Disabled
+                d4Info = if (d4Disabled) "键盘已禁用（整键盘 40% 灰不可点），点下方钮恢复。" else "键盘已启用。"
+            }) { Text(if (d4Disabled) "启用键盘" else "禁用键盘", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d4ConfirmDis = !d4ConfirmDis
+                d4Info = if (d4ConfirmDis) "确认列已置灰（buttonDisabled 不可点），其余键可用。" else "确认列已恢复 primary。"
+            }) { Text(if (d4ConfirmDis) "确认列恢复" else "确认列置灰", fontSize = AppFont.sizeXs) }
+        }
+        Text(d4Info, fontSize = AppFont.sizeXs, color = AppColor.primary)
+    }
 }
 
 /** CascaderDemo：4 段排查（D1 基础三级 / D2 深浅混合+禁用 / D3 深层回退 / D4 受控外部驱动）。 */

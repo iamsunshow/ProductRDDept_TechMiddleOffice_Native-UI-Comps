@@ -4052,6 +4052,47 @@
       "note": "菜单（数据录入区第二批三件之 3，任务清单 #31）：嵌入式下拉单选（菜单栏 ≤4 列+内联展开面板无遮罩浮层），对标 NutUI Menu 收敛为库内设计语言；与 Cascader（多级级联）/ Picker（常驻/弹层选择）/ OptionPicker（Modal sheet）划界=本组件单层每列平铺单选+菜单栏回显选中值。2026-09-06 门禁 A AI 代评通过（规格 design-spec/menu-design-spec.html + review-menu-A.md，P1–P4 全 A）+ 同日双端实现入库（MenuView.swift=命令式 UIKit 半受控 / Menu.kt=声明式 Compose）+ iOS MenuShowcase/Android MenuDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。C1.5 ✅ 2026-09-06 用户双端 Demo 实机验收通过收编（原话「通过，继续下一个组件」）；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
+    },
+    {
+      "id": "ui.number-keyboard",
+      "name": "数字键盘 NumberKeyboard",
+      "category": "ui",
+      "summary": "内嵌式数字键盘面板（无自带遮罩/浮层，Popup 悬浮版二期）：4 行×4 列键格=1~9 三行 + 底行（首格=extraKey 文本，否则 showDot=true 显示 .、false 且无 extraKey=灰「·」空占位不可点；中格=0；末格=删除）+ 右列「确认」竖条整列主色（固定高 208，白底 hairline 网格线）；纯事件回调（键盘零状态、无内部值）：数字/小数/extraKey 文本=onInput(字符)、退格=onDelete()、点确认列=onConfirm()，值由宿主输入模型持有（对齐 Input 受控惯例）；开关=confirmText/showDot/extraKey/confirmDisabled（仅确认列灰 40%）/disabled（整键盘 40% 灰不可点）；覆盖金额（.）/验证码（纯整数）/身份证（extraKey=X）三场景；与业务记账 AmountKeyboard（business.amount-keyboard）划界=本组件通用裸键格无金额语义；anti_goals 二期=遮罩底部弹层+滑入动画（随 Popup/Overlay 组合）、乱序 randomKey、长按连删、振动",
+      "capabilities": ["数字键盘", "NumberKeyboard", "支付键盘", "验证码键盘", "自定义键盘", "键盘面板"],
+      "platforms": {
+        "ios": { "state": "available", "note": "NumberKeyboardView.swift：UIView 子类，frame 布局（layoutSubviews 按 bounds 计算 4 列×4 行 + 右列确认竖条），键为 UIButton；onInput/onDelete/onConfirm 闭包；confirmDisabled/disabled 属性 didSet 刷新灰态；intrinsicContentSize 高=208" },
+        "android": { "state": "available", "note": "NumberKeyboard.kt：@Composable NumberKeyboard(...) 同构声明式，weight 等分 3 数字列 + 1 确认列；底层透 AppColor.border 网格线；disabled=alpha 40%" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/NumberKeyboardView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/NumberKeyboard.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.number-keyboard",
+      "industry_names": ["数字键盘", "NumberKeyboard", "安全键盘", "自定义键盘", "支付键盘"],
+      "props": [
+        ["onInput", "回调", "是", "数字 0-9 / 小数 . / extraKey 文本上屏回调 onInput(字符)"],
+        ["onDelete?", "回调", "否", "退格回调（无=删除键灰禁不可点）"],
+        ["onConfirm?", "回调", "否", "点确认列回调"],
+        ["confirmText", "String", "否", "确认列文案，默认「确认」"],
+        ["showDot", "Boolean", "否", "底行首格是否显示小数点键，默认 true"],
+        ["extraKey?", "String", "否", "自定义底键文本（如身份证 X）；设置时替换底行首格"],
+        ["confirmDisabled", "Boolean", "否", "仅确认列 buttonDisabled 灰不可点（其余键可用），默认 false"],
+        ["disabled", "Boolean", "否", "整键盘 alpha 40% 灰不可点，默认 false"]
+      ],
+      "events": [],
+      "demos": [
+        ["金额录入（小数+确认置灰）", "底行首格 .；点数字/小数点=onInput 上屏、删除=onDelete、确认=onConfirm（D1）"],
+        ["短信验证码（纯整数 6 位）", "showDot=false → 底行首格空占位不可点；仅数字上屏、满 6 位确认转 primary（D2）"],
+        ["身份证号（extraKey=X）", "extraKey=\"X\" 替换底行首格，X 与数字同走 onInput，限 18 位（D3）"],
+        ["禁用态 + 确认列外部驱动", "disabled=整键盘灰 40% 不可点；confirmDisabled 独立控制确认列（D4）"]
+      ],
+      "note": "数字键盘（数据录入区 #32，全新立项）：内嵌式数字键盘面板=4 行×4 列键格（1~9 + 底行/0/删除 + 右列确认竖条，固定高 208），块状白底网格线风格（无遮罩无浮层收敛）；纯事件回调 onInput/onDelete/onConfirm 键盘零状态、值宿主自理（对齐 Input #29 受控惯例）；disabled/confirmDisabled/showDot/extraKey/confirmText 开关；与业务 AmountKeyboard（记账金额，business.amount-keyboard，金额千分位/小数）划界不混入；anti_goals 二期=遮罩底部弹层+滑入动画（随 Popup #54/Overlay #6 组合）、乱序 randomKey、长按连删、振动。2026-09-06 门禁 A AI 代评通过（规格 design-spec/number-keyboard-design-spec.html + review-number-keyboard-A.md，P1–P4 全 A）+ 同日双端实现入库（NumberKeyboardView.swift=命令式 UIKit frame 布局 / NumberKeyboard.kt=声明式 Compose weight 等分）+ iOS NumberKeyboardShowcase / Android NumberKeyboardDemo 4 段 1:1（D1 金额/D2 验证码/D3 身份证 X/D4 禁用态+外部驱动），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0；待 C1.5 用户 demo 实机验收 → C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
     }
   ],
   "businessExtensions": [

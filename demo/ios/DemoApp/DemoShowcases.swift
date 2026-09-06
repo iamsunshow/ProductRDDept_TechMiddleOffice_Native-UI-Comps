@@ -56,7 +56,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.input", name: "Input 输入框", reviewed: true, create: { InputShowcase() }),
             DemoComponent(id: "ui.input-number", name: "InputNumber 数字输入", reviewed: true, create: { InputNumberShowcase() }),
             DemoComponent(id: "ui.menu", name: "Menu 菜单", reviewed: true, create: { MenuShowcase() }),
-            DemoComponent(id: "ui.number-keyboard", name: "NumberKeyboard 数字键盘", reviewed: false, create: nil),
+            DemoComponent(id: "ui.number-keyboard", name: "NumberKeyboard 数字键盘", reviewed: true, create: { NumberKeyboardShowcase() }),
             DemoComponent(id: "ui.picker", name: "Picker 选择器", reviewed: false, create: nil),
             DemoComponent(id: "ui.picker-view", name: "PickerView 视图", reviewed: false, create: nil),
             DemoComponent(id: "ui.radio", name: "Radio 单选", reviewed: false, create: nil),
@@ -5722,6 +5722,190 @@ private extension ShowcaseViewController {
             make.leading.equalToSuperview().offset(AppSpace.lg)
             make.trailing.equalToSuperview().offset(-AppSpace.lg)
         }
+    }
+}
+
+/// NumberKeyboard 数字键盘 Demo（任务清单 #32，验证组件库 v1.4.0，demo 徽标 v1.0）。
+/// D1 金额录入（底行首格 .）/ D2 短信验证码（纯整数限 6 位，showDot=false 首格空占位）/
+/// D3 身份证（extraKey="X" 底键上屏，限 18 位）/ D4 禁用态 + 确认列外部驱动。
+final class NumberKeyboardShowcase: ShowcaseViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "NumberKeyboard 数字键盘", version: "v1.0", builtAt: "2026-09-06")
+        addInfo("内嵌式数字键盘面板：4 行×4 列键格（1~9 + 底行/0/删除 + 右列确认竖条），纯事件回调零状态，值由宿主持有。")
+        addInfo("禁用：disabled=整键盘 40% 灰不可点；confirmDisabled=仅确认列灰不可点。")
+
+        // D1 金额录入（小数 + 确认置灰）
+        addSection(title: "Demo 1 · 金额录入") { container in
+            let field = NumberKeyboardShowcase.makeField()
+            self.pinFullWidth(field, in: container)
+            field.snp.makeConstraints { $0.height.equalTo(56) }
+
+            var value = "" {
+                didSet { field.text = value.isEmpty ? "¥0" : "¥\(value)" }
+            }
+            value = ""
+            var keyboard: NumberKeyboardView!
+            keyboard = NumberKeyboardView(
+                onInput: { ch in
+                    guard value.count < 9 else { return }
+                    if ch == "." {
+                        guard !value.contains("."), !value.isEmpty else { return }
+                    }
+                    value.append(ch)
+                    keyboard.confirmDisabled = value.isEmpty
+                },
+                onDelete: {
+                    if !value.isEmpty { value.removeLast(); keyboard.confirmDisabled = value.isEmpty }
+                },
+                onConfirm: {
+                    keyboard.confirmDisabled = false
+                    self.setD1Message("确认金额：¥\(value.isEmpty ? "0" : value)")
+                }
+            )
+            self.pinFullWidth(keyboard, in: container, after: field)
+            keyboard.confirmDisabled = true
+        }
+        feedbackLabel1 = addDynamicInfo("金额输入为 0 或空时「确认」置灰不可点。")
+
+        // D2 短信验证码（纯整数 6 位，无小数点）
+        addSection(title: "Demo 2 · 短信验证码（6 位）") { container in
+            let field = NumberKeyboardShowcase.makeField()
+            self.pinFullWidth(field, in: container)
+            field.snp.makeConstraints { $0.height.equalTo(56) }
+
+            var value = "" {
+                didSet { field.text = value }
+            }
+            value = ""
+            var keyboard: NumberKeyboardView!
+            keyboard = NumberKeyboardView(
+                onInput: { ch in
+                    guard value.count < 6 else { return }
+                    guard ch != "." else { return }
+                    value.append(ch)
+                    keyboard.confirmDisabled = value.count != 6
+                },
+                onDelete: {
+                    if !value.isEmpty { value.removeLast(); keyboard.confirmDisabled = value.count != 6 }
+                },
+                onConfirm: {
+                    keyboard.confirmDisabled = false
+                    self.setD2Message("验证码确认：\(value)")
+                },
+                showDot: false
+            )
+            self.pinFullWidth(keyboard, in: container, after: field)
+            keyboard.confirmDisabled = true
+        }
+        feedbackLabel2 = addDynamicInfo("showDot=false → 底行首格空占位；满 6 位确认转 primary。")
+
+        // D3 身份证（extraKey="X"，限 18 位）
+        addSection(title: "Demo 3 · 身份证号（18 位，含 X）") { container in
+            let field = NumberKeyboardShowcase.makeField()
+            self.pinFullWidth(field, in: container)
+            field.snp.makeConstraints { $0.height.equalTo(56) }
+
+            var value = "" {
+                didSet { field.text = value }
+            }
+            value = ""
+            var keyboard: NumberKeyboardView!
+            keyboard = NumberKeyboardView(
+                onInput: { ch in
+                    guard value.count < 18 else { return }
+                    value.append(ch)
+                    keyboard.confirmDisabled = value.isEmpty
+                },
+                onDelete: {
+                    if !value.isEmpty { value.removeLast(); keyboard.confirmDisabled = value.isEmpty }
+                },
+                onConfirm: {
+                    keyboard.confirmDisabled = false
+                    self.setD3Message("已录入身份证号：\(value)（共 \(value.count) 位）")
+                },
+                extraKey: "X"
+            )
+            self.pinFullWidth(keyboard, in: container, after: field)
+            keyboard.confirmDisabled = true
+        }
+        feedbackLabel3 = addDynamicInfo("extraKey=\"X\" 替换底行首格，X 与数字同走 onInput。")
+
+        // D4 禁用态 + 确认列外部驱动
+        addSection(title: "Demo 4 · 禁用态 + 外部驱动") { container in
+            let field = NumberKeyboardShowcase.makeField()
+            self.pinFullWidth(field, in: container)
+            field.snp.makeConstraints { $0.height.equalTo(56) }
+
+            var value = "" {
+                didSet { field.text = value.isEmpty ? "135****4737" : value }
+            }
+            value = ""
+            var keyboard: NumberKeyboardView!
+            keyboard = NumberKeyboardView(
+                onInput: { ch in
+                    guard value.count < 11 else { return }
+                    if ch == "." { return }
+                    value.append(ch)
+                },
+                onDelete: {
+                    if !value.isEmpty { value.removeLast() }
+                },
+                onConfirm: {
+                    keyboard.confirmDisabled = false
+                    self.setD4Message("确认：\(value.isEmpty ? "135****4737" : value)")
+                }
+            )
+            self.pinFullWidth(keyboard, in: container, after: field)
+
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.spacing = AppSpace.sm
+            row.distribution = .fillEqually
+            let disableButton = UIButton(type: .system)
+            disableButton.setTitle("禁用键盘", for: .normal)
+            disableButton.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
+            disableButton.addAction(UIAction { [weak disableButton] _ in
+                keyboard.disabled.toggle()
+                disableButton?.setTitle(keyboard.disabled ? "启用键盘" : "禁用键盘", for: .normal)
+            }, for: .touchUpInside)
+            let confirmButton = UIButton(type: .system)
+            confirmButton.setTitle("确认列置灰", for: .normal)
+            confirmButton.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
+            confirmButton.addAction(UIAction { [weak confirmButton] _ in
+                keyboard.confirmDisabled.toggle()
+                confirmButton?.setTitle(keyboard.confirmDisabled ? "确认列恢复" : "确认列置灰", for: .normal)
+            }, for: .touchUpInside)
+            row.addArrangedSubview(disableButton)
+            row.addArrangedSubview(confirmButton)
+            self.pinFullWidth(row, in: container, after: keyboard)
+        }
+        feedbackLabel4 = addDynamicInfo("disabled=整键盘 40% 灰不可点；confirmDisabled=仅确认列灰（其余键可用）。")
+    }
+
+    private func setD1Message(_ text: String) { feedbackText1 = text }
+    private func setD2Message(_ text: String) { feedbackText2 = text }
+    private func setD3Message(_ text: String) { feedbackText3 = text }
+    private func setD4Message(_ text: String) { feedbackText4 = text }
+    private var feedbackText1 = "" { didSet { if !feedbackText1.isEmpty { feedbackLabel1?.text = feedbackText1 } } }
+    private var feedbackText2 = "" { didSet { if !feedbackText2.isEmpty { feedbackLabel2?.text = feedbackText2 } } }
+    private var feedbackText3 = "" { didSet { if !feedbackText3.isEmpty { feedbackLabel3?.text = feedbackText3 } } }
+    private var feedbackText4 = "" { didSet { if !feedbackText4.isEmpty { feedbackLabel4?.text = feedbackText4 } } }
+    private var feedbackLabel1: UILabel?
+    private var feedbackLabel2: UILabel?
+    private var feedbackLabel3: UILabel?
+    private var feedbackLabel4: UILabel?
+
+    private static func makeField() -> UILabel {
+        let label = UILabel()
+        label.backgroundColor = AppColor.bgCard
+        label.textColor = AppColor.textPrimary
+        label.font = .systemFont(ofSize: AppFont.sizeMd)
+        label.textAlignment = .right
+        label.numberOfLines = 1
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.6
+        return label
     }
 }
 

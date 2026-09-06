@@ -4016,6 +4016,42 @@
       "note": "通用单行文本输入组件（数据录入区缺口补齐批之二，任务清单 #29）：2026-09-06 门禁 A AI 代评通过（规格 design-spec/input-design-spec.html + review-input-A.md，P1–P4 全 A；label/必填星/校验=FormFieldRow 职责壳不变红=本组件纯输入不含校验红线）+ 双端实现入库（InputView.swift=UITextField 受控+自绘白叉清除钮 / Input.kt=BasicTextField 受控+Canvas 清除钮）+ iOS InputShowcase/Android InputDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。受控 value 必传+onTextChange 直通（外部赋值=同步回显）；keyboard 四值 text/number/phone/email 两端映射；secure 掩码回调原文；maxLength 仅输入路径截断（含 paste）；Android sharedui AppInputField 系列=视觉前身可平滑迁移。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过了，继续两个新组件吧」；复验前 iOS Showcase 运行期崩溃修复=DemoShowcases 共享辅助 pinFullWidth 缺 container.addSubview 先建 equalToSuperview 约束 → 补入树再建约束，子仓 77d56ad）；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
+    },
+    {
+      "id": "ui.menu",
+      "name": "菜单 Menu",
+      "category": "ui",
+      "summary": "嵌入式下拉单选菜单（无遮罩无悬浮浮层，Popup 悬浮版二期）：宿主 ≤4 列 MenuColumn(key/title/options/disabled) 菜单栏等分排布 + 点列=栏下内联展开该列单选面板（其余列互斥收起、重复点当前展开列收起幂等）+ 半受控 selectedValues（列 key→option value 外部驱动回显不触发 onChange，nil/缺列回落该列首个启用项）+ 列级/选项级 disabled（灰 40% 不可点）+ 面板 max 220 行高 44 内滚 + 选中行 primary Semibold+✓ 行间 hairline + 激活列 primary 标题小字+▾/▴ 指示；内嵌内容视图高度随展开态变化（44 / 44+面板高）推挤下方宿主内容",
+      "capabilities": ["菜单", "下拉菜单", "筛选", "Menu", "下拉单选", "横向菜单栏", "筛选器"],
+      "platforms": {
+        "ios": { "state": "available", "note": "MenuView.swift：MenuColumn+MenuOption 数据类 + 半受控 selectedValues（didSet 驱动回显不触发 onChange）+ 点列内联展开互斥收起幂等 + 面板行 44pt max 高 220pt UIScrollView 内滚 + 选中 ✓ + 禁用 40%；intrinsicContentSize 随展开态推挤宿主" },
+        "android": { "state": "available", "note": "Menu.kt：Menu(columns/selectedValues?/onChange/modifier) 同构声明式 Composable，expandKey 内部自管理 + LaunchedEffect 外部 selectedValues 回写" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/MenuView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Menu.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.menu",
+      "industry_names": ["Menu", "菜单", "下拉菜单", "筛选菜单"],
+      "props": [
+        ["columns", "MenuColumn[]", "是", "≤4 列；MenuColumn(key/title/options, disabled?)；MenuOption(value/text/disabled)"],
+        ["selectedValues?", "Map<String,String>", "否", "半受控：列 key→option value 外部驱动回显（高亮+标题小字），不触发 onChange；nil/缺列=该列取首个启用项"],
+        ["onChange", "回调", "是", "用户点选选项回调 onChange(columnKey, optionValue) 并收起该列面板"]
+      ],
+      "events": [],
+      "demos": [
+        ["单列基础下拉", "排序方式 3 项，onChange 段内回显，点选收起（D1）"],
+        ["四列独立筛选", "排序/时间/类型/状态 4 列互斥展开，各列独立选中（D2）"],
+        ["12 项长列表滚动 + 末项禁用", "账本 12 项超 5 行内滚 + 末项 disabled 灰禁（D3）"],
+        ["受控外部驱动", "外部 selectedValues 预填回显/重置驱动，onChange 计数不受外部赋值影响（D4）"]
+      ],
+      "note": "菜单（数据录入区第二批三件之 3，任务清单 #31）：嵌入式下拉单选（菜单栏 ≤4 列+内联展开面板无遮罩浮层），对标 NutUI Menu 收敛为库内设计语言；与 Cascader（多级级联）/ Picker（常驻/弹层选择）/ OptionPicker（Modal sheet）划界=本组件单层每列平铺单选+菜单栏回显选中值。2026-09-06 门禁 A AI 代评通过（规格 design-spec/menu-design-spec.html + review-menu-A.md，P1–P4 全 A）+ 同日双端实现入库（MenuView.swift=命令式 UIKit 半受控 / Menu.kt=声明式 Compose）+ iOS MenuShowcase/Android MenuDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。C1.5 ✅ 2026-09-06 用户双端 Demo 实机验收通过收编（原话「通过，继续下一个组件」）；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
     }
   ],
   "businessExtensions": [

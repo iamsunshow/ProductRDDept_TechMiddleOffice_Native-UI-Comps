@@ -4252,6 +4252,47 @@
       "note": "评分（数据录入区 #37，全新立项，2026-09-06）：行内 n 颗自绘五角星整数评分点 Rate（默认 5：值=已点亮整星数 Int 0~count、0=未评合法态；点击第 k 颗点亮并回调、点当前值同一颗=清空归 0 评价可取消；横向滑动随指连续点亮/收回松手定值；count 可配=十分制等；readonly=只读彩色展示评分不可交互；disabled=灰 40% 压过 readonly；半受控 value nil=内部自持初始 0 外部赋值回显不触发 onChange；无 label/文案/提交=宿主自理）。星形双端自绘五角星 path（字符 ★ 双端字形渲染不一致淘汰、Android 系统 RatingBar 视觉脱离不用）：外接圆 22 内凹 0.382、间距 8、行高 40 对齐 #35/#25、点亮 primary/未点亮 textSecondary 30%。与 #35 RadioGroup/#31 Menu·#33 Picker/#36 Range/#41 Switch/#30 InputNumber 划界；半星 allowHalf/size 参数化=二期候选。2026-09-06 门禁 A AI 代评通过（规格 design-spec/rate-design-spec.html + review-rate-A.md，P1–P4 全 A，用户 2026-09-06 原话「通过，继续下一个组件吧」指示接棒启动）+ 同日门禁 B 双端实现入库（RateView.swift=命令式 UIKit UITouch 点/滑统一换算 + Rate.kt=声明式 Compose pointerInput 单自旋 drag 松手判定，iOS StarPath/Android buildStarPath 同坐标算法），iOS RateShowcase / Android RateDemo 4 段 1:1（D1 基础点选清空/D2 滑动连选/D3 只读禁用/D4 十分制受控），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0。C1.5 用户双端 Demo 实机验收通过收编（2026-09-06，原话「通过，继续下一个组件」）：首轮 iOS 星区黑色背景问题修复闭环=RateView 纯 draw 自绘未设透明（UIView 默认 opaque=true+backgroundColor=nil=未绘制星间隙渲染为不透明黑块、吞掉点亮对比）→ init 补 isOpaque=false+backgroundColor=.clear+contentMode=.redraw（子仓 fe78956），用户 Xcode 复验通过。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
+    },
+    {
+      "id": "ui.search-bar",
+      "name": "搜索栏 SearchBar",
+      "category": "ui",
+      "summary": "搜索输入壳+放大镜+文本输入+非空清除钮+检索触发=搜索栏（数据录入区 #38，全新立项）：水平搜索输入行=48 灰底 bgPage+radiusLg 圆角（对齐已收编 Input #29 壳 token、无边框），前置放大镜（自绘 glyph 14 灰 textSecondary）+ Md16 文本输入（textPrimary）+ 非空清除钮（20 圆 gray15 白叉、点击清空回传空串）+ trailing 宿主尾槽（后置搜索按钮/取消钮=与键盘搜索键双路径）；检索语义=软键盘「搜索」键/回车=onSearch(当前文本) 一次性回调（主触发、空串也回调宿主自判忽略）；真实检索执行/结果/历史/联想/loading=宿主自理（组件零内部异步态）；半受控 value String?：nil=内部自持输入（宿主拿 onTextChange 实时词即可无需回写）、外部赋值=仅同步回显不触发 onTextChange；placeholder 默认「请输入搜索关键词」textSecondary Md16；maxLength 仅截断键盘输入路径（外部赋值不限）；disabled=整行 40% 灰不可输入清除钮隐藏无回调；与 Input #29（通用单行文本输入无检索语义=壳/清除钮/键盘基座复用不复制）/ ShortPassword #39（掩码专用）/ Picker #33·Menu #31·Cascader #24（选项选择）/ textarea #42（多行）划界；iOS 系统 UISearchBar（36 高白底+自动取消钮）/ Android 系统 Material SearchBar（Material 3 样式）视觉脱离库内设计语言=不收编；anti_goals 二期/不做=胶囊 shape 参数化（一期方形 radiusLg 同 Input 壳语言统一）/自动聚焦/防抖=宿主职责/历史·热词·联想·结果列表·空态·loading=宿主自理/语音·相机搜索=不做或宿主",
+      "capabilities": ["搜索", "搜索栏", "SearchBar", "Search", "检索", "搜索框", "搜索输入", "Keyword"],
+      "platforms": {
+        "ios": { "state": "available", "note": "SearchBarView.swift：命令式 UIKit UITextField（returnKeyType=.search + delegate textFieldShouldReturn=onSearch 一次性回调、maxLength delegate 截断含粘贴）；半受控 value String? didSet 外部赋值=仅同步回显不触发 onTextChange（currentText 只读供 trailing 按钮读）；disabled=alpha 0.4 不可输入清除钮隐藏；壳 48pt bgPage radiusLg 无边框、intrinsicContentSize 高 48；前置放大镜 MagGlyphView 自绘（圆 0.52×14 直径+斜柄 0.26 延伸、线宽 0.15×14 textSecondary 85%）；清除钮复用 InputView.swift 的 XGlyphView（20 圆 gray15 白叉 1:1）；trailing 宿主视图入树于清除钮之后；editingChanged=onTextChange 实时直通" },
+        "android": { "state": "available", "note": "SearchBar.kt：声明式 Compose BasicTextField（KeyboardOptions imeAction=Search + KeyboardActions.onSearch 触发、maxLength take 截断键盘路径）；半受控 value String? 参数 nil=内部自持 remember mutableStateOf 输入、外部赋值=直读参数回显不触发回调；disabled alpha 0.4+enabled=false+清除钮隐藏；壳 Row 48dp bgPage radiusLg clip；放大镜 Canvas 自绘同 iOS 坐标；清除钮 20dp CircleShape gray15 Canvas 白叉；trailing 尾槽 Composable 插清除钮之后；onTextChange 实时直通" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/SearchBarView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/SearchBar.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.search-bar",
+      "industry_names": ["搜索栏", "搜索", "SearchBar", "Search", "检索框", "搜索输入框"],
+      "props": [
+        ["value", "String?", "否", "半受控：nil=内部自持输入（宿主无需回写、onTextChange 实时拿词即可）；外部赋值=仅同步回显不触发 onTextChange"],
+        ["onTextChange", "回调", "是", "(String)：输入实时直通（含清除钮点击清空后回传 \"\"）；disabled 无回调"],
+        ["onSearch", "回调", "否", "(String)：软键盘「搜索」键/回车触发一次（空串也回调、宿主自判忽略）；宿主执行真实检索自理结果；disabled 无回调"],
+        ["placeholder", "String", "否", "空串提示文案，默认「请输入搜索关键词」；textSecondary Md16 灰字"],
+        ["maxLength", "Int?", "否", "仅截断键盘输入路径（含粘贴）；外部赋值不截断"],
+        ["disabled", "Boolean", "否", "整行 40% 灰、不可输入、清除钮隐藏、无任何回调"],
+        ["trailing", "槽（宿主视图）", "否", "尾槽=宿主自放内容（「搜索」按钮/取消钮等），入清除钮之后壳内右缘；槽动作与 onSearch 联动宿主自理"],
+        ["shape", "—", "—", "胶囊圆角参数=二期候选（一期固定方形 radiusLg 同 Input #29，anti_goals 登记）"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础搜索输入（半受控内部自持·清除钮）", "value=nil=组件内部自持输入（宿主拿回调词免回写）；placeholder 灰字；非空即显清除钮、点击清空回传空串（D1）"],
+        ["键盘搜索键 onSearch+宿主列表过滤", "软键盘「搜索」键/回车=onSearch 一次性回调段内回显；下方静态列表按词过滤=演示宿主检索自理接法（输入即筛/搜索键提交）（D2）"],
+        ["禁用与外部驱动", "disabled=整行 40% 灰不可输入清除钮隐藏无回调；外部 value 赋值=仅同步回显不触发 onTextChange（触发计数不增）；外部置空=仅回显清空（D3）"],
+        ["trailing 尾槽宿主搜索按钮", "组件不内置提交钮=尾槽宿主放「搜索」按钮，点击=与软键盘搜索键同走 onSearch 语义（双路径）；输入即清按钮提示文案（D4）"]
+      ],
+      "note": "搜索栏（数据录入区 #38，全新立项，2026-09-06）：搜索输入壳（48 灰底 radiusLg 对齐已收编 Input #29 壳 token=壳语言统一复用不复制）+ 前置放大镜（自绘 glyph 14 灰）+ Md16 文本输入 + 非空清除钮（点击清空回传空串）+ trailing 尾槽（宿主搜索按钮=与键盘搜索键双路径）+ 软键盘「搜索」键 onSearch 检索触发；半受控 value String? nil=内部自持（搜索宿主拿词即用免回写）、外部赋值仅回显不触发回调、disabled 40% 灰、maxLength 仅截断键盘输入路径；真实检索/结果/历史/联想=宿主自理（组件零内部异步态）；胶囊 shape/自动聚焦/防抖/历史联想=二期或宿主（anti_goals）。系统搜索控件（iOS UISearchBar=36 高白底+自动取消钮 / Android Material SearchBar=Material 3 样式）视觉脱离库内设计语言=不收编；与 Input #29（无检索语义基座）/ShortPassword #39/Picker #33/Menu #31/Cascader #24 划界。2026-09-06 门禁 A AI 代评通过（规格 design-spec/search-bar-design-spec.html + review-search-bar-A.md，P1–P4 全 A，用户 2026-09-06 Rate #37 收编后原话「通过，继续下一个组件」指示接棒启动）+ 同日门禁 B 双端实现入库（SearchBarView.swift=命令式 UIKit UITextField returnKey.search+delegate shouldReturn + MagGlyphView/XGlyphView 自绘；SearchBar.kt=声明式 Compose BasicTextField imeAction=Search+KeyboardActions + Canvas 自绘放大镜/清除钮），iOS SearchBarShowcase / Android SearchBarDemo 4 段 1:1（D1 基础输入+清除钮/D2 键盘搜索键 onSearch+宿主列表过滤/D3 禁用+外部 value 驱动/D4 trailing 尾槽按钮双路径），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0。统一待 C1 单测补建 + C2 CR/CI + D 发版 + C1.5 用户 Demo 实机验收（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
     }
   ],
   "businessExtensions": [

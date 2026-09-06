@@ -58,7 +58,7 @@ table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:
 <tr><th>项</th><th>规格（iOS pt / Android dp 一一对应）</th><th>备注</th></tr>
 <tr><td>壳尺寸 / 形状</td><td>整行高 48、圆角 radius lg（14）、底 bgPage 灰（无边框、无描边），壳内水平 padding lg（16）</td><td>对齐 Input #29 壳 token（FormFieldRow min 48 基准）；灰底浅色=搜索入口弱化不抢内容，同库内搜索类灰底惯例</td></tr>
 <tr><td>前置放大镜</td><td>自绘 glyph（圆 14 直径+斜柄 6 长、描边 2 round cap）14×14，textSecondary 灰，壳内左缘（padding lg 后紧贴）</td><td>搜索语义识别符；14≈字号 md 视觉档；灰=可点性弱（输入动作仍可触发聚焦）</td></tr>
-<tr><td>文本</td><td>Md 16：输入中=textPrimary、空串占位 placeholder=textTertiary；单行不折行（壳内滚动）</td><td>placeholder 对齐 Input #29（textTertiary Md16）</td></tr>
+<tr><td>文本</td><td>Md 16：输入中=textPrimary、空串占位 placeholder=textSecondary；单行不折行（壳内滚动）</td><td>placeholder 对齐 Input #29（textSecondary Md16）</td></tr>
 <tr><td>清除钮</td><td>20 圆（灰底 gray15/E5E7EB、白叉 12）非空显示、disabled 隐藏；点击清空并回调 ""</td><td>与 Input #29 清除钮 20/白叉 14 同族（本组件叉 12 略收=对齐灰底钮惯例）；iOS 白叉=自绘 path，Android=Canvas drawText ×</td></tr>
 <tr><td>键盘 / 触发</td><td>returnKey=search（iOS）/ imeOptions=Search + 回车触发（Android），一次回调 onSearch(当前文本)</td><td>主触发路径=软键盘搜索键；后置搜索按钮=宿主 trailing 槽第二路径</td></tr>
 <tr><td>尾槽</td><td>trailing 槽=宿主自放内容（搜索按钮/取消钮/扫描图标等），入树后在清除钮之后、与壳右边距 padding lg</td><td>同 Input #29 trailing 槽惯例；槽内钮动作与 onSearch 联动由宿主负责</td></tr>
@@ -145,7 +145,7 @@ table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:
 <tr><td>1</td><td>value</td><td>String?</td><td>否</td><td>半受控：nil=内部自持输入（宿主可不回写，onTextChange 实时拿词）；外部赋值=仅同步回显不触发 onTextChange</td></tr>
 <tr><td>2</td><td>onTextChange</td><td>回调</td><td>是</td><td>(String)：输入实时直通（含清除钮点击后清空回传 ""）；disabled 无回调</td></tr>
 <tr><td>3</td><td>onSearch</td><td>回调</td><td>否</td><td>(String)：键盘「搜索」键/回车触发一次（空串也回调、宿主自判忽略）；宿主执行真实检索自理结果；disabled 无回调</td></tr>
-<tr><td>4</td><td>placeholder</td><td>String</td><td>否</td><td>空串提示文案，默认「请输入搜索关键词」；textTertiary Md16</td></tr>
+<tr><td>4</td><td>placeholder</td><td>String</td><td>否</td><td>空串提示文案，默认「请输入搜索关键词」；textSecondary Md16</td></tr>
 <tr><td>5</td><td>disabled</td><td>Boolean</td><td>否</td><td>整行 40% 灰、不可输入、清除钮隐藏、无任何回调</td></tr>
 <tr><td>6</td><td>maxLength</td><td>Int</td><td>否</td><td>仅截断键盘输入路径（含 paste）；外部赋值不截断（同 Input #29 惯例）</td></tr>
 <tr><td>7</td><td>trailing</td><td>槽（宿主视图）</td><td>否</td><td>尾槽=宿主自放内容（搜索按钮/取消钮等），入清除钮之后壳内右缘；槽内容与 onSearch 联动宿主自理（同 Input #29 trailing 槽）</td></tr>
@@ -158,7 +158,7 @@ table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:
 <table>
 <tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
 <tr><td>A1</td><td>用途/边界（01 节：搜索输入壳+放大镜+清除+onSearch 检索触发内容组件；真实检索/历史/联想/结果=宿主自理；与 Input #29 划界=Input 无检索语义；与 ShortPassword #39/Picker #33/Menu #31 划界）</td><td>通过</td><td>✅</td></tr>
-<tr><td>A2</td><td>Token 零硬编码（壳 48/radius lg/底 bgPage、放大镜 14 灰、文本 Md16 textPrimary/placeholder textTertiary、清除钮 20 灰底白叉、间距 sm、disabled 40% 灰=全走 token 与注释锚定）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（壳 48/radius lg/底 bgPage、放大镜 14 灰、文本 Md16 textPrimary/placeholder textSecondary、清除钮 20 灰底白叉、间距 sm、disabled 40% 灰=全走 token 与注释锚定）</td><td>通过</td><td>✅</td></tr>
 <tr><td>A3</td><td>P1–P4 决策投票表（全 A：灰底圆角壳+放大镜自绘、onSearch 键盘搜索键主触发+宿主尾槽双路径、半受控 value+onTextChange+onSearch+disabled+maxLength、一期方形 radius lg 无胶囊 demo 四段；反目标登记=胶囊 shape/自动聚焦/防抖/历史联想=二期或宿主）</td><td>通过</td><td>✅</td></tr>
 <tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础输入+清除钮/键盘搜索键 onSearch+宿主列表过滤接法/禁用+外部 value 回显/trailing 尾槽搜索按钮双路径）</td><td>通过</td><td>✅</td></tr>
 <tr><td>A5</td><td>实现现状（双端均无 SearchBar 近似件=全新立项：iOS 系统 UISearchBar 独立样式不收编、Android Material SearchBar 视觉脱离库内设计语言不用；实现基座=已收编 Input #29 壳/清除钮/键盘/截断惯例（复用不复制）；api.json 无 ui.search-bar 条目待门禁 B 立项登记；任务清单 #38 ⬜ 双端未实现 → 本次立项 📐）</td><td>通过</td><td>✅</td></tr>

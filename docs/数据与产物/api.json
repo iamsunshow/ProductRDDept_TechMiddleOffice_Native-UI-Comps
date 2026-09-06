@@ -4371,6 +4371,43 @@
       "note": "签名（数据录入区 #40，全新立项，2026-09-06）：内容级手写签名画板=白底圆角板（bgCard+hairline+radiusLg 对齐 Input #29 壳语言、高默认 96=2×48 交互行基准）+ 自绘圆头笔画（strokeWidth/strokeColor 参数可调）+ 水印「请在此区域签名」textSecondary 30%（首笔即隐）+ 底缘引导线；无受控文本值（签名=异步笔迹流非表单值）=onInkChange(Boolean)（首笔落 true/clear 回 false=驱动宿主提交钮）+ clear() 命令式重签 + disabled 整板 40% 灰锁定（clear 忽略）；签名图导出=宿主截取组件渲染（iOS UIGraphicsImageRenderer+drawHierarchy / Android 根视图截图裁剪板区域=Demo 自定义 DrawingCache 辅助），组件不内置图形对象；宿主自理=页面/弹层承载、上传保存防篡改、空签名与锁定业务校验；与 Input #29/textarea #42（键盘文本）、ShortPassword #39/NumberKeyboard #32（数字键盘系）、Popup #54/Overlay #6（承载）划界；iOS PencilKit（PKDrawing 生态样式不可统一）与 Android 三方签名库=不收编；撤销栈/压感/导出对象 API/板内清除钮/整壳组件=二期或宿主（anti_goals）。2026-09-06 门禁 A AI 代评通过（规格 design-spec/signature-design-spec.html + review-signature-A.md，P1–P4 全 A，用户 2026-09-06 ShortPassword #39 收编后原话「通过，继续吧」指示接棒启动）+ 同日门禁 B 双端实现入库（SignatureView.swift=命令式 UIKit 触摸三件套采集离散 stroke+draw(_:) 逐 path；Signature.kt=声明式 Compose pointerInput awaitEachGesture 单自旋+Canvas 逐 path），iOS SignatureShowcase / Android SignatureDemo 4 段 1:1（D1 基础签名与重签/D2 导出收编缩略/D3 参数变体 width 1/2/4/D4 禁用锁定+空笔迹提交流），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0。2026-09-06 C1.5 用户「继续」放行收编（数据录入区 #40 闭环：demo 双端 4 段 D1 基础签名与重签/D2 导出收编缩略/D3 参数变体/D4 禁用锁定+空笔迹提交流；组件进度.md §3.4 行 40 🔧→✅，见 §4 收编行）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
+    },
+    {
+      "id": "ui.switch",
+      "name": "开关 Switch",
+      "category": "ui",
+      "summary": "通用二元即时开关核组件（数据录入区 #41，全新立项）：自绘轨道+滑块（轨道 48×28 radiusFull=48 交互行基准注释锚定/28=20 滑块+上下内衬各 4 spaceXs；on=primary 填充、off=textSecondary alpha0.3 浅灰填充；滑块白色 20 圆形=对齐 CheckboxGlyph/RadioGlyph 20 惯例、off 居左/on 居右行程 20=48−2×4−20；切换动画 0.18s=滑块位移+轨道变色；disabled=整件 alpha0.4 不可点无回调、on+disabled=灰 primary 轨道灰滑块保留开态只读）；无内置 label=宿主行首（FormFieldRow #28 / Cell 行尾 trailing 嵌用）；半受控 checked Boolean?：nil=内部自持初始 off（点按翻转回调）、外部赋值 checked=同步回显不触发 onChange、on→off 与 off→on 均回调 onChange(Boolean)、disabled 无回调；命中=整枚轨道、放大命中区=宿主行自带整行可选；与 #25 Checkbox（方形复选可多选可取消）/ #35 Radio（圆形排他点选即确定=单选表单值）/ #36 Range（连续区间）/ #30 InputNumber（步进单值）/ #33 Picker·#31 Menu（下拉承载）/ Tabs #20·Tabbar #19·Segmented #74（分段页签）划界=Switch 二元即时持久开/关；系统 UISwitch（尺寸/轨道色定制弱不符库 token 语言）/ Material3 Switch（视觉/主题不符库内设计语言）双端系统控件不用=自绘；anti_goals 二期/不做=label 文案内置（=宿主行首职责）/三态半选 indeterminate（=Checkbox #25 范畴）/整枚含文字的开关/自定义轨道滑块几何参数化",
+      "capabilities": ["开关", "Switch", "Toggle", "开关键", "二元开关", "持久开关"],
+      "platforms": {
+        "ios": { "state": "available", "note": "SwitchView.swift：命令式 UIKit UIView（layer.cornerRadius=半高 14 masksToBounds=轨道壳自圆角 + thumbView 白色圆 20 子视图 + tapButton 整枚命中；checked Bool? didSet 半受控外部赋值=同步回显不触发 onChange、disabled 运行期可更新=didSet 集中 refreshEnabled+refresh；切换=UIView.animate 0.18s curveEaseInOut 滑块位移+轨道变色（on=AppColor.primary/off=textSecondary 30%）；disabled=整件 alpha0.4+tapButton.isEnabled=false 无回调；intrinsicContentSize 48×28" },
+        "android": { "state": "available", "note": "Switch.kt：声明式 Compose（Box 48×28 clip(RoundedCornerShape(50)) background trackColor + 内层 Box 20dp 滑块 clip 圆 background White；animateColorAsState 轨道色/animateDpAsState 滑块 x 位移均 tween 180ms；checked Boolean? 参数 LaunchedEffect 半受控外部驱动回显不触发回调、clickable(enabled=!disabled) 点按翻转+onCheckedChange；disabled=alpha0.4+不可点无回调；尺寸常量注释锚定 48/28/20/4/行程 20）" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/SwitchView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Switch.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.switch",
+      "industry_names": ["开关", "Switch", "Toggle", "开关钮", "二元开关"],
+      "props": [
+        ["checked", "Boolean?", "否", "半受控：nil=内部自持初始 off（点按翻转并回调 onChange）；外部赋值 checked=同步回显（渲染不触发 onChange）"],
+        ["onCheckedChange", "回调", "是", "(Bool)：用户点按翻转触发一次（on→off 与 off→on 均回调）；disabled 无回调；外部赋值不触发"],
+        ["disabled", "Boolean", "否", "整件 40% 灰不可点无回调；on+disabled=灰 primary 轨道灰滑块保留开态（只读回显）；运行期可更新"],
+        ["label", "槽", "否", "无内置 label=宿主行首放行内文案（FormFieldRow #28 label 区 / Cell 行首；开关只出核）"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础开/关（默认 off → 点按翻转 + 段内回显）", "checked=nil=半受控内部自持初始 off；点按=整枚翻转（off→on primary+滑块右移 / on→off 回灰归左）onChange 段内回显（D1）"],
+        ["行尾嵌用（宿主行首 label · 行尾核组件）", "行首 label 文案 + 行尾 Switch（FormFieldRow/Cell trailing 嵌用=无内置 label）；「新消息通知」初始 checked=true 开态回显；「外部回显开/关」=外部 checked 驱动同步回显不触发 onChange（D2）"],
+        ["disabled 锁定（on/off 双灰锁 + 外部使能）", "开/关两枚 disabled=true=整件 40% 灰不可点无回调、on+disabled=灰开态保留只读；「锁定/解锁」外部切换 disabled 运行期更新（D3）"],
+        ["受控外部 checked 驱动（外部回显不触发 onChange）", "「外部打开/关闭」=checked 赋值仅同步回显（无 onChange 日志=仅渲染路径）；用户点按翻转=回调 onChange（D4）"]
+      ],
+      "note": "开关（数据录入区 #41，全新立项，2026-09-06）：通用二元即时开关核组件=自绘轨道+滑块（轨道 48×28 radiusFull、on=primary/off=textSecondary 30%、滑块 20 白色圆、行程 20、动画 0.18s）+ 无内置 label（=宿主 FormFieldRow #28/Cell 行尾嵌用）+ checked Boolean? 半受控（nil=内部自持初始 off 点按翻转回调/外部赋值同步回显不触发 onChange/双向均回调）+ disabled 整件 40% 灰不可点（on+disabled 灰开态保留只读）；与 #25 Checkbox/#35 Radio/#36 Range/#30 InputNumber/#33 Picker·#31 Menu/#20 Tabs·#19 Tabbar·#74 Segmented 划界=二元即时持久开/关；系统 UISwitch/Material3 Switch 视觉脱离库内设计语言=双端从零自绘。2026-09-06 门禁 A AI 代评通过（规格 design-spec/switch-design-spec.html + review-switch-A.md，P1–P4 全 A 0 保留意见，用户 Signature #40 收编后原话「继续」指示接棒启动）+ 同日门禁 B 双端实现入库（SwitchView.swift=命令式 UIKit 轨道壳+滑块子视图 layoutSubviews/frame 摆位+tapButton 整枚命中；Switch.kt=声明式 Compose 自绘 Box+动画 state），iOS SwitchShowcase / Android SwitchDemo 4 段 1:1（D1 基础开/关/D2 行尾嵌用/D3 disabled 锁定/D4 受控外部驱动），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
     }
   ],
   "businessExtensions": [

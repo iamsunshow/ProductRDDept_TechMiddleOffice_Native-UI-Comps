@@ -134,6 +134,7 @@ import com.zhiqihuayun.sharedui.components.RadioOption
 import com.zhiqihuayun.sharedui.components.Range
 import com.zhiqihuayun.sharedui.components.RangeValue
 import com.zhiqihuayun.sharedui.components.Rate
+import com.zhiqihuayun.sharedui.components.ShortPassword
 import com.zhiqihuayun.sharedui.components.SearchBar
 import com.zhiqihuayun.sharedui.components.Input
 import com.zhiqihuayun.sharedui.components.NumberKeyboard
@@ -207,7 +208,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Range 区间选择", reviewed = true, demo = { RangeDemo() }),
         DemoComponent("Rate 评分", reviewed = true, demo = { RateDemo() }),
         DemoComponent("SearchBar 搜索栏", reviewed = true, demo = { SearchBarDemo() }),
-        DemoComponent("ShortPassword 短密码"),
+        DemoComponent("ShortPassword 短密码", reviewed = true, demo = { ShortPasswordDemo() }),
         DemoComponent("Signature 签名"),
         DemoComponent("Switch 开关"),
         DemoComponent("TextArea 文本域"),
@@ -5585,6 +5586,144 @@ private fun RateDemo() {
         }
         Text(
             text = d4Msg ?: "count 可配（十分制等）：星数=count；外部赋值仅回显不触发 onChange；点/滑=组件上报宿主回写。",
+            fontSize = AppFont.sizeXs,
+            color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+    }
+}
+
+// ── ShortPassword 短密码 Demo（ui.short-password · #39）──
+
+@Composable
+private fun ShortPasswordDemo() {
+    Text(
+        text = "ShortPassword 短密码组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：① 基础 6 位输入+满位自动 onComplete+外部清空 ② 定长 4 位+外部预填满位仅回显不触发 onComplete ③ 禁用+粘贴非数字过滤 ④ 宿主校验流程（正确码 123456：满位通过/错误自动清空重输）。双端 1:1（Android ShortPassword vs iOS ShortPasswordView）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // D1 · 基础 6 位输入（默认 length=6 · 半受控内部自持 · 满位自动 onComplete）
+        Text("Demo 1 · 基础 6 位输入（默认 length=6 · 半受控内部自持）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1Value by remember { mutableStateOf<String?>(null) }
+        var d1Msg by remember { mutableStateOf<String?>(null) }
+        ShortPassword(
+            value = d1Value,
+            onChange = { v ->
+                d1Value = v
+                d1Msg = "onChange → ${v.length}/6 位（掩码点随位递增）"
+            },
+            onComplete = { v ->
+                d1Msg = "onComplete → $v（6 位已满，宿主执行校验；请实机软键盘输满 6 位触发）"
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d1Value = ""
+                d1Msg = "外部 value=\"\"=仅同步回显清空（不触发回调）"
+            }) { Text("清空（外部 value=\"\"）", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d1Msg ?: "实机点字段=numberPad 数字键盘；输入=掩码点随位递增（密文）；非数字一律不进入；满 6 位自动 onComplete。",
+            fontSize = AppFont.sizeXs,
+            color = if (d1Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D2 · 定长 4 位 + 受控外部驱动（外部预填 4 位=回显满位但不触发 onComplete）
+        Text("Demo 2 · 定长 4 位 + 受控外部驱动（length=4 · 外部预填 1234）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2Value by remember { mutableStateOf<String?>("1234") }
+        var d2Msg by remember { mutableStateOf<String?>(null) }
+        ShortPassword(
+            length = 4,
+            value = d2Value,
+            onChange = { v ->
+                d2Value = v
+                d2Msg = "onChange → ${v.length}/4 位"
+            },
+            onComplete = { v ->
+                d2Msg = "onComplete → $v（4 位已满=仅键盘输入路径触发）"
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d2Value = ""
+                d2Msg = "外部 value=\"\"=清空重输"
+            }) { Text("清空重输", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d2Msg ?: "外部预填 4 位=同步回显满位但不触发 onComplete（证仅输入路径触发）；清空后键盘重输满 4 位将触发。",
+            fontSize = AppFont.sizeXs,
+            color = if (d2Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D3 · 禁用与粘贴过滤（disabled=40% 灰不可输入无回调；粘贴 ab3#9x=仅取数字截断并入）
+        Text("Demo 3 · 禁用与粘贴过滤", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3Disabled by remember { mutableStateOf(false) }
+        var d3Msg by remember { mutableStateOf<String?>(null) }
+        ShortPassword(
+            value = null,
+            disabled = d3Disabled,
+            onChange = { v ->
+                d3Msg = "onChange → ${v.length}/6 位（禁用无回调）"
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d3Disabled = !d3Disabled
+                d3Msg = if (d3Disabled) "已禁用：整行 40% 灰、不可输入、无任何回调" else "已启用（可输入）"
+            }) { Text(if (d3Disabled) "启用" else "禁用", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d3Msg ?: "disabled=整行 40% 灰不可输入无回调；粘贴「ab3#9x」=仅取数字按位截断（39）并入（实机验证非数字不进入）。",
+            fontSize = AppFont.sizeXs,
+            color = if (d3Msg != null) AppColor.primary else AppColor.textSecondary
+        )
+
+        // D4 · 宿主校验流程（正确码 123456：满位自动 onComplete 通过/错误自动清空重输 + NumberKeyboard #32 组装示意）
+        Text("Demo 4 · 宿主校验流程（正确码 123456）+ NumberKeyboard #32 组装示意", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4Value by remember { mutableStateOf<String?>(null) }
+        var d4Msg by remember { mutableStateOf<String?>(null) }
+        ShortPassword(
+            length = 6,
+            value = d4Value,
+            onChange = { v ->
+                d4Value = v
+                d4Msg = "onChange → ${v.length}/6 位"
+            },
+            onComplete = { v ->
+                if (v == "123456") {
+                    d4Msg = "onComplete → $v：校验通过 ✓"
+                } else {
+                    d4Msg = "onComplete → $v：错误码，宿主自动清空重输（外部 value=\"\"）"
+                    d4Value = ""
+                }
+            }
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = {
+                d4Value = "999999"
+                d4Msg = "外部注入 999999=满位仅回显（证外部不触发 onComplete）；真实错误触发请软键盘输满 6 位（onComplete→宿主校验失败→自动清空）。"
+            }) { Text("外部注入 999999", fontSize = AppFont.sizeXs) }
+            TextButton(onClick = {
+                d4Value = ""
+                d4Msg = "外部 value=\"\"=清空重输"
+            }) { Text("清空重输", fontSize = AppFont.sizeXs) }
+        }
+        Text(
+            text = d4Msg ?: "组件可嵌入宿主弹层并与 #32 NumberKeyboard 组装（由键盘回调驱动 value=宿主自理）；满 6 位 onComplete=宿主校验：123456=通过 / 其它=自动清空重输。",
             fontSize = AppFont.sizeXs,
             color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
         )

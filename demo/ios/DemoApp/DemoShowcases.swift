@@ -63,7 +63,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.range", name: "Range 区间选择", reviewed: true, create: { RangeShowcase() }),
             DemoComponent(id: "ui.rate", name: "Rate 评分", reviewed: true, create: { RateShowcase() }),
             DemoComponent(id: "ui.search-bar", name: "SearchBar 搜索栏", reviewed: true, create: { SearchBarShowcase() }),
-            DemoComponent(id: "ui.short-password", name: "ShortPassword 短密码", reviewed: false, create: nil),
+            DemoComponent(id: "ui.short-password", name: "ShortPassword 短密码", reviewed: true, create: { ShortPasswordShowcase() }),
             DemoComponent(id: "ui.signature", name: "Signature 签名", reviewed: false, create: nil),
             DemoComponent(id: "ui.switch", name: "Switch 开关", reviewed: false, create: nil),
             DemoComponent(id: "ui.text-area", name: "TextArea 文本域", reviewed: false, create: nil),
@@ -6216,6 +6216,153 @@ final class RateShowcase: ShowcaseViewController {
             })
         )
         d4Feedback = addDynamicInfo("count 可配（十分制等）：星数=count；外部赋值仅回显不触发 onChange；点/滑=组件上报宿主回写。", color: AppColor.textSecondary)
+    }
+}
+
+// MARK: - ShortPassword Showcase（短密码 · ui.short-password · #39）
+
+/// 无壳居中掩码点行：Demo 1 基础 6 位满位 onComplete+外部清空；Demo 2 定长 4 位+外部预填仅回显
+/// 不触发 onComplete；Demo 3 禁用（40% 灰无回调）+粘贴非数字过滤说明；Demo 4 宿主校验（正确码 123456）
+/// + NumberKeyboard #32 组装示意。与 Android ShortPasswordDemo 4 段 1:1 同构。
+final class ShortPasswordShowcase: ShowcaseViewController {
+    private var d1SP: ShortPasswordView?
+    private var d2SP: ShortPasswordView?
+    private var d3SP: ShortPasswordView?
+    private var d4SP: ShortPasswordView?
+    private var d1Feedback: UILabel?
+    private var d2Feedback: UILabel?
+    private var d3Feedback: UILabel?
+    private var d4Feedback: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "ShortPassword 短密码", version: "v1.0", builtAt: "2026-09-06")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    private func emit(_ label: UILabel?, _ text: String, color: UIColor = AppColor.primary) {
+        label?.text = text
+        label?.textColor = color
+    }
+
+    private func attach(_ sp: ShortPasswordView, into container: UIView) {
+        container.addSubview(sp)
+        sp.snp.makeConstraints { make in
+            make.leading.trailing.top.equalToSuperview()
+        }
+        container.snp.makeConstraints { make in
+            make.bottom.equalTo(sp.snp.bottom)
+        }
+    }
+
+    // MARK: Demo 1 · 基础 6 位输入（默认 length=6 · 半受控内部自持）
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 基础 6 位输入（默认 length=6 · 半受控内部自持）") { container in
+            let sp = ShortPasswordView(
+                onChange: { [weak self] v in
+                    let t = v.isEmpty ? "onChange → 空串（外部清空回显）" : "onChange → \(v.count)/6 位（掩码点随位递增）"
+                    self?.emit(self?.d1Feedback, t)
+                },
+                onComplete: { [weak self] v in
+                    self?.emit(self?.d1Feedback, "onComplete → \(v)（6 位已满，宿主执行校验；请实机软键盘输满 6 位触发）")
+                }
+            )
+            d1SP = sp
+            attach(sp, into: container)
+        }
+        demoButtonRow(("清空（外部 value=\"\"）", { [weak self] in
+            guard let self else { return }
+            self.d1SP?.value = ""
+            self.emit(self.d1Feedback, "外部 value=\"\"=仅同步回显清空（不触发回调）", color: AppColor.textSecondary)
+        }))
+        d1Feedback = addDynamicInfo("实机点字段=numberPad 数字键盘；输入=掩码点随位递增（密文）；非数字（含粘贴）一律不进入；满 6 位自动 onComplete。", color: AppColor.textSecondary)
+    }
+
+    // MARK: Demo 2 · 定长 4 位 + 受控外部驱动（外部预填 1234）
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 定长 4 位 + 受控外部驱动（length=4 · 外部预填 1234）") { container in
+            let sp = ShortPasswordView(
+                value: "1234",
+                length: 4,
+                onChange: { [weak self] v in
+                    self?.emit(self?.d2Feedback, "onChange → \(v.count)/4 位")
+                },
+                onComplete: { [weak self] v in
+                    self?.emit(self?.d2Feedback, "onComplete → \(v)（4 位已满=仅键盘输入路径触发）")
+                }
+            )
+            d2SP = sp
+            attach(sp, into: container)
+        }
+        demoButtonRow(("清空重输", { [weak self] in
+            guard let self else { return }
+            self.d2SP?.value = ""
+            self.emit(self.d2Feedback, "外部 value=\"\"=清空重输", color: AppColor.textSecondary)
+        }))
+        d2Feedback = addDynamicInfo("外部预填 4 位=同步回显满位但不触发 onComplete（证仅输入路径触发）；清空后键盘重输满 4 位将触发。", color: AppColor.textSecondary)
+    }
+
+    // MARK: Demo 3 · 禁用与粘贴过滤
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 禁用与粘贴过滤") { container in
+            let sp = ShortPasswordView(
+                onChange: { [weak self] v in
+                    self?.emit(self?.d3Feedback, "onChange → \(v.count)/6 位（禁用无回调）")
+                }
+            )
+            d3SP = sp
+            attach(sp, into: container)
+        }
+        demoButtonRow(("禁用 / 启用", { [weak self] in
+            guard let self, let sp = self.d3SP else { return }
+            sp.disabled.toggle()
+            let text = sp.disabled ? "已禁用：整行 40% 灰、不可输入、无任何回调" : "已启用（可输入）"
+            self.emit(self.d3Feedback, text, color: sp.disabled ? AppColor.textSecondary : AppColor.primary)
+        }))
+        d3Feedback = addDynamicInfo("disabled=整行 40% 灰不可输入无回调；粘贴「ab3#9x」=仅取数字按位截断（39）并入（实机验证非数字不进入）。", color: AppColor.textSecondary)
+    }
+
+    // MARK: Demo 4 · 宿主校验流程 + NumberKeyboard #32 组装示意
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 宿主校验流程（正确码 123456）+ NumberKeyboard #32 组装示意") { container in
+            let sp = ShortPasswordView(
+                length: 6,
+                onChange: { [weak self] v in
+                    self?.emit(self?.d4Feedback, "onChange → \(v.count)/6 位")
+                },
+                onComplete: { [weak self] v in
+                    guard let self else { return }
+                    if v == "123456" {
+                        self.emit(self.d4Feedback, "onComplete → \(v)：校验通过 ✓")
+                    } else {
+                        self.emit(self.d4Feedback, "onComplete → \(v)：错误码，宿主自动清空重输（外部 value=\"\"）")
+                        self.d4SP?.value = ""
+                    }
+                }
+            )
+            d4SP = sp
+            attach(sp, into: container)
+        }
+        demoButtonRow(
+            ("外部注入 999999", { [weak self] in
+                guard let self else { return }
+                self.d4SP?.value = "999999"
+                self.emit(self.d4Feedback, "外部注入 999999=满位仅回显（证外部不触发 onComplete）；真实错误触发请软键盘输满 6 位（onComplete→宿主校验失败→自动清空）。", color: AppColor.textSecondary)
+            }),
+            ("清空重输", { [weak self] in
+                guard let self else { return }
+                self.d4SP?.value = ""
+                self.emit(self.d4Feedback, "外部 value=\"\"=清空重输", color: AppColor.textSecondary)
+            })
+        )
+        d4Feedback = addDynamicInfo("组件可嵌入宿主弹层并与 #32 NumberKeyboard 组装（由键盘回调驱动 value=宿主自理）；满 6 位 onComplete=宿主校验：123456=通过 / 其它=自动清空重输。", color: AppColor.textSecondary)
     }
 }
 

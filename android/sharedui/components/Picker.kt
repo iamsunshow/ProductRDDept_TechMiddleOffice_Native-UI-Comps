@@ -26,6 +26,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -56,8 +57,10 @@ import kotlin.math.abs
  * （与 iOS UIPickerView 原生渐隐的视觉差异表内放行）；滚掠吸附=SnapPosition.Center
  * 停靠行中心（foundation 1.7.6 以嵌套 object 提供，无 CenteredSnapPosition 类）+ 松手吸附兜底：
  * fling snap 仅在松手带速度的惯性结束时触发，慢拖/原地松手（velocity≈0 不启动 fling）会停在两行
- * 中间，故监听 isScrollInProgress 翻转、滚动一结束即把中心行对齐停靠（animateScrollToItem 像素级
- * 校准），与 UIPickerView 松手必停整行同构（2026-09-06 用户验收补发问题修复）；禁用=textPrimary
+ * 中间 → 监听 isScrollInProgress 翻转、滚动一结束即校正：中心行判定用 firstVisibleItemIndex+
+ * firstVisibleItemScrollOffset 的 scroll 整格模型（规避 contentPadding 下 viewportStart/EndOffset
+ * 与视觉选中带的系统性偏移=旧实现停半格判错行的根因），非整格即 animateScrollToItem 归位，与
+ * UIPickerView 松手必停整行同构（2026-09-06 用户验收补发问题两次修复）；禁用=textPrimary
  * @35%、组件级 disabled 整体 40%。
  */
 data class PickerOption(
@@ -103,15 +106,20 @@ fun Picker(
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
-    // 当前可视中心行（=滚轮停靠候选），由视口几何实时推导
-    val selectedIndex by remember {
+    // 可视中心行（=滚轮停靠候选）= 内容 scroll 像素四舍五入整格所属行。
+    // 内容坐标系（与 Lazy scroll 同参照）：行 k 顶=内容 k×行高，整格停靠=scroll=k×行高时该行中心
+    // 恰落视觉选中带（scrollToItem 同款参照，受控定位已实证）——用 firstVisibleItemIndex +
+    // firstVisibleItemScrollOffset（行内滚动像素）判定，规避 contentPadding 造成的
+    // viewportStart/EndOffset 与视觉中心带的系统性偏移（旧实现半格停靠判错行）。
+    val rowPx = with(LocalDensity.current) { rowHeightPx.dp.toPx() }
+    val selectedIndex by remember(rowPx, options) {
         derivedStateOf {
-            val info = listState.layoutInfo
-            if (info.visibleItemsInfo.isEmpty()) return@derivedStateOf 0
-            val viewportCenter = (info.viewportStartOffset + info.viewportEndOffset).toFloat() / 2f
-            info.visibleItemsInfo.minByOrNull {
-                abs(it.offset + it.size / 2f - viewportCenter)
-            }?.index ?: 0
+            if (options.isEmpty()) 0
+            else {
+                val first = listState.firstVisibleItemIndex
+                val os = listState.firstVisibleItemScrollOffset
+                (if (os >= rowPx / 2f) first + 1 else first).coerceIn(0, options.lastIndex)
+            }
         }
     }
 
@@ -123,28 +131,27 @@ fun Picker(
         }
     }
 
-    // 松手吸附：fling snap 只在松手带速度（惯性滚动）结束后触发；缓慢拖动/原地松手
-    // （velocity≈0 不启动 fling）会停在两行中间 → 滚动一结束就校正一次：把视口中心最近行
-    // （若为禁用行则取最近可用行）精确对准视口中心，与 UIPickerView 松手必停整行同构。
-    // 对齐完成后 delta≈0 不再触发动画（顺带兜底 fling 吸附的浮点残差）。
-    LaunchedEffect(listState, options) {
+    // 松手吸附兜底：fling snap 只在松手带速度（惯性滚动）结束时触发；缓慢拖动/原地松手
+    // （velocity≈0 不启动 fling）会停在两行中间 → 滚动一结束（isScrollInProgress false）即校正：
+    // 中心行（selectedIndex，禁用则取最近可用行）未精确对齐整格就 animateScrollToItem 归位，
+    // 与 UIPickerView 松手必停整行同构；整格后 scroll≈目标值不再动画（顺带兜底 fling 残差）。
+    LaunchedEffect(listState, options, rowPx) {
         snapshotFlow { listState.isScrollInProgress }
             .distinctUntilChanged()
             .collect { inProgress ->
                 if (inProgress) return@collect
-                val idx = selectedIndex
-                val target = if (options.getOrNull(idx)?.disabled == true) {
-                    nearestEnabledIndex(options, idx) ?: return@collect
-                } else {
-                    idx
+                val target = selectedIndex.let { idx ->
+                    if (options.getOrNull(idx)?.disabled == true) {
+                        nearestEnabledIndex(options, idx) ?: return@collect
+                    } else {
+                        idx
+                    }
                 }
-                val item = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == target }
-                    ?: return@collect
-                val viewportCenter =
-                    (listState.layoutInfo.viewportStartOffset + listState.layoutInfo.viewportEndOffset) / 2f
-                val delta = viewportCenter - (item.offset + item.size / 2f)
-                if (abs(delta) > 0.5f) {
-                    // animateScrollToItem 按像素把 target 行顶对齐 contentPadding 上缘（88dp）→ 行中心恰为视口中心
+                val currentScroll =
+                    listState.firstVisibleItemIndex * rowPx + listState.firstVisibleItemScrollOffset
+                val targetScroll = target * rowPx
+                if (abs(currentScroll - targetScroll) > 0.5f) {
+                    // animateScrollToItem 把 target 行滚到整格位（顶对齐 contentPadding 上缘）→ 行中心=视口中心
                     listState.animateScrollToItem(index = target)
                 }
             }

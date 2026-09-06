@@ -4214,6 +4214,44 @@
       "note": "区间选择（数据录入区 #36，全新立项，2026-09-06）：横向双钮区间滑块（单轨道+start/end 双钮闭区间 start≤end 恒成立可相等零宽单点、点轨道空段吸附最近端、拖动连续回调）、Double RangeValue{start,end}+min/max/step 数值模型、半受控 value nil=内部自持初始全区间、min/max 动态改越界自动 clamp、禁用整条 40% 灰；与 #30 InputNumber/#35 RadioGroup·#31 Menu/#41 Switch/#37 Rate/日期日历/未来单钮 Slider 划界；无壳无刻度无气泡=宿主格式化单位；端点贴边半钮溢出允许。2026-09-06 门禁 A AI 代评通过（规格 design-spec/range-design-spec.html + review-range-A.md，P1–P4 全 A，用户 2026-09-06 原话「radio通过，继续下一个组件」指示接棒启动）+ 同日双端实现入库（RangeView.swift=命令式 UIKit 自绘 touches 拖动几何换算 / Range.kt=声明式 Compose Canvas 自绘 pointerInput 拖动），iOS RangeShowcase / Android RangeDemo 4 段 1:1（D1 基础区间/D2 step 离散+点轨吸附/D3 值域 clamp+禁用/D4 受控外部驱动），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0。2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过，继续下一个组件吧」，iOS 4 段正常无改动；Android 首轮「Demo 都无法操作」修复闭环=子仓 0e6bbab：pointerInput key 去 value（拖动 onChange→宿主回写→value 变→原 key 每帧取消重启手势 coroutine=拖动断）+ detectTapGestures/detectDragGestures 串行同一 pointerInput block 陷阱（detectTapGestures awaitEachGesture 无限循环占据事件流=后置 detectDragGestures 永不到达=drag 全失效）→ awaitEachGesture 统一自旋（down=nearest 吸附锁定钮+commit、drag 纵向位移 return@drag 不 consume 交外层滚动、横向 consume+commit），同 Material Slider 模式；Android assembleDebug BUILD SUCCESSFUL 复验，用户模拟器复验通过），组件进度.md §3.4 行 36 📐→✅ 已回写。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
+    },
+    {
+      "id": "ui.rate",
+      "name": "评分 Rate",
+      "category": "ui",
+      "summary": "行内 n 颗自绘五角星整数评分点（默认 5）：值=已点亮整星数 Int 0~count（0=未评合法态）；点击第 k 颗=点亮到该颗并回调 k、再点当前值同一颗=清空归 0（评价可取消=allowClear 语义）；横向滑动=随手指连续点亮/收回（拖出组件左缘=熄灭归 0）、松手一次性定值回调；count 可配（十分制等）；半受控 value：nil=内部自持初始 0、外部赋值（含 clamp 0~count）=仅同步回显不触发 onChange、点/滑定值=onChange 一次性回调宿主回写；readonly=只读彩色展示评分（详情展示场景）不可交互无回调；disabled=整行 40% 灰星不可交互无回调（与 readonly 并存 disabled 压过灰）；无 label/文案/提交=宿主自理；星形=双端自绘五角星 path（外接圆直径 22=AppFont.sizeXl、内凹比 0.382=R×sin18°/sin54°、星间距 8=AppSpace.sm、行高 40 整行命中=对齐 #35/#25 行基准、点亮星 primary 填充/未点亮 textSecondary 30% 1.5 空心描边）；与 #35 RadioGroup（文本选项离散互斥一选一）/ #31 Menu·#33 Picker（下拉选填）/ #36 Range（连续数值区间）/ #41 Switch（二元开关）/ #30 InputNumber（数字步进回显）划界；anti_goals 二期/不做=半星 allowHalf（半星 path+半格命中）/size 参数化（一期固定 22 同钮点固定先例）/label 评分文案/提交动作=宿主与 Form 职责/震动动画评分反馈=不做或宿主自理",
+      "capabilities": ["评分", "Rate", "星级评分", "星星", "评价", "打分", "Rating"],
+      "platforms": {
+        "ios": { "state": "available", "note": "RateView.swift：命令式 UIKit UIView 自绘（starPath 五角星 path 10 顶点交替外接 11/内接 11×0.382、draw 逐星点亮 primary 填充/未点亮空心描边、readonly 保色/disabled 40% 灰）；点/滑=UITouch touchesBegan/Moved/Ended 统一 x→index 换算（星宽 22+间距 8=30pt 一档、拖出左缘熄灭归 0）、松手一次性回调（tap 落在当前值同一颗=清空归 0）；value Int? didSet 半受控外部驱动 clamp 回显不触发 onChange；readonly/disabled isUserInteractionEnabled 关闭无回调；intrinsicContentSize 高 40 宽=count×30−8（wrap content 不撑满）" },
+        "android": { "state": "available", "note": "Rate.kt：声明式 Compose Canvas 自绘（buildStarPath 同坐标五角星、Canvas drawPath 逐星点亮 primary 填充/未点亮 1.5 空心描边/disabled 灰 40%）；点/滑=pointerInput(count,readonly,disabled) awaitEachGesture 单自旋（down 预览点亮、drag 横向消费/纵向不消费交外层滚动并累计两轴、松手判定=纵向主导回滚不回调 / tap 落在当前值同一颗=清空归 0、拖动取预览定值）；value Int? 参数 LaunchedEffect 半受控外部驱动 clamp 回显不触发 onChange；Box 宽=count×30−8dp wrap content 高 40dp" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/RateView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Rate.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.rate",
+      "industry_names": ["评分", "Rate", "星级", "Rating", "打分星标"],
+      "props": [
+        ["value", "Int?", "否", "半受控：nil=内部自持且初始 0（未评合法态）；外部赋值（含 clamp 0~count）=仅同步回显不触发 onChange"],
+        ["onChange / onValueChange", "回调", "是", "(Int)：点第 k 颗或滑定 k=回调 k（1~count）；点当前值同一颗=回调 0 清空（评价可取消）；拖动取松手预览值；readonly/disabled 无回调"],
+        ["count", "Int", "否", "星数，默认 5；>0（参数注释断言）；十分制=10"],
+        ["readonly", "Boolean", "否", "只读彩色展示评分、不可交互无回调（详情展示场景）"],
+        ["disabled", "Boolean", "否", "整行 40% 灰星、不可交互无回调；与 readonly 并存 disabled 压过灰"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础评分点选（count 5·初始 0 未评）", "点第 k 颗=点亮回调 k；再点当前值同一颗=清空归 0（评价可取消）；重置=外部 value=0 赋值同步回显不触发 onChange（D1）"],
+        ["滑动连选（count 5）", "横滑随指点亮/收回（拖出左缘=熄灭归 0）、松手一次性回调定值；纵向位移不消费=外层可滚动（D2）"],
+        ["只读与禁用（初始 readonly 展示 value=4）", "readonly=primary 彩色仅展示不可点；disabled=整行 40% 灰星不可点（与 readonly 并存=disabled 压过灰）；重置=外部 value=2+恢复可交互（D3）"],
+        ["自定义 count 与受控（count 10 十分制）", "星数=count；外部 value=10/重置 0=仅同步回显不触发 onChange；点/滑=组件上报宿主回写（D4）"]
+      ],
+      "note": "评分（数据录入区 #37，全新立项，2026-09-06）：行内 n 颗自绘五角星整数评分点 Rate（默认 5：值=已点亮整星数 Int 0~count、0=未评合法态；点击第 k 颗点亮并回调、点当前值同一颗=清空归 0 评价可取消；横向滑动随指连续点亮/收回松手定值；count 可配=十分制等；readonly=只读彩色展示评分不可交互；disabled=灰 40% 压过 readonly；半受控 value nil=内部自持初始 0 外部赋值回显不触发 onChange；无 label/文案/提交=宿主自理）。星形双端自绘五角星 path（字符 ★ 双端字形渲染不一致淘汰、Android 系统 RatingBar 视觉脱离不用）：外接圆 22 内凹 0.382、间距 8、行高 40 对齐 #35/#25、点亮 primary/未点亮 textSecondary 30%。与 #35 RadioGroup/#31 Menu·#33 Picker/#36 Range/#41 Switch/#30 InputNumber 划界；半星 allowHalf/size 参数化=二期候选。2026-09-06 门禁 A AI 代评通过（规格 design-spec/rate-design-spec.html + review-rate-A.md，P1–P4 全 A，用户 2026-09-06 原话「通过，继续下一个组件吧」指示接棒启动）+ 同日门禁 B 双端实现入库（RateView.swift=命令式 UIKit UITouch 点/滑统一换算 + Rate.kt=声明式 Compose pointerInput 单自旋 drag 松手判定，iOS StarPath/Android buildStarPath 同坐标算法），iOS RateShowcase / Android RateDemo 4 段 1:1（D1 基础点选清空/D2 滑动连选/D3 只读禁用/D4 十分制受控），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0。待 C1.5 用户双端 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
     }
   ],
   "businessExtensions": [

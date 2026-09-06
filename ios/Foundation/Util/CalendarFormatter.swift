@@ -47,4 +47,14 @@ enum CalendarFormatter {
         let c = calendar.dateComponents([.year, .month], from: date)
         return (c.year!, c.month!)
     }
+
+    /// 取指定日期当天 0 点（对齐 Android CalendarMonth.startOfDay）。
+    ///
+    /// - Parameters:
+    ///   - date: 参考日期
+    ///   - calendar: 日历，默认当前
+    /// - Returns: 当天 0 点的 Date
+    static func startOfDay(_ date: Date, calendar: Calendar = .current) -> Date {
+        calendar.startOfDay(for: date)
+    }
 }

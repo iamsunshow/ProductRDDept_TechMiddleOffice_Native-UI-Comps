@@ -81,6 +81,7 @@ import com.zhiqihuayun.sharedui.components.SafeAreaAllEdges
 import com.zhiqihuayun.sharedui.components.SafeAreaEdges
 import androidx.core.view.drawToBitmap
 import com.zhiqihuayun.foundation.design.AppSpace
+import com.zhiqihuayun.foundation.util.CalendarMonth
 import com.zhiqihuayun.sharedui.components.AppButton
 import com.zhiqihuayun.sharedui.components.AppButtonStyle
 import com.zhiqihuayun.sharedui.components.AppIcon
@@ -290,6 +291,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("DesignTokens 设计令牌"),
     ),
     "底层能力 foundation" to listOf(
+        DemoComponent("Calendar 日历工具", reviewed = true, demo = { CalendarDemo() }),
         DemoComponent("Router 路由"),
         DemoComponent("Storage 本地存储"),
         DemoComponent("HTTPClient 网络客户端"),
@@ -6310,5 +6312,55 @@ private fun UploaderDemo() {
             }) { Text("追加 1 张", fontSize = AppFont.sizeXs) }
         }
         Text("外部直接改 value=列表同步刷新（不触发 onAdd/onRemove）；数据源归宿主。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+    }
+}
+
+// ── Calendar 日历工具 Demo（foundation.calendar #22）──
+
+@Composable
+private fun CalendarDemo() {
+    val fmt = remember { java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()) }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1: 自然月区间 interval(year, month)
+        DemoSection("D1 · 自然月区间 interval(2026, 9)") {
+            val iv = CalendarMonth.interval(2026, 9)
+            val start = fmt.format(java.util.Date(iv.startMillis))
+            val end = fmt.format(java.util.Date(iv.endMillis))
+            Text("2026 年 9 月\n起始: $start\n结束: $end\n（半开区间 [start, end)，end = 下月 1 日 0 点）",
+                fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+        }
+
+        // D2: 年区间 yearInterval(year)
+        DemoSection("D2 · 年区间 yearInterval(2026)") {
+            val iv = CalendarMonth.yearInterval(2026)
+            val start = fmt.format(java.util.Date(iv.startMillis))
+            val end = fmt.format(java.util.Date(iv.endMillis))
+            Text("2026 年\n起始: $start\n结束: $end",
+                fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+        }
+
+        // D3: 当前年月 components()
+        DemoSection("D3 · 当前年月 components()") {
+            val (year, month) = CalendarMonth.components()
+            Text("当前: $year 年 $month 月",
+                fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+        }
+
+        // D4: 当天 0 点 startOfDay()
+        DemoSection("D4 · 当天 0 点 startOfDay(System.currentTimeMillis())") {
+            val now = System.currentTimeMillis()
+            val sod = CalendarMonth.startOfDay(now)
+            Text("当前: ${fmt.format(java.util.Date(now))}\n当天 0 点: ${fmt.format(java.util.Date(sod))}",
+                fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+        }
+
+        Text("foundation.calendar = 公历日期区间计算工具（非 UI 组件）。CalendarCard #23 复用本工具渲染日历。",
+            fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
     }
 }

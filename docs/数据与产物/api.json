@@ -1480,11 +1480,26 @@
         "Divider"
       ],
       "platforms": {
-        "ios": { "state": "available", "note": "" },
-        "android": { "state": "available", "note": "" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": ""
+        },
+        "android": {
+          "state": "available",
+          "note": ""
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/Divider.swift",
@@ -1492,7 +1507,12 @@
       },
       "deps": [],
       "variants": [],
-      "anti_goals": ["点击交互（Divider 为纯展示）", "动画/过渡效果", "自定义颜色（统一 AppColor.border）", "自定义角度（仅 horizontal/vertical）"],
+      "anti_goals": [
+        "点击交互（Divider 为纯展示）",
+        "动画/过渡效果",
+        "自定义颜色（统一 AppColor.border）",
+        "自定义角度（仅 horizontal/vertical）"
+      ],
       "visual_tokens": [
         "AppColor.border",
         "AppColor.textSecondary",
@@ -1505,20 +1525,59 @@
       "search_text": "ui.divider 分割线 Divider 水平线 垂直线 虚线 hairline 分隔 区隔 分割线 Divider horizontal vertical dashed",
       "embedding_ref": "vector-store/ui_divider.json",
       "legacy_id": "ui.divider",
-      "industry_names": ["Divider"],
+      "industry_names": [
+        "Divider"
+      ],
       "props": [
-        ["direction", "'horizontal' | 'vertical'", "否", "分割线方向（默认 horizontal）"],
-        ["dashed", "boolean", "否", "是否虚线（默认 false）"],
-        ["hairline", "boolean", "否", "是否细线 0.5px（默认 true）"],
-        ["contentPosition", "'left' | 'center' | 'right'", "否", "文本位置（默认 center）"],
-        ["text", "string", "否", "内嵌文本（空=纯线条）"]
+        [
+          "direction",
+          "'horizontal' | 'vertical'",
+          "否",
+          "分割线方向（默认 horizontal）"
+        ],
+        [
+          "dashed",
+          "boolean",
+          "否",
+          "是否虚线（默认 false）"
+        ],
+        [
+          "hairline",
+          "boolean",
+          "否",
+          "是否细线 0.5px（默认 true）"
+        ],
+        [
+          "contentPosition",
+          "'left' | 'center' | 'right'",
+          "否",
+          "文本位置（默认 center）"
+        ],
+        [
+          "text",
+          "string",
+          "否",
+          "内嵌文本（空=纯线条）"
+        ]
       ],
       "events": [],
       "demos": [
-        ["基础分割线", "<Divider />"],
-        ["虚线+粗线", "<Divider dashed /> / <Divider hairline={false} />"],
-        ["带文本分割线", "<Divider text=\"或\" contentPosition=\"center\" />"],
-        ["垂直分割线", "<Divider direction=\"vertical\" />"]
+        [
+          "基础分割线",
+          "<Divider />"
+        ],
+        [
+          "虚线+粗线",
+          "<Divider dashed /> / <Divider hairline={false} />"
+        ],
+        [
+          "带文本分割线",
+          "<Divider text=\"或\" contentPosition=\"center\" />"
+        ],
+        [
+          "垂直分割线",
+          "<Divider direction=\"vertical\" />"
+        ]
       ],
       "note": "区隔内容分割线。v1.0 门禁 A 评审通过（2026-09-04）+ C1.5 用户 Demo 实机验收通过（2026-09-04）：修复 iOS Demo4 不均分/与说明文案重叠 + Android Demo3 文字截断 + iOS 组件带文本行高随文本撑高（intrinsicContentSize），双端行高一致；组件源码已入库（子仓 5456e38）。待 C1 单测补建 + C2 CR/CI + D 发版。双端 reviewed=true。",
       "subcategory": "layout",
@@ -1624,7 +1683,14 @@
       "name": "数字输入 InputNumber",
       "category": "ui",
       "summary": "步进式数字输入内容组件（无弹层/无键盘拉起面）：− 值 +，宿主传值按 step 增减、中段显示当前值；一期无键盘直输/长按连续（键盘=Input #29 职责）；半受控 value、min/max 边界对应按钮禁用灰 40%、step/precision 定点收敛防浮点、disabled 整控件禁用；每次有效增减触发 onChange",
-      "capabilities": ["数字输入", "步进器", "InputNumber", "数字", "step", "stepper"],
+      "capabilities": [
+        "数字输入",
+        "步进器",
+        "InputNumber",
+        "数字",
+        "step",
+        "stepper"
+      ],
       "platforms": {
         "ios": {
           "state": "available",
@@ -1637,22 +1703,74 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.input-number",
-      "industry_names": ["InputNumber", "数字输入", "步进器", "step"],
+      "industry_names": [
+        "InputNumber",
+        "数字输入",
+        "步进器",
+        "step"
+      ],
       "props": [
-        ["value?", "Double", "否，默认 min 否则 0", "当前值；外部重新赋值=同步刷新显示（半受控，不触发 onChange）"],
-        ["min?", "Double", "否", "最小值；到达边界 − 钮禁用"],
-        ["max?", "Double", "否", "最大值；到达边界 + 钮禁用"],
-        ["step", "Double", "否，默认 1", "步进量（可与 precision 组合，如 0.5/1）"],
-        ["precision", "Int", "否，默认 0", "显示与运算收敛精度（定点 10^precision 防浮点尾差）；固定小数位展示"],
-        ["disabled?", "Boolean", "否", "整控件禁用（灰 40% 不可点，优先级高于边界）"],
-        ["onChange", "回调", "是", "有效增减回调 onChange(newValue)；边界/禁用幂等不回调"]
+        [
+          "value?",
+          "Double",
+          "否，默认 min 否则 0",
+          "当前值；外部重新赋值=同步刷新显示（半受控，不触发 onChange）"
+        ],
+        [
+          "min?",
+          "Double",
+          "否",
+          "最小值；到达边界 − 钮禁用"
+        ],
+        [
+          "max?",
+          "Double",
+          "否",
+          "最大值；到达边界 + 钮禁用"
+        ],
+        [
+          "step",
+          "Double",
+          "否，默认 1",
+          "步进量（可与 precision 组合，如 0.5/1）"
+        ],
+        [
+          "precision",
+          "Int",
+          "否，默认 0",
+          "显示与运算收敛精度（定点 10^precision 防浮点尾差）；固定小数位展示"
+        ],
+        [
+          "disabled?",
+          "Boolean",
+          "否",
+          "整控件禁用（灰 40% 不可点，优先级高于边界）"
+        ],
+        [
+          "onChange",
+          "回调",
+          "是",
+          "有效增减回调 onChange(newValue)；边界/禁用幂等不回调"
+        ]
       ],
       "events": [],
       "demos": [
-        ["数量步进", "购买数量 min1 max99 step1；onChange 回显；到 1/99 边界 −/+ 禁用灰 40% 幂等（D1）"],
-        ["预约人数", "提前预约人数 min1 max6 value3；仅步进无键盘（一期）（D2）"],
-        ["体重小数步进", "min20 max200 step0.5 precision1；定点运算 50.0 保留 1 位（D3）"],
-        ["禁用与外部重置", "组队人数 min1 max10；「禁用/启用」整控件 40% 置灰、外部 value=2 回显不触发 onChange（半受控）（D4）"]
+        [
+          "数量步进",
+          "购买数量 min1 max99 step1；onChange 回显；到 1/99 边界 −/+ 禁用灰 40% 幂等（D1）"
+        ],
+        [
+          "预约人数",
+          "提前预约人数 min1 max6 value3；仅步进无键盘（一期）（D2）"
+        ],
+        [
+          "体重小数步进",
+          "min20 max200 step0.5 precision1；定点运算 50.0 保留 1 位（D3）"
+        ],
+        [
+          "禁用与外部重置",
+          "组队人数 min1 max10；「禁用/启用」整控件 40% 置灰、外部 value=2 回显不触发 onChange（半受控）（D4）"
+        ]
       ],
       "note": "步进式数字输入内容组件（数据录入区第二批三件之二，任务清单 #30）：对标 Vant Stepper 收敛半受控+无键盘（一期无直输/长按，键盘=Input #29 职责、悬浮面板=不承载）；Double 宿主值 + 显式 precision 定点（不引入 Decimal 类型，避免与宿主 Double 契约异构）；金额大数精度=MoneyFormat/宿主策略。2026-09-06 门禁 A AI 代评通过（规格 input-number-design-spec.html + review-input-number-A.md，P1–P4 全 A）+ 双端实现入库（InputNumberView.swift / InputNumber.kt + iOS InputNumberShowcase/Android InputNumberDemo 4 段 1:1，demo 徽标 v1.0；Android assembleDebug 编译通过）。2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「Form和InputNumber通过」；验收前 iOS 编译 6 error 修复=init 形参 min/max 遮蔽全局 min/max 函数 → Swift.min/Swift.max 显式引用 + 删 unused digits 死代码，子仓 9ac1fef）。验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -1678,11 +1796,26 @@
         "布局 Layout"
       ],
       "platforms": {
-        "ios": { "state": "available", "note": "LayoutRow/LayoutCol（Layout.swift）；宽度=(行宽−间距总和)×span/12 与 Compose spacedBy+weight 空间模型同构，首尾无 padding" },
-        "android": { "state": "available", "note": "LayoutRow/LayoutCol（Layout.kt）：Row(fillMaxWidth)+Arrangement.spacedBy(gutter)+verticalAlignment=Top，Col=weight(span/12f)" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "LayoutRow/LayoutCol（Layout.swift）；宽度=(行宽−间距总和)×span/12 与 Compose spacedBy+weight 空间模型同构，首尾无 padding"
+        },
+        "android": {
+          "state": "available",
+          "note": "LayoutRow/LayoutCol（Layout.kt）：Row(fillMaxWidth)+Arrangement.spacedBy(gutter)+verticalAlignment=Top，Col=weight(span/12f)"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/Layout.swift",
@@ -1690,7 +1823,12 @@
       },
       "deps": [],
       "variants": [],
-      "anti_goals": ["垂直分栏（一期仅横向）", "自动换行 wrap（一期单行，chips 流式二期候选）", "等高拉伸对齐（二期引入）", "center/end 对齐（一期顶部对齐）"],
+      "anti_goals": [
+        "垂直分栏（一期仅横向）",
+        "自动换行 wrap（一期单行，chips 流式二期候选）",
+        "等高拉伸对齐（二期引入）",
+        "center/end 对齐（一期顶部对齐）"
+      ],
       "visual_tokens": [
         "AppSpace.md"
       ],
@@ -1706,14 +1844,33 @@
         "Col"
       ],
       "props": [
-        ["gutter", "number | 间距等级", "否", "子项水平间距（默认 AppSpace.md=12，双端同名）"],
-        ["span", "number", "是", "栅格宽度 1~12（12 栅格，占行宽 span/12；span 和不足 12 右侧留空）"]
+        [
+          "gutter",
+          "number | 间距等级",
+          "否",
+          "子项水平间距（默认 AppSpace.md=12，双端同名）"
+        ],
+        [
+          "span",
+          "number",
+          "是",
+          "栅格宽度 1~12（12 栅格，占行宽 span/12；span 和不足 12 右侧留空）"
+        ]
       ],
       "events": [],
       "demos": [
-        ["双栏卡片", "<LayoutRow><LayoutCol span={6}>A</LayoutCol><LayoutCol span={6}>B</LayoutCol></LayoutRow>"],
-        ["label-value 行", "<LayoutRow><LayoutCol span={4}>key</LayoutCol><LayoutCol span={8}>value</LayoutCol></LayoutRow>"],
-        ["三等分工具行", "<LayoutRow gutter={sm}><LayoutCol span={4}/><LayoutCol span={4}/><LayoutCol span={4}/></LayoutRow>"]
+        [
+          "双栏卡片",
+          "<LayoutRow><LayoutCol span={6}>A</LayoutCol><LayoutCol span={6}>B</LayoutCol></LayoutRow>"
+        ],
+        [
+          "label-value 行",
+          "<LayoutRow><LayoutCol span={4}>key</LayoutCol><LayoutCol span={8}>value</LayoutCol></LayoutRow>"
+        ],
+        [
+          "三等分工具行",
+          "<LayoutRow gutter={sm}><LayoutCol span={4}/><LayoutCol span={4}/><LayoutCol span={4}/></LayoutRow>"
+        ]
       ],
       "note": "横向弹性分栏容器（Row/Col 12 栅格，与 Grid 等分宫格互补=按任意内容比例分栏如统计双栏卡/详情 label-value 行）。v1.0 门禁 A 评审通过（2026-09-04 用户 P1–P4 全票 A：Row/Col 双组件 + 12 栅格 + gutter 默认 AppSpace.md + 一期单行 wrap 二期）+ C1.5 用户 Demo 实机验收通过（2026-09-04）：修复 iOS Demo1/4 右缘溢出（行宽分配未扣 gutter→(行宽−间距总和)×span/12 与 Compose spacedBy+weight 同构）+ iOS Demo3 药丸文字居中（makePill textAlignment=.center）；组件源码已入库（子仓 f254156，修复 dadaf09/ae39dbb 已合）。待 C1 单测补建 + C2 CR/CI + D 发版。双端 reviewed=true。",
       "subcategory": "layout",
@@ -1734,11 +1891,26 @@
         "安全区"
       ],
       "platforms": {
-        "ios": { "state": "available", "note": "SafeAreaView.swift（safeAreaLayoutGuide 锚定 + edges 可配）" },
-        "android": { "state": "available", "note": "SafeArea.kt（WindowInsets.safeDrawing + edges 可配）" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "SafeAreaView.swift（safeAreaLayoutGuide 锚定 + edges 可配）"
+        },
+        "android": {
+          "state": "available",
+          "note": "SafeArea.kt（WindowInsets.safeDrawing + edges 可配）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/SafeAreaView.swift",
@@ -1746,7 +1918,12 @@
       },
       "deps": [],
       "variants": [],
-      "anti_goals": ["系统栏颜色/图标明暗（SystemBars 职责）", "键盘避让 imePadding（二期候选）", "自定义避让数值（全取系统实时 insets）", "旋转/转场动画适配"],
+      "anti_goals": [
+        "系统栏颜色/图标明暗（SystemBars 职责）",
+        "键盘避让 imePadding（二期候选）",
+        "自定义避让数值（全取系统实时 insets）",
+        "旋转/转场动画适配"
+      ],
       "visual_tokens": [],
       "apis": "",
       "visual_refs": [],
@@ -1754,17 +1931,41 @@
       "search_text": "ui.safe-area 安全区 SafeArea SafeAreaView 刘海 状态栏 Home Indicator 手势区 沉浸式 避让 safe area insets 安全区容器",
       "embedding_ref": "",
       "legacy_id": "ui.safe-area",
-      "industry_names": ["SafeArea"],
+      "industry_names": [
+        "SafeArea"
+      ],
       "props": [
-        ["edges", "top | bottom | left | right 集合", "否", "避让边（默认四边全避）"],
-        ["content", "View/Composable", "是", "需要避让的内容"]
+        [
+          "edges",
+          "top | bottom | left | right 集合",
+          "否",
+          "避让边（默认四边全避）"
+        ],
+        [
+          "content",
+          "View/Composable",
+          "是",
+          "需要避让的内容"
+        ]
       ],
       "events": [],
       "demos": [
-        ["SafeArea 容器默认全边", "<SafeAreaView /> 内容自动贴安全区"],
-        ["顶部避让对照", "SafeArea 内内容从安全区开始 vs 无避让压状态栏"],
-        ["沉浸式页面四边避让", "深色 header 全屏出血 + SafeArea 内容层"],
-        ["edges 边裁剪", "SafeAreaView(edges: [.top]) / SafeArea(edges=setOf(Top))"]
+        [
+          "SafeArea 容器默认全边",
+          "<SafeAreaView /> 内容自动贴安全区"
+        ],
+        [
+          "顶部避让对照",
+          "SafeArea 内内容从安全区开始 vs 无避让压状态栏"
+        ],
+        [
+          "沉浸式页面四边避让",
+          "深色 header 全屏出血 + SafeArea 内容层"
+        ],
+        [
+          "edges 边裁剪",
+          "SafeAreaView(edges: [.top]) / SafeArea(edges=setOf(Top))"
+        ]
       ],
       "note": "安全区避让容器（内容自动贴系统安全区四边排布，避让值取系统实时 insets 零硬编码）。2026-09-04 全新立项：门禁 A AI 代评通过（用户'中间任何询问直接通过'总授权，P1–P4 全 A：容器式 + edges 四边可配默认全边 + Android safeDrawing 聚合源 + 一期仅容器式避让）+ 双端实现入库（SafeAreaView.swift / SafeArea.kt + 双端 Demo 4 段 1:1：D1 真实组件 / D2 顶部语义对照 / D3 沉浸四边 / D4 edges 裁剪，Android :app:assembleDebug 0 error）。2026-09-05 C1.5 Android 实机首验中用户人工发现 3 处双端差异 → v1.0.1 修复：Android SafeAreaDemo D1/D3/D4 外层 Box 消费 WindowInsets.systemBars，使 demo 区中部 SafeArea=0 与 iOS 中部容器（safeAreaLayoutGuide=0，safeAreaInsets 非 0 时已由导航壳避开）1:1，消除 D1 上下 ~100px / D3 大面积白底包围 / D4 单边错位；双端 Demo 徽标 v1.0.1，Android compileDebugKotlin 0 error（iOS 工程受预存 SPM 依赖阻塞未本机编译）。iOS 实机验证待用户 Xcode 确认。待 C1 单测 + C2 CR/CI + D 发版（2026-09-05 用户双端实机复验通过、reviewed=true，见尾部记录）。v1.0.2→v1.0.3 迭代记录：v1.0.1 只在外层 Demo 消费 insets，组件本身仍组合期直读全局 safeDrawing 拦不住消费（探针实机 top=41dp）；v1.0.2 组件改 modifier 链式读取但错用 windowInsetsTopHeight/BottomHeight/StartWidth/EndWidth——该系列语义是把 inset 设为元素高宽（等价 Modifier.height，专配 Spacer 占位），不是 padding，四边叠加互相抢高宽致 SafeArea 容器被压成一条小灰条、内容挤出（用户实机报 Demo1 只剩小灰条看不到 P0/P1 探针）；v1.0.3 改用 windowInsetsPadding(insets.only(side))：真正按边加 padding + 读传播链剩余值感知祖先 consume（页面中部消费后=0 与 iOS safeAreaLayoutGuide=0 对齐）+ 应用后向子布局消费该边 inset 防内部重复避让。双端 Demo 徽标同步 v1.0.3（Android :components + :app compileDebugKotlin 0 error；iOS 工程受预存 SPM 依赖阻塞未本机编译）。iOS 实现不受影响（safeAreaLayoutGuide 位置级语义本就正确）。2026-09-05 C1.5 用户双端实机复验通过（原话「可以了」）：D1-D4 双端 1:1（D1/D2/D4 修后一致，D3 沉浸示意圆角 iOS 同构——深绿 header clip lg / 浅绿 body clip sm，Android SafeAreaImmersionCard 内层两块各带独立圆角 commit 3e27864）；SafeArea 组件本体 v1.0.3（windowInsetsPadding+only 按边避让）双端验收通过。待 C1 单测 + C2 CR/CI + D 发版。reviewed=true（2026-09-05 用户双端实机验收）。",
       "subcategory": "layout",
@@ -1787,11 +1988,26 @@
         "吸顶块内容任意"
       ],
       "platforms": {
-        "ios": { "state": "available", "note": "StickyView.swift（自包含滚动容器 + contentOffset KVO + pinned 平移/占位替换）" },
-        "android": { "state": "available", "note": "Sticky.kt（LazyColumn stickyHeaderItem 封装，offset 以容器排布表达）" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "StickyView.swift（自包含滚动容器 + contentOffset KVO + pinned 平移/占位替换）"
+        },
+        "android": {
+          "state": "available",
+          "note": "Sticky.kt（LazyColumn stickyHeaderItem 封装，offset 以容器排布表达）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/StickyView.swift",
@@ -1799,7 +2015,13 @@
       },
       "deps": [],
       "variants": [],
-      "anti_goals": ["多级嵌套吸顶容器", "吸顶态视觉样式（阴影/背景变化，一期零视觉）", "吸底/悬浮操作类（FAB 等）", "水平吸顶/吸顶宽限", "吸顶块拖拽"],
+      "anti_goals": [
+        "多级嵌套吸顶容器",
+        "吸顶态视觉样式（阴影/背景变化，一期零视觉）",
+        "吸底/悬浮操作类（FAB 等）",
+        "水平吸顶/吸顶宽限",
+        "吸顶块拖拽"
+      ],
       "visual_tokens": [],
       "apis": "",
       "visual_refs": [],
@@ -1807,20 +2029,54 @@
       "search_text": "ui.sticky 吸顶 Sticky 粘性布局 stickyHeader 分组标题吸顶 筛选条吸顶 offset 让位 吸顶被顶替 position sticky LazyColumn stickyHeader SliverPersistentHeader",
       "embedding_ref": "",
       "legacy_id": "ui.sticky",
-      "industry_names": ["StickyHeader", "StickyView", "sticky-header"],
+      "industry_names": [
+        "StickyHeader",
+        "StickyView",
+        "sticky-header"
+      ],
       "props": [
-        ["offset", "number(pt)", "否", "钉线距容器顶距离（iOS；默认 0；Android 以滚动区置于固定条之下等价表达）"],
-        ["addStickyHeader / stickyHeaderItem", "吸顶块", "是", "登记吸顶内容行（内容任意：标题/筛选条/含按钮）"],
-        ["addRow / items", "普通行", "是", "随流普通内容（随滚动排布，无吸顶语义）"]
+        [
+          "offset",
+          "number(pt)",
+          "否",
+          "钉线距容器顶距离（iOS；默认 0；Android 以滚动区置于固定条之下等价表达）"
+        ],
+        [
+          "addStickyHeader / stickyHeaderItem",
+          "吸顶块",
+          "是",
+          "登记吸顶内容行（内容任意：标题/筛选条/含按钮）"
+        ],
+        [
+          "addRow / items",
+          "普通行",
+          "是",
+          "随流普通内容（随滚动排布，无吸顶语义）"
+        ]
       ],
       "events": [
-        ["onStickChange", "吸顶态切换回调（true=当前有吸顶块钉住；iOS 提供）"]
+        [
+          "onStickChange",
+          "吸顶态切换回调（true=当前有吸顶块钉住；iOS 提供）"
+        ]
       ],
       "demos": [
-        ["分组列表标题吸顶", "多组标题滚动中依次吸顶、被下一组顶替、回滚恢复（D1）"],
-        ["筛选条吸顶", "列表行从吸顶筛选条下穿过（D2）"],
-        ["offset 让位", "吸顶条停固定 AppBar 下方不遮挡（D3）"],
-        ["吸顶行内容任意", "icon+文字+右侧按钮的吸顶行，滚动中整行吸顶且按钮可点（D4）"]
+        [
+          "分组列表标题吸顶",
+          "多组标题滚动中依次吸顶、被下一组顶替、回滚恢复（D1）"
+        ],
+        [
+          "筛选条吸顶",
+          "列表行从吸顶筛选条下穿过（D2）"
+        ],
+        [
+          "offset 让位",
+          "吸顶条停固定 AppBar 下方不遮挡（D3）"
+        ],
+        [
+          "吸顶行内容任意",
+          "icon+文字+右侧按钮的吸顶行，滚动中整行吸顶且按钮可点（D4）"
+        ]
       ],
       "note": "粘性布局容器/行封装（吸顶行为容器级语义，吸顶块视觉由内容自带，组件零视觉零硬编码）。2026-09-04 全新立项：门禁 A AI 代评通过（用户'中间任何询问直接通过'总授权，P1–P4 全 A：单吸顶行封装 + 列表/通用滚动双路径 + iOS contentOffset 监听 pinned 平移方案（不依赖系统 section 模型）/ Android LazyColumn 原生 stickyHeader + 一期单吸顶点 + offset）+ 双端实现入库（StickyView.swift / Sticky.kt + 双端 Demo 4 段 1:1：D1 分组标题 / D2 筛选条 / D3 offset 让位 / D4 任意可交互内容，Android :app:assembleDebug 0 error + iOS pbxproj 补登记 SafeAreaView/StickyView）。iOS 工程受预存 SPM 依赖阻塞未本机编译，iOS 实机验证待用户 Xcode 确认。待 C1 单测 + C1.5 用户实机 + C2 CR/CI + D 发版。2026-09-05 C1.5 iOS 用户人工发现问题（D1-D4 拖动不悬停，Android 正常）→ iOS StickyView 双根因修复（待用户 Xcode 复验）：根因1=contentView 未锚 contentLayoutGuide.bottom，UIScrollView 无法由约束推导 contentSize=0，内层无法滚动、contentOffset 恒 0、吸顶判定永不触发 → 补 bottom 锚点建立滚动域；根因2=多组顶替时旧 header 被顶替放回原位（原位远在钉线上方）后下一帧又被当候选重钉，与正钉者逐帧互相顶替振荡停不住 → 顶替候选加 pinnedFloor 阈值（只选原位高于当前钉住者的后续 header）。Swift 语法解析通过；iOS 命令行编译仍被预存 SPM 依赖（swift-algorithms 等 Vendor）阻塞，iOS 实机复验待用户 Xcode。2026-09-05 用户 Xcode 复验通过（原话「可以」）：D1 分组标题依次吸顶/顶替/回滚、D2/D3 单条稳定吸住不振荡、D4 吸顶行按钮可点，双端 4 段 1:1，Sticky v1.0 C1.5 双端齐。reviewed=true（2026-09-05 用户双端实机验收）。",
       "subcategory": "layout",
@@ -1843,11 +2099,26 @@
         "间距 Space"
       ],
       "platforms": {
-        "ios": { "state": "available", "note": "Space（Space.swift）：UIStackView 子类（axis=direction、spacing=size 档位，横向 alignment=top/纵向=leading 不拉伸）；子项须自含尺寸" },
-        "android": { "state": "available", "note": "Space（Space.kt）：Compose Row/Column（direction 分支）+ Arrangement.spacedBy(size)；Row verticalAlignment=Top / Column horizontalAlignment=Start" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "Space（Space.swift）：UIStackView 子类（axis=direction、spacing=size 档位，横向 alignment=top/纵向=leading 不拉伸）；子项须自含尺寸"
+        },
+        "android": {
+          "state": "available",
+          "note": "Space（Space.kt）：Compose Row/Column（direction 分支）+ Arrangement.spacedBy(size)；Row verticalAlignment=Top / Column horizontalAlignment=Start"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/Space.swift",
@@ -1855,7 +2126,14 @@
       },
       "deps": [],
       "variants": [],
-      "anti_goals": ["自动换行 wrap（一期裁剪，chips 流式二期候选）", "split 分隔符（一期裁剪，二期候选；Divider 文本模式可近似）", "比例分栏/栅格（Layout 职责）", "等分宫格矩阵（Grid 职责）", "单点间距 margin/padding（AppSpace token 直排）", "子项拉伸对齐（一期固定顶部/起始侧对齐，center/两端铺满二期）"],
+      "anti_goals": [
+        "自动换行 wrap（一期裁剪，chips 流式二期候选）",
+        "split 分隔符（一期裁剪，二期候选；Divider 文本模式可近似）",
+        "比例分栏/栅格（Layout 职责）",
+        "等分宫格矩阵（Grid 职责）",
+        "单点间距 margin/padding（AppSpace token 直排）",
+        "子项拉伸对齐（一期固定顶部/起始侧对齐，center/两端铺满二期）"
+      ],
       "visual_tokens": [
         "AppSpace.xs",
         "AppSpace.sm",
@@ -1873,15 +2151,37 @@
         "Space"
       ],
       "props": [
-        ["direction", "'horizontal' | 'vertical'", "否", "排布方向（默认 horizontal=一行；vertical=一列；P1 用户全 A 单组件双向）"],
-        ["size", "AppSpace 档位（xs~xl）", "否", "相邻子项间距（默认 AppSpace.sm=8，P3 用户全 A；间距仅在子项之间，首尾无 padding）"]
+        [
+          "direction",
+          "'horizontal' | 'vertical'",
+          "否",
+          "排布方向（默认 horizontal=一行；vertical=一列；P1 用户全 A 单组件双向）"
+        ],
+        [
+          "size",
+          "AppSpace 档位（xs~xl）",
+          "否",
+          "相邻子项间距（默认 AppSpace.sm=8，P3 用户全 A；间距仅在子项之间，首尾无 padding）"
+        ]
       ],
       "events": [],
       "demos": [
-        ["工具组", "Space(direction=horizontal, size=sm){ 记一笔 · 扫一扫 · 账单 · 设置 }"],
-        ["chip 标签组", "Space(direction=horizontal, size=sm){ 全部 · 餐饮 · 交通 · 购物 }"],
-        ["区块间隔双卡", "Space(direction=horizontal, size=xl){ 本月收入卡 · 本月支出卡 }"],
-        ["垂直详情行", "Space(direction=vertical, size=md){ 分类 · 账户 · 时间 · 备注 }"]
+        [
+          "工具组",
+          "Space(direction=horizontal, size=sm){ 记一笔 · 扫一扫 · 账单 · 设置 }"
+        ],
+        [
+          "chip 标签组",
+          "Space(direction=horizontal, size=sm){ 全部 · 餐饮 · 交通 · 购物 }"
+        ],
+        [
+          "区块间隔双卡",
+          "Space(direction=horizontal, size=xl){ 本月收入卡 · 本月支出卡 }"
+        ],
+        [
+          "垂直详情行",
+          "Space(direction=vertical, size=md){ 分类 · 账户 · 时间 · 备注 }"
+        ]
       ],
       "note": "纯间距容器（方向+档位间距编排，与 Layout 比例分栏/Grid 等分宫格互补=相邻子项统一间距场景如 icon+文字工具组/chip 组/区块间隔/详情纵向堆叠）。v1.0 门禁 A 评审通过（2026-09-04 用户 P1–P4 全票 A：方向双向 + AppSpace 五档 + 默认 sm=8 + 一期无 wrap/split）+ 双端实现入库（Space.swift/Space.kt + 双端 Demo 5 段 1:1：工具组 sm / chip 组 sm / 双卡 xl / 垂直详情 md / 方向对照+嵌套）+ C1.5 用户放行（2026-09-04 用户指示'继续'；iOS 工程受预存 SPM 依赖阻塞未本机编译，iOS 实机验证待 SPM 解除后补）。待 C1 单测补建 + C2 CR/CI + D 发版。双端 reviewed=true。",
       "subcategory": "layout",
@@ -1904,11 +2204,26 @@
         "点击回调"
       ],
       "platforms": {
-        "ios": { "state": "available", "note": "BackTopButton.swift（UIView + KVO 监听 target.contentOffset + setFace 视觉替换 + onTap 回调，nil=setContentOffset 回顶）" },
-        "android": { "state": "available", "note": "BackTop.kt（Compose snapshotFlow 监听 ScrollState + AnimatedVisibility 淡入淡出 + content 整体替换 + onClick 回调，null=animateScrollTo(0)）" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "BackTopButton.swift（UIView + KVO 监听 target.contentOffset + setFace 视觉替换 + onTap 回调，nil=setContentOffset 回顶）"
+        },
+        "android": {
+          "state": "available",
+          "note": "BackTop.kt（Compose snapshotFlow 监听 ScrollState + AnimatedVisibility 淡入淡出 + content 整体替换 + onClick 回调，null=animateScrollTo(0)）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/BackTopButton.swift",
@@ -1916,7 +2231,12 @@
       },
       "deps": [],
       "variants": [],
-      "anti_goals": ["平滑滚动策略（回顶动画方式由默认实现，未可配）", "悬停拖拽/位置记忆", "圆钮样式定制（视觉整体替换而非样式参数）", "多滚动源/滚动容器嵌套自动选择"],
+      "anti_goals": [
+        "平滑滚动策略（回顶动画方式由默认实现，未可配）",
+        "悬停拖拽/位置记忆",
+        "圆钮样式定制（视觉整体替换而非样式参数）",
+        "多滚动源/滚动容器嵌套自动选择"
+      ],
       "visual_tokens": [],
       "apis": "",
       "visual_refs": [],
@@ -1924,19 +2244,55 @@
       "search_text": "ui.back-top 返回顶部 BackTop 回顶 悬浮按钮 浮层按钮 滚动超阈值 点击回顶 scroll to top back top",
       "embedding_ref": "",
       "legacy_id": "ui.back-top",
-      "industry_names": ["BackTop", "ScrollToTop", "back-top"],
+      "industry_names": [
+        "BackTop",
+        "ScrollToTop",
+        "back-top"
+      ],
       "props": [
-        ["scrollState / target", "滚动源", "是", "Android 传 ScrollState（Column verticalScroll/LazyColumn state）；iOS 传 UIScrollView target"],
-        ["appearAfterPx / appearAfter", "出现阈值", "否", "滚动位移超过该值后显示，默认 120（Android px / iOS pt）"],
-        ["onClick / onTap", "点击回调", "否", "nil=默认回顶动画（Android animateScrollTo(0) / iOS setContentOffset(.zero, animated:)）"],
-        ["content / setFace", "按钮内容", "否", "默认主色 ↑ 圆钮（零图片）；Android content 整体替换 / iOS setFace(view)"]
+        [
+          "scrollState / target",
+          "滚动源",
+          "是",
+          "Android 传 ScrollState（Column verticalScroll/LazyColumn state）；iOS 传 UIScrollView target"
+        ],
+        [
+          "appearAfterPx / appearAfter",
+          "出现阈值",
+          "否",
+          "滚动位移超过该值后显示，默认 120（Android px / iOS pt）"
+        ],
+        [
+          "onClick / onTap",
+          "点击回调",
+          "否",
+          "nil=默认回顶动画（Android animateScrollTo(0) / iOS setContentOffset(.zero, animated:)）"
+        ],
+        [
+          "content / setFace",
+          "按钮内容",
+          "否",
+          "默认主色 ↑ 圆钮（零图片）；Android content 整体替换 / iOS setFace(view)"
+        ]
       ],
       "events": [],
       "demos": [
-        ["默认样式滚动回顶", "30 行长内容滚动超阈值 120 右下淡入 ↑ 圆钮，点击回顶（D1）"],
-        ["自定义内容", "content/setFace 文字胶囊「回顶」，点击行为保留（D2）"],
-        ["点击回调", "onClick/onTap 接管回顶，计数不自动回顶（D3）"],
-        ["位置宿主摆放+阈值", "左下角摆放 + 阈值 40 滚动即现（D4）"]
+        [
+          "默认样式滚动回顶",
+          "30 行长内容滚动超阈值 120 右下淡入 ↑ 圆钮，点击回顶（D1）"
+        ],
+        [
+          "自定义内容",
+          "content/setFace 文字胶囊「回顶」，点击行为保留（D2）"
+        ],
+        [
+          "点击回调",
+          "onClick/onTap 接管回顶，计数不自动回顶（D3）"
+        ],
+        [
+          "位置宿主摆放+阈值",
+          "左下角摆放 + 阈值 40 滚动即现（D4）"
+        ]
       ],
       "note": "悬浮返回顶部按钮（滚动源解耦=组件只监听宿主滚动，位置由宿主摆放，组件不代管布局上下文；显隐淡入淡出不占布局位）。2026-09-04 全新立项：门禁 A AI 代评通过（用户'中间任何询问直接通过'总授权，P1–P4 全 A：浮层按钮模式 + 滚动源解耦 + iOS KVO/Android snapshotFlow 监听 + 默认视觉可替换）+ 双端实现入库（BackTopButton.swift / BackTop.kt + iOS BackTopShowcase 4 段已接，Android :app:assembleDebug 0 error）。2026-09-05 补 Android BackTopDemo 4 段与 iOS 1:1（D1 默认 30 行阈值 120dp 右下 / D2 content 文字胶囊 72x30 / D3 onClick 计数 / D4 左下+阈值 40dp）；组件视觉替换语义对齐 iOS setFace（外层去掉强制默认背景，默认 face 内置 40dp 主色圆钮，替换 content 后不残留默认底）；iOS makeScroller 补 contentLayoutGuide.bottom 滚动域闭合（与 Sticky iOS f220dad 同款坑预修，防 BackTop 同 issue：无底部闭合 contentSize=0 按钮永不出现）。2026-09-05 C1.5 首轮用户双端实机：Android 全过；iOS 报 2 问题——D2 滑动后按钮不出现 / D3 点击后无可见反馈观感。修复：①D2 根因=组件 setFace 实现把默认 face 直接当作承载按钮（faceView===tapButton），setFace 里 removeFromSuperview 把承载按钮从宿主拔除、内容挂到脱离层级的按钮 → 整钮不可见 → 重构：tapButton 只作点击+内容承载（自身永不移除），默认 ↑ 圆钮为独立子视图（圆角随宿主尺寸=边长一半），setFace 只整体替换内容（自定义 face 圆角组件不代管=Android content 同语义）；②D3 反馈从页面顶部共享条移到段内 addDynamicInfo 动态文本行（点击计数回显在段下方，与 Android 段内 Text 1:1；onTap 接管=不回顶为两端一致语义，文案明示）。2026-09-05 用户 Xcode 复验通过（原话“可以了”），C1.5 双端齐=验收通过。reviewed=true（用户双端实机验收）。",
       "subcategory": "navigation",
@@ -1960,11 +2316,26 @@
         "Elevator"
       ],
       "platforms": {
-        "ios": { "state": "available", "note": "ElevatorView.swift（UITableView 扁平数据渲染 + 索引条 UIStackView + scrollViewDidScroll 首可视行判组高亮 + scrollToRow 跳转 + onSelect）" },
-        "android": { "state": "available", "note": "Elevator.kt（Compose LazyColumn + snapshotFlow firstVisibleItemIndex 判组高亮 + animateScrollToItem 跳转 + onSelect）" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "ElevatorView.swift（UITableView 扁平数据渲染 + 索引条 UIStackView + scrollViewDidScroll 首可视行判组高亮 + scrollToRow 跳转 + onSelect）"
+        },
+        "android": {
+          "state": "available",
+          "note": "Elevator.kt（Compose LazyColumn + snapshotFlow firstVisibleItemIndex 判组高亮 + animateScrollToItem 跳转 + onSelect）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/ElevatorView.swift",
@@ -1972,7 +2343,12 @@
       },
       "deps": [],
       "variants": [],
-      "anti_goals": ["外部滚动容器联动（NutUI containerId 模式，登记二期）", "行内容自定义插槽（分组行固定文本+细分割线，登记二期）", "分组标题吸顶 sticky（登记二期）", "索引气泡提示/两指拖动"],
+      "anti_goals": [
+        "外部滚动容器联动（NutUI containerId 模式，登记二期）",
+        "行内容自定义插槽（分组行固定文本+细分割线，登记二期）",
+        "分组标题吸顶 sticky（登记二期）",
+        "索引气泡提示/两指拖动"
+      ],
       "visual_tokens": [],
       "apis": "",
       "visual_refs": [],
@@ -1980,18 +2356,50 @@
       "search_text": "ui.elevator 电梯 楼层 分组列表 索引导航 定位器 字母索引 城市选择 快速跳转 elevator floor index",
       "embedding_ref": "",
       "legacy_id": "ui.elevator",
-      "industry_names": ["Elevator", "ElevatorNav", "索引定位", "电梯导航"],
+      "industry_names": [
+        "Elevator",
+        "ElevatorNav",
+        "索引定位",
+        "电梯导航"
+      ],
       "props": [
-        ["floors", "分组数据", "是", "[(key: 分组标题/索引文本, items: 组内文本行)]"],
-        ["index", "右侧索引", "否", "nil=自动取各分组 key；显式传=只展示传的索引项（对齐 NutUI index 覆盖）"],
-        ["onSelect", "分组行点击回调", "否", "(分组序号, 组内行号, 名称)；nil=分组行不可点"]
+        [
+          "floors",
+          "分组数据",
+          "是",
+          "[(key: 分组标题/索引文本, items: 组内文本行)]"
+        ],
+        [
+          "index",
+          "右侧索引",
+          "否",
+          "nil=自动取各分组 key；显式传=只展示传的索引项（对齐 NutUI index 覆盖）"
+        ],
+        [
+          "onSelect",
+          "分组行点击回调",
+          "否",
+          "(分组序号, 组内行号, 名称)；nil=分组行不可点"
+        ]
       ],
       "events": [],
       "demos": [
-        ["楼层分组（默认自动索引）", "1F-5F 商户分组自动索引，点索引跳分组+滚动联动高亮（D1）"],
-        ["城市字母（index 显式自定义）", "A/B/G/S 城市分组，index 显式传只展示含数据字母（D2）"],
-        ["分组行点击", "onSelect 回传 (分组, 行, 名称)，段内反馈回显（D3）"],
-        ["长分组列表", "12 组月份分组连续滚动，索引高亮稳定无跳变（D4）"]
+        [
+          "楼层分组（默认自动索引）",
+          "1F-5F 商户分组自动索引，点索引跳分组+滚动联动高亮（D1）"
+        ],
+        [
+          "城市字母（index 显式自定义）",
+          "A/B/G/S 城市分组，index 显式传只展示含数据字母（D2）"
+        ],
+        [
+          "分组行点击",
+          "onSelect 回传 (分组, 行, 名称)，段内反馈回显（D3）"
+        ],
+        [
+          "长分组列表",
+          "12 组月份分组连续滚动，索引高亮稳定无跳变（D4）"
+        ]
       ],
       "note": "电梯楼层定位器（导航组件 #2，任务清单 #14）：数据驱动分组内容 + 右侧楼/字母索引导航（点击索引=分组滚顶、内容滚动=可视首分组高亮索引双向联动）；自包含定高（滚动容器 iOS UITableView / Android LazyColumn，高度由宿主约束=组件不代管布局上下文）；分组标题行 32pt/32dp=普通行随内容滚动（不吸顶，anti_goal 二期）；内容行高 56pt/56dp=同库规范行高（对齐 Cell.minHeight）；索引条宽 44pt/44dp；行点击回调可选（onSelect）。2026-09-05 全新立项：规格 elevator-design-spec.html（01 用途边界/02 Token/03 P1–P4 决策/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-elevator-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：自包含定高 + 索引自动/显式 + 双向联动 + 行点击可选；anti_goal=外部容器联动/行内容插槽/标题吸顶=登记二期）+ 双端实现入库（ElevatorView.swift / Elevator.kt + iOS ElevatorShowcase/Android ElevatorDemo 4 段 1:1：D1 楼层自动索引 / D2 城市显式 index / D3 行点击 onSelect / D4 12 组月份长列表）。reviewed=true（2026-09-05 用户 Demo 双端实机验收通过：原话“通过”，见组件进度.md §2.12）。",
       "subcategory": "navigation",
@@ -2013,11 +2421,26 @@
         "FixedNav"
       ],
       "platforms": {
-        "ios": { "state": "available", "note": "FixedNavView.swift（UIButton 胶囊钮 + 面板 UIStackView 竖排行：图标位 20 圆角 6/文本/num 角标，行内容 title 后低 hugging 弹性 spacer 防 title 被拉宽，点钮开合、点项自动收起 + collapse()；collapse completion panelCard===card 引用保护防多次快速开合失灵）" },
-        "android": { "state": "available", "note": "FixedNav.kt（Compose 受控 expanded + 面板 Column width(IntrinsicSize.Min) 竖排行：图标位/文本/num 角标，行内 title 后 Spacer(weight) 推行尾，点钮翻转、点项自动收起）" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "FixedNavView.swift（UIButton 胶囊钮 + 面板 UIStackView 竖排行：图标位 20 圆角 6/文本/num 角标，行内容 title 后低 hugging 弹性 spacer 防 title 被拉宽，点钮开合、点项自动收起 + collapse()；collapse completion panelCard===card 引用保护防多次快速开合失灵）"
+        },
+        "android": {
+          "state": "available",
+          "note": "FixedNav.kt（Compose 受控 expanded + 面板 Column width(IntrinsicSize.Min) 竖排行：图标位/文本/num 角标，行内 title 后 Spacer(weight) 推行尾，点钮翻转、点项自动收起）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/FixedNavView.swift",
@@ -2025,7 +2448,12 @@
       },
       "deps": [],
       "variants": [],
-      "anti_goals": ["拖拽自由定位 Drag（登记二期）", "自定义按钮/面板插槽（登记二期）", "行图标系统 Icon 映射（一期 icon=单字符文本位，登记二期）", "面板长列表滚动（>7 项，登记二期）"],
+      "anti_goals": [
+        "拖拽自由定位 Drag（登记二期）",
+        "自定义按钮/面板插槽（登记二期）",
+        "行图标系统 Icon 映射（一期 icon=单字符文本位，登记二期）",
+        "面板长列表滚动（>7 项，登记二期）"
+      ],
       "visual_tokens": [],
       "apis": "",
       "visual_refs": [],
@@ -2033,26 +2461,67 @@
       "search_text": "ui.fixed-nav 悬浮导航 悬浮按钮 快捷导航 导航面板 快速导航 常用入口 fixed nav float",
       "embedding_ref": "",
       "legacy_id": "ui.fixed-nav",
-      "industry_names": ["FixedNav", "FloatingNav", "悬浮导航", "快捷导航"],
+      "industry_names": [
+        "FixedNav",
+        "FloatingNav",
+        "悬浮导航",
+        "快捷导航"
+      ],
       "props": [
-        ["items", "导航项列表", "是", "FixedNavItem(key 唯一标识/text 文案/icon 可选字符/num 可选角标)，面板竖排行数=items 数"],
-        ["type", "摆放方向", "否", "right=钮靠右缘面板同右缘弹出 / left 对称；默认 right"],
-        ["activeText / unActiveText", "展开/收起钮文案", "否", "nil=默认 收起导航/快速导航"],
-        ["expanded / onExpandedChange", "展开状态(受控)", "否", "Android 受控参数；iOS 内部状态 + collapse()（平台差异表内放行）"],
-        ["onSelect", "点项回调", "否", "(key/text…) 回传；触发后自动收起面板；nil=点项仅展开收起"]
+        [
+          "items",
+          "导航项列表",
+          "是",
+          "FixedNavItem(key 唯一标识/text 文案/icon 可选字符/num 可选角标)，面板竖排行数=items 数"
+        ],
+        [
+          "type",
+          "摆放方向",
+          "否",
+          "right=钮靠右缘面板同右缘弹出 / left 对称；默认 right"
+        ],
+        [
+          "activeText / unActiveText",
+          "展开/收起钮文案",
+          "否",
+          "nil=默认 收起导航/快速导航"
+        ],
+        [
+          "expanded / onExpandedChange",
+          "展开状态(受控)",
+          "否",
+          "Android 受控参数；iOS 内部状态 + collapse()（平台差异表内放行）"
+        ],
+        [
+          "onSelect",
+          "点项回调",
+          "否",
+          "(key/text…) 回传；触发后自动收起面板；nil=点项仅展开收起"
+        ]
       ],
       "events": [],
       "demos": [
-        ["右侧默认（角标）", "右下胶囊「快速导航」展开面板 4 项（首页 num2/购物车 num5…），钮文字切「收起导航」，点项自动收起（D1）"],
-        ["左侧摆放 type=left", "左下胶囊「更多工具」，面板向右展开 3 项，点项回传自动收起（D2）"],
-        ["无图标无角标长文本", "图标位缺省=不显示不占位，行宽自适应；自定义钮文案「操作/收起」（D3）"],
-        ["多次开合 + 点面板外收起", "连续开合点选 + 点面板外空白=收起且不触发选中，状态机稳定（D4）"]
+        [
+          "右侧默认（角标）",
+          "右下胶囊「快速导航」展开面板 4 项（首页 num2/购物车 num5…），钮文字切「收起导航」，点项自动收起（D1）"
+        ],
+        [
+          "左侧摆放 type=left",
+          "左下胶囊「更多工具」，面板向右展开 3 项，点项回传自动收起（D2）"
+        ],
+        [
+          "无图标无角标长文本",
+          "图标位缺省=不显示不占位，行宽自适应；自定义钮文案「操作/收起」（D3）"
+        ],
+        [
+          "多次开合 + 点面板外收起",
+          "连续开合点选 + 点面板外空白=收起且不触发选中，状态机稳定（D4）"
+        ]
       ],
       "note": "悬浮导航（导航组件 #3，任务清单 #15）：页面边缘常驻悬浮入口钮 + 展开导航项列表的“快捷导航器”；对标 NutUI React FixedNav（active/nav-list/type/text 语义）；钮视觉基线对齐 BackTop 悬浮钮（高 40pt/40dp 主色白字胶囊钮，圆角 full）；面板=卡片壳（bgCard/圆角 md/边框/阴影）竖排行（行高 44pt/44dp：图标位 20 圆角 6 primaryMuted + 文本 + 可选 num 角标 16 圆角 full，末行无下边线，行最小宽 140）；type 只决定钮靠左/右缘与面板展开方向；“悬浮”定位由宿主完成（组件=纯内容视图放非滚动覆盖层锚定边角，同 BackTop 先例，不做 window 浮层/不监听滚动）；点项自动收起。2026-09-05 全新立项：规格 fixed-nav-design-spec.html（01 用途边界/02 Token/03 P1–P4/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-fixed-nav-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：收起胶囊钮+点钮弹出面板+点项自动收起 / FixedNavItem(key/text/icon?/num?) + type 左右 + 文案自定义 + onSelect / 宿主锚定纯内容视图 / 一期面板行≤7 无滚动；anti_goal=拖拽 Drag/自定义插槽/Icon 系统映射/面板滚动=登记二期）+ 双端实现入库（FixedNavView.swift / FixedNav.kt + iOS FixedNavShowcase/Android FixedNavDemo 4 段 1:1：D1 右侧默认 / D2 左侧 type=left / D3 无图标无角标 / D4 多次开合+点面板外收起）。2026-09-05 C1.5 用户 Demo 双端实机验收通过（原话“通过了”）：验收 5 类问题双端修复闭环（子仓 9503a47：①Android 面板通栏→面板 Column 补 width(IntrinsicSize.Min)+行 defaultMinSize(140)；②Android 图标浅绿框内不居中/数字截断→icon/num 文字 lineHeight=fontSize+居中+num badge 弃固定高改 defaultMinSize；③行内数字推行尾→title 后 Spacer(weight)/iOS 低 hugging 弹性 spacer=spec fn-num margin-left:auto；④iOS 行 title 被 UIStackView fill 拉宽→弹性 spacer；⑤iOS 多次点击失灵→collapse completion 加 panelCard===card 引用保护），reviewed=true。",
       "subcategory": "navigation",
       "reviewed": true
     },
-
     {
       "id": "ui.side-bar",
       "name": "侧边导航 SideBar",
@@ -2070,11 +2539,26 @@
         "SideBar"
       ],
       "platforms": {
-        "ios": { "state": "available", "note": "SideBarView.swift（SideBarItem(title/value/disabled) + UIButton 胶囊行轨（行高 48、胶囊宽=轨宽−8 圆角 full）+ UIScrollView 轨内滚动 + scrollRectToVisible 选中滚入可视 + 半受控 selectedValue（外部赋值不触发 onChange）+ 幂等点选）" },
-        "android": { "state": "available", "note": "SideBar.kt（Compose LazyColumn 懒加载轨 + 选中胶囊 RoundedCornerShape(20) bgCard + animateScrollToItem 选中滚入可视 + 半受控 selectedValue（外部驱动不触发 onChange）+ 幂等点选）" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "SideBarView.swift（SideBarItem(title/value/disabled) + UIButton 胶囊行轨（行高 48、胶囊宽=轨宽−8 圆角 full）+ UIScrollView 轨内滚动 + scrollRectToVisible 选中滚入可视 + 半受控 selectedValue（外部赋值不触发 onChange）+ 幂等点选）"
+        },
+        "android": {
+          "state": "available",
+          "note": "SideBar.kt（Compose LazyColumn 懒加载轨 + 选中胶囊 RoundedCornerShape(20) bgCard + animateScrollToItem 选中滚入可视 + 半受控 selectedValue（外部驱动不触发 onChange）+ 幂等点选）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/SideBarView.swift",
@@ -2082,24 +2566,56 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.side-bar",
-      "industry_names": ["SideBar", "SideBarNav", "侧边导航", "分类导航", "目录导航轨"],
+      "industry_names": [
+        "SideBar",
+        "SideBarNav",
+        "侧边导航",
+        "分类导航",
+        "目录导航轨"
+      ],
       "props": [
-        ["items", "目录项列表", "是", "SideBarItem(title 单行省略/value 稳定标识/disabled 禁用不可点)；数据驱动，轨内行数=items 数"],
-        ["selectedValue", "选中值(半受控)", "否", "nil=默认首启用项激活自管理；外部赋值=受控高亮同步 + 选中滚入可视；外部驱动不触发 onChange（幂等）"],
-        ["onChange", "点选回调", "否", "(value) 用户点选触发；点击已激活项不重复回调（幂等）；disabled 项不触发"]
+        [
+          "items",
+          "目录项列表",
+          "是",
+          "SideBarItem(title 单行省略/value 稳定标识/disabled 禁用不可点)；数据驱动，轨内行数=items 数"
+        ],
+        [
+          "selectedValue",
+          "选中值(半受控)",
+          "否",
+          "nil=默认首启用项激活自管理；外部赋值=受控高亮同步 + 选中滚入可视；外部驱动不触发 onChange（幂等）"
+        ],
+        [
+          "onChange",
+          "点选回调",
+          "否",
+          "(value) 用户点选触发；点击已激活项不重复回调（幂等）；disabled 项不触发"
+        ]
       ],
       "events": [],
       "demos": [
-        ["基础两栏目录（账单分类 5 项）", "左轨 5 分类 + 右信息卡：选中持久高亮 + 点选迁移内容 + 回调幂等（点已激活项计数不增）（D1）"],
-        ["禁用项 + 长标题省略", "禁用项文字透明度 40% 不可点不触发回调；「消息通知与提醒偏好配置」长标题单行省略（D2）"],
-        ["长列表滚动 + 内容联动（12 月）", "12 项轨内可滚选中自动滚入可视；点选=右区滚动定位，右区拖动=轨高亮反向驱动（D3）"],
-        ["受控复位（外部 value 驱动）", "「重置到第一项」外部赋值 selectedValue：高亮同步 + 选中滚入可视，不触发 onChange（幂等）（D4）"]
+        [
+          "基础两栏目录（账单分类 5 项）",
+          "左轨 5 分类 + 右信息卡：选中持久高亮 + 点选迁移内容 + 回调幂等（点已激活项计数不增）（D1）"
+        ],
+        [
+          "禁用项 + 长标题省略",
+          "禁用项文字透明度 40% 不可点不触发回调；「消息通知与提醒偏好配置」长标题单行省略（D2）"
+        ],
+        [
+          "长列表滚动 + 内容联动（12 月）",
+          "12 项轨内可滚选中自动滚入可视；点选=右区滚动定位，右区拖动=轨高亮反向驱动（D3）"
+        ],
+        [
+          "受控复位（外部 value 驱动）",
+          "「重置到第一项」外部赋值 selectedValue：高亮同步 + 选中滚入可视，不触发 onChange（幂等）（D4）"
+        ]
       ],
       "note": "侧边导航（导航组件 #5，任务清单 #18）：页面内容区左侧竖排目录导航轨（垂直单选导航），对标 NutUI React SideBar（title/url 语义收敛为 value 回调）；纯导航轨定位（组件不内嵌右内容联动，与 Elevator 划界：不监听滚动/不做锚点跟随=宿主自理）；选中视觉=白底胶囊（圆角 full）+ 主色加粗浮于灰轨（gray4）上；禁用=文字透明度 40%（A2 规格）；胶囊宽=轨宽−8（行左右 margin xs=4）、行高 48pt/48dp（同库导航轨行高）、轨宽默认 96pt/96dp（宿主可宽度约束覆盖）；行高/轨宽/胶囊 margin 均 Token 对齐（AppSpace.xs/sizeSm 等注释，防魔法值）。轨内长列表滚动 iOS=UIScrollView/Android=LazyColumn，选中自动滚入可视（scrollRectToVisible/animateScrollToItem）。2026-09-05 全新立项：规格 side-bar-design-spec.html（01 用途边界/02 Token/03 P1–P4 决策/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-side-bar-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：纯导航轨数据驱动 + 半受控选中（外部驱动不触发回调）+ 长轨滚动选中滚入可视 + 一期无右内容联动；anti_goal=右侧内容插槽/行内缩进图标/双向滚动锚定跟随=登记二期）+ 双端实现入库（SideBarView.swift / SideBar.kt + iOS SideBarShowcase/Android SideBarDemo 4 段 1:1：D1 基础两栏 / D2 禁用+长标题 / D3 长列表+双向联动 / D4 受控复位）。C1.5 用户评审通过（2026-09-05 原话“评审通过，实现吧”）：Android 首验报 demo 入口不可点，根因=MainActivity 注册行 SideBar 仍为占位 DemoComponent（demo=null 行不可点）→ 补 reviewed=true + demo={ SideBarDemo() }（子仓 c11d92a）+ :app:assembleDebug BUILD SUCCESSFUL 复验；iOS SideBarShowcase 实机可用（用户原话“iOS 的可以使用”）；reviewed 翻 true 并回写组件进度.md §1/§2.15/§3。C1.5 修复复验再闭环（2026-09-05 用户复验通过，原话“SideBar通过”，子仓 97c4504 + 根仓收编 fd5c44dc）：① iOS D2 demo 原受控写死 selectedValue=「数据与隐私」且 onChange 不回写=点其它可用项高亮不迁移、右侧信息卡静态=看起来无反应 → 改半受控宿主回写（d2SelectedValue + rail.selectedValue = value）与 Android D2 语义一致；② iOS D4 demo 原开局自管理（selectedValue=nil）而点「重置到第一项」才把 selectedValue 置非 nil=瞬间切进受控态且 onChange 从不回写=受控语义下高亮被外部值钉死=重置后左侧菜单点击不迁移“没法点” → 改全程受控创建（selectedValue=d4SelectedValue）+ onChange 回写，与 Android D4（d4Sel 全程受控）对齐；③ Android 组件点选后整轨置顶跳变=原 animateScrollToItem(index) 强制把选中行滚到视口顶 → 改对齐 iOS scrollRectToVisible 语义：目标在可视区内不滚、在上方滚到顶部可见、在下方按「视口高−行高」scrollOffset 滚到恰好进入可视。",
       "subcategory": "navigation",
       "reviewed": true
     },
-
     {
       "id": "ui.hover-button",
       "name": "悬浮按钮 HoverButton",
@@ -2218,11 +2734,26 @@
         "标题栏"
       ],
       "platforms": {
-        "ios": { "state": "available", "note": "NavBar.swift（NavBarAction(text/color?/onTap) + title/onBack?/rightAction? + 内容高 44pt（intrinsic）+ 白底 bgCard + 行底 hairline + 标题整条中心定位，长标题向两侧回退省略但不得侵入返回/动作热区）" },
-        "android": { "state": "available", "note": "NavBar.kt（NavBarAction 数据类 + NavBar(title/onBack?/rightAction?/modifier) Row 44dp + bgCard + 行底 0.5dp hairline；onBack=nil 返回槽不占位）" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "NavBar.swift（NavBarAction(text/color?/onTap) + title/onBack?/rightAction? + 内容高 44pt（intrinsic）+ 白底 bgCard + 行底 hairline + 标题整条中心定位，长标题向两侧回退省略但不得侵入返回/动作热区）"
+        },
+        "android": {
+          "state": "available",
+          "note": "NavBar.kt（NavBarAction 数据类 + NavBar(title/onBack?/rightAction?/modifier) Row 44dp + bgCard + 行底 0.5dp hairline；onBack=nil 返回槽不占位）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/NavBar.swift",
@@ -2230,18 +2761,51 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.navbar",
-      "industry_names": ["NavBar", "NavigationBar", "TopBar", "头部导航", "导航栏"],
+      "industry_names": [
+        "NavBar",
+        "NavigationBar",
+        "TopBar",
+        "头部导航",
+        "导航栏"
+      ],
       "props": [
-        ["title", "标题", "是", "居中单行省略，Lg 18 semibold textPrimary"],
-        ["onBack", "返回回调", "否", "nil=一级页不显示返回钮（标题严格居中）；非 nil=左侧 ← 主色钮（热区 44×44）"],
-        ["rightAction", "右侧动作", "否", "NavBarAction(text 必填/color 可选默认 textPrimary/onTap)；文字 14"]
+        [
+          "title",
+          "标题",
+          "是",
+          "居中单行省略，Lg 18 semibold textPrimary"
+        ],
+        [
+          "onBack",
+          "返回回调",
+          "否",
+          "nil=一级页不显示返回钮（标题严格居中）；非 nil=左侧 ← 主色钮（热区 44×44）"
+        ],
+        [
+          "rightAction",
+          "右侧动作",
+          "否",
+          "NavBarAction(text 必填/color 可选默认 textPrimary/onTap)；文字 14"
+        ]
       ],
       "events": [],
       "demos": [
-        ["返回钮 + 标题", "账单明细：左侧返回 ← 主色钮 44×44 热区，点击计数回显，标题居中（D1）"],
-        ["一级页无返回", "资产总览：onBack=nil 返回槽不占位、标题严格水平居中（D2）"],
-        ["右侧动作「保存」", "编辑分类：返回+保存双热区，保存文字 14 textPrimary 可 color 覆盖，点击计数（D3）"],
-        ["长标题省略", "超长标题单行省略+两侧返回/保存夹挤不侵入热区（D4）"]
+        [
+          "返回钮 + 标题",
+          "账单明细：左侧返回 ← 主色钮 44×44 热区，点击计数回显，标题居中（D1）"
+        ],
+        [
+          "一级页无返回",
+          "资产总览：onBack=nil 返回槽不占位、标题严格水平居中（D2）"
+        ],
+        [
+          "右侧动作「保存」",
+          "编辑分类：返回+保存双热区，保存文字 14 textPrimary 可 color 覆盖，点击计数（D3）"
+        ],
+        [
+          "长标题省略",
+          "超长标题单行省略+两侧返回/保存夹挤不侵入热区（D4）"
+        ]
       ],
       "note": "头部导航（导航组件 #2 收编，任务清单 #17）：页面顶部单行头部导航条，对标 NutUI React NavBar（title/back/right）与 iOS 系统 UINavigationBar 语义对齐收编为库内独立组件；导航栈管理与状态栏 inset 由宿主自理（一期明确 anti_goal），内容行高 44pt/44dp（宿主可覆盖），白底 bgCard、行底 hairline（iOS 1/scale pt vs Android 0.5dp 表内放行），返回钮热区 44×44、← 字符 22 主色；右侧动作 NavBarAction(text, color?, onTap)。2026-09-05 导航区收官三件门禁 A 总评通过（规格 nav-bar-design-spec.html + review-nav-bar-A.md，P1–P4 全 A）+ 双端实现入库（NavBar.swift / NavBar.kt + iOS NavBarShowcase/Android NavBarDemo 4 段 1:1）+ demo 注册（iOS pbxproj 5A17 登记、Android DemoComponent reviewed=true 接线）。C1.5 待用户实机验收。旧键 ui.navbar 为收编前 legacy 登记（不删，去向以本条目为准）。C1.5 ✅ 用户双端实机验收通过（2026-09-05 原话“Android全部通过。iOS也全部通过”）：iOS demo 说明文字与导航条重叠根因=NavBarShowcase.pinBar 顶部单锚缺 bottom 闭合（段容器普通 UIView 无 intrinsic 高、44pt 条高度链断裂溢出压到说明文字）→ 改四边 edges 闭合（子仓 49f1bef，同 Divider 首轮「Demo4 文案重叠」同根因先例）；验证版本 v1.4.0；C1.5 通过，统一待 C1 单测补建 + C2/D。",
       "subcategory": "navigation",
@@ -2262,11 +2826,26 @@
         "角标"
       ],
       "platforms": {
-        "ios": { "state": "available", "note": "TabbarView.swift（TabBarItem(title/value/icon?/badge?/disabled) + 半受控 selectedValue + 角标=cell 水平中心 +14/顶 2 高 16 圆角主色白字 + UIStackView fillEqually 等分 + 栏高 56pt + 栏顶 hairline）" },
-        "android": { "state": "available", "note": "Tabbar.kt（TabBarItem 数据类 + Tabbar(items/selectedValue?/activeColor?/onChange/modifier) Row weight 等分 56dp + 角标对齐 iOS 锚点 + 栏顶 hairline）" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "TabbarView.swift（TabBarItem(title/value/icon?/badge?/disabled) + 半受控 selectedValue + 角标=cell 水平中心 +14/顶 2 高 16 圆角主色白字 + UIStackView fillEqually 等分 + 栏高 56pt + 栏顶 hairline）"
+        },
+        "android": {
+          "state": "available",
+          "note": "Tabbar.kt（TabBarItem 数据类 + Tabbar(items/selectedValue?/activeColor?/onChange/modifier) Row weight 等分 56dp + 角标对齐 iOS 锚点 + 栏顶 hairline）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/TabbarView.swift",
@@ -2274,19 +2853,57 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.tabbar",
-      "industry_names": ["Tabbar", "TabBar", "标签栏", "底部主导航", "BottomNavigation"],
+      "industry_names": [
+        "Tabbar",
+        "TabBar",
+        "标签栏",
+        "底部主导航",
+        "BottomNavigation"
+      ],
       "props": [
-        ["items", "标签项列表", "是", "TabBarItem(title/value/icon? 单字符文本位/badge? 角标数字/disabled 禁用不可点)；2-5 项等分"],
-        ["selectedValue", "选中值(半受控)", "否", "nil=默认首启用项自管理；外部赋值=受控高亮同步且不触发 onChange（幂等）"],
-        ["activeColor", "激活色", "否", "默认主色；可覆盖（如品牌红）"],
-        ["onChange", "点选回调", "否", "点选触发；点已激活项不重复回调（幂等）；disabled 项不触发"]
+        [
+          "items",
+          "标签项列表",
+          "是",
+          "TabBarItem(title/value/icon? 单字符文本位/badge? 角标数字/disabled 禁用不可点)；2-5 项等分"
+        ],
+        [
+          "selectedValue",
+          "选中值(半受控)",
+          "否",
+          "nil=默认首启用项自管理；外部赋值=受控高亮同步且不触发 onChange（幂等）"
+        ],
+        [
+          "activeColor",
+          "激活色",
+          "否",
+          "默认主色；可覆盖（如品牌红）"
+        ],
+        [
+          "onChange",
+          "点选回调",
+          "否",
+          "点选触发；点已激活项不重复回调（幂等）；disabled 项不触发"
+        ]
       ],
       "events": [],
       "demos": [
-        ["基础 5 项等分", "首页/明细/记账/报表/我的 5 项：icon 22 + 文字 12 激活主色加粗，点击切换+计数（D1）"],
-        ["角标 + 禁用", "消息项角标数字 3（图标右上）；「我的」禁用 40% 透明不可点不回调（D2）"],
-        ["纯文字 + 长标题省略 + 品牌红", "icon 缺省纯文字项；长标题单行省略；activeColor=品牌红覆盖主色（D3）"],
-        ["受控外部驱动", "外部状态驱动 selectedValue（高亮随外部变化），外部按钮切换演示（D4）"]
+        [
+          "基础 5 项等分",
+          "首页/明细/记账/报表/我的 5 项：icon 22 + 文字 12 激活主色加粗，点击切换+计数（D1）"
+        ],
+        [
+          "角标 + 禁用",
+          "消息项角标数字 3（图标右上）；「我的」禁用 40% 透明不可点不回调（D2）"
+        ],
+        [
+          "纯文字 + 长标题省略 + 品牌红",
+          "icon 缺省纯文字项；长标题单行省略；activeColor=品牌红覆盖主色（D3）"
+        ],
+        [
+          "受控外部驱动",
+          "外部状态驱动 selectedValue（高亮随外部变化），外部按钮切换演示（D4）"
+        ]
       ],
       "note": "标签栏（导航组件 #6，任务清单 #19）：页面底部一级主导航标签条（2-5 项等分 icon+文字，页面路由/切换宿主自理，一期不收编 iOS UITabBar/Material BottomNavigation 系统容器=anti_goal）；栏高 56pt/56dp、icon 文本字符 22=sizeXl（emoji 彩色不染色）、文字 12=sizeXs（激活 semibold 主色/默认 textSecondary）、角标高 16 圆角 full 主色白字 12、禁用 40% 透明、单行省略、activeColor 可覆盖、栏顶 hairline（iOS 1/scale pt vs Android 0.5dp 表内放行）；半受控选中语义与库内 SideBar/Elevator 一致（外部 selectedValue 驱动不触发 onChange、点已激活项幂等）。角标锚点对齐 spec preview（cell 水平中心 +14/顶 2）。2026-09-05 导航区收官三件门禁 A 总评通过（规格 tabbar-design-spec.html + review-tabbar-A.md，P1–P4 全 A）+ 双端实现入库（TabbarView.swift / Tabbar.kt + iOS TabbarShowcase/Android TabbarDemo 4 段 1:1）+ demo 注册（iOS pbxproj 5A18 登记、Android DemoComponent reviewed=true 接线）。C1.5 ✅ 用户双端实机验收通过（2026-09-05 原话“Android全部通过。iOS也全部通过”）：① Android 角标不在图标右上/数字不在胶囊中央=align(TopCenter)+offset y=10 的 y 作用于角标上缘致整枚下移 8dp（iOS 为 top=2）→ offset y 改 2 双端锚点 1:1 + badge Text 默认行高额外纵向空隙致数字视觉偏下 → 显式 lineHeight=字号（子仓 2cabefa，Pixel7Pro 模拟器截图验证居中）；② iOS D1–D4 点击不切换高亮=半受控 demo 只 onChange 更新宿主 state、命令式端不回写组件 selectedValue（Android 声明式自动重组）→ 各 demo 存组件引用 + onChange/D4 外部按钮统一回写 selectedValue（子仓 18545fc）；验证版本 v1.4.0；C1.5 通过，统一待 C1 单测补建 + C2/D。",
       "subcategory": "navigation",
@@ -2307,11 +2924,26 @@
         "顶部页签"
       ],
       "platforms": {
-        "ios": { "state": "available", "note": "TabsView.swift（TabItem(title/value/disabled) + 半受控 selectedValue + 激活底部 2pt 指示线=当前项整宽 + 等分 + 条高 44pt；替换旧收编业务双 Tab TabsView/PeriodTabsView 为库内独立组件）" },
-        "android": { "state": "available", "note": "Tabs.kt（TabItem 数据类 + Tabs(items/selectedValue?/activeColor?/onChange/modifier) Row weight 等分 44dp + 激活项底部 2dp 指示线整项宽）" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "TabsView.swift（TabItem(title/value/disabled) + 半受控 selectedValue + 激活底部 2pt 指示线=当前项整宽 + 等分 + 条高 44pt；替换旧收编业务双 Tab TabsView/PeriodTabsView 为库内独立组件）"
+        },
+        "android": {
+          "state": "available",
+          "note": "Tabs.kt（TabItem 数据类 + Tabs(items/selectedValue?/activeColor?/onChange/modifier) Row weight 等分 44dp + 激活项底部 2dp 指示线整项宽）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/TabsView.swift",
@@ -2319,19 +2951,57 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.tabs",
-      "industry_names": ["Tabs", "Tab", "选项卡", "页签条", "TabStrip"],
+      "industry_names": [
+        "Tabs",
+        "Tab",
+        "选项卡",
+        "页签条",
+        "TabStrip"
+      ],
       "props": [
-        ["items", "页签项列表", "是", "TabItem(title/value/disabled)；2-5 项等分"],
-        ["selectedValue", "选中值(半受控)", "否", "nil=默认首启用项自管理；外部赋值=受控高亮同步且不触发 onChange（幂等）"],
-        ["activeColor", "激活色", "否", "默认主色；可覆盖（如品牌红）"],
-        ["onChange", "点选回调", "否", "点选触发；点已激活项不重复回调（幂等）；disabled 项不触发"]
+        [
+          "items",
+          "页签项列表",
+          "是",
+          "TabItem(title/value/disabled)；2-5 项等分"
+        ],
+        [
+          "selectedValue",
+          "选中值(半受控)",
+          "否",
+          "nil=默认首启用项自管理；外部赋值=受控高亮同步且不触发 onChange（幂等）"
+        ],
+        [
+          "activeColor",
+          "激活色",
+          "否",
+          "默认主色；可覆盖（如品牌红）"
+        ],
+        [
+          "onChange",
+          "点选回调",
+          "否",
+          "点选触发；点已激活项不重复回调（幂等）；disabled 项不触发"
+        ]
       ],
       "events": [],
       "demos": [
-        ["基础等分 + 指示线", "支出/收入/转账 3 项：文字 14 激活 semibold 主色 + 底部 2pt 整项宽指示线，点击切换+计数（D1）"],
-        ["禁用项", "年视图禁用 40% 透明不可点；指示线仍在启用项下方（D2）"],
-        ["长标题省略 + 品牌红", "长标题单行省略；activeColor=品牌红指示线与文字（D3）"],
-        ["受控外部驱动", "外部状态驱动 selectedValue，外部按钮切换演示（D4）"]
+        [
+          "基础等分 + 指示线",
+          "支出/收入/转账 3 项：文字 14 激活 semibold 主色 + 底部 2pt 整项宽指示线，点击切换+计数（D1）"
+        ],
+        [
+          "禁用项",
+          "年视图禁用 40% 透明不可点；指示线仍在启用项下方（D2）"
+        ],
+        [
+          "长标题省略 + 品牌红",
+          "长标题单行省略；activeColor=品牌红指示线与文字（D3）"
+        ],
+        [
+          "受控外部驱动",
+          "外部状态驱动 selectedValue，外部按钮切换演示（D4）"
+        ]
       ],
       "note": "选项卡（导航组件 #3 收编，任务清单 #20）：页内顶部页签条（内容面板宿主渲染），对标 iOS TabsView/PeriodTabsView 旧收编业务双 Tab 与 Android 无对应（旧 TabsView 200 宽胶囊形态近 Segmented）→ 收编替换为库内独立等分页签条 Tabs，与 Segmented（#74 胶囊分段控件）划界：本组件=页内顶部页签切换条+底部整项宽指示线；文字 Sm 14、条高 44pt/44dp、激活项底部 2pt/2dp 指示线（宽度定稿=当前项整宽=等分格宽，spec 05 平台差异表内放行：iOS UIView 底条 vs Android Box align bottom）、禁用 40% 透明、单行省略、activeColor 覆盖默认主色；半受控选中语义同库内 SideBar/Elevator/Tabbar。2026-09-05 导航区收官三件门禁 A 总评通过（规格 tabs-design-spec.html + review-tabs-A.md，P1–P4 全 A）+ 双端实现入库（TabsView.swift 重写替换旧收编业务文件 / Tabs.kt + iOS TabsShowcase/Android TabsDemo 4 段 1:1）+ demo 注册（TabsView.swift pbxproj 已登记沿用、Android DemoComponent reviewed=true 接线）。C1.5 ✅ 用户双端实机验收通过（2026-09-05 原话“Android全部通过。iOS也全部通过”）：iOS D1–D4 点击不切换高亮=半受控 demo onChange 只改宿主 state 不回写组件 selectedValue（命令式端受控路径宿主必须回写，同 Tabbar 修复）→ 各 demo 存组件引用 + onChange/D4 外部按钮统一回写（子仓 18545fc）；验证版本 v1.4.0；C1.5 通过，统一待 C1 单测补建 + C2/D。",
       "subcategory": "navigation",
@@ -2354,11 +3024,26 @@
         "地址选择器"
       ],
       "platforms": {
-        "ios": { "state": "available", "note": "AddressView.swift（RegionOption + AddressResult(codes/names/text) + 半受控 result 按 codes 回显 + 层级 tab 44pt 等分激活 2pt 指示线 + 列表行 44pt 选中 ✓ + 禁用 40% + 市区缺省自动收拢）" },
-        "android": { "state": "available", "note": "Address.kt（RegionOption 数据类 + Address(result?/onChange/modifier) 半受控 codes 回显，与 iOS 同构）" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "AddressView.swift（RegionOption + AddressResult(codes/names/text) + 半受控 result 按 codes 回显 + 层级 tab 44pt 等分激活 2pt 指示线 + 列表行 44pt 选中 ✓ + 禁用 40% + 市区缺省自动收拢）"
+        },
+        "android": {
+          "state": "available",
+          "note": "Address.kt（RegionOption 数据类 + Address(result?/onChange/modifier) 半受控 codes 回显，与 iOS 同构）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/AddressView.swift",
@@ -2366,18 +3051,51 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.address",
-      "industry_names": ["Address", "Area", "地址选择", "省市区选择", "地区选择"],
+      "industry_names": [
+        "Address",
+        "Area",
+        "地址选择",
+        "省市区选择",
+        "地区选择"
+      ],
       "props": [
-        ["options", "区域嵌套数据", "是", "RegionOption(value/text/children/disabled) 省→市→区 树；直辖市=省层 children 直接为区（两级自动收拢）"],
-        ["result", "选中结果(半受控)", "否", "AddressResult(codes/names/text)；外部赋值按 codes 逐层回显定位，不触发 onChange"],
-        ["onChange", "点选回调", "否", "选中叶子（无 children）回调完整结果（names 空格拼接 text）；禁用节点不可点"]
+        [
+          "options",
+          "区域嵌套数据",
+          "是",
+          "RegionOption(value/text/children/disabled) 省→市→区 树；直辖市=省层 children 直接为区（两级自动收拢）"
+        ],
+        [
+          "result",
+          "选中结果(半受控)",
+          "否",
+          "AddressResult(codes/names/text)；外部赋值按 codes 逐层回显定位，不触发 onChange"
+        ],
+        [
+          "onChange",
+          "点选回调",
+          "否",
+          "选中叶子（无 children）回调完整结果（names 空格拼接 text）；禁用节点不可点"
+        ]
       ],
       "events": [],
       "demos": [
-        ["基础省市区三级联动", "广东→深圳→南山区 完整链路，onChange 段内回显 codes+names+text（D1）"],
-        ["直辖市两级自动收拢", "北京/上海/重庆=省层下无市层，选中区即两级完成（D2）"],
-        ["20 省大列表滚动 + tab 回退", "列表区滚动；点顶部已选层 tab（如「广东省」）回退重选（D3）"],
-        ["受控外部驱动", "外部 result 预填回显定位/清空回根层（不触发 onChange，计数保持）（D4）"]
+        [
+          "基础省市区三级联动",
+          "广东→深圳→南山区 完整链路，onChange 段内回显 codes+names+text（D1）"
+        ],
+        [
+          "直辖市两级自动收拢",
+          "北京/上海/重庆=省层下无市层，选中区即两级完成（D2）"
+        ],
+        [
+          "20 省大列表滚动 + tab 回退",
+          "列表区滚动；点顶部已选层 tab（如「广东省」）回退重选（D3）"
+        ],
+        [
+          "受控外部驱动",
+          "外部 result 预填回显定位/清空回根层（不触发 onChange，计数保持）（D4）"
+        ]
       ],
       "note": "地址（数据录入首批三件之一，任务清单 #21）：固定“省→市→区”地域三级专用选择视图（内嵌无弹层、弹层宿主自理），对标 Vant Area/NutUI Address 收敛为库内设计语言；与 Cascader（#24 通用任意树）划界=本组件地域专用三级+市区缺省自动收拢。2026-09-05 门禁 A AI 代评通过（规格 address-design-spec.html + review-address-A.md，P1–P4 全 A：P1-A 纯三级地域视图/弹层宿主自理、P2-A RegionOption 嵌套树 + AddressResult 结构化结果、P3-A 半受控回显、P4-A 一期=三级联动+两级收拢+tab 回退+demo 四段）+ 双端实现入库（AddressView.swift / Address.kt + iOS AddressShowcase/Android AddressDemo 4 段 1:1，demo 徽标 v1.0）。C1.5 ✅ 用户双端实机验收通过（2026-09-06 原话“Address通过”）；api.json 登记 reviewed 翻 true；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -2398,11 +3116,26 @@
         "日历控件"
       ],
       "platforms": {
-        "ios": { "state": "available", "note": "CalendarCardView.swift（CalendarDate 值模型 + 半受控 selected 自动切月 + 44pt 导航头 + 22pt 星期行 + 40pt 日格 7×6 + 范围禁用/翻月越界置灰）" },
-        "android": { "state": "available", "note": "CalendarCard.kt（CalendarDate 数据类 + CalendarCard(selected/minDate/maxDate/onChange/modifier) 与 iOS 同构）" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "CalendarCardView.swift（CalendarDate 值模型 + 半受控 selected 自动切月 + 44pt 导航头 + 22pt 星期行 + 40pt 日格 7×6 + 范围禁用/翻月越界置灰）"
+        },
+        "android": {
+          "state": "available",
+          "note": "CalendarCard.kt（CalendarDate 数据类 + CalendarCard(selected/minDate/maxDate/onChange/modifier) 与 iOS 同构）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/CalendarCardView.swift",
@@ -2410,19 +3143,57 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.calendar-card",
-      "industry_names": ["CalendarCard", "日历卡片", "月历", "日历选择", "DatePickerView"],
+      "industry_names": [
+        "CalendarCard",
+        "日历卡片",
+        "月历",
+        "日历选择",
+        "DatePickerView"
+      ],
       "props": [
-        ["selected", "选中日期(半受控)", "否", "CalendarDate(year/month/day)；外部赋值同步高亮并自动切到所属月；nil=仅清空保留当前月"],
-        ["minDate", "最小可选日期", "否", "范围外日期灰禁不可点；翻月越界=对应箭头置灰禁翻"],
-        ["maxDate", "最大可选日期", "否", "范围外日期灰禁不可点；翻月越界=对应箭头置灰禁翻"],
-        ["onChange", "点选回调", "否", "点选日期回调 CalendarDate；点已选中日幂等不重复回调"]
+        [
+          "selected",
+          "选中日期(半受控)",
+          "否",
+          "CalendarDate(year/month/day)；外部赋值同步高亮并自动切到所属月；nil=仅清空保留当前月"
+        ],
+        [
+          "minDate",
+          "最小可选日期",
+          "否",
+          "范围外日期灰禁不可点；翻月越界=对应箭头置灰禁翻"
+        ],
+        [
+          "maxDate",
+          "最大可选日期",
+          "否",
+          "范围外日期灰禁不可点；翻月越界=对应箭头置灰禁翻"
+        ],
+        [
+          "onChange",
+          "点选回调",
+          "否",
+          "点选日期回调 CalendarDate；点已选中日幂等不重复回调"
+        ]
       ],
       "events": [],
       "demos": [
-        ["基础当月单选", "今日=主色描边圆；点选=主色实心圆白字；点已选中日幂等不重复回调（D1）"],
-        ["月份切换 + 跨月网格稳定", "‹/› 逐月切换，首尾空位占位 7×6 网格稳定不跳行；今日描边跨月定位（D2）"],
-        ["范围禁用", "min=当月 1 日 / max=当月 15 日；范围外灰禁不可点；越界翻月箭头置灰（D3）"],
-        ["受控外部驱动", "外部 selected 预填回显自动切月 / 清空保留当前月（不触发 onChange，计数保持）（D4）"]
+        [
+          "基础当月单选",
+          "今日=主色描边圆；点选=主色实心圆白字；点已选中日幂等不重复回调（D1）"
+        ],
+        [
+          "月份切换 + 跨月网格稳定",
+          "‹/› 逐月切换，首尾空位占位 7×6 网格稳定不跳行；今日描边跨月定位（D2）"
+        ],
+        [
+          "范围禁用",
+          "min=当月 1 日 / max=当月 15 日；范围外灰禁不可点；越界翻月箭头置灰（D3）"
+        ],
+        [
+          "受控外部驱动",
+          "外部 selected 预填回显自动切月 / 清空保留当前月（不触发 onChange，计数保持）（D4）"
+        ]
       ],
       "note": "日历卡片（数据录入首批三件之一，任务清单 #23）：内嵌卡片式单月日历单选（无弹层），Date 值模型；与 foundation.calendar（#22 自然月/日期区间计算工具）划界=本组件为渲染交互控件、无日期计算 API（黄历/节气另在 #89 foundation.calendar-tools）。2026-09-05 门禁 A AI 代评通过（规格 calendar-card-design-spec.html + review-calendar-card-A.md，P1–P4 全 A：P1-A 内嵌卡片单月单选/无弹层、P2-A Date 值模型 + min/maxDate 范围禁用、P3-A 半受控 selected 自动切月、P4-A 一期=7×6 网格周起始周日+今日态+范围禁用+demo 四段）+ 双端实现入库（CalendarCardView.swift / CalendarCard.kt + iOS CalendarCardShowcase/Android CalendarCardDemo 4 段 1:1，demo 徽标 v1.0）。C1.5 ✅ 用户双端实机验收通过（2026-09-06 原话“CalendarCard通过”）；api.json 登记 reviewed 翻 true；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -2443,11 +3214,26 @@
         "路径选择"
       ],
       "platforms": {
-        "ios": { "state": "available", "note": "CascaderView.swift（CascaderOption + CascaderResult(values/texts/text) + 半受控 result 按 values 回显 + 路径 tab 44pt 等分激活 2pt 指示线 + 列表行 44pt 选中 ✓ + 禁用 40%）" },
-        "android": { "state": "available", "note": "Cascader.kt（CascaderOption 数据类 + Cascader(result?/onChange/modifier) 半受控 values 回显，与 iOS 同构）" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "CascaderView.swift（CascaderOption + CascaderResult(values/texts/text) + 半受控 result 按 values 回显 + 路径 tab 44pt 等分激活 2pt 指示线 + 列表行 44pt 选中 ✓ + 禁用 40%）"
+        },
+        "android": {
+          "state": "available",
+          "note": "Cascader.kt（CascaderOption 数据类 + Cascader(result?/onChange/modifier) 半受控 values 回显，与 iOS 同构）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/CascaderView.swift",
@@ -2455,18 +3241,51 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.cascader",
-      "industry_names": ["Cascader", "级联选择", "级联", "树选择", "多级联动选择"],
+      "industry_names": [
+        "Cascader",
+        "级联选择",
+        "级联",
+        "树选择",
+        "多级联动选择"
+      ],
       "props": [
-        ["options", "通用嵌套树数据", "是", "CascaderOption(value/text/children/disabled) 任意深度；children 空/缺=叶子"],
-        ["result", "选中结果(半受控)", "否", "CascaderResult(values/texts/text)；外部赋值按 values 逐层回显定位，不触发 onChange"],
-        ["onChange", "点选回调", "否", "选中叶子回调完整路径结果（texts 以 / 拼接）；禁用节点不可点不可下钻"]
+        [
+          "options",
+          "通用嵌套树数据",
+          "是",
+          "CascaderOption(value/text/children/disabled) 任意深度；children 空/缺=叶子"
+        ],
+        [
+          "result",
+          "选中结果(半受控)",
+          "否",
+          "CascaderResult(values/texts/text)；外部赋值按 values 逐层回显定位，不触发 onChange"
+        ],
+        [
+          "onChange",
+          "点选回调",
+          "否",
+          "选中叶子回调完整路径结果（texts 以 / 拼接）；禁用节点不可点不可下钻"
+        ]
       ],
       "events": [],
       "demos": [
-        ["支出分类三级联动", "生活→餐饮→快餐 完整链路，onChange 段内回显路径（D1）"],
-        ["深浅树共存 + 节点禁用", "同树既有 2 层叶（打车/地铁/股票）又有 3 层枝（基金→股票/债券/封闭期基金）；封闭期基金+医疗 禁用灰 40% 不可点（D2）"],
-        ["5 层深组织树 + 路径 tab 回退", "集团→…→组件组→iOS 组件 5 层逐级联动，点中间已选层 tab 回退重选（D3）"],
-        ["受控外部驱动", "外部 result 预填 5 层路径逐层展开高亮 / 清空回根层（不触发 onChange，计数保持）（D4）"]
+        [
+          "支出分类三级联动",
+          "生活→餐饮→快餐 完整链路，onChange 段内回显路径（D1）"
+        ],
+        [
+          "深浅树共存 + 节点禁用",
+          "同树既有 2 层叶（打车/地铁/股票）又有 3 层枝（基金→股票/债券/封闭期基金）；封闭期基金+医疗 禁用灰 40% 不可点（D2）"
+        ],
+        [
+          "5 层深组织树 + 路径 tab 回退",
+          "集团→…→组件组→iOS 组件 5 层逐级联动，点中间已选层 tab 回退重选（D3）"
+        ],
+        [
+          "受控外部驱动",
+          "外部 result 预填 5 层路径逐层展开高亮 / 清空回根层（不触发 onChange，计数保持）（D4）"
+        ]
       ],
       "note": "级联选择（数据录入首批三件之一，任务清单 #24）：任意层级树通用级联单选视图（内嵌无弹层、弹层宿主自理），对标 Vant Cascader 收敛为库内设计语言；与 Address（#21 地域专用三级）划界=本组件任意深通用树（品类/组织等）、结果=选中路径。2026-09-05 门禁 A AI 代评通过（规格 cascader-design-spec.html + review-cascader-A.md，P1–P4 全 A：P1-A 任意层级树通用级联单选视图/弹层宿主自理、P2-A CascaderOption 嵌套树 + CascaderResult 路径结果、P3-A 半受控回显、P4-A 一期=任意深树+节点禁用+路径 tab 回退+demo 四段）+ 双端实现入库（CascaderView.swift / Cascader.kt + iOS CascaderShowcase/Android CascaderDemo 4 段 1:1，demo 徽标 v1.0；iOS 修复=init 先 addSubview chipsBar 再建列表防 hairline 锚点 no common ancestor 崩溃）。C1.5 ✅ 用户双端实机验收通过（2026-09-06 原话“Cascader通过”）；api.json 登记 reviewed 翻 true；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -2497,23 +3316,80 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.form",
-      "industry_names": ["Form", "表单", "form-item", "字段"],
+      "industry_names": [
+        "Form",
+        "表单",
+        "form-item",
+        "字段"
+      ],
       "props": [
-        ["groupTitle", "分组标题", "否", "可选；置于卡内顶部，Xs 字号次色"],
-        ["rows", "字段行列表", "是", "FormFieldRow 数组（iOS）；Android 侧=content lambda 内顺序放置 FormFieldRow（语法差异表内放行）"],
-        ["submitView", "提交区槽", "否", "宿主自放按钮等；置于字段行下方并收底边距（Android=content 内放置，库内 Button）"],
-        ["label", "字段标签", "否", "FormFieldRow；96pt/96dp 固定区自动折行（≤约 6 汉字/行）；空/缺=内容全宽"],
-        ["required", "必填星", "否", "FormFieldRow；星 primary 前置（纯展示不参与校验）"],
-        ["help", "帮助文案", "否", "FormFieldRow；error 为空时显示，行内次色 Xs 小字"],
-        ["error", "校验错误文案", "否", "FormFieldRow；非空=行内红字 Xs 并顶替 help；error 出现/清空行随提示行增高/收起不占位"],
-        ["content", "内容槽", "是", "宿主自放输入控件/mock；iOS=UIView（高可经 intrinsicContentSize/sizeThatFits 解析）、Android=RowScope lambda"]
+        [
+          "groupTitle",
+          "分组标题",
+          "否",
+          "可选；置于卡内顶部，Xs 字号次色"
+        ],
+        [
+          "rows",
+          "字段行列表",
+          "是",
+          "FormFieldRow 数组（iOS）；Android 侧=content lambda 内顺序放置 FormFieldRow（语法差异表内放行）"
+        ],
+        [
+          "submitView",
+          "提交区槽",
+          "否",
+          "宿主自放按钮等；置于字段行下方并收底边距（Android=content 内放置，库内 Button）"
+        ],
+        [
+          "label",
+          "字段标签",
+          "否",
+          "FormFieldRow；96pt/96dp 固定区自动折行（≤约 6 汉字/行）；空/缺=内容全宽"
+        ],
+        [
+          "required",
+          "必填星",
+          "否",
+          "FormFieldRow；星 primary 前置（纯展示不参与校验）"
+        ],
+        [
+          "help",
+          "帮助文案",
+          "否",
+          "FormFieldRow；error 为空时显示，行内次色 Xs 小字"
+        ],
+        [
+          "error",
+          "校验错误文案",
+          "否",
+          "FormFieldRow；非空=行内红字 Xs 并顶替 help；error 出现/清空行随提示行增高/收起不占位"
+        ],
+        [
+          "content",
+          "内容槽",
+          "是",
+          "宿主自放输入控件/mock；iOS=UIView（高可经 intrinsicContentSize/sizeThatFits 解析）、Android=RowScope lambda"
+        ]
       ],
       "events": [],
       "demos": [
-        ["基础字段布局", "登录信息分组：手机号/昵称必填 + 简介 help；label 左内容右 + 行间 hairline 全卡宽（D1）"],
-        ["校验错误渲染", "点「触发校验」手机号/昵称 error 红字行展开、help 被顶替；「清空校验」红字收起不占位（D2）"],
-        ["长 label 折行 + 无 label 行", "96 区自动折行行随内容增高；无 label 字段内容占整行（协议勾选行 mock）（D3）"],
-        ["多分组卡片 + 提交槽", "账户信息/安全设置两卡（间距 md）+ submitView 保存按钮槽，点按钮段内回显（D4）"]
+        [
+          "基础字段布局",
+          "登录信息分组：手机号/昵称必填 + 简介 help；label 左内容右 + 行间 hairline 全卡宽（D1）"
+        ],
+        [
+          "校验错误渲染",
+          "点「触发校验」手机号/昵称 error 红字行展开、help 被顶替；「清空校验」红字收起不占位（D2）"
+        ],
+        [
+          "长 label 折行 + 无 label 行",
+          "96 区自动折行行随内容增高；无 label 字段内容占整行（协议勾选行 mock）（D3）"
+        ],
+        [
+          "多分组卡片 + 提交槽",
+          "账户信息/安全设置两卡（间距 md）+ submitView 保存按钮槽，点按钮段内回显（D4）"
+        ]
       ],
       "note": "表单布局容器（数据录入区第二批三件之一，任务清单 #28）：分组卡片 + 字段行排版 + help/error 文案渲染管道，不含输入控件（对标 Vant Form 收敛为库内设计语言）；与基础 Cell/配置 ConfigProvider 划界=本组件为字段级表单语义（label 区 96 固定/必填星/校验文案槽）；校验算法=宿主职责（同 Vant rules 收敛）。2026-09-06 门禁 A AI 代评通过（规格 form-design-spec.html + review-form-A.md，P1–P4 全 A：P1-A 分组卡片表单容器不承载输入渲染/校验宿主自理、P2-A Form+FormFieldRow API、P3-A label 空内容全宽/help error 共用槽、P4-A 一期=分组卡+长 label 折行+提交槽+多分组+demo 四段）+ 双端实现入库（FormView.swift / Form.kt + iOS FormShowcase/Android FormDemo 4 段 1:1，demo 徽标 v1.0；Android assembleDebug 编译通过）。2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「Form和InputNumber通过」；验收前 iOS 编译 6 error 修复=FormView 两处可选 attributedText 安全 if let 解包判空再传入 attributedHeight，子仓 9ac1fef）。验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -3865,8 +4741,8 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/TechMiddleOffice/ios/Foundation/Util/CalendarMonth.swift",
-        "android": "ProductRDDept/TechMiddleOffice/android/foundation/util/CalendarMonth.kt"
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/Foundation/Util/CalendarFormatter.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/foundation/util/CalendarMonth.kt"
       },
       "deps": [],
       "variants": [],
@@ -3964,7 +4840,13 @@
       "name": "复选 Checkbox",
       "category": "ui",
       "summary": "通用复选双形态（单只 Checkbox + CheckboxGroup 垂直多选 options 数据驱动）：方形圆角勾选框 20/选中 primary 白勾/未选中白底 textSecondary 描边（radiusSm 6 圆角）；label Md16 后置间距 8；半受控 selected/checked 可选传=外部赋值驱动回显不触发 onChange、nil 内部自持；组点击回传 (value, checked)；disabled 整体/单项灰 40% 不可点（已选禁用灰勾保留）；行距 4+纵向 padding 10 行高 40",
-      "capabilities": ["复选", "多选", "Checkbox", "CheckboxGroup", "勾选"],
+      "capabilities": [
+        "复选",
+        "多选",
+        "Checkbox",
+        "CheckboxGroup",
+        "勾选"
+      ],
       "platforms": {
         "ios": {
           "state": "available",
@@ -3989,20 +4871,63 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.checkbox",
-      "industry_names": ["Checkbox", "CheckboxGroup", "复选", "多选", "勾选框"],
+      "industry_names": [
+        "Checkbox",
+        "CheckboxGroup",
+        "复选",
+        "多选",
+        "勾选框"
+      ],
       "props": [
-        ["options", "CheckboxOption[]", "组=是", "选项数据 [{value,label,disabled}]；单只 Checkbox 用 label 参数"],
-        ["checked?", "Boolean", "单只", "单只选中态；null=内部自持，外部赋值=同步回显（半受控，不触发 onChange）"],
-        ["selected?", "Set<String>", "组", "选中值集合；null=内部自持，外部重新赋值=同步回显（半受控）"],
-        ["disabled?", "Boolean", "否", "单只/组整体禁用（灰 40% 不可点）；选项级 disabled 用 CheckboxOption.disabled"],
-        ["onChange", "回调", "是", "切换回调：单只 onChange(Bool)、组 onChange(value, checked)"]
+        [
+          "options",
+          "CheckboxOption[]",
+          "组=是",
+          "选项数据 [{value,label,disabled}]；单只 Checkbox 用 label 参数"
+        ],
+        [
+          "checked?",
+          "Boolean",
+          "单只",
+          "单只选中态；null=内部自持，外部赋值=同步回显（半受控，不触发 onChange）"
+        ],
+        [
+          "selected?",
+          "Set<String>",
+          "组",
+          "选中值集合；null=内部自持，外部重新赋值=同步回显（半受控）"
+        ],
+        [
+          "disabled?",
+          "Boolean",
+          "否",
+          "单只/组整体禁用（灰 40% 不可点）；选项级 disabled 用 CheckboxOption.disabled"
+        ],
+        [
+          "onChange",
+          "回调",
+          "是",
+          "切换回调：单只 onChange(Bool)、组 onChange(value, checked)"
+        ]
       ],
       "events": [],
       "demos": [
-        ["组基础", "3 项 options 内部自持多选；勾选行整行命中，选中项实时回显 value（D1）"],
-        ["单只各态", "未选/已选/禁用未选/禁用已选（灰勾保留）/长 label（D2）"],
-        ["受控组+外部重置", "selected 外部 set（初始 A/C）；「重置」外部回写同步不触发 onChange（半受控，D3）"],
-        ["组禁用+混禁用项", "组整体禁用开关 + 单项 disabled 混合 + 长 label 单行省略（D4）"]
+        [
+          "组基础",
+          "3 项 options 内部自持多选；勾选行整行命中，选中项实时回显 value（D1）"
+        ],
+        [
+          "单只各态",
+          "未选/已选/禁用未选/禁用已选（灰勾保留）/长 label（D2）"
+        ],
+        [
+          "受控组+外部重置",
+          "selected 外部 set（初始 A/C）；「重置」外部回写同步不触发 onChange（半受控，D3）"
+        ],
+        [
+          "组禁用+混禁用项",
+          "组整体禁用开关 + 单项 disabled 混合 + 长 label 单行省略（D4）"
+        ]
       ],
       "note": "复选双形态组件（数据录入区缺口补齐批之一，任务清单 #25）：2026-09-06 门禁 A AI 代评通过（规格 design-spec/checkbox-design-spec.html + review-checkbox-A.md，P1–P4 全 A；与协议行 AgreementCheckRow（android foundation/design/AgreementCheckbox.kt=圆形 12dp 富文本业务收编）划界不混入=收编不动；通用 Checkbox=方形 20 圆角 6 与 Vant 对齐）+ 双端实现入库（CheckboxView.swift=CheckboxView 单只+CheckboxGroupView 组+CheckGlyphView 自绘 / Checkbox.kt=Checkbox+CheckboxGroup Canvas 同坐标 1:1）+ iOS CheckboxShowcase/Android CheckboxDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。半受控 checked/selected=外部赋值同步回显不触发 onChange；disabled 单只/组/选项级三态（已选禁用灰勾保留）。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过了，继续两个新组件吧」；复验前 iOS Showcase 运行期崩溃修复=DemoShowcases 共享辅助 pinFullWidth 缺 container.addSubview 先建 equalToSuperview 约束 → 补入树再建约束，子仓 77d56ad）；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -4013,7 +4938,13 @@
       "name": "输入框 Input",
       "category": "ui",
       "summary": "通用单行文本输入内容组件（受控 value 必传 + onTextChange 直通；label/必填星/校验=FormFieldRow 壳职责）：壳 48 高 bgPage 底 radiusLg 无边框、行内水平 padding 16；placeholder textSecondary Md16；非空显示清除钮（20 圆灰底 gray15 + 白叉 14）；trailing 尾槽宿主自放；keyboard 四值 text/number/phone/email 两端映射；secure 掩码回调原文无显隐切换；disabled 灰 40% 不可编辑；maxLength 仅输入路径截断",
-      "capabilities": ["输入", "文本框", "Input", "TextField", "文本输入"],
+      "capabilities": [
+        "输入",
+        "文本框",
+        "Input",
+        "TextField",
+        "文本输入"
+      ],
       "platforms": {
         "ios": {
           "state": "available",
@@ -4038,23 +4969,80 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.input",
-      "industry_names": ["Input", "TextField", "文本框", "输入框"],
+      "industry_names": [
+        "Input",
+        "TextField",
+        "文本框",
+        "输入框"
+      ],
       "props": [
-        ["value", "String", "是（受控必传）", "当前文本；外部赋值=同步回显"],
-        ["placeholder?", "String", "否", "占位提示（textSecondary Md16）"],
-        ["keyboard?", "String", "否，默认 text", "text|number|phone|email（两端映射系统键盘）"],
-        ["secure?", "Boolean", "否", "密码掩码（回调仍传原文；一期无显隐切换钮）"],
-        ["maxLength?", "Int", "否", "最大长度（仅输入路径截断，外部赋值不限）"],
-        ["disabled?", "Boolean", "否", "禁用（灰 40% 不可编辑，清除钮隐藏）"],
-        ["trailing?", "节点", "否", "尾部附加槽（宿主自放，如单位/按钮）"],
-        ["onTextChange", "回调", "是", "文本变更直通回调 onTextChange(newText)"]
+        [
+          "value",
+          "String",
+          "是（受控必传）",
+          "当前文本；外部赋值=同步回显"
+        ],
+        [
+          "placeholder?",
+          "String",
+          "否",
+          "占位提示（textSecondary Md16）"
+        ],
+        [
+          "keyboard?",
+          "String",
+          "否，默认 text",
+          "text|number|phone|email（两端映射系统键盘）"
+        ],
+        [
+          "secure?",
+          "Boolean",
+          "否",
+          "密码掩码（回调仍传原文；一期无显隐切换钮）"
+        ],
+        [
+          "maxLength?",
+          "Int",
+          "否",
+          "最大长度（仅输入路径截断，外部赋值不限）"
+        ],
+        [
+          "disabled?",
+          "Boolean",
+          "否",
+          "禁用（灰 40% 不可编辑，清除钮隐藏）"
+        ],
+        [
+          "trailing?",
+          "节点",
+          "否",
+          "尾部附加槽（宿主自放，如单位/按钮）"
+        ],
+        [
+          "onTextChange",
+          "回调",
+          "是",
+          "文本变更直通回调 onTextChange(newText)"
+        ]
       ],
       "events": [],
       "demos": [
-        ["基础输入", "受控回显即时文本；非空出清除钮点清（D1）"],
-        ["类型与占位", "数字/手机/邮箱键盘 + 占位灰字（D2）"],
-        ["密码与 maxLength", "secure 掩码回调原文 + 截断到 6 位（D3）"],
-        ["禁用/trailing/外部赋值", "disabled 开关 + 单位尾槽 + 外部赋值回显（D4）"]
+        [
+          "基础输入",
+          "受控回显即时文本；非空出清除钮点清（D1）"
+        ],
+        [
+          "类型与占位",
+          "数字/手机/邮箱键盘 + 占位灰字（D2）"
+        ],
+        [
+          "密码与 maxLength",
+          "secure 掩码回调原文 + 截断到 6 位（D3）"
+        ],
+        [
+          "禁用/trailing/外部赋值",
+          "disabled 开关 + 单位尾槽 + 外部赋值回显（D4）"
+        ]
       ],
       "note": "通用单行文本输入组件（数据录入区缺口补齐批之二，任务清单 #29）：2026-09-06 门禁 A AI 代评通过（规格 design-spec/input-design-spec.html + review-input-A.md，P1–P4 全 A；label/必填星/校验=FormFieldRow 职责壳不变红=本组件纯输入不含校验红线）+ 双端实现入库（InputView.swift=UITextField 受控+自绘白叉清除钮 / Input.kt=BasicTextField 受控+Canvas 清除钮）+ iOS InputShowcase/Android InputDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。受控 value 必传+onTextChange 直通（外部赋值=同步回显）；keyboard 四值 text/number/phone/email 两端映射；secure 掩码回调原文；maxLength 仅输入路径截断（含 paste）；Android sharedui AppInputField 系列=视觉前身可平滑迁移。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过了，继续两个新组件吧」；复验前 iOS Showcase 运行期崩溃修复=DemoShowcases 共享辅助 pinFullWidth 缺 container.addSubview 先建 equalToSuperview 约束 → 补入树再建约束，子仓 77d56ad）；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -4065,13 +5053,36 @@
       "name": "菜单 Menu",
       "category": "ui",
       "summary": "嵌入式下拉单选菜单（无遮罩无悬浮浮层，Popup 悬浮版二期）：宿主 ≤4 列 MenuColumn(key/title/options/disabled) 菜单栏等分排布 + 点列=栏下内联展开该列单选面板（其余列互斥收起、重复点当前展开列收起幂等）+ 半受控 selectedValues（列 key→option value 外部驱动回显不触发 onChange，nil/缺列回落该列首个启用项）+ 列级/选项级 disabled（灰 40% 不可点）+ 面板 max 220 行高 44 内滚 + 选中行 primary Semibold+✓ 行间 hairline + 激活列 primary 标题小字+▾/▴ 指示；内嵌内容视图高度随展开态变化（44 / 44+面板高）推挤下方宿主内容",
-      "capabilities": ["菜单", "下拉菜单", "筛选", "Menu", "下拉单选", "横向菜单栏", "筛选器"],
+      "capabilities": [
+        "菜单",
+        "下拉菜单",
+        "筛选",
+        "Menu",
+        "下拉单选",
+        "横向菜单栏",
+        "筛选器"
+      ],
       "platforms": {
-        "ios": { "state": "available", "note": "MenuView.swift：MenuColumn+MenuOption 数据类 + 半受控 selectedValues（didSet 驱动回显不触发 onChange）+ 点列内联展开互斥收起幂等 + 面板行 44pt max 高 220pt UIScrollView 内滚 + 选中 ✓ + 禁用 40%；intrinsicContentSize 随展开态推挤宿主" },
-        "android": { "state": "available", "note": "Menu.kt：Menu(columns/selectedValues?/onChange/modifier) 同构声明式 Composable，expandKey 内部自管理 + LaunchedEffect 外部 selectedValues 回写" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "MenuView.swift：MenuColumn+MenuOption 数据类 + 半受控 selectedValues（didSet 驱动回显不触发 onChange）+ 点列内联展开互斥收起幂等 + 面板行 44pt max 高 220pt UIScrollView 内滚 + 选中 ✓ + 禁用 40%；intrinsicContentSize 随展开态推挤宿主"
+        },
+        "android": {
+          "state": "available",
+          "note": "Menu.kt：Menu(columns/selectedValues?/onChange/modifier) 同构声明式 Composable，expandKey 内部自管理 + LaunchedEffect 外部 selectedValues 回写"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/MenuView.swift",
@@ -4079,18 +5090,50 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.menu",
-      "industry_names": ["Menu", "菜单", "下拉菜单", "筛选菜单"],
+      "industry_names": [
+        "Menu",
+        "菜单",
+        "下拉菜单",
+        "筛选菜单"
+      ],
       "props": [
-        ["columns", "MenuColumn[]", "是", "≤4 列；MenuColumn(key/title/options, disabled?)；MenuOption(value/text/disabled)"],
-        ["selectedValues?", "Map<String,String>", "否", "半受控：列 key→option value 外部驱动回显（高亮+标题小字），不触发 onChange；nil/缺列=该列取首个启用项"],
-        ["onChange", "回调", "是", "用户点选选项回调 onChange(columnKey, optionValue) 并收起该列面板"]
+        [
+          "columns",
+          "MenuColumn[]",
+          "是",
+          "≤4 列；MenuColumn(key/title/options, disabled?)；MenuOption(value/text/disabled)"
+        ],
+        [
+          "selectedValues?",
+          "Map<String,String>",
+          "否",
+          "半受控：列 key→option value 外部驱动回显（高亮+标题小字），不触发 onChange；nil/缺列=该列取首个启用项"
+        ],
+        [
+          "onChange",
+          "回调",
+          "是",
+          "用户点选选项回调 onChange(columnKey, optionValue) 并收起该列面板"
+        ]
       ],
       "events": [],
       "demos": [
-        ["单列基础下拉", "排序方式 3 项，onChange 段内回显，点选收起（D1）"],
-        ["四列独立筛选", "排序/时间/类型/状态 4 列互斥展开，各列独立选中（D2）"],
-        ["12 项长列表滚动 + 末项禁用", "账本 12 项超 5 行内滚 + 末项 disabled 灰禁（D3）"],
-        ["受控外部驱动", "外部 selectedValues 预填回显/重置驱动，onChange 计数不受外部赋值影响（D4）"]
+        [
+          "单列基础下拉",
+          "排序方式 3 项，onChange 段内回显，点选收起（D1）"
+        ],
+        [
+          "四列独立筛选",
+          "排序/时间/类型/状态 4 列互斥展开，各列独立选中（D2）"
+        ],
+        [
+          "12 项长列表滚动 + 末项禁用",
+          "账本 12 项超 5 行内滚 + 末项 disabled 灰禁（D3）"
+        ],
+        [
+          "受控外部驱动",
+          "外部 selectedValues 预填回显/重置驱动，onChange 计数不受外部赋值影响（D4）"
+        ]
       ],
       "note": "菜单（数据录入区第二批三件之 3，任务清单 #31）：嵌入式下拉单选（菜单栏 ≤4 列+内联展开面板无遮罩浮层），对标 NutUI Menu 收敛为库内设计语言；与 Cascader（多级级联）/ Picker（常驻/弹层选择）/ OptionPicker（Modal sheet）划界=本组件单层每列平铺单选+菜单栏回显选中值。2026-09-06 门禁 A AI 代评通过（规格 design-spec/menu-design-spec.html + review-menu-A.md，P1–P4 全 A）+ 同日双端实现入库（MenuView.swift=命令式 UIKit 半受控 / Menu.kt=声明式 Compose）+ iOS MenuShowcase/Android MenuDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。C1.5 ✅ 2026-09-06 用户双端 Demo 实机验收通过收编（原话「通过，继续下一个组件」）；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -4101,13 +5144,35 @@
       "name": "数字键盘 NumberKeyboard",
       "category": "ui",
       "summary": "内嵌式数字键盘面板（无自带遮罩/浮层，Popup 悬浮版二期）：4 行×4 列键格=1~9 三行 + 底行（首格=extraKey 文本，否则 showDot=true 显示 .、false 且无 extraKey=灰「·」空占位不可点；中格=0；末格=删除）+ 右列「确认」竖条整列主色（固定高 208，白底 hairline 网格线）；纯事件回调（键盘零状态、无内部值）：数字/小数/extraKey 文本=onInput(字符)、退格=onDelete()、点确认列=onConfirm()，值由宿主输入模型持有（对齐 Input 受控惯例）；开关=confirmText/showDot/extraKey/confirmDisabled（仅确认列灰 40%）/disabled（整键盘 40% 灰不可点）；覆盖金额（.）/验证码（纯整数）/身份证（extraKey=X）三场景；与业务记账 AmountKeyboard（business.amount-keyboard）划界=本组件通用裸键格无金额语义；anti_goals 二期=遮罩底部弹层+滑入动画（随 Popup/Overlay 组合）、乱序 randomKey、长按连删、振动",
-      "capabilities": ["数字键盘", "NumberKeyboard", "支付键盘", "验证码键盘", "自定义键盘", "键盘面板"],
+      "capabilities": [
+        "数字键盘",
+        "NumberKeyboard",
+        "支付键盘",
+        "验证码键盘",
+        "自定义键盘",
+        "键盘面板"
+      ],
       "platforms": {
-        "ios": { "state": "available", "note": "NumberKeyboardView.swift：UIView 子类，frame 布局（layoutSubviews 按 bounds 计算 4 列×4 行 + 右列确认竖条），键为 UIButton；onInput/onDelete/onConfirm 闭包；confirmDisabled/disabled 属性 didSet 刷新灰态；intrinsicContentSize 高=208" },
-        "android": { "state": "available", "note": "NumberKeyboard.kt：@Composable NumberKeyboard(...) 同构声明式，weight 等分 3 数字列 + 1 确认列；底层透 AppColor.border 网格线；disabled=alpha 40%" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "NumberKeyboardView.swift：UIView 子类，frame 布局（layoutSubviews 按 bounds 计算 4 列×4 行 + 右列确认竖条），键为 UIButton；onInput/onDelete/onConfirm 闭包；confirmDisabled/disabled 属性 didSet 刷新灰态；intrinsicContentSize 高=208"
+        },
+        "android": {
+          "state": "available",
+          "note": "NumberKeyboard.kt：@Composable NumberKeyboard(...) 同构声明式，weight 等分 3 数字列 + 1 确认列；底层透 AppColor.border 网格线；disabled=alpha 40%"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/NumberKeyboardView.swift",
@@ -4115,23 +5180,81 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.number-keyboard",
-      "industry_names": ["数字键盘", "NumberKeyboard", "安全键盘", "自定义键盘", "支付键盘"],
+      "industry_names": [
+        "数字键盘",
+        "NumberKeyboard",
+        "安全键盘",
+        "自定义键盘",
+        "支付键盘"
+      ],
       "props": [
-        ["onInput", "回调", "是", "数字 0-9 / 小数 . / extraKey 文本上屏回调 onInput(字符)"],
-        ["onDelete?", "回调", "否", "退格回调（无=删除键灰禁不可点）"],
-        ["onConfirm?", "回调", "否", "点确认列回调"],
-        ["confirmText", "String", "否", "确认列文案，默认「确认」"],
-        ["showDot", "Boolean", "否", "底行首格是否显示小数点键，默认 true"],
-        ["extraKey?", "String", "否", "自定义底键文本（如身份证 X）；设置时替换底行首格"],
-        ["confirmDisabled", "Boolean", "否", "仅确认列 buttonDisabled 灰不可点（其余键可用），默认 false"],
-        ["disabled", "Boolean", "否", "整键盘 alpha 40% 灰不可点，默认 false"]
+        [
+          "onInput",
+          "回调",
+          "是",
+          "数字 0-9 / 小数 . / extraKey 文本上屏回调 onInput(字符)"
+        ],
+        [
+          "onDelete?",
+          "回调",
+          "否",
+          "退格回调（无=删除键灰禁不可点）"
+        ],
+        [
+          "onConfirm?",
+          "回调",
+          "否",
+          "点确认列回调"
+        ],
+        [
+          "confirmText",
+          "String",
+          "否",
+          "确认列文案，默认「确认」"
+        ],
+        [
+          "showDot",
+          "Boolean",
+          "否",
+          "底行首格是否显示小数点键，默认 true"
+        ],
+        [
+          "extraKey?",
+          "String",
+          "否",
+          "自定义底键文本（如身份证 X）；设置时替换底行首格"
+        ],
+        [
+          "confirmDisabled",
+          "Boolean",
+          "否",
+          "仅确认列 buttonDisabled 灰不可点（其余键可用），默认 false"
+        ],
+        [
+          "disabled",
+          "Boolean",
+          "否",
+          "整键盘 alpha 40% 灰不可点，默认 false"
+        ]
       ],
       "events": [],
       "demos": [
-        ["金额录入（小数+确认置灰）", "底行首格 .；点数字/小数点=onInput 上屏、删除=onDelete、确认=onConfirm（D1）"],
-        ["短信验证码（纯整数 6 位）", "showDot=false → 底行首格空占位不可点；仅数字上屏、满 6 位确认转 primary（D2）"],
-        ["身份证号（extraKey=X）", "extraKey=\"X\" 替换底行首格，X 与数字同走 onInput，限 18 位（D3）"],
-        ["禁用态 + 确认列外部驱动", "disabled=整键盘灰 40% 不可点；confirmDisabled 独立控制确认列（D4）"]
+        [
+          "金额录入（小数+确认置灰）",
+          "底行首格 .；点数字/小数点=onInput 上屏、删除=onDelete、确认=onConfirm（D1）"
+        ],
+        [
+          "短信验证码（纯整数 6 位）",
+          "showDot=false → 底行首格空占位不可点；仅数字上屏、满 6 位确认转 primary（D2）"
+        ],
+        [
+          "身份证号（extraKey=X）",
+          "extraKey=\"X\" 替换底行首格，X 与数字同走 onInput，限 18 位（D3）"
+        ],
+        [
+          "禁用态 + 确认列外部驱动",
+          "disabled=整键盘灰 40% 不可点；confirmDisabled 独立控制确认列（D4）"
+        ]
       ],
       "note": "数字键盘（数据录入区 #32，全新立项）：内嵌式数字键盘面板=4 行×4 列键格（1~9 + 底行/0/删除 + 右列确认竖条，固定高 208），块状白底网格线风格（无遮罩无浮层收敛）；纯事件回调 onInput/onDelete/onConfirm 键盘零状态、值宿主自理（对齐 Input #29 受控惯例）；disabled/confirmDisabled/showDot/extraKey/confirmText 开关；与业务 AmountKeyboard（记账金额，business.amount-keyboard，金额千分位/小数）划界不混入；anti_goals 二期=遮罩底部弹层+滑入动画（随 Popup #54/Overlay #6 组合）、乱序 randomKey、长按连删、振动。2026-09-06 门禁 A AI 代评通过（规格 design-spec/number-keyboard-design-spec.html + review-number-keyboard-A.md，P1–P4 全 A）+ 同日双端实现入库（NumberKeyboardView.swift=命令式 UIKit frame 布局 / NumberKeyboard.kt=声明式 Compose weight 等分）+ iOS NumberKeyboardShowcase / Android NumberKeyboardDemo 4 段 1:1（D1 金额/D2 验证码/D3 身份证 X/D4 禁用态+外部驱动），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「NumberKeyboard通过，继续下一个组件」；iOS 双根因修复闭环：子仓 db9d2c5=demo 段容器 bottom/height 闭合 208pt 防键盘溢出父 bounds 不可点/文字错位 + 子仓 5d371b9=数字 1~9 键补绑 onInput 事件，模拟器自动触发 sendActions 截图验证 field ¥0→¥1 确认列转 primary）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -4142,13 +5265,35 @@
       "name": "单选 Radio",
       "category": "ui",
       "summary": "通用排他单选双形态=单只 Radio（独立选中标记，行尾/宿主组合互斥外部驱动用）+ RadioGroup（options 数据驱动垂直排他单选列表一选一）：圆形单选点 20pt/20dp（未选=白底 + textSecondary 30% 1.5 圆描边；选中=外圈 primary 描边 + 中心实心点 8 primary；禁用=灰描边、已选禁用=灰外圈灰点保留），label Md16 后置间距 8、选中行 label 加粗、长文本单行省略，行高 40（纵向 padding 10）、行距 4；半受控 value：nil=内部自持且初始未选=合法未选态（不自动回填首项=不改宿主表单语义）、点未选行=排他切中回调 onChange(value)、点已选中行=幂等忽略（radio 传统语义无 toggle 取消=取消仅外部驱动）、外部赋值=同步回显不触发 onChange；disabled=组级/单只整灰 40%、选项级走 RadioOption.disabled、value 指向禁用项=灰点灰圈只读保留；与 #25 Checkbox 划界=Radio 圆形排他点选即确定 vs Checkbox 方形复选可多选可取消；与 Switch（二元开关）/Picker #33·Menu #31（下拉选填）/Segmented #74（页签高频）/协议行 AgreementCheckRow 划界；anti_goals 二期/不做=整项卡片（icon+标题+副文案）/横向换行排列/圆点动画/toggle 取消",
-      "capabilities": ["单选", "Radio", "RadioGroup", "单选框", "排他选择", "选项列表"],
+      "capabilities": [
+        "单选",
+        "Radio",
+        "RadioGroup",
+        "单选框",
+        "排他选择",
+        "选项列表"
+      ],
       "platforms": {
-        "ios": { "state": "available", "note": "RadioView.swift：RadioView=单只（UIView 子类，RadioGlyphView 自绘圆点+label 40pt 行、整行 UIButton 命中、tap 置 true 幂等）+ RadioGroupView=组（UIStackView 垂直、RadioRowView 整行命中 40、setSelected 刷新圆点/label 加粗/禁用 40% 灰）；checked/value 属性 didSet 半受控外部驱动回显不触发 onChange；intrinsicContentSize 高=count*40+(count-1)*4" },
-        "android": { "state": "available", "note": "Radio.kt：@Composable Radio=单只 / RadioGroup=垂直 Column（Arrangement.spacedBy(xs) 行距 4）；RadioOption{value,label,disabled} 数据驱动；单选点 Box 20dp clip(CircleShape)+border 1.5dp 描边+中心实心点 8dp；checked/value 参数 LaunchedEffect 半受控外部驱动回显不触发 onChange；clickable 幂等忽略已选行；行 padding vertical 10 高 40" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "RadioView.swift：RadioView=单只（UIView 子类，RadioGlyphView 自绘圆点+label 40pt 行、整行 UIButton 命中、tap 置 true 幂等）+ RadioGroupView=组（UIStackView 垂直、RadioRowView 整行命中 40、setSelected 刷新圆点/label 加粗/禁用 40% 灰）；checked/value 属性 didSet 半受控外部驱动回显不触发 onChange；intrinsicContentSize 高=count*40+(count-1)*4"
+        },
+        "android": {
+          "state": "available",
+          "note": "Radio.kt：@Composable Radio=单只 / RadioGroup=垂直 Column（Arrangement.spacedBy(xs) 行距 4）；RadioOption{value,label,disabled} 数据驱动；单选点 Box 20dp clip(CircleShape)+border 1.5dp 描边+中心实心点 8dp；checked/value 参数 LaunchedEffect 半受控外部驱动回显不触发 onChange；clickable 幂等忽略已选行；行 padding vertical 10 高 40"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/RadioView.swift",
@@ -4156,21 +5301,68 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.radio",
-      "industry_names": ["单选", "Radio", "RadioGroup", "单选框"],
+      "industry_names": [
+        "单选",
+        "Radio",
+        "RadioGroup",
+        "单选框"
+      ],
       "props": [
-        ["options", "RadioOption[]", "是", "单选选项：RadioOption{value,label,disabled=false}（仅 RadioGroup 用）"],
-        ["value", "String?", "否", "RadioGroup 半受控：nil=内部自持且初始未选（合法未选态，不自动回填首项）；外部赋值=同步回显不触发 onChange"],
-        ["onChange", "回调", "否", "(value) 点未选行=排他切中回调；点已选中行=幂等忽略；禁用行无回调"],
-        ["label", "String?", "否", "单只 Radio 文本（空/缺省=仅单选点）"],
-        ["checked", "Boolean?", "否", "单只 Radio 半受控：nil=内部自持初始未选、点选置 true；已选中再点=幂等忽略；取消仅外部 checked=false 驱动"],
-        ["disabled", "Boolean", "否", "RadioGroup=整组灰 40% 禁点；Radio=单只禁点；选项级禁用走 RadioOption.disabled（value 指向禁用项=灰点灰圈只读保留）"]
+        [
+          "options",
+          "RadioOption[]",
+          "是",
+          "单选选项：RadioOption{value,label,disabled=false}（仅 RadioGroup 用）"
+        ],
+        [
+          "value",
+          "String?",
+          "否",
+          "RadioGroup 半受控：nil=内部自持且初始未选（合法未选态，不自动回填首项）；外部赋值=同步回显不触发 onChange"
+        ],
+        [
+          "onChange",
+          "回调",
+          "否",
+          "(value) 点未选行=排他切中回调；点已选中行=幂等忽略；禁用行无回调"
+        ],
+        [
+          "label",
+          "String?",
+          "否",
+          "单只 Radio 文本（空/缺省=仅单选点）"
+        ],
+        [
+          "checked",
+          "Boolean?",
+          "否",
+          "单只 Radio 半受控：nil=内部自持初始未选、点选置 true；已选中再点=幂等忽略；取消仅外部 checked=false 驱动"
+        ],
+        [
+          "disabled",
+          "Boolean",
+          "否",
+          "RadioGroup=整组灰 40% 禁点；Radio=单只禁点；选项级禁用走 RadioOption.disabled（value 指向禁用项=灰点灰圈只读保留）"
+        ]
       ],
       "events": [],
       "demos": [
-        ["单只 Radio（设为默认账本）", "点选置 true 回显；「取消选中」=外部 checked=false 驱动回显不触发 onChange（D1）"],
-        ["RadioGroup 排他（男/女）", "内部自持初始未选=合法态；点未选行排他切中 onChange；点已选中行幂等忽略（D2）"],
-        ["RadioGroup 禁用态", "组禁用开关整体 40% 灰；到店自提/预约配送选项级禁用不可点；value 初始指向禁用项=灰点灰圈只读保留（D3）"],
-        ["RadioGroup 受控外部 value", "外部选 English/重置中文=value 赋值同步点亮（不触发 onChange）；点行=组件上报宿主回写（D4）"]
+        [
+          "单只 Radio（设为默认账本）",
+          "点选置 true 回显；「取消选中」=外部 checked=false 驱动回显不触发 onChange（D1）"
+        ],
+        [
+          "RadioGroup 排他（男/女）",
+          "内部自持初始未选=合法态；点未选行排他切中 onChange；点已选中行幂等忽略（D2）"
+        ],
+        [
+          "RadioGroup 禁用态",
+          "组禁用开关整体 40% 灰；到店自提/预约配送选项级禁用不可点；value 初始指向禁用项=灰点灰圈只读保留（D3）"
+        ],
+        [
+          "RadioGroup 受控外部 value",
+          "外部选 English/重置中文=value 赋值同步点亮（不触发 onChange）；点行=组件上报宿主回写（D4）"
+        ]
       ],
       "note": "单选（数据录入区 #35，全新立项，2026-09-06）：通用排他单选双形态（单只 Radio + RadioGroup 垂直排他单选列表），圆形单选点 20 外圈描边 1.5 未选 textSecondary 30%/选中外圈 primary+中心实心点 8（与 Checkbox 方形复选划界=圆形排他点选即确定无 toggle 取消）；半受控 value 点选即确定/外部回显不触发/已选行幂等；禁用项/组禁/已选禁用灰保留；label 选中加粗。2026-09-06 门禁 A AI 代评通过（规格 design-spec/radio-design-spec.html + review-radio-A.md，P1–P4 全 A，用户「radio吧」选型）+ 同日双端实现入库（RadioView.swift=命令式 UIKit 自绘 RadioGlyphView / Radio.kt=声明式 Compose）+ iOS RadioShowcase / Android RadioDemo 4 段 1:1（D1 单只/D2 组排他/D3 禁用态/D4 受控外部），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0（2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「radio通过，继续下一个组件」，4 段双端 1:1 全过，组件进度.md §3.4 行 35 📐→✅ 已回写）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -4181,13 +5373,35 @@
       "name": "区间选择 Range",
       "category": "ui",
       "summary": "横向双滑块区间选择内容组件：一条共用轨道 + start/end 两枚滑块（闭区间 start≤end 恒成立、可相等=零宽单点）、激活段高亮（start 中心~end 中心 primary）、点轨道空段=最近滑块吸附跳位、拖动任一端连续调整（step 粒度吸附）、数值 Double 承载宿主格式化单位展示、无壳无刻度无数值气泡（同 Checkbox/Radio 无 label 壳先例=宿主自布单位/文案/校验）；轨道高 4（未激活段 textSecondary 30% / 激活段 primary）、滑块钮白底圆形 20 primary 描边 1.5、行高 40 整条命中、禁用整条 40% 灰；半受控 value（RangeValue{start,end}？nil=内部自持且初始 [min,max]=「全选不过滤」语义；外部赋值含 clamp 后=仅同步回显不触发 onChange；拖动/点吸附=onChange 连续回调宿主回写；start/end 硬钳制不可互相越过、可相等零宽单点；min/max 动态改=越界端自动 clamp（值域级变化回调一次）；step>0 且 ≤(max−min) 注释断言）；与 #30 InputNumber（步进单值无区间联动）/RadioGroup #35·Menu #31（离散档少量枚举）/Switch #41（二元开关）/Rate #37（整数评价点）/日期区间日历（非数值不走滑轨）/未来单钮 Slider（另行立项）划界；anti_goals 二期/不做=刻度 mark/数值气泡 tooltip/垂直方向/翻转/单值 Slider 混入",
-      "capabilities": ["区间选择", "Range", "双滑块", "区间滑块", "范围选择", "范围筛选"],
+      "capabilities": [
+        "区间选择",
+        "Range",
+        "双滑块",
+        "区间滑块",
+        "范围选择",
+        "范围筛选"
+      ],
       "platforms": {
-        "ios": { "state": "available", "note": "RangeView.swift：命令式 UIKit UIView 自绘（track+bar+thumb 在 draw 绘制、touchesBegan/Moved 定位吸附拖动钮、x/value 线性换算 step 对齐）；value RangeValue? didSet 半受控外部驱动 clamp 回显不触发 onChange；min/max/step 动态变=clamp 内部并上报一次；disabled 整条灰不可拖不可点；intrinsicContentSize 高 40 宽宿主填充" },
-        "android": { "state": "available", "note": "Range.kt：声明式 Compose Canvas 自绘（detectTapGestures 点轨道吸附最近端 + detectDragGestures 拖动活动钮）；value RangeValue? 参数 LaunchedEffect 半受控外部驱动 clamp 回显不触发 onChange；min/max/step 动态变=clamp 内部并上报一次；disabled 整条灰不可交互；Box 40dp 宽宿主填充" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "RangeView.swift：命令式 UIKit UIView 自绘（track+bar+thumb 在 draw 绘制、touchesBegan/Moved 定位吸附拖动钮、x/value 线性换算 step 对齐）；value RangeValue? didSet 半受控外部驱动 clamp 回显不触发 onChange；min/max/step 动态变=clamp 内部并上报一次；disabled 整条灰不可拖不可点；intrinsicContentSize 高 40 宽宿主填充"
+        },
+        "android": {
+          "state": "available",
+          "note": "Range.kt：声明式 Compose Canvas 自绘（detectTapGestures 点轨道吸附最近端 + detectDragGestures 拖动活动钮）；value RangeValue? 参数 LaunchedEffect 半受控外部驱动 clamp 回显不触发 onChange；min/max/step 动态变=clamp 内部并上报一次；disabled 整条灰不可交互；Box 40dp 宽宿主填充"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/RangeView.swift",
@@ -4195,21 +5409,69 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.range",
-      "industry_names": ["区间选择", "Range", "双滑块", "范围选择器", "滑杆区间"],
+      "industry_names": [
+        "区间选择",
+        "Range",
+        "双滑块",
+        "范围选择器",
+        "滑杆区间"
+      ],
       "props": [
-        ["value", "RangeValue{start:Double,end:Double}?", "否", "半受控：nil=内部自持且初始 [min,max]；外部赋值（含 clamp 后）=同步回显不触发 onChange"],
-        ["onChange / onValueChange", "回调", "是", "(RangeValue)：点轨道吸附/拖动连续回调（每次 step 对齐后）；disabled 无回调；值域 min/max 动态改致 clamp=回调一次"],
-        ["min / max", "Double", "否", "值域下/上界，默认 0 / 100；动态改=越界端自动 clamp"],
-        ["step", "Double", "否", "吸附粒度，默认 1；>0 且 ≤(max−min)（参数注释断言）"],
-        ["disabled", "Boolean", "否", "整条 40% 灰、不可拖不可点无回调"],
-        ["start≤end", "约束", "—", "区间闭区间硬钳制：滑块不可互相越过、start=end 合法（零宽单点激活段）"]
+        [
+          "value",
+          "RangeValue{start:Double,end:Double}?",
+          "否",
+          "半受控：nil=内部自持且初始 [min,max]；外部赋值（含 clamp 后）=同步回显不触发 onChange"
+        ],
+        [
+          "onChange / onValueChange",
+          "回调",
+          "是",
+          "(RangeValue)：点轨道吸附/拖动连续回调（每次 step 对齐后）；disabled 无回调；值域 min/max 动态改致 clamp=回调一次"
+        ],
+        [
+          "min / max",
+          "Double",
+          "否",
+          "值域下/上界，默认 0 / 100；动态改=越界端自动 clamp"
+        ],
+        [
+          "step",
+          "Double",
+          "否",
+          "吸附粒度，默认 1；>0 且 ≤(max−min)（参数注释断言）"
+        ],
+        [
+          "disabled",
+          "Boolean",
+          "否",
+          "整条 40% 灰、不可拖不可点无回调"
+        ],
+        [
+          "start≤end",
+          "约束",
+          "—",
+          "区间闭区间硬钳制：滑块不可互相越过、start=end 合法（零宽单点激活段）"
+        ]
       ],
       "events": [],
       "demos": [
-        ["基础区间（金额范围 0–100）", "step1 初始 25–75；拖动任一端实时回显两端值；重置=外部 value 驱动回显不触发 onChange（D1）"],
-        ["离散步进 step 5", "拖动按 5 吸附；点击轨道空段=最近滑块跳至点击值（D2）"],
-        ["值域与禁用（动态 min 越界 clamp）", "外部改 min=60=start/end 越界端自动 clamp 至单点 60；禁用开关整条 40% 灰不可交互；重置回 min10（D3）"],
-        ["受控外部 value 驱动", "预设 0–30 / 60–100=外部赋值仅同步回显（不触发 onChange）；拖动=组件上报宿主回写（D4）"]
+        [
+          "基础区间（金额范围 0–100）",
+          "step1 初始 25–75；拖动任一端实时回显两端值；重置=外部 value 驱动回显不触发 onChange（D1）"
+        ],
+        [
+          "离散步进 step 5",
+          "拖动按 5 吸附；点击轨道空段=最近滑块跳至点击值（D2）"
+        ],
+        [
+          "值域与禁用（动态 min 越界 clamp）",
+          "外部改 min=60=start/end 越界端自动 clamp 至单点 60；禁用开关整条 40% 灰不可交互；重置回 min10（D3）"
+        ],
+        [
+          "受控外部 value 驱动",
+          "预设 0–30 / 60–100=外部赋值仅同步回显（不触发 onChange）；拖动=组件上报宿主回写（D4）"
+        ]
       ],
       "note": "区间选择（数据录入区 #36，全新立项，2026-09-06）：横向双钮区间滑块（单轨道+start/end 双钮闭区间 start≤end 恒成立可相等零宽单点、点轨道空段吸附最近端、拖动连续回调）、Double RangeValue{start,end}+min/max/step 数值模型、半受控 value nil=内部自持初始全区间、min/max 动态改越界自动 clamp、禁用整条 40% 灰；与 #30 InputNumber/#35 RadioGroup·#31 Menu/#41 Switch/#37 Rate/日期日历/未来单钮 Slider 划界；无壳无刻度无气泡=宿主格式化单位；端点贴边半钮溢出允许。2026-09-06 门禁 A AI 代评通过（规格 design-spec/range-design-spec.html + review-range-A.md，P1–P4 全 A，用户 2026-09-06 原话「radio通过，继续下一个组件」指示接棒启动）+ 同日双端实现入库（RangeView.swift=命令式 UIKit 自绘 touches 拖动几何换算 / Range.kt=声明式 Compose Canvas 自绘 pointerInput 拖动），iOS RangeShowcase / Android RangeDemo 4 段 1:1（D1 基础区间/D2 step 离散+点轨吸附/D3 值域 clamp+禁用/D4 受控外部驱动），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0。2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过，继续下一个组件吧」，iOS 4 段正常无改动；Android 首轮「Demo 都无法操作」修复闭环=子仓 0e6bbab：pointerInput key 去 value（拖动 onChange→宿主回写→value 变→原 key 每帧取消重启手势 coroutine=拖动断）+ detectTapGestures/detectDragGestures 串行同一 pointerInput block 陷阱（detectTapGestures awaitEachGesture 无限循环占据事件流=后置 detectDragGestures 永不到达=drag 全失效）→ awaitEachGesture 统一自旋（down=nearest 吸附锁定钮+commit、drag 纵向位移 return@drag 不 consume 交外层滚动、横向 consume+commit），同 Material Slider 模式；Android assembleDebug BUILD SUCCESSFUL 复验，用户模拟器复验通过），组件进度.md §3.4 行 36 📐→✅ 已回写。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -4220,13 +5482,36 @@
       "name": "评分 Rate",
       "category": "ui",
       "summary": "行内 n 颗自绘五角星整数评分点（默认 5）：值=已点亮整星数 Int 0~count（0=未评合法态）；点击第 k 颗=点亮到该颗并回调 k、再点当前值同一颗=清空归 0（评价可取消=allowClear 语义）；横向滑动=随手指连续点亮/收回（拖出组件左缘=熄灭归 0）、松手一次性定值回调；count 可配（十分制等）；半受控 value：nil=内部自持初始 0、外部赋值（含 clamp 0~count）=仅同步回显不触发 onChange、点/滑定值=onChange 一次性回调宿主回写；readonly=只读彩色展示评分（详情展示场景）不可交互无回调；disabled=整行 40% 灰星不可交互无回调（与 readonly 并存 disabled 压过灰）；无 label/文案/提交=宿主自理；星形=双端自绘五角星 path（外接圆直径 22=AppFont.sizeXl、内凹比 0.382=R×sin18°/sin54°、星间距 8=AppSpace.sm、行高 40 整行命中=对齐 #35/#25 行基准、点亮星 primary 填充/未点亮 textSecondary 30% 1.5 空心描边）；与 #35 RadioGroup（文本选项离散互斥一选一）/ #31 Menu·#33 Picker（下拉选填）/ #36 Range（连续数值区间）/ #41 Switch（二元开关）/ #30 InputNumber（数字步进回显）划界；anti_goals 二期/不做=半星 allowHalf（半星 path+半格命中）/size 参数化（一期固定 22 同钮点固定先例）/label 评分文案/提交动作=宿主与 Form 职责/震动动画评分反馈=不做或宿主自理",
-      "capabilities": ["评分", "Rate", "星级评分", "星星", "评价", "打分", "Rating"],
+      "capabilities": [
+        "评分",
+        "Rate",
+        "星级评分",
+        "星星",
+        "评价",
+        "打分",
+        "Rating"
+      ],
       "platforms": {
-        "ios": { "state": "available", "note": "RateView.swift：命令式 UIKit UIView 自绘（starPath 五角星 path 10 顶点交替外接 11/内接 11×0.382、draw 逐星点亮 primary 填充/未点亮空心描边、readonly 保色/disabled 40% 灰）；点/滑=UITouch touchesBegan/Moved/Ended 统一 x→index 换算（星宽 22+间距 8=30pt 一档、拖出左缘熄灭归 0）、松手一次性回调（tap 落在当前值同一颗=清空归 0）；value Int? didSet 半受控外部驱动 clamp 回显不触发 onChange；readonly/disabled isUserInteractionEnabled 关闭无回调；intrinsicContentSize 高 40 宽=count×30−8（wrap content 不撑满）" },
-        "android": { "state": "available", "note": "Rate.kt：声明式 Compose Canvas 自绘（buildStarPath 同坐标五角星、Canvas drawPath 逐星点亮 primary 填充/未点亮 1.5 空心描边/disabled 灰 40%）；点/滑=pointerInput(count,readonly,disabled) awaitEachGesture 单自旋（down 预览点亮、drag 横向消费/纵向不消费交外层滚动并累计两轴、松手判定=纵向主导回滚不回调 / tap 落在当前值同一颗=清空归 0、拖动取预览定值）；value Int? 参数 LaunchedEffect 半受控外部驱动 clamp 回显不触发 onChange；Box 宽=count×30−8dp wrap content 高 40dp" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "RateView.swift：命令式 UIKit UIView 自绘（starPath 五角星 path 10 顶点交替外接 11/内接 11×0.382、draw 逐星点亮 primary 填充/未点亮空心描边、readonly 保色/disabled 40% 灰）；点/滑=UITouch touchesBegan/Moved/Ended 统一 x→index 换算（星宽 22+间距 8=30pt 一档、拖出左缘熄灭归 0）、松手一次性回调（tap 落在当前值同一颗=清空归 0）；value Int? didSet 半受控外部驱动 clamp 回显不触发 onChange；readonly/disabled isUserInteractionEnabled 关闭无回调；intrinsicContentSize 高 40 宽=count×30−8（wrap content 不撑满）"
+        },
+        "android": {
+          "state": "available",
+          "note": "Rate.kt：声明式 Compose Canvas 自绘（buildStarPath 同坐标五角星、Canvas drawPath 逐星点亮 primary 填充/未点亮 1.5 空心描边/disabled 灰 40%）；点/滑=pointerInput(count,readonly,disabled) awaitEachGesture 单自旋（down 预览点亮、drag 横向消费/纵向不消费交外层滚动并累计两轴、松手判定=纵向主导回滚不回调 / tap 落在当前值同一颗=清空归 0、拖动取预览定值）；value Int? 参数 LaunchedEffect 半受控外部驱动 clamp 回显不触发 onChange；Box 宽=count×30−8dp wrap content 高 40dp"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/RateView.swift",
@@ -4234,20 +5519,63 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.rate",
-      "industry_names": ["评分", "Rate", "星级", "Rating", "打分星标"],
+      "industry_names": [
+        "评分",
+        "Rate",
+        "星级",
+        "Rating",
+        "打分星标"
+      ],
       "props": [
-        ["value", "Int?", "否", "半受控：nil=内部自持且初始 0（未评合法态）；外部赋值（含 clamp 0~count）=仅同步回显不触发 onChange"],
-        ["onChange / onValueChange", "回调", "是", "(Int)：点第 k 颗或滑定 k=回调 k（1~count）；点当前值同一颗=回调 0 清空（评价可取消）；拖动取松手预览值；readonly/disabled 无回调"],
-        ["count", "Int", "否", "星数，默认 5；>0（参数注释断言）；十分制=10"],
-        ["readonly", "Boolean", "否", "只读彩色展示评分、不可交互无回调（详情展示场景）"],
-        ["disabled", "Boolean", "否", "整行 40% 灰星、不可交互无回调；与 readonly 并存 disabled 压过灰"]
+        [
+          "value",
+          "Int?",
+          "否",
+          "半受控：nil=内部自持且初始 0（未评合法态）；外部赋值（含 clamp 0~count）=仅同步回显不触发 onChange"
+        ],
+        [
+          "onChange / onValueChange",
+          "回调",
+          "是",
+          "(Int)：点第 k 颗或滑定 k=回调 k（1~count）；点当前值同一颗=回调 0 清空（评价可取消）；拖动取松手预览值；readonly/disabled 无回调"
+        ],
+        [
+          "count",
+          "Int",
+          "否",
+          "星数，默认 5；>0（参数注释断言）；十分制=10"
+        ],
+        [
+          "readonly",
+          "Boolean",
+          "否",
+          "只读彩色展示评分、不可交互无回调（详情展示场景）"
+        ],
+        [
+          "disabled",
+          "Boolean",
+          "否",
+          "整行 40% 灰星、不可交互无回调；与 readonly 并存 disabled 压过灰"
+        ]
       ],
       "events": [],
       "demos": [
-        ["基础评分点选（count 5·初始 0 未评）", "点第 k 颗=点亮回调 k；再点当前值同一颗=清空归 0（评价可取消）；重置=外部 value=0 赋值同步回显不触发 onChange（D1）"],
-        ["滑动连选（count 5）", "横滑随指点亮/收回（拖出左缘=熄灭归 0）、松手一次性回调定值；纵向位移不消费=外层可滚动（D2）"],
-        ["只读与禁用（初始 readonly 展示 value=4）", "readonly=primary 彩色仅展示不可点；disabled=整行 40% 灰星不可点（与 readonly 并存=disabled 压过灰）；重置=外部 value=2+恢复可交互（D3）"],
-        ["自定义 count 与受控（count 10 十分制）", "星数=count；外部 value=10/重置 0=仅同步回显不触发 onChange；点/滑=组件上报宿主回写（D4）"]
+        [
+          "基础评分点选（count 5·初始 0 未评）",
+          "点第 k 颗=点亮回调 k；再点当前值同一颗=清空归 0（评价可取消）；重置=外部 value=0 赋值同步回显不触发 onChange（D1）"
+        ],
+        [
+          "滑动连选（count 5）",
+          "横滑随指点亮/收回（拖出左缘=熄灭归 0）、松手一次性回调定值；纵向位移不消费=外层可滚动（D2）"
+        ],
+        [
+          "只读与禁用（初始 readonly 展示 value=4）",
+          "readonly=primary 彩色仅展示不可点；disabled=整行 40% 灰星不可点（与 readonly 并存=disabled 压过灰）；重置=外部 value=2+恢复可交互（D3）"
+        ],
+        [
+          "自定义 count 与受控（count 10 十分制）",
+          "星数=count；外部 value=10/重置 0=仅同步回显不触发 onChange；点/滑=组件上报宿主回写（D4）"
+        ]
       ],
       "note": "评分（数据录入区 #37，全新立项，2026-09-06）：行内 n 颗自绘五角星整数评分点 Rate（默认 5：值=已点亮整星数 Int 0~count、0=未评合法态；点击第 k 颗点亮并回调、点当前值同一颗=清空归 0 评价可取消；横向滑动随指连续点亮/收回松手定值；count 可配=十分制等；readonly=只读彩色展示评分不可交互；disabled=灰 40% 压过 readonly；半受控 value nil=内部自持初始 0 外部赋值回显不触发 onChange；无 label/文案/提交=宿主自理）。星形双端自绘五角星 path（字符 ★ 双端字形渲染不一致淘汰、Android 系统 RatingBar 视觉脱离不用）：外接圆 22 内凹 0.382、间距 8、行高 40 对齐 #35/#25、点亮 primary/未点亮 textSecondary 30%。与 #35 RadioGroup/#31 Menu·#33 Picker/#36 Range/#41 Switch/#30 InputNumber 划界；半星 allowHalf/size 参数化=二期候选。2026-09-06 门禁 A AI 代评通过（规格 design-spec/rate-design-spec.html + review-rate-A.md，P1–P4 全 A，用户 2026-09-06 原话「通过，继续下一个组件吧」指示接棒启动）+ 同日门禁 B 双端实现入库（RateView.swift=命令式 UIKit UITouch 点/滑统一换算 + Rate.kt=声明式 Compose pointerInput 单自旋 drag 松手判定，iOS StarPath/Android buildStarPath 同坐标算法），iOS RateShowcase / Android RateDemo 4 段 1:1（D1 基础点选清空/D2 滑动连选/D3 只读禁用/D4 十分制受控），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0。C1.5 用户双端 Demo 实机验收通过收编（2026-09-06，原话「通过，继续下一个组件」）：首轮 iOS 星区黑色背景问题修复闭环=RateView 纯 draw 自绘未设透明（UIView 默认 opaque=true+backgroundColor=nil=未绘制星间隙渲染为不透明黑块、吞掉点亮对比）→ init 补 isOpaque=false+backgroundColor=.clear+contentMode=.redraw（子仓 fe78956），用户 Xcode 复验通过。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -4258,13 +5586,37 @@
       "name": "搜索栏 SearchBar",
       "category": "ui",
       "summary": "搜索输入壳+放大镜+文本输入+非空清除钮+检索触发=搜索栏（数据录入区 #38，全新立项）：水平搜索输入行=48 灰底 bgPage+radiusLg 圆角（对齐已收编 Input #29 壳 token、无边框），前置放大镜（自绘 glyph 14 灰 textSecondary）+ Md16 文本输入（textPrimary）+ 非空清除钮（20 圆 gray15 白叉、点击清空回传空串）+ trailing 宿主尾槽（后置搜索按钮/取消钮=与键盘搜索键双路径）；检索语义=软键盘「搜索」键/回车=onSearch(当前文本) 一次性回调（主触发、空串也回调宿主自判忽略）；真实检索执行/结果/历史/联想/loading=宿主自理（组件零内部异步态）；半受控 value String?：nil=内部自持输入（宿主拿 onTextChange 实时词即可无需回写）、外部赋值=仅同步回显不触发 onTextChange；placeholder 默认「请输入搜索关键词」textSecondary Md16；maxLength 仅截断键盘输入路径（外部赋值不限）；disabled=整行 40% 灰不可输入清除钮隐藏无回调；与 Input #29（通用单行文本输入无检索语义=壳/清除钮/键盘基座复用不复制）/ ShortPassword #39（掩码专用）/ Picker #33·Menu #31·Cascader #24（选项选择）/ textarea #42（多行）划界；iOS 系统 UISearchBar（36 高白底+自动取消钮）/ Android 系统 Material SearchBar（Material 3 样式）视觉脱离库内设计语言=不收编；anti_goals 二期/不做=胶囊 shape 参数化（一期方形 radiusLg 同 Input 壳语言统一）/自动聚焦/防抖=宿主职责/历史·热词·联想·结果列表·空态·loading=宿主自理/语音·相机搜索=不做或宿主",
-      "capabilities": ["搜索", "搜索栏", "SearchBar", "Search", "检索", "搜索框", "搜索输入", "Keyword"],
+      "capabilities": [
+        "搜索",
+        "搜索栏",
+        "SearchBar",
+        "Search",
+        "检索",
+        "搜索框",
+        "搜索输入",
+        "Keyword"
+      ],
       "platforms": {
-        "ios": { "state": "available", "note": "SearchBarView.swift：命令式 UIKit UITextField（returnKeyType=.search + delegate textFieldShouldReturn=onSearch 一次性回调、maxLength delegate 截断含粘贴）；半受控 value String? didSet 外部赋值=仅同步回显不触发 onTextChange（currentText 只读供 trailing 按钮读）；disabled=alpha 0.4 不可输入清除钮隐藏；壳 48pt bgPage radiusLg 无边框、intrinsicContentSize 高 48；前置放大镜 MagGlyphView 自绘（圆 0.52×14 直径+斜柄 0.26 延伸、线宽 0.15×14 textSecondary 85%）；清除钮复用 InputView.swift 的 XGlyphView（20 圆 gray15 白叉 1:1）；trailing 宿主视图入树于清除钮之后；editingChanged=onTextChange 实时直通" },
-        "android": { "state": "available", "note": "SearchBar.kt：声明式 Compose BasicTextField（KeyboardOptions imeAction=Search + KeyboardActions.onSearch 触发、maxLength take 截断键盘路径）；半受控 value String? 参数 nil=内部自持 remember mutableStateOf 输入、外部赋值=直读参数回显不触发回调；disabled alpha 0.4+enabled=false+清除钮隐藏；壳 Row 48dp bgPage radiusLg clip；放大镜 Canvas 自绘同 iOS 坐标；清除钮 20dp CircleShape gray15 Canvas 白叉；trailing 尾槽 Composable 插清除钮之后；onTextChange 实时直通" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "SearchBarView.swift：命令式 UIKit UITextField（returnKeyType=.search + delegate textFieldShouldReturn=onSearch 一次性回调、maxLength delegate 截断含粘贴）；半受控 value String? didSet 外部赋值=仅同步回显不触发 onTextChange（currentText 只读供 trailing 按钮读）；disabled=alpha 0.4 不可输入清除钮隐藏；壳 48pt bgPage radiusLg 无边框、intrinsicContentSize 高 48；前置放大镜 MagGlyphView 自绘（圆 0.52×14 直径+斜柄 0.26 延伸、线宽 0.15×14 textSecondary 85%）；清除钮复用 InputView.swift 的 XGlyphView（20 圆 gray15 白叉 1:1）；trailing 宿主视图入树于清除钮之后；editingChanged=onTextChange 实时直通"
+        },
+        "android": {
+          "state": "available",
+          "note": "SearchBar.kt：声明式 Compose BasicTextField（KeyboardOptions imeAction=Search + KeyboardActions.onSearch 触发、maxLength take 截断键盘路径）；半受控 value String? 参数 nil=内部自持 remember mutableStateOf 输入、外部赋值=直读参数回显不触发回调；disabled alpha 0.4+enabled=false+清除钮隐藏；壳 Row 48dp bgPage radiusLg clip；放大镜 Canvas 自绘同 iOS 坐标；清除钮 20dp CircleShape gray15 Canvas 白叉；trailing 尾槽 Composable 插清除钮之后；onTextChange 实时直通"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/SearchBarView.swift",
@@ -4272,23 +5624,82 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.search-bar",
-      "industry_names": ["搜索栏", "搜索", "SearchBar", "Search", "检索框", "搜索输入框"],
+      "industry_names": [
+        "搜索栏",
+        "搜索",
+        "SearchBar",
+        "Search",
+        "检索框",
+        "搜索输入框"
+      ],
       "props": [
-        ["value", "String?", "否", "半受控：nil=内部自持输入（宿主无需回写、onTextChange 实时拿词即可）；外部赋值=仅同步回显不触发 onTextChange"],
-        ["onTextChange", "回调", "是", "(String)：输入实时直通（含清除钮点击清空后回传 \"\"）；disabled 无回调"],
-        ["onSearch", "回调", "否", "(String)：软键盘「搜索」键/回车触发一次（空串也回调、宿主自判忽略）；宿主执行真实检索自理结果；disabled 无回调"],
-        ["placeholder", "String", "否", "空串提示文案，默认「请输入搜索关键词」；textSecondary Md16 灰字"],
-        ["maxLength", "Int?", "否", "仅截断键盘输入路径（含粘贴）；外部赋值不截断"],
-        ["disabled", "Boolean", "否", "整行 40% 灰、不可输入、清除钮隐藏、无任何回调"],
-        ["trailing", "槽（宿主视图）", "否", "尾槽=宿主自放内容（「搜索」按钮/取消钮等），入清除钮之后壳内右缘；槽动作与 onSearch 联动宿主自理"],
-        ["shape", "—", "—", "胶囊圆角参数=二期候选（一期固定方形 radiusLg 同 Input #29，anti_goals 登记）"]
+        [
+          "value",
+          "String?",
+          "否",
+          "半受控：nil=内部自持输入（宿主无需回写、onTextChange 实时拿词即可）；外部赋值=仅同步回显不触发 onTextChange"
+        ],
+        [
+          "onTextChange",
+          "回调",
+          "是",
+          "(String)：输入实时直通（含清除钮点击清空后回传 \"\"）；disabled 无回调"
+        ],
+        [
+          "onSearch",
+          "回调",
+          "否",
+          "(String)：软键盘「搜索」键/回车触发一次（空串也回调、宿主自判忽略）；宿主执行真实检索自理结果；disabled 无回调"
+        ],
+        [
+          "placeholder",
+          "String",
+          "否",
+          "空串提示文案，默认「请输入搜索关键词」；textSecondary Md16 灰字"
+        ],
+        [
+          "maxLength",
+          "Int?",
+          "否",
+          "仅截断键盘输入路径（含粘贴）；外部赋值不截断"
+        ],
+        [
+          "disabled",
+          "Boolean",
+          "否",
+          "整行 40% 灰、不可输入、清除钮隐藏、无任何回调"
+        ],
+        [
+          "trailing",
+          "槽（宿主视图）",
+          "否",
+          "尾槽=宿主自放内容（「搜索」按钮/取消钮等），入清除钮之后壳内右缘；槽动作与 onSearch 联动宿主自理"
+        ],
+        [
+          "shape",
+          "—",
+          "—",
+          "胶囊圆角参数=二期候选（一期固定方形 radiusLg 同 Input #29，anti_goals 登记）"
+        ]
       ],
       "events": [],
       "demos": [
-        ["基础搜索输入（半受控内部自持·清除钮）", "value=nil=组件内部自持输入（宿主拿回调词免回写）；placeholder 灰字；非空即显清除钮、点击清空回传空串（D1）"],
-        ["键盘搜索键 onSearch+宿主列表过滤", "软键盘「搜索」键/回车=onSearch 一次性回调段内回显；下方静态列表按词过滤=演示宿主检索自理接法（输入即筛/搜索键提交）（D2）"],
-        ["禁用与外部驱动", "disabled=整行 40% 灰不可输入清除钮隐藏无回调；外部 value 赋值=仅同步回显不触发 onTextChange（触发计数不增）；外部置空=仅回显清空（D3）"],
-        ["trailing 尾槽宿主搜索按钮", "组件不内置提交钮=尾槽宿主放「搜索」按钮，点击=与软键盘搜索键同走 onSearch 语义（双路径）；输入即清按钮提示文案（D4）"]
+        [
+          "基础搜索输入（半受控内部自持·清除钮）",
+          "value=nil=组件内部自持输入（宿主拿回调词免回写）；placeholder 灰字；非空即显清除钮、点击清空回传空串（D1）"
+        ],
+        [
+          "键盘搜索键 onSearch+宿主列表过滤",
+          "软键盘「搜索」键/回车=onSearch 一次性回调段内回显；下方静态列表按词过滤=演示宿主检索自理接法（输入即筛/搜索键提交）（D2）"
+        ],
+        [
+          "禁用与外部驱动",
+          "disabled=整行 40% 灰不可输入清除钮隐藏无回调；外部 value 赋值=仅同步回显不触发 onTextChange（触发计数不增）；外部置空=仅回显清空（D3）"
+        ],
+        [
+          "trailing 尾槽宿主搜索按钮",
+          "组件不内置提交钮=尾槽宿主放「搜索」按钮，点击=与软键盘搜索键同走 onSearch 语义（双路径）；输入即清按钮提示文案（D4）"
+        ]
       ],
       "note": "搜索栏（数据录入区 #38，全新立项，2026-09-06）：搜索输入壳（48 灰底 radiusLg 对齐已收编 Input #29 壳 token=壳语言统一复用不复制）+ 前置放大镜（自绘 glyph 14 灰）+ Md16 文本输入 + 非空清除钮（点击清空回传空串）+ trailing 尾槽（宿主搜索按钮=与键盘搜索键双路径）+ 软键盘「搜索」键 onSearch 检索触发；半受控 value String? nil=内部自持（搜索宿主拿词即用免回写）、外部赋值仅回显不触发回调、disabled 40% 灰、maxLength 仅截断键盘输入路径；真实检索/结果/历史/联想=宿主自理（组件零内部异步态）；胶囊 shape/自动聚焦/防抖/历史联想=二期或宿主（anti_goals）。系统搜索控件（iOS UISearchBar=36 高白底+自动取消钮 / Android Material SearchBar=Material 3 样式）视觉脱离库内设计语言=不收编；与 Input #29（无检索语义基座）/ShortPassword #39/Picker #33/Menu #31/Cascader #24 划界。2026-09-06 门禁 A AI 代评通过（规格 design-spec/search-bar-design-spec.html + review-search-bar-A.md，P1–P4 全 A，用户 2026-09-06 Rate #37 收编后原话「通过，继续下一个组件」指示接棒启动）+ 同日门禁 B 双端实现入库（SearchBarView.swift=命令式 UIKit UITextField returnKey.search+delegate shouldReturn + MagGlyphView/XGlyphView 自绘；SearchBar.kt=声明式 Compose BasicTextField imeAction=Search+KeyboardActions + Canvas 自绘放大镜/清除钮），iOS SearchBarShowcase / Android SearchBarDemo 4 段 1:1（D1 基础输入+清除钮/D2 键盘搜索键 onSearch+宿主列表过滤/D3 禁用+外部 value 驱动/D4 trailing 尾槽按钮双路径），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过，下一个组件吧」，数据录入区 #21~#38 全闭环、缺 #34 picker-view 暂缓）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -4299,13 +5710,37 @@
       "name": "短密码 ShortPassword",
       "category": "ui",
       "summary": "定长数字短密码/PIN 输入内容组件（数据录入区 #39，全新立项）：无壳水平居中掩码圆点行（无灰底壳/清除钮/明文显隐切换，密文=输入法系统掩码点随字号 sizeXl 22=掩码基座沿用 Input #29 secure 惯例复用不复制）+ 纯数字限定（keyboardType numberPad / KeyboardType.Number，键盘与粘贴均滤除非数字）+ 定长 length（默认 6）字符满=自动 onComplete(明文字符串) 一次、满后继续输入拒收（take/截断不进入）；行高 min 48=对齐库内 FormFieldRow/Input 交互行基准（注释锚定）；空态 placeholder 居中灰字（默认「请输入 N 位数字密码」textSecondary 22）；半受控 value String?：nil=内部自持输入（宿主拿 onChange 每字符即可、无需回写）、外部赋值=仅同步回显不触发 onChange/onComplete（外部满位也不触发=仅输入路径触发）；onChange 每字符实时直通；disabled=整行 40% 灰不可输入无任何回调；真实校验/错误提示/重试（校验失败宿主外部 value=\"\" 清空重输）/键盘与弹层组合（可配 #32 NumberKeyboard=键盘回调驱动 value=宿主自理）=宿主自理（组件零内部异步态）；支付/交易/二次验证短密码、安全码/PIN 4~8 位定长码场景；与 Input #29（secure=任意长任意字符密文、灰底壳+清除钮+trailing、无满位回调=表单行语境，划界不混入）/验证码分格 OTP（短信码类形态=码类二期）/SearchBar #38（明文）/Android sharedui PasswordInputField（业务库带显隐通用长密码=收编不动）划界；anti_goals 二期/不做=明文显隐切换（安全默认）/分格 OTP 逐格跳（码类二期）/内置确定钮/校验错误弹层=宿主/自动聚焦=宿主",
-      "capabilities": ["短密码", "ShortPassword", "PIN", "支付密码", "定长密码", "掩码输入", "交易密码", "安全码"],
+      "capabilities": [
+        "短密码",
+        "ShortPassword",
+        "PIN",
+        "支付密码",
+        "定长密码",
+        "掩码输入",
+        "交易密码",
+        "安全码"
+      ],
       "platforms": {
-        "ios": { "state": "available", "note": "ShortPasswordView.swift：命令式 UIKit UITextField（isSecureTextEntry 系统掩码点随字号 + keyboardType .numberPad + delegate shouldChange 纯数字收敛/满位拒收/粘贴过滤、textAlignment .center 居中、无壳透明底、placeholder 默认「请输入 N 位数字密码」textSecondary 22）；半受控 value String? didSet 外部赋值=仅同步回显不触发 onChange/onComplete（onChange 走 editingChanged 输入路径）；disabled=alpha 0.4 不可输入无回调；intrinsicContentSize 高 48" },
-        "android": { "state": "available", "note": "ShortPassword.kt：声明式 Compose BasicTextField（KeyboardOptions KeyboardType.Number、value 参数 nil=内部自持 mutableStateOf、onValueChange 数字 filter+take(length) 截断=满位拒收、外部赋值直读参数=回显不触发回调）；输入层透明（文字 Transparent+光标 Transparent）叠内层掩码点展示（Text「•」repeat 随字数据中 textPrimary/空态 placeholder 居中 textSecondary）；disabled alpha 0.4+enabled=false 无回调；Box 48dp 行高" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "ShortPasswordView.swift：命令式 UIKit UITextField（isSecureTextEntry 系统掩码点随字号 + keyboardType .numberPad + delegate shouldChange 纯数字收敛/满位拒收/粘贴过滤、textAlignment .center 居中、无壳透明底、placeholder 默认「请输入 N 位数字密码」textSecondary 22）；半受控 value String? didSet 外部赋值=仅同步回显不触发 onChange/onComplete（onChange 走 editingChanged 输入路径）；disabled=alpha 0.4 不可输入无回调；intrinsicContentSize 高 48"
+        },
+        "android": {
+          "state": "available",
+          "note": "ShortPassword.kt：声明式 Compose BasicTextField（KeyboardOptions KeyboardType.Number、value 参数 nil=内部自持 mutableStateOf、onValueChange 数字 filter+take(length) 截断=满位拒收、外部赋值直读参数=回显不触发回调）；输入层透明（文字 Transparent+光标 Transparent）叠内层掩码点展示（Text「•」repeat 随字数据中 textPrimary/空态 placeholder 居中 textSecondary）；disabled alpha 0.4+enabled=false 无回调；Box 48dp 行高"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/ShortPasswordView.swift",
@@ -4313,22 +5748,76 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.short-password",
-      "industry_names": ["短密码", "ShortPassword", "支付密码输入", "PIN 输入", "安全码输入", "密码点"],
+      "industry_names": [
+        "短密码",
+        "ShortPassword",
+        "支付密码输入",
+        "PIN 输入",
+        "安全码输入",
+        "密码点"
+      ],
       "props": [
-        ["value", "String?", "否", "半受控：nil=内部自持输入（宿主无需回写、onChange 实时拿明文即可）；外部赋值=仅同步回显不触发 onChange/onComplete（外部满位也不触发=仅输入路径触发）"],
-        ["onChange", "回调", "是", "(String)：每字符实时直通（含外部 value=\"\" 后输入路径）；disabled 无回调"],
-        ["onComplete", "回调", "否", "(String)：字符满 length 自动触发一次（仅键盘输入路径）；宿主接走真实校验；disabled 无回调"],
-        ["length", "Int", "否", "定长位数，默认 6（支付/二次验证常规 4~8，实现接受 ≥2）"],
-        ["placeholder", "String", "否", "空态提示文案，默认「请输入 N 位数字密码」；textSecondary sizeXl 22 居中灰字"],
-        ["disabled", "Boolean", "否", "整行 40% 灰、不可输入、无任何回调"],
-        ["可见切换/OTP", "—", "—", "明文显隐切换=一期不做（安全默认）；分格 OTP 逐格跳=码类二期（anti_goals 登记）"]
+        [
+          "value",
+          "String?",
+          "否",
+          "半受控：nil=内部自持输入（宿主无需回写、onChange 实时拿明文即可）；外部赋值=仅同步回显不触发 onChange/onComplete（外部满位也不触发=仅输入路径触发）"
+        ],
+        [
+          "onChange",
+          "回调",
+          "是",
+          "(String)：每字符实时直通（含外部 value=\"\" 后输入路径）；disabled 无回调"
+        ],
+        [
+          "onComplete",
+          "回调",
+          "否",
+          "(String)：字符满 length 自动触发一次（仅键盘输入路径）；宿主接走真实校验；disabled 无回调"
+        ],
+        [
+          "length",
+          "Int",
+          "否",
+          "定长位数，默认 6（支付/二次验证常规 4~8，实现接受 ≥2）"
+        ],
+        [
+          "placeholder",
+          "String",
+          "否",
+          "空态提示文案，默认「请输入 N 位数字密码」；textSecondary sizeXl 22 居中灰字"
+        ],
+        [
+          "disabled",
+          "Boolean",
+          "否",
+          "整行 40% 灰、不可输入、无任何回调"
+        ],
+        [
+          "可见切换/OTP",
+          "—",
+          "—",
+          "明文显隐切换=一期不做（安全默认）；分格 OTP 逐格跳=码类二期（anti_goals 登记）"
+        ]
       ],
       "events": [],
       "demos": [
-        ["基础 6 位输入（默认 length=6·半受控内部自持）", "value=nil 内部自持；键入=密文点随位递增；onChange 每字符回显；满 6 位自动 onComplete（宿主执行校验）；「清空」=外部 value=\"\"（D1）"],
-        ["定长 4 位 + 受控外部驱动（外部预填 1234）", "外部预填 4 位=同步回显满位但不触发 onComplete（证仅输入路径触发）；清空重输后键盘输满 4 位将触发（D2）"],
-        ["禁用与粘贴过滤", "disabled=整行 40% 灰不可输入无回调；粘贴「ab3#9x」=仅取数字按位截断（39）并入=非数字不进入（实机验证）（D3）"],
-        ["宿主校验流程 + NumberKeyboard #32 组装示意", "正确码 123456：满 6 位 onComplete=宿主校验（123456=通过 / 其它=错误码自动外部清空重输）；外部注入 999999=满位仅回显不触发 onComplete；组件可嵌入宿主弹层配 #32 NumberKeyboard（键盘回调驱动 value=宿主自理）（D4）"]
+        [
+          "基础 6 位输入（默认 length=6·半受控内部自持）",
+          "value=nil 内部自持；键入=密文点随位递增；onChange 每字符回显；满 6 位自动 onComplete（宿主执行校验）；「清空」=外部 value=\"\"（D1）"
+        ],
+        [
+          "定长 4 位 + 受控外部驱动（外部预填 1234）",
+          "外部预填 4 位=同步回显满位但不触发 onComplete（证仅输入路径触发）；清空重输后键盘输满 4 位将触发（D2）"
+        ],
+        [
+          "禁用与粘贴过滤",
+          "disabled=整行 40% 灰不可输入无回调；粘贴「ab3#9x」=仅取数字按位截断（39）并入=非数字不进入（实机验证）（D3）"
+        ],
+        [
+          "宿主校验流程 + NumberKeyboard #32 组装示意",
+          "正确码 123456：满 6 位 onComplete=宿主校验（123456=通过 / 其它=错误码自动外部清空重输）；外部注入 999999=满位仅回显不触发 onComplete；组件可嵌入宿主弹层配 #32 NumberKeyboard（键盘回调驱动 value=宿主自理）（D4）"
+        ]
       ],
       "note": "短密码（数据录入区 #39，全新立项，2026-09-06）：定长数字掩码短密码/PIN 输入内容组件=无壳水平居中掩码点行（系统密文点随字号 22、无灰底壳/清除钮/明文显隐切换）+ 纯数字限定（键盘与粘贴滤除非数字）+ 定长 length 默认 6 字符满=自动 onComplete 一次满后拒收 + 半受控 value String? nil=内部自持/外部赋值仅回显不触发回调 + onChange 每字符 + disabled 40% 灰无回调 + placeholder（默认「请输入 N 位数字密码」居中灰字）；真实校验/错误/重试=宿主自理（校验失败宿主外部 value=\"\" 清空重输）；掩码基座沿用 Input #29 secure 惯例复用不复制；与 Input #29（secure=任意长密文表单行）/验证码分格 OTP（码类二期）/NumberKeyboard #32（键盘=宿主组合件）/Android sharedui PasswordInputField（业务库收编不动）划界。2026-09-06 门禁 A AI 代评通过（规格 design-spec/short-password-design-spec.html + review-short-password-A.md，P1–P4 全 A，用户 2026-09-06 SearchBar #38 收编后原话「通过，下一个组件吧」指示接棒启动）+ 同日门禁 B 双端实现入库（ShortPasswordView.swift=命令式 UIKit UITextField secureTextEntry+numberPad+delegate 数字过滤/满位拒收；ShortPassword.kt=声明式 Compose BasicTextField KeyboardType.Number+透明输入层叠掩码点展示层），iOS ShortPasswordShowcase / Android ShortPasswordDemo 4 段 1:1（D1 基础 6 位满位 onComplete/D2 定长 4 位+外部预填仅回显/D3 禁用+粘贴过滤/D4 宿主校验+NumberKeyboard #32 组装示意），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过，继续吧」，D1~D4 双端 1:1 全过，组件进度.md §3.4 行 39 🔧→✅ 已回写）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -4339,10 +5828,24 @@
       "name": "签名 Signature",
       "category": "ui",
       "summary": "手写签名画板内容组件（数据录入区 #40，全新立项）：内容级横长白底画板（宽宿主填充、高默认 96=2×48 表单交互行基准注释锚定、bgCard 白底+hairline 描边+radiusLg 圆角对齐 Input #29 壳语言、height 参数可调）+ 手指/笔自绘圆头笔画（线帽 round、strokeWidth 默认 2、strokeColor 默认 textPrimary=参数可调）+ 空态水印「请在此区域签名」（textSecondary 30% 居中、首笔落下即消失、nil/空=无水印）+ 底缘引导线（hairline 左右留 spaceLg 距底 spaceLg）；签名=异步笔迹流非表单值=**无受控文本 value**：onInkChange(Boolean hasInk)（首笔落下 true/clear 清空回 false=驱动宿主「提交」钮可用态）+ clear() 命令式（宿主「重新签名」钮调用、disabled 期间忽略）+ disabled=整板 40% 灰（含已有笔迹）不可绘无回调（签署提交后锁定语义）；签名图导出=宿主截取组件渲染（iOS UIGraphicsImageRenderer+drawHierarchy / Android 根视图 drawToBitmap+裁剪板区域），组件不内置图形对象（UIImage vs Bitmap 类型无法跨端统一）；页面/弹层承载、上传保存防篡改、空签名与锁定业务校验=宿主自理；签署确认/签收单/对账单/验收单/审批签署场景；与 Input #29/textarea #42（键盘文本）、ShortPassword #39/NumberKeyboard #32（数字键盘系）、Popup #54/Overlay #6（承载宿主）划界；anti_goals=内置撤销/重做栈与压感（编辑器职责=重签已覆盖）二期、水印多行文案参数/内置清除钮/整壳签名组件/内置上传保存失败态=宿主或不做、iOS PencilKit（PKDrawing 生态样式不可统一）与 Android 三方签名库=不收编",
-      "capabilities": ["签名", "Signature", "手写签名", "签署", "签名板", "SignaturePad", "画板签名"],
+      "capabilities": [
+        "签名",
+        "Signature",
+        "手写签名",
+        "签署",
+        "签名板",
+        "SignaturePad",
+        "画板签名"
+      ],
       "platforms": {
-        "ios": { "state": "available", "note": "SignatureView.swift：命令式 UIKit UIView（touchesBegan/Moved/Ended 换算 bounds 坐标追加离散 stroke 点集+draw(_:) 逐 path 圆帽描线=随指跟手；bgCard 白底+layer.cornerRadius radiusLg+hairline border+clipsToBounds=笔画越界裁剪圆角内；空态水印 draw 居中 textSecondary30%；disabled=alpha 0.4+isUserInteractionEnabled=false+clear 忽略；intrinsicContentSize 高 boardHeight 默认 96；导出=宿主 UIGraphicsImageRenderer+drawHierarchy 截板" },
-        "android": { "state": "available", "note": "Signature.kt：声明式 Compose（Box clip(RoundedCornerShape lg)+bgCard+border 0.5dp hairline；Canvas drawPath 逐 stroke 圆帽描线+drawLine 底缘引导线；pointerInput awaitEachGesture down 起 stroke/drag 采点/up 收=单自旋（Range #36 经验）；disabled=alpha 0.4+不挂手势+clear 忽略；空态水印 Text textSecondary30% 居中；SignatureController=命令式 clear() 句柄（宿主 remember 传入、默认组件自持）；导出=宿主根视图 drawToBitmap+裁剪板区域=Demo DrawingCache 辅助" }
+        "ios": {
+          "state": "available",
+          "note": "SignatureView.swift：命令式 UIKit UIView（touchesBegan/Moved/Ended 换算 bounds 坐标追加离散 stroke 点集+draw(_:) 逐 path 圆帽描线=随指跟手；bgCard 白底+layer.cornerRadius radiusLg+hairline border+clipsToBounds=笔画越界裁剪圆角内；空态水印 draw 居中 textSecondary30%；disabled=alpha 0.4+isUserInteractionEnabled=false+clear 忽略；intrinsicContentSize 高 boardHeight 默认 96；导出=宿主 UIGraphicsImageRenderer+drawHierarchy 截板"
+        },
+        "android": {
+          "state": "available",
+          "note": "Signature.kt：声明式 Compose（Box clip(RoundedCornerShape lg)+bgCard+border 0.5dp hairline；Canvas drawPath 逐 stroke 圆帽描线+drawLine 底缘引导线；pointerInput awaitEachGesture down 起 stroke/drag 采点/up 收=单自旋（Range #36 经验）；disabled=alpha 0.4+不挂手势+clear 忽略；空态水印 Text textSecondary30% 居中；SignatureController=命令式 clear() 句柄（宿主 remember 传入、默认组件自持）；导出=宿主根视图 drawToBitmap+裁剪板区域=Demo DrawingCache 辅助"
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/SignatureView.swift",
@@ -4350,23 +5853,83 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.signature",
-      "industry_names": ["签名", "Signature", "手写签名", "签名板", "SignaturePad", "签署确认", "签收"],
+      "industry_names": [
+        "签名",
+        "Signature",
+        "手写签名",
+        "签名板",
+        "SignaturePad",
+        "签署确认",
+        "签收"
+      ],
       "props": [
-        ["onInkChange", "回调", "是", "(Boolean hasInk)：首笔落下（空→非空）=true 一次性；clear() 清空（非空→空）=false 一次性（驱动宿主「提交」钮可用态）；disabled 无回调"],
-        ["clear()", "命令式", "—", "宿主「重新签名」钮调用=清空画板并回 onInkChange(false)；无笔迹=幂等不回调；disabled（签署锁定）期间忽略"],
-        ["height", "数值", "否", "画板高，默认 96=2×48 表单交互行基准注释锚定（宽=宿主填充）"],
-        ["placeholder", "String?", "否", "空态水印文案，默认「请在此区域签名」textSecondary 30% 居中；nil/空=无水印"],
-        ["strokeWidth", "数值", "否", "笔画线宽，默认 2（圆头线帽 round）"],
-        ["strokeColor", "颜色", "否", "笔画颜色，默认 textPrimary"],
-        ["disabled", "Boolean", "否", "整板 40% 灰（含已有笔迹）、不可绘制、clear() 忽略、无任何回调（签署提交后锁定）"],
-        ["导出/撤销栈/压感", "—", "—", "签名图导出=宿主截取组件渲染（组件不内置图形对象）；撤销/重做栈、压感、水印多行=二期（anti_goals 登记）"]
+        [
+          "onInkChange",
+          "回调",
+          "是",
+          "(Boolean hasInk)：首笔落下（空→非空）=true 一次性；clear() 清空（非空→空）=false 一次性（驱动宿主「提交」钮可用态）；disabled 无回调"
+        ],
+        [
+          "clear()",
+          "命令式",
+          "—",
+          "宿主「重新签名」钮调用=清空画板并回 onInkChange(false)；无笔迹=幂等不回调；disabled（签署锁定）期间忽略"
+        ],
+        [
+          "height",
+          "数值",
+          "否",
+          "画板高，默认 96=2×48 表单交互行基准注释锚定（宽=宿主填充）"
+        ],
+        [
+          "placeholder",
+          "String?",
+          "否",
+          "空态水印文案，默认「请在此区域签名」textSecondary 30% 居中；nil/空=无水印"
+        ],
+        [
+          "strokeWidth",
+          "数值",
+          "否",
+          "笔画线宽，默认 2（圆头线帽 round）"
+        ],
+        [
+          "strokeColor",
+          "颜色",
+          "否",
+          "笔画颜色，默认 textPrimary"
+        ],
+        [
+          "disabled",
+          "Boolean",
+          "否",
+          "整板 40% 灰（含已有笔迹）、不可绘制、clear() 忽略、无任何回调（签署提交后锁定）"
+        ],
+        [
+          "导出/撤销栈/压感",
+          "—",
+          "—",
+          "签名图导出=宿主截取组件渲染（组件不内置图形对象）；撤销/重做栈、压感、水印多行=二期（anti_goals 登记）"
+        ]
       ],
       "events": [],
       "demos": [
-        ["基础签名与重签", "空态水印「请在此区域签名」→手指/笔绘制跟手（笔画 textPrimary 圆头线宽 2）→首笔落下 onInkChange(true)（水印即隐）；「重新签名」=宿主 clear() 清空回 false（无笔迹幂等）（D1）"],
-        ["导出收编（宿主截取组件渲染=缩略展示）", "「生成签名图」=宿主 UIGraphicsImageRenderer+drawHierarchy（iOS）/ 根视图 drawToBitmap+裁剪板区域（Android Demo DrawingCache）=段内缩略展示=证宿主可拿矢量签名图（D2）"],
-        ["参数变体（strokeWidth=1/2/4 · 板高 72）", "三块板 1:1 对比（strokeColor 参数可变=默认 textPrimary 宿主可改深浅粗细）；「全部重签」=clear ×3（D3）"],
-        ["禁用锁定与空笔迹提交流", "「提交锁定」disabled=true=整板 40% 灰不可绘 clear() 忽略无回调；空板点「提交」=宿主 onInkChange(false) 禁用钮并提示「请先签名」（D4）"]
+        [
+          "基础签名与重签",
+          "空态水印「请在此区域签名」→手指/笔绘制跟手（笔画 textPrimary 圆头线宽 2）→首笔落下 onInkChange(true)（水印即隐）；「重新签名」=宿主 clear() 清空回 false（无笔迹幂等）（D1）"
+        ],
+        [
+          "导出收编（宿主截取组件渲染=缩略展示）",
+          "「生成签名图」=宿主 UIGraphicsImageRenderer+drawHierarchy（iOS）/ 根视图 drawToBitmap+裁剪板区域（Android Demo DrawingCache）=段内缩略展示=证宿主可拿矢量签名图（D2）"
+        ],
+        [
+          "参数变体（strokeWidth=1/2/4 · 板高 72）",
+          "三块板 1:1 对比（strokeColor 参数可变=默认 textPrimary 宿主可改深浅粗细）；「全部重签」=clear ×3（D3）"
+        ],
+        [
+          "禁用锁定与空笔迹提交流",
+          "「提交锁定」disabled=true=整板 40% 灰不可绘 clear() 忽略无回调；空板点「提交」=宿主 onInkChange(false) 禁用钮并提示「请先签名」（D4）"
+        ]
       ],
       "note": "签名（数据录入区 #40，全新立项，2026-09-06）：内容级手写签名画板=白底圆角板（bgCard+hairline+radiusLg 对齐 Input #29 壳语言、高默认 96=2×48 交互行基准）+ 自绘圆头笔画（strokeWidth/strokeColor 参数可调）+ 水印「请在此区域签名」textSecondary 30%（首笔即隐）+ 底缘引导线；无受控文本值（签名=异步笔迹流非表单值）=onInkChange(Boolean)（首笔落 true/clear 回 false=驱动宿主提交钮）+ clear() 命令式重签 + disabled 整板 40% 灰锁定（clear 忽略）；签名图导出=宿主截取组件渲染（iOS UIGraphicsImageRenderer+drawHierarchy / Android 根视图截图裁剪板区域=Demo 自定义 DrawingCache 辅助），组件不内置图形对象；宿主自理=页面/弹层承载、上传保存防篡改、空签名与锁定业务校验；与 Input #29/textarea #42（键盘文本）、ShortPassword #39/NumberKeyboard #32（数字键盘系）、Popup #54/Overlay #6（承载）划界；iOS PencilKit（PKDrawing 生态样式不可统一）与 Android 三方签名库=不收编；撤销栈/压感/导出对象 API/板内清除钮/整壳组件=二期或宿主（anti_goals）。2026-09-06 门禁 A AI 代评通过（规格 design-spec/signature-design-spec.html + review-signature-A.md，P1–P4 全 A，用户 2026-09-06 ShortPassword #39 收编后原话「通过，继续吧」指示接棒启动）+ 同日门禁 B 双端实现入库（SignatureView.swift=命令式 UIKit 触摸三件套采集离散 stroke+draw(_:) 逐 path；Signature.kt=声明式 Compose pointerInput awaitEachGesture 单自旋+Canvas 逐 path），iOS SignatureShowcase / Android SignatureDemo 4 段 1:1（D1 基础签名与重签/D2 导出收编缩略/D3 参数变体 width 1/2/4/D4 禁用锁定+空笔迹提交流），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0。2026-09-06 C1.5 用户「继续」放行收编（数据录入区 #40 闭环：demo 双端 4 段 D1 基础签名与重签/D2 导出收编缩略/D3 参数变体/D4 禁用锁定+空笔迹提交流；组件进度.md §3.4 行 40 🔧→✅，见 §4 收编行）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -4377,13 +5940,35 @@
       "name": "开关 Switch",
       "category": "ui",
       "summary": "通用二元即时开关核组件（数据录入区 #41，全新立项）：自绘轨道+滑块（轨道 48×28 radiusFull=48 交互行基准注释锚定/28=20 滑块+上下内衬各 4 spaceXs；on=primary 填充、off=textSecondary alpha0.3 浅灰填充；滑块白色 20 圆形=对齐 CheckboxGlyph/RadioGlyph 20 惯例、off 居左/on 居右行程 20=48−2×4−20；切换动画 0.18s=滑块位移+轨道变色；disabled=整件 alpha0.4 不可点无回调、on+disabled=灰 primary 轨道灰滑块保留开态只读）；无内置 label=宿主行首（FormFieldRow #28 / Cell 行尾 trailing 嵌用）；半受控 checked Boolean?：nil=内部自持初始 off（点按翻转回调）、外部赋值 checked=同步回显不触发 onChange、on→off 与 off→on 均回调 onChange(Boolean)、disabled 无回调；命中=整枚轨道、放大命中区=宿主行自带整行可选；与 #25 Checkbox（方形复选可多选可取消）/ #35 Radio（圆形排他点选即确定=单选表单值）/ #36 Range（连续区间）/ #30 InputNumber（步进单值）/ #33 Picker·#31 Menu（下拉承载）/ Tabs #20·Tabbar #19·Segmented #74（分段页签）划界=Switch 二元即时持久开/关；系统 UISwitch（尺寸/轨道色定制弱不符库 token 语言）/ Material3 Switch（视觉/主题不符库内设计语言）双端系统控件不用=自绘；anti_goals 二期/不做=label 文案内置（=宿主行首职责）/三态半选 indeterminate（=Checkbox #25 范畴）/整枚含文字的开关/自定义轨道滑块几何参数化",
-      "capabilities": ["开关", "Switch", "Toggle", "开关键", "二元开关", "持久开关"],
+      "capabilities": [
+        "开关",
+        "Switch",
+        "Toggle",
+        "开关键",
+        "二元开关",
+        "持久开关"
+      ],
       "platforms": {
-        "ios": { "state": "available", "note": "SwitchView.swift：命令式 UIKit UIView（layer.cornerRadius=半高 14 masksToBounds=轨道壳自圆角 + thumbView 白色圆 20 子视图 + tapButton 整枚命中；checked Bool? didSet 半受控外部赋值=同步回显不触发 onChange、disabled 运行期可更新=didSet 集中 refreshEnabled+refresh；切换=UIView.animate 0.18s curveEaseInOut 滑块位移+轨道变色（on=AppColor.primary/off=textSecondary 30%）；disabled=整件 alpha0.4+tapButton.isEnabled=false 无回调；intrinsicContentSize 48×28" },
-        "android": { "state": "available", "note": "Switch.kt：声明式 Compose（Box 48×28 clip(RoundedCornerShape(50)) background trackColor + 内层 Box 20dp 滑块 clip 圆 background White；animateColorAsState 轨道色/animateDpAsState 滑块 x 位移均 tween 180ms；checked Boolean? 参数 LaunchedEffect 半受控外部驱动回显不触发回调、clickable(enabled=!disabled) 点按翻转+onCheckedChange；disabled=alpha0.4+不可点无回调；尺寸常量注释锚定 48/28/20/4/行程 20）" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "SwitchView.swift：命令式 UIKit UIView（layer.cornerRadius=半高 14 masksToBounds=轨道壳自圆角 + thumbView 白色圆 20 子视图 + tapButton 整枚命中；checked Bool? didSet 半受控外部赋值=同步回显不触发 onChange、disabled 运行期可更新=didSet 集中 refreshEnabled+refresh；切换=UIView.animate 0.18s curveEaseInOut 滑块位移+轨道变色（on=AppColor.primary/off=textSecondary 30%）；disabled=整件 alpha0.4+tapButton.isEnabled=false 无回调；intrinsicContentSize 48×28"
+        },
+        "android": {
+          "state": "available",
+          "note": "Switch.kt：声明式 Compose（Box 48×28 clip(RoundedCornerShape(50)) background trackColor + 内层 Box 20dp 滑块 clip 圆 background White；animateColorAsState 轨道色/animateDpAsState 滑块 x 位移均 tween 180ms；checked Boolean? 参数 LaunchedEffect 半受控外部驱动回显不触发回调、clickable(enabled=!disabled) 点按翻转+onCheckedChange；disabled=alpha0.4+不可点无回调；尺寸常量注释锚定 48/28/20/4/行程 20）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/SwitchView.swift",
@@ -4391,19 +5976,57 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.switch",
-      "industry_names": ["开关", "Switch", "Toggle", "开关钮", "二元开关"],
+      "industry_names": [
+        "开关",
+        "Switch",
+        "Toggle",
+        "开关钮",
+        "二元开关"
+      ],
       "props": [
-        ["checked", "Boolean?", "否", "半受控：nil=内部自持初始 off（点按翻转并回调 onChange）；外部赋值 checked=同步回显（渲染不触发 onChange）"],
-        ["onCheckedChange", "回调", "是", "(Bool)：用户点按翻转触发一次（on→off 与 off→on 均回调）；disabled 无回调；外部赋值不触发"],
-        ["disabled", "Boolean", "否", "整件 40% 灰不可点无回调；on+disabled=灰 primary 轨道灰滑块保留开态（只读回显）；运行期可更新"],
-        ["label", "槽", "否", "无内置 label=宿主行首放行内文案（FormFieldRow #28 label 区 / Cell 行首；开关只出核）"]
+        [
+          "checked",
+          "Boolean?",
+          "否",
+          "半受控：nil=内部自持初始 off（点按翻转并回调 onChange）；外部赋值 checked=同步回显（渲染不触发 onChange）"
+        ],
+        [
+          "onCheckedChange",
+          "回调",
+          "是",
+          "(Bool)：用户点按翻转触发一次（on→off 与 off→on 均回调）；disabled 无回调；外部赋值不触发"
+        ],
+        [
+          "disabled",
+          "Boolean",
+          "否",
+          "整件 40% 灰不可点无回调；on+disabled=灰 primary 轨道灰滑块保留开态（只读回显）；运行期可更新"
+        ],
+        [
+          "label",
+          "槽",
+          "否",
+          "无内置 label=宿主行首放行内文案（FormFieldRow #28 label 区 / Cell 行首；开关只出核）"
+        ]
       ],
       "events": [],
       "demos": [
-        ["基础开/关（默认 off → 点按翻转 + 段内回显）", "checked=nil=半受控内部自持初始 off；点按=整枚翻转（off→on primary+滑块右移 / on→off 回灰归左）onChange 段内回显（D1）"],
-        ["行尾嵌用（宿主行首 label · 行尾核组件）", "行首 label 文案 + 行尾 Switch（FormFieldRow/Cell trailing 嵌用=无内置 label）；「新消息通知」初始 checked=true 开态回显；「外部回显开/关」=外部 checked 驱动同步回显不触发 onChange（D2）"],
-        ["disabled 锁定（on/off 双灰锁 + 外部使能）", "开/关两枚 disabled=true=整件 40% 灰不可点无回调、on+disabled=灰开态保留只读；「锁定/解锁」外部切换 disabled 运行期更新（D3）"],
-        ["受控外部 checked 驱动（外部回显不触发 onChange）", "「外部打开/关闭」=checked 赋值仅同步回显（无 onChange 日志=仅渲染路径）；用户点按翻转=回调 onChange（D4）"]
+        [
+          "基础开/关（默认 off → 点按翻转 + 段内回显）",
+          "checked=nil=半受控内部自持初始 off；点按=整枚翻转（off→on primary+滑块右移 / on→off 回灰归左）onChange 段内回显（D1）"
+        ],
+        [
+          "行尾嵌用（宿主行首 label · 行尾核组件）",
+          "行首 label 文案 + 行尾 Switch（FormFieldRow/Cell trailing 嵌用=无内置 label）；「新消息通知」初始 checked=true 开态回显；「外部回显开/关」=外部 checked 驱动同步回显不触发 onChange（D2）"
+        ],
+        [
+          "disabled 锁定（on/off 双灰锁 + 外部使能）",
+          "开/关两枚 disabled=true=整件 40% 灰不可点无回调、on+disabled=灰开态保留只读；「锁定/解锁」外部切换 disabled 运行期更新（D3）"
+        ],
+        [
+          "受控外部 checked 驱动（外部回显不触发 onChange）",
+          "「外部打开/关闭」=checked 赋值仅同步回显（无 onChange 日志=仅渲染路径）；用户点按翻转=回调 onChange（D4）"
+        ]
       ],
       "note": "开关（数据录入区 #41，全新立项，2026-09-06）：通用二元即时开关核组件=自绘轨道+滑块（轨道 48×28 radiusFull、on=primary/off=textSecondary 30%、滑块 20 白色圆、行程 20、动画 0.18s）+ 无内置 label（=宿主 FormFieldRow #28/Cell 行尾嵌用）+ checked Boolean? 半受控（nil=内部自持初始 off 点按翻转回调/外部赋值同步回显不触发 onChange/双向均回调）+ disabled 整件 40% 灰不可点（on+disabled 灰开态保留只读）；与 #25 Checkbox/#35 Radio/#36 Range/#30 InputNumber/#33 Picker·#31 Menu/#20 Tabs·#19 Tabbar·#74 Segmented 划界=二元即时持久开/关；系统 UISwitch/Material3 Switch 视觉脱离库内设计语言=双端从零自绘。2026-09-06 门禁 A AI 代评通过（规格 design-spec/switch-design-spec.html + review-switch-A.md，P1–P4 全 A 0 保留意见，用户 Signature #40 收编后原话「继续」指示接棒启动）+ 同日门禁 B 双端实现入库（SwitchView.swift=命令式 UIKit 轨道壳+滑块子视图 layoutSubviews/frame 摆位+tapButton 整枚命中；Switch.kt=声明式 Compose 自绘 Box+动画 state），iOS SwitchShowcase / Android SwitchDemo 4 段 1:1（D1 基础开/关/D2 行尾嵌用/D3 disabled 锁定/D4 受控外部驱动），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0（C1.5 用户双端 Demo 实机验收通过收编：2026-09-06 用户原话「验收通过。继续下一个组件」，D1 基础开/关翻转回显+「读当前值」/ D2 行尾嵌用开态回显+外部回显不触发 onChange / D3 on/off 双灰锁+外部解锁运行期更新 / D4 受控外部 checked 驱动全过 0 改动，行 41 🔧→✅）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -4414,13 +6037,36 @@
       "name": "TextArea 文本域",
       "category": "ui",
       "summary": "通用多行文本输入内容组件（数据录入区 #42，全新立项）：灰底圆角文本域壳（底 bgPage+radius lg+内边距 md 四向=同 Input #29 壳语言=单行/多行两形态）+ placeholder（textSecondary Md16 顶部左对齐，多行不居中）+ 文本 Md16 textPrimary 行高 24=cellTitleLineHeight token（注释锚定）+ rows 可视行数默认 3（整件高=rows×24+24=默认 96=2×48 交互行基准同 Signature）+ 内容超可视行内部滚动（iOS UITextView scrollEnabled / Android 内容容器 verticalScroll）+ maxLength（0/缺省=不限，仅输入路径截断含粘贴=外部赋值不强制截断）+ disabled（整壳 40% 灰不可编辑不可滚动）；受控 value String 必传+onTextChange 直通（同 Input #29）；软键盘回车=插入换行（多行语义）、键盘收起与避让=宿主；label/必填星/校验错误/字数统计=宿主（ui.form FormFieldRow 承载、壳不变红）；与富文本/autoGrow/字数角标（二期或宿主）/清除钮·secure·尾槽·键盘类型（Input #29 单行形态）/工具栏（宿主）=划界",
-      "capabilities": ["多行文本域", "TextArea", "文本域", "多行输入", "备注", "简介", "长文本"],
+      "capabilities": [
+        "多行文本域",
+        "TextArea",
+        "文本域",
+        "多行输入",
+        "备注",
+        "简介",
+        "长文本"
+      ],
       "platforms": {
-        "ios": { "state": "available", "note": "TextAreaView.swift：命令式 UIKit（灰壳 radius lg + 内嵌 UITextView scrollEnabled + placeholderLabel 自绘叠层 top-left 12/12；textContainerInset=(12,12,12,12)+lineFragmentPadding=0；行高 24=NSMutableParagraphStyle min/max 对 textStorage 全局应用、typingAttributes 预置；受控 text 属性命令式外部赋值=同步回显不触发 delegate 回调、delegate textViewDidChange=onTextChange；maxLength 截断=shouldChangeTextIn 对 candidate 超限取前缀命令式回写并手动触发 didChange；disabled=isEditable/isSelectable false+alpha0.4；intrinsicContentSize 高=rows×24+24）" },
-        "android": { "state": "available", "note": "TextArea.kt：声明式 Compose（Box 灰壳 bgPage+clip radiusLg+height(rows×24+24)+alpha0.4 disabled；内层 padding md 12 固定，内容容器 verticalScroll（内容超高手动可滚）内 BasicTextField(TextFieldState) 多行 wrap；textStyle Md16 textPrimary lineHeight cellTitleLineHeight；decorationBox placeholder（空态 BasicText textSecondary top 左）；LaunchedEffect(value) 受控外部赋值=setText 同步回显不触发回调、onTextValueChange 输入路径截断 maxLength 后回调；disabled=enabled=false+alpha0.4 无回调）" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "TextAreaView.swift：命令式 UIKit（灰壳 radius lg + 内嵌 UITextView scrollEnabled + placeholderLabel 自绘叠层 top-left 12/12；textContainerInset=(12,12,12,12)+lineFragmentPadding=0；行高 24=NSMutableParagraphStyle min/max 对 textStorage 全局应用、typingAttributes 预置；受控 text 属性命令式外部赋值=同步回显不触发 delegate 回调、delegate textViewDidChange=onTextChange；maxLength 截断=shouldChangeTextIn 对 candidate 超限取前缀命令式回写并手动触发 didChange；disabled=isEditable/isSelectable false+alpha0.4；intrinsicContentSize 高=rows×24+24）"
+        },
+        "android": {
+          "state": "available",
+          "note": "TextArea.kt：声明式 Compose（Box 灰壳 bgPage+clip radiusLg+height(rows×24+24)+alpha0.4 disabled；内层 padding md 12 固定，内容容器 verticalScroll（内容超高手动可滚）内 BasicTextField(TextFieldState) 多行 wrap；textStyle Md16 textPrimary lineHeight cellTitleLineHeight；decorationBox placeholder（空态 BasicText textSecondary top 左）；LaunchedEffect(value) 受控外部赋值=setText 同步回显不触发回调、onTextValueChange 输入路径截断 maxLength 后回调；disabled=enabled=false+alpha0.4 无回调）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/TextAreaView.swift",
@@ -4428,21 +6074,71 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.textarea",
-      "industry_names": ["多行文本域", "TextArea", "textarea", "备注", "简介", "留言本", "长文本输入"],
+      "industry_names": [
+        "多行文本域",
+        "TextArea",
+        "textarea",
+        "备注",
+        "简介",
+        "留言本",
+        "长文本输入"
+      ],
       "props": [
-        ["value", "String", "是", "受控必传=当前全文（宿主真源）：外部赋值=同步回显（不触发 onTextChange）；用户编辑（输入/粘贴/换行）每次变更回传全文"],
-        ["onTextChange", "回调", "是", "(String)：用户输入路径触发（含截断后文本）；外部赋值不触发"],
-        ["placeholder", "String?", "否", "空值占位文案，textSecondary Md16 顶部左对齐（多行不垂直居中）；库内无 textTertiary token=同 Input #29 实现惯例"],
-        ["rows", "Int", "否", "可视行数，默认 3=整件高 rows×24+24（行高 24=cellTitleLineHeight token 注释锚定、默认 96=2×48 交互行基准同 Signature）"],
-        ["maxLength", "Int?", "否", "0/缺省=不限；仅输入路径截断（含粘贴/IME 只收前 N）；外部赋值不强制截断"],
-        ["disabled", "Boolean", "否", "整壳 40% 灰不可编辑不可滚动不可点（含已填文本只读回显）"]
+        [
+          "value",
+          "String",
+          "是",
+          "受控必传=当前全文（宿主真源）：外部赋值=同步回显（不触发 onTextChange）；用户编辑（输入/粘贴/换行）每次变更回传全文"
+        ],
+        [
+          "onTextChange",
+          "回调",
+          "是",
+          "(String)：用户输入路径触发（含截断后文本）；外部赋值不触发"
+        ],
+        [
+          "placeholder",
+          "String?",
+          "否",
+          "空值占位文案，textSecondary Md16 顶部左对齐（多行不垂直居中）；库内无 textTertiary token=同 Input #29 实现惯例"
+        ],
+        [
+          "rows",
+          "Int",
+          "否",
+          "可视行数，默认 3=整件高 rows×24+24（行高 24=cellTitleLineHeight token 注释锚定、默认 96=2×48 交互行基准同 Signature）"
+        ],
+        [
+          "maxLength",
+          "Int?",
+          "否",
+          "0/缺省=不限；仅输入路径截断（含粘贴/IME 只收前 N）；外部赋值不强制截断"
+        ],
+        [
+          "disabled",
+          "Boolean",
+          "否",
+          "整壳 40% 灰不可编辑不可滚动不可点（含已填文本只读回显）"
+        ]
       ],
       "events": [],
       "demos": [
-        ["基础多行输入（placeholder 空态 → 真实键盘键入）", "空态=placeholder「请输入备注」textSecondary 顶部左；点入聚焦弹系统键盘、软键盘回车=插入换行；键入两行 onTextChange 段内回显（行高 24 顶部对齐多行排版）（D1）"],
-        ["受控外部赋值 + 长文内部滚动", "rows=3 高 96；「预填长文」外部 value=50 行长文=可视首 3 行、内容内部滚动查看+0 次 onTextChange（外部路径）；「读当前值」段内回显；「清空」外部 value=\"\"（D2）"],
-        ["maxLength 截断 + disabled 锁定", "上=可编辑 maxLength=20：键入/粘贴超长仅保留前 20 字符（段内回显截断结果）；下=disabled 禁用域已填文本=整壳 40% 灰不可编辑滚动（D3）"],
-        ["宿主表单组装（label/校验/字数=宿主）", "FormFieldRow「个人简介」label+必填星 + TextArea rows=4（高 120）placeholder「介绍一下自己吧」；「提交」空值=宿主 error「请填写简介」红字；实时字数「已输入 X/100」宿主读 value 联动（壳不变红=表单语义归宿主）（D4）"]
+        [
+          "基础多行输入（placeholder 空态 → 真实键盘键入）",
+          "空态=placeholder「请输入备注」textSecondary 顶部左；点入聚焦弹系统键盘、软键盘回车=插入换行；键入两行 onTextChange 段内回显（行高 24 顶部对齐多行排版）（D1）"
+        ],
+        [
+          "受控外部赋值 + 长文内部滚动",
+          "rows=3 高 96；「预填长文」外部 value=50 行长文=可视首 3 行、内容内部滚动查看+0 次 onTextChange（外部路径）；「读当前值」段内回显；「清空」外部 value=\"\"（D2）"
+        ],
+        [
+          "maxLength 截断 + disabled 锁定",
+          "上=可编辑 maxLength=20：键入/粘贴超长仅保留前 20 字符（段内回显截断结果）；下=disabled 禁用域已填文本=整壳 40% 灰不可编辑滚动（D3）"
+        ],
+        [
+          "宿主表单组装（label/校验/字数=宿主）",
+          "FormFieldRow「个人简介」label+必填星 + TextArea rows=4（高 120）placeholder「介绍一下自己吧」；「提交」空值=宿主 error「请填写简介」红字；实时字数「已输入 X/100」宿主读 value 联动（壳不变红=表单语义归宿主）（D4）"
+        ]
       ],
       "note": "文本域（数据录入区 #42，全新立项，2026-09-06）：通用多行文本输入内容组件=灰底圆角文本域壳（底 bgPage+radius lg+内边距 md 四向=与 Input #29 同壳语言=单行/多行两形态）+placeholder（textSecondary Md16 顶部左）+文本 Md16 textPrimary 行高 24=cellTitleLineHeight token+rows 可视行默认 3=整件高 rows×24+24=96=2×48 交互行基准（同 Signature #40）+内容超可视行内部滚动+maxLength 仅输入路径截断含粘贴+disabled 整壳 40% 灰；受控 value String 必传+onTextChange 直通（同 Input #29）；label/必填/校验/字数统计=宿主（FormFieldRow #28 承载、壳不变红）；软键盘回车=换行、键盘收起避让=宿主；与富文本/autoGrow 自动增高/字数角标（二期或宿主）、清除钮/secure/尾槽/键盘类型（Input #29 单行形态）、工具栏（emoji/@/附件=宿主）划界。2026-09-06 门禁 A AI 代评通过（规格 design-spec/textarea-design-spec.html + review-textarea-A.md，P1–P4 全 A 0 保留意见，用户 Switch #41 收编后原话「继续下一个组件」指示接棒启动）+ 同日门禁 B 双端实现入库（TextAreaView.swift=命令式 UIKit UITextView 内嵌+placeholderLabel 自绘层；TextArea.kt=声明式 Compose TextFieldState 多行+verticalScroll），iOS TextAreaShowcase / Android TextAreaDemo 4 段 1:1（D1 基础多行输入/D2 受控外部赋值+长文内滚/D3 maxLength 截断+disabled/D4 宿主表单组装），demo 徽标 v1.0，Android assembleDebug + iOS Xcode 编译通过（修复 pbxproj 漏登 PBXGroup children 致 Build input file cannot be found、修复 AppColor.danger→AppColor.error）。**2026-09-07 C1.5 用户双端 Demo 实机验收通过收编（原话「通过，最后一个组件吧，Uploader」）**。验证版本 v1.4.0。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
@@ -4453,13 +6149,36 @@
       "name": "Uploader 上传",
       "category": "ui",
       "summary": "通用文件/图片上传 UI 组件（数据录入区 #43，全新立项）：网格展示已选文件列表（缩略图/文件名/上传状态/进度）+ 添加按钮触发宿主选择 + 删除已选文件 + 失败重试；组件不内置系统选择器和网络上传逻辑=宿主职责（选择器由宿主调起后回写 value、上传请求/进度/结果由宿主驱动 status+progress）；UploadItem 完整状态机{id,name,size,thumbnailUrl,localPath,status:pending/uploading/success/failed,progress:0-1}；value 受控必传+onAdd/onRemove/onRetry 三回调；maxCount 默认 9（达上限隐藏添加按钮）；disabled 整件 40% 灰不可点；与 Image 纯展示/Avatar 头像圆形裁切划界；拖拽排序/大图预览=二期",
-      "capabilities": ["上传", "Uploader", "文件上传", "图片上传", "多图上传", "附件", "上传列表"],
+      "capabilities": [
+        "上传",
+        "Uploader",
+        "文件上传",
+        "图片上传",
+        "多图上传",
+        "附件",
+        "上传列表"
+      ],
       "platforms": {
-        "ios": { "state": "available", "note": "UploaderView.swift：命令式 UIKit（UICollectionView 4 列网格 spacing 8；cell=正方形缩略图+删除角标 16 圆半透明黑+状态蒙层 uploading primary 80%+进度条 3pt / failed error 80%；添加格 dashed border+ 号 textTertiary；value 受控命令式 reloadData；onAdd/onRemove/onRetry 三回调；disabled alpha0.4 不可点）" },
-        "android": { "state": "available", "note": "Uploader.kt：声明式 Compose（LazyVerticalGrid columns=4 spacing 8；cell=Box 正方形缩略图+删除角标+状态蒙层+进度条；添加格 dashed border+ 号；value 受控自动重组；onAdd/onRemove/onRetry 三回调；disabled alpha0.4）" },
-        "harmony": { "state": "unavailable", "note": "" },
-        "weixin": { "state": "unavailable", "note": "" },
-        "alipay": { "state": "unavailable", "note": "" }
+        "ios": {
+          "state": "available",
+          "note": "UploaderView.swift：命令式 UIKit（UICollectionView 4 列网格 spacing 8；cell=正方形缩略图+删除角标 16 圆半透明黑+状态蒙层 uploading primary 80%+进度条 3pt / failed error 80%；添加格 dashed border+ 号 textTertiary；value 受控命令式 reloadData；onAdd/onRemove/onRetry 三回调；disabled alpha0.4 不可点）"
+        },
+        "android": {
+          "state": "available",
+          "note": "Uploader.kt：声明式 Compose（LazyVerticalGrid columns=4 spacing 8；cell=Box 正方形缩略图+删除角标+状态蒙层+进度条；添加格 dashed border+ 号；value 受控自动重组；onAdd/onRemove/onRetry 三回调；disabled alpha0.4）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
       },
       "source_refs": {
         "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/UploaderView.swift",
@@ -4467,21 +6186,71 @@
       },
       "embedding_ref": "",
       "legacy_id": "ui.uploader",
-      "industry_names": ["上传", "Uploader", "图片上传", "文件上传", "多图上传", "附件上传", "上传组件"],
+      "industry_names": [
+        "上传",
+        "Uploader",
+        "图片上传",
+        "文件上传",
+        "多图上传",
+        "附件上传",
+        "上传组件"
+      ],
       "props": [
-        ["value", "List<UploadItem>", "是", "受控必传=文件列表（宿主真源）：外部赋值=同步刷新渲染；UploadItem{id,name,size,thumbnailUrl,localPath,status:pending/uploading/success/failed,progress:0-1}"],
-        ["onAdd", "回调", "是", "()：点击添加按钮触发=宿主调起系统选择器后向 value 追加 UploadItem（status=pending）"],
-        ["onRemove", "回调", "是", "(Int)：点击删除角标触发=宿主从 value 删除 index 项"],
-        ["onRetry", "回调", "否", "(Int)：点击失败项触发=宿主重置 status 为 uploading 重新上传"],
-        ["maxCount", "Int", "否", "最大文件数，默认 9；value.count>=maxCount 时隐藏添加按钮；单文件传 maxCount=1"],
-        ["disabled", "Boolean", "否", "整件 40% 灰，添加/删除/重试均不可点无回调"]
+        [
+          "value",
+          "List<UploadItem>",
+          "是",
+          "受控必传=文件列表（宿主真源）：外部赋值=同步刷新渲染；UploadItem{id,name,size,thumbnailUrl,localPath,status:pending/uploading/success/failed,progress:0-1}"
+        ],
+        [
+          "onAdd",
+          "回调",
+          "是",
+          "()：点击添加按钮触发=宿主调起系统选择器后向 value 追加 UploadItem（status=pending）"
+        ],
+        [
+          "onRemove",
+          "回调",
+          "是",
+          "(Int)：点击删除角标触发=宿主从 value 删除 index 项"
+        ],
+        [
+          "onRetry",
+          "回调",
+          "否",
+          "(Int)：点击失败项触发=宿主重置 status 为 uploading 重新上传"
+        ],
+        [
+          "maxCount",
+          "Int",
+          "否",
+          "最大文件数，默认 9；value.count>=maxCount 时隐藏添加按钮；单文件传 maxCount=1"
+        ],
+        [
+          "disabled",
+          "Boolean",
+          "否",
+          "整件 40% 灰，添加/删除/重试均不可点无回调"
+        ]
       ],
       "events": [],
       "demos": [
-        ["基础多图上传（添加→pending→uploading→success 流转）", "空列表+添加按钮；点击 onAdd→宿主追加 3 张 pending→依次变 uploading（进度条 0→100%）→success；验证添加回调+状态流转+进度条渲染（D1）"],
-        ["单文件 maxCount=1（头像/证件照场景）", "maxCount=1；已有 1 张=添加按钮隐藏；删除后=添加按钮重现；验证单文件上限+添加按钮显隐（D2）"],
-        ["失败重试 + disabled 锁定", "1 张 failed（点击格子触发 onRetry→宿主重置 status 为 uploading）；「锁定/解锁」外部按钮驱动 disabled；验证失败态展示+重试回调+禁用态（D3）"],
-        ["受控外部驱动（宿主直接操作 value）", "「清空全部」「追加 1 张」按钮直接改 value→列表同步刷新（不触发 onAdd/onRemove）；验证受控 value 数据源归宿主（D4）"]
+        [
+          "基础多图上传（添加→pending→uploading→success 流转）",
+          "空列表+添加按钮；点击 onAdd→宿主追加 3 张 pending→依次变 uploading（进度条 0→100%）→success；验证添加回调+状态流转+进度条渲染（D1）"
+        ],
+        [
+          "单文件 maxCount=1（头像/证件照场景）",
+          "maxCount=1；已有 1 张=添加按钮隐藏；删除后=添加按钮重现；验证单文件上限+添加按钮显隐（D2）"
+        ],
+        [
+          "失败重试 + disabled 锁定",
+          "1 张 failed（点击格子触发 onRetry→宿主重置 status 为 uploading）；「锁定/解锁」外部按钮驱动 disabled；验证失败态展示+重试回调+禁用态（D3）"
+        ],
+        [
+          "受控外部驱动（宿主直接操作 value）",
+          "「清空全部」「追加 1 张」按钮直接改 value→列表同步刷新（不触发 onAdd/onRemove）；验证受控 value 数据源归宿主（D4）"
+        ]
       ],
       "note": "上传（数据录入区 #43，全新立项，2026-09-07）：通用文件/图片上传 UI 组件=网格展示已选文件列表+添加/删除/重试回调，不内置系统选择器（宿主调起 PHPicker/PhotoPicker 后回写 value）和网络上传逻辑（宿主驱动 status+progress）；UploadItem 完整状态机 pending/uploading/success/failed+progress 0-1；value 受控必传+onAdd/onRemove/onRetry 三回调；maxCount 默认 9；disabled 整件 40% 灰；与 Image 纯展示/Avatar 头像划界；拖拽排序/大图预览=二期。2026-09-07 门禁 A AI 代评通过（规格 design-spec/uploader-design-spec.html + review-uploader-A.md，P1–P4 全 A 0 保留意见，用户 TextArea #42 收编后原话「通过，最后一个组件吧，Uploader」指示接棒启动）+ 同日门禁 B 双端实现入库（UploaderView.swift=命令式 UIKit UICollectionView 4 列+cell 缩略图+删除角标+状态蒙层+进度条+添加格；Uploader.kt=声明式 Compose LazyVerticalGrid 4 列+BitmapFactory 本地/URL 加载+状态蒙层+进度条），iOS UploaderShowcase / Android UploaderDemo 4 段 1:1（D1 基础多图上传 pending→uploading→success / D2 单文件 maxCount=1 / D3 失败重试+disabled / D4 受控外部驱动），demo 徽标 v1.0，Android assembleDebug BUILD SUCCESSFUL（iOS 待用户本地 Xcode 编译验证）。验证版本 v1.4.0（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",

@@ -126,6 +126,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.design-tokens", name: "DesignTokens 设计令牌", reviewed: false, create: nil),
         ]),
         ("底层能力 foundation", [
+            DemoComponent(id: "foundation.calendar", name: "Calendar 日历工具", reviewed: true, create: { CalendarShowcase() }),
             DemoComponent(id: "ui.router", name: "Router 路由", reviewed: false, create: nil),
             DemoComponent(id: "ui.storage", name: "Storage 本地存储", reviewed: false, create: nil),
             DemoComponent(id: "ui.http-client", name: "HTTPClient 网络客户端", reviewed: false, create: nil),
@@ -7592,5 +7593,79 @@ final class UploaderShowcase: ShowcaseViewController {
             })
         )
         addDynamicInfo("外部直接改 value=列表同步刷新（不触发 onAdd/onRemove）；数据源归宿主。", color: AppColor.textSecondary)
+    }
+}
+
+// MARK: - Calendar 日历工具（foundation.calendar #22）
+
+final class CalendarShowcase: ShowcaseViewController {
+
+    private let dateFmt: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        f.timeZone = TimeZone.current
+        return f
+    }()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Calendar 日历工具"
+
+        // D1: 自然月区间 interval(year:month:)
+        addSection(title: "D1 · 自然月区间 interval(2026, 9)") { container in
+            let iv = CalendarFormatter.interval(year: 2026, month: 9)
+            let start = self.dateFmt.string(from: iv.start)
+            let end = self.dateFmt.string(from: iv.end)
+            let label = UILabel()
+            label.numberOfLines = 0
+            label.font = .systemFont(ofSize: AppFont.sizeSm)
+            label.textColor = AppColor.textPrimary
+            label.text = "2026 年 9 月\n起始: \(start)\n结束: \(end)\n（半开区间 [start, end)，end = 下月 1 日 0 点）"
+            container.addSubview(label)
+            label.snp.makeConstraints { $0.edges.equalToSuperview() }
+        }
+
+        // D2: 年区间 yearInterval(year:)
+        addSection(title: "D2 · 年区间 yearInterval(2026)") { container in
+            let iv = CalendarFormatter.yearInterval(year: 2026)
+            let start = self.dateFmt.string(from: iv.start)
+            let end = self.dateFmt.string(from: iv.end)
+            let label = UILabel()
+            label.numberOfLines = 0
+            label.font = .systemFont(ofSize: AppFont.sizeSm)
+            label.textColor = AppColor.textPrimary
+            label.text = "2026 年\n起始: \(start)\n结束: \(end)"
+            container.addSubview(label)
+            label.snp.makeConstraints { $0.edges.equalToSuperview() }
+        }
+
+        // D3: 当前年月 components()
+        addSection(title: "D3 · 当前年月 components()") { container in
+            let comp = CalendarFormatter.components()
+            let label = UILabel()
+            label.numberOfLines = 0
+            label.font = .systemFont(ofSize: AppFont.sizeSm)
+            label.textColor = AppColor.textPrimary
+            label.text = "当前: \(comp.year) 年 \(comp.month) 月"
+            container.addSubview(label)
+            label.snp.makeConstraints { $0.edges.equalToSuperview() }
+        }
+
+        // D4: 当天 0 点 startOfDay()
+        addSection(title: "D4 · 当天 0 点 startOfDay(Date())") { container in
+            let now = Date()
+            let sod = CalendarFormatter.startOfDay(now)
+            let nowStr = self.dateFmt.string(from: now)
+            let sodStr = self.dateFmt.string(from: sod)
+            let label = UILabel()
+            label.numberOfLines = 0
+            label.font = .systemFont(ofSize: AppFont.sizeSm)
+            label.textColor = AppColor.textPrimary
+            label.text = "当前: \(nowStr)\n当天 0 点: \(sodStr)"
+            container.addSubview(label)
+            label.snp.makeConstraints { $0.edges.equalToSuperview() }
+        }
+
+        addInfo("foundation.calendar = 公历日期区间计算工具（非 UI 组件）。CalendarCard #23 复用本工具渲染日历。")
     }
 }

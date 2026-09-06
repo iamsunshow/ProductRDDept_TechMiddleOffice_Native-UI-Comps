@@ -218,6 +218,7 @@
 			5A27000000000000000000A1 /* ShortPasswordView.swift */,
 			5A28000000000000000000A1 /* SignatureView.swift */,
 			5A29000000000000000000A1 /* SwitchView.swift */,
+			5A2A000000000000000000A1 /* TextAreaView.swift */,
 			5A23000000000000000000A1 /* RadioView.swift */,
 				EE00000000000000000000A1 /* Space.swift */,				24C4336791BDD8FE289677BA /* OptionPickerSheetViewController.swift */,
 				9E1C75478994AD561C65338A /* Overlay.swift */,

@@ -1611,7 +1611,7 @@
         ["体重小数步进", "min20 max200 step0.5 precision1；定点运算 50.0 保留 1 位（D3）"],
         ["禁用与外部重置", "组队人数 min1 max10；「禁用/启用」整控件 40% 置灰、外部 value=2 回显不触发 onChange（半受控）（D4）"]
       ],
-      "note": "步进式数字输入内容组件（数据录入区第二批三件之二，任务清单 #30）：对标 Vant Stepper 收敛半受控+无键盘（一期无直输/长按，键盘=Input #29 职责、悬浮面板=不承载）；Double 宿主值 + 显式 precision 定点（不引入 Decimal 类型，避免与宿主 Double 契约异构）；金额大数精度=MoneyFormat/宿主策略。2026-09-06 门禁 A AI 代评通过（规格 input-number-design-spec.html + review-input-number-A.md，P1–P4 全 A）+ 双端实现入库（InputNumberView.swift / InputNumber.kt + iOS InputNumberShowcase/Android InputNumberDemo 4 段 1:1，demo 徽标 v1.0；Android assembleDebug 编译通过）。待 C1.5 用户实机验收；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "步进式数字输入内容组件（数据录入区第二批三件之二，任务清单 #30）：对标 Vant Stepper 收敛半受控+无键盘（一期无直输/长按，键盘=Input #29 职责、悬浮面板=不承载）；Double 宿主值 + 显式 precision 定点（不引入 Decimal 类型，避免与宿主 Double 契约异构）；金额大数精度=MoneyFormat/宿主策略。2026-09-06 门禁 A AI 代评通过（规格 input-number-design-spec.html + review-input-number-A.md，P1–P4 全 A）+ 双端实现入库（InputNumberView.swift / InputNumber.kt + iOS InputNumberShowcase/Android InputNumberDemo 4 段 1:1，demo 徽标 v1.0；Android assembleDebug 编译通过）。2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「Form和InputNumber通过」；验收前 iOS 编译 6 error 修复=init 形参 min/max 遮蔽全局 min/max 函数 → Swift.min/Swift.max 显式引用 + 删 unused digits 死代码，子仓 9ac1fef）。验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -2472,7 +2472,7 @@
         ["长 label 折行 + 无 label 行", "96 区自动折行行随内容增高；无 label 字段内容占整行（协议勾选行 mock）（D3）"],
         ["多分组卡片 + 提交槽", "账户信息/安全设置两卡（间距 md）+ submitView 保存按钮槽，点按钮段内回显（D4）"]
       ],
-      "note": "表单布局容器（数据录入区第二批三件之一，任务清单 #28）：分组卡片 + 字段行排版 + help/error 文案渲染管道，不含输入控件（对标 Vant Form 收敛为库内设计语言）；与基础 Cell/配置 ConfigProvider 划界=本组件为字段级表单语义（label 区 96 固定/必填星/校验文案槽）；校验算法=宿主职责（同 Vant rules 收敛）。2026-09-06 门禁 A AI 代评通过（规格 form-design-spec.html + review-form-A.md，P1–P4 全 A：P1-A 分组卡片表单容器不承载输入渲染/校验宿主自理、P2-A Form+FormFieldRow API、P3-A label 空内容全宽/help error 共用槽、P4-A 一期=分组卡+长 label 折行+提交槽+多分组+demo 四段）+ 双端实现入库（FormView.swift / Form.kt + iOS FormShowcase/Android FormDemo 4 段 1:1，demo 徽标 v1.0；Android assembleDebug 编译通过）。待 C1.5 用户实机验收；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "表单布局容器（数据录入区第二批三件之一，任务清单 #28）：分组卡片 + 字段行排版 + help/error 文案渲染管道，不含输入控件（对标 Vant Form 收敛为库内设计语言）；与基础 Cell/配置 ConfigProvider 划界=本组件为字段级表单语义（label 区 96 固定/必填星/校验文案槽）；校验算法=宿主职责（同 Vant rules 收敛）。2026-09-06 门禁 A AI 代评通过（规格 form-design-spec.html + review-form-A.md，P1–P4 全 A：P1-A 分组卡片表单容器不承载输入渲染/校验宿主自理、P2-A Form+FormFieldRow API、P3-A label 空内容全宽/help error 共用槽、P4-A 一期=分组卡+长 label 折行+提交槽+多分组+demo 四段）+ 双端实现入库（FormView.swift / Form.kt + iOS FormShowcase/Android FormDemo 4 段 1:1，demo 徽标 v1.0；Android assembleDebug 编译通过）。2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「Form和InputNumber通过」；验收前 iOS 编译 6 error 修复=FormView 两处可选 attributedText 安全 if let 解包判空再传入 attributedHeight，子仓 9ac1fef）。验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },

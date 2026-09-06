@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Form 表单 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- Form demo 预览 mock（表单容器） ---- */
+.fm-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.fm-group{font-size:12px;color:var(--textSecondary);padding:10px 16px 4px;}
+.fm-row{display:flex;align-items:center;min-height:48px;padding:0 16px;border-bottom:0.5px solid #F3F4F6;gap:12px;}
+.fm-row .fm-label{flex:0 0 auto;max-width:45%;color:var(--textPrimary);font-size:14px;}
+.fm-row .fm-label i{color:var(--error);font-style:normal;margin-right:3px;}
+.fm-row .fm-input{flex:1;color:var(--textSecondary);font-size:14px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fm-row .fm-hint{font-size:12px;color:var(--textSecondary);}
+.fm-err{padding:2px 16px 8px;font-size:12px;color:var(--error);}
+.fm-cnt{display:block;font-size:12px;color:var(--textSecondary);padding:6px 12px 12px;}
+.fm-submit{padding:12px 16px;}
+.fm-submit b{display:block;height:40px;border-radius:var(--radiusFull);background:var(--primary);color:#fff;font-weight:600;text-align:center;line-height:40px;font-size:15px;}
+</style>
+</head>
+<body>
+
+<h1>Form 表单 · 设计规格（数据录入组件 #? · 任务清单 #28，subcategory=form · 门禁 A）</h1>
+<p>组件 ID：<code>ui.form</code> ｜ 定位：<b>表单布局容器组件（表单容器 + 字段行 + 校验文案渲染，不含具体输入控件）</b>——宿主用 <code>Form</code> 卡片分组承载一批 <code>FormFieldRow</code> 字段行（分组标题/字段标题/必填星/帮助文案/行内校验错误文案/提交区槽），具体输入控件（Input/Checkbox/Radio/Switch/TextArea/InputNumber 等）为库内独立组件由宿主放入字段内容区；校验算法与表单状态管理=宿主职责（校验结论经 error 文案传入组件渲染），本组件=纯布局+校验态渲染管道。对标 NutUI Form（FormItem label/required/error 字段行 + 提交）收敛为库内自有设计语言（分组卡片 + 字段行 + 校验文案），与已验收录入三件（Address/CalendarCard/Cascader）同属数据录入区。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-06，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 任何"一组字段 + 提交"的表单页布局：把字段行按分组卡片组织（label 左 + 内容右 + 下方校验错误行）；② 必填标记（label 前主色 *）+ 帮助文案（字段下方或行内次色小字）展示；③ 校验反馈：宿主校验后把 error 文案传入对应字段行，组件渲染行内红字（成功态=无 error 即默认）；④ 提交动作区：卡片内提交按钮槽（按钮用库内 Button #? /宿主样式）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 具体输入控件（Input/TextArea/Checkbox/Radio/Switch/InputNumber/Rate/Signature 等）→ 各自独立组件（本组件不做渲染）；② 声明式 rules 校验引擎/整体提交流程/必填自动判定 → 宿主职责（校验算法与业务强相关）；③ 弹层/弹出键盘 → 宿主自理；④ 页头页尾工具条 → NavBar/宿主布局</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 字段行 label 主色文字、内容次色或宿主控件；<span class="tag tag-ok">必填态 ✅</span> label 前主色 *；<span class="tag tag-ok">校验态 ✅</span> error 非空=行内红字 12 展示（表单无禁用/加载/完成态=组件仅容器）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens, Button 提交槽宿主可自选]；与 Checkbox/Input/Radio/Switch 等"录入字段件"划界=本组件只做行容器不产输入；与 Cell #? 划界=Cell 是列表行（内容居中/箭头跳转导航语义），FormFieldRow 是表单字段行（label+内容+错误三区排版、无导航箭头）；字段间分隔 hairline 同 Cell 先例</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>字段行</td><td>行 min 高 48pt/48dp；label 字号 Md=16 主色；内容区字号 Md=16（宿主控件/文案自定）；行内左右 padding=spaceLg（16）</td><td>一行=label 区 + 内容区同高基线；内容超高时行随内容增高（min-height 语义）；行间不设固定间距=直接纵排</td></tr>
+<tr><td>必填星</td><td>* 字号 Md=16、主色 primary、位于 label 前</td><td>required=true 显示；可选字段不显示</td></tr>
+<tr><td>帮助文案</td><td>字号 Sm=12、次色 textSecondary；位置=行内 label 右侧/内容下方？=行内（label 后紧跟，仅一行 max 单行省略）</td><td>help 可空；默认字段无 help 不占位</td></tr>
+<tr><td>校验错误</td><td>字号 Sm=12、错误红 error（库红 token，实现时对齐 DesignTokens）；位于字段行内容下方独立行</td><td>error 非空=行高展开追加一行红字；error 空=不占位（校验通过/未校验无错误行）</td></tr>
+<tr><td>分组</td><td>Form 分组卡片：卡片容器=DesignTokens 卡片（bgCard/圆角 lg/border 线宽 hairline/padding lg 内容）复用既有 Grid 卡片语言；分组标题=字号 Sm=12 次色（可选，卡片间空档 spacingMd）</td><td>Form 可嵌套 1~N 分组；单组（无分组标题）即纯字段卡</td></tr>
+<tr><td>分隔线</td><td>字段行间 hairline（iOS 1/scale pt vs Android 0.5dp，表内放行）；卡内边距 inset 16、分隔线 inset=0 通卡（同 Cell）</td><td>本卡片内相邻字段行以 hairline 分隔</td></tr>
+<tr><td>label 换行</td><td>label 单行优先；超长时可占多行（label 顶部对齐、行高保持 20+），最大宽=行宽的 45%</td><td>长 label 不强制省略（表单语义=完整标题可见）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：表单布局容器（分组卡片 + FormFieldRow 字段行：label/必填/help/error + 提交槽），输入控件=库内独立组件由宿主放入，校验算法宿主自理</td><td>✅ 与"录入字段件各自独立"的库路线一致（不重复造输入）；校验文案管道=表单组件核心差异点、可独立验收；不依赖具体字段组件实现进度（demo 用已实现或宿主 mock 控件填充）</td><td><b>推荐 A</b>：收敛可验收</td></tr>
+<tr><td>B：完整表单引擎——声明式 rules 校验 + 提交聚合 + 字段级 onValidate 绑定</td><td>需定义 rules 表达式语言/与每类字段组件绑校验回调（多件字段组件尚未实现）；规则 DSL 双端各一套；面大且难独立验收</td><td>淘汰：登记二期（随字段组件齐备后单独立项）</td></tr>
+<tr><td>C：退化为"仅单列排版容器"（无 label/required/error 语义的通用 Stack）</td><td>与 Space/Layout 等既有容器重复；表单语义丢失（label/必填/校验展示无标准落点）</td><td>淘汰：与既有容器重叠无增量</td></tr>
+</table>
+
+<h3>P2 · 字段行建模：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：FormFieldRow(label, required?, help?, error?, content) 声明式字段行——label/必填星/help 展示于左侧与行内，error 展示于字段内容下方红字；content=宿主内容视图/组合子区</td><td>✅ 表单字段行的四要素齐（label/必填/帮助/错误）且行内结构固定=双端排版确定可对齐；content 开放=能放任何输入控件</td><td><b>推荐 A</b>：结构化字段行=容器价值核心</td></tr>
+<tr><td>B：仅"错误文案槽"（ErrorText 组件独立，字段行=通用行）</td><td>字段行排版退化为通用行（label 对齐/必填/help 无固定语义）；表单页各行 label 区宽度需宿主逐个手调=无组件价值</td><td>淘汰：编排成本转移宿主</td></tr>
+<tr><td>C：双向表单模型绑定（每行 value 从组件回传宿主再回填）</td><td>字段值语义=各输入控件职责；Form 不持有 value（P1-A 无引擎），重复建模</td><td>淘汰：与 P1-A 自洽（引擎二期）</td></tr>
+</table>
+
+<h3>P3 · 状态与校验管道：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：纯展示无状态——FormFieldRow 的 error/required/help 均"只进不出"（宿主持有校验结论，组件仅渲染）；字段内容交互（输入等）走各自控件回调（宿主自行收）</td><td>✅ 单方向数据流、组件无内部状态机=最简单可靠；与"无表单引擎"定位闭环；双端行为天然一致</td><td><b>推荐 A</b>：容器不骗状态</td></tr>
+<tr><td>B：半受控校验态——组件内部记住 lastError、宿主可重置</td><td>多余状态面（宿主本就持有校验结论）；表单提交时批量清错需再同步</td><td>可接受但无收益</td></tr>
+<tr><td>C：内置必填自动校验（required+空值即红）</td><td>判定"空"需感知各字段控件值（同 P1-B 引擎问题）；规则耦合宿主字段模型</td><td>淘汰：校验规则宿主自理</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：分组卡片容器 + FormFieldRow（label 左内容右 + required 星 + help 行内 + error 行下红字）+ 单分组/多分组 + 提交槽（宿主按钮）+ demo 四段（基础字段布局/多行校验态/长 label 与无 label/多分组提交）</td><td>✅ 覆盖"表单页排版 + 校验文案渲染"核心闭环；字段内容用宿主 mock/既有控件填充（不依赖字段组件实现进度）；对齐 Cell 行分隔先例</td><td><b>推荐 A</b>：验收路径清晰</td></tr>
+<tr><td>B：一期即含 rules 引擎 + 多类字段组件内置</td><td>字段组件缺口多（Input/Checkbox iOS 等未实现）；rules DSL 双端成本高（P1-B 同问题）</td><td>淘汰：登记二期（引擎随字段组件齐备另立项）</td></tr>
+<tr><td>C：一期即做"表单页整页模板"（页头页尾 + 提交全局壳）</td><td>页框架=宿主页面职责（NavBar/安全区由宿主叠）；组件强行整页壳=宿主难复用局部表单块</td><td>淘汰：宿主页面自由组装</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础字段布局（label 左 + 内容右 + 必填星 + help）</h3>
+<p>mock：登录表单 手机号（必填，内容=宿主 mock 输入样式）、昵称（必填）、简介（help=选填提示）。验证字段行三段排版 + 必填星 + 行分隔 + 行内 help。</p>
+<div class="fm-stage">
+<div class="fm-group">登录信息</div>
+<div class="fm-row"><span class="fm-label"><i>*</i>手机号</span><span class="fm-input">138****8888</span></div>
+<div class="fm-row"><span class="fm-label"><i>*</i>昵称</span><span class="fm-input">有鱼记账</span></div>
+<div class="fm-row"><span class="fm-label">简介</span><span class="fm-input">选填，一句话介绍自己</span></div>
+</div>
+<span class="fm-cnt">字段行 label 左内容右 · 必填星主色 · 行间 hairline 分隔</span>
+
+<h3>D2 · 校验错误渲染（行内红字 + 无错不占位）</h3>
+<p>mock：提交后校验：手机号为空=error 红字；昵称=错误"昵称至少 2 个字符"；简介=通过无错误行。验证 error 出现/消失的行高变化。</p>
+<div class="fm-stage">
+<div class="fm-row"><span class="fm-label"><i>*</i>手机号</span><span class="fm-input" style="color:var(--textPrimary)">请输入手机号</span></div>
+<div class="fm-err">手机号不能为空</div>
+<div class="fm-row"><span class="fm-label"><i>*</i>昵称</span><span class="fm-input">A</span></div>
+<div class="fm-err">昵称至少 2 个字符</div>
+<div class="fm-row"><span class="fm-label">简介</span><span class="fm-input">已通过</span></div>
+</div>
+<span class="fm-cnt">error 行=内容下红字 12 · 通过字段无错误行不占位</span>
+
+<h3>D3 · 长 label 与无 label 字段（label 区折行/内容全宽）</h3>
+<p>mock：含超长多行 label 的字段行（label 顶部对齐，占 ≤45% 宽）与纯内容无 label 行（如协议勾选行，label 空=内容全宽）。验证 label 区自适应与折行。</p>
+<div class="fm-stage">
+<div class="fm-row"><span class="fm-label">账单导出文件名前缀（支持中文，最长 20 字）</span><span class="fm-input" style="color:var(--textPrimary)">2026-09 消费</span></div>
+<div class="fm-row" style="gap:0"><span class="fm-label" style="color:var(--textSecondary);font-size:12px">我已阅读并同意《用户协议》与《隐私政策》</span></div>
+</div>
+<span class="fm-cnt">label 超长折行顶部对齐 · 无 label 行内容占整行</span>
+
+<h3>D4 · 多分组卡片 + 提交按钮槽（宿主按钮）</h3>
+<p>mock：设置页两卡：账户信息（三行）+ 安全（两行含"修改密码"行）+ 卡底提交按钮（宿主 Button 置于槽内）。验证多分组排版与提交槽。</p>
+<div class="fm-stage">
+<div class="fm-group">账户信息</div>
+<div class="fm-row"><span class="fm-label">用户名</span><span class="fm-input">damon88131787</span></div>
+<div class="fm-row"><span class="fm-label">邮箱</span><span class="fm-input">da****@opc.local</span></div>
+<div class="fm-row"><span class="fm-label">手机号</span><span class="fm-input">138****8888</span></div>
+<div class="fm-group">安全设置</div>
+<div class="fm-row"><span class="fm-label">登录密码</span><span class="fm-input">已设置 · 去修改 ›</span></div>
+<div class="fm-row"><span class="fm-label">二次验证</span><span class="fm-input">已开启 ›</span></div>
+<div class="fm-submit"><b>保存修改</b></div>
+</div>
+<span class="fm-cnt">多分组卡上下排 · 提交槽=宿主按钮（库内 Button）</span>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>字段内容嵌入</td><td>contentView（UIView 宿主传入）</td><td>content lambda（Composable 槽位）</td><td>容器内容区插槽：命令式/声明式各自槽语法（表内放行，同 Space/Layout 先例）</td></tr>
+<tr class="diff-row"><td>分隔线线宽</td><td>1/scale pt</td><td>0.5dp</td><td>hairline 视觉一致（表内放行，同全库先例）</td></tr>
+<tr><td>行容器</td><td>UIStackView/约束排列</td><td>Column 纵排</td><td>系统布局机制不同、结果一致（表内放行）</td></tr>
+<tr><td>文字省略</td><td>UILabel truncateTail</td><td>Text ellipsis</td><td>两端系统文本省略行为一致指向（表内放行）</td></tr>
+<tr class="diff-row"><td>尺寸数值单位 / 命名</td><td>pt；struct Form/FormFieldRow</td><td>dp；data class FormFieldRow + @Composable Form</td><td>Token 同值不同单位；模型命名差异见门禁 B（表内放行）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>FormFieldRow</code>：<code>label: String</code>（空=无 label 内容全宽）+ <code>required: Boolean = false</code> + <code>help: String? = nil</code>（行内小字）+ <code>error: String? = nil</code>（非空=内容下红字行）+ 内容槽；label 超长折行（≤ 行宽 45%，顶部对齐）；<code>Form</code>：分组标题 <code>groupTitle: String?</code> 可选 + 内放 1~N 字段行 + 提交区槽（宿主自放按钮）</td></tr>
+<tr><td>iOS</td><td><code>final class FormFieldRow: UIView</code><br/><code>init(label: String?, required: Bool = false, help: String? = nil, error: String? = nil, content: UIView)</code><br/><code>final class Form: UIView</code><br/><code>init(groupTitle: String? = nil, rows: [FormFieldRow])</code> + <code>addRow(_:)</code> + <code>submitView: UIView?</code>（槽）；error/required 可后续 set 刷新（<code>var error: String?</code> didSet 重排）</td></tr>
+<tr><td>Android</td><td><code>@Composable fun Form(groupTitle: String? = null, modifier: Modifier = Modifier, content: ColumnScope.() -&gt; Unit)</code> + <code>FormFieldRow(label: String? = null, required: Boolean = false, help: String? = null, error: String? = null, modifier: Modifier = Modifier, content: RowScope.() -&gt; Unit)</code><br/>宿主在 content 内放任意输入控件；error 变化触发重组渲染红字行</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：表单布局容器与字段行+校验文案渲染；具体输入控件=独立组件宿主放入；校验算法宿主自理；与 Cell 划界）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（行高 48/label 16/必填星 primary/help 12 次色/error 12 红/卡圆角 lg/分隔 hairline）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期：rules 引擎/字段内置/整页模板）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础布局/校验错误行/长 label 折行/多分组提交）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，任务清单 #28 ⬜，api.json 无 ui.form 条目待立项，本规格为立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（内容槽插槽语法/hairline 线宽/行容器/省略=系统级差异；pt/dp 与模型命名表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（rules 校验引擎/内置输入控件/整页模板/自动必填判定=二期或宿主职责）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

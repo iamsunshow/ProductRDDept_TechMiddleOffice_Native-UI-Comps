@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Menu 菜单 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- Menu demo 预览 mock（嵌入式下拉菜单） ---- */
+.mn-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.mn-bar{display:flex;border-bottom:1px solid var(--border);background:#fff;height:44px;}
+.mn-item{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;font-size:14px;color:var(--textPrimary);cursor:pointer;user-select:none;white-space:nowrap;}
+.mn-item small{color:var(--textSecondary);font-size:12px;max-width:52%;overflow:hidden;text-overflow:ellipsis;}
+.mn-item.on{color:var(--primary);font-weight:600;}
+.mn-item .arr{font-size:10px;color:var(--textSecondary);transform:rotate(180deg);}
+.mn-item.on .arr{color:var(--primary);transform:rotate(0deg);}
+.mn-panel{background:#fff;max-height:220px;overflow:hidden;}
+.mn-row{display:flex;align-items:center;height:44px;padding:0 16px;font-size:14px;border-bottom:0.5px solid #F3F4F6;cursor:pointer;color:var(--textPrimary);}
+.mn-row.on{color:var(--primary);font-weight:600;}
+.mn-row.dis{color:#D1D5DB;cursor:default;}
+.mn-row small{color:var(--textSecondary);font-size:13px;}
+.mn-cnt{display:block;font-size:12px;color:var(--textSecondary);padding:6px 12px 12px;}
+</style>
+</head>
+<body>
+
+<h1>Menu 菜单 · 设计规格（数据录入组件 #? · 任务清单 #31，subcategory=form · 门禁 A）</h1>
+<p>组件 ID：<code>ui.menu</code> ｜ 定位：<b>嵌入式下拉单选菜单（内联展开、无遮罩无浮层）</b>——顶部一条横向菜单栏（≤4 列等分；列文案=当前选中值）＋ 展开态在菜单栏正下方内联展开一个选项单选列表（随组件高度增长，宿主纵向容器自然推挤下方内容）；点开项再点=收起，点其它项=切换展开；选中选项=回调并收起；列级 <code>activeKey</code> 与选中值半受控外部驱动。对标 NutUI Menu 收敛为库内自有设计语言（筛选条+下拉展开+选中回显）；一期无遮罩/悬浮浮层（Popup #54 未实现），不做多级子菜单与联动筛选。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-06，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 页面筛选条：一行菜单项（排序方式/时间范围/账单类型/状态）点开即选、选中值回显到菜单栏标题；② 紧凑多条件单选（2~4 列并排）；③ 编辑回显：宿主已持各列选中值，Menu 回显并高亮；④ 卡片/列表页顶部筛选等宿主纵向内容流首部（下方内容在展开时被推挤=嵌入式语义）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 悬浮遮罩式下拉（盖于内容之上、点外部收起）→ 二期（随 Popup #54 / 浮层机制）；② 多级子菜单/级联筛选 → Cascader #24 / 二期；③ 单列表格/分组的常驻选择列表 → Picker #33 / 其他；④ 底部弹层单列选择 → OptionPicker 系（Modal sheet 已存在）；⑤ 左侧目录轨 → SideBar #18</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 菜单栏各列=标题+当前值（次色小字）+▾；未选中=列标题默认占位；<span class="tag tag-ok">展开态 ✅</span> 激活列文案主色加粗、▾ 上翻、面板展开于栏下；<span class="tag tag-ok">选中态 ✅</span> 面板内选中行主色加粗；<span class="tag tag-ok">禁用态 ✅</span> 列级 disabled=整列灰不可展开、选项级 disabled=面板行灰 40% 不可点；加载/失败 N/A</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；与 Cascader #24 划界=Cascader=多层级联逐层下钻、Menu=单层每列平铺单选；与 Picker #33 划界=Picker=单列值选择（内容常驻/弹层），Menu=菜单条驱动的下拉单选、选中回显到菜单栏；与 Popup #54=Menu 一期不依赖 Popup（内联展开），二期悬浮版再对齐</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>菜单栏</td><td>高 44pt/44dp；列内文字 Md=16（标题主色；激活主色加粗）；当前值小字 Sm=12 次色（紧贴标题右、单行省略 ≤列 52%）</td><td>整件高=44（收起）；列等分（≤4 列，超出=横滑）；点列=切换该列展开</td></tr>
+<tr><td>展开面板</td><td>行高 44pt/44dp；面板 max 高 220pt/220dp（=5 行）超出内部滚动；面板=栏下紧贴白底、行间 hairline</td><td>展开态组件高=44+面板实际高（≤220）；收起高度恢复 44（宿主纵向布局随动=嵌入式核心）</td></tr>
+<tr><td>▾ 指示</td><td>列末箭头符 12 次色（激活列主色、上翻 180°=展开态）</td><td>文本箭头（全库图标字符惯例）</td></tr>
+<tr><td>选中/禁用色</td><td>选中=primary 加粗 + 面板行左侧/无勾选（以颜色文字区分，同 Cascader 高亮惯例）；禁用=textTertiary 40%</td><td>激活列=主色；其余列=默认主文字</td></tr>
+<tr><td>数据驱动</td><td>MenuColumn(key,title,options)（≤4 列）→ 每列展开=该列 options 单选；MenuOption(value,text,disabled)</td><td>options 任一列可点展开（activeKey 半受控，见 P3）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：嵌入式下拉单选菜单——菜单栏（≤4 列）+ 展开态在组件内部纵向下展面板（组件高=44+面板高，宿主纵向容器推挤下方）；无遮罩/无悬浮浮层；重复点当前展开列=收起</td><td>✅ 收敛可验收：内容组件语义（同 Address/Cascader 无弹层先例）；双端实现纯布局+滚动=轻量可靠；宿主纵向内容流场景（页首筛选条/表单内）天然成立；选中回显菜单栏=核心闭环可 demo</td><td><b>推荐 A</b>：无浮层收敛（悬浮版二期）</td></tr>
+<tr><td>B：悬浮式下拉（面板浮于页面内容之上 + 遮罩点外部收起）</td><td>Popup #54 未实现；iOS 需 window/overlay 自建浮层、Android Popup 双端机制不齐（iOS 无自绘浮层先例）；遮罩+点击外部命中与层级管理面大</td><td>淘汰：登记二期（随浮层机制立项）</td></tr>
+<tr><td>C：弹层版复用 Modal（present 页面式 sheet）</td><td>与既有 OptionPicker/日期选择 Modal 形态重复（底部全宽 sheet），非"菜单条下拉"语义；失去菜单栏回显特征</td><td>淘汰：形态不符</td></tr>
+</table>
+
+<h3>P2 · 数据模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：MenuColumn(key, title, options) 列数组 + MenuOption(value, text, disabled) ——列 key=稳定 id、title=占位标题（未选中时显示）、options=该列单选池；外部按列 key 取选中 value 回显 title 位</td><td>✅ 多列并排（筛选条多条件）结构化表达；title 与 options 分离=列常态可显示当前选中值；value 稳定落库；与 CascaderOption/TabItem 数据驱动惯例同构</td><td><b>推荐 A</b>：数据驱动惯例</td></tr>
+<tr><td>B：扁平字符串数组（仅文案无 key/value）</td><td>无法回显匹配（文案重复歧义）；列与列之间无法稳定索引外部驱动</td><td>淘汰：缺稳定 value（同库惯例已弃）</td></tr>
+<tr><td>C：由 Cascader 树（两列级联）充当多列</td><td>Menu 多为平铺互斥列（排序/时间无级联关系）；级联树语义错位</td><td>淘汰：模型不符</td></tr>
+</table>
+
+<h3>P3 · 状态控制：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：半受控——内部自管理展开列（activeColumnKey）+ 各列选中值（selected[key] map，默认每列 options 首启用项）；宿主可外部传 selectedValues 驱动回显（按列 key 匹配 option value 高亮+标题替换）；选中选项=onChange(columnKey, optionValue)；展开切换幂等（点当前展开列=收起）</td><td>✅ 编辑回显/外部重置成立；展开态内部持有（宿主不用管开合）；与库内半受控惯例一致；map 以列 key 索引=多列各自独立</td><td><b>推荐 A</b>：库内惯例</td></tr>
+<tr><td>B：纯受控（展开列与各选中值全由宿主 state 驱动）</td><td>宿主需维护展开态+每列值两组状态并逐事件回填；开合交互与表单强耦合、重复状态</td><td>可接受但过度</td></tr>
+<tr><td>C：纯自管理仅通知最终值</td><td>编辑回显/外部"重置筛选"驱动无门（多列场景尤甚）</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：嵌入式单选 Menu——≤4 列菜单栏 + 展开内联面板（选中高亮+disabled+max 220 内部滚动+点当前列收起）+ 选中回显菜单栏 + 半受控 selectedValues + demo 四段（单列基础/多列联动展开/长列表滚动含禁用/受控外部驱动）</td><td>✅ 覆盖"筛选条单选下拉"核心闭环；展开列切换/收起/回显/禁用/滚动 demo 可逐验；无浮层无遮罩=验收路径清晰</td><td><b>推荐 A</b>：验收路径清晰</td></tr>
+<tr><td>B：一期即含 遮罩悬浮浮层 + 多级子菜单</td><td>浮层机制未立项（P1-B 问题）；多级=级联语义错位</td><td>淘汰：登记二期</td></tr>
+<tr><td>C：一期即做 联动筛选（列间级联+结果计数面板）</td><td>筛选联动=业务逻辑（宿主职责）；复杂状态面一期不可控</td><td>淘汰：宿主业务自理</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 单列基础（选中回显菜单栏 + 收起）</h3>
+<p>mock：顶部单一菜单「排序方式」（推荐/时间最新/价格最低）默认=时间最新。点开→面板选项→点选=onChange 回显并收起，菜单栏标题替换为选中值、主色。重复点展开列=收起。</p>
+<div class="mn-stage">
+<div class="mn-bar"><span class="mn-item on">排序方式：<small>时间最新</small><span class="arr">▲</span></span></div>
+<div class="mn-panel"><div class="mn-row">推荐排序</div><div class="mn-row on">时间最新 <small>✓</small></div><div class="mn-row">价格最低</div></div></div>
+<span class="mn-cnt">点选时间最新 → onChange 回调 + 面板收起 · 标题「时间最新」主色回显</span>
+
+<h3>D2 · 多列展开切换（4 列筛选条）</h3>
+<p>mock：账单筛选 4 列（排序/时间/类型/状态）各带选项；点某列=该列展开、其它列自动收起；列标题当前值回显；验证多列互斥展开与独立选中。</p>
+<div class="mn-stage">
+<div class="mn-bar">
+<span class="mn-item">排序<small>金额</small></span>
+<span class="mn-item on">时间<small>近 30 天</small></span>
+<span class="mn-item">类型<small>全部</small></span>
+<span class="mn-item">状态<small>已入账</small></span>
+</div>
+<div class="mn-panel"><div class="mn-row">近 7 天</div><div class="mn-row on">近 30 天 <small>✓</small></div><div class="mn-row">近 3 个月</div><div class="mn-row">今年</div></div></div>
+<span class="mn-cnt">4 列等分 · 点「时间」展开其余收起 · 每列独立选中值回显</span>
+
+<h3>D3 · 长列表滚动 + 选项禁用</h3>
+<p>mock：分类单选（账本-全部 12 项）max 220pt 内部滚动；「删除的账本」disabled 灰不可点；验证面板超高内滚与禁用项。</p>
+<div class="mn-stage">
+<div class="mn-bar"><span class="mn-item on">账本<small>全部</small><span class="arr">▲</span></span></div>
+<div class="mn-panel">
+<div class="mn-row on">全部 <small>✓</small></div><div class="mn-row">家庭账本</div><div class="mn-row">旅行账本</div><div class="mn-row">装修账本</div><div class="mn-row dis">删除的账本</div>
+</div></div>
+<span class="mn-cnt">面板超高 max 220 内部滚动 · disabled 行灰 40% 不可点</span>
+
+<h3>D4 · 受控外部驱动（外部回显各列选中值）</h3>
+<p>mock：段外按钮「回显：时间=今年、类型=餐饮」外部传 selectedValues → 各列标题/面板高亮同步；验证多列外部回显。</p>
+<div class="mn-stage">
+<div class="mn-bar">
+<span class="mn-item">排序<small>金额</small></span>
+<span class="mn-item on">时间<small>今年</small></span>
+<span class="mn-item on">类型<small>餐饮</small></span>
+</div></div>
+<span class="mn-cnt">外部 selectedValues={time:year,type:food} → 对应列标题与选中高亮同步（不触发 onChange）</span>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>点击按压反馈</td><td>UIButton touchDown 压暗瞬态</td><td>clickable 系统 ripple</td><td>系统级原生差异（同全库先例，表内放行）</td></tr>
+<tr><td>等分/横滑</td><td>UIStackView fillEqually / UIScrollView</td><td>Row weight / horizontalScroll</td><td>系统布局机制不同、结果一致（表内放行）</td></tr>
+<tr><td>面板滚动</td><td>UIScrollView/UITableView</td><td>LazyColumn/verticalScroll</td><td>平台滚动容器实现不同（表内放行）</td></tr>
+<tr><td>高度推挤</td><td>intrinsicContentSize 随展开态变化 + AutoLayout 链自动推挤</td><td>Column 高度状态驱动下方节点位置</td><td>命令式/声明式高度联动机制不同、宿主列内结果一致（表内放行）</td></tr>
+<tr><td>文字省略</td><td>UILabel truncateTail</td><td>Text ellipsis</td><td>两端省略行为一致指向（表内放行）</td></tr>
+<tr class="diff-row"><td>尺寸单位 / 命名</td><td>pt；MenuColumn/MenuOption struct + MenuView</td><td>dp；data class MenuColumn/MenuOption + @Composable Menu</td><td>Token 同值不同单位；命名差异见门禁 B（表内放行）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>MenuOption(value, text, disabled=false)</code>；<code>MenuColumn(key, title, options: [MenuOption])</code><br/><code>selectedValues: [String: String]?</code>（列 key → 选中 option value；nil/缺列=该列取 options 首个启用项）；<code>onChange: (columnKey, optionValue) -&gt; Void</code>；禁用=列级/选项级 disabled；点已展开列=收起（幂等）</td></tr>
+<tr><td>iOS</td><td><code>final class MenuView: UIView</code><br/><code>init(columns: [MenuColumn], selectedValues: [String: String]? = nil, onChange: ((String, String) -&gt; Void)? = nil)</code><br/>高=intrinsicContentSize（收起 44 / 展开 44+面板高 ≤220，didSet invalidate）；`var selectedValues` 外部赋值驱动回显；展开列内部状态自管理</td></tr>
+<tr><td>Android</td><td><code>@Composable fun Menu(columns: List&lt;MenuColumn&gt;, selectedValues: Map&lt;String, String&gt;? = null, onChange: (String, String) -&gt; Unit, modifier: Modifier = Modifier)</code><br/>内部 Column：菜单栏 Row + 展开面板（动画可选=二期，直接开关）；高度随展开态 State 变化</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：嵌入式下拉单选菜单=菜单栏+内联展开面板；与 Cascader 级联/Picker 常驻选择/OptionPicker Modal/SideBar 划界；悬浮遮罩版二期）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（栏 44/行 44/面板 max 220/字号 16/值小字 12/▾ 12/灰 40%/选中主色）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期：悬浮遮罩/多级子菜单/联动筛选）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（单列基础/多列切换/长列表滚动禁用/受控驱动）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，任务清单 #31 ⬜，api.json 无 ui.menu 条目待立项，本规格为立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（按压反馈/等分横滑/滚动/高度推挤机制/省略=系统级差异；pt/dp 与命名表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（遮罩悬浮浮层/多级子菜单/联动筛选结果面板=二期或宿主业务职责）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

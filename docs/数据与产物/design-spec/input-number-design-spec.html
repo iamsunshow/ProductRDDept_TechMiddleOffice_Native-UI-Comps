@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>InputNumber 数字输入 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- InputNumber demo 预览 mock（步进器） ---- */
+.in-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);padding:16px;}
+.in-line{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--textPrimary);padding:6px 0;}
+.in-line b{font-weight:600;}
+.step{display:inline-flex;align-items:center;height:32px;background:var(--bgPage);border:1px solid var(--border);border-radius:var(--radiusSm);overflow:hidden;}
+.step span{width:32px;text-align:center;font-size:20px;line-height:30px;color:var(--primary);cursor:pointer;user-select:none;}
+.step span.off{color:#D1D5DB;cursor:default;}
+.step em{min-width:36px;text-align:center;font-style:normal;font-size:14px;}
+.step.dec .off{color:var(--textPrimary);}
+.in-cnt{display:block;font-size:12px;color:var(--textSecondary);padding-top:4px;}
+.in-mini{display:inline-flex;align-items:center;height:26px;background:var(--bgPage);border:1px solid var(--border);border-radius:var(--radiusFull);overflow:hidden;padding:0 4px;}
+.in-mini span{width:20px;text-align:center;font-size:16px;color:var(--primary);cursor:pointer;user-select:none;}
+.in-mini em{min-width:26px;text-align:center;font-style:normal;font-size:13px;}
+</style>
+</head>
+<body>
+
+<h1>InputNumber 数字输入 · 设计规格（数据录入组件 #? · 任务清单 #30，subcategory=form · 门禁 A）</h1>
+<p>组件 ID：<code>ui.input-number</code> ｜ 定位：<b>步进式数字输入控件（内容组件，无弹层/无键盘拉起面）</b>——宿主传入数值与步长，用户点 <b>− / +</b> 按钮按 step 增减，中间显示当前值；支持 <code>min/max</code> 边界（到达边界对应按钮禁用置灰）、<code>precision</code> 小数位、<code>disabled</code> 整组件 40% 置灰、半受控 <code>value</code> 外部驱动；一期不做键盘直输（键盘拉起=宿主/Input 组件职责），不做长按连续步进。对标 Vant Stepper / NutUI InputNumber 收敛为库内自有设计语言（圆角按钮式步进器 + 半受控值 + 边界禁用），与已验收录入三件（Address/CalendarCard/Cascader）同属数据录入区。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-06，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 数值微调型字段：数量（购物车/下单）、份数、人数、步长固定的小数/整数数值；② 边界受限步进：min/max 区间内连续增减（到达边界按钮置灰不可继续）；③ 小数精度固定场景（金额分、比例 0.1 步长等）由 precision 收敛展示值；④ 编辑回显：宿主已有 value 外部传入同步显示</td></tr>
+<tr><td>不适用（N/A）</td><td>① 自由文本/数字键盘录入（无步长语义、允许任意小数、位数长）→ Input（#29 缺口）/宿主；② 滑杆区间 → Range（#36）；③ 金额大数精确计算 → 宿主精度策略（MoneyFormat 工具）；④ 长按连续加速步进/滑动手势改值=二期</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> − / + 按钮主色图标、值主色居中；<span class="tag tag-ok">边界态 ✅</span> 值=min 时 − 禁用灰 40%、=max 时 + 禁用灰 40%；<span class="tag tag-ok">禁用态 ✅</span> disabled=true 整控件 40% 置灰不可点（含按钮/值）；加载/失败 N/A（无异步）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；与 Input（#29）划界=本组件=步进式限定增减，Input=自由文本（含键盘）；与 Slider/Range 划界=本组件=离散步进按钮无滑动；表单内嵌=Form（#28）字段行 content</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>整体高度</td><td>32pt/32dp（按钮高）——组件紧凑基线</td><td>两侧按钮 + 中部值区同高 32</td></tr>
+<tr><td>按钮</td><td>宽 32pt/32dp；−/+ 字符按钮字号 Lg=18（主色、边界禁用 textTertiary 40%）</td><td>按钮圆角=DesignTokens radiusSm(6)；默认边框 hairline；按钮点击瞬态主色按压（touchDown 高亮 vs Android 系统 ripple，表内放行）</td></tr>
+<tr><td>值区</td><td>最小宽 40pt/40dp（随值位数可扩）；字号 Md=16 主色；precision 小数位按需</td><td>值=数值主色居中；显示值经 precision 规整（0 保留小数位不显示多余 0 时用 trim，显示语义见 P2 决策）</td></tr>
+<tr><td>边界/禁用</td><td>禁用与边界=textTertiary 置灰 40% 不可点；组件禁用=整控件 40%</td><td>disabled 优先级高于边界（组件禁用时按钮全灰）</td></tr>
+<tr><td>步长默认</td><td>step 默认 1；精度跟随 value 小数位与 precision 参数（默认 0=整数）</td><td>防浮点误差：计算用 Decimal/DecimalFormat 语义（双端同构）</td></tr>
+<tr><td>布局</td><td>横向：按钮 32 + 值区 + 按钮 32 无缝排（按钮间以值区隔开，按钮圆角朝外侧）</td><td>整件纯内容组件：宿主可置于 Form 字段行 content / 列表行内等</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：步进器（− 值 +）——min/max/step/precision/disabled 半受控 value；纯点按增减，无键盘</td><td>✅ 核心"步进改数"闭环收敛：边界禁用/禁用态/小数精度都确定；内容组件无弹层无键盘=双端轻量可靠；与 Form/Input 分工清晰</td><td><b>推荐 A</b>：收敛可验收</td></tr>
+<tr><td>B：步进 + 中点值可键盘直输（点值弹出数字键盘直接录入）</td><td>键盘/光标/输入法态=Input 组件职责（#29 iOS 未实现）；值合法性需实时解析+容错（半输入态"1."等）；iOS TextField vs Android BasicTextField 键盘差异大</td><td>淘汰：登记二期（值区可点直输，随 Input 能力收敛）</td></tr>
+<tr><td>C：长按连续/加速步进 + 滑动手势改值一体</td><td>长按计时器/加速度/拖拽手势双端差异大且需防误触；一期价值低</td><td>淘汰：登记二期</td></tr>
+</table>
+
+<h3>P2 · 值语义与精度：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：Number/Double 值 + 显式 precision 决定展示与步进对齐——展示=value 按 precision 小数位；增减运算结果超过 precision 小数位则四舍五入到 precision；防浮点用放大整数/Decimal 语义</td><td>✅ 契约单一数值类型（宿主落库友好）；precision 显式=展示确定；浮点误差在运算收敛时消除</td><td><b>推荐 A</b>：类型单一 + 精度显式</td></tr>
+<tr><td>B：字符串值透传（宿主给定任意文本）</td><td>加减法需解析字符串为数值再回写字符串=解析规则重蹈；"类型漂移"到宿主又弹回</td><td>淘汰：类型漂移、无收益</td></tr>
+<tr><td>C：整数值专用（Int）+ 小数另件</td><td>金额/比例等常见小数步进场景（0.1/0.05）无处安放；两个组件重复</td><td>淘汰：数值统一 Number 语义</td></tr>
+</table>
+
+<h3>P3 · 值控制模式：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：半受控 value——组件内部持当前值；宿主外部 value 赋值=同步刷新（编辑回显）；每次有效增减触发 onChange(value)；点已到边界按钮=无回调（不可增减）；受控外部改值不触发 onChange（宿主驱动）</td><td>✅ 与库内半受控惯例一致（Tabs selectedValue/Cascader result）；编辑回显/外部重置成立；点边界按钮幂等无回调</td><td><b>推荐 A</b>：库内惯例</td></tr>
+<tr><td>B：纯受控（value 恒由宿主传、每次变更回调宿主回填）</td><td>宿主需持值并逐次回填=与库内多数半受控组件不一致；外部驱动与内部自增混用易乱</td><td>可接受但过度（表单场景宿主本持值，仍可用 A 自管理）</td></tr>
+<tr><td>C：纯内部自管理仅通知</td><td>编辑回显/外部重置（如"清空恢复默认"）无门</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：步进按钮式 InputNumber——默认 + min/max/step/precision/disabled/半受控 value/边界禁用 + demo 四段（基础整数步进/边界禁用/小数精度 0.5/禁用与受控外部驱动）</td><td>✅ 覆盖"离散限定增减"核心闭环；边界/禁用/精度/外部驱动四态 demo 可逐验；无键盘无弹层=纯内容组件轻量</td><td><b>推荐 A</b>：验收路径清晰</td></tr>
+<tr><td>B：一期即含 值区可点键盘直输 + 长按步进</td><td>键盘/长按计时=双端高成本面（P1-B/C 问题）</td><td>淘汰：登记二期</td></tr>
+<tr><td>C：一期即做 表单字段联动形态（随 Form 自带 label/error 一体）</td><td>字段行排版=Form（#28）职责；本组件内容件嵌入即达</td><td>淘汰：重复 Form</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础整数步进（数量增减 + 回显）</h3>
+<p>mock：购买数量 步长 1 默认 1，区间 1~99。点 +/− 变更、onChange 段下回显数值与计数；到达 99/1 对应按钮禁用。验证增减链路与边界禁用。</p>
+<div class="in-stage">
+<div class="in-line"><b>购买数量</b><span class="step"><span class="off">−</span><em>1</em><span>+</span></span></div>
+<span class="in-cnt">onChange → 数量 1、2…（点 − 到 1 时 − 灰禁，点 + 到 99 时 + 灰禁）</span>
+</div>
+
+<h3>D2 · 边界禁用（min/max 按钮置灰不可点）</h3>
+<p>mock：提前人数 初始 3，区间 1~6；到 min=1 − 禁用、到 max=6 + 禁用（按钮灰 40%），持续点边界按钮无回调（幂等）。验证边界灰态。</p>
+<div class="in-stage">
+<div class="in-line"><b>提前预约人数</b><span class="step"><span class="off">−</span><em>6</em><span class="off">+</span></span></div>
+<span class="in-cnt">值=6=max → + 灰禁（− 可点回 5）</span>
+</div>
+
+<h3>D3 · 小数精度（step 0.5 / precision 1）</h3>
+<p>mock：体重录入 步长 0.5 precision 1 区间 20~200，初始 50。显示值恒 1 位小数；多次步进无浮点尾差。验证小数步进与展示规整。</p>
+<div class="in-stage">
+<div class="in-line"><b>体重 (kg)</b><span class="step"><span>−</span><em>50.0</em><span>+</span></span></div>
+<span class="in-cnt">step=0.5 → 50.0 / 49.5 / 50.5…（1 位小数规整，无浮点误差）</span>
+</div>
+
+<h3>D4 · 禁用整控件 + 受控外部驱动</h3>
+<p>mock：组队人数 字段（disabled=false，外部"重置=2"按钮 + "禁用"开关按钮）——验证整控件禁用 40% 灰不可点、外部 value 赋值同步显示（不触发 onChange 计数保持）。</p>
+<div class="in-stage">
+<div class="in-line"><b>组队人数</b><span class="step dec"><span class="off">−</span><em>2</em><span>+</span></span></div>
+<span class="in-cnt">按钮「重置为 2」=外部 value 赋值同步显示 · 「禁用」=整控件 40% 置灰不可点</span>
+</div>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>点击按压反馈</td><td>UIButton touchDown 压暗瞬态</td><td>clickable 系统 ripple</td><td>系统级原生差异（同全库先例，表内放行）</td></tr>
+<tr class="diff-row"><td>数值运算实现</td><td>Decimal / pow10 定点收敛</td><td>BigDecimal / 定点收敛</td><td>同算法不同宿主 API（表内放行）</td></tr>
+<tr><td>按钮圆角细节</td><td>外侧圆角（UIBezierPath mask）</td><td>RoundedCornerShape(topStart/bottomStart 等）</td><td>平台形状 API 不同、结果一致（表内放行）</td></tr>
+<tr><td>禁用态文字</td><td>textTertiary + isUserInteractionEnabled</td><td>Text color + clickable(enabled=false)</td><td>平台禁用机制不同、表现一致（表内放行）</td></tr>
+<tr class="diff-row"><td>尺寸单位 / 命名</td><td>pt；InputNumberView + struct InputNumberValue?/onChange</td><td>dp；data class（无）+ @Composable InputNumber</td><td>Token 同值不同单位；命名差异见门禁 B（表内放行）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>value: Double? = nil</code>（nil/缺省=min 或 0 起步，规则：min 存在则 min、否则默认 0）+ <code>min: Double? = nil</code> + <code>max: Double? = nil</code> + <code>step: Double = 1</code> + <code>precision: Int = 0</code> + <code>disabled: Boolean = false</code>；onChange：有效增减回调新值（到达边界后点边界按钮=无回调，幂等）；外部 value 赋值=同步刷新显示、不触发 onChange</td></tr>
+<tr><td>iOS</td><td><code>final class InputNumberView: UIView</code><br/><code>init(value: Double? = nil, min: Double? = nil, max: Double? = nil, step: Double = 1, precision: Int = 0, disabled: Bool = false, onChange: ((Double) -&gt; Void)? = nil)</code><br/><code>var value: Double?</code>（didSet 同步显示与边界态）；<code>var disabled: Bool</code>（didSet 刷新灰态）；无键盘无弹层</td></tr>
+<tr><td>Android</td><td><code>@Composable fun InputNumber(value: Double?, min: Double? = null, max: Double? = null, step: Double = 1.0, precision: Int = 0, disabled: Boolean = false, onChange: (Double) -&gt; Unit, modifier: Modifier = Modifier)</code><br/>内部 Row（− + 按钮 + 值文本）+ 定点运算（BigDecimal scale=precision + 半受控状态）</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：步进式数字输入内容组件；与 Input 自由键盘录入 / Range 滑杆 / MoneyFormat 大数精度划界）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（高 32/按钮 32/值区 min 40/字号 16/按钮 18/precision 展示/灰 40%）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期：键盘直输/长按连续/滑动）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础步进/边界禁用/小数精度/禁用+受控）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，任务清单 #30 ⬜，api.json 无 ui.input-number 条目待立项，本规格为立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（按压反馈/定点运算宿主 API/圆角/禁用机制=系统级差异；pt/dp 与命名表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（键盘直输/长按连续加速/滑动手势=二期；弹层与键盘=宿主）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

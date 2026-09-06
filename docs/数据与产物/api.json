@@ -4175,6 +4175,45 @@
       "note": "单选（数据录入区 #35，全新立项，2026-09-06）：通用排他单选双形态（单只 Radio + RadioGroup 垂直排他单选列表），圆形单选点 20 外圈描边 1.5 未选 textSecondary 30%/选中外圈 primary+中心实心点 8（与 Checkbox 方形复选划界=圆形排他点选即确定无 toggle 取消）；半受控 value 点选即确定/外部回显不触发/已选行幂等；禁用项/组禁/已选禁用灰保留；label 选中加粗。2026-09-06 门禁 A AI 代评通过（规格 design-spec/radio-design-spec.html + review-radio-A.md，P1–P4 全 A，用户「radio吧」选型）+ 同日双端实现入库（RadioView.swift=命令式 UIKit 自绘 RadioGlyphView / Radio.kt=声明式 Compose）+ iOS RadioShowcase / Android RadioDemo 4 段 1:1（D1 单只/D2 组排他/D3 禁用态/D4 受控外部），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0（2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「radio通过，继续下一个组件」，4 段双端 1:1 全过，组件进度.md §3.4 行 35 📐→✅ 已回写）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
+    },
+    {
+      "id": "ui.range",
+      "name": "区间选择 Range",
+      "category": "ui",
+      "summary": "横向双滑块区间选择内容组件：一条共用轨道 + start/end 两枚滑块（闭区间 start≤end 恒成立、可相等=零宽单点）、激活段高亮（start 中心~end 中心 primary）、点轨道空段=最近滑块吸附跳位、拖动任一端连续调整（step 粒度吸附）、数值 Double 承载宿主格式化单位展示、无壳无刻度无数值气泡（同 Checkbox/Radio 无 label 壳先例=宿主自布单位/文案/校验）；轨道高 4（未激活段 textSecondary 30% / 激活段 primary）、滑块钮白底圆形 20 primary 描边 1.5、行高 40 整条命中、禁用整条 40% 灰；半受控 value（RangeValue{start,end}？nil=内部自持且初始 [min,max]=「全选不过滤」语义；外部赋值含 clamp 后=仅同步回显不触发 onChange；拖动/点吸附=onChange 连续回调宿主回写；start/end 硬钳制不可互相越过、可相等零宽单点；min/max 动态改=越界端自动 clamp（值域级变化回调一次）；step>0 且 ≤(max−min) 注释断言）；与 #30 InputNumber（步进单值无区间联动）/RadioGroup #35·Menu #31（离散档少量枚举）/Switch #41（二元开关）/Rate #37（整数评价点）/日期区间日历（非数值不走滑轨）/未来单钮 Slider（另行立项）划界；anti_goals 二期/不做=刻度 mark/数值气泡 tooltip/垂直方向/翻转/单值 Slider 混入",
+      "capabilities": ["区间选择", "Range", "双滑块", "区间滑块", "范围选择", "范围筛选"],
+      "platforms": {
+        "ios": { "state": "available", "note": "RangeView.swift：命令式 UIKit UIView 自绘（track+bar+thumb 在 draw 绘制、touchesBegan/Moved 定位吸附拖动钮、x/value 线性换算 step 对齐）；value RangeValue? didSet 半受控外部驱动 clamp 回显不触发 onChange；min/max/step 动态变=clamp 内部并上报一次；disabled 整条灰不可拖不可点；intrinsicContentSize 高 40 宽宿主填充" },
+        "android": { "state": "available", "note": "Range.kt：声明式 Compose Canvas 自绘（detectTapGestures 点轨道吸附最近端 + detectDragGestures 拖动活动钮）；value RangeValue? 参数 LaunchedEffect 半受控外部驱动 clamp 回显不触发 onChange；min/max/step 动态变=clamp 内部并上报一次；disabled 整条灰不可交互；Box 40dp 宽宿主填充" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/RangeView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Range.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.range",
+      "industry_names": ["区间选择", "Range", "双滑块", "范围选择器", "滑杆区间"],
+      "props": [
+        ["value", "RangeValue{start:Double,end:Double}?", "否", "半受控：nil=内部自持且初始 [min,max]；外部赋值（含 clamp 后）=同步回显不触发 onChange"],
+        ["onChange / onValueChange", "回调", "是", "(RangeValue)：点轨道吸附/拖动连续回调（每次 step 对齐后）；disabled 无回调；值域 min/max 动态改致 clamp=回调一次"],
+        ["min / max", "Double", "否", "值域下/上界，默认 0 / 100；动态改=越界端自动 clamp"],
+        ["step", "Double", "否", "吸附粒度，默认 1；>0 且 ≤(max−min)（参数注释断言）"],
+        ["disabled", "Boolean", "否", "整条 40% 灰、不可拖不可点无回调"],
+        ["start≤end", "约束", "—", "区间闭区间硬钳制：滑块不可互相越过、start=end 合法（零宽单点激活段）"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础区间（金额范围 0–100）", "step1 初始 25–75；拖动任一端实时回显两端值；重置=外部 value 驱动回显不触发 onChange（D1）"],
+        ["离散步进 step 5", "拖动按 5 吸附；点击轨道空段=最近滑块跳至点击值（D2）"],
+        ["值域与禁用（动态 min 越界 clamp）", "外部改 min=60=start/end 越界端自动 clamp 至单点 60；禁用开关整条 40% 灰不可交互；重置回 min10（D3）"],
+        ["受控外部 value 驱动", "预设 0–30 / 60–100=外部赋值仅同步回显（不触发 onChange）；拖动=组件上报宿主回写（D4）"]
+      ],
+      "note": "区间选择（数据录入区 #36，全新立项，2026-09-06）：横向双钮区间滑块（单轨道+start/end 双钮闭区间 start≤end 恒成立可相等零宽单点、点轨道空段吸附最近端、拖动连续回调）、Double RangeValue{start,end}+min/max/step 数值模型、半受控 value nil=内部自持初始全区间、min/max 动态改越界自动 clamp、禁用整条 40% 灰；与 #30 InputNumber/#35 RadioGroup·#31 Menu/#41 Switch/#37 Rate/日期日历/未来单钮 Slider 划界；无壳无刻度无气泡=宿主格式化单位；端点贴边半钮溢出允许。2026-09-06 门禁 A AI 代评通过（规格 design-spec/range-design-spec.html + review-range-A.md，P1–P4 全 A，用户 2026-09-06 原话「radio通过，继续下一个组件」指示接棒启动）+ 同日双端实现入库（RangeView.swift=命令式 UIKit 自绘 touches 拖动几何换算 / Range.kt=声明式 Compose Canvas 自绘 pointerInput 拖动），iOS RangeShowcase / Android RangeDemo 4 段 1:1（D1 基础区间/D2 step 离散+点轨吸附/D3 值域 clamp+禁用/D4 受控外部驱动），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0。统一待 C1.5 用户双端 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
     }
   ],
   "businessExtensions": [

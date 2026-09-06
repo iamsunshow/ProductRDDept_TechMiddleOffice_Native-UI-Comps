@@ -2256,6 +2256,141 @@
       "reviewed": true
     },
     {
+      "id": "ui.address",
+      "name": "地址 Address",
+      "category": "ui",
+      "summary": "省→市→区 三级地域选择视图（内嵌内容视图无弹层）：RegionOption 嵌套树数据驱动 + AddressResult 结构化结果（codes/names/text 空格拼接）+ 半受控 result 按 codes 回显 + 顶部层级 tab 回退重选 + 直辖市省层 children 直接为区自动两级收拢；列表区高度宿主约束内部自动滚动",
+      "capabilities": [
+        "地址选择",
+        "省市区",
+        "地区",
+        "地域选择",
+        "Address",
+        "Area",
+        "省市区三级",
+        "地区选择器",
+        "地址选择器"
+      ],
+      "platforms": {
+        "ios": { "state": "available", "note": "AddressView.swift（RegionOption + AddressResult(codes/names/text) + 半受控 result 按 codes 回显 + 层级 tab 44pt 等分激活 2pt 指示线 + 列表行 44pt 选中 ✓ + 禁用 40% + 市区缺省自动收拢）" },
+        "android": { "state": "available", "note": "Address.kt（RegionOption 数据类 + Address(result?/onChange/modifier) 半受控 codes 回显，与 iOS 同构）" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/AddressView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Address.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.address",
+      "industry_names": ["Address", "Area", "地址选择", "省市区选择", "地区选择"],
+      "props": [
+        ["options", "区域嵌套数据", "是", "RegionOption(value/text/children/disabled) 省→市→区 树；直辖市=省层 children 直接为区（两级自动收拢）"],
+        ["result", "选中结果(半受控)", "否", "AddressResult(codes/names/text)；外部赋值按 codes 逐层回显定位，不触发 onChange"],
+        ["onChange", "点选回调", "否", "选中叶子（无 children）回调完整结果（names 空格拼接 text）；禁用节点不可点"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础省市区三级联动", "广东→深圳→南山区 完整链路，onChange 段内回显 codes+names+text（D1）"],
+        ["直辖市两级自动收拢", "北京/上海/重庆=省层下无市层，选中区即两级完成（D2）"],
+        ["20 省大列表滚动 + tab 回退", "列表区滚动；点顶部已选层 tab（如「广东省」）回退重选（D3）"],
+        ["受控外部驱动", "外部 result 预填回显定位/清空回根层（不触发 onChange，计数保持）（D4）"]
+      ],
+      "note": "地址（数据录入首批三件之一，任务清单 #21）：固定“省→市→区”地域三级专用选择视图（内嵌无弹层、弹层宿主自理），对标 Vant Area/NutUI Address 收敛为库内设计语言；与 Cascader（#24 通用任意树）划界=本组件地域专用三级+市区缺省自动收拢。2026-09-05 门禁 A AI 代评通过（规格 address-design-spec.html + review-address-A.md，P1–P4 全 A：P1-A 纯三级地域视图/弹层宿主自理、P2-A RegionOption 嵌套树 + AddressResult 结构化结果、P3-A 半受控回显、P4-A 一期=三级联动+两级收拢+tab 回退+demo 四段）+ 双端实现入库（AddressView.swift / Address.kt + iOS AddressShowcase/Android AddressDemo 4 段 1:1，demo 徽标 v1.0）。C1.5 ✅ 用户双端实机验收通过（2026-09-06 原话“Address通过”）；api.json 登记 reviewed 翻 true；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
+    },
+    {
+      "id": "ui.calendar-card",
+      "name": "日历卡片 CalendarCard",
+      "category": "ui",
+      "summary": "内嵌卡片式单月日历单选（无弹层）：7×6 网格周起始周日 + 头部 yyyy 年 M 月 ‹/› 翻月 + 今日主色描边圆 + 选中主色实心圆白字 + min/maxDate 范围外灰禁不可点 + 半受控 selected 外部驱动自动切月",
+      "capabilities": [
+        "日历",
+        "日历卡片",
+        "日期选择",
+        "月历",
+        "CalendarCard",
+        "单月日历",
+        "日历控件"
+      ],
+      "platforms": {
+        "ios": { "state": "available", "note": "CalendarCardView.swift（CalendarDate 值模型 + 半受控 selected 自动切月 + 44pt 导航头 + 22pt 星期行 + 40pt 日格 7×6 + 范围禁用/翻月越界置灰）" },
+        "android": { "state": "available", "note": "CalendarCard.kt（CalendarDate 数据类 + CalendarCard(selected/minDate/maxDate/onChange/modifier) 与 iOS 同构）" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/CalendarCardView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/CalendarCard.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.calendar-card",
+      "industry_names": ["CalendarCard", "日历卡片", "月历", "日历选择", "DatePickerView"],
+      "props": [
+        ["selected", "选中日期(半受控)", "否", "CalendarDate(year/month/day)；外部赋值同步高亮并自动切到所属月；nil=仅清空保留当前月"],
+        ["minDate", "最小可选日期", "否", "范围外日期灰禁不可点；翻月越界=对应箭头置灰禁翻"],
+        ["maxDate", "最大可选日期", "否", "范围外日期灰禁不可点；翻月越界=对应箭头置灰禁翻"],
+        ["onChange", "点选回调", "否", "点选日期回调 CalendarDate；点已选中日幂等不重复回调"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础当月单选", "今日=主色描边圆；点选=主色实心圆白字；点已选中日幂等不重复回调（D1）"],
+        ["月份切换 + 跨月网格稳定", "‹/› 逐月切换，首尾空位占位 7×6 网格稳定不跳行；今日描边跨月定位（D2）"],
+        ["范围禁用", "min=当月 1 日 / max=当月 15 日；范围外灰禁不可点；越界翻月箭头置灰（D3）"],
+        ["受控外部驱动", "外部 selected 预填回显自动切月 / 清空保留当前月（不触发 onChange，计数保持）（D4）"]
+      ],
+      "note": "日历卡片（数据录入首批三件之一，任务清单 #23）：内嵌卡片式单月日历单选（无弹层），Date 值模型；与 foundation.calendar（#22 自然月/日期区间计算工具）划界=本组件为渲染交互控件、无日期计算 API（黄历/节气另在 #89 foundation.calendar-tools）。2026-09-05 门禁 A AI 代评通过（规格 calendar-card-design-spec.html + review-calendar-card-A.md，P1–P4 全 A：P1-A 内嵌卡片单月单选/无弹层、P2-A Date 值模型 + min/maxDate 范围禁用、P3-A 半受控 selected 自动切月、P4-A 一期=7×6 网格周起始周日+今日态+范围禁用+demo 四段）+ 双端实现入库（CalendarCardView.swift / CalendarCard.kt + iOS CalendarCardShowcase/Android CalendarCardDemo 4 段 1:1，demo 徽标 v1.0）。C1.5 ✅ 用户双端实机验收通过（2026-09-06 原话“CalendarCard通过”）；api.json 登记 reviewed 翻 true；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
+    },
+    {
+      "id": "ui.cascader",
+      "name": "级联选择 Cascader",
+      "category": "ui",
+      "summary": "任意层级树的通用级联单选视图（内嵌内容视图无弹层）：CascaderOption 嵌套树数据驱动 + CascaderResult 路径结果（texts 以 / 拼接）+ 半受控 result 按 values 回显 + 顶部路径 tab 回退重选 + 节点禁用（40% 灰）+ 到达叶子回调",
+      "capabilities": [
+        "级联",
+        "级联选择",
+        "级联选择器",
+        "树选择",
+        "Cascader",
+        "多级选择",
+        "路径选择"
+      ],
+      "platforms": {
+        "ios": { "state": "available", "note": "CascaderView.swift（CascaderOption + CascaderResult(values/texts/text) + 半受控 result 按 values 回显 + 路径 tab 44pt 等分激活 2pt 指示线 + 列表行 44pt 选中 ✓ + 禁用 40%）" },
+        "android": { "state": "available", "note": "Cascader.kt（CascaderOption 数据类 + Cascader(result?/onChange/modifier) 半受控 values 回显，与 iOS 同构）" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/CascaderView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Cascader.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.cascader",
+      "industry_names": ["Cascader", "级联选择", "级联", "树选择", "多级联动选择"],
+      "props": [
+        ["options", "通用嵌套树数据", "是", "CascaderOption(value/text/children/disabled) 任意深度；children 空/缺=叶子"],
+        ["result", "选中结果(半受控)", "否", "CascaderResult(values/texts/text)；外部赋值按 values 逐层回显定位，不触发 onChange"],
+        ["onChange", "点选回调", "否", "选中叶子回调完整路径结果（texts 以 / 拼接）；禁用节点不可点不可下钻"]
+      ],
+      "events": [],
+      "demos": [
+        ["支出分类三级联动", "生活→餐饮→快餐 完整链路，onChange 段内回显路径（D1）"],
+        ["深浅树共存 + 节点禁用", "同树既有 2 层叶（打车/地铁/股票）又有 3 层枝（基金→股票/债券/封闭期基金）；封闭期基金+医疗 禁用灰 40% 不可点（D2）"],
+        ["5 层深组织树 + 路径 tab 回退", "集团→…→组件组→iOS 组件 5 层逐级联动，点中间已选层 tab 回退重选（D3）"],
+        ["受控外部驱动", "外部 result 预填 5 层路径逐层展开高亮 / 清空回根层（不触发 onChange，计数保持）（D4）"]
+      ],
+      "note": "级联选择（数据录入首批三件之一，任务清单 #24）：任意层级树通用级联单选视图（内嵌无弹层、弹层宿主自理），对标 Vant Cascader 收敛为库内设计语言；与 Address（#21 地域专用三级）划界=本组件任意深通用树（品类/组织等）、结果=选中路径。2026-09-05 门禁 A AI 代评通过（规格 cascader-design-spec.html + review-cascader-A.md，P1–P4 全 A：P1-A 任意层级树通用级联单选视图/弹层宿主自理、P2-A CascaderOption 嵌套树 + CascaderResult 路径结果、P3-A 半受控回显、P4-A 一期=任意深树+节点禁用+路径 tab 回退+demo 四段）+ 双端实现入库（CascaderView.swift / Cascader.kt + iOS CascaderShowcase/Android CascaderDemo 4 段 1:1，demo 徽标 v1.0；iOS 修复=init 先 addSubview chipsBar 再建列表防 hairline 锚点 no common ancestor 崩溃）。C1.5 ✅ 用户双端实机验收通过（2026-09-06 原话“Cascader通过”）；api.json 登记 reviewed 翻 true；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
+    },
+    {
       "id": "ui.card",
       "name": "卡片 Card",
       "category": "ui",

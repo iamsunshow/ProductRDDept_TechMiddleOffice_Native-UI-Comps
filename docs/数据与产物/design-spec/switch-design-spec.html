@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Switch 开关 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--textTertiary:#9CA3AF;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- Switch demo 预览 mock（轨道+滑块二元开关） ---- */
+.sw-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.sw-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px;font-size:14px;color:var(--textPrimary);}
+.sw-track{position:relative;width:48px;height:28px;border-radius:999px;background:#E5E7EB;transition:background .18s;flex:none;}
+.sw-track.on{background:var(--primary);}
+.sw-track.dis{opacity:.4;}
+.sw-thumb{position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(17,24,39,.25);transition:left .18s;}
+.sw-track.on .sw-thumb{left:24px;}
+.sw-cnt{display:block;font-size:12px;color:var(--textSecondary);padding:6px 12px 12px;}
+.sw-btn{margin:2px 16px 14px;padding:6px 14px;font-size:13px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--textPrimary);cursor:pointer;display:inline-block;user-select:none;}
+.sw-btn:active{background:#F3F4F6;}
+.sw-lbl small{color:var(--textSecondary);font-size:13px;margin-left:4px;font-weight:400;}
+</style>
+</head>
+<body>
+
+<h1>Switch 开关 · 设计规格（数据录入组件 #41 · 任务清单 #41，subcategory=form · 门禁 A）</h1>
+<p>组件 ID：<code>ui.switch</code> ｜ 定位：<b>通用二元即时开关（拨动式 on/off 状态切换）</b>——轨道 + 滑块自绘、点按翻转开/关并回调，可嵌 FormFieldRow #28 / Cell 尾槽作行尾开关；无内置 label（label 文案=宿主行首）；checked 半受控（nil 内部自持 / 外部赋值驱动回显不触发 onChange）。对标 NutUI switch / Ant Design Switch 收敛为库内自有设计语言；<b>与 Checkbox #25 / Radio #35 明确区分：Switch=二元即时持久开关（点按翻转开闭）；Checkbox=方形复选可多选可取消（表单勾选确认）；Radio=圆形排他几选一（点选即确定）</b>。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.0（2026-09-06，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 二元即时状态开关（通知提醒开关、仅 Wi-Fi 下载、自动同步、深色模式等"即时开/关、状态持久"设置项）；② 行尾开关=FormFieldRow #28 / Cell 尾槽嵌用（label 文案走宿主行首，开关只出开闭核）；③ 表单布尔提交（接受条款=开 才可提交=由宿主校验）；④ 编辑回显：宿主已持 checked，外部 value 驱动开/关回显</td></tr>
+<tr><td>不适用（N/A）</td><td>① 几选一排他（性别/支付方式离散单选）→ Radio #35；② 复选集合/多选勾选（可多选可取消需集合结果）→ Checkbox #25；③ 连续区间/数值调节 → Range #36 / InputNumber #30；④ 下拉选填（选项多需承载层）→ Picker #33 / Menu #31；⑤ 分段高频切换页签 → Tabbar / Tabs / Segmented #74；⑥ 开关带 label 文案自持=宿主行首职责（Switch 核组件不内置行组件）</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> off=灰轨道（textSecondary 30% 底）+ 白色滑块居左；<span class="tag tag-ok">选中态 ✅</span> on=primary 轨道 + 白色滑块居右（点按翻转）；<span class="tag tag-ok">禁用态 ✅</span> 整件 40% 灰不可点无回调（on+禁用=灰 primary 轨道灰滑块保留开态只读）；加载/失败 N/A（宿主自理）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；与 FormFieldRow #28 兼容=Switch 作 trailing 尾槽（label/校验走行，高度随行内嵌）；与 Cell 内容区/trailing 兼容；与 Checkbox #25 / Radio #35 / Rate #37 半受控状态惯例同构=外部赋值驱动不触发 onChange；与 iOS 系统 UISwitch / Android Material Switch 划界=库内自绘不套系统控件</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>轨道</td><td>48pt/48dp 宽 × 28pt/28dp 高，radiusFull 圆角；on=primary 填充、off=textSecondary（alpha 0.3）浅灰填充</td><td>48 宽=交互行基准注释锚定（同 Input #29 / FormFieldRow min 48 语义），28 高=20 滑块 + 上下内衬各 4（spaceXs）</td></tr>
+<tr><td>滑块 thumb</td><td>白色 20pt/20dp 圆形，轨内上下左右内衬 4（spaceXs）；off=左对齐，on=右对齐（行程 20 = 48 − 2×4 − 20）</td><td>20=对齐 CheckboxGlyph / RadioGlyph 20 惯例；滑块白色=轨道高对比可见（浅灰/primary 底均清晰）</td></tr>
+<tr><td>切换动效</td><td>滑块位移 + 轨道变色 0.18s（同 FixedNav 展开/收起 0.18s 动效时长惯例）</td><td>双端 0.18s 线性/缓动=跟手短反馈；动画仅位移动态非布局抖动</td></tr>
+<tr><td>禁用态</td><td>disabled=整件 alpha 0.4（轨道/滑块/已有开态灰呈现），不可点无回调</td><td>on+disabled=灰 primary 轨道灰滑块保留=只读回显语义（同 Checkbox 已选禁用）</td></tr>
+<tr><td>命中区</td><td>整枚开关（轨道框）可点=点按翻转；行内嵌时宿主行可自行加宽命中区</td><td>核组件命中=轨道自身，放大命中=宿主组合（Cell/FormFieldRow 可点区）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件形态：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：独立通用二元开关核组件 Switch（轨道+滑块自绘，无内置 label），宿主按需嵌 FormFieldRow/Cell 行尾；开/关=checked Bool 布尔、onChange 回调</td><td>✅ 最小原子可复用（任何"即时开/关"场景一套 API）；label 归宿主=不重复造行组件、与 FormFieldRow/Cell 组合天然契合（同 Picker #33 工具栏/CalendarCard 嵌入先例"组件只做内容块"）；双端自绘=视觉 100% 可控</td><td><b>推荐 A</b>：纯开/关核组件</td></tr>
+<tr><td>B：Switch 自带 label 行组件（行组件含文案+开关+整行命中）</td><td>label/布局/校验全内聚=一组件成行；但与 FormFieldRow #28 / Cell 职责重叠（行结构宿主已有），组件库重复造行=组合心智负担</td><td>淘汰：行结构归宿主（同 Checkbox/Radio 仅出核组件的定位）</td></tr>
+<tr><td>C：复用系统开关（iOS UISwitch / Android Material Switch）包壳</td><td>iOS UISwitch 尺寸/轨道色/thumb 系统定制弱、与库 token 语言脱节；Android Material Switch 受 Material 主题/状态变量约束、视觉不一致=组件库自绘惯例违背</td><td>淘汰：双端自绘轨道+滑块</td></tr>
+</table>
+
+<h3>P2 · 数据模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：checked: Boolean?（当前开/关；nil=内部自持初始 off）+ onChange(Boolean) 回调</td><td>✅ 二元态布尔=原生布尔直落库（true/false 无映射歧义）；nil=自持、外部赋值=驱动回显=库内半受控惯例一致</td><td><b>推荐 A</b>：Bool 半受控</td></tr>
+<tr><td>B：value: String（"on"/"off" 或自定义激活值）</td><td>开关语义=纯布尔，字符串映射徒增落库转换、外部回显解析成本</td><td>淘汰：二元状态 String 无增益</td></tr>
+<tr><td>C：checked 三态（on/off/null 中间半选态）</td><td>中间态=半选/未知语义（复选嵌套场景），非开关二元语义=Checkbox indeterminate 范畴</td><td>淘汰：登记二期/不属开关职责</td></tr>
+</table>
+
+<h3>P3 · 状态控制：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：半受控——checked（Bool?）可选传；nil=内部自持初始 off（点按翻转并回调 onChange(新值)）；外部赋值 checked=同步刷新渲染（编辑回显/重置）不触发 onChange（同 InputNumber/Menu/Checkbox/Radio 惯例）；点按=翻转（on→off 与 off→on 均回调）；disabled=不可点无回调</td><td>✅ 宿主无状态=自持开/关；编辑回显=外部驱动；两种路径语义清晰=库内状态惯例完全一致</td><td><b>推荐 A</b>：库内半受控惯例</td></tr>
+<tr><td>B：纯受控（checked 必传，每次点按宿主回写）</td><td>简单受控无内部态；但宿主必须每次回写，未传即不可用（灵活性弱于 A）</td><td>可接受但过度（A 的超集）</td></tr>
+<tr><td>C：纯自管理（不暴露 checked 外设）</td><td>编辑回显/重置驱动无门（同 Menu P3-C / Radio P3-C 结论）</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：轨道+滑块核组件+开/关动画 0.18s+checked 半受控+disabled（含 on 灰保留）+onChange+demo 四段（基础开/关回显·行尾嵌 FormFieldRow/Cell·disabled 锁定·受控外部驱动）</td><td>✅ 开关核心闭环（翻转/动画/禁用/外部回显/回调）逐项可验；无自定义颜色/尺寸膨胀=验收路径清晰</td><td><b>推荐 A</b>：核心闭环可验收</td></tr>
+<tr><td>B：一期含 loading 状态/延迟提交开关（async onChange 提交中转圈）</td><td>异步提交流=宿主提交链路职责（同按钮 disabled/loading=宿主），开关核不做请求状态机</td><td>淘汰：宿主自理</td></tr>
+<tr><td>C：一期含 activeColor/轨道背景自定义色、thumb 尺寸/轨道尺寸参数、滑动拖拽手势</td><td>配色/尺寸参数化=定制面扩大（Checkbox/Radio 亦未做颜色参数）；拖拽滑动手势=双端手势几何对仗成本+一期点按即翻转已满足主场景</td><td>淘汰：登记二期（尺寸/配色参数、拖拽）</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础开/关（默认 off → 点按翻转 + 段内回显）</h3>
+<p>mock：裸核开关（默认 off=灰轨道白滑块居左）；点按 → on（primary 轨道滑块右移动画）+段内回显 checked=true；再点 → off 回显。验证最小原子点按翻转+回调。</p>
+<div class="sw-stage">
+<div class="sw-row"><span>自动备份</span><div class="sw-track"><span class="sw-thumb"></span></div></div>
+</div>
+<div class="sw-cnt">点按 → onChange(true) 滑块右移动画 0.18s · 再点 → onChange(false) 滑块归左</div>
+
+<h3>D2 · 行尾嵌用（FormFieldRow / Cell trailing）</h3>
+<p>mock：开关作行尾 trailing 嵌入宿主行（label 走行首、开关只出核）；初始 checked=true=primary 轨道滑块居右回显。验证与 FormFieldRow #28 / Cell 组合用法+初始开态回显。</p>
+<div class="sw-stage">
+<div class="sw-row"><span>新消息通知<small>（FormFieldRow trailing 嵌用）</small></span><div class="sw-track on"><span class="sw-thumb"></span></div></div>
+<div class="sw-row"><span>仅 Wi-Fi 下载<small>（Cell trailing 嵌用）</small></span><div class="sw-track"><span class="sw-thumb"></span></div></div>
+</div>
+<div class="sw-cnt">初始 checked=true 回显开态 · 点按翻转均回调 onChange · 行结构/文案=宿主</div>
+
+<h3>D3 · disabled（整件灰锁 + 开关外部使能/锁定）</h3>
+<p>mock：开态禁用（on=灰 primary 轨道灰滑块保留=只读回显）与关态禁用各一枚，段内「锁定/解锁」外部按钮驱动 disabled。验证禁用不可点无回调、on+disabled 灰保留、外部驱动 disabled 切换。</p>
+<div class="sw-stage">
+<div class="sw-row"><span>已锁定：深色模式（开）</span><div class="sw-track on dis"><span class="sw-thumb"></span></div></div>
+<div class="sw-row"><span>已锁定：桌面小组件（关）</span><div class="sw-track dis"><span class="sw-thumb"></span></div></div>
+</div>
+<div class="sw-cnt">disabled 不可点无回调 · on 禁用=灰开态保留只读 · 「解锁」后恢复可点</div>
+
+<h3>D4 · 受控外部驱动（外部回显开/关，不触发 onChange）</h3>
+<p>mock：开关 + 段内「外部打开」「外部关闭」按钮改 checked → 开关回显同步（不触发 onChange）；点按翻转仍回调。验证半受控两条路径语义（外部驱动仅渲染、用户点按才回调）。</p>
+<div class="sw-stage">
+<div class="sw-row"><span>接收营销推送（受控）</span><div class="sw-track"><span class="sw-thumb"></span></div></div>
+</div>
+<div class="sw-btn">外部打开</div><div class="sw-btn">外部关闭</div>
+<div class="sw-cnt">外部 checked=true → 回显开（无 onChange 日志）· 点按翻转 → onChange 有日志</div>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>轨道/滑块绘制</td><td>UIView layer（轨道圆角背景色+滑块白色圆角子视图，on/off 改颜色/位置）</td><td>Compose Box（clip RoundedCornerShape(999)+背景色+滑块 offset x 位移）</td><td>平台绘制机制不同、视觉一致（表内放行，同全库先例）</td></tr>
+<tr><td>切换动画</td><td>UIView.animate(duration:0.18) 改滑块 frame/约束 + 轨道背景色</td><td>animateDpAsState/animateColorAsState（tween 180ms）驱动 offset/颜色</td><td>两端动画时长一致 0.18s、实现 API 不同（表内放行）</td></tr>
+<tr><td>点击命中</td><td>UIControl touchUpInside / UITapGestureRecognizer 整枚可点</td><td>Box clickable 无涟漪（同库开关无涟漪惯例）</td><td>两端命中一致=整枚、机制差异（表内放行）</td></tr>
+<tr><td>状态回写</td><td>命令式：外部赋值 checked → 显式刷新滑块位置/轨道色（demo onChange 宿主回写）</td><td>声明式：checked 参数变化自动重组</td><td>命令式/声明式机制不同、宿主回写后视觉一致（库内惯例，表内放行）</td></tr>
+<tr><td>尺寸单位 / 命名</td><td>pt；SwitchView（独立 Switch.swift）</td><td>dp；@Composable Switch（Switch.kt）</td><td>Token 同值不同单位；命名差异见门禁 B（表内放行）</td></tr>
+<tr><td>无障碍</td><td>VoiceOver：isAccessibilityElement+label+value（开/关语义 UIAccessibilityTrait）</td><td>TalkBack：语义/checked 状态</td><td>系统无障碍层各读屏实现不同（表内放行）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>共用</td><td><code>checked: Bool?</code>（当前开/关；nil=内部自持初始 off=合法态）；<code>onChange(Bool)</code>（点按翻转触发：off→on=true、on→off=false 均回调；disabled 无回调；外部赋值 checked 不触发 onChange）；<code>disabled: Bool = false</code>（整件 40% 灰不可点无回调，on+disabled=灰开态保留只读）</td></tr>
+<tr><td>iOS</td><td><code>final class SwitchView: UIView</code><br/><code>init(checked: Bool? = nil, disabled: Bool = false, onChange: ((Bool) -&gt; Void)? = nil)</code>；`var checked` 外部赋值驱动刷新（不触发 onChange）；`var disabled` 可运行期更新</td></tr>
+<tr><td>Android</td><td><code>@Composable fun Switch(checked: Boolean?, onCheckedChange: (Boolean) -&gt; Unit, disabled: Boolean = false, modifier)</code><br/>checked 参数变化自动重组回显；内部滑块 offset/轨道色动画</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：通用二元即时开关=轨道+滑块核组件无内置 label、宿主嵌 FormFieldRow #28/Cell 行尾；与 Checkbox #25 方形复选/Radio #35 圆形排他/Picker #33·Menu #31 下拉/Range #36·InputNumber #30 连续·步进划界；行结构/文案=宿主）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（轨道 48×28 radiusFull/on primary·off textSecondary30%/滑块白 20/内衬 4 行程 20/动画 0.18s/禁用 alpha 0.4）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期：尺寸/配色参数、拖拽滑动手势；不做：label 内置行=宿主职责、系统控件复用）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础开/关/行尾嵌用/disabled 锁定/受控外部驱动）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均无 Switch 近似件=纯从零全新立项：iOS 无系统自绘开关需新建、Android Compose 库内无开关组件（Material3 Material Switch 视觉/主题不符库内设计语言不使用）；api.json 无 ui.switch 条目待门禁 B 立项登记；任务清单 #41 ⬜ 双端未实现 → 本次立项 📐）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（绘制机制/动画 API/点击命中机制/状态回写/无障碍=系统级差异；pt/dp 与命名表内放行）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（loading 异步提交=宿主/按钮职责；activeColor/轨道自定义色/thumb 尺寸参数/拖拽滑动=二期；label 内置行=FormFieldRow/Cell 职责不混入；三态半选=Checkbox indeterminate 范畴）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

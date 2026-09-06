@@ -68,11 +68,11 @@ final class UploaderView: UIView {
 
     // MARK: - 常量
 
-    private static let columns = 4
-    private static let spacing: CGFloat = AppSpace.sm  // 8
-    private static let cellRadius: CGFloat = AppRadius.sm  // 6
-    private static let deleteSize: CGFloat = 16
-    private static let progressHeight: CGFloat = 3
+    fileprivate static let columns = 4
+    fileprivate static let spacing: CGFloat = AppSpace.sm  // 8
+    fileprivate static let cellRadius: CGFloat = AppRadius.sm  // 6
+    fileprivate static let deleteSize: CGFloat = 16
+    fileprivate static let progressHeight: CGFloat = 3
 
     // MARK: - 子视图
 
@@ -177,7 +177,7 @@ extension UploaderView: UICollectionViewDataSource, UICollectionViewDelegate {
 
 // MARK: - 文件 Cell
 
-private final class UploaderCell: UICollectionViewCell {
+fileprivate final class UploaderCell: UICollectionViewCell {
 
     var onDelete: (() -> Void)?
     var onRetry: (() -> Void)?
@@ -283,7 +283,7 @@ private final class UploaderCell: UICollectionViewCell {
 
 // MARK: - 添加 Cell
 
-private final class UploaderAddCell: UICollectionViewCell {
+fileprivate final class UploaderAddCell: UICollectionViewCell {
 
     private let plusLabel = UILabel()
 

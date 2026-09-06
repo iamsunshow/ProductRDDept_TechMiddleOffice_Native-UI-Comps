@@ -5516,8 +5516,11 @@ private extension ShowcaseViewController {
         contentStack.addArrangedSubview(row)
     }
 
-    /// 整宽行：容器内 leading/trailing 内缩 lg 铺满（Input/CheckboxGroup 等占满容器宽的组件）。
+    /// 整宽行：先入容器再 leading/trailing 内缩 lg 铺满（Input/CheckboxGroup 等占满容器宽的组件）。
+    /// 必须先 addSubview 再建约束：SnapKit equalToSuperview 依赖已有 superview，
+    /// 缺 addSubview 会在运行期 fatal "Expected superview but found nil"。
     func pinFullWidth(_ view: UIView, in container: UIView, after previous: UIView? = nil) {
+        container.addSubview(view)
         view.snp.makeConstraints { make in
             if let previous {
                 make.top.equalTo(previous.snp.bottom).offset(AppSpace.md)

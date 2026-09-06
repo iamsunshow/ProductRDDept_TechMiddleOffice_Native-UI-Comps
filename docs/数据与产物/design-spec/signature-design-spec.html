@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signature 签名 · 设计规格（数据录入区 #40 · 门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--textTertiary:#9CA3AF;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+/* ---- Signature demo 预览 mock（白底签名板静态示意） ---- */
+.sg-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);padding:14px 16px;}
+.sg-head{font-size:13px;color:var(--textPrimary);margin:0 0 4px;font-weight:600;}
+.sg-sub{font-size:12px;color:var(--textSecondary);margin:0 0 10px;}
+.sg-board{position:relative;width:100%;height:96px;background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusLg);box-sizing:border-box;}
+.sg-board svg{position:absolute;inset:0;width:100%;height:100%;}
+.sg-wm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--textSecondary);opacity:.3;font-size:var(--sizeMd);}
+.sg-wm.hide{display:none;}
+.sg-line{position:absolute;left:16px;right:16px;bottom:14px;border-top:1px solid var(--border);}
+.sg-board.dis{opacity:.4;}
+.sg-feed{font-size:12px;color:var(--textPrimary);background:#F3F4F6;border-radius:6px;padding:3px 8px;margin-top:10px;font-weight:600;display:inline-block;}
+.sg-feed.gray{color:var(--textSecondary);font-weight:400;}
+.sg-btn{margin:6px 4px 0 0;padding:6px 14px;font-size:13px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--textPrimary);cursor:pointer;display:inline-block;user-select:none;}
+.sg-btn:active{background:#F3F4F6;}
+.sg-thumb{margin-top:10px;border:1px dashed var(--border);border-radius:6px;padding:4px;display:inline-block;}
+.sg-thumb svg{width:160px;height:48px;display:block;}
+.sg-row{display:flex;gap:10px;margin-top:12px;}
+.sg-col{flex:1;}
+.sg-col .sg-board{height:72px;}
+</style>
+</head>
+<body>
+<h1>Signature 签名 · 设计规格</h1>
+<p><span class="tag tag-meta">组件 ID：ui.signature</span> <span class="tag tag-meta">数据录入区 #40</span> <span class="tag tag-meta">subcategory=form</span> <span class="tag tag-meta">全新立项（双端均无签名近似件）</span> <span class="tag tag-meta">设计稿 2026-09-06</span> <span class="tag tag-meta">门禁 A</span></p>
+
+<h2>01 · SCQA 组件定位与边界</h2>
+<div class="spec-card">
+<h3>适用场景（S）</h3>
+<p>「手写签名」采集：① 协议/单据类确认=签收单、对账单、验收单、送达回执的签署；② 电子流程确认=审批通过签名、任务留档；③ 业务表单附签=收款/交接/承诺等需留本人笔迹的确认块。组件只出「白底签名画板=手指/笔随画留迹」，签名图片导出/上传、页面与弹层承载、保存与防篡改、业务校验（签名是否为空/是否重签）=宿主自理。</p>
+<h3>目标与冲突（C）</h3>
+<p>需求=库内缺「随手写即可出签名内容」的笔画采集组件；冲突=iOS 系统 PencilKit（PKCanvasView）能力强但画布/导出为 PKDrawing 生态、样式与库内设计语言不统一且不可全局 disabled 降级；Android 系统无原生签名控件、各三方库质量不一；若由宿主各自实现=每个业务重复造画布（touch 采集/坐标换算/防误触各写各的），无法复用于「演示 1:1 + C1 单测」的统一契约。</p>
+<h3>问题（Q）</h3>
+<p>库内是否新增手写签名画板内容组件 ui.signature（双端自绘统一契约）？</p>
+<h3>答案（A）</h3>
+<p><span class="tag tag-ok">定位</span> 是。新增 <b>ui.signature=Signature 签名画板</b>：内容级横长白底画板（bgCard + hairline 描边 + radiusLg 圆角对齐 Input #29 壳语言、宽宿主填充、高默认 96=2×表单交互行 48 基准，注释锚定）+ 手指/笔自绘笔画（圆头线帽、默认线宽 2、默认色 textPrimary，strokeWidth/strokeColor 参数可调）+ 空态水印「请在此区域签名」（textSecondary 30% 居中、首笔落下即消失）+ 底缘引导线（hairline、左右留 spaceLg）；命令式 clear()（宿主「重新签名」钮调用）+ onInkChange(Boolean hasInk)（首笔落 true/清空回 false=驱动宿主「提交」钮可用态）+ disabled（锁定=整板 40% 灰不可绘）。签名图导出=宿主职责（截取组件渲染：iOS UIGraphicsImageRenderer / Android view.draw 至 Bitmap），组件不内置图形对象返回（UIImage vs Bitmap 类型无法跨端统一）。</p>
+<h3>五态适配</h3>
+<p><span class="tag tag-ok">默认态 ✅</span> 空板=水印「请在此区域签名」居中灰字（30%）、底缘引导线、onInkChange(false)=宿主提交钮禁用；<span class="tag tag-ok">绘制中态 ✅</span> 落笔即水印消失、笔画随指圆头留迹、onInkChange(true)；<span class="tag tag-ok">已签名态 ✅</span> 笔迹完整保留、板内不提供二次编辑撤销（撤销=宿主 clear() 重签或二期 stroke 撤销栈）；<span class="tag tag-ok">禁用态 ✅</span> disabled=整板 40% 灰（含已有笔迹）、触摸不采笔、无任何回调（签署锁定场景=宿主配合文案）；<span class="tag tag-ok">边缘态 ✅</span> 笔画越界=裁剪于板 bounds（宿主 clear() 后可重画）、空水印+已禁用组合=灰板无水印提示（宿主自理文案）；<span class="tag tag-ok">加载/失败 N/A</span>（签名图上传/保存失败=宿主自理，组件零内部异步态）。</p>
+<h3>划界与依赖</h3>
+<p>依赖=DesignTokens（AppColor/AppSpace/字号）+ Input #29 壳语言（radiusLg/hairline=视觉复用惯例，非代码依赖）。与同区组件划界：<b>Input #29 / textarea #42</b>=键盘文本输入无笔画；<b>ShortPassword #39 / NumberKeyboard #32</b>=数字键盘系与手写无涉；<b>未来 OTP 码组件</b>=码类二期；<b>Popup #54 / Overlay #6</b>=签名承载（宿主 sheet/页面弹层组装）。业务（签署单、确认书、签收回执等）复用本组件，宿主自理：签名图片导出与上传、页面/弹层承载布局、保存与防篡改留痕、空签名/重签业务校验、锁定后解锁流。系统级 iOS PencilKit / Android 无原生对应=不收编（样式与契约无法统一）。</p>
+</div>
+
+<h2>02 · 尺寸与 Token 规格（零硬编码锚定）</h2>
+<div class="spec-card">
+<table>
+<tr><th>项</th><th>规格（iOS pt / Android dp 一一对应）</th><th>备注</th></tr>
+<tr><td>画板壳</td><td>宽=宿主填充；高默认 96=2×48（表单交互行基准，注释锚定，height 参数可调）；bgCard 白底 + hairline 描边 + radiusLg 圆角 + 底缘引导线 hairline（左右留 spaceLg 距底 spaceLg）</td><td>白底=签名纸直觉，区别于 Input 灰底壳；radiusLg/hairline=对齐 Input #29 壳语言 token</td></tr>
+<tr><td>笔画</td><td>手指/笔自绘路径、线帽 round；默认 strokeWidth 2、默认 strokeColor=textPrimary（strokeWidth/strokeColor 参数可调）</td><td>圆头线帽=签名顺滑直觉；线宽无 token=组件级集中常量注释锚定</td></tr>
+<tr><td>空态水印</td><td>「请在此区域签名」textSecondary alpha 30%、sizeMd、画板居中；首笔落下即隐藏；nil/空文案=无水印</td><td>textSecondary 30%=Radio/Checkbox 未选中态同款惯例（库内无 textTertiary token）；水印非输入占位符语义</td></tr>
+<tr><td>禁用态</td><td>disabled=整板 40% 灰（含已有笔迹）、触摸不采笔、无回调</td><td>同 Input #29 disabled 惯例=签署锁定（提交后不可改）语义</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策（P1–P4 投票表）</h2>
+<div class="spec-card">
+<h3>P1 组件形态与视觉基座</h3>
+<table>
+<tr><th>选项</th><th>方案</th><th>后果</th><th>结论</th></tr>
+<tr><td>A</td><td>内容级横长白底签名画板（bgCard+hairline+radiusLg 对齐 Input 壳语言、水印+底缘引导线、自绘圆头笔画），宿主布 label/提交/弹层</td><td>库内设计语言统一、双端契约一致、宿主组合自由；签名板作为纯内容件符合全库「内容组件宿主组装」惯例</td><td><b>A 推荐 ✅</b></td></tr>
+<tr><td>B</td><td>iOS 封装 PencilKit（PKCanvasView）</td><td>PK 强能力（压感/工具）但导出 PKDrawing 生态、样式不可控、双端无法 1:1、disabled 语义难全局化</td><td>淘汰（不收编系统生态件）</td></tr>
+<tr><td>C</td><td>内置整壳签名组件（自带「重签/提交/标题」栏=宿主半组装完成）</td><td>提交动作/业务栏=宿主职责且差异大，组件膨胀=混入壳与动作职责</td><td>淘汰（宿主自理 label/按钮/弹层）</td></tr>
+</table>
+<h3>P2 笔画采集模型</h3>
+<table>
+<tr><th>选项</th><th>方案</th><th>后果</th><th>结论</th></tr>
+<tr><td>A</td><td>双端自绘离散笔画=板内 stroke path 数组（iOS draw(_:)+UITouch began/moved/ended 换算板坐标追加 Path；Android Canvas drawPath+pointerInput awaitEachGesture 每手势一 stroke），线帽 round 直连采样点</td><td>实现直白、采样点密时自然平滑、两端视觉 1:1、可 C1 单测（注入 stroke 数据断言 path 数）；无第三方依赖</td><td><b>A 推荐 ✅</b></td></tr>
+<tr><td>B</td><td>贝塞尔中点插值平滑（增量二次曲线重排）</td><td>更顺滑但两端插值算法难像素级 1:1、单测脆弱、收益低（签名体验主要受手指精度/采样率影响）</td><td>二期候选（记录 anti_goals）</td></tr>
+<tr><td>C</td><td>记录原始点集由宿主渲染</td><td>把渲染与坐标责任外抛=宿主无法「截组件即出图」、契约分散</td><td>淘汰</td></tr>
+</table>
+<h3>P3 API 与状态（受控/事件/命令式）</h3>
+<table>
+<tr><th>选项</th><th>方案</th><th>后果</th><th>结论</th></tr>
+<tr><td>A</td><td>无受控文本值（签名=异步笔迹流非表单值）+ onInkChange(Boolean hasInk) 回调 + clear() 命令式重签 + disabled 整板灰 + strokeWidth/strokeColor/height/placeholder 参数</td><td>签名板无需宿主回写任何「值」（宿主只在提交时截组件图）；hasInk 驱动「提交」钮可用态=唯一必要事件；命令式 clear 对齐全库命令式件（NavBar/FixedNav）先例</td><td><b>A 推荐 ✅</b></td></tr>
+<tr><td>B</td><td>组件内置「图形对象导出」API（返回 UIImage/Bitmap/路径对象）</td><td>UIImage vs Bitmap 类型跨端无法统一=契约断裂；截组件渲染（宿主侧）天然跨端同构=导出本就该宿主自理</td><td>淘汰（宿主截组件渲染为导出惯例，spec 注明）</td></tr>
+<tr><td>C</td><td>内置清除钮（板内右上小按钮=仿 Input 清除钮先例）</td><td>签名板宿主流程常带「重签」按钮（位于表单提交区），板内小钮与表单按钮重复且破坏签名板简洁白底视觉</td><td>淘汰（clear() 命令式由宿主钮驱动）</td></tr>
+</table>
+<h3>P4 一期裁剪与 Demo 四段</h3>
+<table>
+<tr><th>选项</th><th>方案</th><th>后果</th><th>结论</th></tr>
+<tr><td>A</td><td>一期=height+placeholder+strokeWidth+strokeColor+disabled+onInkChange+clear() 命令式+demo 四段：D1 基础签名与重签（水印空态→绘制跟手→onInkChange 回显「未签名/已签名」→「重新签名」宿主 clear()）｜D2 导出收编（「生成签名图」=宿主截取组件渲染=段内缩略展示=证明宿主可拿矢量签名图）｜D3 参数变体（strokeWidth 1/2/4 与 strokeColor 变体三块板 1:1 对比=宿主可调深浅粗细）｜D4 禁用锁定与空笔迹提交流（「提交锁定」disabled=true 整板 40% 灰不可绘；空板点提交=宿主以 onInkChange(false) 禁用并提示「请先签名」）</td><td>采集+事件+命令式+禁用+宿主导出承接+参数变体关键边界全覆盖；业务导出/上传=宿主边界清晰</td><td><b>A 推荐 ✅</b></td></tr>
+<tr><td>B</td><td>一期内置笔画撤销/重做栈 / 压感 / 水印多行文案参数</td><td>撤销栈=编辑器职责（宿主重签已覆盖）；压感=双端实现与契约复杂化；水印一行足够=增量膨胀</td><td>二期候选/不混入（anti_goals）</td></tr>
+<tr><td>C</td><td>一期内置签名图上传/保存与失败态</td><td>上传/留痕=业务安全职责且差异大=宿主自理</td><td>淘汰（宿主自理）</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（D1–D4 mock，静态示意=真实实现白板自绘）</h2>
+<div class="spec-card">
+<div class="sg-stage">
+<div class="sg-head">Demo 1 · 基础签名与重签</div>
+<div class="sg-sub">空态水印→绘制跟手→onInkChange 回显；「重新签名」=宿主 clear()。</div>
+<div class="sg-board"><svg viewBox="0 0 320 96" preserveAspectRatio="none"><path d="M28,58 C45,34 62,66 84,44 S120,66 152,46 L170,52" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round"/></svg><div class="sg-wm hide">请在此区域签名</div><div class="sg-line"></div></div>
+<div class="sg-feed">onInkChange → true（已签名，可提交）</div>
+<div class="sg-btn">重新签名（clear）</div>
+</div>
+<div class="sg-stage">
+<div class="sg-head">Demo 2 · 导出收编（宿主截取组件渲染）</div>
+<div class="sg-sub">「生成签名图」=宿主 UIGraphicsImageRenderer / view.draw(Bitmap)=段内缩略展示。</div>
+<div class="sg-board"><svg viewBox="0 0 320 96" preserveAspectRatio="none"><path d="M40,52 C58,30 74,70 96,48 S124,52 148,40 C164,33 172,52 160,60" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round"/></svg><div class="sg-wm hide">请在此区域签名</div><div class="sg-line"></div></div>
+<div class="sg-btn">生成签名图（宿主导出）</div>
+<div class="sg-thumb"><svg viewBox="0 0 160 48" preserveAspectRatio="none"><path d="M40,26 C58,15 74,35 96,24 S124,26 148,20" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round"/></svg></div>
+<div class="sg-feed gray">导出 UIImage / Bitmap → 缩略图（宿主上传/保存自理）</div>
+</div>
+<div class="sg-stage">
+<div class="sg-head">Demo 3 · 参数变体（strokeWidth / strokeColor）</div>
+<div class="sg-sub">同一板参数可调=线宽 1/2/4 与描色变体对比（宿主按场景控制深浅粗细）。</div>
+<div class="sg-row">
+<div class="sg-col"><div class="sg-head" style="font-size:12px;">线宽 1</div><div class="sg-board"><svg viewBox="0 0 140 72" preserveAspectRatio="none"><path d="M14,40 C26,24 40,54 56,34 S80,52 104,36" fill="none" stroke="#111827" stroke-width="1" stroke-linecap="round"/></svg><div class="sg-line"></div></div></div>
+<div class="sg-col"><div class="sg-head" style="font-size:12px;">线宽 2（默认）</div><div class="sg-board"><svg viewBox="0 0 140 72" preserveAspectRatio="none"><path d="M14,40 C26,24 40,54 56,34 S80,52 104,36" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round"/></svg><div class="sg-line"></div></div></div>
+<div class="sg-col"><div class="sg-head" style="font-size:12px;">线宽 4</div><div class="sg-board"><svg viewBox="0 0 140 72" preserveAspectRatio="none"><path d="M14,40 C26,24 40,54 56,34 S80,52 104,36" fill="none" stroke="#111827" stroke-width="4" stroke-linecap="round"/></svg><div class="sg-line"></div></div></div>
+</div>
+<div class="sg-feed gray">strokeWidth=1/2/4 · strokeColor=textPrimary/primary 等宿主可控</div>
+</div>
+<div class="sg-stage">
+<div class="sg-head">Demo 4 · 禁用锁定与空笔迹提交流</div>
+<div class="sg-sub">「提交锁定」=disabled=true 整板 40% 灰不可绘；空板点提交=宿主提示「请先签名」。</div>
+<div class="sg-board dis"><svg viewBox="0 0 320 96" preserveAspectRatio="none"><path d="M30,52 C50,30 68,68 92,46 S126,52 150,40" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round"/></svg><div class="sg-line"></div></div>
+<div class="sg-feed gray">已提交锁定（40% 灰）· 不可再绘</div>
+<div class="sg-btn">空板点提交 → 提示「请先签名」（onInkChange false 禁用钮）</div>
+</div>
+</div>
+
+<h2>05 · 平台差异表（表内放行）</h2>
+<div class="spec-card">
+<table>
+<tr><th>差异</th><th>iOS</th><th>Android</th><th>放行/说明</th></tr>
+<tr><td>笔画采集</td><td>UIView 子类：UITouch began/moved/ended 换算 bounds 坐标追加 UIBezierPath 数组，draw(_:) 逐 path 描圆头</td><td>Compose Canvas drawPath + pointerInput awaitEachGesture（down=起新 stroke、drag consume 横向纵向跟随采点、up=收 stroke），Path 数组重组</td><td>点直连+圆帽两端一致；事件/坐标逻辑等价 ✅</td></tr>
+<tr><td>禁用</td><td>disabled=false/true 门控触摸（触摸回调直接 return）+ 视图 alpha 0.4 或 draw 灰化</td><td>pointerInput key 含 disabled=false 手势不启用 + alpha 0.4</td><td>手势层启用/禁用语义等价（全库先例 #35/#36）✅</td></tr>
+<tr><td>导出</td><td>宿主 UIGraphicsImageRenderer(size: bounds) render 后 drawHierarchy=get UIImage</td><td>宿主 View draw(canvas) 到 Bitmap（demo 侧自定义 DrawingCache 辅助）</td><td>宿主侧等价（组件不内置图形对象=API 层无差异）✅</td></tr>
+<tr><td>清除</td><td>clear()=strokes.removeAll()+setNeedsDisplay+onInkChange(false)</td><td>clear()=strokes mutableStateListOf().clear()+回调</td><td>命令式等价 ✅</td></tr>
+<tr><td>圆角壳</td><td>layer.cornerRadius=radiusLg+masksToBounds</td><td>Modifier.clip(RoundedCornerShape(radiusLg))+border 1dp hairline</td><td>pt/dp 一一对应 ✅</td></tr>
+<tr><td>命名/单位</td><td>SignatureView.swift；pt</td><td>Signature.kt；dp</td><td>全库先例 ✅</td></tr>
+<tr><td>无障碍</td><td>VoiceOver：画板可聚焦元素+水印当 accessibilityLabel（空态）；无笔迹元素组</td><td>TalkBack：contentDescription 水印/已签名语义</td><td>系统级说明文本（签名内容本身非文本不可读=宿主留痕）✅</td></tr>
+</table>
+</div>
+
+<h2>06 · API 契约（供门禁 B api.json 立项登记）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>字段/参数</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>1</td><td>onInkChange</td><td>回调</td><td>是</td><td>(Boolean hasInk)：首笔落下=true（水印随之消失）；clear() 清空=false；disabled 期间无回调=驱动宿主「提交」钮可用态</td></tr>
+<tr><td>2</td><td>clear()</td><td>命令式</td><td>—</td><td>宿主「重新签名」钮调用=清空全部笔画并回 onInkChange(false)；禁用态下调用忽略</td></tr>
+<tr><td>3</td><td>height</td><td>数值</td><td>否</td><td>画板高，默认 96=2×48 表单交互行基准（注释锚定）；宽=宿主填充</td></tr>
+<tr><td>4</td><td>placeholder</td><td>String?</td><td>否</td><td>空态水印文案，默认「请在此区域签名」textSecondary 30% 居中；nil/空=无水印</td></tr>
+<tr><td>5</td><td>strokeWidth</td><td>数值</td><td>否</td><td>笔画线宽，默认 2（圆头线帽）</td></tr>
+<tr><td>6</td><td>strokeColor</td><td>颜色</td><td>否</td><td>笔画颜色，默认 textPrimary</td></tr>
+<tr><td>7</td><td>disabled</td><td>Boolean</td><td>否</td><td>整板 40% 灰、不可绘制、clear() 忽略、无任何回调（签署提交后锁定）</td></tr>
+<tr><td>8</td><td>导出 / 撤销栈 / 压感</td><td>—</td><td>—</td><td>签名图导出=宿主截取组件渲染（跨端同构）；笔画撤销/重做、压感、水印多行=二期（anti_goals 登记）</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：手写签名画板内容组件；宿主自理=导出图/上传/弹层承载/保存防篡改/空签名与锁定业务校验；与 Input/textarea 键盘文本、ShortPassword 数字密码划界；PencilKit=不收编）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（白底 bgCard+hairline+radiusLg 对齐 Input 壳语言、水印 textSecondary 30% sizeMd、disabled 40% 灰、板高 96=2×48 注释锚定、线宽 2=组件级集中常量；无裸色值/尺寸）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A：内容级白底自绘画板、双端自绘离散 stroke 数组、事件 onInkChange+命令式 clear()（无受控表单值=签名流非表单值）、一期 height+placeholder+strokeWidth+strokeColor+disabled+onInkChange+clear() demo 四段；反目标登记=PencilKit 生态/内置图形对象 API/板内清除钮/撤销栈压感/导出上传）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础签名与重签/导出收编缩略展示/参数变体三块对比/禁用锁定与空笔迹提交流）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端 iOS SharedUI/Android sharedui 均无签名类组件=全新立项；iOS 系统 PencilKit/Android 无原生对应=不收编；api.json 无 ui.signature 条目待门禁 B 立项登记；任务清单 #40 ⬜ 双端未实现 → 本次立项 📐）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表（表内放行：UITouch draw 直连 vs pointerInput Canvas、手势层禁用 vs key(disabled)、宿主 UIGraphicsImageRenderer vs view.draw(Bitmap) 导出、clear removeAll vs mutableStateListOf clear、cornerRadius+masksToBounds vs clip+border、SignatureView.swift vs Signature.kt、无障碍语义）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 反目标（内置撤销/重做与压感=编辑器职责二期；水印多行参数=膨胀；PencilKit 生态件与 Android 三方库=不收编样式无法统一；板内清除钮/整壳签名组件/图形对象导出 API=宿主组合与导出边界；签名上传保存失败态=宿主；全部登记不混入）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+
+</body>
+</html>

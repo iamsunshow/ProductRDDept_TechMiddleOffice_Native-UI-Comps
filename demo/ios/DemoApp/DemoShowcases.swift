@@ -61,7 +61,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.picker-view", name: "PickerView 视图", reviewed: false, create: nil),
             DemoComponent(id: "ui.radio", name: "Radio 单选", reviewed: true, create: { RadioShowcase() }),
             DemoComponent(id: "ui.range", name: "Range 区间选择", reviewed: true, create: { RangeShowcase() }),
-            DemoComponent(id: "ui.rate", name: "Rate 评分", reviewed: false, create: nil),
+            DemoComponent(id: "ui.rate", name: "Rate 评分", reviewed: true, create: { RateShowcase() }),
             DemoComponent(id: "ui.search-bar", name: "SearchBar 搜索栏", reviewed: false, create: nil),
             DemoComponent(id: "ui.short-password", name: "ShortPassword 短密码", reviewed: false, create: nil),
             DemoComponent(id: "ui.signature", name: "Signature 签名", reviewed: false, create: nil),
@@ -5851,6 +5851,130 @@ final class RangeShowcase: ShowcaseViewController {
             })
         )
         d4Feedback = addDynamicInfo("半受控：外部 value 赋值仅同步刷新滑块位置与激活段（不触发 onChange）；拖动=组件上报并宿主回写。", color: AppColor.textSecondary)
+    }
+}
+
+// MARK: - Rate Showcase（评分 · ui.rate · #37）
+
+/// 行内五角星整数评分：Demo 1 点选+再点清空；Demo 2 横滑连选松手定值；Demo 3 只读+禁用；
+/// Demo 4 自定义 count+受控外部驱动。与 Android RateDemo 4 段 1:1 同构。
+final class RateShowcase: ShowcaseViewController {
+    private var d1Rate: RateView?
+    private var d2Rate: RateView?
+    private var d3Rate: RateView?
+    private var d4Rate: RateView?
+    private var d1Feedback: UILabel?
+    private var d2Feedback: UILabel?
+    private var d3Feedback: UILabel?
+    private var d4Feedback: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Rate 评分", version: "v1.0", builtAt: "2026-09-06")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    private func emit(_ label: UILabel?, _ text: String, color: UIColor = AppColor.primary) {
+        label?.text = text
+        label?.textColor = color
+    }
+
+    private func attach(_ rate: RateView, into container: UIView) {
+        container.addSubview(rate)
+        rate.snp.makeConstraints { make in
+            make.leading.top.equalToSuperview()
+        }
+        container.snp.makeConstraints { $0.bottom.equalTo(rate.snp.bottom) }
+    }
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 基础评分点选（count 5 · 初始 0 未评）") { container in
+            let rate = RateView(count: 5) { [weak self] v in
+                let text = v == 0 ? "onChange → 0（清空=评价可取消）" : "onChange → \(v)（点选定值）"
+                self?.emit(self?.d1Feedback, text)
+            }
+            d1Rate = rate
+            attach(rate, into: container)
+        }
+        demoButtonRow(
+            ("重置外部 value=0", { [weak self] in
+                guard let self else { return }
+                self.d1Rate?.value = 0
+                self.emit(self.d1Feedback, "外部 value=0 赋值=同步回显（不触发 onChange）", color: AppColor.textSecondary)
+            })
+        )
+        d1Feedback = addDynamicInfo("点击第 k 颗=点亮到该颗并回调 k；再点当前值同一颗=清空归 0（评价可取消）；未评=全灰合法态。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · 滑动连选（count 5 · 随指点亮/收回松手定值）") { container in
+            let rate = RateView(count: 5) { [weak self] v in
+                self?.emit(self?.d2Feedback, "onChange → \(v)（滑定回写）")
+            }
+            d2Rate = rate
+            attach(rate, into: container)
+        }
+        d2Feedback = addDynamicInfo("手指横向滑动=星随位置连续点亮/收回（拖出左缘=熄灭归 0），松手一次性回调定值。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · 只读与禁用（初始 readonly 展示 value=4 彩色不可点）") { container in
+            let rate = RateView(count: 5, value: 4, readonly: true) { [weak self] v in
+                self?.emit(self?.d3Feedback, "onChange → \(v)（只读/禁用无回调）")
+            }
+            d3Rate = rate
+            attach(rate, into: container)
+        }
+        demoButtonRow(
+            ("退出只读", { [weak self] in
+                guard let self, let rate = self.d3Rate else { return }
+                let next = !rate.readonly
+                rate.readonly = next
+                let text = next ? "已切换为只读：primary 彩色仅展示不可交互" : "已退出只读（可点选）"
+                self.emit(self.d3Feedback, text)
+            }),
+            ("禁用", { [weak self] in
+                guard let self, let rate = self.d3Rate else { return }
+                let next = !rate.disabled
+                rate.disabled = next
+                let text = next ? "已禁用：整行 40% 灰星不可交互（与 readonly 并存=disabled 压过灰）" : "已启用（可交互）"
+                self.emit(self.d3Feedback, text)
+            }),
+            ("重置", { [weak self] in
+                guard let self, let rate = self.d3Rate else { return }
+                rate.value = 2
+                rate.readonly = false
+                rate.disabled = false
+                self.emit(self.d3Feedback, "外部 value=2 赋值=同步回显（不触发 onChange），同时恢复可交互", color: AppColor.textSecondary)
+            })
+        )
+        d3Feedback = addDynamicInfo("readonly=primary 彩色仅展示不可点（详情评分场景）；disabled=点亮灰填 40%/未点亮 20% 描边不可点。", color: AppColor.textSecondary)
+    }
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 自定义 count 与受控（count 10 十分制 · 初始 7）") { container in
+            let rate = RateView(count: 10, value: 7) { [weak self] v in
+                self?.emit(self?.d4Feedback, "onChange → \(v)/10（宿主回写）")
+            }
+            d4Rate = rate
+            attach(rate, into: container)
+        }
+        demoButtonRow(
+            ("外部 value=10", { [weak self] in
+                guard let self else { return }
+                self.d4Rate?.value = 10
+                self.emit(self.d4Feedback, "外部 value=10 赋值=仅同步回显（不触发 onChange）", color: AppColor.textSecondary)
+            }),
+            ("重置 0", { [weak self] in
+                guard let self else { return }
+                self.d4Rate?.value = 0
+                self.emit(self.d4Feedback, "外部 value=0 赋值=仅同步回显（不触发 onChange）", color: AppColor.textSecondary)
+            })
+        )
+        d4Feedback = addDynamicInfo("count 可配（十分制等）：星数=count；外部赋值仅回显不触发 onChange；点/滑=组件上报宿主回写。", color: AppColor.textSecondary)
     }
 }
 

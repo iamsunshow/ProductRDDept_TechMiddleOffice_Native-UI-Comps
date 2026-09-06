@@ -44,7 +44,7 @@ table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:
 <tr><th style="width:18%">维度</th><th>说明</th></tr>
 <tr><td>适用场景</td><td>① 排他单选（性别、支付方式、默认账本、配送方式等"几选一"）；② RadioGroup 垂直列表逐项点选切换（表单/设置页主场景）；③ 编辑回显：宿主已持选中 value，RadioGroup 回显圆点并高亮；④ 行尾/单元格内单选标记（Cell 尾槽"本项为默认"圆点，宿主组合多行时用单只 Radio + 外部 value 驱动互斥）</td></tr>
 <tr><td>不适用（N/A）</td><td>① 复选多选（可多选/可取消/需集合结果）→ Checkbox #25（方形勾选）；② 二元即时开关（拨动式开/关、状态持久切换）→ Switch 类独立组件/既有开关；③ 下拉式页面选填（占空间大/选项多需承载层）→ Picker #33 / Menu #31 / 列表宿主；④ 页面主导航/分段高频切换 → Tabbar/Tabs/Segmented #74（页签类语义非表单排他）</td></tr>
-<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 未选=白底圆外圈描边（边框 textTertiary）+label 主文字；<span class="tag tag-ok">选中态 ✅</span> 圆外圈 primary 描边 + 中心实心 primary 圆点，label 保持主文字加粗；<span class="tag tag-ok">禁用态 ✅</span> 整项灰 40%（textTertiary）不可点；选中+禁用=灰外圈灰中心点保留呈现（只读回显）；加载/失败 N/A（宿主自理）</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 未选=白底圆外圈描边（边框 textSecondary 30%，同 Checkbox 惯例）+label 主文字；<span class="tag tag-ok">选中态 ✅</span> 圆外圈 primary 描边 + 中心实心 primary 圆点，label 保持主文字加粗；<span class="tag tag-ok">禁用态 ✅</span> 整项灰 40%（textSecondary 40%）不可点；选中+禁用=灰外圈灰中心点保留呈现（只读回显）；加载/失败 N/A（宿主自理）</td></tr>
 <tr><td>与现有组件关系</td><td>deps=[DesignTokens]；与 FormFieldRow #28 兼容=RadioGroup 作内容槽放入字段行（行高随组件撑开，配合 Form 校验宿主自理）；与 Cell（内容区）兼容=单只 Radio 可置于 Cell 内容/尾槽；与 Checkbox #25 状态惯例同构=半受控 value 外部驱动不触发 onChange；与 Menu #31 半受控惯例、InputNumber #30 外部驱动=同一状态惯例</td></tr>
 </table>
 </div>
@@ -53,10 +53,10 @@ table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:
 <div class="spec-card">
 <table>
 <tr><th>要素</th><th>Token</th><th>说明</th></tr>
-<tr><td>单选点</td><td>20pt/20dp 圆形，未选=白底、外圈描边 1.5pt/1.5dp 边框 textTertiary；选中=外圈描边 primary + 中心实心圆点 8pt/8dp（primary）</td><td>圆形=库内单选视觉（区别于 Checkbox 方形圆角 6 复选）</td></tr>
+<tr><td>单选点</td><td>20pt/20dp 圆形，未选=白底、外圈描边 1.5pt/1.5dp 边框 textSecondary（alpha 0.3，同 Checkbox 未选描边惯例）；选中=外圈描边 primary + 中心实心圆点 8pt/8dp（primary）</td><td>圆形=库内单选视觉（区别于 Checkbox 方形圆角 6 复选）</td></tr>
 <tr><td>label</td><td>后置、与单选点间距 8（spaceSm）、Md16 主文字、单行省略</td><td>无 label=纯单选点（尺寸仍 20）</td></tr>
 <tr><td>组行高/间距</td><td>RadioGroup 垂直列表，行间距 4（spaceXs 组内紧凑）+行上下内 padding 10；整组内容宽=宿主容器宽</td><td>列表项右缘不拉伸（单选点+label 左起、命中区=整行可点）</td></tr>
-<tr><td>禁用态</td><td>disabled=textTertiary 40% 灰（外圈/实心点/label 全灰）；disabled 项不可点无回调；value 指向 disabled 项=灰回显只读</td><td>选中 disabled=灰点灰圈保留语义可读（与 Checkbox 已选禁用同则）</td></tr>
+<tr><td>禁用态</td><td>disabled=textSecondary 40% 灰（外圈/实心点/label 全灰）；disabled 项不可点无回调；value 指向 disabled 项=灰回显只读</td><td>选中 disabled=灰点灰圈保留语义可读（与 Checkbox 已选禁用同则）</td></tr>
 <tr><td>数据驱动</td><td>RadioOption(value, label, disabled) → 选中 value 落库；RadioGroup(options, value?, onChange) 排他单选唯一选中</td><td>与 CheckboxOption/CascaderOption/TabItem 数据驱动惯例同构</td></tr>
 </table>
 </div>
@@ -168,7 +168,7 @@ table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:
 <table>
 <tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
 <tr><td>A1</td><td>用途/边界（01 节：通用排他单选双形态=单只 Radio+RadioGroup 垂直排他列表；与 Checkbox #25 方形复选/Switch 开关/Picker #33·Menu #31 下拉/Segmented #74 页签划界；整项卡片=二期）</td><td>通过</td><td>✅</td></tr>
-<tr><td>A2</td><td>Token 零硬编码（单选点 20 圆/外圈描边 1.5 textTertiary/选中外圈 primary+中心实心点 8/label Md16 间距 8/行距 4+padding 10/禁用 40% 灰）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（单选点 20 圆/外圈描边 1.5 textSecondary 30%/选中外圈 primary+中心实心点 8/label Md16 间距 8/行距 4+padding 10/禁用 40% 灰）</td><td>通过</td><td>✅</td></tr>
 <tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记二期：整项卡片/横向排列/圆点动画；不做：点击已选中 toggle 取消=Checkbox 语义不混入）</td><td>通过</td><td>✅</td></tr>
 <tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（单只/组排他/禁用/受控外部驱动）</td><td>通过</td><td>✅</td></tr>
 <tr><td>A5</td><td>实现现状（双端均无 Radio 近似件=纯从零全新立项：iOS 无系统单选控件需自绘、Android Compose 无库内单选组件（Material3 系统 RadioButton 视觉/主题不符库内设计语言不使用）；api.json 无 ui.radio 条目待立项登记；任务清单 #35 ⬜ 双端未实现 → 本次立项 📐）</td><td>通过</td><td>✅</td></tr>

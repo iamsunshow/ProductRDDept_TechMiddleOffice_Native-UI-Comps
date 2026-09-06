@@ -4136,6 +4136,45 @@
       "note": "数字键盘（数据录入区 #32，全新立项）：内嵌式数字键盘面板=4 行×4 列键格（1~9 + 底行/0/删除 + 右列确认竖条，固定高 208），块状白底网格线风格（无遮罩无浮层收敛）；纯事件回调 onInput/onDelete/onConfirm 键盘零状态、值宿主自理（对齐 Input #29 受控惯例）；disabled/confirmDisabled/showDot/extraKey/confirmText 开关；与业务 AmountKeyboard（记账金额，business.amount-keyboard，金额千分位/小数）划界不混入；anti_goals 二期=遮罩底部弹层+滑入动画（随 Popup #54/Overlay #6 组合）、乱序 randomKey、长按连删、振动。2026-09-06 门禁 A AI 代评通过（规格 design-spec/number-keyboard-design-spec.html + review-number-keyboard-A.md，P1–P4 全 A）+ 同日双端实现入库（NumberKeyboardView.swift=命令式 UIKit frame 布局 / NumberKeyboard.kt=声明式 Compose weight 等分）+ iOS NumberKeyboardShowcase / Android NumberKeyboardDemo 4 段 1:1（D1 金额/D2 验证码/D3 身份证 X/D4 禁用态+外部驱动），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「NumberKeyboard通过，继续下一个组件」；iOS 双根因修复闭环：子仓 db9d2c5=demo 段容器 bottom/height 闭合 208pt 防键盘溢出父 bounds 不可点/文字错位 + 子仓 5d371b9=数字 1~9 键补绑 onInput 事件，模拟器自动触发 sendActions 截图验证 field ¥0→¥1 确认列转 primary）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
+    },
+    {
+      "id": "ui.radio",
+      "name": "单选 Radio",
+      "category": "ui",
+      "summary": "通用排他单选双形态=单只 Radio（独立选中标记，行尾/宿主组合互斥外部驱动用）+ RadioGroup（options 数据驱动垂直排他单选列表一选一）：圆形单选点 20pt/20dp（未选=白底 + textSecondary 30% 1.5 圆描边；选中=外圈 primary 描边 + 中心实心点 8 primary；禁用=灰描边、已选禁用=灰外圈灰点保留），label Md16 后置间距 8、选中行 label 加粗、长文本单行省略，行高 40（纵向 padding 10）、行距 4；半受控 value：nil=内部自持且初始未选=合法未选态（不自动回填首项=不改宿主表单语义）、点未选行=排他切中回调 onChange(value)、点已选中行=幂等忽略（radio 传统语义无 toggle 取消=取消仅外部驱动）、外部赋值=同步回显不触发 onChange；disabled=组级/单只整灰 40%、选项级走 RadioOption.disabled、value 指向禁用项=灰点灰圈只读保留；与 #25 Checkbox 划界=Radio 圆形排他点选即确定 vs Checkbox 方形复选可多选可取消；与 Switch（二元开关）/Picker #33·Menu #31（下拉选填）/Segmented #74（页签高频）/协议行 AgreementCheckRow 划界；anti_goals 二期/不做=整项卡片（icon+标题+副文案）/横向换行排列/圆点动画/toggle 取消",
+      "capabilities": ["单选", "Radio", "RadioGroup", "单选框", "排他选择", "选项列表"],
+      "platforms": {
+        "ios": { "state": "available", "note": "RadioView.swift：RadioView=单只（UIView 子类，RadioGlyphView 自绘圆点+label 40pt 行、整行 UIButton 命中、tap 置 true 幂等）+ RadioGroupView=组（UIStackView 垂直、RadioRowView 整行命中 40、setSelected 刷新圆点/label 加粗/禁用 40% 灰）；checked/value 属性 didSet 半受控外部驱动回显不触发 onChange；intrinsicContentSize 高=count*40+(count-1)*4" },
+        "android": { "state": "available", "note": "Radio.kt：@Composable Radio=单只 / RadioGroup=垂直 Column（Arrangement.spacedBy(xs) 行距 4）；RadioOption{value,label,disabled} 数据驱动；单选点 Box 20dp clip(CircleShape)+border 1.5dp 描边+中心实心点 8dp；checked/value 参数 LaunchedEffect 半受控外部驱动回显不触发 onChange；clickable 幂等忽略已选行；行 padding vertical 10 高 40" },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/RadioView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Radio.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.radio",
+      "industry_names": ["单选", "Radio", "RadioGroup", "单选框"],
+      "props": [
+        ["options", "RadioOption[]", "是", "单选选项：RadioOption{value,label,disabled=false}（仅 RadioGroup 用）"],
+        ["value", "String?", "否", "RadioGroup 半受控：nil=内部自持且初始未选（合法未选态，不自动回填首项）；外部赋值=同步回显不触发 onChange"],
+        ["onChange", "回调", "否", "(value) 点未选行=排他切中回调；点已选中行=幂等忽略；禁用行无回调"],
+        ["label", "String?", "否", "单只 Radio 文本（空/缺省=仅单选点）"],
+        ["checked", "Boolean?", "否", "单只 Radio 半受控：nil=内部自持初始未选、点选置 true；已选中再点=幂等忽略；取消仅外部 checked=false 驱动"],
+        ["disabled", "Boolean", "否", "RadioGroup=整组灰 40% 禁点；Radio=单只禁点；选项级禁用走 RadioOption.disabled（value 指向禁用项=灰点灰圈只读保留）"]
+      ],
+      "events": [],
+      "demos": [
+        ["单只 Radio（设为默认账本）", "点选置 true 回显；「取消选中」=外部 checked=false 驱动回显不触发 onChange（D1）"],
+        ["RadioGroup 排他（男/女）", "内部自持初始未选=合法态；点未选行排他切中 onChange；点已选中行幂等忽略（D2）"],
+        ["RadioGroup 禁用态", "组禁用开关整体 40% 灰；到店自提/预约配送选项级禁用不可点；value 初始指向禁用项=灰点灰圈只读保留（D3）"],
+        ["RadioGroup 受控外部 value", "外部选 English/重置中文=value 赋值同步点亮（不触发 onChange）；点行=组件上报宿主回写（D4）"]
+      ],
+      "note": "单选（数据录入区 #35，全新立项，2026-09-06）：通用排他单选双形态（单只 Radio + RadioGroup 垂直排他单选列表），圆形单选点 20 外圈描边 1.5 未选 textSecondary 30%/选中外圈 primary+中心实心点 8（与 Checkbox 方形复选划界=圆形排他点选即确定无 toggle 取消）；半受控 value 点选即确定/外部回显不触发/已选行幂等；禁用项/组禁/已选禁用灰保留；label 选中加粗。2026-09-06 门禁 A AI 代评通过（规格 design-spec/radio-design-spec.html + review-radio-A.md，P1–P4 全 A，用户「radio吧」选型）+ 同日双端实现入库（RadioView.swift=命令式 UIKit 自绘 RadioGlyphView / Radio.kt=声明式 Compose）+ iOS RadioShowcase / Android RadioDemo 4 段 1:1（D1 单只/D2 组排他/D3 禁用态/D4 受控外部），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0（C1.5 用户双端 Demo 实机验收通过后补记验收记录）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "form",
+      "reviewed": true
     }
   ],
   "businessExtensions": [

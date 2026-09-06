@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Range 区间选择 · 设计规格（数据录入区 #36 · 门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--textTertiary:#9CA3AF;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- Range demo 预览 mock（横向双钮区间滑轨） ---- */
+.rg-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);padding:10px 16px 12px;}
+.rg-head{font-size:13px;color:var(--textPrimary);margin:2px 0 4px;font-weight:600;}
+.rg-sub{font-size:12px;color:var(--textSecondary);margin:0 0 8px;}
+.rg-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--textSecondary);margin-bottom:2px;}
+.rg-track{position:relative;height:40px;display:flex;align-items:center;}
+.rg-line{position:relative;width:100%;height:4px;border-radius:2px;background:rgba(107,114,128,.3);}
+.rg-bar{position:absolute;top:0;bottom:0;background:var(--primary);border-radius:2px;}
+.rg-thumb{position:absolute;top:50%;width:20px;height:20px;margin-top:-10px;margin-left:-10px;border-radius:50%;background:#fff;border:1.5px solid var(--primary);box-sizing:border-box;box-shadow:0 1px 2px rgba(17,24,39,.12);}
+.rg-thumb.dis{border-color:#D1D5DB;background:#F9FAFB;box-shadow:none;}
+.rg-line.dis{background:rgba(156,163,175,.4);}
+.rg-bar.dis{background:#D1D5DB;}
+.rg-value{font-size:12px;color:var(--textPrimary);background:#F3F4F6;border-radius:6px;padding:3px 8px;margin-left:8px;font-weight:600;}
+.rg-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.rg-btn{margin:4px 4px 0 0;padding:6px 14px;font-size:13px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--textPrimary);cursor:pointer;display:inline-block;user-select:none;}
+.rg-btn:active{background:#F3F4F6;}
+.rg-msg{font-size:12px;color:var(--primary);padding:6px 0 0;}
+.rg-msg.mut{color:var(--textSecondary);}
+</style>
+</head>
+<body>
+<h1>Range 区间选择 · 设计规格</h1>
+<p><span class="tag tag-meta">组件 ID：ui.range</span> <span class="tag tag-meta">数据录入区 #36</span> <span class="tag tag-meta">subcategory=form</span> <span class="tag tag-meta">全新立项（双端从零，无近似收编）</span> <span class="tag tag-meta">设计稿 2026-09-06</span> <span class="tag tag-meta">门禁 A</span></p>
+
+<h2>01 · SCQA 组件定位与边界</h2>
+<div class="spec-card">
+<h3>适用场景（S）</h3>
+<p>表单/筛选/图表常需「区间值」录入与过滤：① 数值区间筛选=价格、金额、里程、时长、热量等两端定界（报表金额 0–5000、跑量 5–20km）；② 数值区间录入=身高体重区间、设备尺寸范围等（比双 InputNumber 更直观、拖动手感连续）；③ 图表明细过滤条=两端定界后宿主旁路显示边界值与单位（同 #33 Picker/#25 Checkbox 半受控+宿主自布先例，组件壳不含 label/单位行）。</p>
+<h3>目标与冲突（C）</h3>
+<p>需求=「拖出/拖窄一个区间」的直觉；冲突=双独立 InputNumber 无联动会互越界、不连续、双端各写一套质量漂移；单值 Slider 表达不了区间；系统控件（UISlider/SeekBar）均单钮且视觉脱离库内设计语言。</p>
+<h3>问题（Q）</h3>
+<p>库内是否新增通用「Range 双钮区间滑块」内容组件？</p>
+<h3>答案（A）</h3>
+<p><span class="tag tag-ok">定位</span> 是。新增 <b>ui.range=横向双滑块区间选择内容组件</b>：一条共用轨道+左右两枚滑块（start/end 闭区间，start≤end 恒成立，可相等=零宽单点），拖动任一端连续调整、点轨道空段=最近端吸附跳位；数值 Double 承载、宿主格式化单位展示；半受控 value + min/max/step + disabled；无壳（同 #25/#35 划界=壳/单位/校验归 FormFieldRow #28 或宿主）。</p>
+<h3>五态适配</h3>
+<p><span class="tag tag-ok">默认态 ✅</span> 轨道未激活段=textSecondary 30% 灰、start~end 激活段 primary；两钮=白底圆形 20 + primary 描边 1.5，按钮悬停无态；<span class="tag tag-ok">拖动态 ✅</span> 拖动中钮吸附 step 粒度、激活段随钮实时刷新、值实时回调（钮视觉不变，拖动=命中态无额外描边）；<span class="tag tag-ok">禁用态 ✅</span> disabled=整条 textSecondary 40% 灰、钮不可拖/轨道不可点、无回调；<span class="tag tag-ok">边缘态 ✅</span> start=end=零宽单点（激活段宽度 0）合法；值域外（宿主改 min/max 致越界）=自动 clamp 到边界并回显不触发 onChange；start=min 或 end=max 钮贴边合法；<span class="tag tag-ok">加载/失败 N/A</span>（内容组件无内部状态，宿主自理）。</p>
+<h3>划界与依赖</h3>
+<p>依赖=DesignTokens（AppColor/AppFont/AppSpace）。与同区组件划界：<b>InputNumber #30</b>=步进点按改单值、无区间联动（Range=连续拖动双端区间）；<b>RadioGroup #35 / Menu #31</b>=离散枚举档位少量互斥（Range=连续或大档位数值区间）；<b>Switch #41</b>=二元开关；<b>Rate #37</b>=整数评价 0–5 星点（离散且非区间）；<b>date-range 日历区间</b>=日期非数值不走滑轨；未来 <b>Slider 单钮单值</b>组件若立项与 Range 划界（Range=区间语义专用）。业务方（记账报表金额区间等）复用本组件，宿主自理单位/刻度文案。</p>
+</div>
+
+<h2>02 · 尺寸与 Token 规格（零硬编码锚定）</h2>
+<div class="spec-card">
+<table>
+<tr><th>项</th><th>规格（iOS pt / Android dp 一一对应）</th><th>备注</th></tr>
+<tr><td>组件行高</td><td>40（与 Radio #35/Checkbox #25 行高一致），宽度=宿主填充（横向整条）</td><td>整条为命中区；轨道与钮垂直居中</td></tr>
+<tr><td>轨道</td><td>高 4、圆角 full（=高一半）；未激活段（start 左、end 右两侧）=textSecondary alpha 0.3；激活段（start 中心→end 中心）=primary</td><td>textSecondary 30% 描边/底色=全库统一灰刻度惯例（同 #25/#35）</td></tr>
+<tr><td>滑块钮 thumb</td><td>白底圆形直径 20、描边 primary 1.5、无中心点；钮中心即区间端点值</td><td>20=与单选点/勾选点同视觉基准；禁用钮=textSecondary 40% 灰（bgCard 底）</td></tr>
+<tr><td>数值模型</td><td>Double：min 默认 0、max 默认 100、step 默认 1；value=RangeValue(start,end)</td><td>宿主按需格式化显示（整数值可自转 Int 语义，库内按 Double 运算避免丢精）</td></tr>
+<tr><td>间距</td><td>钮不设额外 padding（40 高内垂直居中含上下空白 10=命中扩展）；端点贴边时钮中心与轨道端点对齐、半钮视觉溢出轨道 8 允许（轨道两端留半钮视觉余量无需宿主 inset，命中区内钳制值域）</td><td>溢出为圆钮在轨道端点处视觉常规</td></tr>
+<tr><td>禁用态</td><td>轨道灰 alpha、激活段、钮全部 textSecondary 40%</td><td>同全库 disabled 灰度</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策（P1–P4 投票表）</h2>
+<div class="spec-card">
+<h3>P1 组件形态（区间 vs 单值 vs 系统控件）</h3>
+<table>
+<tr><th>选项</th><th>方案</th><th>后果</th><th>结论</th></tr>
+<tr><td>A</td><td>双钮区间 Range：单轨道+start/end 两钮、激活段高亮、点轨道吸附最近端（对标 Vant Range/NutUI Range 语义收敛为库内设计语言）</td><td>完整表达区间；实现=钮拖动手势+几何换算，成本可控</td><td><b>A 推荐 ✅</b></td></tr>
+<tr><td>B</td><td>仅单钮 Slider（连续单值）</td><td>无法表达区间两端；单值场景可用但需求缺口仍在</td><td>淘汰（登记 Slider=若未来需要单立项）</td></tr>
+<tr><td>C</td><td>系统控件 UISlider/SeekBar + 双实例伪装</td><td>双实例无联动钳制、视觉脱离库内设计语言、双端体验分裂</td><td>淘汰</td></tr>
+</table>
+<h3>P2 数值模型（数值类型与值域参数）</h3>
+<table>
+<tr><th>选项</th><th>方案</th><th>后果</th><th>结论</th></tr>
+<tr><td>A</td><td>Double 全域：RangeValue(start,end)+min/max/step 均 Double；step&gt;0 且 ≤(max−min)（超界=参数注释断言）</td><td>整数/小数/价格金额通用，宿主展示格式化，无泛型复杂度</td><td><b>A 推荐 ✅</b></td></tr>
+<tr><td>B</td><td>Long/Int 整数专用</td><td>小数区间（如步长 0.5）不可表达=必须另立件</td><td>淘汰</td></tr>
+<tr><td>C</td><td>泛型 &lt;T: Comparable&gt;</td><td>实现与数值换算显著复杂化，收益低</td><td>淘汰</td></tr>
+</table>
+<h3>P3 状态与事件（半受控/回调/禁用/钳制）</h3>
+<table>
+<tr><th>选项</th><th>方案</th><th>后果</th><th>结论</th></tr>
+<tr><td>A</td><td>半受控：value RangeValue? 可选（nil=内部自持且初始区间 [min,max]=「全选=不过滤」语义）；外部赋值（含 clamp 后）仅同步回显不触发 onChange；点/拖=onChange 连续回调（每次 step 对齐后），宿主回写；start≤end 钳制恒成立（不可越过对方=另一钮做硬挡板）、可相等零宽；min/max 动态改→越界端自动 clamp；disabled 组级</td><td>与 #25/#35 半受控惯例一致；表单/筛选双场景通吃</td><td><b>A 推荐 ✅</b></td></tr>
+<tr><td>B</td><td>纯受控必传 value+无内部态</td><td>宿主每次 pointer 事件自管理全部状态=API 繁重</td><td>淘汰</td></tr>
+<tr><td>C</td><td>纯自管理无外部驱动</td><td>无回显能力，宿主无法受控回卷</td><td>淘汰</td></tr>
+</table>
+<h3>P4 一期裁剪与 Demo 四段</h3>
+<table>
+<tr><th>选项</th><th>方案</th><th>后果</th><th>结论</th></tr>
+<tr><td>A</td><td>一期=横向区间双钮+step 吸附+点轨道吸附最近端+disabled+半受控+min/max 动态 clamp+demo 四段：D1 基础区间（min0 max100 step1 [25,75] 拖动实时回显两端值）｜D2 离散步进（step 5）+点轨道跳钮（点空段最近端吸附演示）｜D3 值域与禁用（动态改 min=60 越界自动 clamp+禁用开关+外部重置）｜D4 受控外部 value 驱动（预设外部赋值同步点亮，不触发 onChange）</td><td>主路径+关键边界全覆盖；无刻度无气泡=视觉干净依赖宿主文案</td><td><b>A 推荐 ✅</b></td></tr>
+<tr><td>B</td><td>一期含刻度 mark/数值气泡 tooltip</td><td>离散档位视觉+绘制与命中显著膨胀=一期不必要</td><td>二期候选</td></tr>
+<tr><td>C</td><td>一期加 onDragStart/onDragEnd/节流事件</td><td>宿主可自节流；事件面扩大的收益低于成本</td><td>淘汰（宿主自理）</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（D1–D4 mock，静态示意=真实组件以双端 demo 为准）</h2>
+<div class="spec-card">
+<div class="rg-stage">
+<div class="rg-head">Demo 1 · 基础区间（min0 max100 step1，初始 25–75）</div>
+<div class="rg-sub">拖动任一端实时改变激活段与两端值；「重置」外部驱动回 25–75（不触发 onChange）。</div>
+<div class="rg-labels"><span>0</span><span>100</span></div>
+<div class="rg-track"><div class="rg-line"><div class="rg-bar" style="left:25%;width:50%;"></div><div class="rg-thumb" style="left:25%;"></div><div class="rg-thumb" style="left:75%;"></div></div></div>
+</div>
+<div class="rg-stage">
+<div class="rg-head">Demo 2 · 离散步进 step 5（min0 max100，值 20–60）</div>
+<div class="rg-sub">拖动按 5 吸附；点击轨道空段=最近端跳到点击值。</div>
+<div class="rg-labels"><span>0</span><span>100</span></div>
+<div class="rg-track"><div class="rg-line"><div class="rg-bar" style="left:20%;width:40%;"></div><div class="rg-thumb" style="left:20%;"></div><div class="rg-thumb" style="left:60%;"></div></div></div>
+</div>
+<div class="rg-stage">
+<div class="rg-head">Demo 3 · 值域与禁用（min10 max90 step10，初始 10–40）</div>
+<div class="rg-sub">「改 min=40」越界端自动 clamp 并回显（start 10→40，start=end=单点）；「禁用/启用」整条 40% 灰不可交互。</div>
+<div class="rg-labels"><span>10</span><span>90</span></div>
+<div class="rg-track"><div class="rg-line"><div class="rg-bar" style="left:0%;width:37.5%;"></div><div class="rg-thumb" style="left:0%;"></div><div class="rg-thumb" style="left:37.5%;"></div></div></div>
+</div>
+<div class="rg-stage">
+<div class="rg-head">Demo 4 · 受控外部 value 驱动（min0 max100，当前 40–80）</div>
+<div class="rg-sub">「预设 0–30」「预设 60–100」=外部赋值仅同步回显（不触发 onChange）；拖动=组件上报 onChange 宿主回写。</div>
+<div class="rg-labels"><span>0</span><span>100</span></div>
+<div class="rg-track"><div class="rg-line"><div class="rg-bar" style="left:40%;width:40%;"></div><div class="rg-thumb" style="left:40%;"></div><div class="rg-thumb" style="left:80%;"></div></div></div>
+</div>
+</div>
+
+<h2>05 · 平台差异表（表内放行）</h2>
+<div class="spec-card">
+<table>
+<tr><th>差异</th><th>iOS</th><th>Android</th><th>放行/说明</th></tr>
+<tr><td>手势实现</td><td>UIPanGestureRecognizer（钮拖动）+ UITapGestureRecognizer（轨道点击吸附）+ 几何换算 value(forX)/x(forValue)</td><td>Compose pointerInput：detectDragGestures（钮拖动）+ detectTapGestures（点击吸附），PointerInputScope 内几何换算</td><td>实现机制差异，行为语义以本规格为准 ✅</td></tr>
+<tr><td>状态回写</td><td>命令式：start/end didSet 同步回显 + setNeedsLayout 刷新钮位/激活段</td><td>声明式：value 参数驱动重组</td><td>全库先例（#25/#35 同构）✅</td></tr>
+<tr><td>按压反馈</td><td>无涟漪（命中即拖动）；钮拖动无按压缩放</td><td>拖动/点击命中区无系统涟漪（自绘轨道钮不上系统 clickable ripple）</td><td>保持两端一致=无按压视觉 ✅</td></tr>
+<tr><td>尺寸单位/命名</td><td>pt；RangeValue{start,end}/RangeView/RangeGlyph</td><td>dp；RangeValue(start: Double, end: Double)/Range(value…)</td><td>pt/dp 一一对应（全库先例）✅</td></tr>
+<tr><td>无障碍</td><td>VoiceOver：钮 UIAccessibilityAdjustable 步进语义</td><td>TalkBack：钮 ContentDescription+range 语义</td><td>系统级，行为=步进 step 增减 ✅</td></tr>
+</table>
+</div>
+
+<h2>06 · API 契约（供门禁 B api.json 立项登记）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>字段/参数</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>1</td><td>value</td><td>RangeValue{start:Double, end:Double}?</td><td>否</td><td>半受控：nil=内部自持且初始 [min,max]；外部赋值（含 clamp 后）仅同步回显不触发 onChange</td></tr>
+<tr><td>2</td><td>onChange / onValueChange</td><td>回调</td><td>是</td><td>(RangeValue)：点/拖每次 step 对齐后连续回调；disabled 无回调；宿主回写</td></tr>
+<tr><td>3</td><td>min / max / step</td><td>Double</td><td>否</td><td>min 默认 0、max 默认 100、step 默认 1；step&gt;0 且 ≤(max−min)（注释断言）；值域动态改=越界 clamp 回显</td></tr>
+<tr><td>4</td><td>disabled</td><td>Boolean</td><td>否</td><td>整条 40% 灰、不可拖不可点无回调</td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：横向双钮区间选择内容组件、无壳无刻度无气泡；与 #30 InputNumber/#35 RadioGroup/#41 Switch/#37 Rate/日期区间/未来 Slider 划界；业务报表金额区间=复用宿主旁路）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（轨道高 4 圆角 full/未激活 textSecondary 30%/激活段 primary/钮 20 白底 primary 描边 1.5/行高 40/禁用 40% 灰）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A：双钮区间、Double 数值模型、半受控 value+onChange 连续、一期无刻度/气泡 demo 四段；反目标登记=刻度/数值气泡/垂直/单值 Slider 另行立项）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础区间/step 离散+点轨吸附/值域 clamp+禁用/受控外部驱动）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均无 Range/Slider 近似件=纯从零全新立项：iOS 无系统双钮区间控件需自绘几何换算、Android 库内无（Material3 Slider 单钮/视觉脱离库内设计语言不使用）；api.json 无 ui.range 条目待门禁 B 立项登记；任务清单 #36 ⬜ 双端未实现 → 本次立项 📐）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（手势实现机制、命令式/声明式回写、无涟漪一致、pt/dp、无障碍=系统级）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（刻度 mark/数值气泡 tooltip/垂直方向/翻转=二期或不做；单值 Slider=另行立项不混入；单位/刻度文案/校验=宿主与 Form 职责）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

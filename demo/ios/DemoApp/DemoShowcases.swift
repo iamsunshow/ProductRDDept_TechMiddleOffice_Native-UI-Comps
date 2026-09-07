@@ -7929,7 +7929,7 @@ final class DialogShowcase: ShowcaseViewController {
         super.viewDidLoad()
         title = "Dialog 对话框"
 
-        addVersionBadge(componentName: "Dialog", version: "v1.4.0", builtAt: "2026-09-07")
+        addVersionBadge(componentName: "Dialog", version: "v1.4.1", builtAt: "2026-09-07")
         feedbackLabel = addFeedbackBar()
 
         addInfo("定位：居中弹出的模态对话框（标题+正文+操作按钮）。4 组排查：① Vertical 通栏；② Horizontal 并排；③ 多按钮 Vertical；④ 无标题单按钮。点击下方按钮触发对应 Demo。")

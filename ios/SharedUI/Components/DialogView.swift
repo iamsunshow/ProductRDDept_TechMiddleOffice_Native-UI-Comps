@@ -112,6 +112,15 @@ public final class DialogViewController: UIViewController {
 
     private var isMounted = false        // 是否已挂载到 keyWindow
 
+    /// 自保留引用：show() 期间强引用自身，dismiss 动画完成后置 nil 释放。
+    ///
+    /// 背景：UIKit 的 target-action（UIButton.addTarget / UIGestureRecognizer）对 target
+    /// 持弱引用（assign/weak），调用方通常用局部变量 `let dialog = ...; dialog.show()`
+    /// 构造弹窗，函数返回后局部变量释放 → 无强引用 → DialogViewController 立即被释放
+    /// → 按钮/遮罩手势的 target 变 nil → 点击无响应（view 仍挂载在 keyWindow，视觉可见但事件失联）。
+    /// 用 selfRetainer 在弹窗存活期内强引用自身，dismiss 完成后置 nil 释放，既保证事件可达又避免泄漏。
+    private var selfRetainer: DialogViewController?
+
     // MARK: 设计常量（命名常量，杜绝魔法数字）
 
     private let overlayAlpha: CGFloat = 0.45          // 遮罩透明度（black 45%）
@@ -187,6 +196,8 @@ public final class DialogViewController: UIViewController {
             self.cardView.transform = .identity
         }
         isMounted = true
+        // 弹窗存活期内强引用自身，避免调用方局部变量释放后 target 失效（详见属性注释）
+        selfRetainer = self
     }
 
     /// 以「遮罩淡出 + 卡片缩放淡出」收起并从 keyWindow 移除。
@@ -207,6 +218,8 @@ public final class DialogViewController: UIViewController {
         } completion: { _ in
             self.view.removeFromSuperview()
             self.isMounted = false
+            // 释放自保留引用，触发 DialogViewController 回收（target-action 弱引用将随 deinit 自动清零）
+            self.selfRetainer = nil
             completion?()
         }
     }

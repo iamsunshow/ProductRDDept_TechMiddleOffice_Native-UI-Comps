@@ -14,6 +14,18 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.1] - 2026-09-07
+
+Dialog 对话框 #46 iOS 点击无响应修复（PATCH）。
+
+### Fixed
+
+- **Dialog 对话框 #46 iOS 点击无响应**：根因=DialogViewController.show() 仅把 view 挂载到 keyWindow 根视图，但 DialogViewController 自身无强引用持有者——调用方（Demo showD1-D4）用局部变量 `let dialog = ...; dialog.show()` 构造弹窗，函数返回后局部变量释放，DialogViewController 立即被回收；而 UIButton.addTarget 与 UITapGestureRecognizer 对 target 持弱引用（assign/weak），target 变 nil 后按钮/遮罩点击全部失效（view 仍挂载在 keyWindow 视觉可见但事件失联）。修复=新增 `selfRetainer: DialogViewController?` 自保留引用，show() 末尾置 `selfRetainer = self` 强引用自身，dismiss 动画完成回调内置 `selfRetainer = nil` 释放，既保证弹窗存活期内事件可达又避免泄漏。swiftc -parse 语法通过，需 Xcode 实机复验 D1-D4 点击与遮罩回弹。
+
+### Changed
+
+- 组件库全局版本 1.4.0 → 1.4.1（PATCH，Dialog iOS 点击无响应修复）。
+
 ## \[1.4.0] - 2026-09-04
 
 基础组件 6/6 收官（Overlay 遮罩层 v2.0 iOS 完整修复）；操作反馈区首件 ActionSheet 动作面板 #44 双端实现入库。

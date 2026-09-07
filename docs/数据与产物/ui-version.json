@@ -1,6 +1,6 @@
 {
-  "version": "1.4.0",
-  "versionKey": "v1.4.0",
-  "releaseDate": "2026-09-04",
-  "changelog": "[1.4.0] 2026-09-04 Overlay v2.0 iOS 完整修复 + ActionSheet 动作面板 #44 双端实现入库：Overlay iOS 完整修复（递归测量/防御性重建/init 顺序/CAShapeLayer mask/4 角统一圆角）；ActionSheet 操作反馈区首件（iOS UIKit keyWindow 挂载+UIView.animate 滑入滑出 / Android ModalBottomSheet skipPartiallyExpanded），4 组 Demo 1:1（D1 基础/D2 destructive/D3 disabled/D4 无标题），Android assembleDebug --rerun-tasks BUILD SUCCESSFUL（0 error）+ iOS swiftc -parse 语法通过（SPM 全量 build 受 Agent 沙箱限制=非代码问题=需 Xcode 实机验证）。基础组件 6/6 收官。"
+  "version": "1.4.1",
+  "versionKey": "v1.4.1",
+  "releaseDate": "2026-09-07",
+  "changelog": "[1.4.1] 2026-09-07 Dialog 对话框 #46 iOS 点击无响应修复：DialogViewController.show() 后调用方局部变量释放致自身被回收，UIButton.addTarget/UIGestureRecognizer 对 target 持弱引用，target 变 nil 后按钮与遮罩点击全失效（视觉可见但事件失联）；新增 selfRetainer 自保留机制，show() 期间强引用自身，dismiss 动画完成回调内置 nil 释放，根治点击无响应且无泄漏。swiftc -parse 语法通过，需 Xcode 实机复验点击回弹。"
 }

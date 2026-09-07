@@ -30,24 +30,39 @@ import com.zhiqihuayun.foundation.design.AppSpace
 import java.util.Calendar
 
 /**
- * 日期滚轮选择器（年/月/日三列），对齐 iOS DatePickerSheetViewController。
+ * 日期选择模式，对齐 iOS DatePickerMode。
+ */
+enum class DatePickerMode {
+    DATE,   // 年/月/日
+    MONTH,  // 年/月
+    YEAR    // 年
+}
+
+/**
+ * 统一日期滚轮选择器，支持 DATE / MONTH / YEAR 三种模式，对齐 iOS DatePickerSheetViewController。
  *
- * @param dateMillis 初始选中日期毫秒
- * @param maximumDateMillis 最大可选日期，默认今天
+ * 确认后通过 [onConfirm] 回传毫秒时间戳：
+ * - DATE：选中日期 0 点
+ * - MONTH：该月 1 号 0 点
+ * - YEAR：该年 1 月 1 号 0 点
+ *
+ * @param mode 选择模式
+ * @param initialDateMillis 初始日期毫秒
+ * @param maximumDateMillis 最大可选日期，默认今天（仅 DATE 模式生效）
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerSheet(
-    dateMillis: Long,
+    mode: DatePickerMode = DatePickerMode.DATE,
+    initialDateMillis: Long,
     maximumDateMillis: Long? = System.currentTimeMillis(),
     onDismiss: () -> Unit,
     onConfirm: (dateMillis: Long) -> Unit
 ) {
-    val cal = Calendar.getInstance()
-    cal.timeInMillis = dateMillis
-    var selectedYear by remember(dateMillis) { mutableIntStateOf(cal.get(Calendar.YEAR)) }
-    var selectedMonth by remember(dateMillis) { mutableIntStateOf(cal.get(Calendar.MONTH) + 1) }
-    var selectedDay by remember(dateMillis) { mutableIntStateOf(cal.get(Calendar.DAY_OF_MONTH)) }
+    val cal = Calendar.getInstance().apply { timeInMillis = initialDateMillis }
+    var selectedYear by remember(initialDateMillis) { mutableIntStateOf(cal.get(Calendar.YEAR)) }
+    var selectedMonth by remember(initialDateMillis) { mutableIntStateOf(cal.get(Calendar.MONTH) + 1) }
+    var selectedDay by remember(initialDateMillis) { mutableIntStateOf(cal.get(Calendar.DAY_OF_MONTH)) }
 
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
     val years = remember { ((currentYear - 10)..(currentYear + 1)).toList() }
@@ -57,23 +72,17 @@ fun DatePickerSheet(
     }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
+    val title = when (mode) {
+        DatePickerMode.DATE -> "选择日期"
+        DatePickerMode.MONTH -> "选择月份"
+        DatePickerMode.YEAR -> "选择年份"
+    }
+
     fun daysInMonth(year: Int, month: Int): Int {
         val c = Calendar.getInstance()
         c.set(Calendar.YEAR, year)
         c.set(Calendar.MONTH, month - 1)
         return c.getActualMaximum(Calendar.DAY_OF_MONTH)
-    }
-
-    fun isOverMax(year: Int, month: Int, day: Int): Boolean {
-        maxCal ?: return false
-        val c = Calendar.getInstance()
-        c.set(Calendar.YEAR, year)
-        c.set(Calendar.MONTH, month - 1)
-        c.set(Calendar.DAY_OF_MONTH, day)
-        c.set(Calendar.HOUR_OF_DAY, 23)
-        c.set(Calendar.MINUTE, 59)
-        c.set(Calendar.SECOND, 59)
-        return c.after(maxCal)
     }
 
     ModalBottomSheet(
@@ -94,7 +103,7 @@ fun DatePickerSheet(
                     Text("取消", color = AppColor.textSecondary, fontSize = AppFont.sizeMd)
                 }
                 Text(
-                    "选择日期",
+                    title,
                     color = AppColor.textPrimary,
                     fontSize = AppFont.sizeLg,
                     fontWeight = FontWeight.SemiBold
@@ -102,14 +111,21 @@ fun DatePickerSheet(
                 TextButton(onClick = {
                     val y = selectedYear
                     val m = selectedMonth
-                    var d = selectedDay
-                    val maxD = daysInMonth(y, m)
-                    if (d > maxD) d = maxD
-                    if (isOverMax(y, m, d)) {
-                        d = maxCal!!.get(Calendar.DAY_OF_MONTH)
-                    }
                     val c = Calendar.getInstance()
-                    c.set(y, m - 1, d, 0, 0, 0)
+                    when (mode) {
+                        DatePickerMode.DATE -> {
+                            var d = selectedDay
+                            val maxD = daysInMonth(y, m)
+                            if (d > maxD) d = maxD
+                            c.set(y, m - 1, d, 0, 0, 0)
+                        }
+                        DatePickerMode.MONTH -> {
+                            c.set(y, m - 1, 1, 0, 0, 0)
+                        }
+                        DatePickerMode.YEAR -> {
+                            c.set(y, Calendar.JANUARY, 1, 0, 0, 0)
+                        }
+                    }
                     c.set(Calendar.MILLISECOND, 0)
                     onConfirm(c.timeInMillis)
                 }) {
@@ -123,7 +139,7 @@ fun DatePickerSheet(
                     .padding(horizontal = AppSpace.lg),
                 horizontalArrangement = Arrangement.spacedBy(AppSpace.md)
             ) {
-                // 年
+                // 年列（所有模式都有）
                 AndroidView(
                     factory = { context ->
                         NumberPicker(context).apply {
@@ -141,49 +157,53 @@ fun DatePickerSheet(
                     },
                     modifier = Modifier.weight(1f).fillMaxWidth()
                 )
-                // 月
-                AndroidView(
-                    factory = { context ->
-                        NumberPicker(context).apply {
-                            minValue = 1
-                            maxValue = 12
-                            displayedValues = (1..12).map { "${it}月" }.toTypedArray()
-                            value = selectedMonth
-                            wrapSelectorWheel = false
-                            setOnValueChangedListener { _, _, newVal ->
-                                selectedMonth = newVal
+                // 月列（DATE / MONTH 模式）
+                if (mode != DatePickerMode.YEAR) {
+                    AndroidView(
+                        factory = { context ->
+                            NumberPicker(context).apply {
+                                minValue = 1
+                                maxValue = 12
+                                displayedValues = (1..12).map { "${it}月" }.toTypedArray()
+                                value = selectedMonth
+                                wrapSelectorWheel = false
+                                setOnValueChangedListener { _, _, newVal ->
+                                    selectedMonth = newVal
+                                    val maxD = daysInMonth(selectedYear, selectedMonth)
+                                    if (selectedDay > maxD) selectedDay = maxD
+                                }
+                            }
+                        },
+                        modifier = Modifier.weight(1f).fillMaxWidth()
+                    )
+                }
+                // 日列（仅 DATE 模式）
+                if (mode == DatePickerMode.DATE) {
+                    AndroidView(
+                        factory = { context ->
+                            NumberPicker(context).apply {
                                 val maxD = daysInMonth(selectedYear, selectedMonth)
-                                if (selectedDay > maxD) selectedDay = maxD
+                                minValue = 1
+                                maxValue = maxD
+                                displayedValues = (1..maxD).map { "${it}日" }.toTypedArray()
+                                value = selectedDay.coerceIn(1, maxD)
+                                wrapSelectorWheel = false
+                                setOnValueChangedListener { _, _, newVal ->
+                                    selectedDay = newVal
+                                }
                             }
-                        }
-                    },
-                    modifier = Modifier.weight(1f).fillMaxWidth()
-                )
-                // 日
-                AndroidView(
-                    factory = { context ->
-                        NumberPicker(context).apply {
+                        },
+                        update = { picker ->
                             val maxD = daysInMonth(selectedYear, selectedMonth)
-                            minValue = 1
-                            maxValue = maxD
-                            displayedValues = (1..maxD).map { "${it}日" }.toTypedArray()
-                            value = selectedDay.coerceIn(1, maxD)
-                            wrapSelectorWheel = false
-                            setOnValueChangedListener { _, _, newVal ->
-                                selectedDay = newVal
+                            if (picker.maxValue != maxD) {
+                                picker.maxValue = maxD
+                                picker.displayedValues = (1..maxD).map { "${it}日" }.toTypedArray()
+                                if (picker.value > maxD) picker.value = maxD
                             }
-                        }
-                    },
-                    update = { picker ->
-                        val maxD = daysInMonth(selectedYear, selectedMonth)
-                        if (picker.maxValue != maxD) {
-                            picker.maxValue = maxD
-                            picker.displayedValues = (1..maxD).map { "${it}日" }.toTypedArray()
-                            if (picker.value > maxD) picker.value = maxD
-                        }
-                    },
-                    modifier = Modifier.weight(1f).fillMaxWidth()
-                )
+                        },
+                        modifier = Modifier.weight(1f).fillMaxWidth()
+                    )
+                }
             }
         }
     }

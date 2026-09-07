@@ -47,9 +47,7 @@
 		1F0CE2342A174F4717DC0FA2 /* DemoMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25465F7307A8D784A68E80C1 /* DemoMocks.swift */; };
 		22FF1D0AF3CDF525669996F2 /* Charts in Frameworks */ = {isa = PBXBuildFile; productRef = A1BB258859A836B00224FD3E /* Charts */; };
 		286F72795C5D0F38B4ADEDCD /* MockAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F34F3AD98F674E7DA1E575E8 /* MockAPIClient.swift */; };
-		2A1364D6FBFF0848333BF8DF /* MonthPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA75DA8F7E29DEEA4C578E2 /* MonthPickerViewController.swift */; };
 		2B5949F9894171578AEE0C72 /* PullRefreshTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 978BB17F3FAD3ECDAB39B58A /* PullRefreshTableView.swift */; };
-		534DE8034CA5FF43D0B790DE /* YearPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824D1DE307EF436C8BC83B8D /* YearPickerViewController.swift */; };
 		5777E2BB1E9B4D66D6BD7D1C /* AppTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB12EE14F6BAC9025495CA13 /* AppTokens.swift */; };
 		5A56CCEB59E3697DAE2F2DC0 /* ZodiacAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C72A9BFFF678CD83092A62D /* ZodiacAvatarView.swift */; };
 		5C6F236DD1355D59DB9EBF78 /* WebContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EDD760398DE0D5C4A9C5997 /* WebContentViewController.swift */; };
@@ -88,7 +86,6 @@
 		264FB34C55EAF5D933C02801 /* AppDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDatabase.swift; sourceTree = "<group>"; };
 		45B2561A62A1FAF93C38C686 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
 		5C72A9BFFF678CD83092A62D /* ZodiacAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZodiacAvatarView.swift; sourceTree = "<group>"; };
-		5DA75DA8F7E29DEEA4C578E2 /* MonthPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthPickerViewController.swift; sourceTree = "<group>"; };
 		5F21711C828F70FB0BD77548 /* DatePickerSheetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerSheetViewController.swift; sourceTree = "<group>"; };
 		6A589C278E94F50DFA31A44F /* Charts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Charts; path = ../../ios/Vendor/Charts; sourceTree = SOURCE_ROOT; };
 		6D173EBBE290117990FB6D2B /* AppIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIcon.swift; sourceTree = "<group>"; };
@@ -96,7 +93,6 @@
 		7605737DB364BA1F0C189E22 /* GRDB.swift */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GRDB.swift; path = ../../ios/Vendor/GRDB.swift; sourceTree = SOURCE_ROOT; };
 		7EDD760398DE0D5C4A9C5997 /* WebContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebContentViewController.swift; sourceTree = "<group>"; };
 		81B80152CEECE8827364A421 /* TrendChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendChartView.swift; sourceTree = "<group>"; };
-		824D1DE307EF436C8BC83B8D /* YearPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YearPickerViewController.swift; sourceTree = "<group>"; };
 		8855A96D9FA0EAD788439CA1 /* ConfigProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigProvider.swift; sourceTree = "<group>"; };
 		8C54D7F8239BF55B2F043010 /* SnapKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SnapKit; path = ../../ios/Vendor/SnapKit; sourceTree = SOURCE_ROOT; };
 		8F17F2603BDDFC72B15C7406 /* TabsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabsView.swift; sourceTree = "<group>"; };
@@ -191,7 +187,6 @@
 				1384B27B30CF0FE17962B66F /* GroupListItem.swift */,
 				F8415379828FC7A89E3EDED4 /* Image.swift */,
 				B9AB119D396F37F5DA978A57 /* ListCell.swift */,
-				5DA75DA8F7E29DEEA4C578E2 /* MonthPickerViewController.swift */,
 				8F3D282267864AB86708A7FC /* Grid.swift */,
 				DV1D3R000001000AABB0001 /* Divider.swift */,
 				5A6B7C8D9E0F1A2B3C4D5E01 /* Layout.swift */,
@@ -231,7 +226,6 @@
 				8F17F2603BDDFC72B15C7406 /* TabsView.swift */,
 				81B80152CEECE8827364A421 /* TrendChartView.swift */,
 				7EDD760398DE0D5C4A9C5997 /* WebContentViewController.swift */,
-				824D1DE307EF436C8BC83B8D /* YearPickerViewController.swift */,
 				5C72A9BFFF678CD83092A62D /* ZodiacAvatarView.swift */,
 			);
 			path = Components;
@@ -476,7 +470,6 @@
 				E81AD0C3CFBD04C7415B66D4 /* Image.swift in Sources */,
 				C6CE776F97807430B1AD6E3C /* ListCell.swift in Sources */,
 				286F72795C5D0F38B4ADEDCD /* MockAPIClient.swift in Sources */,
-				2A1364D6FBFF0848333BF8DF /* MonthPickerViewController.swift in Sources */,
 				1DF63FB00D4953BB012F270D /* Grid.swift in Sources */,
 				DV1D3R000001000AABB0002 /* Divider.swift in Sources */,
 				5A6B7C8D9E0F1A2B3C4D5E02 /* Layout.swift in Sources */,
@@ -517,7 +510,6 @@
 				1EB05D2B72FE2F73026A8AB6 /* TabsView.swift in Sources */,
 				999A4F9080E1EC566009EA15 /* TrendChartView.swift in Sources */,
 				5C6F236DD1355D59DB9EBF78 /* WebContentViewController.swift in Sources */,
-				534DE8034CA5FF43D0B790DE /* YearPickerViewController.swift in Sources */,
 				5A56CCEB59E3697DAE2F2DC0 /* ZodiacAvatarView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

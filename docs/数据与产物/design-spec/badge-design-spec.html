@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Badge 徽标 · 设计规格 · TMO 组件库 v1.4.0</title>
+<style>
+:root {
+  --bg: #fff; --bg-page: #f5f5f5; --text: #1a1a1a; --text-2: #888; --border: #e8e8e8;
+  --primary: #3478f6; --danger: #ff4d4f; --warn: #fa8c16; --success: #52c41a;
+  --radius-lg: 14px; --radius-full: 999px;
+  --font-sm: 12px; --font-md: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif; background: var(--bg-page); color: var(--text); line-height: 1.6; }
+.container { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+h2 { font-size: 20px; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 16px; margin: 20px 0 8px; }
+p { font-size: 14px; margin-bottom: 8px; }
+code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+.mock { display: flex; gap: 24px; flex-wrap: wrap; margin: 16px 0; align-items: center; }
+.mock-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.badge-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
+.badge-num { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 6px; border-radius: 9px; background: var(--danger); color: #fff; font-size: 11px; font-weight: 600; }
+.badge-text { display: inline-flex; align-items: center; justify-content: center; height: 18px; padding: 0 8px; border-radius: 9px; background: var(--danger); color: #fff; font-size: 11px; font-weight: 600; }
+.badge-num.warn { background: var(--warn); }
+.badge-num.success { background: var(--success); }
+.badge-num.primary { background: var(--primary); }
+.badge-host { position: relative; width: 48px; height: 48px; border-radius: 12px; background: #e8e8e8; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.badge-anchor { position: absolute; top: -4px; right: -4px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+th { background: #fafafa; font-weight: 600; }
+.section { background: var(--bg); border-radius: 12px; padding: 20px; margin: 16px 0; border: 1px solid var(--border); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.badge-a { background: #e6f7e6; color: #52c41a; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Badge 徽标</h1>
+<p>组件 ID：<code>ui.badge</code> ｜ 任务清单 #45 ｜ 操作反馈区第二件 ｜ TMO 组件库 v1.4.0</p>
+<p>定位：展示在图标/头像/容器右上角的数字或圆点提醒——用于未读数、新消息、状态标识。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation 情景</h3>
+<p>App 中大量场景需要提示用户有新内容：消息未读数、待办数量、新功能入口、状态标签。</p>
+<h3>Complication 冲突</h3>
+<p>没有统一组件时=各业务页自绘红色圆点+绝对定位，位置偏移、大小不一、无数字截断逻辑。</p>
+<h3>Question 问题</h3>
+<p>需要一个徽标组件，支持三种形态：圆点 / 数字 / 自定义文本，支持绝对定位锚点到宿主右上角。</p>
+<h3>Answer 方案</h3>
+<p>Badge——纯展示型内容组件，根据 content 自动选形态（null=圆点 / 数字=数字徽标 / 文本=文本徽标），支持 color 主题色、count 上限 99+、offset 定位偏移。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 Badge 划界</th></tr>
+<tr><td>Tag #15</td><td>行内标签（分类标识）</td><td>Tag=行内文本标签嵌入流式布局，Badge=锚点到宿主右上角的浮层徽标</td></tr>
+<tr><td>NoticeBar #51</td><td>公告栏滚动提示</td><td>NoticeBar=横向滚动公告条，Badge=角标数字/圆点</td></tr>
+<tr><td>Toast #59</td><td>轻提示浮层</td><td>Toast=居中短暂浮层提示，Badge=持久角标展示</td></tr>
+<tr><td>Avatar #63</td><td>头像展示</td><td>Avatar=圆形头像，Badge 可锚点到 Avatar 右上角做未读提醒</td></tr>
+</table>
+
+<h2>3. API 契约</h2>
+<div class="section">
+<h3>Props</h3>
+<table>
+<tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>count</code></td><td>Int?</td><td>null</td><td>数字徽标：null=圆点形态；0=不显示；≥1=数字；≥maxCount=显示 maxCount+</td></tr>
+<tr><td><code>text</code></td><td>String?</td><td>null</td><td>自定义文本徽标（与 count 二选一，text 优先）</td></tr>
+<tr><td><code>maxCount</code></td><td>Int</td><td>99</td><td>数字上限，超过显示「99+」</td></tr>
+<tr><td><code>color</code></td><td>Color</td><td>danger (红)</td><td>徽标背景色（danger/warn/success/primary 等）</td></tr>
+<tr><td><code>dot</code></td><td>Boolean</td><td>false</td><td>强制圆点形态（忽略 count/text）</td></tr>
+<tr><td><code>offset</code></td><td>Offset?</td><td>null</td><td>锚点偏移（默认 top-4/right-4 即右上角外凸 4）</td></tr>
+</table>
+
+<h3>形态自动选择</h3>
+<table>
+<tr><th>条件</th><th>形态</th><th>示例</th></tr>
+<tr><td>dot=true 或 count=null 且 text=null</td><td>圆点 8×8</td><td>🔴</td></tr>
+<tr><td>count≥1 且 ≤maxCount</td><td>数字圆角胶囊</td><td>3 / 99</td></tr>
+<tr><td>count>maxCount</td><td>数字+号</td><td>99+</td></tr>
+<tr><td>text 非空</td><td>文本胶囊</td><td>新 / HOT</td></tr>
+<tr><td>count=0 或 count=null 且 text=null 且 dot=false</td><td>不渲染</td><td>（空）</td></tr>
+</table>
+</div>
+
+<h2>4. 设计规格</h2>
+<div class="section">
+<table>
+<tr><th>区域</th><th>规格</th><th>Token</th></tr>
+<tr><td>圆点</td><td>8×8，radiusFull，danger 红</td><td>8dp / radiusFull / danger</td></tr>
+<tr><td>数字徽标</td><td>minWidth 18，height 18，paddingH 6，radiusFull，danger 底白字 11 Semibold</td><td>18dp / 11sp / Semibold / danger</td></tr>
+<tr><td>文本徽标</td><td>height 18，paddingH 8，radiusFull，danger 底白字 11 Semibold</td><td>18dp / 11sp / Semibold</td></tr>
+<tr><td>锚点</td><td>默认 top -4 / right -4（外凸宿主右上角）</td><td>offset</td></tr>
+<tr><td>文字颜色</td><td>白色</td><td>white</td></tr>
+</table>
+</div>
+
+<h2>5. Demo 排查 4 组</h2>
+<div class="mock">
+<div class="mock-item">
+<div class="badge-host">📧<div class="badge-anchor"><span class="badge-num">3</span></div></div>
+<p style="font-size:13px;color:#888">D1 数字徽标锚点</p>
+</div>
+<div class="mock-item">
+<div class="badge-host">🔔<div class="badge-anchor"><span class="badge-num">99+</span></div></div>
+<p style="font-size:13px;color:#888">D2 超上限 99+</p>
+</div>
+<div class="mock-item">
+<div class="badge-host">💬<div class="badge-anchor"><span class="badge-dot"></span></div></div>
+<p style="font-size:13px;color:#888">D3 圆点形态</p>
+</div>
+<div class="mock-item">
+<div class="badge-host">⭐<div class="badge-anchor"><span class="badge-text">新</span></div></div>
+<p style="font-size:13px;color:#888">D4 文本徽标+色变</p>
+</div>
+</div>
+
+<h2>6. 决策投票表</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项</th><th>选定</th><th>理由</th></tr>
+<tr>
+<td>P1</td><td>形态驱动</td>
+<td>A. 单一 content 参数自动推断形态<br>B. 显式 type 枚举 + 各自参数<br>C. 三个独立组件 DotBadge/CountBadge/TextBadge</td>
+<td><span class="badge badge-a">A</span></td>
+<td>单一入口最简洁；count/text/dot 三参数覆盖所有形态；与 AppIcon 角标逻辑一致</td>
+</tr>
+<tr>
+<td>P2</td><td>锚点方式</td>
+<td>A. 独立 Badge 组件+宿主自行绝对定位<br>B. Badge 作为宿主 wrapper（Box 包裹 content+badge）<br>C. Modifier/扩展点锚点</td>
+<td><span class="badge badge-a">B</span></td>
+<td>wrapper 模式=宿主直接嵌套 Badge{ 宿主内容 }，定位由组件内部控制，零使用方布局代码</td>
+</tr>
+<tr>
+<td>P3</td><td>count=0 行为</td>
+<td>A. 不渲染（推荐）<br>B. 渲染灰色「0」<br>C. 渲染圆点</td>
+<td><span class="badge badge-a">A</span></td>
+<td>0=无新内容=不应有徽标干扰；减少视觉噪音</td>
+</tr>
+<tr>
+<td>P4</td><td>一期范围</td>
+<td>A. 一期=圆点/数字/文本三形态+maxCount+color+offset+wrapper锚点+demo四段<br>B. 二期=动画弹出/数字滚动/自定义形状</td>
+<td><span class="badge badge-a">A</span></td>
+<td>一期覆盖 95% 场景；动画/滚动=二期增量</td>
+</tr>
+</table>
+</div>
+
+<h2>7. 平台差异表</h2>
+<table>
+<tr><th>差异点</th><th>iOS（UIKit）</th><th>Android（Compose）</th><th>判据</th></tr>
+<tr><td>锚点布局</td><td>UIStackView/绝对布局 subview</td><td>Box+offset</td><td>表内放行（布局系统差异，视觉一致）</td></tr>
+<tr><td>圆角</td><td>layer.cornerRadius=height/2</td><td>RoundedCornerShape(50)</td><td>表内放行（同全库先例）</td></tr>
+<tr><td>数字截断</td><td>count>maxCount 拼接 "+"</td><td>同左</td><td>无差异</td></tr>
+</table>
+
+<h2>8. 反目标</h2>
+<table>
+<tr><th>不做</th><th>原因</th></tr>
+<tr><td>动画弹出/数字滚动</td><td>二期增量，一期静态展示已够用</td></tr>
+<tr><td>点击交互</td><td>Badge 纯展示，点击由宿主承载</td></tr>
+<tr><td>自定义形状（方形/三角）</td><td>一期只做圆形胶囊，异形=二期</td></tr>
+<tr><td>内置宿主图标</td><td>Badge 只负责徽标本体，宿主内容由调用方提供</td></tr>
+</table>
+
+</div>
+</body>
+</html>

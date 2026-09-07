@@ -69,7 +69,7 @@ final class DemoListViewController: UITableViewController {
         ("操作反馈", [
             DemoComponent(id: "ui.action-sheet", name: "ActionSheet 动作面板", reviewed: true, create: { ActionSheetShowcase() }),
             DemoComponent(id: "ui.badge", name: "Badge 徽标", reviewed: true, create: { BadgeShowcase() }),
-            DemoComponent(id: "ui.dialog", name: "Dialog 对话框", reviewed: false, create: nil),
+            DemoComponent(id: "ui.dialog", name: "Dialog 对话框", reviewed: true, create: { DialogShowcase() }),
             DemoComponent(id: "ui.drag", name: "Drag 拖拽", reviewed: false, create: nil),
             DemoComponent(id: "ui.empty", name: "Empty 空状态", reviewed: true, create: { EmptyShowcase() }),
             DemoComponent(id: "ui.infinite-loading", name: "InfiniteLoading 滚动加载", reviewed: false, create: nil),
@@ -7913,6 +7913,172 @@ final class ActionSheetShowcase: ShowcaseViewController {
         }
         sheet.visible = true
         feedbackLabel.text = "[D4] 面板已展开（无标题行），外部 visible=true 驱动"
+    }
+}
+
+// MARK: - Dialog Showcase（对话框 · 操作反馈区第三件 #46）
+
+/// Dialog 对话框 Demo：4 组排查，与设计规格 dialog-design-spec.html 一一对应。
+/// D1 Vertical 通栏（取消+删除 destructive）/ D2 Horizontal 并排（取消+确定 primary）
+/// D3 多按钮 Vertical（不同意+同意并继续 primary）/ D4 无标题单按钮（网络失败+知道了 primary）
+final class DialogShowcase: ShowcaseViewController {
+
+    private var feedbackLabel: UILabel!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Dialog 对话框"
+
+        addVersionBadge(componentName: "Dialog", version: "v1.4.0", builtAt: "2026-09-07")
+        feedbackLabel = addFeedbackBar()
+
+        addInfo("定位：居中弹出的模态对话框（标题+正文+操作按钮）。4 组排查：① Vertical 通栏；② Horizontal 并排；③ 多按钮 Vertical；④ 无标题单按钮。点击下方按钮触发对应 Demo。")
+
+        // ── D1 Vertical 通栏（取消+删除 destructive）──
+        addSection(title: "Demo 1 · Vertical 通栏（确认删除）") { container in
+            let btn = self.buildDemoButton(title: "打开确认删除对话框") { [weak self] in
+                self?.showD1()
+            }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(56)
+            }
+        }
+        addInfo("title=\"确认删除\" + content + 取消(default)/删除(destructive) 通栏排列；点按钮 → 收起 → onClick 回调；点遮罩 → onDismiss。")
+
+        // ── D2 Horizontal 并排（取消+确定 primary）──
+        addSection(title: "Demo 2 · Horizontal 并排（提示）") { container in
+            let btn = self.buildDemoButton(title: "打开提示对话框") { [weak self] in
+                self?.showD2()
+            }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(56)
+            }
+        }
+        addInfo("title=\"提示\" + content + 取消(default)/确定(primary) 左右并排各占一半；验证 Horizontal 布局与 Primary 主色按钮。")
+
+        // ── D3 多按钮 Vertical（用户协议）──
+        addSection(title: "Demo 3 · 多按钮 Vertical（用户协议）") { container in
+            let btn = self.buildDemoButton(title: "打开用户协议对话框") { [weak self] in
+                self?.showD3()
+            }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(56)
+            }
+        }
+        addInfo("title=\"用户协议\" + content + 不同意(default)/同意并继续(primary) 通栏排列；验证多按钮 Vertical 间距 md。")
+
+        // ── D4 无标题单按钮（网络连接失败）──
+        addSection(title: "Demo 4 · 无标题 + 单按钮（网络连接失败）") { container in
+            let btn = self.buildDemoButton(title: "打开网络提示对话框") { [weak self] in
+                self?.showD4()
+            }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(56)
+            }
+        }
+        addInfo("无 title，仅 content + 知道了(primary) 单按钮；验证无标题时内容垂直居中、单按钮通栏。")
+    }
+
+    // ============== Demo 内容工厂 ==============
+
+    private func buildDemoButton(title: String, onTap: @escaping () -> Void) -> UIButton {
+        let b = UIButton(type: .system)
+        b.setTitle(title, for: .normal)
+        b.setTitleColor(.white, for: .normal)
+        b.backgroundColor = UIColor(hex: 0x16A34A)
+        b.layer.cornerRadius = 10
+        b.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+        b.addAction(UIAction { _ in onTap() }, for: .touchUpInside)
+        return b
+    }
+
+    // D1 Vertical 通栏（确认删除 + 取消/删除 destructive）
+    private func showD1() {
+        let dialog = DialogViewController(
+            title: "确认删除",
+            content: "删除后不可恢复，确定删除？",
+            actions: [
+                DialogAction(text: "取消", onClick: { [weak self] in
+                    self?.feedbackLabel.text = "[D1] 点击「取消」"
+                }),
+                DialogAction(text: "删除", onClick: { [weak self] in
+                    self?.feedbackLabel.text = "[D1] 点击「删除」（destructive）"
+                }, style: .destructive)
+            ],
+            onDismiss: { [weak self] in
+                self?.feedbackLabel.text = "[D1] 点击遮罩 → onDismiss"
+            }
+        )
+        dialog.show()
+        feedbackLabel.text = "[D1] 对话框已弹出（Vertical 通栏：取消 default + 删除 destructive）"
+    }
+
+    // D2 Horizontal 并排（提示 + 取消/确定 primary）
+    private func showD2() {
+        let dialog = DialogViewController(
+            title: "提示",
+            content: "操作成功",
+            actions: [
+                DialogAction(text: "取消", onClick: { [weak self] in
+                    self?.feedbackLabel.text = "[D2] 点击「取消」"
+                }),
+                DialogAction(text: "确定", onClick: { [weak self] in
+                    self?.feedbackLabel.text = "[D2] 点击「确定」（primary）"
+                }, style: .primary)
+            ],
+            buttonLayout: .horizontal,
+            onDismiss: { [weak self] in
+                self?.feedbackLabel.text = "[D2] 点击遮罩 → onDismiss"
+            }
+        )
+        dialog.show()
+        feedbackLabel.text = "[D2] 对话框已弹出（Horizontal 并排：取消 default + 确定 primary）"
+    }
+
+    // D3 多按钮 Vertical（用户协议 + 不同意/同意并继续 primary）
+    private func showD3() {
+        let dialog = DialogViewController(
+            title: "用户协议",
+            content: "请阅读并同意《用户协议》和《隐私政策》",
+            actions: [
+                DialogAction(text: "不同意", onClick: { [weak self] in
+                    self?.feedbackLabel.text = "[D3] 点击「不同意」"
+                }),
+                DialogAction(text: "同意并继续", onClick: { [weak self] in
+                    self?.feedbackLabel.text = "[D3] 点击「同意并继续」（primary）"
+                }, style: .primary)
+            ],
+            onDismiss: { [weak self] in
+                self?.feedbackLabel.text = "[D3] 点击遮罩 → onDismiss"
+            }
+        )
+        dialog.show()
+        feedbackLabel.text = "[D3] 对话框已弹出（Vertical：不同意 default + 同意并继续 primary）"
+    }
+
+    // D4 无标题单按钮（网络连接失败 + 知道了 primary）
+    private func showD4() {
+        let dialog = DialogViewController(
+            content: "网络连接失败，请检查网络设置",
+            actions: [
+                DialogAction(text: "知道了", onClick: { [weak self] in
+                    self?.feedbackLabel.text = "[D4] 点击「知道了」（primary）"
+                }, style: .primary)
+            ],
+            onDismiss: { [weak self] in
+                self?.feedbackLabel.text = "[D4] 点击遮罩 → onDismiss"
+            }
+        )
+        dialog.show()
+        feedbackLabel.text = "[D4] 对话框已弹出（无标题 + 单按钮 primary）"
     }
 }
 

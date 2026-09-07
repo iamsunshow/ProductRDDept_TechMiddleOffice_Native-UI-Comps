@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Dialog 对话框 · 设计规格 · TMO 组件库 v1.4.0</title>
+<style>
+:root {
+  --bg: #fff; --bg-page: #f5f5f5; --text: #1a1a1a; --text-2: #888; --border: #e8e8e8;
+  --primary: #16a34a; --danger: #dc2626; --radius-lg: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'SF Pro Text', sans-serif; background: var(--bg-page); color: var(--text); line-height: 1.6; }
+.container { max-width: 860px; margin: 0 auto; padding: 24px 16px 80px; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+h2 { font-size: 20px; margin: 28px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 16px; margin: 16px 0 8px; }
+p { font-size: 14px; margin-bottom: 8px; }
+code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+th { background: #fafafa; font-weight: 600; }
+.section { background: var(--bg); border-radius: 12px; padding: 20px; margin: 16px 0; border: 1px solid var(--border); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.badge-a { background: #e6f7e6; color: #52c41a; }
+.mock-card { width: 300px; background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.12); margin: 12px auto; }
+.mock-title { text-align: center; font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+.mock-content { text-align: center; font-size: 14px; color: var(--text-2); margin-bottom: 16px; }
+.mock-btn { text-align: center; padding: 12px; border-radius: 10px; font-size: 16px; margin: 6px 0; }
+.mock-btn.primary { background: var(--primary); color: #fff; }
+.mock-btn.default { background: #f0f0f0; color: var(--text); }
+.mock-btn.destructive { color: var(--danger); }
+.mock-row { display: flex; gap: 8px; }
+.mock-row .mock-btn { flex: 1; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Dialog 对话框</h1>
+<p>组件 ID：<code>ui.dialog</code> ｜ 任务清单 #46 ｜ 操作反馈区第三件 ｜ TMO 组件库 v1.4.0</p>
+<p>定位：居中弹出的模态对话框——标题 + 正文 + 操作按钮，用于确认/警示/告知。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation</h3><p>需要用户确认重要操作（删除/退出/同意协议）或展示重要信息。</p>
+<h3>Complication</h3><p>iOS 无统一 Dialog 组件（Android 已有 AppDialog），双端视觉/API 不对齐。</p>
+<h3>Question</h3><p>iOS 补全 Dialog，对齐 Android 现有 AppDialog API。</p>
+<h3>Answer</h3><p>DialogView.swift 对齐 AppDialog：title/content(或自定义content)/actions(三样式)/buttonLayout(Vertical通栏|Horizontal并排)/onDismiss。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 Dialog 划界</th></tr>
+<tr><td>ActionSheet #44</td><td>底部动作面板（多选一动作）</td><td>Dialog=居中确认对话（是/否），ActionSheet=底部动作列表</td></tr>
+<tr><td>Toast #59</td><td>轻提示短暂浮层</td><td>Toast=自动消失无按钮，Dialog=需用户点按钮关闭</td></tr>
+<tr><td>Popup #54</td><td>通用弹出层容器</td><td>Popup=通用容器，Dialog=专用居中对话框</td></tr>
+</table>
+
+<h2>3. API 契约（对齐 Android AppDialog）</h2>
+<div class="section">
+<table>
+<tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>title</code></td><td>String?</td><td>null</td><td>标题（null=不显示标题区）</td></tr>
+<tr><td><code>content</code></td><td>String?</td><td>null</td><td>正文文本（与自定义内容二选一）</td></tr>
+<tr><td><code>contentContent</code></td><td>Composable/UIView?</td><td>null</td><td>自定义正文内容（优先于 content）</td></tr>
+<tr><td><code>actions</code></td><td>List&lt;DialogAction&gt;</td><td>必传</td><td>按钮列表</td></tr>
+<tr><td><code>buttonLayout</code></td><td>Vertical | Horizontal</td><td>Vertical</td><td>Vertical=通栏全宽自上而下；Horizontal=左右并排（最多2项）</td></tr>
+<tr><td><code>onDismiss</code></td><td>(() -> Unit)?</td><td>null</td><td>点击遮罩关闭回调（null=不响应点遮罩）</td></tr>
+</table>
+
+<h3>DialogAction</h3>
+<table>
+<tr><th>字段</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>text</code></td><td>String</td><td>必传</td><td>按钮文案</td></tr>
+<tr><td><code>onClick</code></td><td>() -> Unit</td><td>必传</td><td>点击回调</td></tr>
+<tr><td><code>style</code></td><td>Primary | Default | Destructive</td><td>Default</td><td>Primary=主色填充；Default=浅灰背景；Destructive=红色文字</td></tr>
+</table>
+</div>
+
+<h2>4. 设计规格</h2>
+<table>
+<tr><th>区域</th><th>规格</th><th>Token</th></tr>
+<tr><td>遮罩</td><td>全屏 black 45%</td><td>overlay</td></tr>
+<tr><td>卡片</td><td>居中，width 300~360，radiusLg 14，bgCard 白底</td><td>radiusLg / bgCard</td></tr>
+<tr><td>标题</td><td>Md16 SemiBold textPrimary 居中，padding top lg</td><td>fontMd / SemiBold</td></tr>
+<tr><td>正文</td><td>Sm14 textSecondary 居中，lineHeight Sm，padding vertical lg</td><td>fontSm / textSecondary</td></tr>
+<tr><td>Vertical 按钮</td><td>通栏全宽，高 44，radius 10，自上而下排列，间距 md</td><td>44 / 10</td></tr>
+<tr><td>Horizontal 按钮</td><td>左右并排，各 flex 1，高 44，间距 8</td><td>44 / 8</td></tr>
+<tr><td>Primary 按钮</td><td>primary 底白字</td><td>primary / white</td></tr>
+<tr><td>Default 按钮</td><td>gray10 底 textPrimary</td><td>gray10 / textPrimary</td></tr>
+<tr><td>Destructive 按钮</td><td>textPrimary 底 danger 字</td><td>textPrimary / danger</td></tr>
+</table>
+
+<h2>5. Demo 排查 4 组</h2>
+<div class="mock-card">
+<div class="mock-title">确认删除</div>
+<div class="mock-content">删除后不可恢复，确定删除？</div>
+<div class="mock-btn default">取消</div>
+<div class="mock-btn destructive">删除</div>
+</div>
+<p style="text-align:center;font-size:13px;color:#888">D1 Vertical 通栏（取消+删除 destructive）</p>
+
+<div class="mock-card">
+<div class="mock-title">提示</div>
+<div class="mock-content">操作成功</div>
+<div class="mock-row">
+<div class="mock-btn default">取消</div>
+<div class="mock-btn primary">确定</div>
+</div>
+</div>
+<p style="text-align:center;font-size:13px;color:#888">D2 Horizontal 并排（取消+确定 primary）</p>
+
+<div class="mock-card">
+<div class="mock-title">用户协议</div>
+<div class="mock-content">请阅读并同意《用户协议》和《隐私政策》</div>
+<div class="mock-btn default">不同意</div>
+<div class="mock-btn primary">同意并继续</div>
+</div>
+<p style="text-align:center;font-size:13px;color:#888">D3 多按钮 Vertical（不同意+同意并继续）</p>
+
+<div class="mock-card">
+<div class="mock-content">网络连接失败，请检查网络设置</div>
+<div class="mock-btn primary">知道了</div>
+</div>
+<p style="text-align:center;font-size:13px;color:#888">D4 无标题+单按钮（仅内容+知道了 primary）</p>
+
+<h2>6. 决策投票表</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选定</th><th>理由</th></tr>
+<tr><td>P1</td><td>对齐方式</td><td><span class="badge badge-a">A. iOS 对齐 Android 现有 AppDialog API</span></td><td>Android 已沉淀 AppDialog（CommonComponents.kt L419），iOS 补全对齐，避免双端 API 分裂</td></tr>
+<tr><td>P2</td><td>按钮布局</td><td><span class="badge badge-a">A. Vertical 通栏(默认) + Horizontal 并排</span></td><td>与 Android AppDialog 一致，覆盖通栏确认和并排取消/确定两场景</td></tr>
+<tr><td>P3</td><td>按钮样式</td><td><span class="badge badge-a">A. Primary/Default/Destructive 三样式</span></td><td>与 Android DialogAction.style 一致；Default=浅灰、Primary=主色、Destructive=红字</td></tr>
+<tr><td>P4</td><td>自定义内容</td><td><span class="badge badge-a">A. 支持 contentContent 自定义正文</span></td><td>与 Android contentContent 一致，支持富文本/协议链接等复杂正文</td></tr>
+</table>
+</div>
+
+<h2>7. 反目标</h2>
+<table>
+<tr><th>不做</th><th>原因</th></tr>
+<tr><td>输入框表单</td><td>Dialog 只做确认/告知，输入表单=宿主自组或二期</td></tr>
+<tr><td>底部弹出</td><td>底部动作=ActionSheet #44，Dialog 只做居中</td></tr>
+<tr><td>自动消失</td><td>自动消失提示=Toast #59，Dialog 需用户操作关闭</td></tr>
+</table>
+
+</div>
+</body>
+</html>

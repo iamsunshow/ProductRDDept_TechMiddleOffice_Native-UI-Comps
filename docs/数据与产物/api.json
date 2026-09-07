@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "updatedAt": "2026-09-05T20:00:00+08:00",
-  "componentCount": 40,
+  "componentCount": 41,
   "components": [
     {
       "id": "ui.empty",
@@ -4201,6 +4201,160 @@
       "subcategory": "feedback",
       "tier": "action-feedback",
       "reviewed": true
+    },
+    {
+      "id": "ui.dialog",
+      "name": "对话框 Dialog",
+      "category": "ui",
+      "summary": "居中弹出的模态对话框：标题 + 正文（文本或自定义 contentView）+ 操作按钮（Primary/Default/Destructive 三样式，Vertical 通栏或 Horizontal 并排布局），遮罩点击可关闭；用于确认/警示/告知，需用户点按钮关闭；与 ActionSheet #44（底部动作列表）划界=Dialog 居中确认对话",
+      "capabilities": [
+        "对话框",
+        "Dialog",
+        "居中弹窗",
+        "确认框",
+        "模态对话框",
+        "destructive",
+        "危险操作",
+        "Primary/Default/Destructive",
+        "Vertical/Horizontal",
+        "contentView 自定义正文",
+        "onDismiss 遮罩关闭",
+        "对话框 Dialog",
+        "basic.dialog",
+        "ui.dialog"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "C1 一次性实现（本期 v1.4.0）：DialogViewController(UIViewController) 管理 overlay+card，keyWindow 挂载；overlay black 45% + UITapGestureRecognizer 点击收起（onDismiss!=nil 时）；card 居中 width 320 radiusLg(14) bgCard；title Md16 SemiBold textPrimary 居中 padding top lg；content Sm14 textSecondary 居中 padding vertical lg；按钮高 44 radius md(10)；Vertical 通栏 spacing md / Horizontal 并排 spacing 8 各 flex1（最多2项）；Primary=primary底白字 / Default=gray10底textPrimary / Destructive=bgCard底error红字；点击按钮→dismiss动画→action.onClick；遮罩点击→dismiss→onDismiss；UIView.animate 遮罩淡入0.2 + 卡片缩放0.9→1 淡入0.25 easeOut"
+        },
+        "android": {
+          "state": "available",
+          "note": "AppDialog(CommonComponents.kt L419)：Compose Dialog usePlatformDefaultWidth=false；Card RoundedCornerShape radiusLg bgCard widthIn(300,360)；title Md16 SemiBold textPrimary 居中 padding top lg；content Sm14 textSecondary lineHeight 居中 padding vertical lg；contentContent 自定义正文优先；Vertical=Column spacedBy md 全宽 AppButton / Horizontal=Row spacedBy md 各 weight1（take2）；DialogButtonStyle 映射 Primary→Primary / Default→Secondary / Destructive→Destructive"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/DialogView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/CommonComponents.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "输入框表单=Dialog 只做确认/告知，输入表单=宿主自组或二期",
+        "底部弹出=ActionSheet #44，Dialog 只做居中",
+        "自动消失=Toast #59，Dialog 需用户操作关闭"
+      ],
+      "visual_tokens": [
+        "radius.lg",
+        "radius.md",
+        "color.bgCard",
+        "color.primary",
+        "color.gray10",
+        "color.textPrimary",
+        "color.textSecondary",
+        "color.error",
+        "font.sizeMd",
+        "font.sizeSm"
+      ],
+      "apis": "",
+      "visual_refs": [
+        "ProductRDDept/TechMiddleOffice/Native-UI-Comps/docs/数据与产物/design-spec/dialog-design-spec.html"
+      ],
+      "status": "stable",
+      "reviewed": true,
+      "search_text": "basic.dialog 对话框 Dialog 居中弹出的模态对话框 标题+正文+操作按钮 确认/警示/告知 Primary/Default/Destructive 三样式 Vertical通栏 Horizontal并排 contentView自定义正文 onDismiss遮罩关闭 对话框 Dialog basic.dialog ui.dialog ui.dialog",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "Dialog",
+        "对话框",
+        "确认框",
+        "Alert",
+        "Modal Dialog"
+      ],
+      "props": [
+        [
+          "title",
+          "string?",
+          "否，默认 null",
+          "对话框标题（Md16 SemiBold textPrimary 居中，padding top lg）；null=不渲染标题区"
+        ],
+        [
+          "content",
+          "string?",
+          "否，默认 null",
+          "正文文本（Sm14 textSecondary 居中，padding vertical lg）；与 contentView 二选一，contentView 优先"
+        ],
+        [
+          "contentView",
+          "UIView?",
+          "否，默认 null",
+          "自定义正文内容视图（优先于 content），垂直 lg 内边距包裹"
+        ],
+        [
+          "actions",
+          "DialogAction[]",
+          "是",
+          "操作按钮列表：DialogAction(text/onClick/style)；style=Primary(主色底白字)/Default(gray10底textPrimary)/Destructive(bgCard底error红字)"
+        ],
+        [
+          "buttonLayout",
+          "'vertical' | 'horizontal'",
+          "否，默认 vertical",
+          "按钮布局：vertical=通栏全宽自上而下 spacing md；horizontal=左右并排各占一半 spacing 8（最多2项）"
+        ],
+        [
+          "onDismiss",
+          "(() => void)?",
+          "否，默认 null",
+          "遮罩点击关闭回调；null=不响应遮罩点击；非 null=点遮罩收起并回调"
+        ]
+      ],
+      "events": [
+        [
+          "onClick",
+          "() => void",
+          "点击任一操作按钮 → 先 dismiss 动画 → 再回调对应 action.onClick"
+        ],
+        [
+          "onDismiss",
+          "() => void",
+          "点击遮罩区域（onDismiss != null）→ 先 dismiss 动画 → 再回调 onDismiss"
+        ]
+      ],
+      "demos": [
+        [
+          "D1 Vertical 通栏（确认删除）",
+          "title=\"确认删除\" + content + 取消(default)/删除(destructive) 通栏排列"
+        ],
+        [
+          "D2 Horizontal 并排（提示）",
+          "title=\"提示\" + content + 取消(default)/确定(primary) 左右并排"
+        ],
+        [
+          "D3 多按钮 Vertical（用户协议）",
+          "title=\"用户协议\" + content + 不同意(default)/同意并继续(primary) 通栏"
+        ],
+        [
+          "D4 无标题单按钮（网络失败）",
+          "无 title，仅 content + 知道了(primary) 单按钮"
+        ]
+      ],
+      "subcategory": "feedback",
+      "tier": "action-feedback",
+      "note": "对话框 Dialog（操作反馈区第三件，任务清单 #46）：居中模态对话框=遮罩+居中卡片+标题+正文+操作按钮，Primary/Default/Destructive 三样式 + Vertical/Horizontal 两布局；与 ActionSheet #44（底部动作面板）划界=Dialog 居中确认对话。2026-09-07 iOS 实现入库（DialogView.swift=UIKit keyWindow 挂载+遮罩淡入+卡片缩放淡入 / 对齐 Android AppDialog CommonComponents.kt L419）+ iOS DialogShowcase 4 段 1:1（D1 通栏删除/D2 并排确定/D3 协议/D4 无标题单按钮）。新增 AppColor.gray10(#D9D9D9) token 用于 Default 按钮背景。验证版本 v1.4.0；待 C1.5 Demo 实机验收 + C2 CR/CI + D 发版。"
     },
     {
       "id": "ui.badge",

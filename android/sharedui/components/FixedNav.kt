@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -152,6 +153,7 @@ private fun FixedNavPanel(
             val isLast = index == items.lastIndex
             Box(
                 modifier = Modifier
+                    .testTag("fixednav-row-$index")
                     .fillMaxWidth()
                     .defaultMinSize(minWidth = 140.dp)
                     .height(44.dp)

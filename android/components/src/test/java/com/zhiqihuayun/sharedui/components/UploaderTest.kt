@@ -6,6 +6,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.dp
+import kotlin.math.abs
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -140,5 +142,47 @@ class UploaderTest {
         composeRule.onNodeWithTag("uploader-cell-0").assertExists()
         composeRule.onNodeWithTag("uploader-cell-6").assertExists()
         composeRule.onNodeWithTag("uploader-add").assertExists()
+    }
+
+    /** #39 网格间距几何回归（ef6131a）：行内 4 格等宽、横/纵格间距≈8dp、跨行行首左对齐不漂移。 */
+    @Test
+    fun test_regression_网格间距均匀跨行对齐() {
+        composeRule.setContent {
+            Uploader(value = items(7), onAdd = {}, onRemove = {})
+        }
+        val cell = (0..6).map { composeRule.onNodeWithTag("uploader-cell-$it").fetchSemanticsNode() }
+        fun gapX(a: Int, b: Int) = cell[b].positionInRoot.x - (cell[a].positionInRoot.x + cell[a].size.width)
+        val g01 = gapX(0, 1)
+        val g12 = gapX(1, 2)
+        val g23 = gapX(2, 3)
+        val vGap = cell[4].positionInRoot.y - (cell[0].positionInRoot.y + cell[0].size.height)
+        val spacingPx = with(composeRule.density) { 8.dp.toPx() }
+        val tol = with(composeRule.density) { 1.5.dp.toPx() }
+        assertTrue("行内横间距应均匀 g01=$g01 g12=$g12 g23=$g23", abs(g01 - g12) <= 1f && abs(g12 - g23) <= 1f)
+        assertTrue("行内横间距应≈8dp: $g01", abs(g01 - spacingPx) <= tol)
+        assertTrue("跨行纵间距应≈8dp: $vGap", abs(vGap - spacingPx) <= tol)
+        assertTrue(
+            "同行 4 格应等宽（不均分 bug）",
+            abs(cell[0].size.width - cell[1].size.width) <= 1f &&
+                abs(cell[1].size.width - cell[2].size.width) <= 1f &&
+                abs(cell[2].size.width - cell[3].size.width) <= 1f
+        )
+        assertTrue("第二行行首应与第一行左对齐", abs(cell[4].positionInRoot.x - cell[0].positionInRoot.x) <= 1f)
+    }
+
+    /** #38 删除角标锚定（右上象限）：角标悬于所属 cell 右上角，不掉入格中、不跑出格。 */
+    @Test
+    fun test_regression_删除角标锚定右上象限() {
+        composeRule.setContent {
+            Uploader(value = items(2), onAdd = {}, onRemove = {})
+        }
+        val cell0 = composeRule.onNodeWithTag("uploader-cell-0").fetchSemanticsNode()
+        val del = composeRule.onNodeWithTag("uploader-delete-0").fetchSemanticsNode()
+        val cellCX = cell0.positionInRoot.x + cell0.size.width / 2f
+        val cellCY = cell0.positionInRoot.y + cell0.size.height / 2f
+        val delCX = del.positionInRoot.x + del.size.width / 2f
+        val delCY = del.positionInRoot.y + del.size.height / 2f
+        assertTrue("角标应位于 cell 右半区（delCX=$delCX vs cellCX=$cellCX）", delCX > cellCX)
+        assertTrue("角标应位于 cell 上半区（delCY=$delCY vs cellCY=$cellCY）", delCY < cellCY)
     }
 }

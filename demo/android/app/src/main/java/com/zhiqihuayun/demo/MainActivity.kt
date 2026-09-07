@@ -973,6 +973,8 @@ private fun EmptyDemo() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            // 修复：添加 verticalScroll——4 组 Demo 总高远超一屏，无滚动用户无法滑到 Demo 4。
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {
@@ -6951,7 +6953,9 @@ private fun DragDemo() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                // 修复：移除 verticalScroll——LazyColumn(Drag) 不允许嵌套在 verticalScroll 内，
+                // 否则 Compose 抛 IllegalArgumentException: infinity maximum height。
+                // 外层 Column 已有 verticalScroll 足以滚动整页。
                 .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
             verticalArrangement = Arrangement.spacedBy(AppSpace.md)
         ) {
@@ -6967,6 +6971,7 @@ private fun DragDemo() {
                 )
             }
             var d1Msg by remember { mutableStateOf<String?>(null) }
+            // 修复：外层 verticalScroll 给子项无限高度约束，LazyColumn 需固定高度才不崩溃。
             Drag(
                 items = d1Items,
                 key = { it.id },
@@ -6980,6 +6985,7 @@ private fun DragDemo() {
                 },
                 enabled = true,
                 handle = false,
+                modifier = Modifier.height(220.dp),
             )
             Text(
                 text = d1Msg ?: "handle=false=整行长按触发拖拽；拖拽中 swap 显示位置跟随手指；落位 onReorder(from,to) 回调。",
@@ -7013,6 +7019,7 @@ private fun DragDemo() {
                 },
                 enabled = true,
                 handle = true,
+                modifier = Modifier.height(260.dp),
             )
             Text(
                 text = d2Msg ?: "handle=true=左侧 24dp ≡ 手柄 pointerInput 触发，整行不响应；Android 严格区分手柄/整行触发。",
@@ -7034,6 +7041,7 @@ private fun DragDemo() {
                 onReorder = { _, _ -> },
                 enabled = false,
                 handle = false,
+                modifier = Modifier.height(220.dp),
             )
             Text(
                 text = d3Msg ?: "enabled=false=纯列表不可拖（不挂 pointerInput）；列表项仍可滚动查看。",
@@ -7070,6 +7078,7 @@ private fun DragDemo() {
                 },
                 enabled = true,
                 handle = false,
+                modifier = Modifier.height(260.dp),
             )
             Text(
                 text = d4Msg ?: "拖拽落位后弹出 Toast 显示新顺序（onReorder 仅落位一次触发，拖拽中不回调）。",

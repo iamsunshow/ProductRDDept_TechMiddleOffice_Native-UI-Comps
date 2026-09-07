@@ -167,6 +167,10 @@ import com.zhiqihuayun.sharedui.components.UploadStatus
 import com.zhiqihuayun.sharedui.components.ActionSheet
 import com.zhiqihuayun.sharedui.components.ActionSheetItem
 import com.zhiqihuayun.sharedui.components.Badge
+import com.zhiqihuayun.sharedui.components.AppDialog
+import com.zhiqihuayun.sharedui.components.DialogAction
+import com.zhiqihuayun.sharedui.components.DialogButtonLayout
+import com.zhiqihuayun.sharedui.components.DialogButtonStyle
 import com.zhiqihuayun.sharedui.components.Drag
 import com.zhiqihuayun.sharedui.components.Uploader
 
@@ -242,8 +246,8 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
     ),
     "操作反馈" to listOf(
         DemoComponent("ActionSheet 动作面板", reviewed = true, demo = { ActionSheetDemo() }),
-        DemoComponent("Badge 徽标"),
-        DemoComponent("Dialog 对话框"),
+        DemoComponent("Badge 徽标", reviewed = true, demo = { BadgeDemo() }),
+        DemoComponent("Dialog 对话框", reviewed = true, demo = { DialogDemo() }),
         DemoComponent("Drag 拖拽", reviewed = true, demo = { DragDemo() }),
         DemoComponent("Empty 空状态", reviewed = true, demo = { EmptyDemo() }),
         DemoComponent("InfiniteLoading 滚动加载"),
@@ -6705,6 +6709,198 @@ private fun BadgeHost(emoji: String) {
         contentAlignment = Alignment.Center
     ) {
         Text(text = emoji, fontSize = 24.sp)
+    }
+}
+
+// ===== Dialog 对话框组件 Demo 页（独立页面，与 iOS DialogShowcase 一一对应） =====
+// 4 组排查：D1 通栏确认删除 / D2 并排提示 / D3 多按钮用户协议 / D4 无标题单按钮。
+
+@Composable
+private fun DialogDemo() {
+    // 反馈栏：记录用户点击的按钮回调（对齐 ActionSheetDemo 的 feedback 用法）。
+    var feedback by remember { mutableStateOf("点击下方按钮触发 Demo，这里会显示按钮 onClick 回调。") }
+
+    // 各 Demo 的弹窗可见状态（受控外部驱动，与 ActionSheetDemo 一致）。
+    var d1Visible by remember { mutableStateOf(false) }
+    var d2Visible by remember { mutableStateOf(false) }
+    var d3Visible by remember { mutableStateOf(false) }
+    var d4Visible by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // 组件版本徽标：与 ui-version.json 双端同版本（v1.4.0）。
+        Text(
+            text = "Dialog 对话框组件 v1.4.0",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.primary,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF111827))
+                .padding(horizontal = 12.dp, vertical = 6.dp)
+        )
+        Text(
+            text = "定位：居中弹出的模态对话框（标题 + 正文 + 操作按钮）。4 组排查：① Vertical 通栏确认删除；② Horizontal 并排提示；③ 多按钮用户协议；④ 无标题单按钮。双端 1:1，点击下方按钮触发对应 Demo。",
+            fontSize = AppFont.sizeSm, color = AppColor.textSecondary
+        )
+
+        // 反馈栏
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFF0FDF4), RoundedCornerShape(8.dp))
+                .padding(12.dp)
+        ) {
+            Text(feedback, fontSize = AppFont.sizeSm, color = Color(0xFF065F46))
+        }
+
+        // D1 Vertical 通栏确认删除
+        DemoSection(title = "Demo 1 · Vertical 通栏（确认删除 + 取消/删除 destructive）") {
+            AppButton(text = "打开确认删除弹窗", style = AppButtonStyle.Primary, onClick = { d1Visible = true })
+        }
+        Text("title=\"确认删除\" + content=\"删除后不可恢复，确定删除？\" + 取消/删除(destructive 红字)；Vertical 通栏全宽按钮自上而下。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+
+        // D2 Horizontal 并排提示
+        DemoSection(title = "Demo 2 · Horizontal 并排（提示 + 取消/确定 primary）") {
+            AppButton(text = "打开提示弹窗", style = AppButtonStyle.Primary, onClick = { d2Visible = true })
+        }
+        Text("title=\"提示\" + content=\"这是一条提示信息，确认继续？\" + 取消/确定(primary)；Horizontal 左右并排各占一半。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+
+        // D3 多按钮 Vertical 用户协议
+        DemoSection(title = "Demo 3 · 多按钮 Vertical（用户协议 + 不同意/同意并继续 primary）") {
+            AppButton(text = "打开用户协议弹窗", style = AppButtonStyle.Primary, onClick = { d3Visible = true })
+        }
+        Text("title=\"用户协议及隐私保护\" + content 协议说明 + 不同意/同意并继续(primary)；多按钮通栏排列。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+
+        // D4 无标题单按钮
+        DemoSection(title = "Demo 4 · 无标题单按钮（网络失败 + 知道了 primary）") {
+            AppButton(text = "打开网络失败弹窗", style = AppButtonStyle.Primary, onClick = { d4Visible = true })
+        }
+        Text("无 title + content=\"网络连接失败，请检查网络后重试\" + 知道了(primary) 单按钮通栏。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+
+        Spacer(Modifier.height(24.dp))
+
+        // ──── AppDialog 实例声明（必须放在 Column 闭包内部，与 state 同作用域）────
+
+        // D1 Vertical 通栏确认删除
+        if (d1Visible) {
+            AppDialog(
+                title = "确认删除",
+                content = "删除后不可恢复，确定删除？",
+                actions = listOf(
+                    DialogAction(
+                        text = "删除",
+                        onClick = {
+                            d1Visible = false
+                            feedback = "[D1] 点击「删除」（destructive）"
+                        },
+                        style = DialogButtonStyle.Destructive
+                    ),
+                    DialogAction(
+                        text = "取消",
+                        onClick = {
+                            d1Visible = false
+                            feedback = "[D1] 点击「取消」（default）"
+                        },
+                        style = DialogButtonStyle.Default
+                    )
+                ),
+                buttonLayout = DialogButtonLayout.Vertical,
+                onDismiss = {
+                    d1Visible = false
+                    feedback = "[D1] onDismiss() → 点击遮罩关闭"
+                }
+            )
+        }
+
+        // D2 Horizontal 并排提示
+        if (d2Visible) {
+            AppDialog(
+                title = "提示",
+                content = "这是一条提示信息，确认继续？",
+                actions = listOf(
+                    DialogAction(
+                        text = "取消",
+                        onClick = {
+                            d2Visible = false
+                            feedback = "[D2] 点击「取消」（default）"
+                        },
+                        style = DialogButtonStyle.Default
+                    ),
+                    DialogAction(
+                        text = "确定",
+                        onClick = {
+                            d2Visible = false
+                            feedback = "[D2] 点击「确定」（primary）"
+                        },
+                        style = DialogButtonStyle.Primary
+                    )
+                ),
+                buttonLayout = DialogButtonLayout.Horizontal,
+                onDismiss = {
+                    d2Visible = false
+                    feedback = "[D2] onDismiss() → 点击遮罩关闭"
+                }
+            )
+        }
+
+        // D3 多按钮 Vertical 用户协议
+        if (d3Visible) {
+            AppDialog(
+                title = "用户协议及隐私保护",
+                content = "请阅读并同意《用户协议》与《隐私政策》后继续使用。我们将在您同意后收集必要信息以提供服务。",
+                actions = listOf(
+                    DialogAction(
+                        text = "不同意",
+                        onClick = {
+                            d3Visible = false
+                            feedback = "[D3] 点击「不同意」（default）"
+                        },
+                        style = DialogButtonStyle.Default
+                    ),
+                    DialogAction(
+                        text = "同意并继续",
+                        onClick = {
+                            d3Visible = false
+                            feedback = "[D3] 点击「同意并继续」（primary）"
+                        },
+                        style = DialogButtonStyle.Primary
+                    )
+                ),
+                buttonLayout = DialogButtonLayout.Vertical,
+                onDismiss = {
+                    d3Visible = false
+                    feedback = "[D3] onDismiss() → 点击遮罩关闭"
+                }
+            )
+        }
+
+        // D4 无标题单按钮
+        if (d4Visible) {
+            AppDialog(
+                content = "网络连接失败，请检查网络后重试。",
+                actions = listOf(
+                    DialogAction(
+                        text = "知道了",
+                        onClick = {
+                            d4Visible = false
+                            feedback = "[D4] 点击「知道了」（primary）"
+                        },
+                        style = DialogButtonStyle.Primary
+                    )
+                ),
+                buttonLayout = DialogButtonLayout.Vertical,
+                onDismiss = {
+                    d4Visible = false
+                    feedback = "[D4] onDismiss() → 点击遮罩关闭"
+                }
+            )
+        }
     }
 }
 

@@ -70,7 +70,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.action-sheet", name: "ActionSheet 动作面板", reviewed: true, create: { ActionSheetShowcase() }),
             DemoComponent(id: "ui.badge", name: "Badge 徽标", reviewed: true, create: { BadgeShowcase() }),
             DemoComponent(id: "ui.dialog", name: "Dialog 对话框", reviewed: true, create: { DialogShowcase() }),
-            DemoComponent(id: "ui.drag", name: "Drag 拖拽", reviewed: false, create: nil),
+            DemoComponent(id: "ui.drag", name: "Drag 拖拽", reviewed: true, create: { DragShowcase() }),
             DemoComponent(id: "ui.empty", name: "Empty 空状态", reviewed: true, create: { EmptyShowcase() }),
             DemoComponent(id: "ui.infinite-loading", name: "InfiniteLoading 滚动加载", reviewed: false, create: nil),
             DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: false, create: nil),
@@ -8172,5 +8172,230 @@ final class BadgeShowcase: ShowcaseViewController {
             make.center.equalToSuperview()
         }
         return host
+    }
+}
+
+// MARK: - Drag Showcase（Drag 拖拽排序 Demo 页，操作反馈区 #47，验证组件库 v1.4.0，demo 徽标 v1.0）
+// D1 基础拖拽排序（3 项长按拖拽）/ D2 handle 手柄模式（仅手柄可拖）/
+// D3 disabled 禁用拖拽（纯列表不可拖）/ D4 实时回调（拖拽后 Alert 显示新顺序）
+final class DragShowcase: ShowcaseViewController {
+
+    /// 拖拽项数据模型（Hashable，供泛型 DragListView 使用）。
+    private struct DragItem: Hashable {
+        let id: String
+        let emoji: String
+        let title: String
+    }
+
+    private var d1Items: [DragItem] = [
+        DragItem(id: "cart", emoji: "🛒", title: "购物"),
+        DragItem(id: "food", emoji: "🍔", title: "餐饮"),
+        DragItem(id: "car", emoji: "🚗", title: "交通"),
+    ]
+    private var d1ListView: DragListView?
+    private var d1Feedback: UILabel?
+
+    private var d2Items: [DragItem] = [
+        DragItem(id: "inbox", emoji: "📥", title: "收件箱"),
+        DragItem(id: "star", emoji: "⭐", title: "星标"),
+        DragItem(id: "draft", emoji: "📝", title: "草稿"),
+        DragItem(id: "sent", emoji: "📤", title: "已发送"),
+    ]
+    private var d2ListView: DragListView?
+    private var d2Feedback: UILabel?
+
+    private var d3Items: [DragItem] = [
+        DragItem(id: "a", emoji: "🍎", title: "水果"),
+        DragItem(id: "b", emoji: "🥕", title: "蔬菜"),
+        DragItem(id: "c", emoji: "🥛", title: "乳制品"),
+    ]
+    private var d3ListView: DragListView?
+    private var d3Feedback: UILabel?
+
+    private var d4Items: [DragItem] = [
+        DragItem(id: "1", emoji: "1️⃣", title: "第一步"),
+        DragItem(id: "2", emoji: "2️⃣", title: "第二步"),
+        DragItem(id: "3", emoji: "3️⃣", title: "第三步"),
+        DragItem(id: "4", emoji: "4️⃣", title: "第四步"),
+    ]
+    private var d4ListView: DragListView?
+    private var d4Feedback: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Drag", version: "v1.0", builtAt: "2026-09-07")
+        buildDemo1()
+        buildDemo2()
+        buildDemo3()
+        buildDemo4()
+    }
+
+    /// 构造一项行内容视图（emoji + 标题 + hairline 分隔）。
+    private func makeItemView(_ item: DragItem) -> UIView {
+        let row = UIView()
+        row.backgroundColor = AppColor.bgCard
+
+        let emoji = UILabel()
+        emoji.text = item.emoji
+        emoji.font = .systemFont(ofSize: AppFont.sizeXl)
+        row.addSubview(emoji)
+
+        let title = UILabel()
+        title.text = item.title
+        title.font = .systemFont(ofSize: AppFont.sizeMd)
+        title.textColor = AppColor.textPrimary
+        row.addSubview(title)
+
+        let divider = UIView()
+        divider.backgroundColor = AppColor.border
+        row.addSubview(divider)
+
+        emoji.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(AppSpace.lg)
+            make.centerY.equalToSuperview()
+            make.width.height.equalTo(AppSpace.xl)
+        }
+        title.snp.makeConstraints { make in
+            make.leading.equalTo(emoji.snp.trailing).offset(AppSpace.md)
+            make.centerY.equalToSuperview()
+        }
+        divider.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.height.equalTo(1)
+        }
+        row.snp.makeConstraints { make in
+            make.height.greaterThanOrEqualTo(Cell.minHeight)
+        }
+        return row
+    }
+
+    /// 拼接当前顺序为可读文案。
+    private func describeOrder(_ items: [DragItem]) -> String {
+        "顺序：" + items.map { $0.title }.joined(separator: "→")
+    }
+
+    // MARK: - D1 基础拖拽排序（3 项长按拖拽）
+
+    private func buildDemo1() {
+        addSection(title: "Demo 1 · 基础拖拽排序（3 项长按拖拽）") { container in
+            let listView = DragListView(
+                items: self.d1Items,
+                itemContent: { [weak self] item in
+                    self?.makeItemView(item as! DragItem) ?? UIView()
+                },
+                onReorder: { [weak self] from, to in
+                    guard let self else { return }
+                    let moved = self.d1Items.remove(at: from)
+                    self.d1Items.insert(moved, at: to)
+                    self.d1ListView?.updateItems(self.d1Items as [Any])
+                    self.d1Feedback?.text = "onReorder(from=\(from), to=\(to)) → \(self.describeOrder(self.d1Items))"
+                    self.d1Feedback?.textColor = AppColor.primary
+                },
+                enabled: true,
+                handle: false
+            )
+            d1ListView = listView
+            container.addSubview(listView)
+            listView.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(CGFloat(d1Items.count) * Cell.minHeight)
+            }
+            container.snp.makeConstraints { $0.bottom.equalTo(listView.snp.bottom) }
+        }
+        d1Feedback = addDynamicInfo("handle=false=整行长按触发拖拽（iOS 走标准 reorder 控件≡右侧）；落位后 onReorder(from,to) 回调新顺序。", color: AppColor.textSecondary)
+    }
+
+    // MARK: - D2 handle 手柄模式
+
+    private func buildDemo2() {
+        addSection(title: "Demo 2 · handle 手柄模式（仅手柄可拖）") { container in
+            let listView = DragListView(
+                items: self.d2Items,
+                itemContent: { [weak self] item in
+                    self?.makeItemView(item as! DragItem) ?? UIView()
+                },
+                onReorder: { [weak self] from, to in
+                    guard let self else { return }
+                    let moved = self.d2Items.remove(at: from)
+                    self.d2Items.insert(moved, at: to)
+                    self.d2ListView?.updateItems(self.d2Items as [Any])
+                    self.d2Feedback?.text = "onReorder(from=\(from), to=\(to)) → \(self.describeOrder(self.d2Items))"
+                    self.d2Feedback?.textColor = AppColor.primary
+                },
+                enabled: true,
+                handle: true
+            )
+            d2ListView = listView
+            container.addSubview(listView)
+            listView.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(CGFloat(d2Items.count) * Cell.minHeight)
+            }
+            container.snp.makeConstraints { $0.bottom.equalTo(listView.snp.bottom) }
+        }
+        d2Feedback = addDynamicInfo("handle=true=仅手柄可拖（iOS v1 走标准 reorder 控件≡右侧，视觉差异预留二期；Android 严格区分手柄/整行触发）。", color: AppColor.textSecondary)
+    }
+
+    // MARK: - D3 disabled 禁用拖拽
+
+    private func buildDemo3() {
+        addSection(title: "Demo 3 · disabled 禁用拖拽（enabled=false 纯列表）") { container in
+            let listView = DragListView(
+                items: self.d3Items,
+                itemContent: { [weak self] item in
+                    self?.makeItemView(item as! DragItem) ?? UIView()
+                },
+                onReorder: { _, _ in },
+                enabled: false,
+                handle: false
+            )
+            d3ListView = listView
+            container.addSubview(listView)
+            listView.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(CGFloat(d3Items.count) * Cell.minHeight)
+            }
+            container.snp.makeConstraints { $0.bottom.equalTo(listView.snp.bottom) }
+        }
+        d3Feedback = addDynamicInfo("enabled=false=纯列表不可拖（不显示 reorder 控件、不挂长按手势）；列表项仍可滚动查看。", color: AppColor.textSecondary)
+    }
+
+    // MARK: - D4 实时回调（拖拽后 Alert 显示新顺序）
+
+    private func buildDemo4() {
+        addSection(title: "Demo 4 · 实时回调（拖拽后 Alert 显示新顺序）") { container in
+            let listView = DragListView(
+                items: self.d4Items,
+                itemContent: { [weak self] item in
+                    self?.makeItemView(item as! DragItem) ?? UIView()
+                },
+                onReorder: { [weak self] from, to in
+                    guard let self else { return }
+                    let moved = self.d4Items.remove(at: from)
+                    self.d4Items.insert(moved, at: to)
+                    self.d4ListView?.updateItems(self.d4Items as [Any])
+                    let msg = "onReorder(from=\(from), to=\(to))\n\(self.describeOrder(self.d4Items))"
+                    self.d4Feedback?.text = msg
+                    self.d4Feedback?.textColor = AppColor.primary
+                    let alert = UIAlertController(
+                        title: "拖拽落位",
+                        message: msg,
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: "知道了", style: .default))
+                    self.present(alert, animated: true)
+                },
+                enabled: true,
+                handle: false
+            )
+            d4ListView = listView
+            container.addSubview(listView)
+            listView.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(CGFloat(d4Items.count) * Cell.minHeight)
+            }
+            container.snp.makeConstraints { $0.bottom.equalTo(listView.snp.bottom) }
+        }
+        d4Feedback = addDynamicInfo("拖拽落位后弹出 Alert 显示新顺序（onReorder 仅落位一次触发，拖拽中不回调）。", color: AppColor.textSecondary)
     }
 }

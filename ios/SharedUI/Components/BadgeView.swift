@@ -86,9 +86,24 @@ final class BadgeView: UIView {
         setup()
     }
 
-    /// 便捷初始化：仅传入宿主内容视图，其余参数走默认值。
-    convenience init(content: UIView) {
+    /// 便捷初始化：传入宿主内容视图，可选配置徽标参数。
+    convenience init(
+        content: UIView,
+        count: Int? = nil,
+        text: String? = nil,
+        maxCount: Int = 99,
+        color: UIColor = AppColor.error,
+        dot: Bool = false,
+        offset: BadgeOffset? = nil
+    ) {
         self.init(contentView: content)
+        self.maxCount = maxCount
+        self.color = color
+        self.dot = dot
+        self.offset = offset
+        // text 优先于 count，先赋 count 再赋 text（text 覆盖 count 形态）
+        self.count = count
+        self.text = text
     }
 
     @available(*, unavailable)

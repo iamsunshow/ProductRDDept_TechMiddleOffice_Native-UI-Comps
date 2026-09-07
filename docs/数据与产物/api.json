@@ -6561,6 +6561,124 @@
       "note": "上传（数据录入区 #43，全新立项，2026-09-07）：通用文件/图片上传 UI 组件=网格展示已选文件列表+添加/删除/重试回调，不内置系统选择器（宿主调起 PHPicker/PhotoPicker 后回写 value）和网络上传逻辑（宿主驱动 status+progress）；UploadItem 完整状态机 pending/uploading/success/failed+progress 0-1；value 受控必传+onAdd/onRemove/onRetry 三回调；maxCount 默认 9；disabled 整件 40% 灰；与 Image 纯展示/Avatar 头像划界；拖拽排序/大图预览=二期。2026-09-07 门禁 A AI 代评通过（规格 design-spec/uploader-design-spec.html + ../评审记录/review-uploader-A.md，P1–P4 全 A 0 保留意见，用户 TextArea #42 收编后原话「通过，最后一个组件吧，Uploader」指示接棒启动）+ 同日门禁 B 双端实现入库（UploaderView.swift=命令式 UIKit UICollectionView 4 列+cell 缩略图+删除角标+状态蒙层+进度条+添加格；Uploader.kt=声明式 Compose LazyVerticalGrid 4 列+BitmapFactory 本地/URL 加载+状态蒙层+进度条），iOS UploaderShowcase / Android UploaderDemo 4 段 1:1（D1 基础多图上传 pending→uploading→success / D2 单文件 maxCount=1 / D3 失败重试+disabled / D4 受控外部驱动），demo 徽标 v1.0，Android assembleDebug BUILD SUCCESSFUL（iOS 待用户本地 Xcode 编译验证）。验证版本 v1.4.0（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
+    },
+    {
+      "id": "ui.drag",
+      "name": "Drag 拖拽排序",
+      "category": "ui",
+      "summary": "通用列表拖拽排序组件（操作反馈区 #47，全新立项）：长按列表项可拖拽重新排序——用于收藏管理、章节排序、字段排序等场景；声明式 API：传入 items 列表 + onReorder(from,to) 回调；iOS 用 UITableView + isEditing + 标准 reorder 控件（≡ 右侧）+ tableView(_:moveRowAt:to:) 落位回调，Android 用 Compose LazyColumn + Modifier.pointerInput detectDragGesturesAfterLongPress 手势识别 + swap 显示位置 + 落位 onDragEnd 仅触发一次 onReorder(initial,final)；拖拽态 elevation 8dp + scale 1.02 + opacity 0.9；手柄 24×24 fontLg textSecondary；落位动画 0.25s easeOut；handle=true=仅手柄可拖（iOS v1 与 handle=false 同=标准 reorder 控件，差异为视觉预留；Android handle=true 左侧 24dp ≡ 手柄 pointerInput 触发，handle=false 整行长按触发）；enabled=false=纯列表不可拖；与 SwipeAction #19（侧滑操作菜单=横滑 vs Drag 纵向拖拽排序）/IosStylePullRefresh #55（下拉刷新=下拉 vs Drag 长按拖拽）/Tabs #20（横向页签 vs Drag 纵向排序）划界；anti_goals 二期/不做=跨列表拖拽、多选批量拖拽、网格拖拽、拖拽中实时回调（仅释放后回调）",
+      "capabilities": [
+        "拖拽",
+        "Drag",
+        "排序",
+        "拖拽排序",
+        "列表排序",
+        "长按拖拽",
+        "重新排序"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "DragListView.swift：泛型 DragListView<T: Hashable>: UIView 包装 UITableView（isEditing=enabled 控制是否可拖；标准 reorder 控件≡右侧由 shouldShowReorderControlForRowAt 控制；tableView(_:moveRowAt:to:) 落位回调 onReorder 并同步数据源；handle=false 追加 UILongPressGestureRecognizer 整行按下视觉反馈=gray4；落位动画由系统 moveRow 默认动画近似 0.25s easeOut；willDisplay 给 cell 加 shadow 8dp/opacity 0.15 视觉锚定）"
+        },
+        "android": {
+          "state": "available",
+          "note": "Drag.kt：声明式 Compose 泛型 @Composable <T> Drag（LazyColumn + itemsIndexed(key) + Modifier.pointerInput detectDragGesturesAfterLongPress；onDrag 累积位移>10f 与上/下项 swap 视觉跟随手指；onDragEnd 落位仅触发一次 onReorder(initial,final)（拖拽中不回调对齐 P3-A）；animateFloatAsState tween(250ms) 驱动 scale 1.02/opacity 0.9 还原；graphicsLayer shadowElevation 8f；handle=true 左侧 24dp ≡ Box 单独挂 pointerInput，handle=false 整行挂 pointerInput；enabled=false 不挂手势=纯列表）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/DragListView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Drag.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.drag",
+      "industry_names": [
+        "拖拽",
+        "Drag",
+        "排序",
+        "拖拽排序",
+        "列表排序",
+        "重新排序",
+        "DragListView"
+      ],
+      "props": [
+        [
+          "items",
+          "List<T>",
+          "是",
+          "数据列表（泛型 T 需 Identifiable/Hashable）；外部赋值=同步刷新渲染"
+        ],
+        [
+          "key",
+          "(T) -> Any",
+          "是",
+          "每项唯一标识（iOS 用于 diffable dataSource 升级预留，Android 用作 LazyColumn key 避免重组错位）"
+        ],
+        [
+          "itemContent",
+          "@Composable / (T) -> UIView",
+          "是",
+          "每项渲染内容（Drag 不强制样式）"
+        ],
+        [
+          "onReorder",
+          "(from: Int, to: Int) -> Unit",
+          "是",
+          "拖拽释放后回调新位置（from=原索引 to=目标索引）；拖拽中不触发，仅落位一次"
+        ],
+        [
+          "enabled",
+          "Boolean",
+          "否",
+          "是否启用拖拽，默认 true；false=纯列表不可拖"
+        ],
+        [
+          "handle",
+          "Boolean",
+          "否",
+          "是否仅手柄可拖，默认 false；true=仅手柄拖（iOS v1 走标准 reorder 控件≡右侧，Android 左侧 24dp ≡ pointerInput）；false=整行长按拖拽"
+        ]
+      ],
+      "events": [
+        [
+          "onReorder",
+          "(from: Int, to: Int)",
+          "拖拽释放后回调新位置（from=原索引 to=目标索引）；拖拽中不触发，仅落位一次"
+        ]
+      ],
+      "demos": [
+        [
+          "基础拖拽排序（3 项长按拖拽）",
+          "3 项 emoji+标签数据（🛒购物/🍔餐饮/🚗交通）；handle=false=整行长按触发拖拽；拖拽中 swap 显示位置跟随手指；落位 onReorder(from,to) 回调新顺序（D1）"
+        ],
+        [
+          "handle 手柄模式（仅手柄可拖）",
+          "handle=true=左侧 24dp ≡ 手柄（textSecondary fontLg）；仅手柄 pointerInput 触发拖拽，整行不响应；Android 手柄/整行严格区分；iOS v1 与 handle=false 同走标准 reorder 控件（视觉差异预留二期）（D2）"
+        ],
+        [
+          "disabled 禁用拖拽（enabled=false 纯列表）",
+          "enabled=false=纯列表不可拖；不挂 pointerInput/不显示 reorder 控件；列表项仍可点击/滚动；验证禁用态仅锁拖拽不锁其他交互（D3）"
+        ],
+        [
+          "实时回调（拖拽后 Toast/Alert 显示新顺序）",
+          "onReorder 落位后宿主展示 Toast/Alert 显示当前顺序（如「顺序：餐饮→购物→交通」）；拖拽中不触发，仅落位一次；验证回调时机正确性（D4）"
+        ]
+      ],
+      "note": "拖拽排序（操作反馈区 #47，全新立项，2026-09-07）：通用列表拖拽排序组件=长按列表项可拖拽重新排序（用于收藏管理/章节排序/字段排序等场景）；声明式 API 传入 items+onReorder(from,to) 回调；拖拽态 elevation 8dp+scale 1.02+opacity 0.9；手柄 24×24 fontLg textSecondary；落位动画 0.25s easeOut；handle=true 仅手柄可拖 / handle=false 整行长按拖拽；enabled=false 纯列表不可拖；onReorder 仅释放后回调（一期最简，实时回调=二期）；与 SwipeAction #19（侧滑菜单=横滑 vs Drag 纵向拖拽）/IosStylePullRefresh #55（下拉刷新=下拉 vs Drag 长按拖拽）/Tabs #20（横向页签 vs Drag 纵向排序）划界；anti_goals 二期=跨列表拖拽/多选批量拖拽/网格拖拽/拖拽中实时回调。2026-09-07 门禁 A AI 代评通过（规格 design-spec/drag-design-spec.html + ../评审记录/review-drag-A.md，P1–P4 全 A 0 保留意见，用户 Uploader #43 收编后指示接棒启动）+ 同日门禁 B 双端实现入库（DragListView.swift=泛型 UIView 包装 UITableView isEditing+moveRowAt 落位回调+UILongPressGestureRecognizer 整行视觉反馈；Drag.kt=声明式 Compose LazyColumn+pointerInput detectDragGesturesAfterLongPress+swap 显示位置+onDragEnd 落位 onReorder+animateFloatAsState tween 250ms 还原+graphicsLayer shadowElevation 8f），iOS DragShowcase / Android DragDemo 4 段 1:1（D1 基础拖拽 3 项长按 / D2 handle 手柄模式 / D3 disabled 禁用拖拽 / D4 实时回调显示新顺序），demo 徽标 v1.0，Android assembleDebug + iOS swiftc -parse 编译通过。验证版本 v1.4.0（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "feedback",
+      "reviewed": true
     }
   ],
   "businessExtensions": [

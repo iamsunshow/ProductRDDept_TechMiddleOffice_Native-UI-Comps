@@ -16,6 +16,7 @@
 		174C53D2052016DCBFE1AFCC /* Grid.swift in Sources */ = {isa = PBXBuildFile; fileRef = E28CDDC930696CE27921502D /* Grid.swift */; };
 		198B5ECCC1B507ABFE82269C /* ActionSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 452574082DBEB5BC4E325F49 /* ActionSheetView.swift */; };
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* DialogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* DialogView.swift */; };
+		A1B2C3D4E5F6A7B8C9D0E1F3 /* DragListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A4 /* DragListView.swift */; };
 		1EB05D2B72FE2F73026A8AB6 /* TabsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F17F2603BDDFC72B15C7406 /* TabsView.swift */; };
 		1ED78C57736500A4B1917AF0 /* TextAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8746B5BDA005206398294244 /* TextAreaView.swift */; };
 		1F0CE2342A174F4717DC0FA2 /* DemoMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25465F7307A8D784A68E80C1 /* DemoMocks.swift */; };
@@ -98,6 +99,7 @@
 		3A83A10A8BD3164B98F399AD /* BadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeView.swift; sourceTree = "<group>"; };
 		452574082DBEB5BC4E325F49 /* ActionSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionSheetView.swift; sourceTree = "<group>"; };
 		B2C3D4E5F6A7B8C9D0E1F2A3 /* DialogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogView.swift; sourceTree = "<group>"; };
+		B2C3D4E5F6A7B8C9D0E1F2A4 /* DragListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragListView.swift; sourceTree = "<group>"; };
 		45B2561A62A1FAF93C38C686 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
 		538FFA7C6388387E57FC73DC /* BackTopButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackTopButton.swift; sourceTree = "<group>"; };
 		56144D3FE8D7F55AA21E1D9D /* StickyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickyView.swift; sourceTree = "<group>"; };
@@ -186,6 +188,7 @@
 			children = (
 				452574082DBEB5BC4E325F49 /* ActionSheetView.swift */,
 				B2C3D4E5F6A7B8C9D0E1F2A3 /* DialogView.swift */,
+				B2C3D4E5F6A7B8C9D0E1F2A4 /* DragListView.swift */,
 				AF92DF6DC2897ABCD9C46224 /* AddressView.swift */,
 				E36A0907C0CF11E9783D53FB /* AppButton.swift */,
 				6D173EBBE290117990FB6D2B /* AppIcon.swift */,
@@ -464,6 +467,7 @@
 				C8E94EEFB76666AB629B02A1 /* APIEndpoint.swift in Sources */,
 				198B5ECCC1B507ABFE82269C /* ActionSheetView.swift in Sources */,
 				A1B2C3D4E5F6A7B8C9D0E1F2 /* DialogView.swift in Sources */,
+				A1B2C3D4E5F6A7B8C9D0E1F3 /* DragListView.swift in Sources */,
 				AC38EC510D173EB064E94DBF /* AddressView.swift in Sources */,
 				12A2A02B2B7C1DCC3F8762C4 /* AppButton.swift in Sources */,
 				CF13E2F0EFAAC8CD1247A518 /* AppDatabase.swift in Sources */,

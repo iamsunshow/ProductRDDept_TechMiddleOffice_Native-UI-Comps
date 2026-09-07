@@ -3,6 +3,7 @@ package com.zhiqihuayun.demo
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -64,6 +65,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
@@ -165,6 +167,7 @@ import com.zhiqihuayun.sharedui.components.UploadStatus
 import com.zhiqihuayun.sharedui.components.ActionSheet
 import com.zhiqihuayun.sharedui.components.ActionSheetItem
 import com.zhiqihuayun.sharedui.components.Badge
+import com.zhiqihuayun.sharedui.components.Drag
 import com.zhiqihuayun.sharedui.components.Uploader
 
 class MainActivity : ComponentActivity() {
@@ -241,7 +244,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("ActionSheet 动作面板", reviewed = true, demo = { ActionSheetDemo() }),
         DemoComponent("Badge 徽标"),
         DemoComponent("Dialog 对话框"),
-        DemoComponent("Drag 拖拽"),
+        DemoComponent("Drag 拖拽", reviewed = true, demo = { DragDemo() }),
         DemoComponent("Empty 空状态", reviewed = true, demo = { EmptyDemo() }),
         DemoComponent("InfiniteLoading 滚动加载"),
         DemoComponent("Loading 加载中"),
@@ -6702,6 +6705,221 @@ private fun BadgeHost(emoji: String) {
         contentAlignment = Alignment.Center
     ) {
         Text(text = emoji, fontSize = 24.sp)
+    }
+}
+
+// Drag 拖拽排序 Demo（操作反馈区 #47，验证组件库 v1.4.0，demo 徽标 v1.0）
+// D1 基础拖拽排序（3 项长按拖拽）/ D2 handle 手柄模式（仅手柄可拖）/
+// D3 disabled 禁用拖拽（纯列表不可拖）/ D4 实时回调（拖拽后 Toast 显示新顺序）
+@Composable
+private fun DragDemo() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // 组件版本徽标：与 iOS 端保持同一版本号。
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm))
+                .padding(horizontal = 10.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = "Drag 组件 v1.0",
+                color = AppColor.primary,
+                fontSize = AppFont.sizeXs,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        Text(
+            text = "Drag 拖拽排序组件 v1.0",
+            color = AppColor.primary,
+            fontSize = AppFont.sizeXs,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+        )
+        Text(
+            text = "4 组排查：① 基础拖拽排序（3 项长按拖拽 → onReorder(from,to)） ② handle 手柄模式（左侧 ≡ 24dp pointerInput 触发，整行不响应） ③ disabled 禁用拖拽（enabled=false 纯列表） ④ 实时回调（拖拽落位 Toast 显示新顺序）。双端 1:1（Android Drag vs iOS DragListView）。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs,
+            modifier = Modifier.padding(horizontal = AppSpace.xl)
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+            verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+        ) {
+            // D1 · 基础拖拽排序（3 项长按拖拽）
+            Text("Demo 1 · 基础拖拽排序（3 项长按拖拽）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+            var d1Items by remember {
+                mutableStateOf(
+                    listOf(
+                        DragItem("cart", "🛒", "购物"),
+                        DragItem("food", "🍔", "餐饮"),
+                        DragItem("car", "🚗", "交通"),
+                    )
+                )
+            }
+            var d1Msg by remember { mutableStateOf<String?>(null) }
+            Drag(
+                items = d1Items,
+                key = { it.id },
+                itemContent = { item -> DragRow(item) },
+                onReorder = { from, to ->
+                    val list = d1Items.toMutableList()
+                    val moved = list.removeAt(from)
+                    list.add(to, moved)
+                    d1Items = list
+                    d1Msg = "onReorder(from=$from, to=$to) → 顺序：${list.joinToString("→") { it.title }}"
+                },
+                enabled = true,
+                handle = false,
+            )
+            Text(
+                text = d1Msg ?: "handle=false=整行长按触发拖拽；拖拽中 swap 显示位置跟随手指；落位 onReorder(from,to) 回调。",
+                fontSize = AppFont.sizeXs,
+                color = if (d1Msg != null) AppColor.primary else AppColor.textSecondary
+            )
+
+            // D2 · handle 手柄模式（仅手柄可拖）
+            Text("Demo 2 · handle 手柄模式（仅手柄可拖）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+            var d2Items by remember {
+                mutableStateOf(
+                    listOf(
+                        DragItem("inbox", "📥", "收件箱"),
+                        DragItem("star", "⭐", "星标"),
+                        DragItem("draft", "📝", "草稿"),
+                        DragItem("sent", "📤", "已发送"),
+                    )
+                )
+            }
+            var d2Msg by remember { mutableStateOf<String?>(null) }
+            Drag(
+                items = d2Items,
+                key = { it.id },
+                itemContent = { item -> DragRow(item) },
+                onReorder = { from, to ->
+                    val list = d2Items.toMutableList()
+                    val moved = list.removeAt(from)
+                    list.add(to, moved)
+                    d2Items = list
+                    d2Msg = "onReorder(from=$from, to=$to) → 顺序：${list.joinToString("→") { it.title }}"
+                },
+                enabled = true,
+                handle = true,
+            )
+            Text(
+                text = d2Msg ?: "handle=true=左侧 24dp ≡ 手柄 pointerInput 触发，整行不响应；Android 严格区分手柄/整行触发。",
+                fontSize = AppFont.sizeXs,
+                color = if (d2Msg != null) AppColor.primary else AppColor.textSecondary
+            )
+
+            // D3 · disabled 禁用拖拽（enabled=false 纯列表）
+            Text("Demo 3 · disabled 禁用拖拽（enabled=false 纯列表）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+            var d3Msg by remember { mutableStateOf<String?>(null) }
+            Drag(
+                items = listOf(
+                    DragItem("a", "🍎", "水果"),
+                    DragItem("b", "🥕", "蔬菜"),
+                    DragItem("c", "🥛", "乳制品"),
+                ),
+                key = { it.id },
+                itemContent = { item -> DragRow(item) },
+                onReorder = { _, _ -> },
+                enabled = false,
+                handle = false,
+            )
+            Text(
+                text = d3Msg ?: "enabled=false=纯列表不可拖（不挂 pointerInput）；列表项仍可滚动查看。",
+                fontSize = AppFont.sizeXs,
+                color = if (d3Msg != null) AppColor.primary else AppColor.textSecondary
+            )
+
+            // D4 · 实时回调（拖拽后 Toast 显示新顺序）
+            Text("Demo 4 · 实时回调（拖拽后 Toast 显示新顺序）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+            val context = LocalContext.current
+            var d4Items by remember {
+                mutableStateOf(
+                    listOf(
+                        DragItem("1", "1️⃣", "第一步"),
+                        DragItem("2", "2️⃣", "第二步"),
+                        DragItem("3", "3️⃣", "第三步"),
+                        DragItem("4", "4️⃣", "第四步"),
+                    )
+                )
+            }
+            var d4Msg by remember { mutableStateOf<String?>(null) }
+            Drag(
+                items = d4Items,
+                key = { it.id },
+                itemContent = { item -> DragRow(item) },
+                onReorder = { from, to ->
+                    val list = d4Items.toMutableList()
+                    val moved = list.removeAt(from)
+                    list.add(to, moved)
+                    d4Items = list
+                    val msg = "onReorder(from=$from, to=$to) → 顺序：${list.joinToString("→") { it.title }}"
+                    d4Msg = msg
+                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                },
+                enabled = true,
+                handle = false,
+            )
+            Text(
+                text = d4Msg ?: "拖拽落位后弹出 Toast 显示新顺序（onReorder 仅落位一次触发，拖拽中不回调）。",
+                fontSize = AppFont.sizeXs,
+                color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
+            )
+        }
+    }
+}
+
+/** Drag Demo 拖拽项数据模型。 */
+private data class DragItem(
+    val id: String,
+    val emoji: String,
+    val title: String,
+)
+
+/** Drag Demo 单行内容（emoji + 标题 + 1px 分隔线）。 */
+@Composable
+private fun DragRow(item: DragItem) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppColor.bgCard)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .padding(horizontal = AppSpace.lg),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = item.emoji, fontSize = AppFont.sizeXl)
+            Spacer(modifier = Modifier.width(AppSpace.md))
+            Text(
+                text = item.title,
+                fontSize = AppFont.sizeMd,
+                color = AppColor.textPrimary,
+            )
+        }
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(AppColor.border)
+        )
     }
 }
 

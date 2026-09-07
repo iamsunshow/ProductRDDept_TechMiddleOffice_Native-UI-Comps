@@ -161,6 +161,8 @@ import com.zhiqihuayun.sharedui.components.Switch
 import com.zhiqihuayun.sharedui.components.TextArea
 import com.zhiqihuayun.sharedui.components.UploadItem
 import com.zhiqihuayun.sharedui.components.UploadStatus
+import com.zhiqihuayun.sharedui.components.ActionSheet
+import com.zhiqihuayun.sharedui.components.ActionSheetItem
 import com.zhiqihuayun.sharedui.components.Uploader
 
 class MainActivity : ComponentActivity() {
@@ -234,7 +236,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Uploader 上传", reviewed = true, demo = { UploaderDemo() }),
     ),
     "操作反馈" to listOf(
-        DemoComponent("ActionSheet 动作面板"),
+        DemoComponent("ActionSheet 动作面板", reviewed = true, demo = { ActionSheetDemo() }),
         DemoComponent("Badge 徽标"),
         DemoComponent("Dialog 对话框"),
         DemoComponent("Drag 拖拽"),
@@ -6428,3 +6430,152 @@ private fun DatePickerDemo() {
         )
     }
 }
+
+// ===== ActionSheetDemo（操作反馈区首件 #44，与 ActionSheetShowcase 1:1 对齐）=====
+
+@Composable
+private fun ActionSheetDemo() {
+    // 反馈栏（对应 iOS addFeedbackBar）
+    var feedback by remember { mutableStateOf("点击下方按钮触发 Demo，这里会显示 onSelect / onCancel 回调。") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        Text(
+            text = "ActionSheet 动作面板组件 v1.0",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.primary,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF111827))
+                .padding(horizontal = 12.dp, vertical = 6.dp)
+        )
+        Text(
+            text = "定位：底部弹出的动作选择面板。4 组排查：① 基础动作面板（title+操作列表+取消）；② destructive 危险动作（红色删除）；③ disabled 项级禁用（灰显不可点）；④ 无标题+受控外部驱动。双端 1:1，点击下方按钮触发对应 Demo。",
+            fontSize = AppFont.sizeSm, color = AppColor.textSecondary
+        )
+        // 反馈栏
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFF0FDF4), RoundedCornerShape(8.dp))
+                .padding(12.dp)
+        ) {
+            Text(feedback, fontSize = AppFont.sizeSm, color = Color(0xFF065F46))
+        }
+
+        // D1 基础动作面板
+        var d1Visible by remember { mutableStateOf(false) }
+        DemoSection(title = "Demo 1 · 基础动作面板（title + 操作列表 + 取消）") {
+            AppButton(text = "打开分享面板", style = AppButtonStyle.Primary, onClick = { d1Visible = true })
+        }
+        Text("title=\"分享到\" + 3 操作项 + 取消；点操作项 → 滑出 → onSelect(index) 回调；点取消/遮罩 → 滑出 → onCancel()。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+
+        // D2 destructive 危险动作
+        var d2Visible by remember { mutableStateOf(false) }
+        DemoSection(title = "Demo 2 · destructive 危险动作（红色删除）") {
+            AppButton(text = "打开文件操作面板", style = AppButtonStyle.Primary, onClick = { d2Visible = true })
+        }
+        Text("title=\"文件操作\" + 重命名/移动/删除(destructive=true 红色) + 取消。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+
+        // D3 disabled 项级禁用
+        var d3Visible by remember { mutableStateOf(false) }
+        DemoSection(title = "Demo 3 · disabled 项级禁用（灰显不可点）") {
+            AppButton(text = "打开选择操作面板", style = AppButtonStyle.Primary, onClick = { d3Visible = true })
+        }
+        Text("title=\"选择操作\" + 编辑/分享(禁用灰显不可点)/复制 + 取消；禁用项点击不收起不回调。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+
+        // D4 无标题+受控外部驱动
+        var d4Visible by remember { mutableStateOf(false) }
+        DemoSection(title = "Demo 4 · 无标题 + 受控外部驱动") {
+            AppButton(text = "打开拍照选择面板", style = AppButtonStyle.Primary, onClick = { d4Visible = true })
+        }
+        Text("无 title 行直接操作项列表 + 拍照/从相册选择 + 取消；外部 visible 驱动开关。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+
+        Spacer(Modifier.height(24.dp))
+
+        // ──── ActionSheet 实例声明（必须放在 Column 闭包内部，与 state 同作用域）────
+
+        // D1 基础动作面板
+        ActionSheet(
+            visible = d1Visible,
+            title = "分享到",
+            actions = listOf(
+                ActionSheetItem("微信好友"),
+                ActionSheetItem("朋友圈"),
+                ActionSheetItem("复制链接")
+            ),
+            onSelect = { index ->
+                d1Visible = false
+                feedback = "[D1] onSelect($index) → ${listOf("微信好友", "朋友圈", "复制链接")[index]}"
+            },
+            onCancel = {
+                d1Visible = false
+                feedback = "[D1] onCancel() → 已取消"
+            }
+        )
+
+        // D2 destructive 危险动作
+        val d2Actions = listOf(
+            ActionSheetItem("重命名"),
+            ActionSheetItem("移动"),
+            ActionSheetItem("删除", destructive = true)
+        )
+        ActionSheet(
+            visible = d2Visible,
+            title = "文件操作",
+            actions = d2Actions,
+            onSelect = { index ->
+                d2Visible = false
+                val item = d2Actions[index]
+                feedback = "[D2] onSelect($index) → ${item.text}${if (item.destructive) "（危险动作）" else ""}"
+            },
+            onCancel = {
+                d2Visible = false
+                feedback = "[D2] onCancel() → 已取消"
+            }
+        )
+
+        // D3 disabled 项级禁用
+        ActionSheet(
+            visible = d3Visible,
+            title = "选择操作",
+            actions = listOf(
+                ActionSheetItem("编辑"),
+                ActionSheetItem("分享（已禁用）", disabled = true),
+                ActionSheetItem("复制")
+            ),
+            onSelect = { index ->
+                d3Visible = false
+                feedback = "[D3] onSelect($index) → ${listOf("编辑", "分享（已禁用）", "复制")[index]}"
+            },
+            onCancel = {
+                d3Visible = false
+                feedback = "[D3] onCancel() → 已取消"
+            }
+        )
+
+        // D4 无标题+受控外部驱动
+        ActionSheet(
+            visible = d4Visible,
+            actions = listOf(
+                ActionSheetItem("拍照"),
+                ActionSheetItem("从相册选择")
+            ),
+            onSelect = { index ->
+                d4Visible = false
+                feedback = "[D4] onSelect($index) → ${listOf("拍照", "从相册选择")[index]}"
+            },
+            onCancel = {
+                d4Visible = false
+                feedback = "[D4] onCancel() → 已取消"
+            }
+        )
+    }
+}
+

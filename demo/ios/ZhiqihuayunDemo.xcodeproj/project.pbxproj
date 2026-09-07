@@ -71,6 +71,7 @@
 		DED69019404F4F8F17CC62BB /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = 2459D72E133FA6C19C5EA514 /* GRDB */; };
 		E81AD0C3CFBD04C7415B66D4 /* Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8415379828FC7A89E3EDED4 /* Image.swift */; };
 		EA57F4DC6F4FAFB5A01379D7 /* Overlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E1C75478994AD561C65338A /* Overlay.swift */; };
+		1C55974B32DC4F0C96777F06 /* ActionSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55AC6A27BFA14619B162FBF2 /* ActionSheetView.swift */; };
 		EACD9C4AB942B3B95BF92906 /* StatusBarNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB34D2F889141B606A089B40 /* StatusBarNavigationController.swift */; };
 		F082C3133DE10640D955D202 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F9AA827593BC17B2833943FC /* LaunchScreen.storyboard */; };
 		F3C4A6B858E50E41D981C443 /* CalendarFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C347F4A3C46B5E1B8CAB1D /* CalendarFormatter.swift */; };
@@ -129,6 +130,7 @@
 		5A2B000000000000000000A1 /* UploaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploaderView.swift; sourceTree = "<group>"; };
 		EE00000000000000000000A1 /* Space.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Space.swift; sourceTree = "<group>"; };		978BB17F3FAD3ECDAB39B58A /* PullRefreshTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullRefreshTableView.swift; sourceTree = "<group>"; };
 		9E1C75478994AD561C65338A /* Overlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Overlay.swift; sourceTree = "<group>"; };
+		55AC6A27BFA14619B162FBF2 /* ActionSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionSheetView.swift; sourceTree = "<group>"; };
 		A2341A26182D931C95A7B3E3 /* Alamofire */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Alamofire; path = ../../ios/Vendor/Alamofire; sourceTree = SOURCE_ROOT; };
 		A444A6A371EA9EF7F7A03038 /* CategoryPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryPickerView.swift; sourceTree = "<group>"; };
 		B9AB119D396F37F5DA978A57 /* ListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCell.swift; sourceTree = "<group>"; };
@@ -220,6 +222,7 @@
 			5A23000000000000000000A1 /* RadioView.swift */,
 				EE00000000000000000000A1 /* Space.swift */,				24C4336791BDD8FE289677BA /* OptionPickerSheetViewController.swift */,
 				9E1C75478994AD561C65338A /* Overlay.swift */,
+				55AC6A27BFA14619B162FBF2 /* ActionSheetView.swift */,
 				BB0DF74002674A3001F64995 /* PeriodTabsView.swift */,
 				978BB17F3FAD3ECDAB39B58A /* PullRefreshTableView.swift */,
 				BD534E7B115B6495F8904031 /* SummaryCardView.swift */,
@@ -503,6 +506,7 @@
 			5A23000000000000000000A2 /* RadioView.swift in Sources */,
 				EE00000000000000000000A2 /* Space.swift in Sources */,				ACC0864A442833B9D3AF4430 /* OptionPickerSheetViewController.swift in Sources */,
 				EA57F4DC6F4FAFB5A01379D7 /* Overlay.swift in Sources */,
+				1C55974B32DC4F0C96777F06 /* ActionSheetView.swift in Sources */,
 				79F91CCE9C91D490B72977B7 /* PeriodTabsView.swift in Sources */,
 				2B5949F9894171578AEE0C72 /* PullRefreshTableView.swift in Sources */,
 				EACD9C4AB942B3B95BF92906 /* StatusBarNavigationController.swift in Sources */,

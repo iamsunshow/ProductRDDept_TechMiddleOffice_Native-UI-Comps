@@ -4036,6 +4036,173 @@
       "reviewed": true
     },
     {
+      "id": "ui.action-sheet",
+      "name": "动作面板 ActionSheet",
+      "category": "ui",
+      "summary": "底部弹出的动作选择面板：点击触发后从底部滑出，展示一组操作选项（含 destructive 危险动作红色 / disabled 项级禁用）+ 取消按钮，选中或取消后自动收起；受控 visible 模式（与 DatePicker/Picker 一致），遮罩点击收起，双端视觉一致；与 Dialog #46（居中确认对话）划界=ActionSheet 多选一动作底部弹出",
+      "capabilities": [
+        "动作面板",
+        "ActionSheet",
+        "底部弹出",
+        "操作选择",
+        "destructive",
+        "危险动作",
+        "disabled",
+        "禁用项",
+        "取消按钮",
+        "遮罩点击",
+        "受控visible",
+        "动作面板 ActionSheet",
+        "basic.action-sheet",
+        "ui.action-sheet"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "C1 一次性实现（本期 v1.4.0）：UIViewController 管理 overlay+panel，keyWindow 挂载；overlay UIView UITapGestureRecognizer 点击收起；panel UIView 圆角 radiusLg 顶部掩膜；UIView.animate easeOut 0.25 滑入 / easeIn 0.25 滑出；复用 AppColor/AppFont/AppRadius/AppSpace token 零硬编码；安全区 safeAreaInsets.bottom padding"
+        },
+        "android": {
+          "state": "available",
+          "note": "C1 一次性实现（本期 v1.4.0）：ModalBottomSheet skipPartiallyExpanded=true；scrimColor=black 45%；RoundedCornerShape topStart/topEnd=radiusLg；sheetState.hide() 滑出后回调；dragHandle=null 与 iOS 对齐；navigationBarsPadding 底部安全区"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/ActionSheetView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/ActionSheet.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "P4 决策 A 一期范围：图标操作项=二期增量（一期纯文本覆盖 80% 场景）",
+        "自定义操作项内容（嵌入组件）=宿主用 Dialog #46 或 Popup #54",
+        "多选确认=ActionSheet 选一动作即收起（多选=Checkbox #25 + Dialog 确认）",
+        "滑动收起（下拉手势）=二期增量（一期点击遮罩/取消按钮已够用）",
+        "嵌套子菜单=复杂场景用 Cascader #24 或多级页面导航"
+      ],
+      "visual_tokens": [
+        "radius.lg",
+        "color.bgCard",
+        "color.bgPage",
+        "color.textPrimary",
+        "color.textSecondary",
+        "color.error",
+        "color.border",
+        "font.sizeMd",
+        "font.sizeSm",
+        "font.sizeLg"
+      ],
+      "apis": "",
+      "visual_refs": [
+        "ProductRDDept/TechMiddleOffice/Native-UI-Comps/docs/数据与产物/design-spec/action-sheet-design-spec.html"
+      ],
+      "status": "stable",
+      "search_text": "basic.action-sheet 动作面板 ActionSheet 底部弹出 操作选择 destructive 危险动作 disabled 禁用项 取消按钮 遮罩点击 受控visible 动作面板 ActionSheet basic.action-sheet ui.action-sheet",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "ActionSheet",
+        "动作面板",
+        "底部菜单",
+        "Action Sheet"
+      ],
+      "props": [
+        [
+          "visible",
+          "boolean",
+          "是",
+          "是否展示（受控）；true=挂载+滑入 / false=滑出+卸载；与 DatePicker/Picker 一致=外部完全控制生命周期"
+        ],
+        [
+          "title",
+          "string?",
+          "否，默认 null",
+          "面板标题（顶部居中灰字 fontMd textSecondary，高 56）；无 title=不渲染标题行"
+        ],
+        [
+          "description",
+          "string?",
+          "否，默认 null",
+          "标题下方描述文案（居中 fontSm textSecondary）；无 description=不渲染描述行"
+        ],
+        [
+          "actions",
+          "ActionSheetItem[]",
+          "是",
+          "操作项列表：ActionSheetItem(text/destructive/disabled)；text=操作项文案、destructive=危险动作红色文案、disabled=项级禁用灰显不可点"
+        ],
+        [
+          "cancelText",
+          "string",
+          "否，默认 \"取消\"",
+          "取消按钮文案"
+        ],
+        [
+          "onSelect",
+          "((index: number) => void)?",
+          "否，默认 null",
+          "选中操作项回调（回传 index，null=不回调仅收起）；点击后面板自动滑出再回调"
+        ],
+        [
+          "onCancel",
+          "(() => void)?",
+          "否，默认 null",
+          "取消/遮罩点击回调（null=不回调）；点击取消按钮或遮罩区域后面板自动滑出再回调"
+        ],
+        [
+          "disabled",
+          "boolean",
+          "否，默认 false",
+          "整体禁用：所有操作项灰显不可点（alpha 0.4），取消按钮仍可点收起"
+        ]
+      ],
+      "events": [
+        [
+          "onSelect",
+          "(index: number) => void",
+          "点击某操作项（非禁用）→ 面板自动滑出 → 回传 index；与 Picker/SegmentControl 一致用 index 回传"
+        ],
+        [
+          "onCancel",
+          "() => void",
+          "点击取消按钮或遮罩区域 → 面板自动滑出 → 回调；与 onSelect 互斥（二选一触发）"
+        ]
+      ],
+      "demos": [
+        [
+          "基础动作面板（title+操作列表+取消）",
+          "D1：title \"分享到\" + 微信好友/朋友圈/复制链接 3 操作项 + 取消，点操作项收起回调 index"
+        ],
+        [
+          "destructive 危险动作",
+          "D2：title \"文件操作\" + 重命名/移动/删除(红色 destructive) + 取消"
+        ],
+        [
+          "disabled 项级禁用",
+          "D3：title \"选择操作\" + 编辑/分享(禁用灰)/复制 + 取消，禁用项点击不收起不回调"
+        ],
+        [
+          "无标题+受控外部驱动",
+          "D4：无 title 行直接操作项列表 + 拍照/从相册选择 + 取消，外部 visible 驱动开关"
+        ]
+      ],
+      "note": "动作面板 ActionSheet（操作反馈区首件，任务清单 #44）：底部弹出的动作选择面板=遮罩+面板+操作列表+取消按钮，受控 visible+onSelect(index)/onCancel 回调；与 Dialog #46（居中确认对话）划界=ActionSheet 多选一动作底部弹出，与 Picker #33（滚轮数据驱动）划界=动作按钮点选，与 Menu #31（页内嵌入）划界=底部弹出遮罩。2026-09-07 门禁 A AI 代评通过（design-spec/action-sheet-design-spec.html + 评审记录/review-action-sheet-A.md，P1–P4 全 A）+ 同日门禁 B 双端实现入库（ActionSheetView.swift=UIKit keyWindow 挂载+UIView.animate 滑入滑出 / ActionSheet.kt=Compose ModalBottomSheet skipPartiallyExpanded）+ iOS ActionSheetShowcase/Android ActionSheetDemo 4 段 1:1。验证版本 v1.4.0；统一待 C1.5 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版。",
+      "subcategory": "feedback",
+      "tier": "action-feedback",
+      "reviewed": true
+    },
+    {
       "id": "ui.button",
       "name": "按钮 Button",
       "category": "ui",

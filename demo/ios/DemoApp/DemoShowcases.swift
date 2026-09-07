@@ -67,7 +67,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.uploader", name: "Uploader 上传", reviewed: true, create: { UploaderShowcase() }),
         ]),
         ("操作反馈", [
-            DemoComponent(id: "ui.action-sheet", name: "ActionSheet 动作面板", reviewed: false, create: nil),
+            DemoComponent(id: "ui.action-sheet", name: "ActionSheet 动作面板", reviewed: true, create: { ActionSheetShowcase() }),
             DemoComponent(id: "ui.badge", name: "Badge 徽标", reviewed: false, create: nil),
             DemoComponent(id: "ui.dialog", name: "Dialog 对话框", reviewed: false, create: nil),
             DemoComponent(id: "ui.drag", name: "Drag 拖拽", reviewed: false, create: nil),
@@ -7753,5 +7753,165 @@ final class DatePickerShowcase: ShowcaseViewController {
             self?.d3Label.text = "已选: \(self?.yearFmt.string(from: date) ?? "") 年"
         }
         present(sheet, animated: true)
+    }
+}
+
+// MARK: - ActionSheet Showcase（操作反馈区首件 #44，验证组件库 v1.4.0，demo 徽标 v1.0）
+
+/// ActionSheet 动作面板 Demo（4 组排查，与 Android ActionSheetDemo 1:1 对齐）。
+/// D1 基础动作面板 / D2 destructive 危险动作 / D3 disabled 项级禁用 / D4 无标题+受控外部驱动。
+final class ActionSheetShowcase: ShowcaseViewController {
+
+    private var feedbackLabel: UILabel!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "ActionSheet 动作面板"
+
+        addVersionBadge(componentName: "ActionSheet", version: "v1.0", builtAt: "2026-09-07")
+        feedbackLabel = addFeedbackBar()
+
+        addInfo("定位：底部弹出的动作选择面板。4 组排查：① 基础动作面板（title+操作列表+取消）；② destructive 危险动作（红色删除）；③ disabled 项级禁用（灰显不可点）；④ 无标题+受控外部驱动。双端 1:1，点击下方按钮触发对应 Demo。")
+
+        // ── D1 基础动作面板 ──
+        addSection(title: "Demo 1 · 基础动作面板（title + 操作列表 + 取消）") { container in
+            let btn = self.buildDemoButton(title: "打开分享面板") { [weak self] in
+                self?.showD1()
+            }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(56)
+            }
+        }
+        addInfo("title=\"分享到\" + 3 操作项 + 取消；点操作项 → 滑出 → onSelect(index) 回调；点取消/遮罩 → 滑出 → onCancel()。")
+
+        // ── D2 destructive 危险动作 ──
+        addSection(title: "Demo 2 · destructive 危险动作（红色删除）") { container in
+            let btn = self.buildDemoButton(title: "打开文件操作面板") { [weak self] in
+                self?.showD2()
+            }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(56)
+            }
+        }
+        addInfo("title=\"文件操作\" + 重命名/移动/删除(destructive=true 红色) + 取消。")
+
+        // ── D3 disabled 项级禁用 ──
+        addSection(title: "Demo 3 · disabled 项级禁用（灰显不可点）") { container in
+            let btn = self.buildDemoButton(title: "打开选择操作面板") { [weak self] in
+                self?.showD3()
+            }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(56)
+            }
+        }
+        addInfo("title=\"选择操作\" + 编辑/分享(禁用灰显不可点)/复制 + 取消；禁用项点击不收起不回调。")
+
+        // ── D4 无标题+受控外部驱动 ──
+        addSection(title: "Demo 4 · 无标题 + 受控外部驱动") { container in
+            let btn = self.buildDemoButton(title: "打开拍照选择面板") { [weak self] in
+                self?.showD4()
+            }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(56)
+            }
+        }
+        addInfo("无 title 行直接操作项列表 + 拍照/从相册选择 + 取消；外部 visible 驱动开关。")
+    }
+
+    // ============== Demo 内容工厂 ==============
+
+    private func buildDemoButton(title: String, onTap: @escaping () -> Void) -> UIButton {
+        let b = UIButton(type: .system)
+        b.setTitle(title, for: .normal)
+        b.setTitleColor(.white, for: .normal)
+        b.backgroundColor = UIColor(hex: 0x16A34A)
+        b.layer.cornerRadius = 10
+        b.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+        b.addAction(UIAction { _ in onTap() }, for: .touchUpInside)
+        return b
+    }
+
+    // D1 基础动作面板
+    private func showD1() {
+        let sheet = ActionSheetView()
+        sheet.title = "分享到"
+        sheet.actions = [
+            ActionSheetItem(text: "微信好友"),
+            ActionSheetItem(text: "朋友圈"),
+            ActionSheetItem(text: "复制链接")
+        ]
+        sheet.onSelect = { [weak self] index in
+            self?.feedbackLabel.text = "[D1] onSelect(\(index)) → \(sheet.actions[index].text)"
+        }
+        sheet.onCancel = { [weak self] in
+            self?.feedbackLabel.text = "[D1] onCancel() → 已取消"
+        }
+        sheet.visible = true
+        feedbackLabel.text = "[D1] 面板已展开，点击操作项或取消/遮罩观察回调"
+    }
+
+    // D2 destructive 危险动作
+    private func showD2() {
+        let sheet = ActionSheetView()
+        sheet.title = "文件操作"
+        sheet.actions = [
+            ActionSheetItem(text: "重命名"),
+            ActionSheetItem(text: "移动"),
+            ActionSheetItem(text: "删除", destructive: true)
+        ]
+        sheet.onSelect = { [weak self] index in
+            let item = sheet.actions[index]
+            self?.feedbackLabel.text = "[D2] onSelect(\(index)) → \(item.text)\(item.destructive ? "（危险动作）" : "")"
+        }
+        sheet.onCancel = { [weak self] in
+            self?.feedbackLabel.text = "[D2] onCancel() → 已取消"
+        }
+        sheet.visible = true
+        feedbackLabel.text = "[D2] 面板已展开，删除项为红色 destructive"
+    }
+
+    // D3 disabled 项级禁用
+    private func showD3() {
+        let sheet = ActionSheetView()
+        sheet.title = "选择操作"
+        sheet.actions = [
+            ActionSheetItem(text: "编辑"),
+            ActionSheetItem(text: "分享（已禁用）", disabled: true),
+            ActionSheetItem(text: "复制")
+        ]
+        sheet.onSelect = { [weak self] index in
+            self?.feedbackLabel.text = "[D3] onSelect(\(index)) → \(sheet.actions[index].text)"
+        }
+        sheet.onCancel = { [weak self] in
+            self?.feedbackLabel.text = "[D3] onCancel() → 已取消"
+        }
+        sheet.visible = true
+        feedbackLabel.text = "[D3] 面板已展开，「分享」项灰显不可点（点击不收起不回调）"
+    }
+
+    // D4 无标题+受控外部驱动
+    private func showD4() {
+        let sheet = ActionSheetView()
+        // 无 title → 不渲染标题行，直接操作项列表
+        sheet.actions = [
+            ActionSheetItem(text: "拍照"),
+            ActionSheetItem(text: "从相册选择")
+        ]
+        sheet.onSelect = { [weak self] index in
+            self?.feedbackLabel.text = "[D4] onSelect(\(index)) → \(sheet.actions[index].text)"
+        }
+        sheet.onCancel = { [weak self] in
+            self?.feedbackLabel.text = "[D4] onCancel() → 已取消"
+        }
+        sheet.visible = true
+        feedbackLabel.text = "[D4] 面板已展开（无标题行），外部 visible=true 驱动"
     }
 }

@@ -14,6 +14,24 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.0] - 2026-09-04
+
+基础组件 6/6 收官（Overlay 遮罩层 v2.0 iOS 完整修复）；操作反馈区首件 ActionSheet 动作面板 #44 双端实现入库。
+
+### Added
+
+- **ActionSheet 动作面板 #44（操作反馈区首件）**：底部弹出的动作选择面板=遮罩+面板+操作列表+取消按钮，受控 visible+onSelect(index)/onCancel 回调；iOS ActionSheetView.swift（UIKit keyWindow 挂载+UIView.animate 滑入滑出）/ Android ActionSheet.kt（Compose ModalBottomSheet skipPartiallyExpanded）；4 组 Demo 1:1（D1 基础/D2 destructive/D3 disabled/D4 无标题）。门禁 A 全 A 通过；Android assembleDebug --rerun-tasks BUILD SUCCESSFUL（0 error，仅 ClickableText/SystemBars/HoverButton 既有 deprecation 警告）；iOS swiftc -parse 语法检查通过，SPM 全量 build 受沙箱 sandbox_apply 限制无法在 Agent 终端完成（非代码问题），需用户在 Xcode 实机验证。验证版本 v1.4.0；待 C1.5 Demo 实机验收 + C1 单测 + C2 CR/CI + D 发版。
+
+- **Overlay 遮罩层 v2.0**：iOS 完整修复（递归测量 stack view / 非栈内容 sizeThatFits / 防御性重建 / init 顺序 / CAShapeLayer mask / 4 角统一圆角）；Android Demo 1/3 Surface shape 补齐圆角；双端 build 0 error + 用户 Demo 4 组验收通过。
+
+- api.json `ui.action-sheet`：`reviewed=true`；双端 platform=available（C1 编译通过）；source_refs 双端文件路径；props 8 项+events 2 项与设计规格 100% 对齐。
+
+- demo pbxproj 注册 ActionSheetView.swift（PBXBuildFile/PBXFileReference/PBXGroup/PBXSourcesBuildPhase 四段）。
+
+### Changed
+
+- 组件库全局版本 1.3.12 → 1.4.0（MINOR，基础组件 6/6 收官 + 操作反馈区首件入库）。
+
 ## \[1.3.12] - 2026-09-03
 
 Image 图片 C2 CR/CI + D 发版（v1.3.3 → 发版 v1.3.12，三轮实机 11/11 收官）；api.json reviewed=true + platform partial→available。

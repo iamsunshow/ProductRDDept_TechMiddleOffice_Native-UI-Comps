@@ -69,6 +69,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.view.drawToBitmap
 import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
@@ -163,6 +164,7 @@ import com.zhiqihuayun.sharedui.components.UploadItem
 import com.zhiqihuayun.sharedui.components.UploadStatus
 import com.zhiqihuayun.sharedui.components.ActionSheet
 import com.zhiqihuayun.sharedui.components.ActionSheetItem
+import com.zhiqihuayun.sharedui.components.Badge
 import com.zhiqihuayun.sharedui.components.Uploader
 
 class MainActivity : ComponentActivity() {
@@ -6576,6 +6578,130 @@ private fun ActionSheetDemo() {
                 feedback = "[D4] onCancel() → 已取消"
             }
         )
+    }
+}
+
+// ===== Badge 组件 Demo 页（独立页面，与 iOS BadgeShowcase 一一对应） =====
+// 4 组排查：D1 数字徽标锚点 / D2 超上限 99+ / D3 圆点形态 / D4 文本徽标+色变。
+
+@Composable
+private fun BadgeDemo() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // 组件版本徽标：与 iOS 端保持同一版本号。
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm))
+                .padding(horizontal = 10.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = "Badge 组件 v1.4.0",
+                color = AppColor.primary,
+                fontSize = AppFont.sizeXs,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        // D1 数字徽标锚点：邮箱图标右上角「3」
+        Text(
+            text = "D1 数字徽标锚点（count=3）",
+            color = AppColor.textPrimary,
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold
+        )
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Badge(count = 3) {
+                BadgeHost(emoji = "📧")
+            }
+        }
+        Text(
+            text = "排查点：邮箱图标右上角红色数字「3」，数字胶囊 minWidth18 height18，锚点外凸 4dp。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs
+        )
+
+        // D2 超上限 99+：铃铛图标右上角「99+」（count=150 > maxCount=99）
+        Text(
+            text = "D2 超上限 99+（count=150，maxCount=99）",
+            color = AppColor.textPrimary,
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold
+        )
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Badge(count = 150) {
+                BadgeHost(emoji = "🔔")
+            }
+        }
+        Text(
+            text = "排查点：铃铛图标右上角「99+」，count 超过 maxCount 时截断显示 maxCount+。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs
+        )
+
+        // D3 圆点形态：聊天图标右上角红点 8×8（dot=true）
+        Text(
+            text = "D3 圆点形态（dot=true）",
+            color = AppColor.textPrimary,
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold
+        )
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Badge(dot = true) {
+                BadgeHost(emoji = "💬")
+            }
+        }
+        Text(
+            text = "排查点：聊天图标右上角 8×8 红色圆点，无文字。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs
+        )
+
+        // D4 文本徽标+色变：星标右上角「新」文本胶囊 + success 绿/primary 蓝变体
+        Text(
+            text = "D4 文本徽标+色变（text=\"新\" + 多色）",
+            color = AppColor.textPrimary,
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // danger 红（默认）
+            Badge(text = "新") { BadgeHost(emoji = "⭐") }
+            // success 绿
+            Badge(text = "新", color = AppColor.success) { BadgeHost(emoji = "⭐") }
+            // primary 绿（本项目 primary=#16A34A，与 success 同色；用 warning 橙区分第三色）
+            Badge(text = "新", color = AppColor.warning) { BadgeHost(emoji = "⭐") }
+        }
+        Text(
+            text = "排查点：三个星标右上角「新」文本胶囊，分别为 danger 红 / success 绿 / warning 橙；文本胶囊 height18 paddingH8。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs
+        )
+    }
+}
+
+/** 宿主视图：48×48 灰色圆角方块 + 居中 emoji（与设计规格 mock 一致）。 */
+@Composable
+private fun BadgeHost(emoji: String) {
+    Box(
+        modifier = Modifier
+            .size(48.dp)
+            .background(AppColor.gray6, RoundedCornerShape(12.dp)),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = emoji, fontSize = 24.sp)
     }
 }
 

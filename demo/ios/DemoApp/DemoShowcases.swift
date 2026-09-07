@@ -68,7 +68,7 @@ final class DemoListViewController: UITableViewController {
         ]),
         ("操作反馈", [
             DemoComponent(id: "ui.action-sheet", name: "ActionSheet 动作面板", reviewed: true, create: { ActionSheetShowcase() }),
-            DemoComponent(id: "ui.badge", name: "Badge 徽标", reviewed: false, create: nil),
+            DemoComponent(id: "ui.badge", name: "Badge 徽标", reviewed: true, create: { BadgeShowcase() }),
             DemoComponent(id: "ui.dialog", name: "Dialog 对话框", reviewed: false, create: nil),
             DemoComponent(id: "ui.drag", name: "Drag 拖拽", reviewed: false, create: nil),
             DemoComponent(id: "ui.empty", name: "Empty 空状态", reviewed: true, create: { EmptyShowcase() }),
@@ -7913,5 +7913,98 @@ final class ActionSheetShowcase: ShowcaseViewController {
         }
         sheet.visible = true
         feedbackLabel.text = "[D4] 面板已展开（无标题行），外部 visible=true 驱动"
+    }
+}
+
+// MARK: - Badge Showcase（徽标 · 操作反馈区第二件 #45）
+
+/// Badge 徽标 Demo：4 组排查，与 Android BadgeDemo 一一对应。
+/// D1 数字徽标锚点 / D2 超上限 99+ / D3 圆点形态 / D4 文本徽标+色变。
+final class BadgeShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Badge 徽标"
+
+        addVersionBadge(componentName: "Badge", version: "v1.4.0", builtAt: "2026-09-07 00:00:00")
+
+        // D1 数字徽标锚点：邮箱图标右上角「3」
+        addSection(title: "D1 数字徽标锚点（count=3）") { container in
+            let host = Self.makeHost(emoji: "📧")
+            let badge = BadgeView(content: host, count: 3)
+            container.addSubview(badge)
+            badge.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("排查点：邮箱图标右上角红色数字「3」，数字胶囊 minWidth18 height18，锚点外凸 4pt。")
+
+        // D2 超上限 99+：铃铛图标右上角「99+」（count=150 > maxCount=99）
+        addSection(title: "D2 超上限 99+（count=150，maxCount=99）") { container in
+            let host = Self.makeHost(emoji: "🔔")
+            let badge = BadgeView(content: host, count: 150)
+            container.addSubview(badge)
+            badge.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("排查点：铃铛图标右上角「99+」，count 超过 maxCount 时截断显示 maxCount+。")
+
+        // D3 圆点形态：聊天图标右上角红点 8×8（dot=true）
+        addSection(title: "D3 圆点形态（dot=true）") { container in
+            let host = Self.makeHost(emoji: "💬")
+            let badge = BadgeView(content: host, dot: true)
+            container.addSubview(badge)
+            badge.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("排查点：聊天图标右上角 8×8 红色圆点，无文字。")
+
+        // D4 文本徽标+色变：星标右上角「新」文本胶囊 + success 绿/primary 蓝变体
+        addSection(title: "D4 文本徽标+色变（text=\"新\" + 多色）") { container in
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.alignment = .center
+            row.distribution = .equalSpacing
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.xl)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            // danger 红（默认）
+            let starRed = BadgeView(content: Self.makeHost(emoji: "⭐"), text: "新")
+            // success 绿
+            let starGreen = BadgeView(content: Self.makeHost(emoji: "⭐"), text: "新", color: AppColor.success)
+            // primary 蓝
+            let starBlue = BadgeView(content: Self.makeHost(emoji: "⭐"), text: "新", color: AppColor.primary)
+            row.addArrangedSubview(starRed)
+            row.addArrangedSubview(starGreen)
+            row.addArrangedSubview(starBlue)
+        }
+        addInfo("排查点：三个星标右上角「新」文本胶囊，分别为 danger 红 / success 绿 / primary 蓝；文本胶囊 height18 paddingH8。")
+    }
+
+    /// 构造宿主视图：48×48 灰色圆角方块 + 居中 emoji（与设计规格 mock 一致）。
+    private static func makeHost(emoji: String) -> UIView {
+        let host = UIView()
+        host.backgroundColor = AppColor.gray6
+        host.layer.cornerRadius = 12
+        host.clipsToBounds = true
+        host.snp.makeConstraints { make in
+            make.width.height.equalTo(48)
+        }
+        let label = UILabel()
+        label.text = emoji
+        label.font = .systemFont(ofSize: 24)
+        label.textAlignment = .center
+        host.addSubview(label)
+        label.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+        return host
     }
 }

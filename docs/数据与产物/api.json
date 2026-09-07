@@ -4203,6 +4203,141 @@
       "reviewed": true
     },
     {
+      "id": "ui.badge",
+      "name": "徽标 Badge",
+      "category": "ui",
+      "summary": "展示在图标/头像/容器右上角的数字或圆点提醒——用于未读数、新消息、状态标识。纯展示型内容组件，根据 count/text/dot 自动选形态（null=圆点 / 数字=数字徽标 / 文本=文本徽标），支持 color 主题色、count 上限 99+、offset 定位偏移；wrapper 模式=宿主嵌套 Badge{content}，定位由组件内部控制，零使用方布局代码",
+      "capabilities": [
+        "徽标",
+        "Badge",
+        "角标",
+        "未读数",
+        "红点",
+        "数字徽标",
+        "圆点徽标",
+        "文本徽标",
+        "徽标 Badge",
+        "basic.badge",
+        "ui.badge"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "BadgeView.swift：UIView 子类包裹 contentView+徽标 overlay；SnapKit 锚定 top/trailing + offset；形态由 count/text/dot 自动推断（dot→8×8 圆点 / count 1...maxCount→数字胶囊 minWidth18 height18 paddingH6 / count>maxCount→\"maxCount+\" / text→文本胶囊 height18 paddingH8 / count==0 或全空→不渲染）；cornerRadius=height/2 半圆；color 默认 AppColor.error(danger 红)；白字 11 Semibold；clipsToBounds=false 允许外凸"
+        },
+        "android": {
+          "state": "available",
+          "note": "Badge.kt：Compose Box 包裹 content+徽标，align TopEnd + offset(IntOffset px)；sealed BadgeMode 推断形态（同 iOS 规则）；Dot=Box size8 CircleShape；Pill=Row height18 widthIn(min18) RoundedCornerShape(50) + paddingH(6/8) + Text 11sp SemiBold white；color 默认 AppColor.error；offset null 时按密度转 4dp 外凸"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/BadgeView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Badge.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "动画弹出/数字滚动=二期增量，一期静态展示已够用",
+        "点击交互=Badge 纯展示，点击由宿主承载",
+        "自定义形状（方形/三角）=二期，一期只做圆形胶囊",
+        "内置宿主图标=Badge 只负责徽标本体，宿主内容由调用方提供"
+      ],
+      "visual_tokens": [
+        "color.error",
+        "color.success",
+        "color.primary",
+        "color.warning",
+        "color.textInverse"
+      ],
+      "apis": "",
+      "visual_refs": [
+        "ProductRDDept/TechMiddleOffice/Native-UI-Comps/docs/数据与产物/design-spec/badge-design-spec.html"
+      ],
+      "status": "stable",
+      "search_text": "basic.badge 徽标 Badge 角标 未读数 红点 数字徽标 圆点徽标 文本徽标 徽标 Badge basic.badge ui.badge",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "Badge",
+        "徽标",
+        "角标",
+        "BadgeView"
+      ],
+      "props": [
+        [
+          "count",
+          "Int?",
+          "否，默认 null",
+          "数字徽标：null=圆点形态（需 dot 配合）；0=不显示；≥1=数字；>maxCount 显示 maxCount+"
+        ],
+        [
+          "text",
+          "String?",
+          "否，默认 null",
+          "自定义文本徽标（与 count 二选一，text 优先）"
+        ],
+        [
+          "maxCount",
+          "Int",
+          "否，默认 99",
+          "数字上限，超过显示「99+」"
+        ],
+        [
+          "color",
+          "Color/AppColor",
+          "否，默认 danger 红",
+          "徽标背景色（danger/warn/success/primary 等）"
+        ],
+        [
+          "dot",
+          "Boolean",
+          "否，默认 false",
+          "强制圆点形态（忽略 count/text）"
+        ],
+        [
+          "offset",
+          "Offset?",
+          "否，默认 null",
+          "锚点偏移（默认 top-4/right-4 即右上角外凸 4）"
+        ]
+      ],
+      "events": [],
+      "demos": [
+        [
+          "数字徽标锚点",
+          "D1：邮箱图标右上角「3」，数字胶囊 minWidth18 height18"
+        ],
+        [
+          "超上限 99+",
+          "D2：铃铛图标右上角「99+」，count=150 超 maxCount=99 截断"
+        ],
+        [
+          "圆点形态",
+          "D3：聊天图标右上角红点 8×8，dot=true"
+        ],
+        [
+          "文本徽标+色变",
+          "D4：星标右上角「新」文本胶囊 + success 绿/primary 蓝变体"
+        ]
+      ],
+      "note": "徽标 Badge（操作反馈区第二件，任务清单 #45）：展示在宿主右上角的数字/圆点/文本提醒=纯展示型内容组件，count/text/dot 三参数自动推断形态，maxCount 截断、color 主题色、offset 锚点偏移、wrapper 模式定位内部化。2026-09-07 门禁 A AI 代评通过（design-spec/badge-design-spec.html + 评审记录/review-badge-A.md，P1–P4 全 A）+ 同日门禁 B 双端实现入库（BadgeView.swift=UIKit UIView+SnapKit 锚定 / Badge.kt=Compose Box+TopEnd offset）+ iOS BadgeShowcase/Android BadgeDemo 4 段 1:1。验证版本 v1.4.0；统一待 C1.5 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版。",
+      "subcategory": "feedback",
+      "tier": "action-feedback",
+      "reviewed": true
+    },
+    {
       "id": "ui.button",
       "name": "按钮 Button",
       "category": "ui",

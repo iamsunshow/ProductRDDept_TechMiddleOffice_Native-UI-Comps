@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Drag 拖拽排序 · 设计规格 · TMO 组件库 v1.4.0</title>
+<style>
+:root { --bg:#fff; --bg-page:#f5f5f5; --text:#1a1a1a; --text-2:#888; --border:#e8e8e8; --primary:#16a34a; --danger:#dc2626; --radius-lg:14px; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:-apple-system,'SF Pro Text',sans-serif; background:var(--bg-page); color:var(--text); line-height:1.6; }
+.container { max-width:880px; margin:0 auto; padding:24px 16px 80px; }
+h1 { font-size:24px; margin-bottom:8px; }
+h2 { font-size:20px; margin:28px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+h3 { font-size:16px; margin:16px 0 8px; }
+p { font-size:14px; margin-bottom:8px; }
+code { background:#f0f0f0; padding:2px 6px; border-radius:4px; font-size:13px; }
+table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; }
+th,td { border:1px solid var(--border); padding:8px 12px; text-align:left; }
+th { background:#fafafa; font-weight:600; }
+.section { background:var(--bg); border-radius:12px; padding:20px; margin:16px 0; border:1px solid var(--border); }
+.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600; }
+.badge-a { background:#e6f7e6; color:#52c41a; }
+.mock-item { display:flex; align-items:center; gap:12px; padding:12px 16px; background:#fff; border:1px solid var(--border); border-radius:10px; margin:4px 0; }
+.mock-item.dragging { box-shadow:0 8px 24px rgba(0,0,0,0.15); opacity:0.9; transform:scale(1.02); }
+.mock-handle { font-size:18px; color:var(--text-2); cursor:grab; }
+.mock-text { flex:1; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Drag 拖拽排序</h1>
+<p>组件 ID：<code>ui.drag</code> ｜ 任务清单 #47 ｜ 通用功能组件区 ｜ TMO 组件库 v1.4.0</p>
+<p>定位：长按列表项可拖拽重新排序——用于收藏管理、章节排序、字段排序等场景。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation</h3><p>记账 App 中收藏分类排序、自定义记账模板字段排序、报表维度排序等场景需要用户手动调整列表顺序。</p>
+<h3>Complication</h3><p>双端无统一拖拽排序组件，各业务页自实现逻辑散乱、动画不一致、无平台对齐。</p>
+<h3>Question</h3><p>需要一个可复用的拖拽排序组件，支持长按拖拽、实时跟随手指、释放后动画落位、回调新顺序。</p>
+<h3>Answer</h3><p>Drag——声明式 API：传入 items 列表 + onReorder(from,to) 回调；iOS 用 UITableView + drag delegate，Android 用 Compose 拖拽 + animateItemPlacement。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 Drag 划界</th></tr>
+<tr><td>SwipeAction #19</td><td>侧滑操作菜单</td><td>Swipe=横向滑动显示操作按钮，Drag=纵向拖拽排序</td></tr>
+<tr><td>IosStylePullRefresh #55</td><td>下拉刷新</td><td>PullRefresh=下拉触发刷新，Drag=长按拖拽排序</td></tr>
+<tr><td>Tabs #20</td><td>页签切换</td><td>Tabs=横向页签切换，Drag=纵向列表排序</td></tr>
+</table>
+
+<h2>3. API 契约</h2>
+<div class="section">
+<h3>Props</h3>
+<table>
+<tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>items</code></td><td>List&lt;T&gt;</td><td>必传</td><td>数据列表（泛型 T 需 Identifiable）</td></tr>
+<tr><td><code>key</code></td><td>((T) -> Any)</td><td>必传</td><td>每项唯一标识（iOS 用于 diffable dataSource）</td></tr>
+<tr><td><code>itemContent</code></td><td>@Composable / (T) -> UIView</td><td>必传</td><td>每项渲染内容</td></tr>
+<tr><td><code>onReorder</code></td><td>(from: Int, to: Int) -> Unit</td><td>必传</td><td>拖拽完成回调（from→to 索引）</td></tr>
+<tr><td><code>enabled</code></td><td>Boolean</td><td>true</td><td>是否启用拖拽（false=纯列表不可拖）</td></tr>
+<tr><td><code>handle</code></td><td>Boolean</td><td>false</td><td>true=需长按 handle 手柄拖拽；false=整行长按拖拽</td></tr>
+</table>
+<h3>Events</h3>
+<table>
+<tr><th>事件</th><th>参数</th><th>说明</th></tr>
+<tr><td><code>onReorder</code></td><td>(from: Int, to: Int)</td><td>拖拽释放后回调新位置（from=原索引 to=目标索引）</td></tr>
+</table>
+</div>
+
+<h2>4. 设计规格</h2>
+<table>
+<tr><th>区域</th><th>规格</th><th>Token</th></tr>
+<tr><td>列表项</td><td>各项目由 itemContent 渲染，Drag 不强制样式</td><td>—</td></tr>
+<tr><td>拖拽态</td><td>阴影 elevation 8dp + 缩放 1.02 + 透明度 0.9</td><td>elevation8 / opacity90</td></tr>
+<tr><td>手柄</td><td>handle=true 时左侧显示 ≡ 图标，24×24 textSecondary</td><td>fontLg / textSecondary</td></tr>
+<tr><td>动画</td><td>释放后落位 0.25s easeOut 位移动画</td><td>0.25s / easeOut</td></tr>
+</table>
+
+<h2>5. Demo 排查 4 组</h2>
+<div class="section">
+<div class="mock-item"><span class="mock-handle">≡</span><span class="mock-text">🛒 购物</span></div>
+<div class="mock-item dragging"><span class="mock-handle">≡</span><span class="mock-text">🍔 餐饮（拖拽中）</span></div>
+<div class="mock-item"><span class="mock-handle">≡</span><span class="mock-text">🚗 交通</span></div>
+</div>
+<p style="text-align:center;font-size:13px;color:#888">D1 基础拖拽排序（3 项长按拖拽）</p>
+<p style="font-size:13px;color:#888">D2 handle 手柄模式（仅手柄可拖）｜ D3 disabled 禁用拖拽 ｜ D4 实时回调（拖拽后 Toast 显示新顺序）</p>
+
+<h2>6. 决策投票表</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项</th><th>选定</th><th>理由</th></tr>
+<tr><td>P1</td><td>触发方式</td><td>A. 长按整行触发<br>B. 仅手柄触发<br>C. 两种模式均支持</td><td><span class="badge badge-a">C</span></td><td>handle 参数切换：默认 false 整行长按，true 时仅手柄可拖</td></tr>
+<tr><td>P2</td><td>实现方式</td><td>A. iOS UITableView+dragDelegate / Android LazyColumn+drag<br>B. iOS UICollectionView+reorderingDelegate / Android RecyclerView+ItemTouchHelper<br>C. 纯自绘 UIView/Canvas 拖拽</td><td><span class="badge badge-a">A</span></td><td>iOS UITableView 最轻量；Android Compose LazyColumn 原生支持 reordering；避免引入 RecyclerView 旧体系</td></tr>
+<tr><td>P3</td><td>回调时机</td><td>A. 仅释放后回调 onReorder(from,to)<br>B. 拖拽中实时回调<br>C. 两种均支持</td><td><span class="badge badge-a">A</span></td><td>一期仅释放后回调最简；实时回调=二期</td></tr>
+<tr><td>P4</td><td>一期范围</td><td>A. 基础拖拽排序+handle+enabled+onReorder+demo4段<br>B. 二期=跨列表拖拽/多选拖拽</td><td><span class="badge badge-a">A</span></td><td>一期覆盖单列表排序 95% 场景</td></tr>
+</table>
+</div>
+
+<h2>7. 平台差异表</h2>
+<table>
+<tr><th>差异点</th><th>iOS（UIKit）</th><th>Android（Compose）</th><th>判据</th></tr>
+<tr><td>拖拽机制</td><td>UITableView drag delegate + performDropWith</td><td>LazyColumn + Modifier.pointerInput detectDragGesturesAfterLongPress</td><td>表内放行（平台原生差异，视觉一致）</td></tr>
+<tr><td>落位动画</td><td>tableView.reloadData 或 moveRow 动画</td><td>animateItemPlacement()</td><td>表内放行（均 0.25s easeOut 视觉一致）</td></tr>
+</table>
+
+<h2>8. 反目标</h2>
+<table>
+<tr><th>不做</th><th>原因</th></tr>
+<tr><td>跨列表拖拽</td><td>二期增量，一期单列表排序已够用</td></tr>
+<tr><td>多选批量拖拽</td><td>二期增量</td></tr>
+<tr><td>网格拖拽</td><td>一期只做纵向列表排序</td></tr>
+<tr><td>拖拽中实时回调</td><td>一期仅释放后回调</td></tr>
+</table>
+
+</div>
+</body>
+</html>

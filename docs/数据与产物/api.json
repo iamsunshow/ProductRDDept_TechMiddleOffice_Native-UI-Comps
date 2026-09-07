@@ -94,190 +94,23 @@
       "subcategory": "display"
     },
     {
-      "id": "ui.date-picker-month",
-      "name": "日期选择·月 DatePicker",
-      "category": "ui",
-      "summary": "按月选择（DatePicker 的 month 变体；对标 Ant DatePicker / UIDatePicker）",
-      "capabilities": [
-        "月份选择",
-        "C1",
-        "年月",
-        "MonthPicker",
-        "sheet",
-        "DatePicker",
-        "UIDatePicker",
-        "日期选择·月 DatePicker",
-        "basic.date-picker-month",
-        "ui.month-picker"
-      ],
-      "visual_tokens": [
-        "AppRadius",
-        "AppSpace"
-      ],
-      "platforms": {
-        "ios": {
-          "state": "available",
-          "note": ""
-        },
-        "android": {
-          "state": "available",
-          "note": ""
-        },
-        "harmony": {
-          "state": "unavailable",
-          "note": ""
-        },
-        "weixin": {
-          "state": "unavailable",
-          "note": ""
-        },
-        "alipay": {
-          "state": "unavailable",
-          "note": ""
-        }
-      },
-      "apis": "year/month in → onConfirm(year,month)",
-      "source_refs": {
-        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/MonthPickerViewController.swift",
-        "android": "ProductRDDept/TechMiddleOffice/android/sharedui/components/MonthPickerSheet.kt"
-      },
-      "deps": [],
-      "variants": [],
-      "anti_goals": [],
-      "visual_refs": [],
-      "status": "stable",
-      "search_text": "basic.date-picker-month 日期选择·月 DatePicker 按月选择（DatePicker 的 month 变体；对标 Ant DatePicker / UIDatePicker） basic DatePicker MonthPicker UIDatePicker 月份选择 C1 年月 MonthPicker sheet DatePicker UIDatePicker 日期选择·月 DatePicker basic.date-picker-month ui.month-picker ui.month-picker",
-      "embedding_ref": "vector-store/ui_date-picker-month.json",
-      "legacy_id": "ui.month-picker",
-      "industry_names": [
-        "DatePicker",
-        "MonthPicker",
-        "UIDatePicker"
-      ],
-      "props": [
-        [
-          "value",
-          "YearMonth",
-          "是",
-          "当前年月"
-        ],
-        [
-          "picker",
-          "'month'",
-          "是",
-          "固定为 month"
-        ]
-      ],
-      "events": [
-        [
-          "onChange",
-          "(value) => void",
-          "确认"
-        ]
-      ],
-      "demos": [
-        [
-          "月份",
-          "<DatePicker picker=\"month\" value={ym} onChange={...} />"
-        ]
-      ],
-      "subcategory": "input",
-      "reviewed": true,
-      "note": "年月滚轮选择弹层，onConfirm(year, month) 回传。2026-09-07 补双端 Demo，待用户验收"
-    },
-    {
-      "id": "ui.date-picker-year",
-      "name": "日期选择·年 DatePicker",
-      "category": "ui",
-      "summary": "按年选择（DatePicker 的 year 变体）",
-      "capabilities": [
-        "年份选择",
-        "YearPicker",
-        "DatePicker",
-        "日期选择·年 DatePicker",
-        "basic.date-picker-year",
-        "ui.year-picker"
-      ],
-      "platforms": {
-        "ios": {
-          "state": "available",
-          "note": ""
-        },
-        "android": {
-          "state": "unavailable",
-          "note": "未单独抽离"
-        },
-        "harmony": {
-          "state": "unavailable",
-          "note": ""
-        },
-        "weixin": {
-          "state": "unavailable",
-          "note": ""
-        },
-        "alipay": {
-          "state": "unavailable",
-          "note": ""
-        }
-      },
-      "source_refs": {
-        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/YearPickerViewController.swift"
-      },
-      "deps": [],
-      "variants": [],
-      "anti_goals": [],
-      "visual_tokens": [],
-      "apis": "",
-      "visual_refs": [],
-      "status": "stable",
-      "search_text": "basic.date-picker-year 日期选择·年 DatePicker 按年选择（DatePicker 的 year 变体） basic DatePicker YearPicker 年份选择 YearPicker DatePicker 日期选择·年 DatePicker basic.date-picker-year ui.year-picker ui.year-picker",
-      "embedding_ref": "vector-store/ui_date-picker-year.json",
-      "legacy_id": "ui.year-picker",
-      "industry_names": [
-        "DatePicker",
-        "YearPicker"
-      ],
-      "props": [
-        [
-          "value",
-          "number",
-          "是",
-          "年"
-        ],
-        [
-          "picker",
-          "'year'",
-          "是",
-          "固定为 year"
-        ]
-      ],
-      "events": [
-        [
-          "onChange",
-          "(year) => void",
-          "确认"
-        ]
-      ],
-      "demos": [
-        [
-          "年份",
-          "<DatePicker picker=\"year\" />"
-        ]
-      ],
-      "subcategory": "input"
-    },
-    {
       "id": "ui.date-picker",
       "name": "日期选择 DatePicker",
       "category": "ui",
-      "summary": "选择具体日期（对标 Ant DatePicker / UIDatePicker）",
+      "summary": "统一日期滚轮选择器，支持 date（年/月/日）/ month（年/月）/ year（年）三种模式",
       "capabilities": [
         "日期选择",
+        "month",
+        "日期选择 DatePicker",
         "DatePicker",
         "sheet",
-        "UIDatePicker",
-        "日期选择 DatePicker",
         "basic.date-picker",
+        "year",
+        "月份选择",
+        "UIDatePicker",
+        "DatePickerMode",
+        "年份选择",
+        "date",
         "ui.date-picker"
       ],
       "platforms": {
@@ -303,7 +136,7 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/DatePickerSheetViewController.swift",
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/DatePickerSheetViewController.swift",
         "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/DatePickerSheet.kt"
       },
       "deps": [],
@@ -322,17 +155,29 @@
       ],
       "props": [
         [
-          "value",
-          "Date",
+          "mode",
+          "'date' | 'month' | 'year'",
           "是",
-          "日期"
+          "选择粒度，默认 date"
+        ],
+        [
+          "value",
+          "Date/number",
+          "是",
+          "初始日期（date=Date，month/year=时间戳）"
+        ],
+        [
+          "maximumDate",
+          "Date?",
+          "否",
+          "最大可选日期（仅 date 模式）"
         ]
       ],
       "events": [
         [
-          "onChange",
-          "(date) => void",
-          "确认"
+          "onConfirm",
+          "Date",
+          "确认回传：date=完整日期，month=该月1号，year=该年1月1号"
         ]
       ],
       "demos": [
@@ -343,7 +188,7 @@
       ],
       "subcategory": "input",
       "reviewed": true,
-      "note": "日期滚轮选择弹层（年/月/日），onConfirm(Date) 回传。2026-09-07 补 Android 实现+双端 Demo，待用户验收"
+      "note": "2026-09-07 方案 B 重构：合并 ui.date-picker/date-picker-month/date-picker-year 为统一 DatePicker(mode)，iOS 用 UIDatePicker(date)+UIPickerView(month/year)，Android 用 NumberPicker 动态列数。删除 MonthPickerViewController/YearPickerViewController/MonthPickerSheet。待用户验收。"
     },
     {
       "id": "ui.picker",
@@ -469,7 +314,7 @@
           "Android ModalBottomSheet / iOS pageSheet 承载，确定/取消按回调自理关闭（D4）"
         ]
       ],
-      "note": "选择器 Picker（数据录入区第二批立项件，任务清单 #33）：单列滚轮选择器内容块=工具栏 44+滚轮 220（5 行×44），iOS 收编近似 OptionPickerSheetViewController（legacy ui.option-picker，pageSheet 320pt UIPickerView 单列+顶栏）组件化升级为双端通用立项、Android 从零自绘滚轮（sharedui 仅 MonthPickerSheet 日期专用轮盘无通用滚轮基础件）；受控 value+确定提交/取消回滚不回调、选项 disabled 掠行不可停靠自动吸附、无遮罩宿主承载（页面内嵌/系统 sheet）。2026-09-06 门禁 A AI 代评通过（design-spec/picker-design-spec.html + review-picker-A.md，P1–P4 全 A）+ 同日门禁 B 双端实现入库（PickerView.swift=命令式 UIKit UIPickerView / Picker.kt=声明式 Compose LazyColumn+SnapPosition.Center）+ iOS PickerShowcase/Android PickerDemo 4 段 1:1，demo 徽标 v1.0（builtAt 2026-09-06），Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「好了一点了，先这样了吧，通过了」）：验收前多轮复验问题修复闭环=①确定后状态回写刷新、②禁用行停靠校正、③受控取消回滚到 value 行、④禁点消失（复用 D2 禁用掠行 scroll 整格模型 884d479）、⑤慢拖停在两行中间（松手吸附兜底 ae9908c）、⑥滚动期不打断 fling、⑦卡顿手感（foundation 1.7.6 动画 spec API 受限后取舍）。验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "选择器 Picker（数据录入区第二批立项件，任务清单 #33）：单列滚轮选择器内容块=工具栏 44+滚轮 220（5 行×44），iOS 收编近似 OptionPickerSheetViewController（legacy ui.option-picker，pageSheet 320pt UIPickerView 单列+顶栏）组件化升级为双端通用立项、Android 从零自绘滚轮（sharedui 仅 MonthPickerSheet 日期专用轮盘无通用滚轮基础件）；受控 value+确定提交/取消回滚不回调、选项 disabled 掠行不可停靠自动吸附、无遮罩宿主承载（页面内嵌/系统 sheet）。2026-09-06 门禁 A AI 代评通过（design-spec/picker-design-spec.html + 评审记录/review-picker-A.md，P1–P4 全 A）+ 同日门禁 B 双端实现入库（PickerView.swift=命令式 UIKit UIPickerView / Picker.kt=声明式 Compose LazyColumn+SnapPosition.Center）+ iOS PickerShowcase/Android PickerDemo 4 段 1:1，demo 徽标 v1.0（builtAt 2026-09-06），Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「好了一点了，先这样了吧，通过了」）：验收前多轮复验问题修复闭环=①确定后状态回写刷新、②禁用行停靠校正、③受控取消回滚到 value 行、④禁点消失（复用 D2 禁用掠行 scroll 整格模型 884d479）、⑤慢拖停在两行中间（松手吸附兜底 ae9908c）、⑥滚动期不打断 fling、⑦卡顿手感（foundation 1.7.6 动画 spec API 受限后取舍）。验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -1777,7 +1622,7 @@
           "组队人数 min1 max10；「禁用/启用」整控件 40% 置灰、外部 value=2 回显不触发 onChange（半受控）（D4）"
         ]
       ],
-      "note": "步进式数字输入内容组件（数据录入区第二批三件之二，任务清单 #30）：对标 Vant Stepper 收敛半受控+无键盘（一期无直输/长按，键盘=Input #29 职责、悬浮面板=不承载）；Double 宿主值 + 显式 precision 定点（不引入 Decimal 类型，避免与宿主 Double 契约异构）；金额大数精度=MoneyFormat/宿主策略。2026-09-06 门禁 A AI 代评通过（规格 input-number-design-spec.html + review-input-number-A.md，P1–P4 全 A）+ 双端实现入库（InputNumberView.swift / InputNumber.kt + iOS InputNumberShowcase/Android InputNumberDemo 4 段 1:1，demo 徽标 v1.0；Android assembleDebug 编译通过）。2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「Form和InputNumber通过」；验收前 iOS 编译 6 error 修复=init 形参 min/max 遮蔽全局 min/max 函数 → Swift.min/Swift.max 显式引用 + 删 unused digits 死代码，子仓 9ac1fef）。验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "步进式数字输入内容组件（数据录入区第二批三件之二，任务清单 #30）：对标 Vant Stepper 收敛半受控+无键盘（一期无直输/长按，键盘=Input #29 职责、悬浮面板=不承载）；Double 宿主值 + 显式 precision 定点（不引入 Decimal 类型，避免与宿主 Double 契约异构）；金额大数精度=MoneyFormat/宿主策略。2026-09-06 门禁 A AI 代评通过（规格 input-number-design-spec.html + 评审记录/review-input-number-A.md，P1–P4 全 A）+ 双端实现入库（InputNumberView.swift / InputNumber.kt + iOS InputNumberShowcase/Android InputNumberDemo 4 段 1:1，demo 徽标 v1.0；Android assembleDebug 编译通过）。2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「Form和InputNumber通过」；验收前 iOS 编译 6 error 修复=init 形参 min/max 遮蔽全局 min/max 函数 → Swift.min/Swift.max 显式引用 + 删 unused digits 死代码，子仓 9ac1fef）。验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -2406,7 +2251,7 @@
           "12 组月份分组连续滚动，索引高亮稳定无跳变（D4）"
         ]
       ],
-      "note": "电梯楼层定位器（导航组件 #2，任务清单 #14）：数据驱动分组内容 + 右侧楼/字母索引导航（点击索引=分组滚顶、内容滚动=可视首分组高亮索引双向联动）；自包含定高（滚动容器 iOS UITableView / Android LazyColumn，高度由宿主约束=组件不代管布局上下文）；分组标题行 32pt/32dp=普通行随内容滚动（不吸顶，anti_goal 二期）；内容行高 56pt/56dp=同库规范行高（对齐 Cell.minHeight）；索引条宽 44pt/44dp；行点击回调可选（onSelect）。2026-09-05 全新立项：规格 elevator-design-spec.html（01 用途边界/02 Token/03 P1–P4 决策/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-elevator-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：自包含定高 + 索引自动/显式 + 双向联动 + 行点击可选；anti_goal=外部容器联动/行内容插槽/标题吸顶=登记二期）+ 双端实现入库（ElevatorView.swift / Elevator.kt + iOS ElevatorShowcase/Android ElevatorDemo 4 段 1:1：D1 楼层自动索引 / D2 城市显式 index / D3 行点击 onSelect / D4 12 组月份长列表）。reviewed=true（2026-09-05 用户 Demo 双端实机验收通过：原话“通过”，见组件进度.md §2.12）。",
+      "note": "电梯楼层定位器（导航组件 #2，任务清单 #14）：数据驱动分组内容 + 右侧楼/字母索引导航（点击索引=分组滚顶、内容滚动=可视首分组高亮索引双向联动）；自包含定高（滚动容器 iOS UITableView / Android LazyColumn，高度由宿主约束=组件不代管布局上下文）；分组标题行 32pt/32dp=普通行随内容滚动（不吸顶，anti_goal 二期）；内容行高 56pt/56dp=同库规范行高（对齐 Cell.minHeight）；索引条宽 44pt/44dp；行点击回调可选（onSelect）。2026-09-05 全新立项：规格 elevator-design-spec.html（01 用途边界/02 Token/03 P1–P4 决策/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（评审记录/review-elevator-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：自包含定高 + 索引自动/显式 + 双向联动 + 行点击可选；anti_goal=外部容器联动/行内容插槽/标题吸顶=登记二期）+ 双端实现入库（ElevatorView.swift / Elevator.kt + iOS ElevatorShowcase/Android ElevatorDemo 4 段 1:1：D1 楼层自动索引 / D2 城市显式 index / D3 行点击 onSelect / D4 12 组月份长列表）。reviewed=true（2026-09-05 用户 Demo 双端实机验收通过：原话“通过”，见组件进度.md §2.12）。",
       "subcategory": "navigation",
       "reviewed": true
     },
@@ -2523,7 +2368,7 @@
           "连续开合点选 + 点面板外空白=收起且不触发选中，状态机稳定（D4）"
         ]
       ],
-      "note": "悬浮导航（导航组件 #3，任务清单 #15）：页面边缘常驻悬浮入口钮 + 展开导航项列表的“快捷导航器”；对标 NutUI React FixedNav（active/nav-list/type/text 语义）；钮视觉基线对齐 BackTop 悬浮钮（高 40pt/40dp 主色白字胶囊钮，圆角 full）；面板=卡片壳（bgCard/圆角 md/边框/阴影）竖排行（行高 44pt/44dp：图标位 20 圆角 6 primaryMuted + 文本 + 可选 num 角标 16 圆角 full，末行无下边线，行最小宽 140）；type 只决定钮靠左/右缘与面板展开方向；“悬浮”定位由宿主完成（组件=纯内容视图放非滚动覆盖层锚定边角，同 BackTop 先例，不做 window 浮层/不监听滚动）；点项自动收起。2026-09-05 全新立项：规格 fixed-nav-design-spec.html（01 用途边界/02 Token/03 P1–P4/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-fixed-nav-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：收起胶囊钮+点钮弹出面板+点项自动收起 / FixedNavItem(key/text/icon?/num?) + type 左右 + 文案自定义 + onSelect / 宿主锚定纯内容视图 / 一期面板行≤7 无滚动；anti_goal=拖拽 Drag/自定义插槽/Icon 系统映射/面板滚动=登记二期）+ 双端实现入库（FixedNavView.swift / FixedNav.kt + iOS FixedNavShowcase/Android FixedNavDemo 4 段 1:1：D1 右侧默认 / D2 左侧 type=left / D3 无图标无角标 / D4 多次开合+点面板外收起）。2026-09-05 C1.5 用户 Demo 双端实机验收通过（原话“通过了”）：验收 5 类问题双端修复闭环（子仓 9503a47：①Android 面板通栏→面板 Column 补 width(IntrinsicSize.Min)+行 defaultMinSize(140)；②Android 图标浅绿框内不居中/数字截断→icon/num 文字 lineHeight=fontSize+居中+num badge 弃固定高改 defaultMinSize；③行内数字推行尾→title 后 Spacer(weight)/iOS 低 hugging 弹性 spacer=spec fn-num margin-left:auto；④iOS 行 title 被 UIStackView fill 拉宽→弹性 spacer；⑤iOS 多次点击失灵→collapse completion 加 panelCard===card 引用保护），reviewed=true。",
+      "note": "悬浮导航（导航组件 #3，任务清单 #15）：页面边缘常驻悬浮入口钮 + 展开导航项列表的“快捷导航器”；对标 NutUI React FixedNav（active/nav-list/type/text 语义）；钮视觉基线对齐 BackTop 悬浮钮（高 40pt/40dp 主色白字胶囊钮，圆角 full）；面板=卡片壳（bgCard/圆角 md/边框/阴影）竖排行（行高 44pt/44dp：图标位 20 圆角 6 primaryMuted + 文本 + 可选 num 角标 16 圆角 full，末行无下边线，行最小宽 140）；type 只决定钮靠左/右缘与面板展开方向；“悬浮”定位由宿主完成（组件=纯内容视图放非滚动覆盖层锚定边角，同 BackTop 先例，不做 window 浮层/不监听滚动）；点项自动收起。2026-09-05 全新立项：规格 fixed-nav-design-spec.html（01 用途边界/02 Token/03 P1–P4/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（评审记录/review-fixed-nav-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：收起胶囊钮+点钮弹出面板+点项自动收起 / FixedNavItem(key/text/icon?/num?) + type 左右 + 文案自定义 + onSelect / 宿主锚定纯内容视图 / 一期面板行≤7 无滚动；anti_goal=拖拽 Drag/自定义插槽/Icon 系统映射/面板滚动=登记二期）+ 双端实现入库（FixedNavView.swift / FixedNav.kt + iOS FixedNavShowcase/Android FixedNavDemo 4 段 1:1：D1 右侧默认 / D2 左侧 type=left / D3 无图标无角标 / D4 多次开合+点面板外收起）。2026-09-05 C1.5 用户 Demo 双端实机验收通过（原话“通过了”）：验收 5 类问题双端修复闭环（子仓 9503a47：①Android 面板通栏→面板 Column 补 width(IntrinsicSize.Min)+行 defaultMinSize(140)；②Android 图标浅绿框内不居中/数字截断→icon/num 文字 lineHeight=fontSize+居中+num badge 弃固定高改 defaultMinSize；③行内数字推行尾→title 后 Spacer(weight)/iOS 低 hugging 弹性 spacer=spec fn-num margin-left:auto；④iOS 行 title 被 UIStackView fill 拉宽→弹性 spacer；⑤iOS 多次点击失灵→collapse completion 加 panelCard===card 引用保护），reviewed=true。",
       "subcategory": "navigation",
       "reviewed": true
     },
@@ -2617,7 +2462,7 @@
           "「重置到第一项」外部赋值 selectedValue：高亮同步 + 选中滚入可视，不触发 onChange（幂等）（D4）"
         ]
       ],
-      "note": "侧边导航（导航组件 #5，任务清单 #18）：页面内容区左侧竖排目录导航轨（垂直单选导航），对标 NutUI React SideBar（title/url 语义收敛为 value 回调）；纯导航轨定位（组件不内嵌右内容联动，与 Elevator 划界：不监听滚动/不做锚点跟随=宿主自理）；选中视觉=白底胶囊（圆角 full）+ 主色加粗浮于灰轨（gray4）上；禁用=文字透明度 40%（A2 规格）；胶囊宽=轨宽−8（行左右 margin xs=4）、行高 48pt/48dp（同库导航轨行高）、轨宽默认 96pt/96dp（宿主可宽度约束覆盖）；行高/轨宽/胶囊 margin 均 Token 对齐（AppSpace.xs/sizeSm 等注释，防魔法值）。轨内长列表滚动 iOS=UIScrollView/Android=LazyColumn，选中自动滚入可视（scrollRectToVisible/animateScrollToItem）。2026-09-05 全新立项：规格 side-bar-design-spec.html（01 用途边界/02 Token/03 P1–P4 决策/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-side-bar-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：纯导航轨数据驱动 + 半受控选中（外部驱动不触发回调）+ 长轨滚动选中滚入可视 + 一期无右内容联动；anti_goal=右侧内容插槽/行内缩进图标/双向滚动锚定跟随=登记二期）+ 双端实现入库（SideBarView.swift / SideBar.kt + iOS SideBarShowcase/Android SideBarDemo 4 段 1:1：D1 基础两栏 / D2 禁用+长标题 / D3 长列表+双向联动 / D4 受控复位）。C1.5 用户评审通过（2026-09-05 原话“评审通过，实现吧”）：Android 首验报 demo 入口不可点，根因=MainActivity 注册行 SideBar 仍为占位 DemoComponent（demo=null 行不可点）→ 补 reviewed=true + demo={ SideBarDemo() }（子仓 c11d92a）+ :app:assembleDebug BUILD SUCCESSFUL 复验；iOS SideBarShowcase 实机可用（用户原话“iOS 的可以使用”）；reviewed 翻 true 并回写组件进度.md §1/§2.15/§3。C1.5 修复复验再闭环（2026-09-05 用户复验通过，原话“SideBar通过”，子仓 97c4504 + 根仓收编 fd5c44dc）：① iOS D2 demo 原受控写死 selectedValue=「数据与隐私」且 onChange 不回写=点其它可用项高亮不迁移、右侧信息卡静态=看起来无反应 → 改半受控宿主回写（d2SelectedValue + rail.selectedValue = value）与 Android D2 语义一致；② iOS D4 demo 原开局自管理（selectedValue=nil）而点「重置到第一项」才把 selectedValue 置非 nil=瞬间切进受控态且 onChange 从不回写=受控语义下高亮被外部值钉死=重置后左侧菜单点击不迁移“没法点” → 改全程受控创建（selectedValue=d4SelectedValue）+ onChange 回写，与 Android D4（d4Sel 全程受控）对齐；③ Android 组件点选后整轨置顶跳变=原 animateScrollToItem(index) 强制把选中行滚到视口顶 → 改对齐 iOS scrollRectToVisible 语义：目标在可视区内不滚、在上方滚到顶部可见、在下方按「视口高−行高」scrollOffset 滚到恰好进入可视。",
+      "note": "侧边导航（导航组件 #5，任务清单 #18）：页面内容区左侧竖排目录导航轨（垂直单选导航），对标 NutUI React SideBar（title/url 语义收敛为 value 回调）；纯导航轨定位（组件不内嵌右内容联动，与 Elevator 划界：不监听滚动/不做锚点跟随=宿主自理）；选中视觉=白底胶囊（圆角 full）+ 主色加粗浮于灰轨（gray4）上；禁用=文字透明度 40%（A2 规格）；胶囊宽=轨宽−8（行左右 margin xs=4）、行高 48pt/48dp（同库导航轨行高）、轨宽默认 96pt/96dp（宿主可宽度约束覆盖）；行高/轨宽/胶囊 margin 均 Token 对齐（AppSpace.xs/sizeSm 等注释，防魔法值）。轨内长列表滚动 iOS=UIScrollView/Android=LazyColumn，选中自动滚入可视（scrollRectToVisible/animateScrollToItem）。2026-09-05 全新立项：规格 side-bar-design-spec.html（01 用途边界/02 Token/03 P1–P4 决策/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（评审记录/review-side-bar-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：纯导航轨数据驱动 + 半受控选中（外部驱动不触发回调）+ 长轨滚动选中滚入可视 + 一期无右内容联动；anti_goal=右侧内容插槽/行内缩进图标/双向滚动锚定跟随=登记二期）+ 双端实现入库（SideBarView.swift / SideBar.kt + iOS SideBarShowcase/Android SideBarDemo 4 段 1:1：D1 基础两栏 / D2 禁用+长标题 / D3 长列表+双向联动 / D4 受控复位）。C1.5 用户评审通过（2026-09-05 原话“评审通过，实现吧”）：Android 首验报 demo 入口不可点，根因=MainActivity 注册行 SideBar 仍为占位 DemoComponent（demo=null 行不可点）→ 补 reviewed=true + demo={ SideBarDemo() }（子仓 c11d92a）+ :app:assembleDebug BUILD SUCCESSFUL 复验；iOS SideBarShowcase 实机可用（用户原话“iOS 的可以使用”）；reviewed 翻 true 并回写组件进度.md §1/§2.15/§3。C1.5 修复复验再闭环（2026-09-05 用户复验通过，原话“SideBar通过”，子仓 97c4504 + 根仓收编 fd5c44dc）：① iOS D2 demo 原受控写死 selectedValue=「数据与隐私」且 onChange 不回写=点其它可用项高亮不迁移、右侧信息卡静态=看起来无反应 → 改半受控宿主回写（d2SelectedValue + rail.selectedValue = value）与 Android D2 语义一致；② iOS D4 demo 原开局自管理（selectedValue=nil）而点「重置到第一项」才把 selectedValue 置非 nil=瞬间切进受控态且 onChange 从不回写=受控语义下高亮被外部值钉死=重置后左侧菜单点击不迁移“没法点” → 改全程受控创建（selectedValue=d4SelectedValue）+ onChange 回写，与 Android D4（d4Sel 全程受控）对齐；③ Android 组件点选后整轨置顶跳变=原 animateScrollToItem(index) 强制把选中行滚到视口顶 → 改对齐 iOS scrollRectToVisible 语义：目标在可视区内不滚、在上方滚到顶部可见、在下方按「视口高−行高」scrollOffset 滚到恰好进入可视。",
       "subcategory": "navigation",
       "reviewed": true
     },
@@ -2720,7 +2565,7 @@
           "同容器滚动：HoverButton 常驻点计数 vs BackTop 滚动超阈值才出现的回顶钮=悬浮族划界（D4）"
         ]
       ],
-      "note": "悬浮按钮（导航组件 #4，任务清单 #16）：页面边缘常驻的“单功能悬浮动作钮”；与悬浮族划界=多入口列表面板→FixedNav（ui.fixed-nav）、滚动超阈值回顶→BackTop（ui.back-top）、本组件=单钮常驻自定义动作；钮视觉基线对齐 BackTop 悬浮钮同族（主色底白字、圆角 full、高 40pt/40dp、icon=单字符文本位零图片）；形态内容驱动（P3-A）：text 空=icon-only 圆钮（40×40 icon 兜底 ✚ U+271A）、text 非空=胶囊（高 40 圆角 full 水平内边距 16 icon 间距 8 宽随内容，icon 缺省不占位=纯文本胶囊）；“悬浮”定位由宿主完成（组件=纯内容视图放非滚动覆盖层锚定边角，同 BackTop/FixedNav 先例，不做 window 浮层/不监听滚动）。2026-09-05 全新立项：规格 hover-button-design-spec.html（01 用途边界/02 Token/03 P1–P4/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（review-hover-button-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：单钮常驻悬浮动作钮+onTap / icon/text 声明式+onTap 缺省不崩 / 内容驱动形态判定（无 mode 枚举）/ 一期=主色钮三形态+常驻+宿主定位+Demo 四段；anti_goal=动作组并入 FixedNav、色板/插槽、拖拽、Icon 映射=登记二期）+ 双端实现入库（HoverButton.swift / HoverButton.kt + iOS HoverButtonShowcase/Android HoverButtonDemo 4 段 1:1：D1 icon-only ✚ 圆钮右侧常驻 / D2 icon+text 胶囊左下 / D3 纯文本长内容胶囊 / D4 与 BackTop 共存划界）+ demo 注册（iOS pbxproj 5A15 登记、Android DemoComponent reviewed=true demo 接线），Android assembleDebug 0 error + iOS xcodebuild Simulator BUILD SUCCEEDED。C1.5 用户评审通过（2026-09-05 原话“评审通过，实现吧”）：Android 首验报 icon-only 圆钮 ✚ 未水平垂直居中，根因=icon-only 形态 inner Row 被强制 size(40) 撑满宽且 horizontalArrangement=Start 把内容顶到左侧 → 修=icon-only 分支 horizontalArrangement 改 Center（垂直居中 Row verticalAlignment=CenterVertically + Box contentAlignment=Center 不变；pill icon+text 仍 spacedBy、纯文本胶囊仍 Start=子仓 c11d92a）+ :app:assembleDebug BUILD SUCCESSFUL 复验；iOS HoverButtonShowcase 实机可用（未改动）；reviewed 翻 true 并回写组件进度.md §1/§2.14/§3。",
+      "note": "悬浮按钮（导航组件 #4，任务清单 #16）：页面边缘常驻的“单功能悬浮动作钮”；与悬浮族划界=多入口列表面板→FixedNav（ui.fixed-nav）、滚动超阈值回顶→BackTop（ui.back-top）、本组件=单钮常驻自定义动作；钮视觉基线对齐 BackTop 悬浮钮同族（主色底白字、圆角 full、高 40pt/40dp、icon=单字符文本位零图片）；形态内容驱动（P3-A）：text 空=icon-only 圆钮（40×40 icon 兜底 ✚ U+271A）、text 非空=胶囊（高 40 圆角 full 水平内边距 16 icon 间距 8 宽随内容，icon 缺省不占位=纯文本胶囊）；“悬浮”定位由宿主完成（组件=纯内容视图放非滚动覆盖层锚定边角，同 BackTop/FixedNav 先例，不做 window 浮层/不监听滚动）。2026-09-05 全新立项：规格 hover-button-design-spec.html（01 用途边界/02 Token/03 P1–P4/04 Demo 预览/05 平台差异/06 API/07 A1–A7）+ 门禁 A AI 代评通过（评审记录/review-hover-button-A.md，用户“除特色组件外所有组件评审文档全部生成，中间任何询问直接通过”总授权，P1–P4 全 A：单钮常驻悬浮动作钮+onTap / icon/text 声明式+onTap 缺省不崩 / 内容驱动形态判定（无 mode 枚举）/ 一期=主色钮三形态+常驻+宿主定位+Demo 四段；anti_goal=动作组并入 FixedNav、色板/插槽、拖拽、Icon 映射=登记二期）+ 双端实现入库（HoverButton.swift / HoverButton.kt + iOS HoverButtonShowcase/Android HoverButtonDemo 4 段 1:1：D1 icon-only ✚ 圆钮右侧常驻 / D2 icon+text 胶囊左下 / D3 纯文本长内容胶囊 / D4 与 BackTop 共存划界）+ demo 注册（iOS pbxproj 5A15 登记、Android DemoComponent reviewed=true demo 接线），Android assembleDebug 0 error + iOS xcodebuild Simulator BUILD SUCCEEDED。C1.5 用户评审通过（2026-09-05 原话“评审通过，实现吧”）：Android 首验报 icon-only 圆钮 ✚ 未水平垂直居中，根因=icon-only 形态 inner Row 被强制 size(40) 撑满宽且 horizontalArrangement=Start 把内容顶到左侧 → 修=icon-only 分支 horizontalArrangement 改 Center（垂直居中 Row verticalAlignment=CenterVertically + Box contentAlignment=Center 不变；pill icon+text 仍 spacedBy、纯文本胶囊仍 Start=子仓 c11d92a）+ :app:assembleDebug BUILD SUCCESSFUL 复验；iOS HoverButtonShowcase 实机可用（未改动）；reviewed 翻 true 并回写组件进度.md §1/§2.14/§3。",
       "subcategory": "navigation",
       "reviewed": true
     },
@@ -2812,7 +2657,7 @@
           "超长标题单行省略+两侧返回/保存夹挤不侵入热区（D4）"
         ]
       ],
-      "note": "头部导航（导航组件 #2 收编，任务清单 #17）：页面顶部单行头部导航条，对标 NutUI React NavBar（title/back/right）与 iOS 系统 UINavigationBar 语义对齐收编为库内独立组件；导航栈管理与状态栏 inset 由宿主自理（一期明确 anti_goal），内容行高 44pt/44dp（宿主可覆盖），白底 bgCard、行底 hairline（iOS 1/scale pt vs Android 0.5dp 表内放行），返回钮热区 44×44、← 字符 22 主色；右侧动作 NavBarAction(text, color?, onTap)。2026-09-05 导航区收官三件门禁 A 总评通过（规格 nav-bar-design-spec.html + review-nav-bar-A.md，P1–P4 全 A）+ 双端实现入库（NavBar.swift / NavBar.kt + iOS NavBarShowcase/Android NavBarDemo 4 段 1:1）+ demo 注册（iOS pbxproj 5A17 登记、Android DemoComponent reviewed=true 接线）。C1.5 待用户实机验收。旧键 ui.navbar 为收编前 legacy 登记（不删，去向以本条目为准）。C1.5 ✅ 用户双端实机验收通过（2026-09-05 原话“Android全部通过。iOS也全部通过”）：iOS demo 说明文字与导航条重叠根因=NavBarShowcase.pinBar 顶部单锚缺 bottom 闭合（段容器普通 UIView 无 intrinsic 高、44pt 条高度链断裂溢出压到说明文字）→ 改四边 edges 闭合（子仓 49f1bef，同 Divider 首轮「Demo4 文案重叠」同根因先例）；验证版本 v1.4.0；C1.5 通过，统一待 C1 单测补建 + C2/D。",
+      "note": "头部导航（导航组件 #2 收编，任务清单 #17）：页面顶部单行头部导航条，对标 NutUI React NavBar（title/back/right）与 iOS 系统 UINavigationBar 语义对齐收编为库内独立组件；导航栈管理与状态栏 inset 由宿主自理（一期明确 anti_goal），内容行高 44pt/44dp（宿主可覆盖），白底 bgCard、行底 hairline（iOS 1/scale pt vs Android 0.5dp 表内放行），返回钮热区 44×44、← 字符 22 主色；右侧动作 NavBarAction(text, color?, onTap)。2026-09-05 导航区收官三件门禁 A 总评通过（规格 nav-bar-design-spec.html + 评审记录/review-nav-bar-A.md，P1–P4 全 A）+ 双端实现入库（NavBar.swift / NavBar.kt + iOS NavBarShowcase/Android NavBarDemo 4 段 1:1）+ demo 注册（iOS pbxproj 5A17 登记、Android DemoComponent reviewed=true 接线）。C1.5 待用户实机验收。旧键 ui.navbar 为收编前 legacy 登记（不删，去向以本条目为准）。C1.5 ✅ 用户双端实机验收通过（2026-09-05 原话“Android全部通过。iOS也全部通过”）：iOS demo 说明文字与导航条重叠根因=NavBarShowcase.pinBar 顶部单锚缺 bottom 闭合（段容器普通 UIView 无 intrinsic 高、44pt 条高度链断裂溢出压到说明文字）→ 改四边 edges 闭合（子仓 49f1bef，同 Divider 首轮「Demo4 文案重叠」同根因先例）；验证版本 v1.4.0；C1.5 通过，统一待 C1 单测补建 + C2/D。",
       "subcategory": "navigation",
       "reviewed": true
     },
@@ -2910,7 +2755,7 @@
           "外部状态驱动 selectedValue（高亮随外部变化），外部按钮切换演示（D4）"
         ]
       ],
-      "note": "标签栏（导航组件 #6，任务清单 #19）：页面底部一级主导航标签条（2-5 项等分 icon+文字，页面路由/切换宿主自理，一期不收编 iOS UITabBar/Material BottomNavigation 系统容器=anti_goal）；栏高 56pt/56dp、icon 文本字符 22=sizeXl（emoji 彩色不染色）、文字 12=sizeXs（激活 semibold 主色/默认 textSecondary）、角标高 16 圆角 full 主色白字 12、禁用 40% 透明、单行省略、activeColor 可覆盖、栏顶 hairline（iOS 1/scale pt vs Android 0.5dp 表内放行）；半受控选中语义与库内 SideBar/Elevator 一致（外部 selectedValue 驱动不触发 onChange、点已激活项幂等）。角标锚点对齐 spec preview（cell 水平中心 +14/顶 2）。2026-09-05 导航区收官三件门禁 A 总评通过（规格 tabbar-design-spec.html + review-tabbar-A.md，P1–P4 全 A）+ 双端实现入库（TabbarView.swift / Tabbar.kt + iOS TabbarShowcase/Android TabbarDemo 4 段 1:1）+ demo 注册（iOS pbxproj 5A18 登记、Android DemoComponent reviewed=true 接线）。C1.5 ✅ 用户双端实机验收通过（2026-09-05 原话“Android全部通过。iOS也全部通过”）：① Android 角标不在图标右上/数字不在胶囊中央=align(TopCenter)+offset y=10 的 y 作用于角标上缘致整枚下移 8dp（iOS 为 top=2）→ offset y 改 2 双端锚点 1:1 + badge Text 默认行高额外纵向空隙致数字视觉偏下 → 显式 lineHeight=字号（子仓 2cabefa，Pixel7Pro 模拟器截图验证居中）；② iOS D1–D4 点击不切换高亮=半受控 demo 只 onChange 更新宿主 state、命令式端不回写组件 selectedValue（Android 声明式自动重组）→ 各 demo 存组件引用 + onChange/D4 外部按钮统一回写 selectedValue（子仓 18545fc）；验证版本 v1.4.0；C1.5 通过，统一待 C1 单测补建 + C2/D。",
+      "note": "标签栏（导航组件 #6，任务清单 #19）：页面底部一级主导航标签条（2-5 项等分 icon+文字，页面路由/切换宿主自理，一期不收编 iOS UITabBar/Material BottomNavigation 系统容器=anti_goal）；栏高 56pt/56dp、icon 文本字符 22=sizeXl（emoji 彩色不染色）、文字 12=sizeXs（激活 semibold 主色/默认 textSecondary）、角标高 16 圆角 full 主色白字 12、禁用 40% 透明、单行省略、activeColor 可覆盖、栏顶 hairline（iOS 1/scale pt vs Android 0.5dp 表内放行）；半受控选中语义与库内 SideBar/Elevator 一致（外部 selectedValue 驱动不触发 onChange、点已激活项幂等）。角标锚点对齐 spec preview（cell 水平中心 +14/顶 2）。2026-09-05 导航区收官三件门禁 A 总评通过（规格 tabbar-design-spec.html + 评审记录/review-tabbar-A.md，P1–P4 全 A）+ 双端实现入库（TabbarView.swift / Tabbar.kt + iOS TabbarShowcase/Android TabbarDemo 4 段 1:1）+ demo 注册（iOS pbxproj 5A18 登记、Android DemoComponent reviewed=true 接线）。C1.5 ✅ 用户双端实机验收通过（2026-09-05 原话“Android全部通过。iOS也全部通过”）：① Android 角标不在图标右上/数字不在胶囊中央=align(TopCenter)+offset y=10 的 y 作用于角标上缘致整枚下移 8dp（iOS 为 top=2）→ offset y 改 2 双端锚点 1:1 + badge Text 默认行高额外纵向空隙致数字视觉偏下 → 显式 lineHeight=字号（子仓 2cabefa，Pixel7Pro 模拟器截图验证居中）；② iOS D1–D4 点击不切换高亮=半受控 demo 只 onChange 更新宿主 state、命令式端不回写组件 selectedValue（Android 声明式自动重组）→ 各 demo 存组件引用 + onChange/D4 外部按钮统一回写 selectedValue（子仓 18545fc）；验证版本 v1.4.0；C1.5 通过，统一待 C1 单测补建 + C2/D。",
       "subcategory": "navigation",
       "reviewed": true
     },
@@ -3008,7 +2853,7 @@
           "外部状态驱动 selectedValue，外部按钮切换演示（D4）"
         ]
       ],
-      "note": "选项卡（导航组件 #3 收编，任务清单 #20）：页内顶部页签条（内容面板宿主渲染），对标 iOS TabsView/PeriodTabsView 旧收编业务双 Tab 与 Android 无对应（旧 TabsView 200 宽胶囊形态近 Segmented）→ 收编替换为库内独立等分页签条 Tabs，与 Segmented（#74 胶囊分段控件）划界：本组件=页内顶部页签切换条+底部整项宽指示线；文字 Sm 14、条高 44pt/44dp、激活项底部 2pt/2dp 指示线（宽度定稿=当前项整宽=等分格宽，spec 05 平台差异表内放行：iOS UIView 底条 vs Android Box align bottom）、禁用 40% 透明、单行省略、activeColor 覆盖默认主色；半受控选中语义同库内 SideBar/Elevator/Tabbar。2026-09-05 导航区收官三件门禁 A 总评通过（规格 tabs-design-spec.html + review-tabs-A.md，P1–P4 全 A）+ 双端实现入库（TabsView.swift 重写替换旧收编业务文件 / Tabs.kt + iOS TabsShowcase/Android TabsDemo 4 段 1:1）+ demo 注册（TabsView.swift pbxproj 已登记沿用、Android DemoComponent reviewed=true 接线）。C1.5 ✅ 用户双端实机验收通过（2026-09-05 原话“Android全部通过。iOS也全部通过”）：iOS D1–D4 点击不切换高亮=半受控 demo onChange 只改宿主 state 不回写组件 selectedValue（命令式端受控路径宿主必须回写，同 Tabbar 修复）→ 各 demo 存组件引用 + onChange/D4 外部按钮统一回写（子仓 18545fc）；验证版本 v1.4.0；C1.5 通过，统一待 C1 单测补建 + C2/D。",
+      "note": "选项卡（导航组件 #3 收编，任务清单 #20）：页内顶部页签条（内容面板宿主渲染），对标 iOS TabsView/PeriodTabsView 旧收编业务双 Tab 与 Android 无对应（旧 TabsView 200 宽胶囊形态近 Segmented）→ 收编替换为库内独立等分页签条 Tabs，与 Segmented（#74 胶囊分段控件）划界：本组件=页内顶部页签切换条+底部整项宽指示线；文字 Sm 14、条高 44pt/44dp、激活项底部 2pt/2dp 指示线（宽度定稿=当前项整宽=等分格宽，spec 05 平台差异表内放行：iOS UIView 底条 vs Android Box align bottom）、禁用 40% 透明、单行省略、activeColor 覆盖默认主色；半受控选中语义同库内 SideBar/Elevator/Tabbar。2026-09-05 导航区收官三件门禁 A 总评通过（规格 tabs-design-spec.html + 评审记录/review-tabs-A.md，P1–P4 全 A）+ 双端实现入库（TabsView.swift 重写替换旧收编业务文件 / Tabs.kt + iOS TabsShowcase/Android TabsDemo 4 段 1:1）+ demo 注册（TabsView.swift pbxproj 已登记沿用、Android DemoComponent reviewed=true 接线）。C1.5 ✅ 用户双端实机验收通过（2026-09-05 原话“Android全部通过。iOS也全部通过”）：iOS D1–D4 点击不切换高亮=半受控 demo onChange 只改宿主 state 不回写组件 selectedValue（命令式端受控路径宿主必须回写，同 Tabbar 修复）→ 各 demo 存组件引用 + onChange/D4 外部按钮统一回写（子仓 18545fc）；验证版本 v1.4.0；C1.5 通过，统一待 C1 单测补建 + C2/D。",
       "subcategory": "navigation",
       "reviewed": true
     },
@@ -3102,7 +2947,7 @@
           "外部 result 预填回显定位/清空回根层（不触发 onChange，计数保持）（D4）"
         ]
       ],
-      "note": "地址（数据录入首批三件之一，任务清单 #21）：固定“省→市→区”地域三级专用选择视图（内嵌无弹层、弹层宿主自理），对标 Vant Area/NutUI Address 收敛为库内设计语言；与 Cascader（#24 通用任意树）划界=本组件地域专用三级+市区缺省自动收拢。2026-09-05 门禁 A AI 代评通过（规格 address-design-spec.html + review-address-A.md，P1–P4 全 A：P1-A 纯三级地域视图/弹层宿主自理、P2-A RegionOption 嵌套树 + AddressResult 结构化结果、P3-A 半受控回显、P4-A 一期=三级联动+两级收拢+tab 回退+demo 四段）+ 双端实现入库（AddressView.swift / Address.kt + iOS AddressShowcase/Android AddressDemo 4 段 1:1，demo 徽标 v1.0）。C1.5 ✅ 用户双端实机验收通过（2026-09-06 原话“Address通过”）；api.json 登记 reviewed 翻 true；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "地址（数据录入首批三件之一，任务清单 #21）：固定“省→市→区”地域三级专用选择视图（内嵌无弹层、弹层宿主自理），对标 Vant Area/NutUI Address 收敛为库内设计语言；与 Cascader（#24 通用任意树）划界=本组件地域专用三级+市区缺省自动收拢。2026-09-05 门禁 A AI 代评通过（规格 address-design-spec.html + 评审记录/review-address-A.md，P1–P4 全 A：P1-A 纯三级地域视图/弹层宿主自理、P2-A RegionOption 嵌套树 + AddressResult 结构化结果、P3-A 半受控回显、P4-A 一期=三级联动+两级收拢+tab 回退+demo 四段）+ 双端实现入库（AddressView.swift / Address.kt + iOS AddressShowcase/Android AddressDemo 4 段 1:1，demo 徽标 v1.0）。C1.5 ✅ 用户双端实机验收通过（2026-09-06 原话“Address通过”）；api.json 登记 reviewed 翻 true；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -3200,7 +3045,7 @@
           "外部 selected 预填回显自动切月 / 清空保留当前月（不触发 onChange，计数保持）（D4）"
         ]
       ],
-      "note": "日历卡片（数据录入首批三件之一，任务清单 #23）：内嵌卡片式单月日历单选（无弹层），Date 值模型；与 foundation.calendar（#22 自然月/日期区间计算工具）划界=本组件为渲染交互控件、无日期计算 API（黄历/节气另在 #89 foundation.calendar-tools）。2026-09-05 门禁 A AI 代评通过（规格 calendar-card-design-spec.html + review-calendar-card-A.md，P1–P4 全 A：P1-A 内嵌卡片单月单选/无弹层、P2-A Date 值模型 + min/maxDate 范围禁用、P3-A 半受控 selected 自动切月、P4-A 一期=7×6 网格周起始周日+今日态+范围禁用+demo 四段）+ 双端实现入库（CalendarCardView.swift / CalendarCard.kt + iOS CalendarCardShowcase/Android CalendarCardDemo 4 段 1:1，demo 徽标 v1.0）。C1.5 ✅ 用户双端实机验收通过（2026-09-06 原话“CalendarCard通过”）；api.json 登记 reviewed 翻 true；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "日历卡片（数据录入首批三件之一，任务清单 #23）：内嵌卡片式单月日历单选（无弹层），Date 值模型；与 foundation.calendar（#22 自然月/日期区间计算工具）划界=本组件为渲染交互控件、无日期计算 API（黄历/节气另在 #89 foundation.calendar-tools）。2026-09-05 门禁 A AI 代评通过（规格 calendar-card-design-spec.html + 评审记录/review-calendar-card-A.md，P1–P4 全 A：P1-A 内嵌卡片单月单选/无弹层、P2-A Date 值模型 + min/maxDate 范围禁用、P3-A 半受控 selected 自动切月、P4-A 一期=7×6 网格周起始周日+今日态+范围禁用+demo 四段）+ 双端实现入库（CalendarCardView.swift / CalendarCard.kt + iOS CalendarCardShowcase/Android CalendarCardDemo 4 段 1:1，demo 徽标 v1.0）。C1.5 ✅ 用户双端实机验收通过（2026-09-06 原话“CalendarCard通过”）；api.json 登记 reviewed 翻 true；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -3292,7 +3137,7 @@
           "外部 result 预填 5 层路径逐层展开高亮 / 清空回根层（不触发 onChange，计数保持）（D4）"
         ]
       ],
-      "note": "级联选择（数据录入首批三件之一，任务清单 #24）：任意层级树通用级联单选视图（内嵌无弹层、弹层宿主自理），对标 Vant Cascader 收敛为库内设计语言；与 Address（#21 地域专用三级）划界=本组件任意深通用树（品类/组织等）、结果=选中路径。2026-09-05 门禁 A AI 代评通过（规格 cascader-design-spec.html + review-cascader-A.md，P1–P4 全 A：P1-A 任意层级树通用级联单选视图/弹层宿主自理、P2-A CascaderOption 嵌套树 + CascaderResult 路径结果、P3-A 半受控回显、P4-A 一期=任意深树+节点禁用+路径 tab 回退+demo 四段）+ 双端实现入库（CascaderView.swift / Cascader.kt + iOS CascaderShowcase/Android CascaderDemo 4 段 1:1，demo 徽标 v1.0；iOS 修复=init 先 addSubview chipsBar 再建列表防 hairline 锚点 no common ancestor 崩溃）。C1.5 ✅ 用户双端实机验收通过（2026-09-06 原话“Cascader通过”）；api.json 登记 reviewed 翻 true；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "级联选择（数据录入首批三件之一，任务清单 #24）：任意层级树通用级联单选视图（内嵌无弹层、弹层宿主自理），对标 Vant Cascader 收敛为库内设计语言；与 Address（#21 地域专用三级）划界=本组件任意深通用树（品类/组织等）、结果=选中路径。2026-09-05 门禁 A AI 代评通过（规格 cascader-design-spec.html + 评审记录/review-cascader-A.md，P1–P4 全 A：P1-A 任意层级树通用级联单选视图/弹层宿主自理、P2-A CascaderOption 嵌套树 + CascaderResult 路径结果、P3-A 半受控回显、P4-A 一期=任意深树+节点禁用+路径 tab 回退+demo 四段）+ 双端实现入库（CascaderView.swift / Cascader.kt + iOS CascaderShowcase/Android CascaderDemo 4 段 1:1，demo 徽标 v1.0；iOS 修复=init 先 addSubview chipsBar 再建列表防 hairline 锚点 no common ancestor 崩溃）。C1.5 ✅ 用户双端实机验收通过（2026-09-06 原话“Cascader通过”）；api.json 登记 reviewed 翻 true；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -3396,7 +3241,7 @@
           "账户信息/安全设置两卡（间距 md）+ submitView 保存按钮槽，点按钮段内回显（D4）"
         ]
       ],
-      "note": "表单布局容器（数据录入区第二批三件之一，任务清单 #28）：分组卡片 + 字段行排版 + help/error 文案渲染管道，不含输入控件（对标 Vant Form 收敛为库内设计语言）；与基础 Cell/配置 ConfigProvider 划界=本组件为字段级表单语义（label 区 96 固定/必填星/校验文案槽）；校验算法=宿主职责（同 Vant rules 收敛）。2026-09-06 门禁 A AI 代评通过（规格 form-design-spec.html + review-form-A.md，P1–P4 全 A：P1-A 分组卡片表单容器不承载输入渲染/校验宿主自理、P2-A Form+FormFieldRow API、P3-A label 空内容全宽/help error 共用槽、P4-A 一期=分组卡+长 label 折行+提交槽+多分组+demo 四段）+ 双端实现入库（FormView.swift / Form.kt + iOS FormShowcase/Android FormDemo 4 段 1:1，demo 徽标 v1.0；Android assembleDebug 编译通过）。2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「Form和InputNumber通过」；验收前 iOS 编译 6 error 修复=FormView 两处可选 attributedText 安全 if let 解包判空再传入 attributedHeight，子仓 9ac1fef）。验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "表单布局容器（数据录入区第二批三件之一，任务清单 #28）：分组卡片 + 字段行排版 + help/error 文案渲染管道，不含输入控件（对标 Vant Form 收敛为库内设计语言）；与基础 Cell/配置 ConfigProvider 划界=本组件为字段级表单语义（label 区 96 固定/必填星/校验文案槽）；校验算法=宿主职责（同 Vant rules 收敛）。2026-09-06 门禁 A AI 代评通过（规格 form-design-spec.html + 评审记录/review-form-A.md，P1–P4 全 A：P1-A 分组卡片表单容器不承载输入渲染/校验宿主自理、P2-A Form+FormFieldRow API、P3-A label 空内容全宽/help error 共用槽、P4-A 一期=分组卡+长 label 折行+提交槽+多分组+demo 四段）+ 双端实现入库（FormView.swift / Form.kt + iOS FormShowcase/Android FormDemo 4 段 1:1，demo 徽标 v1.0；Android assembleDebug 编译通过）。2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「Form和InputNumber通过」；验收前 iOS 编译 6 error 修复=FormView 两处可选 attributedText 安全 if let 解包判空再传入 attributedHeight，子仓 9ac1fef）。验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -4934,7 +4779,7 @@
           "组整体禁用开关 + 单项 disabled 混合 + 长 label 单行省略（D4）"
         ]
       ],
-      "note": "复选双形态组件（数据录入区缺口补齐批之一，任务清单 #25）：2026-09-06 门禁 A AI 代评通过（规格 design-spec/checkbox-design-spec.html + review-checkbox-A.md，P1–P4 全 A；与协议行 AgreementCheckRow（android foundation/design/AgreementCheckbox.kt=圆形 12dp 富文本业务收编）划界不混入=收编不动；通用 Checkbox=方形 20 圆角 6 与 Vant 对齐）+ 双端实现入库（CheckboxView.swift=CheckboxView 单只+CheckboxGroupView 组+CheckGlyphView 自绘 / Checkbox.kt=Checkbox+CheckboxGroup Canvas 同坐标 1:1）+ iOS CheckboxShowcase/Android CheckboxDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。半受控 checked/selected=外部赋值同步回显不触发 onChange；disabled 单只/组/选项级三态（已选禁用灰勾保留）。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过了，继续两个新组件吧」；复验前 iOS Showcase 运行期崩溃修复=DemoShowcases 共享辅助 pinFullWidth 缺 container.addSubview 先建 equalToSuperview 约束 → 补入树再建约束，子仓 77d56ad）；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "复选双形态组件（数据录入区缺口补齐批之一，任务清单 #25）：2026-09-06 门禁 A AI 代评通过（规格 design-spec/checkbox-design-spec.html + 评审记录/review-checkbox-A.md，P1–P4 全 A；与协议行 AgreementCheckRow（android foundation/design/AgreementCheckbox.kt=圆形 12dp 富文本业务收编）划界不混入=收编不动；通用 Checkbox=方形 20 圆角 6 与 Vant 对齐）+ 双端实现入库（CheckboxView.swift=CheckboxView 单只+CheckboxGroupView 组+CheckGlyphView 自绘 / Checkbox.kt=Checkbox+CheckboxGroup Canvas 同坐标 1:1）+ iOS CheckboxShowcase/Android CheckboxDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。半受控 checked/selected=外部赋值同步回显不触发 onChange；disabled 单只/组/选项级三态（已选禁用灰勾保留）。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过了，继续两个新组件吧」；复验前 iOS Showcase 运行期崩溃修复=DemoShowcases 共享辅助 pinFullWidth 缺 container.addSubview 先建 equalToSuperview 约束 → 补入树再建约束，子仓 77d56ad）；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -5049,7 +4894,7 @@
           "disabled 开关 + 单位尾槽 + 外部赋值回显（D4）"
         ]
       ],
-      "note": "通用单行文本输入组件（数据录入区缺口补齐批之二，任务清单 #29）：2026-09-06 门禁 A AI 代评通过（规格 design-spec/input-design-spec.html + review-input-A.md，P1–P4 全 A；label/必填星/校验=FormFieldRow 职责壳不变红=本组件纯输入不含校验红线）+ 双端实现入库（InputView.swift=UITextField 受控+自绘白叉清除钮 / Input.kt=BasicTextField 受控+Canvas 清除钮）+ iOS InputShowcase/Android InputDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。受控 value 必传+onTextChange 直通（外部赋值=同步回显）；keyboard 四值 text/number/phone/email 两端映射；secure 掩码回调原文；maxLength 仅输入路径截断（含 paste）；Android sharedui AppInputField 系列=视觉前身可平滑迁移。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过了，继续两个新组件吧」；复验前 iOS Showcase 运行期崩溃修复=DemoShowcases 共享辅助 pinFullWidth 缺 container.addSubview 先建 equalToSuperview 约束 → 补入树再建约束，子仓 77d56ad）；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "通用单行文本输入组件（数据录入区缺口补齐批之二，任务清单 #29）：2026-09-06 门禁 A AI 代评通过（规格 design-spec/input-design-spec.html + 评审记录/review-input-A.md，P1–P4 全 A；label/必填星/校验=FormFieldRow 职责壳不变红=本组件纯输入不含校验红线）+ 双端实现入库（InputView.swift=UITextField 受控+自绘白叉清除钮 / Input.kt=BasicTextField 受控+Canvas 清除钮）+ iOS InputShowcase/Android InputDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。受控 value 必传+onTextChange 直通（外部赋值=同步回显）；keyboard 四值 text/number/phone/email 两端映射；secure 掩码回调原文；maxLength 仅输入路径截断（含 paste）；Android sharedui AppInputField 系列=视觉前身可平滑迁移。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过了，继续两个新组件吧」；复验前 iOS Showcase 运行期崩溃修复=DemoShowcases 共享辅助 pinFullWidth 缺 container.addSubview 先建 equalToSuperview 约束 → 补入树再建约束，子仓 77d56ad）；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -5140,7 +4985,7 @@
           "外部 selectedValues 预填回显/重置驱动，onChange 计数不受外部赋值影响（D4）"
         ]
       ],
-      "note": "菜单（数据录入区第二批三件之 3，任务清单 #31）：嵌入式下拉单选（菜单栏 ≤4 列+内联展开面板无遮罩浮层），对标 NutUI Menu 收敛为库内设计语言；与 Cascader（多级级联）/ Picker（常驻/弹层选择）/ OptionPicker（Modal sheet）划界=本组件单层每列平铺单选+菜单栏回显选中值。2026-09-06 门禁 A AI 代评通过（规格 design-spec/menu-design-spec.html + review-menu-A.md，P1–P4 全 A）+ 同日双端实现入库（MenuView.swift=命令式 UIKit 半受控 / Menu.kt=声明式 Compose）+ iOS MenuShowcase/Android MenuDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。C1.5 ✅ 2026-09-06 用户双端 Demo 实机验收通过收编（原话「通过，继续下一个组件」）；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "菜单（数据录入区第二批三件之 3，任务清单 #31）：嵌入式下拉单选（菜单栏 ≤4 列+内联展开面板无遮罩浮层），对标 NutUI Menu 收敛为库内设计语言；与 Cascader（多级级联）/ Picker（常驻/弹层选择）/ OptionPicker（Modal sheet）划界=本组件单层每列平铺单选+菜单栏回显选中值。2026-09-06 门禁 A AI 代评通过（规格 design-spec/menu-design-spec.html + 评审记录/review-menu-A.md，P1–P4 全 A）+ 同日双端实现入库（MenuView.swift=命令式 UIKit 半受控 / Menu.kt=声明式 Compose）+ iOS MenuShowcase/Android MenuDemo 4 段 1:1，demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。C1.5 ✅ 2026-09-06 用户双端 Demo 实机验收通过收编（原话「通过，继续下一个组件」）；验证版本 v1.4.0；统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -5261,7 +5106,7 @@
           "disabled=整键盘灰 40% 不可点；confirmDisabled 独立控制确认列（D4）"
         ]
       ],
-      "note": "数字键盘（数据录入区 #32，全新立项）：内嵌式数字键盘面板=4 行×4 列键格（1~9 + 底行/0/删除 + 右列确认竖条，固定高 208），块状白底网格线风格（无遮罩无浮层收敛）；纯事件回调 onInput/onDelete/onConfirm 键盘零状态、值宿主自理（对齐 Input #29 受控惯例）；disabled/confirmDisabled/showDot/extraKey/confirmText 开关；与业务 AmountKeyboard（记账金额，business.amount-keyboard，金额千分位/小数）划界不混入；anti_goals 二期=遮罩底部弹层+滑入动画（随 Popup #54/Overlay #6 组合）、乱序 randomKey、长按连删、振动。2026-09-06 门禁 A AI 代评通过（规格 design-spec/number-keyboard-design-spec.html + review-number-keyboard-A.md，P1–P4 全 A）+ 同日双端实现入库（NumberKeyboardView.swift=命令式 UIKit frame 布局 / NumberKeyboard.kt=声明式 Compose weight 等分）+ iOS NumberKeyboardShowcase / Android NumberKeyboardDemo 4 段 1:1（D1 金额/D2 验证码/D3 身份证 X/D4 禁用态+外部驱动），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「NumberKeyboard通过，继续下一个组件」；iOS 双根因修复闭环：子仓 db9d2c5=demo 段容器 bottom/height 闭合 208pt 防键盘溢出父 bounds 不可点/文字错位 + 子仓 5d371b9=数字 1~9 键补绑 onInput 事件，模拟器自动触发 sendActions 截图验证 field ¥0→¥1 确认列转 primary）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "数字键盘（数据录入区 #32，全新立项）：内嵌式数字键盘面板=4 行×4 列键格（1~9 + 底行/0/删除 + 右列确认竖条，固定高 208），块状白底网格线风格（无遮罩无浮层收敛）；纯事件回调 onInput/onDelete/onConfirm 键盘零状态、值宿主自理（对齐 Input #29 受控惯例）；disabled/confirmDisabled/showDot/extraKey/confirmText 开关；与业务 AmountKeyboard（记账金额，business.amount-keyboard，金额千分位/小数）划界不混入；anti_goals 二期=遮罩底部弹层+滑入动画（随 Popup #54/Overlay #6 组合）、乱序 randomKey、长按连删、振动。2026-09-06 门禁 A AI 代评通过（规格 design-spec/number-keyboard-design-spec.html + 评审记录/review-number-keyboard-A.md，P1–P4 全 A）+ 同日双端实现入库（NumberKeyboardView.swift=命令式 UIKit frame 布局 / NumberKeyboard.kt=声明式 Compose weight 等分）+ iOS NumberKeyboardShowcase / Android NumberKeyboardDemo 4 段 1:1（D1 金额/D2 验证码/D3 身份证 X/D4 禁用态+外部驱动），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「NumberKeyboard通过，继续下一个组件」；iOS 双根因修复闭环：子仓 db9d2c5=demo 段容器 bottom/height 闭合 208pt 防键盘溢出父 bounds 不可点/文字错位 + 子仓 5d371b9=数字 1~9 键补绑 onInput 事件，模拟器自动触发 sendActions 截图验证 field ¥0→¥1 确认列转 primary）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -5369,7 +5214,7 @@
           "外部选 English/重置中文=value 赋值同步点亮（不触发 onChange）；点行=组件上报宿主回写（D4）"
         ]
       ],
-      "note": "单选（数据录入区 #35，全新立项，2026-09-06）：通用排他单选双形态（单只 Radio + RadioGroup 垂直排他单选列表），圆形单选点 20 外圈描边 1.5 未选 textSecondary 30%/选中外圈 primary+中心实心点 8（与 Checkbox 方形复选划界=圆形排他点选即确定无 toggle 取消）；半受控 value 点选即确定/外部回显不触发/已选行幂等；禁用项/组禁/已选禁用灰保留；label 选中加粗。2026-09-06 门禁 A AI 代评通过（规格 design-spec/radio-design-spec.html + review-radio-A.md，P1–P4 全 A，用户「radio吧」选型）+ 同日双端实现入库（RadioView.swift=命令式 UIKit 自绘 RadioGlyphView / Radio.kt=声明式 Compose）+ iOS RadioShowcase / Android RadioDemo 4 段 1:1（D1 单只/D2 组排他/D3 禁用态/D4 受控外部），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0（2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「radio通过，继续下一个组件」，4 段双端 1:1 全过，组件进度.md §3.4 行 35 📐→✅ 已回写）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "单选（数据录入区 #35，全新立项，2026-09-06）：通用排他单选双形态（单只 Radio + RadioGroup 垂直排他单选列表），圆形单选点 20 外圈描边 1.5 未选 textSecondary 30%/选中外圈 primary+中心实心点 8（与 Checkbox 方形复选划界=圆形排他点选即确定无 toggle 取消）；半受控 value 点选即确定/外部回显不触发/已选行幂等；禁用项/组禁/已选禁用灰保留；label 选中加粗。2026-09-06 门禁 A AI 代评通过（规格 design-spec/radio-design-spec.html + 评审记录/review-radio-A.md，P1–P4 全 A，用户「radio吧」选型）+ 同日双端实现入库（RadioView.swift=命令式 UIKit 自绘 RadioGlyphView / Radio.kt=声明式 Compose）+ iOS RadioShowcase / Android RadioDemo 4 段 1:1（D1 单只/D2 组排他/D3 禁用态/D4 受控外部），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0（2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「radio通过，继续下一个组件」，4 段双端 1:1 全过，组件进度.md §3.4 行 35 📐→✅ 已回写）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -5478,7 +5323,7 @@
           "预设 0–30 / 60–100=外部赋值仅同步回显（不触发 onChange）；拖动=组件上报宿主回写（D4）"
         ]
       ],
-      "note": "区间选择（数据录入区 #36，全新立项，2026-09-06）：横向双钮区间滑块（单轨道+start/end 双钮闭区间 start≤end 恒成立可相等零宽单点、点轨道空段吸附最近端、拖动连续回调）、Double RangeValue{start,end}+min/max/step 数值模型、半受控 value nil=内部自持初始全区间、min/max 动态改越界自动 clamp、禁用整条 40% 灰；与 #30 InputNumber/#35 RadioGroup·#31 Menu/#41 Switch/#37 Rate/日期日历/未来单钮 Slider 划界；无壳无刻度无气泡=宿主格式化单位；端点贴边半钮溢出允许。2026-09-06 门禁 A AI 代评通过（规格 design-spec/range-design-spec.html + review-range-A.md，P1–P4 全 A，用户 2026-09-06 原话「radio通过，继续下一个组件」指示接棒启动）+ 同日双端实现入库（RangeView.swift=命令式 UIKit 自绘 touches 拖动几何换算 / Range.kt=声明式 Compose Canvas 自绘 pointerInput 拖动），iOS RangeShowcase / Android RangeDemo 4 段 1:1（D1 基础区间/D2 step 离散+点轨吸附/D3 值域 clamp+禁用/D4 受控外部驱动），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0。2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过，继续下一个组件吧」，iOS 4 段正常无改动；Android 首轮「Demo 都无法操作」修复闭环=子仓 0e6bbab：pointerInput key 去 value（拖动 onChange→宿主回写→value 变→原 key 每帧取消重启手势 coroutine=拖动断）+ detectTapGestures/detectDragGestures 串行同一 pointerInput block 陷阱（detectTapGestures awaitEachGesture 无限循环占据事件流=后置 detectDragGestures 永不到达=drag 全失效）→ awaitEachGesture 统一自旋（down=nearest 吸附锁定钮+commit、drag 纵向位移 return@drag 不 consume 交外层滚动、横向 consume+commit），同 Material Slider 模式；Android assembleDebug BUILD SUCCESSFUL 复验，用户模拟器复验通过），组件进度.md §3.4 行 36 📐→✅ 已回写。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "区间选择（数据录入区 #36，全新立项，2026-09-06）：横向双钮区间滑块（单轨道+start/end 双钮闭区间 start≤end 恒成立可相等零宽单点、点轨道空段吸附最近端、拖动连续回调）、Double RangeValue{start,end}+min/max/step 数值模型、半受控 value nil=内部自持初始全区间、min/max 动态改越界自动 clamp、禁用整条 40% 灰；与 #30 InputNumber/#35 RadioGroup·#31 Menu/#41 Switch/#37 Rate/日期日历/未来单钮 Slider 划界；无壳无刻度无气泡=宿主格式化单位；端点贴边半钮溢出允许。2026-09-06 门禁 A AI 代评通过（规格 design-spec/range-design-spec.html + 评审记录/review-range-A.md，P1–P4 全 A，用户 2026-09-06 原话「radio通过，继续下一个组件」指示接棒启动）+ 同日双端实现入库（RangeView.swift=命令式 UIKit 自绘 touches 拖动几何换算 / Range.kt=声明式 Compose Canvas 自绘 pointerInput 拖动），iOS RangeShowcase / Android RangeDemo 4 段 1:1（D1 基础区间/D2 step 离散+点轨吸附/D3 值域 clamp+禁用/D4 受控外部驱动），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0。2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过，继续下一个组件吧」，iOS 4 段正常无改动；Android 首轮「Demo 都无法操作」修复闭环=子仓 0e6bbab：pointerInput key 去 value（拖动 onChange→宿主回写→value 变→原 key 每帧取消重启手势 coroutine=拖动断）+ detectTapGestures/detectDragGestures 串行同一 pointerInput block 陷阱（detectTapGestures awaitEachGesture 无限循环占据事件流=后置 detectDragGestures 永不到达=drag 全失效）→ awaitEachGesture 统一自旋（down=nearest 吸附锁定钮+commit、drag 纵向位移 return@drag 不 consume 交外层滚动、横向 consume+commit），同 Material Slider 模式；Android assembleDebug BUILD SUCCESSFUL 复验，用户模拟器复验通过），组件进度.md §3.4 行 36 📐→✅ 已回写。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -5582,7 +5427,7 @@
           "星数=count；外部 value=10/重置 0=仅同步回显不触发 onChange；点/滑=组件上报宿主回写（D4）"
         ]
       ],
-      "note": "评分（数据录入区 #37，全新立项，2026-09-06）：行内 n 颗自绘五角星整数评分点 Rate（默认 5：值=已点亮整星数 Int 0~count、0=未评合法态；点击第 k 颗点亮并回调、点当前值同一颗=清空归 0 评价可取消；横向滑动随指连续点亮/收回松手定值；count 可配=十分制等；readonly=只读彩色展示评分不可交互；disabled=灰 40% 压过 readonly；半受控 value nil=内部自持初始 0 外部赋值回显不触发 onChange；无 label/文案/提交=宿主自理）。星形双端自绘五角星 path（字符 ★ 双端字形渲染不一致淘汰、Android 系统 RatingBar 视觉脱离不用）：外接圆 22 内凹 0.382、间距 8、行高 40 对齐 #35/#25、点亮 primary/未点亮 textSecondary 30%。与 #35 RadioGroup/#31 Menu·#33 Picker/#36 Range/#41 Switch/#30 InputNumber 划界；半星 allowHalf/size 参数化=二期候选。2026-09-06 门禁 A AI 代评通过（规格 design-spec/rate-design-spec.html + review-rate-A.md，P1–P4 全 A，用户 2026-09-06 原话「通过，继续下一个组件吧」指示接棒启动）+ 同日门禁 B 双端实现入库（RateView.swift=命令式 UIKit UITouch 点/滑统一换算 + Rate.kt=声明式 Compose pointerInput 单自旋 drag 松手判定，iOS StarPath/Android buildStarPath 同坐标算法），iOS RateShowcase / Android RateDemo 4 段 1:1（D1 基础点选清空/D2 滑动连选/D3 只读禁用/D4 十分制受控），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0。C1.5 用户双端 Demo 实机验收通过收编（2026-09-06，原话「通过，继续下一个组件」）：首轮 iOS 星区黑色背景问题修复闭环=RateView 纯 draw 自绘未设透明（UIView 默认 opaque=true+backgroundColor=nil=未绘制星间隙渲染为不透明黑块、吞掉点亮对比）→ init 补 isOpaque=false+backgroundColor=.clear+contentMode=.redraw（子仓 fe78956），用户 Xcode 复验通过。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "评分（数据录入区 #37，全新立项，2026-09-06）：行内 n 颗自绘五角星整数评分点 Rate（默认 5：值=已点亮整星数 Int 0~count、0=未评合法态；点击第 k 颗点亮并回调、点当前值同一颗=清空归 0 评价可取消；横向滑动随指连续点亮/收回松手定值；count 可配=十分制等；readonly=只读彩色展示评分不可交互；disabled=灰 40% 压过 readonly；半受控 value nil=内部自持初始 0 外部赋值回显不触发 onChange；无 label/文案/提交=宿主自理）。星形双端自绘五角星 path（字符 ★ 双端字形渲染不一致淘汰、Android 系统 RatingBar 视觉脱离不用）：外接圆 22 内凹 0.382、间距 8、行高 40 对齐 #35/#25、点亮 primary/未点亮 textSecondary 30%。与 #35 RadioGroup/#31 Menu·#33 Picker/#36 Range/#41 Switch/#30 InputNumber 划界；半星 allowHalf/size 参数化=二期候选。2026-09-06 门禁 A AI 代评通过（规格 design-spec/rate-design-spec.html + 评审记录/review-rate-A.md，P1–P4 全 A，用户 2026-09-06 原话「通过，继续下一个组件吧」指示接棒启动）+ 同日门禁 B 双端实现入库（RateView.swift=命令式 UIKit UITouch 点/滑统一换算 + Rate.kt=声明式 Compose pointerInput 单自旋 drag 松手判定，iOS StarPath/Android buildStarPath 同坐标算法），iOS RateShowcase / Android RateDemo 4 段 1:1（D1 基础点选清空/D2 滑动连选/D3 只读禁用/D4 十分制受控），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0。C1.5 用户双端 Demo 实机验收通过收编（2026-09-06，原话「通过，继续下一个组件」）：首轮 iOS 星区黑色背景问题修复闭环=RateView 纯 draw 自绘未设透明（UIView 默认 opaque=true+backgroundColor=nil=未绘制星间隙渲染为不透明黑块、吞掉点亮对比）→ init 补 isOpaque=false+backgroundColor=.clear+contentMode=.redraw（子仓 fe78956），用户 Xcode 复验通过。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -5706,7 +5551,7 @@
           "组件不内置提交钮=尾槽宿主放「搜索」按钮，点击=与软键盘搜索键同走 onSearch 语义（双路径）；输入即清按钮提示文案（D4）"
         ]
       ],
-      "note": "搜索栏（数据录入区 #38，全新立项，2026-09-06）：搜索输入壳（48 灰底 radiusLg 对齐已收编 Input #29 壳 token=壳语言统一复用不复制）+ 前置放大镜（自绘 glyph 14 灰）+ Md16 文本输入 + 非空清除钮（点击清空回传空串）+ trailing 尾槽（宿主搜索按钮=与键盘搜索键双路径）+ 软键盘「搜索」键 onSearch 检索触发；半受控 value String? nil=内部自持（搜索宿主拿词即用免回写）、外部赋值仅回显不触发回调、disabled 40% 灰、maxLength 仅截断键盘输入路径；真实检索/结果/历史/联想=宿主自理（组件零内部异步态）；胶囊 shape/自动聚焦/防抖/历史联想=二期或宿主（anti_goals）。系统搜索控件（iOS UISearchBar=36 高白底+自动取消钮 / Android Material SearchBar=Material 3 样式）视觉脱离库内设计语言=不收编；与 Input #29（无检索语义基座）/ShortPassword #39/Picker #33/Menu #31/Cascader #24 划界。2026-09-06 门禁 A AI 代评通过（规格 design-spec/search-bar-design-spec.html + review-search-bar-A.md，P1–P4 全 A，用户 2026-09-06 Rate #37 收编后原话「通过，继续下一个组件」指示接棒启动）+ 同日门禁 B 双端实现入库（SearchBarView.swift=命令式 UIKit UITextField returnKey.search+delegate shouldReturn + MagGlyphView/XGlyphView 自绘；SearchBar.kt=声明式 Compose BasicTextField imeAction=Search+KeyboardActions + Canvas 自绘放大镜/清除钮），iOS SearchBarShowcase / Android SearchBarDemo 4 段 1:1（D1 基础输入+清除钮/D2 键盘搜索键 onSearch+宿主列表过滤/D3 禁用+外部 value 驱动/D4 trailing 尾槽按钮双路径），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过，下一个组件吧」，数据录入区 #21~#38 全闭环、缺 #34 picker-view 暂缓）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "搜索栏（数据录入区 #38，全新立项，2026-09-06）：搜索输入壳（48 灰底 radiusLg 对齐已收编 Input #29 壳 token=壳语言统一复用不复制）+ 前置放大镜（自绘 glyph 14 灰）+ Md16 文本输入 + 非空清除钮（点击清空回传空串）+ trailing 尾槽（宿主搜索按钮=与键盘搜索键双路径）+ 软键盘「搜索」键 onSearch 检索触发；半受控 value String? nil=内部自持（搜索宿主拿词即用免回写）、外部赋值仅回显不触发回调、disabled 40% 灰、maxLength 仅截断键盘输入路径；真实检索/结果/历史/联想=宿主自理（组件零内部异步态）；胶囊 shape/自动聚焦/防抖/历史联想=二期或宿主（anti_goals）。系统搜索控件（iOS UISearchBar=36 高白底+自动取消钮 / Android Material SearchBar=Material 3 样式）视觉脱离库内设计语言=不收编；与 Input #29（无检索语义基座）/ShortPassword #39/Picker #33/Menu #31/Cascader #24 划界。2026-09-06 门禁 A AI 代评通过（规格 design-spec/search-bar-design-spec.html + 评审记录/review-search-bar-A.md，P1–P4 全 A，用户 2026-09-06 Rate #37 收编后原话「通过，继续下一个组件」指示接棒启动）+ 同日门禁 B 双端实现入库（SearchBarView.swift=命令式 UIKit UITextField returnKey.search+delegate shouldReturn + MagGlyphView/XGlyphView 自绘；SearchBar.kt=声明式 Compose BasicTextField imeAction=Search+KeyboardActions + Canvas 自绘放大镜/清除钮），iOS SearchBarShowcase / Android SearchBarDemo 4 段 1:1（D1 基础输入+清除钮/D2 键盘搜索键 onSearch+宿主列表过滤/D3 禁用+外部 value 驱动/D4 trailing 尾槽按钮双路径），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过，下一个组件吧」，数据录入区 #21~#38 全闭环、缺 #34 picker-view 暂缓）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -5824,7 +5669,7 @@
           "正确码 123456：满 6 位 onComplete=宿主校验（123456=通过 / 其它=错误码自动外部清空重输）；外部注入 999999=满位仅回显不触发 onComplete；组件可嵌入宿主弹层配 #32 NumberKeyboard（键盘回调驱动 value=宿主自理）（D4）"
         ]
       ],
-      "note": "短密码（数据录入区 #39，全新立项，2026-09-06）：定长数字掩码短密码/PIN 输入内容组件=无壳水平居中掩码点行（系统密文点随字号 22、无灰底壳/清除钮/明文显隐切换）+ 纯数字限定（键盘与粘贴滤除非数字）+ 定长 length 默认 6 字符满=自动 onComplete 一次满后拒收 + 半受控 value String? nil=内部自持/外部赋值仅回显不触发回调 + onChange 每字符 + disabled 40% 灰无回调 + placeholder（默认「请输入 N 位数字密码」居中灰字）；真实校验/错误/重试=宿主自理（校验失败宿主外部 value=\"\" 清空重输）；掩码基座沿用 Input #29 secure 惯例复用不复制；与 Input #29（secure=任意长密文表单行）/验证码分格 OTP（码类二期）/NumberKeyboard #32（键盘=宿主组合件）/Android sharedui PasswordInputField（业务库收编不动）划界。2026-09-06 门禁 A AI 代评通过（规格 design-spec/short-password-design-spec.html + review-short-password-A.md，P1–P4 全 A，用户 2026-09-06 SearchBar #38 收编后原话「通过，下一个组件吧」指示接棒启动）+ 同日门禁 B 双端实现入库（ShortPasswordView.swift=命令式 UIKit UITextField secureTextEntry+numberPad+delegate 数字过滤/满位拒收；ShortPassword.kt=声明式 Compose BasicTextField KeyboardType.Number+透明输入层叠掩码点展示层），iOS ShortPasswordShowcase / Android ShortPasswordDemo 4 段 1:1（D1 基础 6 位满位 onComplete/D2 定长 4 位+外部预填仅回显/D3 禁用+粘贴过滤/D4 宿主校验+NumberKeyboard #32 组装示意），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过，继续吧」，D1~D4 双端 1:1 全过，组件进度.md §3.4 行 39 🔧→✅ 已回写）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "短密码（数据录入区 #39，全新立项，2026-09-06）：定长数字掩码短密码/PIN 输入内容组件=无壳水平居中掩码点行（系统密文点随字号 22、无灰底壳/清除钮/明文显隐切换）+ 纯数字限定（键盘与粘贴滤除非数字）+ 定长 length 默认 6 字符满=自动 onComplete 一次满后拒收 + 半受控 value String? nil=内部自持/外部赋值仅回显不触发回调 + onChange 每字符 + disabled 40% 灰无回调 + placeholder（默认「请输入 N 位数字密码」居中灰字）；真实校验/错误/重试=宿主自理（校验失败宿主外部 value=\"\" 清空重输）；掩码基座沿用 Input #29 secure 惯例复用不复制；与 Input #29（secure=任意长密文表单行）/验证码分格 OTP（码类二期）/NumberKeyboard #32（键盘=宿主组合件）/Android sharedui PasswordInputField（业务库收编不动）划界。2026-09-06 门禁 A AI 代评通过（规格 design-spec/short-password-design-spec.html + 评审记录/review-short-password-A.md，P1–P4 全 A，用户 2026-09-06 SearchBar #38 收编后原话「通过，下一个组件吧」指示接棒启动）+ 同日门禁 B 双端实现入库（ShortPasswordView.swift=命令式 UIKit UITextField secureTextEntry+numberPad+delegate 数字过滤/满位拒收；ShortPassword.kt=声明式 Compose BasicTextField KeyboardType.Number+透明输入层叠掩码点展示层），iOS ShortPasswordShowcase / Android ShortPasswordDemo 4 段 1:1（D1 基础 6 位满位 onComplete/D2 定长 4 位+外部预填仅回显/D3 禁用+粘贴过滤/D4 宿主校验+NumberKeyboard #32 组装示意），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0；2026-09-06 C1.5 用户双端 Demo 实机验收通过收编（原话「通过，继续吧」，D1~D4 双端 1:1 全过，组件进度.md §3.4 行 39 🔧→✅ 已回写）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -5936,7 +5781,7 @@
           "「提交锁定」disabled=true=整板 40% 灰不可绘 clear() 忽略无回调；空板点「提交」=宿主 onInkChange(false) 禁用钮并提示「请先签名」（D4）"
         ]
       ],
-      "note": "签名（数据录入区 #40，全新立项，2026-09-06）：内容级手写签名画板=白底圆角板（bgCard+hairline+radiusLg 对齐 Input #29 壳语言、高默认 96=2×48 交互行基准）+ 自绘圆头笔画（strokeWidth/strokeColor 参数可调）+ 水印「请在此区域签名」textSecondary 30%（首笔即隐）+ 底缘引导线；无受控文本值（签名=异步笔迹流非表单值）=onInkChange(Boolean)（首笔落 true/clear 回 false=驱动宿主提交钮）+ clear() 命令式重签 + disabled 整板 40% 灰锁定（clear 忽略）；签名图导出=宿主截取组件渲染（iOS UIGraphicsImageRenderer+drawHierarchy / Android 根视图截图裁剪板区域=Demo 自定义 DrawingCache 辅助），组件不内置图形对象；宿主自理=页面/弹层承载、上传保存防篡改、空签名与锁定业务校验；与 Input #29/textarea #42（键盘文本）、ShortPassword #39/NumberKeyboard #32（数字键盘系）、Popup #54/Overlay #6（承载）划界；iOS PencilKit（PKDrawing 生态样式不可统一）与 Android 三方签名库=不收编；撤销栈/压感/导出对象 API/板内清除钮/整壳组件=二期或宿主（anti_goals）。2026-09-06 门禁 A AI 代评通过（规格 design-spec/signature-design-spec.html + review-signature-A.md，P1–P4 全 A，用户 2026-09-06 ShortPassword #39 收编后原话「通过，继续吧」指示接棒启动）+ 同日门禁 B 双端实现入库（SignatureView.swift=命令式 UIKit 触摸三件套采集离散 stroke+draw(_:) 逐 path；Signature.kt=声明式 Compose pointerInput awaitEachGesture 单自旋+Canvas 逐 path），iOS SignatureShowcase / Android SignatureDemo 4 段 1:1（D1 基础签名与重签/D2 导出收编缩略/D3 参数变体 width 1/2/4/D4 禁用锁定+空笔迹提交流），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0。2026-09-06 C1.5 用户「继续」放行收编（数据录入区 #40 闭环：demo 双端 4 段 D1 基础签名与重签/D2 导出收编缩略/D3 参数变体/D4 禁用锁定+空笔迹提交流；组件进度.md §3.4 行 40 🔧→✅，见 §4 收编行）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "签名（数据录入区 #40，全新立项，2026-09-06）：内容级手写签名画板=白底圆角板（bgCard+hairline+radiusLg 对齐 Input #29 壳语言、高默认 96=2×48 交互行基准）+ 自绘圆头笔画（strokeWidth/strokeColor 参数可调）+ 水印「请在此区域签名」textSecondary 30%（首笔即隐）+ 底缘引导线；无受控文本值（签名=异步笔迹流非表单值）=onInkChange(Boolean)（首笔落 true/clear 回 false=驱动宿主提交钮）+ clear() 命令式重签 + disabled 整板 40% 灰锁定（clear 忽略）；签名图导出=宿主截取组件渲染（iOS UIGraphicsImageRenderer+drawHierarchy / Android 根视图截图裁剪板区域=Demo 自定义 DrawingCache 辅助），组件不内置图形对象；宿主自理=页面/弹层承载、上传保存防篡改、空签名与锁定业务校验；与 Input #29/textarea #42（键盘文本）、ShortPassword #39/NumberKeyboard #32（数字键盘系）、Popup #54/Overlay #6（承载）划界；iOS PencilKit（PKDrawing 生态样式不可统一）与 Android 三方签名库=不收编；撤销栈/压感/导出对象 API/板内清除钮/整壳组件=二期或宿主（anti_goals）。2026-09-06 门禁 A AI 代评通过（规格 design-spec/signature-design-spec.html + 评审记录/review-signature-A.md，P1–P4 全 A，用户 2026-09-06 ShortPassword #39 收编后原话「通过，继续吧」指示接棒启动）+ 同日门禁 B 双端实现入库（SignatureView.swift=命令式 UIKit 触摸三件套采集离散 stroke+draw(_:) 逐 path；Signature.kt=声明式 Compose pointerInput awaitEachGesture 单自旋+Canvas 逐 path），iOS SignatureShowcase / Android SignatureDemo 4 段 1:1（D1 基础签名与重签/D2 导出收编缩略/D3 参数变体 width 1/2/4/D4 禁用锁定+空笔迹提交流），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0。2026-09-06 C1.5 用户「继续」放行收编（数据录入区 #40 闭环：demo 双端 4 段 D1 基础签名与重签/D2 导出收编缩略/D3 参数变体/D4 禁用锁定+空笔迹提交流；组件进度.md §3.4 行 40 🔧→✅，见 §4 收编行）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -6033,7 +5878,7 @@
           "「外部打开/关闭」=checked 赋值仅同步回显（无 onChange 日志=仅渲染路径）；用户点按翻转=回调 onChange（D4）"
         ]
       ],
-      "note": "开关（数据录入区 #41，全新立项，2026-09-06）：通用二元即时开关核组件=自绘轨道+滑块（轨道 48×28 radiusFull、on=primary/off=textSecondary 30%、滑块 20 白色圆、行程 20、动画 0.18s）+ 无内置 label（=宿主 FormFieldRow #28/Cell 行尾嵌用）+ checked Boolean? 半受控（nil=内部自持初始 off 点按翻转回调/外部赋值同步回显不触发 onChange/双向均回调）+ disabled 整件 40% 灰不可点（on+disabled 灰开态保留只读）；与 #25 Checkbox/#35 Radio/#36 Range/#30 InputNumber/#33 Picker·#31 Menu/#20 Tabs·#19 Tabbar·#74 Segmented 划界=二元即时持久开/关；系统 UISwitch/Material3 Switch 视觉脱离库内设计语言=双端从零自绘。2026-09-06 门禁 A AI 代评通过（规格 design-spec/switch-design-spec.html + review-switch-A.md，P1–P4 全 A 0 保留意见，用户 Signature #40 收编后原话「继续」指示接棒启动）+ 同日门禁 B 双端实现入库（SwitchView.swift=命令式 UIKit 轨道壳+滑块子视图 layoutSubviews/frame 摆位+tapButton 整枚命中；Switch.kt=声明式 Compose 自绘 Box+动画 state），iOS SwitchShowcase / Android SwitchDemo 4 段 1:1（D1 基础开/关/D2 行尾嵌用/D3 disabled 锁定/D4 受控外部驱动），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0（C1.5 用户双端 Demo 实机验收通过收编：2026-09-06 用户原话「验收通过。继续下一个组件」，D1 基础开/关翻转回显+「读当前值」/ D2 行尾嵌用开态回显+外部回显不触发 onChange / D3 on/off 双灰锁+外部解锁运行期更新 / D4 受控外部 checked 驱动全过 0 改动，行 41 🔧→✅）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "开关（数据录入区 #41，全新立项，2026-09-06）：通用二元即时开关核组件=自绘轨道+滑块（轨道 48×28 radiusFull、on=primary/off=textSecondary 30%、滑块 20 白色圆、行程 20、动画 0.18s）+ 无内置 label（=宿主 FormFieldRow #28/Cell 行尾嵌用）+ checked Boolean? 半受控（nil=内部自持初始 off 点按翻转回调/外部赋值同步回显不触发 onChange/双向均回调）+ disabled 整件 40% 灰不可点（on+disabled 灰开态保留只读）；与 #25 Checkbox/#35 Radio/#36 Range/#30 InputNumber/#33 Picker·#31 Menu/#20 Tabs·#19 Tabbar·#74 Segmented 划界=二元即时持久开/关；系统 UISwitch/Material3 Switch 视觉脱离库内设计语言=双端从零自绘。2026-09-06 门禁 A AI 代评通过（规格 design-spec/switch-design-spec.html + 评审记录/review-switch-A.md，P1–P4 全 A 0 保留意见，用户 Signature #40 收编后原话「继续」指示接棒启动）+ 同日门禁 B 双端实现入库（SwitchView.swift=命令式 UIKit 轨道壳+滑块子视图 layoutSubviews/frame 摆位+tapButton 整枚命中；Switch.kt=声明式 Compose 自绘 Box+动画 state），iOS SwitchShowcase / Android SwitchDemo 4 段 1:1（D1 基础开/关/D2 行尾嵌用/D3 disabled 锁定/D4 受控外部驱动），demo 徽标 v1.0，Android assembleDebug + iOS Simulator BUILD SUCCEEDED 编译通过。验证版本 v1.4.0（C1.5 用户双端 Demo 实机验收通过收编：2026-09-06 用户原话「验收通过。继续下一个组件」，D1 基础开/关翻转回显+「读当前值」/ D2 行尾嵌用开态回显+外部回显不触发 onChange / D3 on/off 双灰锁+外部解锁运行期更新 / D4 受控外部 checked 驱动全过 0 改动，行 41 🔧→✅）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -6145,7 +5990,7 @@
           "FormFieldRow「个人简介」label+必填星 + TextArea rows=4（高 120）placeholder「介绍一下自己吧」；「提交」空值=宿主 error「请填写简介」红字；实时字数「已输入 X/100」宿主读 value 联动（壳不变红=表单语义归宿主）（D4）"
         ]
       ],
-      "note": "文本域（数据录入区 #42，全新立项，2026-09-06）：通用多行文本输入内容组件=灰底圆角文本域壳（底 bgPage+radius lg+内边距 md 四向=与 Input #29 同壳语言=单行/多行两形态）+placeholder（textSecondary Md16 顶部左）+文本 Md16 textPrimary 行高 24=cellTitleLineHeight token+rows 可视行默认 3=整件高 rows×24+24=96=2×48 交互行基准（同 Signature #40）+内容超可视行内部滚动+maxLength 仅输入路径截断含粘贴+disabled 整壳 40% 灰；受控 value String 必传+onTextChange 直通（同 Input #29）；label/必填/校验/字数统计=宿主（FormFieldRow #28 承载、壳不变红）；软键盘回车=换行、键盘收起避让=宿主；与富文本/autoGrow 自动增高/字数角标（二期或宿主）、清除钮/secure/尾槽/键盘类型（Input #29 单行形态）、工具栏（emoji/@/附件=宿主）划界。2026-09-06 门禁 A AI 代评通过（规格 design-spec/textarea-design-spec.html + review-textarea-A.md，P1–P4 全 A 0 保留意见，用户 Switch #41 收编后原话「继续下一个组件」指示接棒启动）+ 同日门禁 B 双端实现入库（TextAreaView.swift=命令式 UIKit UITextView 内嵌+placeholderLabel 自绘层；TextArea.kt=声明式 Compose TextFieldState 多行+verticalScroll），iOS TextAreaShowcase / Android TextAreaDemo 4 段 1:1（D1 基础多行输入/D2 受控外部赋值+长文内滚/D3 maxLength 截断+disabled/D4 宿主表单组装），demo 徽标 v1.0，Android assembleDebug + iOS Xcode 编译通过（修复 pbxproj 漏登 PBXGroup children 致 Build input file cannot be found、修复 AppColor.danger→AppColor.error）。**2026-09-07 C1.5 用户双端 Demo 实机验收通过收编（原话「通过，最后一个组件吧，Uploader」）**。验证版本 v1.4.0。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "文本域（数据录入区 #42，全新立项，2026-09-06）：通用多行文本输入内容组件=灰底圆角文本域壳（底 bgPage+radius lg+内边距 md 四向=与 Input #29 同壳语言=单行/多行两形态）+placeholder（textSecondary Md16 顶部左）+文本 Md16 textPrimary 行高 24=cellTitleLineHeight token+rows 可视行默认 3=整件高 rows×24+24=96=2×48 交互行基准（同 Signature #40）+内容超可视行内部滚动+maxLength 仅输入路径截断含粘贴+disabled 整壳 40% 灰；受控 value String 必传+onTextChange 直通（同 Input #29）；label/必填/校验/字数统计=宿主（FormFieldRow #28 承载、壳不变红）；软键盘回车=换行、键盘收起避让=宿主；与富文本/autoGrow 自动增高/字数角标（二期或宿主）、清除钮/secure/尾槽/键盘类型（Input #29 单行形态）、工具栏（emoji/@/附件=宿主）划界。2026-09-06 门禁 A AI 代评通过（规格 design-spec/textarea-design-spec.html + 评审记录/review-textarea-A.md，P1–P4 全 A 0 保留意见，用户 Switch #41 收编后原话「继续下一个组件」指示接棒启动）+ 同日门禁 B 双端实现入库（TextAreaView.swift=命令式 UIKit UITextView 内嵌+placeholderLabel 自绘层；TextArea.kt=声明式 Compose TextFieldState 多行+verticalScroll），iOS TextAreaShowcase / Android TextAreaDemo 4 段 1:1（D1 基础多行输入/D2 受控外部赋值+长文内滚/D3 maxLength 截断+disabled/D4 宿主表单组装），demo 徽标 v1.0，Android assembleDebug + iOS Xcode 编译通过（修复 pbxproj 漏登 PBXGroup children 致 Build input file cannot be found、修复 AppColor.danger→AppColor.error）。**2026-09-07 C1.5 用户双端 Demo 实机验收通过收编（原话「通过，最后一个组件吧，Uploader」）**。验证版本 v1.4.0。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     },
@@ -6257,7 +6102,7 @@
           "「清空全部」「追加 1 张」按钮直接改 value→列表同步刷新（不触发 onAdd/onRemove）；验证受控 value 数据源归宿主（D4）"
         ]
       ],
-      "note": "上传（数据录入区 #43，全新立项，2026-09-07）：通用文件/图片上传 UI 组件=网格展示已选文件列表+添加/删除/重试回调，不内置系统选择器（宿主调起 PHPicker/PhotoPicker 后回写 value）和网络上传逻辑（宿主驱动 status+progress）；UploadItem 完整状态机 pending/uploading/success/failed+progress 0-1；value 受控必传+onAdd/onRemove/onRetry 三回调；maxCount 默认 9；disabled 整件 40% 灰；与 Image 纯展示/Avatar 头像划界；拖拽排序/大图预览=二期。2026-09-07 门禁 A AI 代评通过（规格 design-spec/uploader-design-spec.html + review-uploader-A.md，P1–P4 全 A 0 保留意见，用户 TextArea #42 收编后原话「通过，最后一个组件吧，Uploader」指示接棒启动）+ 同日门禁 B 双端实现入库（UploaderView.swift=命令式 UIKit UICollectionView 4 列+cell 缩略图+删除角标+状态蒙层+进度条+添加格；Uploader.kt=声明式 Compose LazyVerticalGrid 4 列+BitmapFactory 本地/URL 加载+状态蒙层+进度条），iOS UploaderShowcase / Android UploaderDemo 4 段 1:1（D1 基础多图上传 pending→uploading→success / D2 单文件 maxCount=1 / D3 失败重试+disabled / D4 受控外部驱动），demo 徽标 v1.0，Android assembleDebug BUILD SUCCESSFUL（iOS 待用户本地 Xcode 编译验证）。验证版本 v1.4.0（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "note": "上传（数据录入区 #43，全新立项，2026-09-07）：通用文件/图片上传 UI 组件=网格展示已选文件列表+添加/删除/重试回调，不内置系统选择器（宿主调起 PHPicker/PhotoPicker 后回写 value）和网络上传逻辑（宿主驱动 status+progress）；UploadItem 完整状态机 pending/uploading/success/failed+progress 0-1；value 受控必传+onAdd/onRemove/onRetry 三回调；maxCount 默认 9；disabled 整件 40% 灰；与 Image 纯展示/Avatar 头像划界；拖拽排序/大图预览=二期。2026-09-07 门禁 A AI 代评通过（规格 design-spec/uploader-design-spec.html + 评审记录/review-uploader-A.md，P1–P4 全 A 0 保留意见，用户 TextArea #42 收编后原话「通过，最后一个组件吧，Uploader」指示接棒启动）+ 同日门禁 B 双端实现入库（UploaderView.swift=命令式 UIKit UICollectionView 4 列+cell 缩略图+删除角标+状态蒙层+进度条+添加格；Uploader.kt=声明式 Compose LazyVerticalGrid 4 列+BitmapFactory 本地/URL 加载+状态蒙层+进度条），iOS UploaderShowcase / Android UploaderDemo 4 段 1:1（D1 基础多图上传 pending→uploading→success / D2 单文件 maxCount=1 / D3 失败重试+disabled / D4 受控外部驱动），demo 徽标 v1.0，Android assembleDebug BUILD SUCCESSFUL（iOS 待用户本地 Xcode 编译验证）。验证版本 v1.4.0（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "form",
       "reviewed": true
     }

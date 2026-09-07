@@ -520,7 +520,7 @@ private fun DialogHorizontalButtons(actions: List<DialogAction>) {
 /** 将弹窗按钮样式映射为中台基础按钮样式。 */
 private fun DialogButtonStyle.toAppButtonStyle(): AppButtonStyle = when (this) {
     DialogButtonStyle.Primary -> AppButtonStyle.Primary
-    DialogButtonStyle.Default -> AppButtonStyle.Secondary
+    DialogButtonStyle.Default -> AppButtonStyle.Neutral
     DialogButtonStyle.Destructive -> AppButtonStyle.Destructive
 }
 

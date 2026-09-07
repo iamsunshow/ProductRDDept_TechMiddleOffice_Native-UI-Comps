@@ -4,14 +4,14 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
@@ -42,25 +41,17 @@ private const val DropAnimMs = 250
 /**
  * Drag 拖拽排序（操作反馈区 · ui.drag · #47）：通用列表拖拽排序组件。
  *
- * 视觉锚点：列表项由 itemContent 渲染（Drag 不强制样式）；拖拽态 elevation 8dp + scale 1.02 + opacity 0.9；
- * 手柄 24×24 fontLg textSecondary；落位动画 0.25s easeOut。
- *
- * 语义：items 数据列表 + onReorder(from,to) 拖拽释放后回调新位置；
- * enabled=false=纯列表不可拖；handle=true=仅手柄可拖（≡ 左侧 24dp），handle=false=整行长按拖拽。
- *
- * 划界勿混：SwipeAction #19 横滑操作菜单 vs Drag 纵向拖拽排序；
- * IosStylePullRefresh #55 下拉刷新 vs Drag 长按拖拽；Tabs #20 横向页签 vs Drag 纵向排序。
- *
- * 实现：LazyColumn + Modifier.pointerInput { detectDragGesturesAfterLongPress }。
- * 拖拽中实时 swap 显示位置（视觉跟随手指）；落位 onDragEnd 仅触发一次 onReorder(initialIndex, finalIndex)。
- * 落位动画 0.25s easeOut 由 animateFloatAsState(tween(250)) 驱动 scale/alpha 还原。
+ * 实现：Column + verticalScroll + 每个 item 挂 pointerInput(detectDragGesturesAfterLongPress)。
+ * 用 Column 而非 LazyColumn——LazyColumn 自身滚动手势会消费触摸事件，
+ * 导致 detectDragGesturesAfterLongPress 收不到事件、拖拽完全失效。
+ * Column 无内部手势竞争，item 级 pointerInput 可可靠接收长按+拖拽。
  *
  * @param items 数据列表
- * @param key 唯一标识提供器（用作 LazyColumn key，避免重组错位）
+ * @param key 唯一标识提供器（用作 Compose key，避免重组错位）
  * @param itemContent 每项渲染内容
- * @param onReorder 拖拽释放后回调（from=原索引 to=目标索引）；拖拽中不触发，仅落位一次
- * @param enabled 是否启用拖拽，默认 true；false=纯列表不可拖
- * @param handle 是否仅手柄可拖，默认 false；true=左侧 ≡ 24dp 手柄触发拖拽，false=整行长按触发
+ * @param onReorder 拖拽释放后回调（from=原索引 to=目标索引）
+ * @param enabled 是否启用拖拽，默认 true
+ * @param handle 是否仅手柄可拖，默认 false
  * @param modifier 修饰符
  */
 @Composable
@@ -73,93 +64,19 @@ fun <T> Drag(
     handle: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
-    // 本地可变数据源：拖拽中实时 swap 显示位置，对外仅在落位时通过 onReorder 通知。
     var internalItems by remember(items) { mutableStateOf(items.toList()) }
-    val listState = rememberLazyListState()
-    // 当前正在拖拽的索引（-1=未拖拽）；用于给被拖项叠加 elevation/scale/opacity 视觉。
     var draggingIndex by remember { mutableStateOf(-1) }
-    // 拖拽起始索引：落位时与最终索引一起回 onReorder(from=initial, to=final)。
     var dragInitialIndex by remember { mutableStateOf(-1) }
-    // 累积位移：拖拽中按累积量判断是否与上/下项 swap，避免逐帧 delta < 阈值时拖拽无响应。
     var dragOffset by remember { mutableFloatStateOf(0f) }
 
-    LazyColumn(
-        state = listState,
-        // 拖拽时禁用 LazyColumn 自身滚动，避免滚动手势消费掉拖拽手势。
-        userScrollEnabled = draggingIndex < 0,
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .testTag("drag-root")
-            .then(
-                if (enabled && !handle) {
-                    // 整行拖拽模式：手势挂在 LazyColumn 级别，避免 item 级 pointerInput 被 LazyColumn 滚动消费。
-                    Modifier.pointerInput(Unit) {
-                        detectDragGesturesAfterLongPress(
-                            onDragStart = { offset ->
-                                // 根据触摸 Y 坐标计算目标 item index
-                                val info = listState.layoutInfo
-                                val y = offset.y.toInt()
-                                draggingIndex = -1
-                                for (vi in info.visibleItemsInfo) {
-                                    if (y >= vi.offset && y < vi.offset + vi.size) {
-                                        draggingIndex = vi.index
-                                        break
-                                    }
-                                }
-                                dragInitialIndex = draggingIndex
-                                dragOffset = 0f
-                            },
-                            onDragEnd = {
-                                if (dragInitialIndex >= 0 && draggingIndex >= 0 && dragInitialIndex != draggingIndex) {
-                                    onReorder(dragInitialIndex, draggingIndex)
-                                }
-                                draggingIndex = -1
-                                dragInitialIndex = -1
-                                dragOffset = 0f
-                            },
-                            onDragCancel = {
-                                draggingIndex = -1
-                                dragInitialIndex = -1
-                                dragOffset = 0f
-                            },
-                            onDrag = { change, dragAmount ->
-                                change.consume()
-                                dragOffset += dragAmount.y
-                                while (dragOffset > 10f && draggingIndex >= 0 && draggingIndex < internalItems.lastIndex) {
-                                    val next = draggingIndex + 1
-                                    internalItems = internalItems.toMutableList().apply {
-                                        val tmp = this[draggingIndex]
-                                        this[draggingIndex] = this[next]
-                                        this[next] = tmp
-                                    }
-                                    draggingIndex = next
-                                    dragOffset -= 10f
-                                }
-                                while (dragOffset < -10f && draggingIndex > 0) {
-                                    val prev = draggingIndex - 1
-                                    internalItems = internalItems.toMutableList().apply {
-                                        val tmp = this[draggingIndex]
-                                        this[draggingIndex] = this[prev]
-                                        this[prev] = tmp
-                                    }
-                                    draggingIndex = prev
-                                    dragOffset += 10f
-                                }
-                            },
-                        )
-                    }
-                } else {
-                    Modifier
-                }
-            ),
+            .verticalScroll(rememberScrollState()),
     ) {
-        itemsIndexed(
-            items = internalItems,
-            key = { _, item -> key(item) },
-        ) { index, item ->
+        internalItems.forEachIndexed { index, item ->
             val isDragging = draggingIndex == index
-            // 拖拽态视觉：elevation 8dp（graphicsLayer shadow）+ scale 1.02 + opacity 0.9（对齐设计规格）。
-            // 落位还原动画 0.25s easeOut（tween(250) 默认 easing 即 EaseOut）。
             val scale by animateFloatAsState(
                 targetValue = if (isDragging) DragScale else 1f,
                 animationSpec = tween(DropAnimMs),
@@ -171,8 +88,7 @@ fun <T> Drag(
                 label = "dragAlpha",
             )
 
-            // handle=true 时手柄 Box 单独挂 pointerInput；handle=false 时手势已在 LazyColumn 级处理。
-            val dragModifier = if (enabled && handle) {
+            val dragModifier = if (enabled) {
                 Modifier.pointerInput(Unit) {
                     detectDragGesturesAfterLongPress(
                         onDragStart = {
@@ -238,62 +154,11 @@ fun <T> Drag(
                     .then(dragModifier),
             ) {
                 if (handle && enabled) {
-                    // handle=true=左侧 24dp 手柄（≡），手柄挂 pointerInput 触发拖拽；
-                    // 整行不再挂拖拽手势（仅手柄可拖）。
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .padding(
-                                horizontal = AppSpace.sm,
-                                vertical = AppSpace.sm,
-                            )
-                            .width(24.dp)
-                            .pointerInput(Unit) {
-                                detectDragGesturesAfterLongPress(
-                                    onDragStart = {
-                                        draggingIndex = index
-                                        dragInitialIndex = index
-                                        dragOffset = 0f
-                                    },
-                                    onDragEnd = {
-                                        if (dragInitialIndex >= 0 && draggingIndex >= 0 && dragInitialIndex != draggingIndex) {
-                                            onReorder(dragInitialIndex, draggingIndex)
-                                        }
-                                        draggingIndex = -1
-                                        dragInitialIndex = -1
-                                        dragOffset = 0f
-                                    },
-                                    onDragCancel = {
-                                        draggingIndex = -1
-                                        dragInitialIndex = -1
-                                        dragOffset = 0f
-                                    },
-                                    onDrag = { change, dragAmount ->
-                                        change.consume()
-                                        dragOffset += dragAmount.y
-                                        while (dragOffset > 10f && draggingIndex >= 0 && draggingIndex < internalItems.lastIndex) {
-                                            val next = draggingIndex + 1
-                                            internalItems = internalItems.toMutableList().apply {
-                                                val tmp = this[draggingIndex]
-                                                this[draggingIndex] = this[next]
-                                                this[next] = tmp
-                                            }
-                                            draggingIndex = next
-                                            dragOffset -= 10f
-                                        }
-                                        while (dragOffset < -10f && draggingIndex > 0) {
-                                            val prev = draggingIndex - 1
-                                            internalItems = internalItems.toMutableList().apply {
-                                                val tmp = this[draggingIndex]
-                                                this[draggingIndex] = this[prev]
-                                                this[prev] = tmp
-                                            }
-                                            draggingIndex = prev
-                                            dragOffset += 10f
-                                        }
-                                    },
-                                )
-                            },
+                            .padding(horizontal = AppSpace.sm, vertical = AppSpace.sm)
+                            .width(24.dp),
                     ) {
                         Text(
                             text = "≡",

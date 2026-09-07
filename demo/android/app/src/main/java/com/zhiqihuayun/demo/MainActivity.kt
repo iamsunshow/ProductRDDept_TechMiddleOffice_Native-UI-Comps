@@ -36,8 +36,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.Folder
-import androidx.compose.material.icons.outlined.Inbox
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -992,12 +992,12 @@ private fun EmptyDemo() {
             EmptyStateView(message = "搜索无结果，换个关键词试试")
         }
 
-        // ── Demo 3：带图标空态（与 iOS 对齐：tray 收件箱图标）──
+        // ── Demo 3：带图标空态（与 iOS 对齐：bell 铃铛图标）──
         Text("Demo 3 · 带图标空态", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
         Box(modifier = Modifier.fillMaxWidth().height(200.dp)) {
             EmptyStateView(
                 message = "暂无记录",
-                icon = Icons.Outlined.Inbox
+                icon = Icons.Filled.Notifications
             )
         }
 
@@ -1011,7 +1011,7 @@ private fun EmptyDemo() {
         ) {
             EmptyStateView(
                 message = "该文件夹为空",
-                icon = Icons.Outlined.Folder,
+                icon = Icons.Filled.Folder,
                 iconSize = 40
             )
         }
@@ -6798,20 +6798,20 @@ private fun DialogDemo() {
                 content = "删除后不可恢复，确定删除？",
                 actions = listOf(
                     DialogAction(
-                        text = "删除",
-                        onClick = {
-                            d1Visible = false
-                            feedback = "[D1] 点击「删除」（destructive）"
-                        },
-                        style = DialogButtonStyle.Destructive
-                    ),
-                    DialogAction(
                         text = "取消",
                         onClick = {
                             d1Visible = false
                             feedback = "[D1] 点击「取消」（default）"
                         },
                         style = DialogButtonStyle.Default
+                    ),
+                    DialogAction(
+                        text = "删除",
+                        onClick = {
+                            d1Visible = false
+                            feedback = "[D1] 点击「删除」（destructive）"
+                        },
+                        style = DialogButtonStyle.Destructive
                     )
                 ),
                 buttonLayout = DialogButtonLayout.Vertical,
@@ -6826,7 +6826,7 @@ private fun DialogDemo() {
         if (d2Visible) {
             AppDialog(
                 title = "提示",
-                content = "这是一条提示信息，确认继续？",
+                content = "操作成功",
                 actions = listOf(
                     DialogAction(
                         text = "取消",
@@ -6856,8 +6856,8 @@ private fun DialogDemo() {
         // D3 多按钮 Vertical 用户协议
         if (d3Visible) {
             AppDialog(
-                title = "用户协议及隐私保护",
-                content = "请阅读并同意《用户协议》与《隐私政策》后继续使用。我们将在您同意后收集必要信息以提供服务。",
+                title = "用户协议",
+                content = "请阅读并同意《用户协议》和《隐私政策》",
                 actions = listOf(
                     DialogAction(
                         text = "不同意",

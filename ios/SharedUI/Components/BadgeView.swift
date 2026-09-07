@@ -104,6 +104,9 @@ final class BadgeView: UIView {
         // text 优先于 count，先赋 count 再赋 text（text 覆盖 count 形态）
         self.count = count
         self.text = text
+        // 修复：Swift 在 init 中赋值属性不触发 didSet，故 setup()→updateBadge() 时
+        // count/text 仍为 nil（.hidden 不创建 badge）。需在所有属性赋值后手动调用一次。
+        updateBadge()
     }
 
     @available(*, unavailable)

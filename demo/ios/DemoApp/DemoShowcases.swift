@@ -1324,7 +1324,7 @@ final class EmptyShowcase: ShowcaseViewController {
         addSection(title: "Demo 3 · 带图标空态") { container in
             let empty = EmptyStateView()
             let config = UIImage.SymbolConfiguration.preferringMonochrome()
-            empty.setIcon(UIImage(systemName: "tray", withConfiguration: config), size: 48)
+            empty.setIcon(UIImage(systemName: "bell", withConfiguration: config), size: 48)
             empty.setMessage("暂无记录")
             container.addSubview(empty)
             empty.snp.makeConstraints { make in
@@ -1348,7 +1348,7 @@ final class EmptyShowcase: ShowcaseViewController {
 
             let empty = EmptyStateView()
             let config = UIImage.SymbolConfiguration.preferringMonochrome()
-            empty.setIcon(UIImage(systemName: "folder", withConfiguration: config), size: 40)
+            empty.setIcon(UIImage(systemName: "folder.fill", withConfiguration: config), size: 40)
             empty.setMessage("该文件夹为空")
             wrapper.addSubview(empty)
             empty.snp.makeConstraints { make in

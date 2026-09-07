@@ -34,7 +34,10 @@ enum class AppButtonStyle {
     Secondary,
 
     /** 破坏性操作：白底 + 红色描边 + 红色文字。 */
-    Destructive
+    Destructive,
+
+    /** 中性操作：gray10 浅灰底 + textPrimary 文字（对齐 iOS Dialog Default 样式）。 */
+    Neutral,
 }
 
 /**
@@ -74,6 +77,8 @@ fun AppButton(
             Triple(if (pressed) AppColor.primaryPressed else AppColor.primary, Color.White, null)
         style == AppButtonStyle.Secondary ->
             Triple(AppColor.bgCard, AppColor.primary, AppColor.primary)
+        style == AppButtonStyle.Neutral ->
+            Triple(AppColor.gray10, AppColor.textPrimary, null)
         else ->
             Triple(AppColor.bgCard, AppColor.error, AppColor.error)
     }

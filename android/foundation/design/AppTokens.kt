@@ -30,6 +30,8 @@ object AppColor {
     val error = Color(0xFFDC2626)
     val gray4 = Color(0xFFF5F5F5)
     val gray6 = Color(0xFFE5E5E5)
+    /** 与 iOS AppColor.gray10 对齐（Dialog Default 按钮背景色）。 */
+    val gray10 = Color(0xFFD9D9D9)
     val gray15 = Color(0xFFBFBFBF)
     val gray25 = Color(0xFF8C8C8C)
     /** 按钮禁用/加载态填充色（灰阶 400 区间，介于 gray15 与 gray25 之间）。 */

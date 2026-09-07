@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ActionSheet 动作面板 · 设计规格 · TMO 组件库 v1.4.0</title>
+<style>
+:root {
+  --bg: #fff; --bg-page: #f5f5f5; --text: #1a1a1a; --text-2: #888; --border: #e8e8e8;
+  --primary: #3478f6; --danger: #ff4d4f; --radius-lg: 14px; --space-md: 12px;
+  --space-lg: 16px; --space-xl: 20px; --hairline: 0.5px;
+  --font-md: 16px; --font-sm: 14px; --font-lg: 18px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif; background: var(--bg-page); color: var(--text); line-height: 1.6; }
+.container { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+h2 { font-size: 20px; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 16px; margin: 20px 0 8px; color: var(--text); }
+p { font-size: 14px; margin-bottom: 8px; }
+code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+.token { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-family: monospace; }
+.token-bg { background: #e8f0fe; color: var(--primary); }
+.token-danger { background: #fff0f0; color: var(--danger); }
+.mock { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0; }
+.mock-frame { width: 320px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--bg-page); }
+.mock-screen { position: relative; height: 480px; background: var(--bg-page); overflow: hidden; }
+.mock-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.45); z-index: 1; }
+.mock-sheet { position: absolute; bottom: 0; left: 0; right: 0; background: var(--bg); border-radius: var(--radius-lg) var(--radius-lg) 0 0; z-index: 2; overflow: hidden; }
+.mock-sheet-title { text-align: center; font-size: var(--font-md); color: var(--text-2); padding: 16px var(--space-lg); border-bottom: 0.5px solid var(--border); }
+.mock-action { display: flex; align-items: center; justify-content: center; height: 56px; font-size: var(--font-lg); border-bottom: 0.5px solid var(--border); }
+.mock-action:last-of-type { border-bottom: none; }
+.mock-action.primary { color: var(--primary); }
+.mock-action.danger { color: var(--danger); }
+.mock-action.disabled { color: var(--text-2); opacity: 0.4; }
+.mock-cancel { height: 8px; background: var(--bg-page); }
+.mock-cancel-btn { display: flex; align-items: center; justify-content: center; height: 56px; font-size: var(--font-lg); color: var(--text); border-top: 0.5px solid var(--border); background: var(--bg); }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+th { background: #fafafa; font-weight: 600; }
+.section { background: var(--bg); border-radius: 12px; padding: 20px; margin: 16px 0; border: 1px solid var(--border); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.badge-a { background: #e6f7e6; color: #52c41a; }
+.badge-d { background: #fff0f0; color: var(--danger); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>ActionSheet 动作面板</h1>
+<p>组件 ID：<code>ui.action-sheet</code> ｜ 任务清单 #44 ｜ 操作反馈区首件 ｜ TMO 组件库 v1.4.0</p>
+<p>定位：底部弹出的动作选择面板——点击触发按钮后从底部滑出，展示一组操作选项供用户点选，选中后自动收起。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation 情景</h3>
+<p>用户在列表/详情页需要对某条数据执行操作（分享、删除、编辑、复制等），操作项 2~6 个离散动作，不适合下拉菜单（移动端不友好）也不适合弹窗（遮挡过多上下文）。</p>
+<h3>Complication 冲突</h3>
+<p>没有统一组件时=各业务页自拼 UIAlertController(iOS)/AlertDialog(Android)，视觉不统一、无 title/description、无 disabled 态、无 destructive 红色区分。</p>
+<h3>Question 问题</h3>
+<p>需要一个底部弹出的动作选择面板，支持 title、操作列表（含 disabled/destructive）、取消按钮，双端视觉一致。</p>
+<h3>Answer 方案</h3>
+<p>ActionSheet——底部 ModalBottomSheet 风格，圆角顶部+遮罩+操作列表+取消按钮，<strong>纯展示+回调</strong>（不内置业务逻辑）。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 ActionSheet 划界</th></tr>
+<tr><td>Dialog #46</td><td>居中弹窗（标题+内容+按钮）</td><td>Dialog=确认对话（是/否），ActionSheet=多选一动作</td></tr>
+<tr><td>Picker #33</td><td>滚轮选择器（数据驱动）</td><td>Picker=数据列表滚动选值，ActionSheet=动作按钮点选</td></tr>
+<tr><td>Menu #31</td><td>内嵌下拉菜单（列展开）</td><td>Menu=页内嵌入展开，ActionSheet=底部弹出遮罩</td></tr>
+<tr><td>Overlay #6</td><td>遮罩层基础类</td><td>Overlay=底层遮罩能力，ActionSheet=使用遮罩的业务组件</td></tr>
+<tr><td>Popup #54</td><td>通用弹出层（未实现）</td><td>Popup=通用容器，ActionSheet=专用底部动作面板</td></tr>
+</table>
+
+<h2>3. API 契约</h2>
+<div class="section">
+<h3>Props</h3>
+<table>
+<tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>visible</code></td><td>Boolean</td><td>必传</td><td>是否展示（受控）</td></tr>
+<tr><td><code>title</code></td><td>String?</td><td>null</td><td>面板标题（顶部居中灰字，无则不显示标题行）</td></tr>
+<tr><td><code>description</code></td><td>String?</td><td>null</td><td>标题下方描述文案（可选，无则不显示）</td></tr>
+<tr><td><code>actions</code></td><td>List&lt;ActionSheetItem&gt;</td><td>必传</td><td>操作项列表</td></tr>
+<tr><td><code>cancelText</code></td><td>String</td><td>"取消"</td><td>取消按钮文案</td></tr>
+<tr><td><code>onSelect</code></td><td>((Int) -> Unit)?</td><td>null</td><td>选中操作项回调（回传 index，null=不回调仅收起）</td></tr>
+<tr><td><code>onCancel</code></td><td>(() -> Unit)?</td><td>null</td><td>取消/遮罩点击回调</td></tr>
+<tr><td><code>disabled</code></td><td>Boolean</td><td>false</td><td>整体禁用（所有操作项灰显不可点，取消按钮仍可点收起）</td></tr>
+</table>
+
+<h3>ActionSheetItem 数据类</h3>
+<table>
+<tr><th>字段</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>text</code></td><td>String</td><td>必传</td><td>操作项文案</td></tr>
+<tr><td><code>destructive</code></td><td>Boolean</td><td>false</td><td>是否危险动作（红色文案）</td></tr>
+<tr><td><code>disabled</code></td><td>Boolean</td><td>false</td><td>该操作项禁用（灰显不可点）</td></tr>
+</table>
+
+<h3>Events</h3>
+<table>
+<tr><th>事件</th><th>回调签名</th><th>触发时机</th></tr>
+<tr><td><code>onSelect</code></td><td>(index: Int) -&gt; Unit</td><td>点击某操作项（非禁用），面板自动收起后回调</td></tr>
+<tr><td><code>onCancel</code></td><td>() -&gt; Unit</td><td>点击取消按钮或遮罩区域，面板自动收起后回调</td></tr>
+</table>
+</div>
+
+<h2>4. 设计规格</h2>
+<div class="section">
+<h3>4.1 布局结构</h3>
+<table>
+<tr><th>区域</th><th>规格</th><th>Token</th></tr>
+<tr><td>遮罩</td><td>全屏 black 45% 透明</td><td>overlay scrim</td></tr>
+<tr><td>面板</td><td>底部贴底，顶部圆角 14dp，白底</td><td>radiusLg / bgPage</td></tr>
+<tr><td>标题行</td><td>高 56，居中，Md16 textSecondary；无 title=不渲染</td><td>fontMd / textSecondary / spaceLg padding</td></tr>
+<tr><td>描述行</td><td>标题下方，居中，Md14 textSecondary；无 description=不渲染</td><td>fontSm / textSecondary</td></tr>
+<tr><td>操作项</td><td>高 56，居中，Md18 textPrimary；destructive=danger 色；disabled=40% 灰</td><td>fontLg / textPrimary / danger</td></tr>
+<tr><td>分隔线</td><td>操作项间 0.5px hairline gray15</td><td>hairline</td></tr>
+<tr><td>间距条</td><td>操作列表与取消按钮间 8dp 灰底间隙</td><td>bgPage / 8dp</td></tr>
+<tr><td>取消按钮</td><td>高 56，居中，Md18 textPrimary，白底，顶部 hairline</td><td>fontLg / textPrimary</td></tr>
+<tr><td>底部安全区</td><td>safeArea bottom padding</td><td>SafeArea #7</td></tr>
+</table>
+
+<h3>4.2 交互规格</h3>
+<table>
+<tr><th>交互</th><th>行为</th></tr>
+<tr><td>展开</td><td>遮罩淡入 200ms + 面板从底部滑入 250ms ease-out</td></tr>
+<tr><td>收起-选中</td><td>点击操作项 → 面板滑出 + 遮罩淡出 → onSelect(index) 回调</td></tr>
+<tr><td>收起-取消</td><td>点击取消/遮罩 → 面板滑出 + 遮罩淡出 → onCancel() 回调</td></tr>
+<tr><td>禁用项</td><td>点击不触发回调，不收起</td></tr>
+<tr><td>整体禁用</td><td>所有操作项灰显不可点，取消按钮仍可点收起</td></tr>
+</table>
+</div>
+
+<h2>5. Demo 排查 4 组</h2>
+<div class="mock">
+<div class="mock-frame">
+<div class="mock-screen">
+<div class="mock-overlay"></div>
+<div class="mock-sheet">
+<div class="mock-sheet-title">分享到</div>
+<div class="mock-action primary">微信好友</div>
+<div class="mock-action primary">朋友圈</div>
+<div class="mock-action primary">复制链接</div>
+<div class="mock-cancel"></div>
+<div class="mock-cancel-btn">取消</div>
+</div>
+</div>
+<p style="text-align:center;padding:8px;font-size:13px;color:#888">D1 基础动作面板</p>
+</div>
+<div class="mock-frame">
+<div class="mock-screen">
+<div class="mock-overlay"></div>
+<div class="mock-sheet">
+<div class="mock-sheet-title">文件操作</div>
+<div class="mock-action">重命名</div>
+<div class="mock-action">移动</div>
+<div class="mock-action danger">删除</div>
+<div class="mock-cancel"></div>
+<div class="mock-cancel-btn">取消</div>
+</div>
+</div>
+<p style="text-align:center;padding:8px;font-size:13px;color:#888">D2 destructive 危险动作</p>
+</div>
+<div class="mock-frame">
+<div class="mock-screen">
+<div class="mock-overlay"></div>
+<div class="mock-sheet">
+<div class="mock-sheet-title">选择操作</div>
+<div class="mock-action">编辑</div>
+<div class="mock-action disabled">分享（已禁用）</div>
+<div class="mock-action">复制</div>
+<div class="mock-cancel"></div>
+<div class="mock-cancel-btn">取消</div>
+</div>
+</div>
+<p style="text-align:center;padding:8px;font-size:13px;color:#888">D3 disabled 项级禁用</p>
+</div>
+<div class="mock-frame">
+<div class="mock-screen">
+<div class="mock-overlay"></div>
+<div class="mock-sheet">
+<div class="mock-action primary">拍照</div>
+<div class="mock-action primary">从相册选择</div>
+<div class="mock-cancel"></div>
+<div class="mock-cancel-btn">取消</div>
+</div>
+</div>
+<p style="text-align:center;padding:8px;font-size:13px;color:#888">D4 无标题+受控外部驱动</p>
+</div>
+</div>
+
+<h2>6. 决策投票表</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项</th><th>选定</th><th>理由</th></tr>
+<tr>
+<td>P1</td><td>组件定位</td>
+<td>A. 底部动作面板（操作列表+取消）<br>B. 居中对话框（标题+内容+按钮）<br>C. 顶部下拉横滑面板</td>
+<td><span class="badge badge-a">A</span></td>
+<td>移动端操作选择惯例=底部弹出（ thumb 可达），与 Dialog #46 居中确认场景划界</td>
+</tr>
+<tr>
+<td>P2</td><td>展示与收起</td>
+<td>A. 受控 visible 必传（外部驱动）<br>B. 内部自持 visible 状态<br>C. 指令式 show()/hide()</td>
+<td><span class="badge badge-a">A</span></td>
+<td>与 DatePicker/Picker 一致=受控模式，外部完全控制生命周期；声明式 Compose 友好</td>
+</tr>
+<tr>
+<td>P3</td><td>回调模式</td>
+<td>A. onSelect(index)+onCancel()（index 回传）<br>B. 每个操作项独立 onClick<br>C. onSelect(item: ActionSheetItem)</td>
+<td><span class="badge badge-a">A</span></td>
+<td>index 回传与 Picker/SegmentControl 一致；actions 列表数据驱动，宿主按 index 映射业务逻辑</td>
+</tr>
+<tr>
+<td>P4</td><td>一期范围</td>
+<td>A. 一期=title+description+操作列表+destructive+disabled+取消+遮罩点击收起+demo 四段<br>B. 二期=图标操作项/自定义操作项内容/多选确认/滑动收起</td>
+<td><span class="badge badge-a">A</span></td>
+<td>一期覆盖 80% 场景（分享/删除/编辑），图标/多选/滑动收起=二期增量</td>
+</tr>
+</table>
+</div>
+
+<h2>7. 平台差异表</h2>
+<table>
+<tr><th>差异点</th><th>iOS（UIKit）</th><td>Android（Compose）</th><th>判据</th></tr>
+<tr><td>弹出机制</td><td>UIView animate 滑入+遮罩 addSubview</td><td>ModalBottomSheet</td><td>表内放行（系统级弹层机制差异）</td></tr>
+<tr><td>遮罩点击</td><td>UITapGestureRecognizer</td><td>scrim clickable</td><td>表内放行（手势系统差异）</td></tr>
+<tr><td>安全区</td><td>safeAreaInsets.bottom</td><td>WindowInsets.navigationBars</td><td>表内放行（SafeArea #7 已抽象）</td></tr>
+<tr><td>动画曲线</td><td>UIView.animate easeOut 0.25</td><td>tween 250ms</td><td>表内放行（动画 API 差异，时长一致）</td></tr>
+<tr><td>分隔线</td><td>1/scale pt hairline</td><td>0.5dp hairline</td><td>表内放行（同 Divider #1 放行先例）</td></tr>
+</table>
+
+<h2>8. 反目标（anti_goals）</h2>
+<table>
+<tr><th>不做</th><th>原因</th></tr>
+<tr><td>图标操作项</td><td>二期增量，一期纯文本覆盖 80% 场景</td></tr>
+<tr><td>自定义操作项内容（嵌入组件）</td><td>宿主如需复杂内容用 Dialog #46 或 Popup #54</td></tr>
+<tr><td>多选确认</td><td>ActionSheet=选一动作即收起，多选=Checkbox #25 + Dialog 确认</td></tr>
+<tr><td>滑动收起（下拉手势）</td><td>二期增量，一期点击遮罩/取消按钮收起已够用</td></tr>
+<tr><td>嵌套子菜单</td><td>复杂场景用 Cascader #24 或多级页面导航</td></tr>
+</table>
+
+</div>
+</body>
+</html>

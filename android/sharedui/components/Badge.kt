@@ -13,9 +13,7 @@
 package com.zhiqihuayun.sharedui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -140,20 +138,22 @@ private fun BadgePill(
     paddingH: androidx.compose.ui.unit.Dp,
     color: Color
 ) {
-    Row(
+    // 用 Box 替代 Row：Box 的 contentAlignment=Center 可保证文字在固定高度内绝对居中，
+    // 避免 Row 中 Text baseline 偏移导致视觉上不居中。
+    Box(
         modifier = Modifier
             .height(18.dp)
             .then(if (minWidth != null) Modifier.widthIn(min = minWidth) else Modifier)
             .background(color, RoundedCornerShape(percent = 50))
             .padding(horizontal = paddingH),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+        contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
             color = Color.White,
             fontSize = 11.sp,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            lineHeight = 18.sp,
         )
     }
 }

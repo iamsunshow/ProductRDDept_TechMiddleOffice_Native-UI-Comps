@@ -36,6 +36,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.Inbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -990,16 +992,16 @@ private fun EmptyDemo() {
             EmptyStateView(message = "搜索无结果，换个关键词试试")
         }
 
-        // ── Demo 3：带图标空态 ──
+        // ── Demo 3：带图标空态（与 iOS 对齐：tray 收件箱图标）──
         Text("Demo 3 · 带图标空态", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
         Box(modifier = Modifier.fillMaxWidth().height(200.dp)) {
             EmptyStateView(
                 message = "暂无记录",
-                icon = Icons.Default.Favorite
+                icon = Icons.Outlined.Inbox
             )
         }
 
-        // ── Demo 4：固定容器空态 ──
+        // ── Demo 4：固定容器空态（与 iOS 对齐：folder 文件夹图标）──
         Text("Demo 4 · 固定容器空态", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
         Box(
             modifier = Modifier
@@ -1009,7 +1011,7 @@ private fun EmptyDemo() {
         ) {
             EmptyStateView(
                 message = "该文件夹为空",
-                icon = Icons.Default.Favorite,
+                icon = Icons.Outlined.Folder,
                 iconSize = 40
             )
         }

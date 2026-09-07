@@ -46,5 +46,6 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     // material-icons-core：Cell 等组件 icon 参数演示用（与组件库 icons 依赖同源）
     implementation("androidx.compose.material:material-icons-core")
+    implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.activity:activity-compose:1.9.3")
 }

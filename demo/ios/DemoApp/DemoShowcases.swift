@@ -8099,9 +8099,11 @@ final class BadgeShowcase: ShowcaseViewController {
             let host = Self.makeHost(emoji: "📧")
             let badge = BadgeView(content: host, count: 3)
             container.addSubview(badge)
+            container.clipsToBounds = false
             badge.snp.makeConstraints { make in
                 make.centerX.equalToSuperview()
                 make.top.bottom.equalToSuperview().inset(AppSpace.md)
+                make.width.height.equalTo(48)
             }
         }
         addInfo("排查点：邮箱图标右上角红色数字「3」，数字胶囊 minWidth18 height18，锚点外凸 4pt。")
@@ -8111,9 +8113,11 @@ final class BadgeShowcase: ShowcaseViewController {
             let host = Self.makeHost(emoji: "🔔")
             let badge = BadgeView(content: host, count: 150)
             container.addSubview(badge)
+            container.clipsToBounds = false
             badge.snp.makeConstraints { make in
                 make.centerX.equalToSuperview()
                 make.top.bottom.equalToSuperview().inset(AppSpace.md)
+                make.width.height.equalTo(48)
             }
         }
         addInfo("排查点：铃铛图标右上角「99+」，count 超过 maxCount 时截断显示 maxCount+。")
@@ -8123,9 +8127,11 @@ final class BadgeShowcase: ShowcaseViewController {
             let host = Self.makeHost(emoji: "💬")
             let badge = BadgeView(content: host, dot: true)
             container.addSubview(badge)
+            container.clipsToBounds = false
             badge.snp.makeConstraints { make in
                 make.centerX.equalToSuperview()
                 make.top.bottom.equalToSuperview().inset(AppSpace.md)
+                make.width.height.equalTo(48)
             }
         }
         addInfo("排查点：聊天图标右上角 8×8 红色圆点，无文字。")
@@ -8137,6 +8143,7 @@ final class BadgeShowcase: ShowcaseViewController {
             row.alignment = .center
             row.distribution = .equalSpacing
             container.addSubview(row)
+            container.clipsToBounds = false
             row.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview().inset(AppSpace.xl)
                 make.top.bottom.equalToSuperview().inset(AppSpace.md)
@@ -8150,6 +8157,9 @@ final class BadgeShowcase: ShowcaseViewController {
             row.addArrangedSubview(starRed)
             row.addArrangedSubview(starGreen)
             row.addArrangedSubview(starBlue)
+            starRed.snp.makeConstraints { make in make.width.height.equalTo(48) }
+            starGreen.snp.makeConstraints { make in make.width.height.equalTo(48) }
+            starBlue.snp.makeConstraints { make in make.width.height.equalTo(48) }
         }
         addInfo("排查点：三个星标右上角「新」文本胶囊，分别为 danger 红 / success 绿 / primary 蓝；文本胶囊 height18 paddingH8。")
     }

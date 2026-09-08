@@ -58,6 +58,7 @@ final class InfiniteLoadingView: UIView {
     private let spinner = UIActivityIndicatorView(style: .medium)
     private let label = UILabel()
     private let tapGesture = UITapGestureRecognizer()
+    private let contentStack = UIStackView()
 
     // KVO
     private var offsetObserver: NSKeyValueObservation?
@@ -88,18 +89,22 @@ final class InfiniteLoadingView: UIView {
 
         spinner.color = AppColor.textSecondary
         spinner.hidesWhenStopped = true
-        addSubview(spinner)
-        spinner.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-        }
 
         label.text = loadingText
         label.textColor = AppColor.textSecondary
         label.font = .systemFont(ofSize: AppFont.sizeSm)
         label.textAlignment = .center
-        addSubview(label)
-        label.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+
+        // 水平排列 spinner + text（与 Android Row 布局对齐）
+        contentStack.axis = .horizontal
+        contentStack.alignment = .center
+        contentStack.spacing = AppSpace.sm
+        contentStack.addArrangedSubview(spinner)
+        contentStack.addArrangedSubview(label)
+        addSubview(contentStack)
+        contentStack.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview()
         }
 
         // error 态点击重试
@@ -107,10 +112,8 @@ final class InfiniteLoadingView: UIView {
         addGestureRecognizer(tapGesture)
         isUserInteractionEnabled = true
 
-        // 固定高度 44
-        snp.makeConstraints { make in
-            make.height.equalTo(44)
-        }
+        // 固定高度 44 — tableFooterView 需用 frame 提供高度
+        frame = CGRect(x: 0, y: 0, width: 375, height: 44)
 
         // KVO 监听滚动
         offsetObserver = target?.observe(\.contentOffset, options: [.new]) { [weak self] _, _ in

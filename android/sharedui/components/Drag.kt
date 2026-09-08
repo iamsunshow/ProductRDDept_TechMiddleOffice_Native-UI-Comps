@@ -2,6 +2,7 @@ package com.zhiqihuayun.sharedui.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -48,6 +49,12 @@ private const val DropAnimMs = 250
  * 长按等待期手指不动则两层都不消费，detectDragGesturesAfterLongPress 正常收到 DOWN 并等待长按。
  * 落位后 LazyColumn 按 key 重组，自动刷新顺序。
  *
+ * pointerInput 以 key(item) 为键（v1.4.6 修复）：v1.4.2 曾改用 index 为键以修 index 过期，
+ * 但拖拽中 swap 后 LazyColumn 把同一 item 的 composable 实例搬到新位置、其 index 变化，
+ * 导致 pointerInput 协程被取消重启、拖拽手势在首次 swap 即中断（“Android 上依然不可用”）。
+ * 改回 itemKey 为键后同一 item 跨 swap 持有同一协程，当前位置用 internalItems.indexOf(item)
+ * 实时计算，既不依赖捕获的 index、也不怕过期。handle=true 时手势挂到手柄 Box、整行不响应。
+ *
  * @param items 数据列表
  * @param key 唯一标识提供器
  * @param itemContent 每项渲染内容
@@ -67,7 +74,9 @@ fun <T> Drag(
     modifier: Modifier = Modifier,
 ) {
     var internalItems by remember(items) { mutableStateOf(items.toList()) }
-    var draggingIndex by remember { mutableStateOf(-1) }
+    // 拖拽态按 item 唯一标识跟踪（而非 index）：swap 后同一 item 的 index 会变，
+    // 用 key 跟踪才能让拖拽视觉态与手势协程跨 swap 不中断。
+    var draggingKey by remember { mutableStateOf<Any?>(null) }
     var dragInitialIndex by remember { mutableStateOf(-1) }
     var dragOffset by remember { mutableFloatStateOf(0f) }
 
@@ -80,8 +89,9 @@ fun <T> Drag(
         itemsIndexed(
             items = internalItems,
             key = { _, item -> key(item) }
-        ) { index, item ->
-            val isDragging = draggingIndex == index
+        ) { _, item ->
+            val itemKey = key(item)
+            val isDragging = draggingKey == itemKey
             val scale by animateFloatAsState(
                 targetValue = if (isDragging) DragScale else 1f,
                 animationSpec = tween(DropAnimMs),
@@ -93,52 +103,112 @@ fun <T> Drag(
                 label = "dragAlpha",
             )
 
+            // 根因修复（v1.4.6）：pointerInput 以 itemKey 为键，而非 index。
+            // v1.4.2 曾把 key 从 Unit 改成 index 以修 index 过期，却引入更严重的缺陷：
+            // 拖拽中 swap 后 LazyColumn 把同一 item 的 composable 实例搬到新位置，其 index
+            // 随之变化 → pointerInput(index) 的键变了 → 手势协程被取消重启 → 进行中的拖拽
+            // 手势在首次 swap 时即中断（“Android 上依然不可用”的根因）。
+            // 改为 key(item) 后：同一 item 跨 swap 持有同一手势协程，拖拽全程不中断；
+            // 当前位置改用 internalItems.indexOf(item) 实时计算，既不依赖捕获的 index、也不怕过期。
             val dragModifier = if (enabled) {
-                Modifier.pointerInput(index) {
-                    detectDragGesturesAfterLongPress(
+                Modifier.pointerInput(itemKey) {
+                    // handle 模式用即时拖拽（与 iOS showsReorderControl 一致）；
+                    // 非 handle 模式用长按拖拽（避免误触）
+                    if (handle) {
+                        detectDragGestures(
+                            onDragStart = {
+                                draggingKey = itemKey
+                                dragInitialIndex = internalItems.indexOf(item)
+                                dragOffset = 0f
+                            },
+                            onDragEnd = {
+                                val curIndex = internalItems.indexOf(item)
+                                if (dragInitialIndex >= 0 && curIndex >= 0 && dragInitialIndex != curIndex) {
+                                    onReorder(dragInitialIndex, curIndex)
+                                }
+                                draggingKey = null
+                                dragInitialIndex = -1
+                                dragOffset = 0f
+                            },
+                            onDragCancel = {
+                                draggingKey = null
+                                dragInitialIndex = -1
+                                dragOffset = 0f
+                            },
+                            onDrag = { change, dragAmount ->
+                                change.consume()
+                                dragOffset += dragAmount.y
+                                var curIndex = internalItems.indexOf(item)
+                                while (dragOffset > 10f && curIndex >= 0 && curIndex < internalItems.lastIndex) {
+                                    val next = curIndex + 1
+                                    internalItems = internalItems.toMutableList().apply {
+                                        val tmp = this[curIndex]
+                                        this[curIndex] = this[next]
+                                        this[next] = tmp
+                                    }
+                                    curIndex = next
+                                    dragOffset -= 10f
+                                }
+                                while (dragOffset < -10f && curIndex > 0) {
+                                    val prev = curIndex - 1
+                                    internalItems = internalItems.toMutableList().apply {
+                                        val tmp = this[curIndex]
+                                        this[curIndex] = this[prev]
+                                        this[prev] = tmp
+                                    }
+                                    curIndex = prev
+                                    dragOffset += 10f
+                                }
+                            },
+                        )
+                    } else {
+                        detectDragGesturesAfterLongPress(
                         onDragStart = {
-                            draggingIndex = index
-                            dragInitialIndex = index
+                            draggingKey = itemKey
+                            dragInitialIndex = internalItems.indexOf(item)
                             dragOffset = 0f
                         },
                         onDragEnd = {
-                            if (dragInitialIndex >= 0 && draggingIndex >= 0 && dragInitialIndex != draggingIndex) {
-                                onReorder(dragInitialIndex, draggingIndex)
+                            val curIndex = internalItems.indexOf(item)
+                            if (dragInitialIndex >= 0 && curIndex >= 0 && dragInitialIndex != curIndex) {
+                                onReorder(dragInitialIndex, curIndex)
                             }
-                            draggingIndex = -1
+                            draggingKey = null
                             dragInitialIndex = -1
                             dragOffset = 0f
                         },
                         onDragCancel = {
-                            draggingIndex = -1
+                            draggingKey = null
                             dragInitialIndex = -1
                             dragOffset = 0f
                         },
                         onDrag = { change, dragAmount ->
                             change.consume()
                             dragOffset += dragAmount.y
-                            while (dragOffset > 10f && draggingIndex >= 0 && draggingIndex < internalItems.lastIndex) {
-                                val next = draggingIndex + 1
+                            var curIndex = internalItems.indexOf(item)
+                            while (dragOffset > 10f && curIndex >= 0 && curIndex < internalItems.lastIndex) {
+                                val next = curIndex + 1
                                 internalItems = internalItems.toMutableList().apply {
-                                    val tmp = this[draggingIndex]
-                                    this[draggingIndex] = this[next]
+                                    val tmp = this[curIndex]
+                                    this[curIndex] = this[next]
                                     this[next] = tmp
                                 }
-                                draggingIndex = next
+                                curIndex = next
                                 dragOffset -= 10f
                             }
-                            while (dragOffset < -10f && draggingIndex > 0) {
-                                val prev = draggingIndex - 1
+                            while (dragOffset < -10f && curIndex > 0) {
+                                val prev = curIndex - 1
                                 internalItems = internalItems.toMutableList().apply {
-                                    val tmp = this[draggingIndex]
-                                    this[draggingIndex] = this[prev]
+                                    val tmp = this[curIndex]
+                                    this[curIndex] = this[prev]
                                     this[prev] = tmp
                                 }
-                                draggingIndex = prev
+                                curIndex = prev
                                 dragOffset += 10f
                             }
                         },
                     )
+                    }
                 }
             } else {
                 Modifier
@@ -156,14 +226,17 @@ fun <T> Drag(
                             this.shadowElevation = 8f
                         }
                     }
-                    .then(dragModifier),
+                    // handle=true：整行不挂拖拽手势（仅手柄响应）；否则整行长按拖拽。
+                    .then(if (enabled && !handle) dragModifier else Modifier),
             ) {
                 if (handle && enabled) {
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .padding(horizontal = AppSpace.sm, vertical = AppSpace.sm)
-                            .width(24.dp),
+                            .width(24.dp)
+                            // 手柄承载拖拽手势：handle 模式下仅 ≡ 手柄可触发，整行不响应。
+                            .then(dragModifier),
                     ) {
                         Text(
                             text = "≡",

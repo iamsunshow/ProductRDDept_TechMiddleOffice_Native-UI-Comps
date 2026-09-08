@@ -113,10 +113,8 @@ final class NoticeBarView: UIView {
         if let leftIcon = leftIcon {
             leftView = leftIcon
         } else {
-            let defaultIcon = UILabel()
-            defaultIcon.text = "📢"
-            defaultIcon.font = .systemFont(ofSize: AppFont.sizeMd)
-            leftView = defaultIcon
+            let icon = NoticeBarMegaphoneIcon()
+            leftView = icon
         }
         containerStack.addArrangedSubview(leftView)
 
@@ -216,5 +214,67 @@ private extension UIColor {
         let g = CGFloat((hex >> 8) & 0xFF) / 255.0
         let b = CGFloat(hex & 0xFF) / 255.0
         self.init(red: r, green: g, blue: b, alpha: alpha)
+    }
+}
+
+// MARK: - 自绘喇叭图标（替代 emoji 📢，双端一致）
+final class NoticeBarMegaphoneIcon: UIView {
+    private let iconColor: UIColor
+
+    init(color: UIColor = AppColor.textSecondary) {
+        iconColor = color
+        super.init(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
+        backgroundColor = .clear
+        isUserInteractionEnabled = false
+        snp.makeConstraints { make in
+            make.width.height.equalTo(20)
+        }
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) not implemented") }
+
+    override func draw(_ rect: CGRect) {
+        guard let ctx = UIGraphicsGetCurrentContext() else { return }
+        ctx.setStrokeColor(iconColor.cgColor)
+        ctx.setFillColor(iconColor.cgColor)
+        ctx.setLineWidth(1.5)
+        ctx.setLineJoin(.round)
+        ctx.setLineCap(.round)
+
+        let w = rect.width
+        let h = rect.height
+
+        // 喇叭体（梯形）
+        let body = UIBezierPath()
+        body.move(to: CGPoint(x: w * 0.15, y: h * 0.35))
+        body.addLine(to: CGPoint(x: w * 0.15, y: h * 0.65))
+        body.addLine(to: CGPoint(x: w * 0.45, y: h * 0.65))
+        body.addLine(to: CGPoint(x: w * 0.75, y: h * 0.85))
+        body.addLine(to: CGPoint(x: w * 0.75, y: h * 0.15))
+        body.addLine(to: CGPoint(x: w * 0.45, y: h * 0.35))
+        body.close()
+        body.fill()
+
+        // 声波弧线
+        ctx.setStrokeColor(iconColor.cgColor)
+        let wave1 = UIBezierPath(arcCenter: CGPoint(x: w * 0.75, y: h * 0.5),
+                                 radius: w * 0.18,
+                                 startAngle: -.pi / 3,
+                                 endAngle: .pi / 3,
+                                 clockwise: true)
+        wave1.lineWidth = 1.5
+        wave1.stroke()
+
+        let wave2 = UIBezierPath(arcCenter: CGPoint(x: w * 0.75, y: h * 0.5),
+                                 radius: w * 0.28,
+                                 startAngle: -.pi / 4,
+                                 endAngle: .pi / 4,
+                                 clockwise: true)
+        wave2.lineWidth = 1.5
+        wave2.stroke()
+    }
+
+    override var intrinsicContentSize: CGSize {
+        return CGSize(width: 20, height: 20)
     }
 }

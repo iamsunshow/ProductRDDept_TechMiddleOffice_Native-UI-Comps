@@ -41,15 +41,10 @@ package com.zhiqihuayun.sharedui.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -58,12 +53,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppRadius
@@ -81,11 +78,50 @@ enum class PopoverPlacement {
 }
 
 /**
+ * Popup 位置提供器：根据锚点 frame + 弹出方向 + 实测内容尺寸计算 Popup 窗口位置。
+ *
+ * 核心修复：旧实现使用硬编码偏移（-100 / -200）猜测气泡尺寸，导致弹窗与按钮错位。
+ * 改用 [PopupPositionProvider]，在布局阶段拿到真实 [popupContentSize] 后再计算偏移，
+ * 确保 TOP 时气泡底边贴合 anchor.top、LEFT 时气泡右边贴合 anchor.left。
+ */
+private class PopoverPositionProvider(
+    private val anchor: Rect,
+    private val placement: PopoverPlacement,
+    private val offset: Offset
+) : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize
+    ): IntOffset {
+        return when (placement) {
+            PopoverPlacement.TOP -> IntOffset(
+                x = (anchor.left + offset.x).roundToInt(),
+                y = (anchor.top - popupContentSize.height + offset.y).roundToInt()
+            )
+            PopoverPlacement.BOTTOM -> IntOffset(
+                x = (anchor.left + offset.x).roundToInt(),
+                y = (anchor.bottom + offset.y).roundToInt()
+            )
+            PopoverPlacement.LEFT, PopoverPlacement.START -> IntOffset(
+                x = (anchor.left - popupContentSize.width + offset.x).roundToInt(),
+                y = (anchor.top + offset.y).roundToInt()
+            )
+            PopoverPlacement.RIGHT, PopoverPlacement.END -> IntOffset(
+                x = (anchor.right + offset.x).roundToInt(),
+                y = (anchor.top + offset.y).roundToInt()
+            )
+        }
+    }
+}
+
+/**
  * 气泡弹出框。
  *
  * @param visible 是否展示（受控）
  * @param placement 弹出方向，默认 TOP
- * @param anchor 锚点 frame（必传）
+ * @param anchor 锚点 frame（必传，需为窗口坐标系下的 Rect）
  * @param closeOnClickOutside 点击外部是否自动收起，默认 true
  * @param offset 相对锚点的额外偏移，默认 Offset.Zero
  * @param onClose 收起回调
@@ -126,29 +162,14 @@ fun Popover(
         label = "popoverScale"
     )
 
-    // 根据 effectivePlacement 计算 Popup 的 offset
-    val popupOffset = when (effectivePlacement) {
-        PopoverPlacement.TOP -> IntOffset(
-            x = (anchor.left + offset.x).roundToInt(),
-            y = (anchor.top - 100 + offset.y).roundToInt()  // 上方，预留高度
-        )
-        PopoverPlacement.BOTTOM -> IntOffset(
-            x = (anchor.left + offset.x).roundToInt(),
-            y = (anchor.bottom + offset.y).roundToInt()
-        )
-        PopoverPlacement.LEFT, PopoverPlacement.START -> IntOffset(
-            x = (anchor.left - 200 + offset.x).roundToInt(),  // 左侧，预留宽度
-            y = (anchor.top + offset.y).roundToInt()
-        )
-        PopoverPlacement.RIGHT, PopoverPlacement.END -> IntOffset(
-            x = (anchor.right + offset.x).roundToInt(),
-            y = (anchor.top + offset.y).roundToInt()
-        )
+    // 使用 PopupPositionProvider 在布局阶段拿到真实气泡尺寸后计算位置，
+    // 不再依赖硬编码偏移值。
+    val positionProvider = remember(anchor, effectivePlacement, offset) {
+        PopoverPositionProvider(anchor, effectivePlacement, offset)
     }
 
     Popup(
-        alignment = androidx.compose.ui.Alignment.TopStart,
-        offset = popupOffset,
+        popupPositionProvider = positionProvider,
         onDismissRequest = {
             if (closeOnClickOutside) {
                 onClose?.invoke()

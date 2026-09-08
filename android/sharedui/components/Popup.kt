@@ -145,6 +145,7 @@ fun Popup(
                     .fillMaxWidth()
                     .background(AppColor.bgCard, shape)
                     .navigationBarsPadding()
+                    .padding(bottom = AppSpace.sm)
                 PopupPosition.TOP -> Modifier
                     .align(Alignment.TopCenter)
                     .fillMaxWidth()
@@ -158,8 +159,12 @@ fun Popup(
                     onClick = {}
                 )
             ) {
-                // 内容槽
-                Box(modifier = Modifier.then(modifier)) {
+                // 内容槽（closeable 时顶部留出关闭按钮空间）
+                val contentTopPadding = if (closeable) 32.dp else 0.dp
+                Box(modifier = Modifier
+                    .then(modifier)
+                    .padding(top = contentTopPadding)
+                ) {
                     content()
                 }
                 // 关闭按钮

@@ -94,7 +94,16 @@ object Notify {
         )
         when (position) {
             NotifyPosition.TOP -> {
-                params.topMargin = (activity.resources.displayMetrics.density * (navHeight + distance)).toInt()
+                // 使用 windowInsets 获取状态栏高度，避免固定 navHeight 不准确导致盖住 titlebar
+                val statusBarHeight = androidx.core.view.WindowInsetsCompat
+                    .toWindowInsetsCompat(activity.window.decorView.rootWindowInsets, activity.window.decorView)
+                    .getInsets(androidx.core.view.WindowInsetsCompat.Type.statusBars())
+                    .top
+                val density = activity.resources.displayMetrics.density
+                val offsetDp = navHeight + distance
+                // 取状态栏实际高度与 navHeight 取大值，确保不会盖住导航栏
+                val effectiveTop = maxOf(statusBarHeight, (density * offsetDp).toInt())
+                params.topMargin = effectiveTop
                 params.gravity = android.view.Gravity.TOP
             }
             NotifyPosition.BOTTOM -> {

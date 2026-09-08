@@ -68,6 +68,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -6982,7 +6983,7 @@ private fun DragDemo() {
             modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
         )
         Text(
-            text = "4 组排查：① 基础拖拽排序（3 项长按拖拽 → onReorder(from,to)） ② handle 手柄模式（左侧 ≡ 24dp pointerInput 触发，整行不响应） ③ disabled 禁用拖拽（enabled=false 纯列表） ④ 实时回调（拖拽落位 Toast 显示新顺序）。双端 1:1（Android Drag vs iOS DragListView）。",
+            text = "4 组排查：① 基础拖拽排序（3 项手柄拖拽 → onReorder(from,to)，对齐 iOS showsReorderControl） ② handle 手柄模式（左侧 ≡ 24dp pointerInput 触发，整行不响应） ③ disabled 禁用拖拽（enabled=false 纯列表） ④ 实时回调（拖拽落位 Toast 显示新顺序）。双端 1:1（Android Drag vs iOS DragListView，均手柄触发）。",
             color = AppColor.textSecondary,
             fontSize = AppFont.sizeXs,
             modifier = Modifier.padding(horizontal = AppSpace.xl)
@@ -6997,8 +6998,8 @@ private fun DragDemo() {
                 .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
             verticalArrangement = Arrangement.spacedBy(AppSpace.md)
         ) {
-            // D1 · 基础拖拽排序（3 项长按拖拽）
-            Text("Demo 1 · 基础拖拽排序（3 项长按拖拽）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+            // D1 · 基础拖拽排序（3 项手柄拖拽，对齐 iOS showsReorderControl）
+            Text("Demo 1 · 基础拖拽排序（3 项手柄拖拽）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
             var d1Items by remember {
                 mutableStateOf(
                     listOf(
@@ -7022,11 +7023,11 @@ private fun DragDemo() {
                     d1Msg = "onReorder(from=$from, to=$to) → 顺序：${list.joinToString("→") { it.title }}"
                 },
                 enabled = true,
-                handle = false,
+                handle = true,
                 modifier = Modifier.height(220.dp),
             )
             Text(
-                text = d1Msg ?: "handle=false=整行长按触发拖拽；拖拽中 swap 显示位置跟随手指；落位 onReorder(from,to) 回调。",
+                text = d1Msg ?: "handle=true=左侧 ≡ 手柄 pointerInput 触发，整行不响应；与 iOS showsReorderControl 对齐；落位 onReorder(from,to) 回调。",
                 fontSize = AppFont.sizeXs,
                 color = if (d1Msg != null) AppColor.primary else AppColor.textSecondary
             )
@@ -7290,6 +7291,7 @@ fun InfiniteLoadingDemo() {
         )
         var d3Error by remember { mutableStateOf(true) }
         var d3Loading by remember { mutableStateOf(false) }
+        var d3HasMore by remember { mutableStateOf(true) }
         val d3ListState = rememberLazyListState()
         Box(
             modifier = Modifier
@@ -7314,7 +7316,7 @@ fun InfiniteLoadingDemo() {
                 item {
                     InfiniteLoading(
                         listState = d3ListState,
-                        hasMore = true,
+                        hasMore = d3HasMore,
                         loading = d3Loading,
                         error = d3Error,
                         onLoadMore = {
@@ -7324,7 +7326,7 @@ fun InfiniteLoadingDemo() {
                                 CoroutineScope(Dispatchers.Main).launch {
                                     delay(1000)
                                     d3Loading = false
-                                    d3Error = false
+                                    d3HasMore = false
                                 }
                             }
                         }
@@ -7654,7 +7656,6 @@ fun PopoverDemo() {
     var visible by remember { mutableStateOf(false) }
     var placement by remember { mutableStateOf(PopoverPlacement.TOP) }
     val anchor = remember { mutableStateOf(Rect.Zero) }
-    val onLayout: (Rect) -> Unit = { rect -> anchor.value = rect }
 
     LazyColumn(
         modifier = Modifier
@@ -7672,18 +7673,18 @@ fun PopoverDemo() {
                         .height(80.dp),
                     contentAlignment = Alignment.Center
                 ) {
+                    val myRect = remember { mutableStateOf(Rect.Zero) }
                     AppButton(
                         text = "点击弹出气泡",
                         onClick = {
                             placement = PopoverPlacement.TOP
+                            anchor.value = myRect.value
                             visible = true
                         },
                         modifier = Modifier.onGloballyPositioned { coords ->
-                            val pos = coords.positionInRoot()
-                            val size = coords.size
-                            anchor.value = Rect(
-                                offset = pos,
-                                size = androidx.compose.ui.geometry.Size(size.width.toFloat(), size.height.toFloat())
+                            myRect.value = Rect(
+                                offset = coords.positionInWindow(),
+                                size = androidx.compose.ui.geometry.Size(coords.size.width.toFloat(), coords.size.height.toFloat())
                             )
                         }
                     )
@@ -7695,10 +7696,50 @@ fun PopoverDemo() {
         item {
             DemoSectionCard(title = "D2 · placement 方向切换") {
                 Column(verticalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
-                    AppButton(text = "顶部 (TOP)", onClick = { placement = PopoverPlacement.TOP; visible = true })
-                    AppButton(text = "底部 (BOTTOM)", onClick = { placement = PopoverPlacement.BOTTOM; visible = true })
-                    AppButton(text = "左侧 (LEFT)", onClick = { placement = PopoverPlacement.LEFT; visible = true })
-                    AppButton(text = "右侧 (RIGHT)", onClick = { placement = PopoverPlacement.RIGHT; visible = true })
+                    val topRect = remember { mutableStateOf(Rect.Zero) }
+                    AppButton(
+                        text = "顶部 (TOP)",
+                        onClick = { placement = PopoverPlacement.TOP; anchor.value = topRect.value; visible = true },
+                        modifier = Modifier.onGloballyPositioned { coords ->
+                            topRect.value = Rect(
+                                offset = coords.positionInWindow(),
+                                size = androidx.compose.ui.geometry.Size(coords.size.width.toFloat(), coords.size.height.toFloat())
+                            )
+                        }
+                    )
+                    val bottomRect = remember { mutableStateOf(Rect.Zero) }
+                    AppButton(
+                        text = "底部 (BOTTOM)",
+                        onClick = { placement = PopoverPlacement.BOTTOM; anchor.value = bottomRect.value; visible = true },
+                        modifier = Modifier.onGloballyPositioned { coords ->
+                            bottomRect.value = Rect(
+                                offset = coords.positionInWindow(),
+                                size = androidx.compose.ui.geometry.Size(coords.size.width.toFloat(), coords.size.height.toFloat())
+                            )
+                        }
+                    )
+                    val leftRect = remember { mutableStateOf(Rect.Zero) }
+                    AppButton(
+                        text = "左侧 (LEFT)",
+                        onClick = { placement = PopoverPlacement.LEFT; anchor.value = leftRect.value; visible = true },
+                        modifier = Modifier.onGloballyPositioned { coords ->
+                            leftRect.value = Rect(
+                                offset = coords.positionInWindow(),
+                                size = androidx.compose.ui.geometry.Size(coords.size.width.toFloat(), coords.size.height.toFloat())
+                            )
+                        }
+                    )
+                    val rightRect = remember { mutableStateOf(Rect.Zero) }
+                    AppButton(
+                        text = "右侧 (RIGHT)",
+                        onClick = { placement = PopoverPlacement.RIGHT; anchor.value = rightRect.value; visible = true },
+                        modifier = Modifier.onGloballyPositioned { coords ->
+                            rightRect.value = Rect(
+                                offset = coords.positionInWindow(),
+                                size = androidx.compose.ui.geometry.Size(coords.size.width.toFloat(), coords.size.height.toFloat())
+                            )
+                        }
+                    )
                 }
             }
         }
@@ -7706,9 +7747,16 @@ fun PopoverDemo() {
         // D3 closeOnClickOutside 外部点击
         item {
             DemoSectionCard(title = "D3 · closeOnClickOutside 外部点击") {
+                val myRect = remember { mutableStateOf(Rect.Zero) }
                 AppButton(
                     text = "弹出气泡（点外部收起）",
-                    onClick = { visible = true }
+                    onClick = { anchor.value = myRect.value; visible = true },
+                    modifier = Modifier.onGloballyPositioned { coords ->
+                        myRect.value = Rect(
+                            offset = coords.positionInWindow(),
+                            size = androidx.compose.ui.geometry.Size(coords.size.width.toFloat(), coords.size.height.toFloat())
+                        )
+                    }
                 )
             }
         }
@@ -7716,9 +7764,16 @@ fun PopoverDemo() {
         // D4 嵌入菜单内容
         item {
             DemoSectionCard(title = "D4 · 嵌入菜单内容") {
+                val myRect = remember { mutableStateOf(Rect.Zero) }
                 AppButton(
                     text = "弹出菜单气泡",
-                    onClick = { placement = PopoverPlacement.TOP; visible = true }
+                    onClick = { placement = PopoverPlacement.TOP; anchor.value = myRect.value; visible = true },
+                    modifier = Modifier.onGloballyPositioned { coords ->
+                        myRect.value = Rect(
+                            offset = coords.positionInWindow(),
+                            size = androidx.compose.ui.geometry.Size(coords.size.width.toFloat(), coords.size.height.toFloat())
+                        )
+                    }
                 )
             }
         }

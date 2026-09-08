@@ -234,6 +234,8 @@ class ShowcaseViewController: UIViewController {
 
     /// 创建一个 Demo 段卡片（白底圆角+标题+内容槽），返回该卡片供宿主自行布局。
     /// 与 addSection 的区别：不自动追加到 contentStack，而是返回 UIView 由宿主组合。
+    /// 重要：block 中添加到 container 的子视图必须包含 top+bottom 约束（或 edges），
+    /// 否则 container 高度不确定，白色卡片无法包裹内容。
     func makeSectionCard(title: String, _ block: (UIView) -> Void) -> UIView {
         let card = UIView()
         card.backgroundColor = AppColor.bgCard
@@ -256,10 +258,25 @@ class ShowcaseViewController: UIViewController {
             make.top.equalTo(titleLabel.snp.bottom).offset(AppSpace.md)
             make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
             make.bottom.equalToSuperview().offset(-AppSpace.md)
+            make.height.greaterThanOrEqualTo(60)
         }
 
         block(container)
         return card
+    }
+
+    /// 便捷方法：创建 makeSectionCard 并直接追加到 contentStack。
+    /// block 中子视图必须有 top+bottom 约束，或传入 contentHeight 让 container 有确定高度。
+    func addCard(title: String, contentHeight: CGFloat? = nil, _ block: (UIView) -> Void) {
+        let card = makeSectionCard(title: title) { container in
+            if let h = contentHeight {
+                container.snp.makeConstraints { make in
+                    make.height.equalTo(h)
+                }
+            }
+            block(container)
+        }
+        contentStack.addArrangedSubview(card)
     }
 
     func addInfo(_ text: String) {
@@ -8499,6 +8516,7 @@ final class InfiniteLoadingShowcase: ShowcaseViewController {
         addSection(title: "Demo 2 · 加载完成") { container in
             let tv = UITableView()
             tv.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+            tv.dataSource = self
             tv.delegate = self
             tv.tag = 2
             tv.separatorStyle = .none
@@ -8522,6 +8540,7 @@ final class InfiniteLoadingShowcase: ShowcaseViewController {
         addSection(title: "Demo 3 · 加载失败 + 点击重试") { container in
             let tv = UITableView()
             tv.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+            tv.dataSource = self
             tv.delegate = self
             tv.tag = 3
             tv.separatorStyle = .none
@@ -8674,17 +8693,16 @@ final class LoadingShowcase: ShowcaseViewController {
     }
 
     private func setupSections() {
-        let d1 = makeSectionCard(title: "D1 · 基础加载（circular 类型，无文案）") { container in
+        addCard(title: "D1 · 基础加载（circular 类型，无文案）", contentHeight: 80) { container in
             let loading = LoadingView(type: .circular)
             loading.translatesAutoresizingMaskIntoConstraints = false
             container.addSubview(loading)
             loading.snp.makeConstraints { make in
                 make.center.equalToSuperview()
-                make.height.equalTo(80)
             }
         }
 
-        let d2 = makeSectionCard(title: "D2 · 带文案（horizontal + vertical）") { container in
+        addCard(title: "D2 · 带文案（horizontal + vertical）", contentHeight: 100) { container in
             let row = UIStackView()
             row.axis = .horizontal
             row.alignment = .center
@@ -8703,7 +8721,7 @@ final class LoadingShowcase: ShowcaseViewController {
             }
         }
 
-        let d3 = makeSectionCard(title: "D3 · spinner + 自定义颜色大小") { container in
+        addCard(title: "D3 · spinner + 自定义颜色大小", contentHeight: 100) { container in
             let row = UIStackView()
             row.axis = .horizontal
             row.alignment = .center
@@ -8722,7 +8740,7 @@ final class LoadingShowcase: ShowcaseViewController {
             }
         }
 
-        let d4 = makeSectionCard(title: "D4 · 全屏遮罩加载（Overlay+Loading 组合）") { container in
+        addCard(title: "D4 · 全屏遮罩加载（Overlay+Loading 组合）", contentHeight: 140) { container in
             // 宿主内容
             let bgView = UIView()
             bgView.backgroundColor = AppColor.gray4
@@ -8752,14 +8770,6 @@ final class LoadingShowcase: ShowcaseViewController {
             mask.addSubview(loading)
             loading.snp.makeConstraints { make in make.center.equalToSuperview() }
         }
-
-        let stack = UIStackView(arrangedSubviews: [d1, d2, d3, d4])
-        stack.axis = .vertical
-        stack.spacing = AppSpace.lg
-        view.addSubview(stack)
-        stack.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(AppSpace.lg)
-        }
     }
 }
 
@@ -8774,7 +8784,7 @@ final class NoticeBarShowcase: ShowcaseViewController {
     }
 
     private func setupSections() {
-        let d1 = makeSectionCard(title: "D1 · 基础横向滚动（horizontal 跑马灯）") { container in
+        addCard(title: "D1 · 基础横向滚动（horizontal 跑马灯）", contentHeight: 56) { container in
             let bar = NoticeBarView(text: "📢 这是一条公告信息，内容较长会自动横向滚动播放...")
             container.addSubview(bar)
             bar.snp.makeConstraints { make in
@@ -8783,7 +8793,7 @@ final class NoticeBarShowcase: ShowcaseViewController {
             }
         }
 
-        let d2 = makeSectionCard(title: "D2 · 纵向多条轮播（vertical）") { container in
+        addCard(title: "D2 · 纵向多条轮播（vertical）", contentHeight: 56) { container in
             let bar = NoticeBarView(
                 direction: .vertical,
                 list: ["🔥 热门：今日 5 折特惠活动", "📢 公告：系统维护通知", "🎁 福利：新用户注册领券"],
@@ -8796,7 +8806,7 @@ final class NoticeBarShowcase: ShowcaseViewController {
             }
         }
 
-        let d3 = makeSectionCard(title: "D3 · 可关闭（closeable=true）") { container in
+        addCard(title: "D3 · 可关闭（closeable=true）", contentHeight: 56) { container in
             let bar = NoticeBarView(text: "📢 这是一条可关闭的公告信息", closeable: true) { }
             container.addSubview(bar)
             bar.snp.makeConstraints { make in
@@ -8805,7 +8815,7 @@ final class NoticeBarShowcase: ShowcaseViewController {
             }
         }
 
-        let d4 = makeSectionCard(title: "D4 · 自定义左右图标 + 配色") { container in
+        addCard(title: "D4 · 自定义左右图标 + 配色", contentHeight: 56) { container in
             let bar = NoticeBarView(
                 text: "✅ 自定义图标+配色的公告栏",
                 backgroundColor: AppColor.primaryMuted,
@@ -8816,14 +8826,6 @@ final class NoticeBarShowcase: ShowcaseViewController {
                 make.left.right.equalToSuperview().inset(AppSpace.sm)
                 make.top.equalToSuperview().offset(AppSpace.sm)
             }
-        }
-
-        let stack = UIStackView(arrangedSubviews: [d1, d2, d3, d4])
-        stack.axis = .vertical
-        stack.spacing = AppSpace.lg
-        view.addSubview(stack)
-        stack.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(AppSpace.lg)
         }
     }
 }
@@ -8838,53 +8840,51 @@ final class NotifyShowcase: ShowcaseViewController {
         setupSections()
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // 离开页面时清除残留通知，避免带到组件列表页
+        Notify.clear()
+    }
+
     private func setupSections() {
-        let d1 = makeSectionCard(title: "D1 · 基础通知（top 位置，自动消失）") { container in
+        addCard(title: "D1 · 基础通知（top 位置，自动消失）", contentHeight: 60) { container in
             let btn = AppButton.primary("显示 top 通知")
             btn.addTarget(self, action: #selector(self.showD1), for: .touchUpInside)
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
                 make.left.right.equalToSuperview().inset(AppSpace.sm)
-                make.top.equalToSuperview().offset(AppSpace.sm)
+                make.top.bottom.equalToSuperview().inset(AppSpace.sm)
             }
         }
 
-        let d2 = makeSectionCard(title: "D2 · bottom 位置 + 自定义 duration") { container in
+        addCard(title: "D2 · bottom 位置 + 自定义 duration", contentHeight: 60) { container in
             let btn = AppButton.primary("显示 bottom 通知")
             btn.addTarget(self, action: #selector(self.showD2), for: .touchUpInside)
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
                 make.left.right.equalToSuperview().inset(AppSpace.sm)
-                make.top.equalToSuperview().offset(AppSpace.sm)
+                make.top.bottom.equalToSuperview().inset(AppSpace.sm)
             }
         }
 
-        let d3 = makeSectionCard(title: "D3 · type 类型变色（success）") { container in
+        addCard(title: "D3 · type 类型变色（success）", contentHeight: 60) { container in
             let btn = AppButton.primary("显示 success 通知")
             btn.addTarget(self, action: #selector(self.showD3), for: .touchUpInside)
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
                 make.left.right.equalToSuperview().inset(AppSpace.sm)
-                make.top.equalToSuperview().offset(AppSpace.sm)
+                make.top.bottom.equalToSuperview().inset(AppSpace.sm)
             }
         }
 
-        let d4 = makeSectionCard(title: "D4 · 可关闭 + 自定义图标") { container in
+        addCard(title: "D4 · 可关闭 + 自定义图标", contentHeight: 60) { container in
             let btn = AppButton.primary("显示可关闭通知")
             btn.addTarget(self, action: #selector(self.showD4), for: .touchUpInside)
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
                 make.left.right.equalToSuperview().inset(AppSpace.sm)
-                make.top.equalToSuperview().offset(AppSpace.sm)
+                make.top.bottom.equalToSuperview().inset(AppSpace.sm)
             }
-        }
-
-        let stack = UIStackView(arrangedSubviews: [d1, d2, d3, d4])
-        stack.axis = .vertical
-        stack.spacing = AppSpace.lg
-        view.addSubview(stack)
-        stack.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(AppSpace.lg)
         }
     }
 
@@ -8901,7 +8901,9 @@ final class NotifyShowcase: ShowcaseViewController {
     }
 
     @objc func showD4() {
-        Notify.show(message: "可关闭通知（带自定义图标）", closeable: true) { }
+        Notify.show(message: "可关闭通知（带自定义图标）", closeable: true) {
+            // onClose 回调
+        }
     }
 }
 
@@ -8938,64 +8940,56 @@ final class PopoverShowcase: ShowcaseViewController {
     }
 
     private func setupSections() {
-        let d1 = makeSectionCard(title: "D1 · 基础顶部弹出（placement=top）") { container in
+        addCard(title: "D1 · 基础顶部弹出（placement=top）", contentHeight: 48) { container in
             let btn = AppButton.primary("点击弹出气泡")
             btn.addTarget(self, action: #selector(self.tapD1(_:)), for: .touchUpInside)
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
-                make.top.equalToSuperview()
+                make.top.bottom.equalToSuperview()
                 make.leading.equalToSuperview()
                 make.height.equalTo(AppButton.standardHeight)
             }
         }
 
-        let d2 = makeSectionCard(title: "D2 · placement 方向切换") { container in
-            let row = UIStackView()
-            row.axis = .horizontal
-            row.spacing = AppSpace.sm
-            row.distribution = .fillEqually
+        addCard(title: "D2 · placement 方向切换", contentHeight: 200) { container in
+            let col = UIStackView()
+            col.axis = .vertical
+            col.spacing = AppSpace.sm
+            col.distribution = .fillEqually
             let placements: [(String, PopoverPlacement)] = [("顶部", .top), ("底部", .bottom), ("左侧", .left), ("右侧", .right)]
             for (index, item) in placements.enumerated() {
                 let btn = AppButton.secondary(item.0)
                 btn.tag = index
                 btn.addTarget(self, action: #selector(self.tapD2(_:)), for: .touchUpInside)
-                row.addArrangedSubview(btn)
+                col.addArrangedSubview(btn)
             }
-            container.addSubview(row)
-            row.snp.makeConstraints { make in
-                make.top.equalToSuperview()
+            container.addSubview(col)
+            col.snp.makeConstraints { make in
+                make.top.bottom.equalToSuperview()
                 make.leading.trailing.equalToSuperview()
             }
         }
 
-        let d3 = makeSectionCard(title: "D3 · closeOnClickOutside 外部点击") { container in
+        addCard(title: "D3 · closeOnClickOutside 外部点击", contentHeight: 48) { container in
             let btn = AppButton.primary("弹出气泡（点外部收起）")
             btn.addTarget(self, action: #selector(self.tapD1(_:)), for: .touchUpInside)
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
-                make.top.equalToSuperview()
+                make.top.bottom.equalToSuperview()
                 make.leading.equalToSuperview()
                 make.height.equalTo(AppButton.standardHeight)
             }
         }
 
-        let d4 = makeSectionCard(title: "D4 · 嵌入菜单内容") { container in
+        addCard(title: "D4 · 嵌入菜单内容", contentHeight: 48) { container in
             let btn = AppButton.primary("弹出菜单气泡")
             btn.addTarget(self, action: #selector(self.tapD4(_:)), for: .touchUpInside)
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
-                make.top.equalToSuperview()
+                make.top.bottom.equalToSuperview()
                 make.leading.equalToSuperview()
                 make.height.equalTo(AppButton.standardHeight)
             }
-        }
-
-        let stack = UIStackView(arrangedSubviews: [d1, d2, d3, d4])
-        stack.axis = .vertical
-        stack.spacing = AppSpace.lg
-        view.addSubview(stack)
-        stack.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(AppSpace.lg)
         }
     }
 
@@ -9077,56 +9071,48 @@ final class PopupShowcase: ShowcaseViewController {
     }
 
     private func setupSections() {
-        let d1 = makeSectionCard(title: "D1 · 居中弹层（position=center）") { container in
+        addCard(title: "D1 · 居中弹层（position=center）", contentHeight: 48) { container in
             let btn = AppButton.primary("显示居中弹层")
             btn.addTarget(self, action: #selector(self.tapCenter), for: .touchUpInside)
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
-                make.top.equalToSuperview()
-                make.leading.equalToSuperview()
+                make.left.right.equalToSuperview()
+                make.top.bottom.equalToSuperview()
                 make.height.equalTo(AppButton.standardHeight)
             }
         }
 
-        let d2 = makeSectionCard(title: "D2 · 底部弹层（position=bottom）") { container in
+        addCard(title: "D2 · 底部弹层（position=bottom）", contentHeight: 48) { container in
             let btn = AppButton.primary("显示底部弹层")
             btn.addTarget(self, action: #selector(self.tapBottom), for: .touchUpInside)
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
-                make.top.equalToSuperview()
-                make.leading.equalToSuperview()
+                make.left.right.equalToSuperview()
+                make.top.bottom.equalToSuperview()
                 make.height.equalTo(AppButton.standardHeight)
             }
         }
 
-        let d3 = makeSectionCard(title: "D3 · closeable 关闭按钮") { container in
+        addCard(title: "D3 · closeable 关闭按钮", contentHeight: 48) { container in
             let btn = AppButton.primary("显示可关闭弹层")
             btn.addTarget(self, action: #selector(self.tapCloseable), for: .touchUpInside)
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
-                make.top.equalToSuperview()
-                make.leading.equalToSuperview()
+                make.left.right.equalToSuperview()
+                make.top.bottom.equalToSuperview()
                 make.height.equalTo(AppButton.standardHeight)
             }
         }
 
-        let d4 = makeSectionCard(title: "D4 · 受控外部驱动") { container in
+        addCard(title: "D4 · 受控外部驱动", contentHeight: 48) { container in
             let btn = AppButton.primary("切换弹层显示")
             btn.addTarget(self, action: #selector(self.tapControlled), for: .touchUpInside)
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
-                make.top.equalToSuperview()
-                make.leading.equalToSuperview()
+                make.left.right.equalToSuperview()
+                make.top.bottom.equalToSuperview()
                 make.height.equalTo(AppButton.standardHeight)
             }
-        }
-
-        let stack = UIStackView(arrangedSubviews: [d1, d2, d3, d4])
-        stack.axis = .vertical
-        stack.spacing = AppSpace.lg
-        view.addSubview(stack)
-        stack.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(AppSpace.lg)
         }
     }
 
@@ -9150,56 +9136,48 @@ final class ResultPageShowcase: ShowcaseViewController {
     }
 
     private func setupSections() {
-        let d1 = makeSectionCard(title: "D1 · 成功+主按钮（type=success）") { container in
+        addCard(title: "D1 · 成功+主按钮（type=success）", contentHeight: 48) { container in
             let btn = AppButton.primary("展示成功页")
             btn.addTarget(self, action: #selector(self.tapSuccess), for: .touchUpInside)
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
-                make.top.equalToSuperview()
-                make.leading.equalToSuperview()
+                make.left.right.equalToSuperview()
+                make.top.bottom.equalToSuperview()
                 make.height.equalTo(AppButton.standardHeight)
             }
         }
 
-        let d2 = makeSectionCard(title: "D2 · 失败+重试（type=error）") { container in
+        addCard(title: "D2 · 失败+重试（type=error）", contentHeight: 48) { container in
             let btn = AppButton.primary("展示失败页")
             btn.addTarget(self, action: #selector(self.tapError), for: .touchUpInside)
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
-                make.top.equalToSuperview()
-                make.leading.equalToSuperview()
+                make.left.right.equalToSuperview()
+                make.top.bottom.equalToSuperview()
                 make.height.equalTo(AppButton.standardHeight)
             }
         }
 
-        let d3 = makeSectionCard(title: "D3 · 警告+多按钮（type=warning）") { container in
+        addCard(title: "D3 · 警告+多按钮（type=warning）", contentHeight: 48) { container in
             let btn = AppButton.primary("展示警告页")
             btn.addTarget(self, action: #selector(self.tapWarning), for: .touchUpInside)
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
-                make.top.equalToSuperview()
-                make.leading.equalToSuperview()
+                make.left.right.equalToSuperview()
+                make.top.bottom.equalToSuperview()
                 make.height.equalTo(AppButton.standardHeight)
             }
         }
 
-        let d4 = makeSectionCard(title: "D4 · 信息+无按钮（type=info）") { container in
+        addCard(title: "D4 · 信息+无按钮（type=info）", contentHeight: 48) { container in
             let btn = AppButton.primary("展示信息页")
             btn.addTarget(self, action: #selector(self.tapInfo), for: .touchUpInside)
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
-                make.top.equalToSuperview()
-                make.leading.equalToSuperview()
+                make.left.right.equalToSuperview()
+                make.top.bottom.equalToSuperview()
                 make.height.equalTo(AppButton.standardHeight)
             }
-        }
-
-        let stack = UIStackView(arrangedSubviews: [d1, d2, d3, d4])
-        stack.axis = .vertical
-        stack.spacing = AppSpace.lg
-        view.addSubview(stack)
-        stack.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(AppSpace.lg)
         }
     }
 
@@ -9233,20 +9211,17 @@ final class ResultPageShowcase: ShowcaseViewController {
         result.desc = desc
         result.actions = actions
 
-        let container = UIView()
-        container.backgroundColor = AppColor.bgPage
-        result.translatesAutoresizingMaskIntoConstraints = false
-        container.addSubview(result)
-        NSLayoutConstraint.activate([
-            result.centerXAnchor.constraint(equalTo: container.centerXAnchor),
-            result.centerYAnchor.constraint(equalTo: container.centerYAnchor),
-            result.leadingAnchor.constraint(greaterThanOrEqualTo: container.leadingAnchor, constant: AppSpace.xl),
-            result.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -AppSpace.xl)
-        ])
-
         let vc = UIViewController()
-        vc.view = container
+        vc.view.backgroundColor = AppColor.bgPage
         vc.title = "结果反馈"
+        result.translatesAutoresizingMaskIntoConstraints = false
+        vc.view.addSubview(result)
+        result.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview()
+            make.leading.greaterThanOrEqualToSuperview().offset(AppSpace.xl)
+            make.trailing.lessThanOrEqualToSuperview().offset(-AppSpace.xl)
+        }
         navigationController?.pushViewController(vc, animated: true)
     }
 }

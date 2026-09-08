@@ -84,14 +84,7 @@ final class LoadingView: UIView {
         let iconView: UIView
         switch type {
         case .circular:
-            let indicator = UIActivityIndicatorView(style: .medium)
-            indicator.color = color
-            indicator.startAnimating()
-            // 强制尺寸
-            indicator.snp.makeConstraints { make in
-                make.width.height.equalTo(size)
-            }
-            indicator.transform = CGAffineTransform(scaleX: size / 24.0, y: size / 24.0)
+            let indicator = LoadingCircularView(size: size, color: color)
             iconView = indicator
         case .spinner:
             iconView = LoadingSpinnerView(size: size, color: color)
@@ -177,5 +170,58 @@ private final class LoadingSpinnerView: UIView {
         for layer in lines {
             layer.position = CGPoint(x: layer.position.x, y: layer.position.y)
         }
+    }
+
+    override var intrinsicContentSize: CGSize {
+        return CGSize(width: size, height: size)
+    }
+}
+
+/// circular 类型：缺口圆圈旋转（与 Android CircularProgressIndicator 同构）。
+/// 绘制一个 ~270° 的弧形描边圆，持续旋转，缺口随旋转移动。
+private final class LoadingCircularView: UIView {
+    private let size: CGFloat
+    private let color: UIColor
+    private let arcLayer = CAShapeLayer()
+
+    init(size: CGFloat, color: UIColor) {
+        self.size = size
+        self.color = color
+        super.init(frame: CGRect(x: 0, y: 0, width: size, height: size))
+        setupLayer()
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) not implemented") }
+
+    private func setupLayer() {
+        let strokeWidth = max(size / 8, 2)
+        let radius = (size - strokeWidth) / 2
+        let center = CGPoint(x: size / 2, y: size / 2)
+        // 必须设置 arcLayer 的 frame，否则 bounds 为 .zero，旋转 anchorPoint 在 (0,0) 导致"绕大圈"
+        arcLayer.frame = CGRect(x: 0, y: 0, width: size, height: size)
+        // 270° 弧（缺口 90°），起点在顶部
+        let startAngle: CGFloat = -.pi / 2
+        let endAngle: CGFloat = startAngle + .pi * 1.5
+        let path = UIBezierPath(arcCenter: center, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
+
+        arcLayer.path = path.cgPath
+        arcLayer.fillColor = UIColor.clear.cgColor
+        arcLayer.strokeColor = color.cgColor
+        arcLayer.lineWidth = strokeWidth
+        arcLayer.lineCap = .round
+        layer.addSublayer(arcLayer)
+
+        // 旋转动画
+        let rotation = CABasicAnimation(keyPath: "transform.rotation.z")
+        rotation.fromValue = 0
+        rotation.toValue = 2 * Double.pi
+        rotation.duration = 0.8
+        rotation.repeatCount = .infinity
+        rotation.isRemovedOnCompletion = false
+        arcLayer.add(rotation, forKey: "circularRotation")
+    }
+
+    override var intrinsicContentSize: CGSize {
+        return CGSize(width: size, height: size)
     }
 }

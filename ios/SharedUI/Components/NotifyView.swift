@@ -131,7 +131,7 @@ final class Notify {
     }
 }
 
-private final class NotifyContainerView: UIView {
+private final class NotifyContainerView: UIView, UIGestureRecognizerDelegate {
 
     private let message: String
     private let type: NotifyType
@@ -215,8 +215,9 @@ private final class NotifyContainerView: UIView {
         }
         stack.addArrangedSubview(rightView)
 
-        // 点击手势
+        // 点击手势（不拦截按钮点击）
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTapContent))
+        tap.delegate = self
         addGestureRecognizer(tap)
     }
 
@@ -227,5 +228,17 @@ private final class NotifyContainerView: UIView {
     @objc private func didTapClose() {
         Notify.clear()
         onClose?()
+    }
+
+    // MARK: - UIGestureRecognizerDelegate
+
+    /// 让 tap gesture 不拦截 UIButton 的点击
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        // 如果触摸落在 UIButton 上，不接收 tap
+        let location = touch.location(in: self)
+        if let view = hitTest(location, with: nil), view is UIButton {
+            return false
+        }
+        return true
     }
 }

@@ -14,6 +14,20 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.6] - 2026-09-08
+
+InfiniteLoading iOS Demo 修复（PATCH，tableFooterView 高度 + 数据源遗漏）。
+
+### Fixed
+
+- **InfiniteLoading #57 iOS tableFooterView 高度为 0 导致文案截断/点击重试无响应**：InfiniteLoadingView 初始化用 `snp.makeConstraints { make.height.equalTo(44) }` 设置自约束高度，SnapKit 同时设 `translatesAutoresizingMaskIntoConstraints = false`。当视图被赋值为 `tableView.tableFooterView` 时，UITableView 通过 `systemLayoutSizeFitting` 计算 footer 高度，但在视图无 superview 上下文时可能返回 0 高度，导致加载中文案、完成文案、错误文案均不可见，且 error 态点击重试手势区域为 0 无法接收触摸。修复=将 `snp.makeConstraints(height=44)` 改为 `frame = CGRect(0,0,375,44)`，保持 `translatesAutoresizingMaskIntoConstraints = true`（默认值），UITableView 直接用 frame.height=44 作为 footer 高度。子视图（spinner/label）仍用 SnapKit 约束居中，不受影响。
+
+- **InfiniteLoading Demo2/Demo3 遗漏 `tv.dataSource = self`**：Demo2（加载完成）和 Demo3（加载失败+点击重试）的 UITableView 仅设了 `delegate` 未设 `dataSource`，导致 numberOfRowsInSection/cellForRowAt 不被调用，列表数据完全不显示。Android 端 LazyColumn 无此问题（items 直接声明在 Composable 内）。修复=补 `tv.dataSource = self`，与 Demo1/Demo4 一致。
+
+### Changed
+
+- 组件库全局版本 1.4.5 → 1.4.6（PATCH，iOS Demo 修复）。
+
 ## \[1.4.5] - 2026-09-08
 
 三组件新增（MINOR，操作反馈区扩展）。

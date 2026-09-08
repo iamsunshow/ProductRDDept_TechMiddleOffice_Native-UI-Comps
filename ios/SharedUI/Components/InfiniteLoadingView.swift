@@ -93,7 +93,7 @@ final class InfiniteLoadingView: UIView {
         label.text = loadingText
         label.textColor = AppColor.textSecondary
         label.font = .systemFont(ofSize: AppFont.sizeSm)
-        label.textAlignment = .center
+        label.textAlignment = .left
 
         // 水平排列 spinner + text（与 Android Row 布局对齐）
         contentStack.axis = .horizontal
@@ -103,7 +103,7 @@ final class InfiniteLoadingView: UIView {
         contentStack.addArrangedSubview(label)
         addSubview(contentStack)
         contentStack.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
+            make.leading.equalToSuperview().offset(AppSpace.lg)
             make.centerY.equalToSuperview()
         }
 

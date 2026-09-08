@@ -140,12 +140,17 @@ public final class PopupContainerView: UIView {
             switch position {
             case .center:
                 make.center.equalToSuperview()
+                make.width.greaterThanOrEqualTo(240)
                 make.leading.greaterThanOrEqualToSuperview().offset(AppSpace.lg)
                 make.trailing.lessThanOrEqualToSuperview().offset(-AppSpace.lg)
             case .bottom:
-                make.leading.trailing.bottom.equalToSuperview()
+                make.leading.trailing.equalToSuperview()
+                make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
+                make.height.greaterThanOrEqualTo(120)
             case .top:
-                make.leading.trailing.top.equalToSuperview()
+                make.leading.trailing.equalToSuperview()
+                make.top.equalTo(self.safeAreaLayoutGuide.snp.top)
+                make.height.greaterThanOrEqualTo(120)
             }
         }
         // 圆角按 position 变化
@@ -172,8 +177,13 @@ public final class PopupContainerView: UIView {
         guard let content = content else { return }
         content.translatesAutoresizingMaskIntoConstraints = false
         containerStack.addSubview(content)
+        // 关闭按钮在右上角，内容需要留出顶部空间；底部加 padding 避免贴边
+        let topInset = closeable ? Layout.closeButtonSize + Layout.closeButtonInset * 2 : AppSpace.lg
         content.snp.prepareConstraints { make in
-            make.edges.equalToSuperview()
+            make.top.equalToSuperview().offset(topInset)
+            make.leading.equalToSuperview().offset(AppSpace.lg)
+            make.trailing.equalToSuperview().offset(-AppSpace.lg)
+            make.bottom.equalToSuperview().offset(-AppSpace.lg)
         }.forEach { c in
             c.activate()
             contentConstraints.append(c)

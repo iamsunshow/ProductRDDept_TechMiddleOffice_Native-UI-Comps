@@ -125,7 +125,11 @@ final class Notify {
             container.transform = CGAffineTransform(translationX: 0, y: position == .top ? -40 : 40)
         }, completion: { _ in
             container.removeFromSuperview()
-            currentView = nil
+            // 仅当被 dismiss 的容器仍是 currentView 时才清空引用，
+            // 避免多次快速点击时新通知被旧通知的 completion 误清。
+            if container === currentView {
+                currentView = nil
+            }
             onClose?()
         })
     }

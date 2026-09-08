@@ -8935,7 +8935,8 @@ final class PopoverShowcase: ShowcaseViewController {
 
     private func showPopover(placement: PopoverPlacement, from button: UIButton) {
         popover.placement = placement
-        popover.anchor = button.superview?.convert(button.frame, to: nil) ?? .zero
+        // 用 button.convert(bounds, to: nil) 更可靠地获取窗口坐标
+        popover.anchor = button.convert(button.bounds, to: nil)
         visible = true
     }
 
@@ -8946,7 +8947,7 @@ final class PopoverShowcase: ShowcaseViewController {
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
                 make.top.bottom.equalToSuperview()
-                make.leading.equalToSuperview()
+                make.left.right.equalToSuperview()
                 make.height.equalTo(AppButton.standardHeight)
             }
         }
@@ -8958,7 +8959,7 @@ final class PopoverShowcase: ShowcaseViewController {
             col.distribution = .fillEqually
             let placements: [(String, PopoverPlacement)] = [("顶部", .top), ("底部", .bottom), ("左侧", .left), ("右侧", .right)]
             for (index, item) in placements.enumerated() {
-                let btn = AppButton.secondary(item.0)
+                let btn = AppButton.primary(item.0)
                 btn.tag = index
                 btn.addTarget(self, action: #selector(self.tapD2(_:)), for: .touchUpInside)
                 col.addArrangedSubview(btn)
@@ -8976,7 +8977,7 @@ final class PopoverShowcase: ShowcaseViewController {
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
                 make.top.bottom.equalToSuperview()
-                make.leading.equalToSuperview()
+                make.left.right.equalToSuperview()
                 make.height.equalTo(AppButton.standardHeight)
             }
         }
@@ -8987,7 +8988,7 @@ final class PopoverShowcase: ShowcaseViewController {
             container.addSubview(btn)
             btn.snp.makeConstraints { make in
                 make.top.bottom.equalToSuperview()
-                make.leading.equalToSuperview()
+                make.left.right.equalToSuperview()
                 make.height.equalTo(AppButton.standardHeight)
             }
         }
@@ -9136,92 +9137,60 @@ final class ResultPageShowcase: ShowcaseViewController {
     }
 
     private func setupSections() {
-        addCard(title: "D1 · 成功+主按钮（type=success）", contentHeight: 48) { container in
-            let btn = AppButton.primary("展示成功页")
-            btn.addTarget(self, action: #selector(self.tapSuccess), for: .touchUpInside)
-            container.addSubview(btn)
-            btn.snp.makeConstraints { make in
-                make.left.right.equalToSuperview()
-                make.top.bottom.equalToSuperview()
-                make.height.equalTo(AppButton.standardHeight)
+        // 与 Android 一致：直接在卡片中展示 ResultPage，无需点击跳转
+        addCard(title: "D1 · 成功+主按钮（type=success）", contentHeight: 220) { container in
+            let result = ResultPageView()
+            result.type = .success
+            result.title = "提交成功"
+            result.desc = "您的申请已提交"
+            result.actions = [ResultAction(text: "返回首页", style: .primary) { }]
+            result.translatesAutoresizingMaskIntoConstraints = false
+            container.addSubview(result)
+            result.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(AppSpace.md)
             }
         }
 
-        addCard(title: "D2 · 失败+重试（type=error）", contentHeight: 48) { container in
-            let btn = AppButton.primary("展示失败页")
-            btn.addTarget(self, action: #selector(self.tapError), for: .touchUpInside)
-            container.addSubview(btn)
-            btn.snp.makeConstraints { make in
-                make.left.right.equalToSuperview()
-                make.top.bottom.equalToSuperview()
-                make.height.equalTo(AppButton.standardHeight)
+        addCard(title: "D2 · 失败+重试（type=error）", contentHeight: 220) { container in
+            let result = ResultPageView()
+            result.type = .error
+            result.title = "支付失败"
+            result.desc = "余额不足"
+            result.actions = [ResultAction(text: "重试", style: .ghost) { }]
+            result.translatesAutoresizingMaskIntoConstraints = false
+            container.addSubview(result)
+            result.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(AppSpace.md)
             }
         }
 
-        addCard(title: "D3 · 警告+多按钮（type=warning）", contentHeight: 48) { container in
-            let btn = AppButton.primary("展示警告页")
-            btn.addTarget(self, action: #selector(self.tapWarning), for: .touchUpInside)
-            container.addSubview(btn)
-            btn.snp.makeConstraints { make in
-                make.left.right.equalToSuperview()
-                make.top.bottom.equalToSuperview()
-                make.height.equalTo(AppButton.standardHeight)
+        addCard(title: "D3 · 警告+多按钮（type=warning）", contentHeight: 220) { container in
+            let result = ResultPageView()
+            result.type = .warning
+            result.title = "部分成功"
+            result.desc = "3 条失败"
+            result.actions = [
+                ResultAction(text: "查看详情", style: .primary) { },
+                ResultAction(text: "返回", style: .ghost) { }
+            ]
+            result.translatesAutoresizingMaskIntoConstraints = false
+            container.addSubview(result)
+            result.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(AppSpace.md)
             }
         }
 
-        addCard(title: "D4 · 信息+无按钮（type=info）", contentHeight: 48) { container in
-            let btn = AppButton.primary("展示信息页")
-            btn.addTarget(self, action: #selector(self.tapInfo), for: .touchUpInside)
-            container.addSubview(btn)
-            btn.snp.makeConstraints { make in
-                make.left.right.equalToSuperview()
-                make.top.bottom.equalToSuperview()
-                make.height.equalTo(AppButton.standardHeight)
+        addCard(title: "D4 · 信息+无按钮（type=info）", contentHeight: 160) { container in
+            let result = ResultPageView()
+            result.type = .info
+            result.title = "系统维护"
+            result.desc = "今晚 22:00-24:00"
+            result.actions = []
+            result.translatesAutoresizingMaskIntoConstraints = false
+            container.addSubview(result)
+            result.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(AppSpace.md)
             }
         }
-    }
-
-    @objc private func tapSuccess() {
-        showResultPage(type: .success, title: "提交成功", desc: "您的申请已提交", actions: [
-            ResultAction(text: "返回首页", style: .primary) { }
-        ])
-    }
-
-    @objc private func tapError() {
-        showResultPage(type: .error, title: "支付失败", desc: "余额不足", actions: [
-            ResultAction(text: "重试", style: .ghost) { }
-        ])
-    }
-
-    @objc private func tapWarning() {
-        showResultPage(type: .warning, title: "部分成功", desc: "3 条失败", actions: [
-            ResultAction(text: "查看详情", style: .primary) { },
-            ResultAction(text: "返回", style: .ghost) { }
-        ])
-    }
-
-    @objc private func tapInfo() {
-        showResultPage(type: .info, title: "系统维护", desc: "今晚 22:00-24:00", actions: [])
-    }
-
-    private func showResultPage(type: ResultType, title: String, desc: String, actions: [ResultAction]) {
-        let result = ResultPageView()
-        result.type = type
-        result.title = title
-        result.desc = desc
-        result.actions = actions
-
-        let vc = UIViewController()
-        vc.view.backgroundColor = AppColor.bgPage
-        vc.title = "结果反馈"
-        result.translatesAutoresizingMaskIntoConstraints = false
-        vc.view.addSubview(result)
-        result.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.centerY.equalToSuperview()
-            make.leading.greaterThanOrEqualToSuperview().offset(AppSpace.xl)
-            make.trailing.lessThanOrEqualToSuperview().offset(-AppSpace.xl)
-        }
-        navigationController?.pushViewController(vc, animated: true)
     }
 }

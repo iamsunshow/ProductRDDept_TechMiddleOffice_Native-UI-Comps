@@ -51,8 +51,10 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -143,12 +145,16 @@ fun Popup(
                 PopupPosition.BOTTOM -> Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
+                    .wrapContentHeight()
+                    .heightIn(min = 120.dp)
                     .background(AppColor.bgCard, shape)
                     .navigationBarsPadding()
                     .padding(bottom = AppSpace.sm)
                 PopupPosition.TOP -> Modifier
                     .align(Alignment.TopCenter)
                     .fillMaxWidth()
+                    .wrapContentHeight()
+                    .heightIn(min = 120.dp)
                     .background(AppColor.bgCard, shape)
             }
             Box(

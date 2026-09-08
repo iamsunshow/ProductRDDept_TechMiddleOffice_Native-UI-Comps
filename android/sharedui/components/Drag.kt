@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -63,6 +64,7 @@ private const val DropAnimMs = 250
  * @param handle 是否仅手柄可拖，默认 false
  * @param modifier 修饰符（建议传固定高度，让 LazyColumn 在此高度内自管滚动）
  */
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun <T> Drag(
     items: List<T>,
@@ -217,6 +219,7 @@ fun <T> Drag(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
+                    .animateItemPlacement()
                     .fillMaxWidth()
                     .graphicsLayer {
                         this.scaleX = scale

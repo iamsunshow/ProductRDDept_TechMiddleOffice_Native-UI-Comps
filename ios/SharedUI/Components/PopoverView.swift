@@ -256,6 +256,9 @@ public final class PopoverView: UIView {
         frame = window.bounds
         window.addSubview(self)
         window.bringSubviewToFront(self)
+        // 立即触发布局，确保气泡按 anchor 正确定位
+        setNeedsLayout()
+        layoutIfNeeded()
 
         bubbleView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
         bubbleView.alpha = 0

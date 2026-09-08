@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -76,6 +77,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.drawToBitmap
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.zhiqihuayun.foundation.design.AppColor
@@ -175,6 +178,7 @@ import com.zhiqihuayun.sharedui.components.DialogAction
 import com.zhiqihuayun.sharedui.components.DialogButtonLayout
 import com.zhiqihuayun.sharedui.components.DialogButtonStyle
 import com.zhiqihuayun.sharedui.components.Drag
+import com.zhiqihuayun.sharedui.components.InfiniteLoading
 import com.zhiqihuayun.sharedui.components.Uploader
 
 class MainActivity : ComponentActivity() {
@@ -253,7 +257,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Dialog 对话框", reviewed = true, demo = { DialogDemo() }),
         DemoComponent("Drag 拖拽", reviewed = true, demo = { DragDemo() }),
         DemoComponent("Empty 空状态", reviewed = true, demo = { EmptyDemo() }),
-        DemoComponent("InfiniteLoading 滚动加载"),
+        DemoComponent("InfiniteLoading 滚动加载", reviewed = true, demo = { InfiniteLoadingDemo() }),
         DemoComponent("Loading 加载中"),
         DemoComponent("NoticeBar 公告栏"),
         DemoComponent("Notify 消息通知"),
@@ -7127,6 +7131,244 @@ private fun DragRow(item: DragItem) {
                 .fillMaxWidth()
                 .height(1.dp)
                 .background(AppColor.border)
+        )
+    }
+}
+
+// MARK: - InfiniteLoading 滚动加载 Demo
+@Composable
+fun InfiniteLoadingDemo() {
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(AppSpace.lg),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.xl)
+    ) {
+        // D1 基础滚动加载
+        Text(
+            text = "Demo 1 · 基础滚动加载",
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold,
+            color = AppColor.textPrimary
+        )
+        var d1Items by remember { mutableStateOf((1..10).map { "账目 #$it -¥${it * 10}" }) }
+        var d1HasMore by remember { mutableStateOf(true) }
+        var d1Loading by remember { mutableStateOf(false) }
+        val d1ListState = rememberLazyListState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .background(AppColor.bgCard, RoundedCornerShape(AppRadius.md))
+        ) {
+            LazyColumn(
+                state = d1ListState,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(d1Items) { item ->
+                    Text(
+                        text = item,
+                        fontSize = AppFont.sizeSm,
+                        color = AppColor.textPrimary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                    )
+                }
+                item {
+                    InfiniteLoading(
+                        listState = d1ListState,
+                        hasMore = d1HasMore,
+                        loading = d1Loading,
+                        onLoadMore = {
+                            if (d1HasMore && !d1Loading) {
+                                d1Loading = true
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    delay(1000)
+                                    val start = d1Items.size + 1
+                                    d1Items = d1Items + (start until start + 5).map { "账目 #$it -¥${it * 10}" }
+                                    if (d1Items.size >= 30) {
+                                        d1HasMore = false
+                                    }
+                                    d1Loading = false
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        Text(
+            text = "滚动接近底部触发 onLoadMore，加载 1s 追加 5 行，30 行后显示「没有更多了」。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // D2 加载完成
+        Text(
+            text = "Demo 2 · 加载完成",
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold,
+            color = AppColor.textPrimary
+        )
+        val d2ListState = rememberLazyListState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+                .background(AppColor.bgCard, RoundedCornerShape(AppRadius.md))
+        ) {
+            LazyColumn(
+                state = d2ListState,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items((28..30).map { "账目 #$it -¥${it * 10}" }) { item ->
+                    Text(
+                        text = item,
+                        fontSize = AppFont.sizeSm,
+                        color = AppColor.textPrimary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                    )
+                }
+                item {
+                    InfiniteLoading(
+                        listState = d2ListState,
+                        hasMore = false,
+                        loading = false
+                    )
+                }
+            }
+        }
+        Text(
+            text = "hasMore=false 直接显示「没有更多了」，不触发 onLoadMore。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // D3 加载失败 + 点击重试
+        Text(
+            text = "Demo 3 · 加载失败 + 点击重试",
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold,
+            color = AppColor.textPrimary
+        )
+        var d3Error by remember { mutableStateOf(true) }
+        var d3Loading by remember { mutableStateOf(false) }
+        val d3ListState = rememberLazyListState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+                .background(AppColor.bgCard, RoundedCornerShape(AppRadius.md))
+        ) {
+            LazyColumn(
+                state = d3ListState,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items((6..8).map { "账目 #$it -¥${it * 10}" }) { item ->
+                    Text(
+                        text = item,
+                        fontSize = AppFont.sizeSm,
+                        color = AppColor.textPrimary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                    )
+                }
+                item {
+                    InfiniteLoading(
+                        listState = d3ListState,
+                        hasMore = true,
+                        loading = d3Loading,
+                        error = d3Error,
+                        onLoadMore = {
+                            if (d3Error && !d3Loading) {
+                                d3Error = false
+                                d3Loading = true
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    delay(1000)
+                                    d3Loading = false
+                                    d3Error = false
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        Text(
+            text = "加载失败显示红色「加载失败，点击重试」，点击 footer 触发 onLoadMore 重试。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // D4 自定义文案 + 阈值可配
+        Text(
+            text = "Demo 4 · 自定义文案 + 阈值可配",
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold,
+            color = AppColor.textPrimary
+        )
+        var d4Items by remember { mutableStateOf((1..5).map { "账目 #$it -¥${it * 10}" }) }
+        var d4HasMore by remember { mutableStateOf(true) }
+        var d4Loading by remember { mutableStateOf(false) }
+        val d4ListState = rememberLazyListState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(140.dp)
+                .background(AppColor.bgCard, RoundedCornerShape(AppRadius.md))
+        ) {
+            LazyColumn(
+                state = d4ListState,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(d4Items) { item ->
+                    Text(
+                        text = item,
+                        fontSize = AppFont.sizeSm,
+                        color = AppColor.textPrimary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                    )
+                }
+                item {
+                    InfiniteLoading(
+                        listState = d4ListState,
+                        hasMore = d4HasMore,
+                        loading = d4Loading,
+                        threshold = 2,
+                        loadingText = "正在努力加载...",
+                        finishedText = "已经到底啦~",
+                        errorText = "出错了，点我重试",
+                        onLoadMore = {
+                            if (d4HasMore && !d4Loading) {
+                                d4Loading = true
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    delay(1000)
+                                    val start = d4Items.size + 1
+                                    d4Items = d4Items + (start until start + 5).map { "账目 #$it -¥${it * 10}" }
+                                    if (d4Items.size >= 20) {
+                                        d4HasMore = false
+                                    }
+                                    d4Loading = false
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        Text(
+            text = "threshold=2（更早预触发），文案全部自定义覆盖。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
         )
     }
 }

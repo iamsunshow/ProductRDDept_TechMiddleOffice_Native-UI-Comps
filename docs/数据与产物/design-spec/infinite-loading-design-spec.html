@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>InfiniteLoading 滚动加载 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tok{background:var(--primaryMuted);color:var(--primaryPressed);padding:1px 6px;border-radius:var(--radiusSm);font-size:var(--sizeXs);font-weight:600;}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-na{background:#FEF3C7;color:#92400E;}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.viewport{position:relative;background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusLg);padding:0;margin:var(--spaceMd) 0;overflow:hidden;}
+.row-item{display:flex;justify-content:space-between;padding:8px 12px;font-size:var(--sizeSm);border-top:1px solid #F3F4F6;color:var(--textPrimary);}
+.row-item .k{color:var(--textSecondary);font-size:var(--sizeXs);}
+.loading-footer{padding:12px;text-align:center;font-size:var(--sizeSm);color:var(--textSecondary);background:#F9FAFB;border-top:1px solid #F3F4F6;}
+.loading-spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--primary);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.error-text{color:var(--error);}
+.finished-text{color:var(--textSecondary);}
+.diff-row{background:#FEF3C7;}
+</style>
+</head>
+<body>
+
+<h1>InfiniteLoading 滚动加载 · 设计规格（操作反馈区 #49 · 门禁 A）</h1>
+<p>组件 ID：<code>ui.infinite-loading</code> ｜ 定位：<b>列表滚动接近底部时自动触发加载更多的底部加载状态组件</b>——四态（idle/loading/finished/error），不代管列表内容，仅做"到底加载+状态显示"一件事，对标 TDesign Mobile List + Vant List。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.3（2026-09-08，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 长列表分页加载（账目明细/消息流/商品列表），滚动接近底部自动触发 onLoadMore 回调；② 四态显示：加载中（spinner+文案）、加载完成（"没有更多了"）、加载失败（"加载失败，点击重试"）、空闲（无可展示）；③ 可配阈值：距底部多远预触发（默认 50px）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 下拉刷新（顶部下拉触发刷新）→ <b>PullRefresh（ui.pull-refresh）</b>；② 列表内容容器/布局 → 宿主 LazyColumn/UITableView；③ 拖拽排序 → <b>Drag（ui.drag）</b>；④ 全屏遮罩加载 → <b>Loading（ui.loading）</b>；⑤ 骨架屏占位 → <b>Skeleton（ui.skeleton）</b></td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> idle 空闲不显示（列表正常滚动）；<span class="tag tag-ok">加载态 ✅</span> loading 显示 spinner+文案；<span class="tag tag-ok">完成态 ✅</span> finished 显示完成文案；<span class="tag tag-ok">失败态 ✅</span> error 显示失败文案+点击重试；禁用 N/A（由 hasMore=false 间接禁用加载）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]（文案/颜色/间距/字号 token，零硬编码）。与 PullRefresh #55 划界：PullRefresh=顶部下拉刷新，InfiniteLoading=底部自动加载；与 Loading #50 划界：Loading=全屏/局部遮罩加载，InfiniteLoading=列表内联底部状态条；与 Skeleton #57 划界：Skeleton=首屏占位骨架，InfiniteLoading=增量加载状态</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>触发阈值 threshold</td><td>数字 pt/dp（默认 50）</td><td>距底部多远触发加载（px 比较，iOS 距底部=contentSize.height - offset.y - bounds.height）</td></tr>
+<tr><td>加载态视觉</td><td>高 44pt/44dp + 居中 spinner 16×16 + loadingText</td><td>spinner 用双端各自系统动画（iOS UIActivityIndicatorView / Compose CircularProgressIndicator），颜色=textSecondary，文案=textSecondary+sizeSm</td></tr>
+<tr><td>完成态视觉</td><td>高 44pt/44dp + 居中 finishedText</td><td>文案=textSecondary+sizeSm，无 spinner</td></tr>
+<tr><td>失败态视觉</td><td>高 44pt/44dp + 居中 errorText（点击重试）</td><td>文案=error 色+sizeSm，点击整个 footer 触发重试 onLoadMore</td></tr>
+<tr><td>文案默认值</td><td>loadingText="加载中..." / finishedText="没有更多了" / errorText="加载失败，点击重试"</td><td>全部可配覆盖，全部走 AppFont/AppColor token</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 一期形态：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：底部状态条模式——组件 = 底部 footer 视图 + 滚动源监听 + 四态切换 + onLoadMore 回调，列表内容由宿主提供</td><td>✅ 覆盖"长列表分页加载"全部诉求；滚动源解耦=任意 LazyColumn/UITableView 可用；四态显示统一在 footer，不侵入列表 item。</td><td><b>推荐 A</b>：语义单一只做"到底加载+状态显示"，列表内容交给宿主（与组件库其他行为组件一致：BackTop 不代管内容）</td></tr>
+<tr><td>B：自包含列表容器模式（列表+footer 封装一体，用户喂 items+itemContent）</td><td>组件可 demo 即插即用，但把列表内容构建方式锁死，与页面既有 LazyColumn/UITableView 冲突。</td><td>淘汰：过度封装，限制业务</td></tr>
+<tr><td>C：纯监听器模式（只监听滚动触发回调，不显示状态条）</td><td>状态显示交宿主自行实现，双端一致性无法保证。</td><td>淘汰：四态显示是核心价值，不可省</td></tr>
+</table>
+
+<h3>P2 · iOS 实现路径：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：KVO 监听 target.contentOffset + scrollViewDidEndDecelerating 触发判定</td><td>✅ 不占用业务 delegate；KVO 松耦合；距底部=contentSize.height - offset.y - bounds.height。</td><td><b>推荐 A</b>：与 BackTop #13 一致的 KVO 方案，行为确定代码最少</td></tr>
+<tr><td>B：UIScrollViewDelegate scrollViewDidScroll 回调</td><td>若业务已设 delegate 则需转发链，宿主约束多。</td><td>淘汰：KVO 更松耦合</td></tr>
+<tr><td>C：Timer 定时轮询 contentOffset</td><td>性能差，与系统滚动事件不对齐。</td><td>淘汰</td></tr>
+</table>
+
+<h3>P3 · Android 实现路径：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：参数 LazyListState + snapshotFlow 监听 visibleItemsInfo/firstVisibleItemIndex 触发判定</td><td>✅ 与任意 LazyColumn 组合；snapshotFlow 派生驱动重组；距底部=layoutInfo.totalItemsCount - lastVisibleItemIndex。</td><td><b>推荐 A</b>：Compose 惯用、与 BackTop #13 的 scrollState 方案同源</td></tr>
+<tr><td>B：组件内部自建 LazyColumn 容器（list 内容直接喂组件）</td><td>与 iOS footer 模式不对齐（iOS 不代管内容）。</td><td>淘汰：破坏双端同构</td></tr>
+<tr><td>C：Modifier.nestedScroll 监听滚动量</td><td>无法获取总高度，距底部计算不准。</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：四态全量（idle/loading/finished/error）+ 阈值可配 + 文案可配 + onLoadMore 回调 + error 点击重试</td><td>✅ demo 四段可 1:1 验收；四态覆盖全部加载场景，error 重试是高频刚需。</td><td><b>推荐 A</b>：范围收敛但覆盖完整</td></tr>
+<tr><td>B：一期仅 loading 态（无 finished/error）</td><td>无法表达"没有更多"和"加载失败"，体验残缺。</td><td>淘汰：finished/error 是基础体验</td></tr>
+<tr><td>C：一期即支持自定义 spinner/footer slot</td><td>自定义 slot 增加复杂度，且与"四态统一显示"矛盾。</td><td>淘汰：登记二期</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础滚动加载（滚动到底部触发 onLoadMore，显示加载中→加载完成）</h3>
+<p>高 200 区域内 10 行内容，滚动接近底部 50px 触发 onLoadMore，加载 1s 后追加 5 行，加载至 30 行后 hasMore=false 显示"没有更多了"。</p>
+<div class="viewport" style="height:160px;overflow-y:auto;">
+  <div class="row-item"><span class="k">#01</span><span>账目 -¥32</span></div>
+  <div class="row-item"><span class="k">#02</span><span>账目 -¥18</span></div>
+  <div class="row-item"><span class="k">#03</span><span>账目 -¥76</span></div>
+  <div class="row-item"><span class="k">#04</span><span>账目 -¥120</span></div>
+  <div class="row-item"><span class="k">#05</span><span>账目 -¥45</span></div>
+  <div class="loading-footer"><span class="loading-spinner"></span>加载中...</div>
+</div>
+
+<h3>D2 · 加载完成（hasMore=false，显示"没有更多了"）</h3>
+<p>直接展示 finished 态：列表已到尽头，footer 显示完成文案，不触发 onLoadMore。</p>
+<div class="viewport" style="height:120px;overflow-y:auto;">
+  <div class="row-item"><span class="k">#28</span><span>账目 -¥32</span></div>
+  <div class="row-item"><span class="k">#29</span><span>账目 -¥18</span></div>
+  <div class="row-item"><span class="k">#30</span><span>账目 -¥76</span></div>
+  <div class="loading-footer finished-text">没有更多了</div>
+</div>
+
+<h3>D3 · 加载失败 + 点击重试（error 态，点击 footer 触发 onLoadMore 重试）</h3>
+<p>模拟加载失败：footer 显示红色"加载失败，点击重试"，点击后重新进入 loading 态。</p>
+<div class="viewport" style="height:120px;overflow-y:auto;">
+  <div class="row-item"><span class="k">#06</span><span>账目 -¥32</span></div>
+  <div class="row-item"><span class="k">#07</span><span>账目 -¥18</span></div>
+  <div class="row-item"><span class="k">#08</span><span>账目 -¥76</span></div>
+  <div class="loading-footer error-text">加载失败，点击重试</div>
+</div>
+
+<h3>D4 · 自定义文案 + 阈值可配（threshold=100，文案覆盖）</h3>
+<p>threshold=100（更早预触发），loadingText/finishedText/errorText 全部自定义，验证文案+阈值参数可用。</p>
+<div class="viewport" style="height:140px;overflow-y:auto;">
+  <div class="row-item"><span class="k">#01</span><span>账目 -¥32</span></div>
+  <div class="row-item"><span class="k">#02</span><span>账目 -¥76</span></div>
+  <div class="row-item"><span class="k">#03</span><span>账目 -¥120</span></div>
+  <div class="row-item"><span class="k">#04</span><span>账目 -¥45</span></div>
+  <div class="loading-footer"><span class="loading-spinner"></span>正在努力加载...</div>
+</div>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>滚动源</td><td>UIScrollView 引用（KVO contentOffset）</td><td>LazyListState 参数（snapshotFlow 派生）</td><td>系统级原生差异：两端滚动模型不同（对象引用 vs 状态快照）</td></tr>
+<tr><td>距底部计算</td><td>contentSize.height - offset.y - bounds.height</td><td>totalItemsCount - lastVisibleItemIndex</td><td>语义一致：均为"剩余可见距离"（表内放行）</td></tr>
+<tr><td>spinner 动画</td><td>UIActivityIndicatorView（系统菊花）</td><td>CircularProgressIndicator（Compose 圆形进度）</td><td>系统级原生差异：各自系统加载动画</td></tr>
+<tr class="diff-row"><td>触发判定时机</td><td>scrollViewDidEndDecelerating + KVO 阈值交叉</td><td>snapshotFlow 最后可见 item 变化</td><td>语义一致：均为"滚动接近底部时触发"（表内放行）</td></tr>
+<tr class="diff-row"><td>四态文案</td><td>UILabel 文本</td><td>Text 文本</td><td>同一文案双端渲染（表内放行）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>iOS</td><td><code>InfiniteLoading(target: UIScrollView?, hasMore: Bool = true, loading: Bool = false, threshold: CGFloat = 50, loadingText: String = "加载中...", finishedText: String = "没有更多了", errorText: String = "加载失败，点击重试", onLoadMore: (() -> Void)? = nil)</code>；<br/>状态更新：<code>setLoading(_ loading: Bool)</code> / <code>setHasMore(_ hasMore: Bool)</code> / <code>setError(_ error: Bool)</code></td></tr>
+<tr><td>Android</td><td><code>@Composable fun InfiniteLoading(listState: LazyListState, hasMore: Boolean = true, loading: Boolean = false, threshold: Int = 50, loadingText: String = "加载中...", finishedText: String = "没有更多了", errorText: String = "加载失败，点击重试", onLoadMore: () -> Unit = {}, modifier: Modifier = Modifier)</code></td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：到底加载专属、与下拉刷新/全屏加载/骨架屏划界）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（四态视觉全 token 化 + 文案可配）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础/完成/失败重试/自定义文案阈值）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，本规格为首立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（滚动源/距底部计算/spinner 为系统级差异）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（自包含列表容器/纯监听器/自定义 slot 二期）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

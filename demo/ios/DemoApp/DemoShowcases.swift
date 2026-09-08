@@ -72,7 +72,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.dialog", name: "Dialog 对话框", reviewed: true, create: { DialogShowcase() }),
             DemoComponent(id: "ui.drag", name: "Drag 拖拽", reviewed: true, create: { DragShowcase() }),
             DemoComponent(id: "ui.empty", name: "Empty 空状态", reviewed: true, create: { EmptyShowcase() }),
-            DemoComponent(id: "ui.infinite-loading", name: "InfiniteLoading 滚动加载", reviewed: false, create: nil),
+            DemoComponent(id: "ui.infinite-loading", name: "InfiniteLoading 滚动加载", reviewed: true, create: { InfiniteLoadingShowcase() }),
             DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: false, create: nil),
             DemoComponent(id: "ui.notice-bar", name: "NoticeBar 公告栏", reviewed: false, create: nil),
             DemoComponent(id: "ui.notify", name: "Notify 消息通知", reviewed: false, create: nil),
@@ -8405,5 +8405,230 @@ final class DragShowcase: ShowcaseViewController {
             container.snp.makeConstraints { $0.bottom.equalTo(listView.snp.bottom) }
         }
         d4Feedback = addDynamicInfo("拖拽落位后弹出 Alert 显示新顺序（onReorder 仅落位一次触发，拖拽中不回调）。", color: AppColor.textSecondary)
+    }
+}
+
+// MARK: - InfiniteLoading 滚动加载
+final class InfiniteLoadingShowcase: ShowcaseViewController {
+    private var d1TableView: UITableView?
+    private var d1Loading: InfiniteLoadingView?
+    private var d1Items: [String] = []
+    private var d1HasMore = true
+
+    private var d2TableView: UITableView?
+    private var d2Loading: InfiniteLoadingView?
+
+    private var d3TableView: UITableView?
+    private var d3Loading: InfiniteLoadingView?
+    private var d3Error = false
+
+    private var d4TableView: UITableView?
+    private var d4Loading: InfiniteLoadingView?
+    private var d4Items: [String] = []
+    private var d4HasMore = true
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "InfiniteLoading 滚动加载"
+        // D1 初始 10 行
+        for i in 1...10 { d1Items.append("账目 #\(i) -¥\(i * 10)") }
+        // D4 初始 5 行
+        for i in 1...5 { d4Items.append("账目 #\(i) -¥\(i * 10)") }
+        buildDemo()
+    }
+
+    private func buildDemo() {
+        // ── D1 · 基础滚动加载（滚动到底部触发，加载 1s 后追加 5 行，30 行后完成）──
+        addSection(title: "Demo 1 · 基础滚动加载") { container in
+            let tv = UITableView()
+            tv.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+            tv.dataSource = self
+            tv.delegate = self
+            tv.tag = 1
+            tv.separatorStyle = .none
+            self.d1TableView = tv
+            let loading = InfiniteLoadingView(
+                target: tv,
+                hasMore: true,
+                loading: false,
+                threshold: 50
+            ) { [weak self] in
+                self?.d1LoadMore()
+            }
+            self.d1Loading = loading
+            tv.tableFooterView = loading
+            container.addSubview(tv)
+            tv.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(200)
+            }
+        }
+        addInfo("滚动接近底部 50pt 触发 onLoadMore，加载 1s 追加 5 行，30 行后显示「没有更多了」。")
+
+        // ── D2 · 加载完成（hasMore=false，直接显示完成文案）──
+        addSection(title: "Demo 2 · 加载完成") { container in
+            let tv = UITableView()
+            tv.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+            tv.delegate = self
+            tv.tag = 2
+            tv.separatorStyle = .none
+            self.d2TableView = tv
+            let loading = InfiniteLoadingView(
+                target: tv,
+                hasMore: false,
+                loading: false
+            )
+            self.d2Loading = loading
+            tv.tableFooterView = loading
+            container.addSubview(tv)
+            tv.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(120)
+            }
+        }
+        addInfo("hasMore=false 直接显示「没有更多了」，不触发 onLoadMore。")
+
+        // ── D3 · 加载失败 + 点击重试（error 态，点击 footer 重试）──
+        addSection(title: "Demo 3 · 加载失败 + 点击重试") { container in
+            let tv = UITableView()
+            tv.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+            tv.delegate = self
+            tv.tag = 3
+            tv.separatorStyle = .none
+            self.d3TableView = tv
+            let loading = InfiniteLoadingView(
+                target: tv,
+                hasMore: true,
+                loading: false
+            ) { [weak self] in
+                self?.d3LoadMore()
+            }
+            self.d3Loading = loading
+            tv.tableFooterView = loading
+            container.addSubview(tv)
+            tv.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(120)
+            }
+            // 模拟加载失败
+            self.d3Error = true
+            loading.setError(true)
+        }
+        addInfo("加载失败显示红色「加载失败，点击重试」，点击 footer 触发 onLoadMore 重试。")
+
+        // ── D4 · 自定义文案 + 阈值可配（threshold=100，文案覆盖）──
+        addSection(title: "Demo 4 · 自定义文案 + 阈值可配") { container in
+            let tv = UITableView()
+            tv.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+            tv.dataSource = self
+            tv.delegate = self
+            tv.tag = 4
+            tv.separatorStyle = .none
+            self.d4TableView = tv
+            let loading = InfiniteLoadingView(
+                target: tv,
+                hasMore: true,
+                loading: false,
+                threshold: 100,
+                loadingText: "正在努力加载...",
+                finishedText: "已经到底啦~",
+                errorText: "出错了，点我重试"
+            ) { [weak self] in
+                self?.d4LoadMore()
+            }
+            self.d4Loading = loading
+            tv.tableFooterView = loading
+            container.addSubview(tv)
+            tv.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(140)
+            }
+        }
+        addInfo("threshold=100（更早预触发），文案全部自定义覆盖。")
+    }
+
+    // MARK: - D1 加载逻辑
+    private func d1LoadMore() {
+        d1Loading?.setLoading(true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            guard let self = self else { return }
+            let start = self.d1Items.count + 1
+            for i in start..<start + 5 {
+                self.d1Items.append("账目 #\(i) -¥\(i * 10)")
+            }
+            if self.d1Items.count >= 30 {
+                self.d1HasMore = false
+                self.d1Loading?.setHasMore(false)
+            }
+            self.d1Loading?.setLoading(false)
+            self.d1TableView?.reloadData()
+        }
+    }
+
+    // MARK: - D3 加载失败重试
+    private func d3LoadMore() {
+        if d3Error {
+            d3Error = false
+            d3Loading?.setError(false)
+            d3Loading?.setLoading(true)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                guard let self = self else { return }
+                // 模拟重试成功
+                self.d3Loading?.setLoading(false)
+                self.d3Loading?.setHasMore(false)
+                self.d3TableView?.reloadData()
+            }
+        }
+    }
+
+    // MARK: - D4 加载逻辑
+    private func d4LoadMore() {
+        d4Loading?.setLoading(true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            guard let self = self else { return }
+            let start = self.d4Items.count + 1
+            for i in start..<start + 5 {
+                self.d4Items.append("账目 #\(i) -¥\(i * 10)")
+            }
+            if self.d4Items.count >= 20 {
+                self.d4HasMore = false
+                self.d4Loading?.setHasMore(false)
+            }
+            self.d4Loading?.setLoading(false)
+            self.d4TableView?.reloadData()
+        }
+    }
+}
+
+// MARK: - InfiniteLoadingShowcase UITableViewDataSource/Delegate
+extension InfiniteLoadingShowcase: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        switch tableView.tag {
+        case 1: return d1Items.count
+        case 2: return 3
+        case 3: return 3
+        case 4: return d4Items.count
+        default: return 0
+        }
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        cell.selectionStyle = .none
+        cell.textLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
+        cell.textLabel?.textColor = AppColor.textPrimary
+        switch tableView.tag {
+        case 1:
+            cell.textLabel?.text = d1Items[indexPath.row]
+        case 2:
+            cell.textLabel?.text = "账目 #\(indexPath.row + 28) -¥\((indexPath.row + 28) * 10)"
+        case 3:
+            cell.textLabel?.text = "账目 #\(indexPath.row + 6) -¥\((indexPath.row + 6) * 10)"
+        case 4:
+            cell.textLabel?.text = d4Items[indexPath.row]
+        default:
+            cell.textLabel?.text = ""
+        }
+        return cell
     }
 }

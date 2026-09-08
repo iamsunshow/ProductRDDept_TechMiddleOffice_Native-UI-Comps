@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PullToRefresh 下拉刷新 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tok{background:var(--primaryMuted);color:var(--primaryPressed);padding:1px 6px;border-radius:var(--radiusSm);font-size:var(--sizeXs);font-weight:600;}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-na{background:#FEF3C7;color:#92400E;}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.viewport{position:relative;background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusLg);padding:0;margin:var(--spaceMd) 0;overflow:hidden;}
+.row-item{display:flex;justify-content:space-between;padding:8px 12px;font-size:var(--sizeSm);border-top:1px solid #F3F4F6;color:var(--textPrimary);}
+.row-item .k{color:var(--textSecondary);font-size:var(--sizeXs);}
+.refresh-indicator{padding:12px;text-align:center;font-size:var(--sizeSm);color:var(--textSecondary);background:#F9FAFB;}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--textSecondary);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<h1>PullToRefresh 下拉刷新 · 设计规格（操作反馈区 #55 · 门禁 A）</h1>
+<p>组件 ID：<code>ui.refresh</code> ｜ 定位：<b>列表/可滚动内容下拉触发刷新的容器组件</b>——用户在内容顶部下拉，露出刷新指示器（灰圈+文案），松手达到阈值触发 onRefresh 回调，业务完成后将 refreshing 设为 false 收起指示器。对标 iOS UIRefreshControl + Android SwipeRefreshLayout（本库采用 iOS 风格=非浮层顶开内容）。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.13（2026-09-09，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 列表内容下拉刷新（账目列表/消息流/商品列表），下拉顶开内容露出刷新指示器，松手触发 onRefresh；② 受控 refreshing=true 时指示器保持显示，业务刷新完成后 refreshing=false 收起；③ 可配刷新文案 title；④ 可禁用 enabled=false</td></tr>
+<tr><td>不适用（N/A）</td><td>① 底部加载更多 → <b>InfiniteLoading（ui.infinite-loading）</b>；② 全屏遮罩加载 → <b>Loading（ui.loading）</b>；③ 首屏骨架占位 → <b>Skeleton（ui.skeleton）</b>；④ 拖拽排序 → <b>Drag（ui.drag）</b>；⑤ 侧滑操作 → <b>Swipe（ui.swipe）</b></td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">下拉态 ✅</span> 用户下拉时指示器随下拉距离露出（灰圈进度环+文案）；<span class="tag tag-ok">刷新态 ✅</span> 松手达到阈值→onRefresh→refreshing=true→指示器停在刷新位置（旋转中+文案）；<span class="tag tag-ok">完成态 ✅</span> refreshing=false→指示器收起动画；禁用 N/A（enabled=false 时不响应下拉）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]（颜色/间距/字号 token，零硬编码）。与 InfiniteLoading #49 划界：PullToRefresh=顶部下拉手动触发刷新，InfiniteLoading=底部滚动自动加载更多；与 Loading #50 划界：Loading=全屏/局部遮罩加载，PullToRefresh=列表内联顶部下拉指示器</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>触发阈值 threshold</td><td>72dp/pt</td><td>下拉距离达到阈值时松手才触发刷新；未达阈值则回弹收起</td></tr>
+<tr><td>最大下拉距离 maxPull</td><td>threshold × 1.6</td><td>下拉阻尼：超过阈值后继续下拉有阻尼感，最大不超过 maxPull</td></tr>
+<tr><td>刷新停留高度 hold</td><td>64dp/pt</td><td>refreshing=true 时指示器停留的高度</td></tr>
+<tr><td>指示器圆圈</td><td>22×22 dp/pt，strokeWidth=2，color=textSecondary</td><td>下拉中=进度环（progress=pull/threshold）；刷新中=旋转环</td></tr>
+<tr><td>刷新文案</td><td>textSecondary + sizeSm（14）</td><td>默认 "下拉刷新数据"，可配 title 覆盖；下拉距离>15%阈值时显示</td></tr>
+<tr><td>指示器区域背景</td><td>bgCard（白色）</td><td>下拉露出的区域背景与内容背景一致，非浮层</td></tr>
+<tr><td>收起动画</td><td>tween 200-220ms</td><td>refreshing=false 时指示器平滑收起</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件形态：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：内容包裹器模式——PullToRefresh(refreshing, onRefresh) { content }，组件管理下拉手势+指示器，内容由宿主提供</td><td>✅ 双端同构（iOS/Android 都是 wrapper）；与 InfiniteLoading #49 footer 模式同源=不代管内容；宿主可用任意滚动容器（LazyColumn/UITableView/ScrollView）。</td><td><b>推荐 A</b>：职责单一=只做"下拉手势+指示器+onRefresh"，内容交宿主</td></tr>
+<tr><td>B：自包含列表容器模式（PullToRefresh(items, itemContent) 内部建列表）</td><td>demo 即插即用，但锁死列表构建方式，与宿主既有列表冲突。</td><td>淘汰：过度封装</td></tr>
+<tr><td>C：纯手势监听+回调模式（只监听下拉触发 onRefresh，不显示指示器）</td><td>指示器交宿主自行实现，双端一致性无法保证。</td><td>淘汰：指示器是核心价值</td></tr>
+</table>
+
+<h3>P2 · 指示器风格：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：iOS 风格——下拉顶开内容露出指示器区域（非浮层），灰圈进度环+文案，刷新时旋转</td><td>✅ 双端视觉完全一致（Android 已实现 IosStylePullRefresh 顶开模式）；非浮层=不遮挡内容；与 NutUI/Vant PullRefresh 顶开模式一致。</td><td><b>推荐 A</b>：双端同构，已有 Android 实现可复用</td></tr>
+<tr><td>B：Android Material 风格——SwipeRefreshLayout 浮层圆圈盖在列表上方</td><td>Android 原生体验好，但与 iOS 视觉差异大（浮层 vs 顶开）。</td><td>淘汰：破坏双端一致性</td></tr>
+<tr><td>C：纯下拉箭头+下拉刷新文案（无圆圈）</td><td>视觉简单，但缺少刷新中旋转动效，体验差。</td><td>淘汰</td></tr>
+</table>
+
+<h3>P3 · iOS 实现路径：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：UIRefreshControl（系统原生）+ 适配 content inset</td><td>✅ 系统原生下拉刷新，灰圈+文案，动画自然；但 UIRefreshControl 是浮层在列表上方（非顶开），与 Android 顶开模式视觉略有差异。</td><td><b>推荐 A</b>：系统原生稳定可靠，视觉差异在可接受范围（均为灰圈+文案），UIRefreshControl 的浮层是 iOS 用户习惯</td></tr>
+<tr><td>B：自定义 UIScrollView 包装+KVO contentOffset 顶开内容</td><td>与 Android 顶开模式完全一致，但需自行实现下拉阻尼/阈值/动画，代码量大。</td><td>备选：若用户要求双端顶开一致则选 B</td></tr>
+<tr><td>C：UITableView 子类封装（现有 PullRefreshTableView）</td><td>只能用于 UITableView，不能包装任意滚动内容。</td><td>淘汰：限制宿主容器类型</td></tr>
+</table>
+
+<h3>P4 · Android 实现路径：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：NestedScrollConnection + graphicsLayer translationY 顶开内容（现有 IosStylePullRefresh 方案）</td><td>✅ 已实现且验证通过；顶开模式与 iOS UIRefreshControl 视觉一致；阻尼/阈值/动画完整。</td><td><b>推荐 A</b>：复用现有实现，只需适配 API 契约（refreshing 受控+title+enabled）</td></tr>
+<tr><td>B：SwipeRefreshLayout（Android 原生）</td><td>浮层圆圈，与 iOS 顶开模式不一致。</td><td>淘汰：破坏双端一致性</td></tr>
+<tr><td>C：Modifier.pullRefresh（Compose 实验性 API）</td><td>实验性 API 不稳定，且是浮层模式。</td><td>淘汰</td></tr>
+</table>
+
+</div>
+
+<h2>04 · API 契约（与 api.json 对齐）</h2>
+<div class="spec-card">
+<table>
+<tr><th>类型</th><th>名称</th><th>必填</th><th>默认值</th><th>说明</th></tr>
+<tr><td>prop</td><td>refreshing</td><td>是</td><td>—</td><td>Boolean，受控刷新状态：true=显示刷新指示器（旋转中），false=收起</td></tr>
+<tr><td>event</td><td>onRefresh</td><td>是</td><td>—</td><td>() -> Unit，下拉达到阈值松手时触发</td></tr>
+<tr><td>prop</td><td>title</td><td>否</td><td>"下拉刷新数据"</td><td>String，刷新文案</td></tr>
+<tr><td>prop</td><td>enabled</td><td>否</td><td>true</td><td>Boolean，是否允许下拉刷新</td></tr>
+<tr><td>slot</td><td>content</td><td>是</td><td>—</td><td>@Composable / UIView，可滚动内容（宿主提供）</td></tr>
+</table>
+</div>
+
+<h2>05 · Demo 排查（4 组 1:1）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>名称</th><th>场景</th><th>验收点</th></tr>
+<tr><td>D1</td><td>基础下拉刷新</td><td>10 行列表，下拉触发刷新，2 秒后结束</td><td>下拉露出灰圈+文案；松手触发 onRefresh；refreshing=true 指示器停在刷新位置；2s 后 refreshing=false 收起；列表数据更新</td></tr>
+<tr><td>D2</td><td>自定义文案</td><td>title="正在刷新最新数据"</td><td>指示器文案显示自定义文本，颜色 textSecondary，字号 sizeSm</td></tr>
+<tr><td>D3</td><td>禁用下拉</td><td>enabled=false</td><td>下拉无响应，指示器不出现</td></tr>
+<tr><td>D4</td><td>外部驱动刷新</td><td>按钮控制 refreshing=true/false</td><td>点击按钮→refreshing=true→指示器出现并旋转；再次点击→refreshing=false→指示器收起</td></tr>
+</table>
+</div>
+
+<h2>06 · 平台差异表（diff-api.json 登记候选）</h2>
+<div class="spec-card">
+<table>
+<tr><th>差异项</th><th>iOS</th><th>Android</th><th>是否放行</th></tr>
+<tr><td>指示器实现</td><td>UIRefreshControl（系统原生，浮层在列表上方）</td><td>自定义顶开模式（NestedScrollConnection+translationY）</td><td>放行（系统级原生差异，视觉均为灰圈+文案）</td></tr>
+<tr><td>下拉阻尼</td><td>UIRefreshControl 系统处理</td><td>自定义 0.55 阻尼系数</td><td>放行（系统级差异，体感一致）</td></tr>
+<tr><td>收起动画</td><td>系统动画</td><td>tween 220ms</td><td>放行</td></tr>
+</table>
+</div>
+
+<h2>07 · anti_goals 反目标（二期不做）</h2>
+<div class="spec-card">
+<ul>
+<li>自定义下拉头部样式（如品牌动画/下拉图片）—— 一期统一灰圈+文案</li>
+<li>下拉刷新同时触发加载更多（与 InfiniteLoading 组合由宿主自行编排）</li>
+<li>多类型刷新指示器（Material 浮层/经典下拉箭头）—— 一期只做 iOS 风格</li>
+<li>下拉刷新成功/失败提示（交 Notify/Toast 组件）</li>
+</ul>
+</div>
+
+</body>
+</html>

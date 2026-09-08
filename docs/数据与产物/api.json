@@ -1070,12 +1070,17 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/PullRefreshTableView.swift",
-        "android": "ProductRDDept/TechMiddleOffice/android/sharedui/components/IosStylePullRefresh.kt"
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/PullRefreshView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/PullToRefresh.kt"
       },
       "deps": [],
       "variants": [],
-      "anti_goals": [],
+      "anti_goals": [
+        "自定义下拉头部样式（品牌动画/下拉图片）",
+        "多类型刷新指示器（Material 浮层/经典箭头）",
+        "刷新成功/失败提示（交 Notify/Toast）",
+        "下拉同时触发加载更多（与 InfiniteLoading 组合由宿主编排）"
+      ],
       "visual_tokens": [],
       "apis": "",
       "visual_refs": [],
@@ -1094,7 +1099,19 @@
           "refreshing",
           "boolean",
           "是",
-          "刷新中"
+          "刷新中（受控：true=显示指示器，false=收起）"
+        ],
+        [
+          "title",
+          "string",
+          "否",
+          "刷新文案，默认「下拉刷新数据」"
+        ],
+        [
+          "enabled",
+          "boolean",
+          "否",
+          "是否允许下拉刷新，默认 true"
         ]
       ],
       "events": [
@@ -1107,7 +1124,7 @@
       "demos": [
         [
           "列表",
-          "<PullToRefresh onRefresh={reload}>{list}</PullToRefresh>"
+          "<PullToRefresh refreshing={refreshing} onRefresh={reload}>{list}</PullToRefresh>"
         ]
       ],
       "subcategory": "feedback"

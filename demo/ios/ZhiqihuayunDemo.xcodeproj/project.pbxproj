@@ -30,7 +30,7 @@
 		E1F2A3B4C5D6E7F8A9B0C1DD /* PopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2A3B4C5D6E7F8A9B0C1DE /* PopupView.swift */; };
 		E1F2A3B4C5D6E7F8A9B0C1DF /* ResultPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2A3B4C5D6E7F8A9B0C1E0 /* ResultPageView.swift */; };
 		2AE7010DEAB2D58E00E89317 /* BackTopButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538FFA7C6388387E57FC73DC /* BackTopButton.swift */; };
-		2B5949F9894171578AEE0C72 /* PullRefreshTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 978BB17F3FAD3ECDAB39B58A /* PullRefreshTableView.swift */; };
+		2B5949F9894171578AEE0C72 /* PullRefreshView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 978BB17F3FAD3ECDAB39B58A /* PullRefreshView.swift */; };
 		2DBC2739FEC773B4182DE481 /* FixedNavView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC9266A5D4C33CE081B49CC /* FixedNavView.swift */; };
 		2E488BD04070D0F5517AB7B0 /* SwitchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDCEEB6836B6C1BBAD969F6F /* SwitchView.swift */; };
 		42D988768ED66983174C0FC9 /* InputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB7319C2E239CA64A7B33A2 /* InputView.swift */; };
@@ -139,7 +139,7 @@
 		8F3D282267864AB86708A7FC /* NavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavBar.swift; sourceTree = "<group>"; };
 		8FED4353597E9B842647F56A /* Divider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Divider.swift; sourceTree = "<group>"; };
 		8FEFDA42F32EDC147625CD45 /* NumberKeyboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberKeyboardView.swift; sourceTree = "<group>"; };
-		978BB17F3FAD3ECDAB39B58A /* PullRefreshTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullRefreshTableView.swift; sourceTree = "<group>"; };
+		978BB17F3FAD3ECDAB39B58A /* PullRefreshView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullRefreshView.swift; sourceTree = "<group>"; };
 		9E1C75478994AD561C65338A /* Overlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Overlay.swift; sourceTree = "<group>"; };
 		A2341A26182D931C95A7B3E3 /* Alamofire */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Alamofire; path = ../../ios/Vendor/Alamofire; sourceTree = SOURCE_ROOT; };
 		A444A6A371EA9EF7F7A03038 /* CategoryPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryPickerView.swift; sourceTree = "<group>"; };
@@ -243,7 +243,7 @@
 				9E1C75478994AD561C65338A /* Overlay.swift */,
 				BB0DF74002674A3001F64995 /* PeriodTabsView.swift */,
 				8E836CB28AC03E3ED99EEF45 /* PickerView.swift */,
-				978BB17F3FAD3ECDAB39B58A /* PullRefreshTableView.swift */,
+				978BB17F3FAD3ECDAB39B58A /* PullRefreshView.swift */,
 				E32A3437FCD933CB7DF38C59 /* RadioView.swift */,
 				C67D0867833E2664CA919040 /* RangeView.swift */,
 				1C1401D5C427D8A4826690B1 /* RateView.swift */,
@@ -538,7 +538,7 @@
 				EA57F4DC6F4FAFB5A01379D7 /* Overlay.swift in Sources */,
 				79F91CCE9C91D490B72977B7 /* PeriodTabsView.swift in Sources */,
 				6753220B8C6D7CFE662C0BFC /* PickerView.swift in Sources */,
-				2B5949F9894171578AEE0C72 /* PullRefreshTableView.swift in Sources */,
+				2B5949F9894171578AEE0C72 /* PullRefreshView.swift in Sources */,
 				7B18F5455AC4A01E246B4C16 /* RadioView.swift in Sources */,
 				A60583E4FD9506430F068133 /* RangeView.swift in Sources */,
 				98E3DABFEB8F8122ADB5D016 /* RateView.swift in Sources */,

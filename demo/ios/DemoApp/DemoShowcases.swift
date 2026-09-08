@@ -87,7 +87,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.notify", name: "Notify 消息通知", reviewed: true, create: { NotifyShowcase() }),
             DemoComponent(id: "ui.popover", name: "Popover 气泡弹出框", reviewed: true, create: { PopoverShowcase() }),
             DemoComponent(id: "ui.popup", name: "Popup 弹出层", reviewed: true, create: { PopupShowcase() }),
-            DemoComponent(id: "ui.pull-to-refresh", name: "PullToRefresh 下拉刷新", reviewed: false, create: nil),
+            DemoComponent(id: "ui.refresh", name: "PullToRefresh 下拉刷新", reviewed: false, create: { PullRefreshShowcase() }),
             DemoComponent(id: "ui.result-page", name: "ResultPage 结果反馈", reviewed: true, create: { ResultPageShowcase() }),
             DemoComponent(id: "ui.skeleton", name: "Skeleton 骨架屏", reviewed: false, create: nil),
             DemoComponent(id: "ui.swipe", name: "Swipe 滑动", reviewed: false, create: nil),
@@ -9208,5 +9208,170 @@ final class ResultPageShowcase: ShowcaseViewController {
                 make.edges.equalToSuperview().inset(AppSpace.md)
             }
         }
+    }
+}
+
+// MARK: - PullToRefresh 下拉刷新
+
+final class PullRefreshShowcase: ShowcaseViewController {
+    private var d1Items: [String] = []
+    private var d1Pull: PullRefreshView?
+    private var d1TableView: UITableView?
+    private var d1Refreshing = false
+
+    private var d4Pull: PullRefreshView?
+    private var d4TableView: UITableView?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "PullToRefresh 下拉刷新"
+        for i in 1...10 { d1Items.append("账目 #\(i) -¥\(i * 10)") }
+        buildDemo()
+    }
+
+    private func buildDemo() {
+        // ── D1 · 基础下拉刷新（10 行列表，下拉触发刷新，2 秒后结束）──
+        addSection(title: "Demo 1 · 基础下拉刷新") { container in
+            let tv = UITableView()
+            tv.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+            tv.dataSource = self
+            tv.delegate = self
+            tv.tag = 1
+            tv.separatorStyle = .none
+            self.d1TableView = tv
+            let pull = PullRefreshView(content: tv)
+            pull.onRefresh = { [weak self] in
+                self?.d1HandleRefresh()
+            }
+            self.d1Pull = pull
+            container.addSubview(pull)
+            pull.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(240)
+            }
+        }
+        addInfo("下拉露出灰圈+文案，松手触发 onRefresh，2 秒后 refreshing=false 收起，列表数据更新。")
+
+        // ── D2 · 自定义文案（title="正在刷新最新数据"）──
+        addSection(title: "Demo 2 · 自定义文案") { container in
+            let tv = UITableView()
+            tv.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+            tv.dataSource = self
+            tv.delegate = self
+            tv.tag = 2
+            tv.separatorStyle = .none
+            let pull = PullRefreshView(content: tv)
+            pull.title = "正在刷新最新数据"
+            pull.onRefresh = {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    pull.refreshing = false
+                }
+            }
+            container.addSubview(pull)
+            pull.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(180)
+            }
+        }
+        addInfo("指示器文案显示自定义文本「正在刷新最新数据」。")
+
+        // ── D3 · 禁用下拉（enabled=false）──
+        addSection(title: "Demo 3 · 禁用下拉") { container in
+            let tv = UITableView()
+            tv.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+            tv.dataSource = self
+            tv.delegate = self
+            tv.tag = 3
+            tv.separatorStyle = .none
+            let pull = PullRefreshView(content: tv)
+            pull.enabled = false
+            container.addSubview(pull)
+            pull.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(180)
+            }
+        }
+        addInfo("enabled=false，下拉无响应，指示器不出现。")
+
+        // ── D4 · 外部驱动刷新（按钮控制 refreshing）──
+        addSection(title: "Demo 4 · 外部驱动刷新") { container in
+            let tv = UITableView()
+            tv.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+            tv.dataSource = self
+            tv.delegate = self
+            tv.tag = 4
+            tv.separatorStyle = .none
+            self.d4TableView = tv
+            let pull = PullRefreshView(content: tv)
+            self.d4Pull = pull
+            let btn = UIButton(type: .system)
+            btn.setTitle("触发刷新", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
+            btn.addTarget(self, action: #selector(d4Trigger), for: .touchUpInside)
+            let stack = UIStackView(arrangedSubviews: [btn, pull])
+            stack.axis = .vertical
+            stack.spacing = AppSpace.sm
+            container.addSubview(stack)
+            stack.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(AppSpace.sm)
+                make.height.equalTo(220)
+            }
+            pull.snp.makeConstraints { make in
+                make.height.equalTo(180)
+            }
+        }
+        addInfo("点击「触发刷新」按钮 → refreshing=true → 指示器出现并旋转；再次点击 → refreshing=false → 收起。")
+    }
+
+    private func d1HandleRefresh() {
+        guard !d1Refreshing else { return }
+        d1Refreshing = true
+        d1Pull?.refreshing = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            guard let self = self else { return }
+            // 模拟数据更新：在前面插入新条目
+            let count = self.d1Items.count + 1
+            self.d1Items.insert("新账目 #\(count) -¥\(count * 10)", at: 0)
+            self.d1TableView?.reloadData()
+            self.d1Pull?.refreshing = false
+            self.d1Refreshing = false
+        }
+    }
+
+    @objc private func d4Trigger() {
+        guard let pull = d4Pull else { return }
+        if pull.refreshing {
+            pull.refreshing = false
+        } else {
+            pull.refreshing = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                pull.refreshing = false
+            }
+        }
+    }
+}
+
+extension PullRefreshShowcase: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        switch tableView.tag {
+        case 1: return d1Items.count
+        case 2, 3, 4: return 8
+        default: return 0
+        }
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        switch tableView.tag {
+        case 1:
+            cell.textLabel?.text = d1Items[indexPath.row]
+        case 2, 3, 4:
+            cell.textLabel?.text = "示例行 #\(indexPath.row + 1)"
+        default:
+            break
+        }
+        cell.textLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
+        cell.selectionStyle = .none
+        return cell
     }
 }

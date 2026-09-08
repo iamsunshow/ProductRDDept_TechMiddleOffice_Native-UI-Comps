@@ -46,6 +46,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -193,6 +194,8 @@ import com.zhiqihuayun.sharedui.components.Popover
 import com.zhiqihuayun.sharedui.components.PopoverPlacement
 import com.zhiqihuayun.sharedui.components.Popup
 import com.zhiqihuayun.sharedui.components.PopupPosition
+import com.zhiqihuayun.sharedui.components.PullToRefresh
+import com.zhiqihuayun.sharedui.components.isAtTop
 import com.zhiqihuayun.sharedui.components.ResultPage
 import com.zhiqihuayun.sharedui.components.ResultType
 import com.zhiqihuayun.sharedui.components.ResultActionStyle
@@ -292,7 +295,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Notify 消息通知", reviewed = true, demo = { NotifyDemo() }),
         DemoComponent("Popover 气泡弹出框", reviewed = true, demo = { PopoverDemo() }),
         DemoComponent("Popup 弹出层", reviewed = true, demo = { PopupDemo() }),
-        DemoComponent("PullToRefresh 下拉刷新"),
+        DemoComponent("PullToRefresh 下拉刷新", reviewed = false, demo = { PullToRefreshDemo() }),
         DemoComponent("ResultPage 结果反馈", reviewed = true, demo = { ResultPageDemo() }),
         DemoComponent("Skeleton 骨架屏"),
         DemoComponent("Swipe 滑动"),
@@ -7990,6 +7993,227 @@ fun ResultPageDemo() {
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun PullToRefreshDemo() {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1 基础下拉刷新
+        item {
+            DemoSectionCard(title = "D1 · 基础下拉刷新") {
+                var d1Items by remember { mutableStateOf((1..10).map { "账目 #$it -¥${it * 10}" }) }
+                var d1Refreshing by remember { mutableStateOf(false) }
+                val d1ListState = rememberLazyListState()
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(240.dp)
+                        .background(AppColor.bgCard, RoundedCornerShape(AppRadius.md))
+                        .clip(RoundedCornerShape(AppRadius.md))
+                ) {
+                    PullToRefresh(
+                        refreshing = d1Refreshing,
+                        onRefresh = {
+                            d1Refreshing = true
+                            CoroutineScope(Dispatchers.Main).launch {
+                                delay(2000)
+                                val count = d1Items.size + 1
+                                d1Items = listOf("新账目 #$count -¥${count * 10}") + d1Items
+                                d1Refreshing = false
+                            }
+                        },
+                        canPull = { d1ListState.isAtTop() }
+                    ) {
+                        LazyColumn(
+                            state = d1ListState,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(d1Items) { item ->
+                                Text(
+                                    text = item,
+                                    fontSize = AppFont.sizeSm,
+                                    color = AppColor.textPrimary,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        item {
+            Text(
+                text = "下拉露出灰圈+文案，松手触发 onRefresh，2 秒后 refreshing=false 收起，列表数据更新。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
+        }
+
+        // D2 自定义文案
+        item {
+            DemoSectionCard(title = "D2 · 自定义文案") {
+                var d2Refreshing by remember { mutableStateOf(false) }
+                val d2ListState = rememberLazyListState()
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .background(AppColor.bgCard, RoundedCornerShape(AppRadius.md))
+                        .clip(RoundedCornerShape(AppRadius.md))
+                ) {
+                    PullToRefresh(
+                        refreshing = d2Refreshing,
+                        onRefresh = {
+                            d2Refreshing = true
+                            CoroutineScope(Dispatchers.Main).launch {
+                                delay(1500)
+                                d2Refreshing = false
+                            }
+                        },
+                        title = "正在刷新最新数据",
+                        canPull = { d2ListState.isAtTop() }
+                    ) {
+                        LazyColumn(
+                            state = d2ListState,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items((1..8).map { "示例行 #$it" }) { item ->
+                                Text(
+                                    text = item,
+                                    fontSize = AppFont.sizeSm,
+                                    color = AppColor.textPrimary,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        item {
+            Text(
+                text = "指示器文案显示自定义文本「正在刷新最新数据」。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
+        }
+
+        // D3 禁用下拉
+        item {
+            DemoSectionCard(title = "D3 · 禁用下拉") {
+                val d3ListState = rememberLazyListState()
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .background(AppColor.bgCard, RoundedCornerShape(AppRadius.md))
+                        .clip(RoundedCornerShape(AppRadius.md))
+                ) {
+                    PullToRefresh(
+                        refreshing = false,
+                        onRefresh = {},
+                        enabled = false,
+                        canPull = { d3ListState.isAtTop() }
+                    ) {
+                        LazyColumn(
+                            state = d3ListState,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items((1..8).map { "示例行 #$it" }) { item ->
+                                Text(
+                                    text = item,
+                                    fontSize = AppFont.sizeSm,
+                                    color = AppColor.textPrimary,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        item {
+            Text(
+                text = "enabled=false，下拉无响应，指示器不出现。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
+        }
+
+        // D4 外部驱动刷新
+        item {
+            DemoSectionCard(title = "D4 · 外部驱动刷新") {
+                var d4Refreshing by remember { mutableStateOf(false) }
+                val d4ListState = rememberLazyListState()
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(AppSpace.sm)
+                ) {
+                    Button(onClick = {
+                        if (d4Refreshing) {
+                            d4Refreshing = false
+                        } else {
+                            d4Refreshing = true
+                            CoroutineScope(Dispatchers.Main).launch {
+                                delay(1500)
+                                d4Refreshing = false
+                            }
+                        }
+                    }) {
+                        Text(if (d4Refreshing) "停止刷新" else "触发刷新")
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)
+                            .background(AppColor.bgCard, RoundedCornerShape(AppRadius.md))
+                            .clip(RoundedCornerShape(AppRadius.md))
+                    ) {
+                        PullToRefresh(
+                            refreshing = d4Refreshing,
+                            onRefresh = {},
+                            canPull = { d4ListState.isAtTop() }
+                        ) {
+                            LazyColumn(
+                                state = d4ListState,
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                items((1..8).map { "示例行 #$it" }) { item ->
+                                    Text(
+                                        text = item,
+                                        fontSize = AppFont.sizeSm,
+                                        color = AppColor.textPrimary,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        item {
+            Text(
+                text = "点击「触发刷新」按钮 → refreshing=true → 指示器出现并旋转；再次点击 → refreshing=false → 收起。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
         }
     }
 }

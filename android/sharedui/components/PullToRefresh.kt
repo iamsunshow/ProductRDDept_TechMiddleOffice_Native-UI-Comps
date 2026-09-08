@@ -1,3 +1,46 @@
+// PullToRefresh 下拉刷新（Android Compose 版，对齐 iOS PullRefreshView.swift / api.json `ui.refresh`）。
+//
+// 组件 ID：`ui.refresh` ｜ 任务清单 #55 ｜ 操作反馈区第十一件 ｜ TMO 组件库 v1.4.13
+//
+// 定位：列表/可滚动内容下拉触发刷新的容器组件——用户在内容顶部下拉，顶开内容露出刷新指示器
+// （灰圈+文案），松手达到阈值触发 onRefresh 回调，业务完成后将 refreshing 设为 false 收起指示器。
+// 采用 iOS 风格（非浮层顶开内容），与 iOS UIRefreshControl 视觉对齐。
+//
+// 契约 @param（与 api.json 100% 对齐）：
+// - refreshing: Boolean（*必选*：true=显示刷新指示器（旋转中），false=收起）
+// - content: @Composable（*必选*：可滚动内容，宿主提供 LazyColumn/Scroll 等）
+// - onRefresh: () -> Unit（*必选*：下拉达到阈值松手时触发）
+// - title: String = "下拉刷新数据"（刷新文案）
+// - enabled: Boolean = true（是否允许下拉刷新）
+//
+// Android 特有参数（diff-api 登记，iOS 由 UIRefreshControl 自动处理）：
+// - canPull: () -> Boolean = { true }（内容是否在顶部，宿主传入如 { listState.isAtTop() }）
+//
+// 设计规格（design-spec/refresh-design-spec.html）：
+// - 触发阈值 threshold = 72dp，maxPull = threshold × 1.6，hold = 64dp
+// - 指示器圆圈：22×22，strokeWidth=2，color=textSecondary
+//   - 下拉中=进度环（progress = pull / threshold）
+//   - 刷新中=旋转环
+// - 文案：textSecondary + sizeSm（14），下拉距离 > 15% 阈值时显示
+// - 收起动画：tween 220ms
+// - 阻尼系数：0.55
+//
+// 用法：
+// ```kotlin
+// val listState = rememberLazyListState()
+// var refreshing by remember { mutableStateOf(false) }
+// PullToRefresh(
+//     refreshing = refreshing,
+//     onRefresh = {
+//         refreshing = true
+//         viewModel.loadData { refreshing = false }
+//     },
+//     canPull = { listState.isAtTop() }
+// ) {
+//     LazyColumn(state = listState) { ... }
+// }
+// ```
+
 package com.zhiqihuayun.sharedui.components
 
 import androidx.compose.animation.core.Animatable
@@ -38,16 +81,23 @@ import com.zhiqihuayun.foundation.design.AppFont
 import kotlinx.coroutines.launch
 
 /**
- * 对齐 iOS `UIRefreshControl`：下拉时**顶开列表**露出空白区，
- * 空白区内显示灰圈 +「下拉刷新数据」；禁止 Material 浮层盖在列表上。
+ * 下拉刷新容器。
  *
- * @param canPull 是否在列表顶部（LazyColumn / Scroll 到顶时为 true）
+ * @param refreshing 受控刷新状态（true=显示指示器，false=收起）
+ * @param onRefresh 下拉达到阈值松手时触发
+ * @param title 刷新文案，默认 "下拉刷新数据"
+ * @param enabled 是否允许下拉刷新，默认 true
+ * @param canPull 内容是否在顶部（Android 特有，iOS 由 UIRefreshControl 自动处理）
+ * @param modifier 布局修饰符
+ * @param content 可滚动内容
  */
 @Composable
-fun IosStylePullRefresh(
-    isRefreshing: Boolean,
+fun PullToRefresh(
+    refreshing: Boolean,
     onRefresh: () -> Unit,
-    canPull: () -> Boolean,
+    title: String = "下拉刷新数据",
+    enabled: Boolean = true,
+    canPull: () -> Boolean = { true },
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
@@ -60,18 +110,19 @@ fun IosStylePullRefresh(
     var dragPull by remember { mutableFloatStateOf(0f) }
     var settling by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val refreshingState = rememberUpdatedState(isRefreshing)
+    val refreshingState = rememberUpdatedState(refreshing)
     val onRefreshState = rememberUpdatedState(onRefresh)
     val canPullState = rememberUpdatedState(canPull)
+    val enabledState = rememberUpdatedState(enabled)
 
-    val displayedPull = if (isRefreshing) {
+    val displayedPull = if (refreshing) {
         maxOf(pullAnim.value, holdPx)
     } else {
         maxOf(pullAnim.value, dragPull)
     }
 
-    LaunchedEffect(isRefreshing) {
-        if (isRefreshing) {
+    LaunchedEffect(refreshing) {
+        if (refreshing) {
             pullAnim.snapTo(holdPx)
             dragPull = holdPx
         } else {
@@ -83,7 +134,7 @@ fun IosStylePullRefresh(
     val connection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                if (refreshingState.value) return Offset.Zero
+                if (refreshingState.value || !enabledState.value) return Offset.Zero
                 // 上推时先收起已露出的空白区
                 if (available.y < 0f && dragPull > 0f) {
                     val consumed = available.y.coerceAtLeast(-dragPull)
@@ -98,7 +149,7 @@ fun IosStylePullRefresh(
                 available: Offset,
                 source: NestedScrollSource
             ): Offset {
-                if (refreshingState.value) return Offset.Zero
+                if (refreshingState.value || !enabledState.value) return Offset.Zero
                 // 到顶后继续下拉 → 顶开内容
                 if (available.y > 0f && canPullState.value()) {
                     val next = (dragPull + available.y * 0.55f).coerceIn(0f, maxPullPx)
@@ -110,7 +161,7 @@ fun IosStylePullRefresh(
             }
 
             override suspend fun onPreFling(available: Velocity): Velocity {
-                if (dragPull > 0f && !refreshingState.value && !settling) {
+                if (dragPull > 0f && !refreshingState.value && !settling && enabledState.value) {
                     val distance = dragPull
                     settling = true
                     scope.launch {
@@ -164,7 +215,7 @@ fun IosStylePullRefresh(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     val progress = (displayedPull / thresholdPx).coerceIn(0f, 1f)
-                    if (isRefreshing || progress >= 1f) {
+                    if (refreshing || progress >= 1f) {
                         CircularProgressIndicator(
                             color = AppColor.textSecondary,
                             strokeWidth = 2.dp,
@@ -178,9 +229,9 @@ fun IosStylePullRefresh(
                             modifier = Modifier.size(22.dp)
                         )
                     }
-                    if (progress > 0.15f || isRefreshing) {
+                    if (progress > 0.15f || refreshing) {
                         Text(
-                            text = "下拉刷新数据",
+                            text = title,
                             color = AppColor.textSecondary,
                             fontSize = AppFont.sizeSm
                         )
@@ -191,6 +242,6 @@ fun IosStylePullRefresh(
     }
 }
 
-/** LazyColumn 是否在顶部，可供 [IosStylePullRefresh.canPull] 使用。 */
+/** LazyColumn 是否在顶部，可供 [PullToRefresh.canPull] 使用。 */
 fun LazyListState.isAtTop(): Boolean =
     firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0

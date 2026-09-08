@@ -49,6 +49,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -140,6 +141,9 @@ fun Popup(
             val containerModifier = when (position) {
                 PopupPosition.CENTER -> Modifier
                     .align(Alignment.Center)
+                    // 与 iOS PopupContainerView 一致：center 弹层最小宽度 240dp，
+                    // 避免内容短时弹层过小（v1.4.7 修复 Demo1 iOS/Android 尺寸不一致）
+                    .defaultMinSize(minWidth = 240.dp)
                     .background(AppColor.bgCard, shape)
                     .padding(horizontal = AppSpace.lg)
                 PopupPosition.BOTTOM -> Modifier

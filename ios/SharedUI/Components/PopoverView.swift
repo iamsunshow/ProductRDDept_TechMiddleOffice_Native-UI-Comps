@@ -161,47 +161,54 @@ public final class PopoverView: UIView {
 
     public override func layoutSubviews() {
         super.layoutSubviews()
+        // 仅在属性变化触发 layoutSubviews 时更新约束；
+        // show() 已显式调用 layoutBubble() + bubbleView.layoutIfNeeded() 应用约束。
+        // 不在此处设置 transform，避免与 show()/hide() 动画 transform 冲突。
         layoutBubble()
-        bubbleView.transform = CGAffineTransform(translationX: offset.x, y: offset.y)
     }
 
     private func layoutBubble() {
         let effectivePlacement = resolveEffectivePlacement()
         let arrow = Layout.arrowSize
         let margin = Layout.minBubbleMargin
-        let anchorX = anchor.midX
-        let anchorY = anchor.midY
+        // offset 烘焙进约束（避免与 show()/hide() 的 scale transform 冲突）
+        let anchorMinX = anchor.minX + offset.x
+        let anchorMaxX = anchor.maxX + offset.x
+        let anchorMinY = anchor.minY + offset.y
+        let anchorMaxY = anchor.maxY + offset.y
+        let anchorMidX = anchor.midX + offset.x
+        let anchorMidY = anchor.midY + offset.y
 
         // 限制气泡尺寸（通过 intrinsicContentSize）
         bubbleView.snp.remakeConstraints { make in
             switch effectivePlacement {
             case .top, .start, .end:
-                make.bottom.equalTo(anchor.minY).offset(-arrow)
+                make.bottom.equalTo(anchorMinY).offset(-arrow)
             case .bottom:
-                make.top.equalTo(anchor.maxY).offset(arrow)
+                make.top.equalTo(anchorMaxY).offset(arrow)
             case .left:
-                make.trailing.equalTo(anchor.minX).offset(-arrow)
+                make.trailing.equalTo(anchorMinX).offset(-arrow)
             case .right:
-                make.leading.equalTo(anchor.maxX).offset(arrow)
+                make.leading.equalTo(anchorMaxX).offset(arrow)
             }
 
             switch effectivePlacement {
             case .top, .bottom:
-                make.centerX.equalTo(anchorX)
+                make.centerX.equalTo(anchorMidX)
                 make.leading.greaterThanOrEqualToSuperview().offset(margin)
                 make.trailing.lessThanOrEqualToSuperview().offset(-margin)
             case .left, .right:
-                make.centerY.equalTo(anchorY)
+                make.centerY.equalTo(anchorMidY)
                 make.top.greaterThanOrEqualToSuperview().offset(margin)
                 make.bottom.lessThanOrEqualToSuperview().offset(-margin)
             case .start:
-                make.trailing.equalTo(anchor.minX).offset(-arrow)
-                make.centerY.equalTo(anchorY)
+                make.trailing.equalTo(anchorMinX).offset(-arrow)
+                make.centerY.equalTo(anchorMidY)
                 make.top.greaterThanOrEqualToSuperview().offset(margin)
                 make.bottom.lessThanOrEqualToSuperview().offset(-margin)
             case .end:
-                make.leading.equalTo(anchor.maxX).offset(arrow)
-                make.centerY.equalTo(anchorY)
+                make.leading.equalTo(anchorMaxX).offset(arrow)
+                make.centerY.equalTo(anchorMidY)
                 make.top.greaterThanOrEqualToSuperview().offset(margin)
                 make.bottom.lessThanOrEqualToSuperview().offset(-margin)
             }
@@ -256,9 +263,11 @@ public final class PopoverView: UIView {
         frame = window.bounds
         window.addSubview(self)
         window.bringSubviewToFront(self)
-        // 立即触发布局，确保气泡按 anchor 正确定位
-        setNeedsLayout()
-        layoutIfNeeded()
+        // 显式设置约束 + 强制 layoutSubviews 同步应用约束到 bubbleView.frame，
+        // 然后再启动动画——避免动画捕获到旧 frame（v1.4.5 修复"气泡位置跑到容器外/最底部"）。
+        layoutBubble()
+        bubbleView.setNeedsLayout()
+        bubbleView.layoutIfNeeded()
 
         bubbleView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
         bubbleView.alpha = 0

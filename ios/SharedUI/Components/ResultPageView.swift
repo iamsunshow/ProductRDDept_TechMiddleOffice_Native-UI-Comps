@@ -164,15 +164,17 @@ public final class ResultPageView: UIView {
         // 按钮组
         buttonStack.axis = .horizontal
         buttonStack.alignment = .center
-        buttonStack.distribution = .equalSpacing
+        // .fillEqually：每个按钮等宽填充容器（与 Android AppButton.fillMaxWidth 一致，
+        // 单按钮充满容器宽度，多按钮等分容器宽度）。
+        buttonStack.distribution = .fillEqually
         buttonStack.spacing = Layout.buttonSpacing
         buttonStack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(buttonStack)
         buttonStack.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
             make.top.equalTo(descriptionLabel.snp.bottom).offset(Layout.buttonMarginTop)
-            make.leading.greaterThanOrEqualToSuperview().offset(AppSpace.lg)
-            make.trailing.lessThanOrEqualToSuperview().offset(-AppSpace.lg)
+            // leading/trailing 用等式约束（非大于/小于），让按钮组充满容器宽度
+            make.leading.equalToSuperview().offset(AppSpace.lg)
+            make.trailing.equalToSuperview().offset(-AppSpace.lg)
             make.bottom.equalToSuperview()
         }
 

@@ -24,19 +24,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppFont
 import com.zhiqihuayun.foundation.design.AppSpace
 
-// 拖拽态视觉常量（与设计规格 drag-design-spec.html §4 对齐）：
+// 拖拽态视觉常量（与设计规格 drag-design-spec.html §4 对齐 + iOS 对齐 2026-09-08）：
 // - 阴影 elevation 8dp
 // - 缩放 1.02
-// - 透明度 0.9
+// - 透明度 0.6（与 iOS 一致，被拖动对象有可见透明度）
 // - 落位动画 0.25s easeOut
+// - 拖拽时 translationY 跟随手指（与 iOS 标准 reorder 一致）
+// - swap 阈值=itemHeight/2，swap 后 dragOffset 减 itemHeight（保持手指相对位置）
 private const val DragScale = 1.02f
-private const val DragOpacity = 0.9f
+private const val DragOpacity = 0.6f
 private const val DropAnimMs = 250
 
 /**
@@ -81,6 +84,9 @@ fun <T> Drag(
     var draggingKey by remember { mutableStateOf<Any?>(null) }
     var dragInitialIndex by remember { mutableStateOf(-1) }
     var dragOffset by remember { mutableFloatStateOf(0f) }
+    // 实测 item 高度（px）：swap 阈值=itemHeight/2，swap 后 dragOffset 减 itemHeight，
+    // 让被拖动项 translationY 跟随手指并保持相对位置（与 iOS 标准 reorder 一致）。
+    var itemHeight by remember { mutableFloatStateOf(0f) }
 
     // LazyColumn 自管滚动，隔离外层 verticalScroll 的手势干扰
     LazyColumn(
@@ -112,6 +118,13 @@ fun <T> Drag(
             // 手势在首次 swap 时即中断（“Android 上依然不可用”的根因）。
             // 改为 key(item) 后：同一 item 跨 swap 持有同一手势协程，拖拽全程不中断；
             // 当前位置改用 internalItems.indexOf(item) 实时计算，既不依赖捕获的 index、也不怕过期。
+            //
+            // v1.4.7（2026-09-08）对齐 iOS 标准 reorder：
+            // - swap 阈值=itemHeight/2（不再是固定 10f），手指越过相邻项中点才 swap
+            // - swap 后 dragOffset 减/加 itemHeight（不再是 10f），保持手指与项的相对位置
+            // - 配合 graphicsLayer.translationY=dragOffset，被拖动项跟随手指平滑移动
+            val swapThreshold = if (itemHeight > 0f) itemHeight * 0.5f else 30f
+            val swapStep = if (itemHeight > 0f) itemHeight else 60f
             val dragModifier = if (enabled) {
                 Modifier.pointerInput(itemKey) {
                     // handle 模式用即时拖拽（与 iOS showsReorderControl 一致）；
@@ -141,7 +154,7 @@ fun <T> Drag(
                                 change.consume()
                                 dragOffset += dragAmount.y
                                 var curIndex = internalItems.indexOf(item)
-                                while (dragOffset > 10f && curIndex >= 0 && curIndex < internalItems.lastIndex) {
+                                while (dragOffset > swapThreshold && curIndex >= 0 && curIndex < internalItems.lastIndex) {
                                     val next = curIndex + 1
                                     internalItems = internalItems.toMutableList().apply {
                                         val tmp = this[curIndex]
@@ -149,9 +162,9 @@ fun <T> Drag(
                                         this[next] = tmp
                                     }
                                     curIndex = next
-                                    dragOffset -= 10f
+                                    dragOffset -= swapStep
                                 }
-                                while (dragOffset < -10f && curIndex > 0) {
+                                while (dragOffset < -swapThreshold && curIndex > 0) {
                                     val prev = curIndex - 1
                                     internalItems = internalItems.toMutableList().apply {
                                         val tmp = this[curIndex]
@@ -159,7 +172,7 @@ fun <T> Drag(
                                         this[prev] = tmp
                                     }
                                     curIndex = prev
-                                    dragOffset += 10f
+                                    dragOffset += swapStep
                                 }
                             },
                         )
@@ -188,7 +201,7 @@ fun <T> Drag(
                             change.consume()
                             dragOffset += dragAmount.y
                             var curIndex = internalItems.indexOf(item)
-                            while (dragOffset > 10f && curIndex >= 0 && curIndex < internalItems.lastIndex) {
+                            while (dragOffset > swapThreshold && curIndex >= 0 && curIndex < internalItems.lastIndex) {
                                 val next = curIndex + 1
                                 internalItems = internalItems.toMutableList().apply {
                                     val tmp = this[curIndex]
@@ -196,9 +209,9 @@ fun <T> Drag(
                                     this[next] = tmp
                                 }
                                 curIndex = next
-                                dragOffset -= 10f
+                                dragOffset -= swapStep
                             }
-                            while (dragOffset < -10f && curIndex > 0) {
+                            while (dragOffset < -swapThreshold && curIndex > 0) {
                                 val prev = curIndex - 1
                                 internalItems = internalItems.toMutableList().apply {
                                     val tmp = this[curIndex]
@@ -206,7 +219,7 @@ fun <T> Drag(
                                     this[prev] = tmp
                                 }
                                 curIndex = prev
-                                dragOffset += 10f
+                                dragOffset += swapStep
                             }
                         },
                     )
@@ -221,10 +234,15 @@ fun <T> Drag(
                 modifier = Modifier
                     .animateItemPlacement()
                     .fillMaxWidth()
+                    .onSizeChanged { size ->
+                        if (size.height > 0) itemHeight = size.height.toFloat()
+                    }
                     .graphicsLayer {
                         this.scaleX = scale
                         this.scaleY = scale
                         this.alpha = alpha
+                        // 被拖动项跟随手指平滑移动（与 iOS 标准 reorder 一致）
+                        this.translationY = if (isDragging) dragOffset else 0f
                         if (isDragging) {
                             this.shadowElevation = 8f
                         }
@@ -232,7 +250,12 @@ fun <T> Drag(
                     // handle=true：整行不挂拖拽手势（仅手柄响应）；否则整行长按拖拽。
                     .then(if (enabled && !handle) dragModifier else Modifier),
             ) {
+                // 内容在左（占满剩余空间），手柄在右（与 iOS 标准 reorder 一致）
+                Box(modifier = Modifier.weight(1f)) {
+                    itemContent(item)
+                }
                 if (handle && enabled) {
+                    Spacer(modifier = Modifier.width(AppSpace.sm))
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
@@ -247,10 +270,6 @@ fun <T> Drag(
                             color = AppColor.textSecondary,
                         )
                     }
-                    Spacer(modifier = Modifier.width(AppSpace.sm))
-                }
-                Box(modifier = Modifier.weight(1f)) {
-                    itemContent(item)
                 }
             }
         }

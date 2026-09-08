@@ -1,6 +1,6 @@
 {
-  "version": "1.4.6",
-  "versionKey": "v1.4.6",
+  "version": "1.4.7",
+  "versionKey": "v1.4.7",
   "releaseDate": "2026-09-08",
-  "changelog": "[1.4.6] 2026-09-08 InfiniteLoading iOS Demo 修复（PATCH）：① InfiniteLoadingView 初始化从 snp.makeConstraints(height=44) 改为 frame 设置——tableFooterView 要求.translatesAutoresizingMaskIntoConstraints=true 时用 frame 高度，Auto Layout 自约束导致 UITableView systemLayoutSizeFitting 返回 0 高度，footer 文案被截断/点击重试无响应；② Demo2/Demo3 补 tv.dataSource=self（遗漏导致列表数据不显示）。组件库全局版本 1.4.5 → 1.4.6。"
+  "changelog": "[1.4.7] 2026-09-08 Drag/ResultPage/Popover/Popup 跨端一致性修复（PATCH）：① Drag Android 手柄从左移到右（与 iOS 标准 reorder 一致）+ 拖拽时 translationY 跟随手指平滑移动（不再直接定位）+ 透明度 0.9→0.6 加大可见度 + swap 阈值改用 itemHeight/2 + swap 后 dragOffset 减 itemHeight 保持手指相对位置；② ResultPage iOS 按钮组 distribution 从 equalSpacing 改 fillEqually + leading/trailing 用等式约束让按钮充满容器宽度（与 Android AppButton.fillMaxWidth 一致）；③ Popover iOS show() 显式调用 layoutBubble()+bubbleView.layoutIfNeeded() 同步应用约束到 bubbleView.frame 再启动动画（修复约束在 layoutSubviews 内 setConstraints 后未同步应用导致动画捕获旧 frame=气泡跑到容器外/最底部）+ offset 烘焙进约束避免与 scale transform 冲突；④ Popup Android center 加 defaultMinSize(minWidth=240dp) 与 iOS PopupContainerView width>=240 一致。组件库全局版本 1.4.6 → 1.4.7。"
 }

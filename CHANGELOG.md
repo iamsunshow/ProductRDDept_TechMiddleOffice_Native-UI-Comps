@@ -14,6 +14,24 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.7] - 2026-09-08
+
+Drag/ResultPage/Popover/Popup 跨端一致性修复（PATCH，对齐 iOS 标准 reorder + 弹层尺寸/位置一致性）。
+
+### Fixed
+
+- **Drag #47 Android 拖拽体验对齐 iOS 标准 reorder**：① 手柄位置从左侧移到右侧（与 iOS UITableView reorder 控件 ≡ 在右侧一致）；② 拖拽时被拖动项直接定位到目标位置 → 改用 `graphicsLayer.translationY = dragOffset` 让被拖动项跟随手指平滑移动；③ swap 阈值从固定 10f 改为实测 `itemHeight/2`，swap 后 `dragOffset` 减/加 `itemHeight`（而非 10f），保持手指与项的相对位置；④ 拖动透明度 0.9 → 0.6 加大可见度（与 iOS 被拖动 cell 有明显透明度细节一致）；⑤ `Modifier.onSizeChanged` 实测 item 高度并缓存到 `itemHeight` 状态供 swap 阈值/步长使用。修复后 Android Drag 行为与 iOS UITableView 标准 reorder 视觉/交互一致。
+
+- **ResultPage #56 iOS 按钮宽度充满容器**：iOS `buttonStack.distribution` 从 `.equalSpacing`（按钮随内容宽度）改为 `.fillEqually`，`leading/trailing` 从 `greaterThanOrEqualTo/lessThanOrEqualTo` 改为 `equalTo`，让按钮组充满容器宽度、按钮等分容器宽度（单按钮充满容器，多按钮等分）。与 Android `AppButton.fillMaxWidth` 默认行为一致。
+
+- **Popover #53 iOS 气泡位置跑到容器外/最底部**：根因=`show()` 调用 `setNeedsLayout()+layoutIfNeeded()` 触发 `layoutSubviews` → `layoutBubble()` 内 `bubbleView.snp.remakeConstraints` 设置新约束，但新约束需另一次 layout pass 才能应用到 `bubbleView.frame`，`UIView.animate` 捕获到旧 frame（气泡停留在 .zero 或旧位置=容器外/最底部）。修复=`show()` 显式调用 `layoutBubble()` 设置约束后立即 `bubbleView.setNeedsLayout()+bubbleView.layoutIfNeeded()` 同步应用约束到 frame，再启动 scale+淡入动画；同时 `offset` 从 `transform.translationX/Y`（与 scale 动画 transform 冲突）烘焙进约束（anchor.minX/maxX/minY/maxY/midX/midY 加 offset）。
+
+- **Popup #54 Android center 弹层尺寸与 iOS 不一致**：Android `PopupPosition.CENTER` 容器无最小宽度约束，内容短时弹层宽度=内容+padding（如 Demo1 "居中弹层内容" ~150dp），iOS 同位置 `width.greaterThanOrEqualTo(240)` 弹层宽度=240dp，两端差异 90dp。修复=Android center 容器加 `.defaultMinSize(minWidth=240.dp)`，与 iOS `width.greaterThanOrEqualTo(240)` 一致。Demo2（bottom）圆角已对齐（Android `RoundedCornerShape(topStart,topEnd)` + iOS `maskedCorners=[layerMinXMinYCorner,layerMaxXMinYCorner]` 均为顶两角圆），蒙版透明度均 0.45 已对齐。
+
+### Changed
+
+- 组件库全局版本 1.4.6 → 1.4.7（PATCH，四组件跨端一致性修复）。
+
 ## \[1.4.6] - 2026-09-08
 
 InfiniteLoading iOS Demo 修复（PATCH，tableFooterView 高度 + 数据源遗漏）。

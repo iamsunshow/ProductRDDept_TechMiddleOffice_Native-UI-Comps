@@ -1,6 +1,6 @@
 {
-  "version": "1.4.10",
-  "versionKey": "v1.4.10",
+  "version": "1.4.11",
+  "versionKey": "v1.4.11",
   "releaseDate": "2026-09-08",
-  "changelog": "[1.4.10] 2026-09-08 Popup 气泡尺寸 padding 统一（PATCH）：Android Popup 容器去掉 horizontal=AppSpace.lg padding（旧版 center 容器有 16dp horizontal padding + content 无 horizontal = 与 iOS 不一致），改为 content 槽统一 padding(top=closeable?40:4, start/end=16, bottom=4)与 iOS PopupContainerView.replaceContent 完全一致。色彩调试法定位差异：iOS content 约束 leading/trailing=AppSpace.lg(16) + top=closeable?40:4 + bottom=AppSpace.sm(4)；Android 旧版 center 容器有 horizontal=16 padding + content top=closeable?32:0 + 无 bottom = 顶部差 8dp + 底部差 4dp = 弹层总高度差 12dp。统一后两端弹层尺寸完全一致。组件库全局版本 1.4.9 → 1.4.10。"
+  "changelog": "[1.4.11] 2026-09-08 Popup Demo 文字居中 + Demo2 底部高度对齐（PATCH）：① Android Demo 4 个 Popup 的 Text 加 textAlign=TextAlign.Center + Modifier.fillMaxWidth() 与 iOS UILabel.textAlignment=.center 一致（旧版默认左对齐）；② Android Popup BOTTOM 容器去掉 navigationBarsPadding()——iOS 用 safeAreaLayoutGuide.snp.bottom 贴到安全区底部不额外加 padding，Android 旧版 navigationBarsPadding() 额外加安全区高度导致 Demo2 底部弹层比 iOS 高一个安全区（~24-48dp）。组件库全局版本 1.4.10 → 1.4.11。"
 }

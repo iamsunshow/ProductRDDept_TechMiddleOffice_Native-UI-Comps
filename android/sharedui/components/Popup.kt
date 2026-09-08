@@ -182,7 +182,6 @@ fun Popup(
                     .heightIn(min = 120.dp)
                     .clip(shape)
                     .background(AppColor.bgCard, shape)
-                    .navigationBarsPadding()
                 PopupPosition.TOP -> Modifier
                     .align(Alignment.TopCenter)
                     .fillMaxWidth()

@@ -150,7 +150,7 @@ public final class PopoverView: UIView {
                 bottom: Layout.contentPaddingV,
                 right: Layout.contentPaddingH
             ))
-        }?.forEach { c in
+        }.forEach { c in
             c.activate()
             contentConstraints.append(c)
         }
@@ -162,6 +162,7 @@ public final class PopoverView: UIView {
     public override func layoutSubviews() {
         super.layoutSubviews()
         layoutBubble()
+        bubbleView.transform = CGAffineTransform(translationX: offset.x, y: offset.y)
     }
 
     private func layoutBubble() {
@@ -205,8 +206,6 @@ public final class PopoverView: UIView {
                 make.bottom.lessThanOrEqualToSuperview().offset(-margin)
             }
 
-            // offset 微调
-            make.edges.offset = offset
         }
 
         // 箭头位置

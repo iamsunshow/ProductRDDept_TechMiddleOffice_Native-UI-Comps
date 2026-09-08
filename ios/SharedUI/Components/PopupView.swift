@@ -174,7 +174,7 @@ public final class PopupContainerView: UIView {
         containerStack.addSubview(content)
         content.snp.prepareConstraints { make in
             make.edges.equalToSuperview()
-        }?.forEach { c in
+        }.forEach { c in
             c.activate()
             contentConstraints.append(c)
         }

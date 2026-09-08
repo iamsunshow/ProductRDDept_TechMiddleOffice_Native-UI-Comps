@@ -187,6 +187,14 @@ import com.zhiqihuayun.sharedui.components.NoticeBarDirection
 import com.zhiqihuayun.sharedui.components.Notify
 import com.zhiqihuayun.sharedui.components.NotifyPosition
 import com.zhiqihuayun.sharedui.components.NotifyType
+import com.zhiqihuayun.sharedui.components.Popover
+import com.zhiqihuayun.sharedui.components.PopoverPlacement
+import com.zhiqihuayun.sharedui.components.Popup
+import com.zhiqihuayun.sharedui.components.PopupPosition
+import com.zhiqihuayun.sharedui.components.ResultPage
+import com.zhiqihuayun.sharedui.components.ResultType
+import com.zhiqihuayun.sharedui.components.ResultActionStyle
+import com.zhiqihuayun.sharedui.components.ResultAction
 import com.zhiqihuayun.sharedui.components.ActivityTracker
 import com.zhiqihuayun.sharedui.components.Uploader
 
@@ -7894,6 +7902,32 @@ fun ResultPageDemo() {
                 )
             }
         }
+    }
+}
+
+/**
+ * Demo 段卡片：白底圆角容器 + 标题 + 内容槽，用于包裹每个 Demo 段（D1/D2/...）。
+ * 与 iOS DemoShowcases 的 DemoSectionCard 视觉对齐。
+ */
+@Composable
+fun DemoSectionCard(
+    title: String,
+    content: @Composable () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppColor.bgCard, RoundedCornerShape(AppRadius.lg))
+            .padding(AppSpace.lg),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        Text(
+            text = title,
+            fontSize = AppFont.sizeSm,
+            fontWeight = FontWeight.SemiBold,
+            color = AppColor.textPrimary
+        )
+        content()
     }
 }
 

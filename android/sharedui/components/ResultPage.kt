@@ -101,7 +101,7 @@ fun ResultPage(
     title: String,
     description: String? = null,
     actions: List<ResultAction> = emptyList(),
-    icon: @Composable? = null,
+    icon: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Column(

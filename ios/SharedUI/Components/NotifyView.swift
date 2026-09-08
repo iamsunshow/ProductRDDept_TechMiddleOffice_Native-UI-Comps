@@ -194,7 +194,7 @@ private final class NotifyContainerView: UIView {
         // 文本
         let label = UILabel()
         label.text = message
-        label.textColor = AppColor.textInverse
+        label.textColor = UIColor.white
         label.font = .systemFont(ofSize: AppFont.sizeSm)
         stack.addArrangedSubview(label)
         label.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -206,7 +206,7 @@ private final class NotifyContainerView: UIView {
         } else if closeable {
             let closeBtn = UIButton(type: .system)
             closeBtn.setTitle("✕", for: .normal)
-            closeBtn.setTitleColor(AppColor.textInverse, for: .normal)
+            closeBtn.setTitleColor(UIColor.white, for: .normal)
             closeBtn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
             closeBtn.addTarget(self, action: #selector(didTapClose), for: .touchUpInside)
             rightView = closeBtn

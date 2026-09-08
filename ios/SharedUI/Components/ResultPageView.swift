@@ -27,7 +27,7 @@
 /// let result = ResultPageView()
 /// result.type = .success
 /// result.title = "提交成功"
-/// result.description = "您的申请已提交"
+/// result.desc = "您的申请已提交"
 /// result.actions = [
 ///     ResultAction(text: "返回首页", style: .primary) { /* ... */ }
 /// ]
@@ -75,7 +75,7 @@ public final class ResultPageView: UIView {
 
     public var type: ResultType = .success { didSet { updateIcon() } }
     public var title: String = "" { didSet { titleLabel.text = title } }
-    public var description: String? { didSet { updateDescription() } }
+    public var desc: String? { didSet { updateDescription() } }
     public var actions: [ResultAction] = [] { didSet { rebuildButtons() } }
     public var icon: UIView? { didSet { updateIcon() } }
 
@@ -197,8 +197,8 @@ public final class ResultPageView: UIView {
     }
 
     private func updateDescription() {
-        descriptionLabel.text = description
-        descriptionLabel.isHidden = (description == nil)
+        descriptionLabel.text = desc
+        descriptionLabel.isHidden = (desc == nil)
     }
 
     private func rebuildButtons() {

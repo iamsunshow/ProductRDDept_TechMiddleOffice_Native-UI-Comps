@@ -232,6 +232,36 @@ class ShowcaseViewController: UIViewController {
         block(container)
     }
 
+    /// 创建一个 Demo 段卡片（白底圆角+标题+内容槽），返回该卡片供宿主自行布局。
+    /// 与 addSection 的区别：不自动追加到 contentStack，而是返回 UIView 由宿主组合。
+    func makeSectionCard(title: String, _ block: (UIView) -> Void) -> UIView {
+        let card = UIView()
+        card.backgroundColor = AppColor.bgCard
+        card.layer.cornerRadius = AppRadius.lg
+        card.layoutMargins = UIEdgeInsets(top: AppSpace.md, left: AppSpace.lg, bottom: AppSpace.md, right: AppSpace.lg)
+
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: AppFont.sizeSm, weight: .semibold)
+        titleLabel.textColor = AppColor.textPrimary
+        card.addSubview(titleLabel)
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(AppSpace.md)
+            make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+        }
+
+        let container = UIView()
+        card.addSubview(container)
+        container.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(AppSpace.md)
+            make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+            make.bottom.equalToSuperview().offset(-AppSpace.md)
+        }
+
+        block(container)
+        return card
+    }
+
     func addInfo(_ text: String) {
         let label = UILabel()
         label.text = text
@@ -8880,20 +8910,16 @@ final class NotifyShowcase: ShowcaseViewController {
 final class PopoverShowcase: ShowcaseViewController {
     private let popover = PopoverView()
     private var visible = false {
-        didSet {
-            popover.visible = visible
-        }
+        didSet { popover.visible = visible }
     }
-    private var placement: PopoverPlacement = .top
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Popover 气泡弹出框"
-        rebuildSections()
+        view.backgroundColor = AppColor.bgPage
+        setupSections()
 
-        popover.onClose = { [weak self] in
-            self?.visible = false
-        }
+        popover.onClose = { [weak self] in self?.visible = false }
         popover.content = makeLabel(text: "气泡提示内容")
     }
 
@@ -8906,46 +8932,86 @@ final class PopoverShowcase: ShowcaseViewController {
     }
 
     private func showPopover(placement: PopoverPlacement, from button: UIButton) {
-        self.placement = placement
         popover.placement = placement
         popover.anchor = button.superview?.convert(button.frame, to: nil) ?? .zero
         visible = true
     }
 
-    private func rebuildSections() {
-        sections = [
-            ("D1 · 基础顶部弹出（placement=top）", [
-                ("点击弹出气泡", .primary) { [weak self] btn in
-                    self?.showPopover(placement: .top, from: btn)
-                }
-            ]),
-            ("D2 · placement 方向切换", [
-                ("顶部 (TOP)", .secondary) { [weak self] btn in
-                    self?.showPopover(placement: .top, from: btn)
-                },
-                ("底部 (BOTTOM)", .secondary) { [weak self] btn in
-                    self?.showPopover(placement: .bottom, from: btn)
-                },
-                ("左侧 (LEFT)", .secondary) { [weak self] btn in
-                    self?.showPopover(placement: .left, from: btn)
-                },
-                ("右侧 (RIGHT)", .secondary) { [weak self] btn in
-                    self?.showPopover(placement: .right, from: btn)
-                }
-            ]),
-            ("D3 · closeOnClickOutside 外部点击", [
-                ("弹出气泡（点外部收起）", .primary) { [weak self] btn in
-                    self?.showPopover(placement: .top, from: btn)
-                }
-            ]),
-            ("D4 · 嵌入菜单内容", [
-                ("弹出菜单气泡", .primary) { [weak self] btn in
-                    self?.showPopover(placement: .top, from: btn)
-                    self?.popover.content = self?.makeMenuContent()
-                }
-            ])
-        ]
-        tableView.reloadData()
+    private func setupSections() {
+        let d1 = makeSectionCard(title: "D1 · 基础顶部弹出（placement=top）") { container in
+            let btn = AppButton.primary("点击弹出气泡")
+            btn.addTarget(self, action: #selector(self.tapD1(_:)), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.leading.equalToSuperview()
+                make.height.equalTo(AppButton.standardHeight)
+            }
+        }
+
+        let d2 = makeSectionCard(title: "D2 · placement 方向切换") { container in
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.spacing = AppSpace.sm
+            row.distribution = .fillEqually
+            let placements: [(String, PopoverPlacement)] = [("顶部", .top), ("底部", .bottom), ("左侧", .left), ("右侧", .right)]
+            for (index, item) in placements.enumerated() {
+                let btn = AppButton.secondary(item.0)
+                btn.tag = index
+                btn.addTarget(self, action: #selector(self.tapD2(_:)), for: .touchUpInside)
+                row.addArrangedSubview(btn)
+            }
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.leading.trailing.equalToSuperview()
+            }
+        }
+
+        let d3 = makeSectionCard(title: "D3 · closeOnClickOutside 外部点击") { container in
+            let btn = AppButton.primary("弹出气泡（点外部收起）")
+            btn.addTarget(self, action: #selector(self.tapD1(_:)), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.leading.equalToSuperview()
+                make.height.equalTo(AppButton.standardHeight)
+            }
+        }
+
+        let d4 = makeSectionCard(title: "D4 · 嵌入菜单内容") { container in
+            let btn = AppButton.primary("弹出菜单气泡")
+            btn.addTarget(self, action: #selector(self.tapD4(_:)), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.leading.equalToSuperview()
+                make.height.equalTo(AppButton.standardHeight)
+            }
+        }
+
+        let stack = UIStackView(arrangedSubviews: [d1, d2, d3, d4])
+        stack.axis = .vertical
+        stack.spacing = AppSpace.lg
+        view.addSubview(stack)
+        stack.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(AppSpace.lg)
+        }
+    }
+
+    @objc private func tapD1(_ sender: UIButton) {
+        showPopover(placement: .top, from: sender)
+    }
+
+    @objc private func tapD2(_ sender: UIButton) {
+        let placements: [PopoverPlacement] = [.top, .bottom, .left, .right]
+        let placement = (0..<placements.count).contains(sender.tag) ? placements[sender.tag] : .top
+        showPopover(placement: placement, from: sender)
+    }
+
+    @objc private func tapD4(_ sender: UIButton) {
+        popover.content = makeMenuContent()
+        showPopover(placement: .top, from: sender)
     }
 
     private func makeMenuContent() -> UIView {
@@ -8953,7 +9019,6 @@ final class PopoverShowcase: ShowcaseViewController {
         stack.axis = .vertical
         stack.alignment = .leading
         stack.spacing = 4
-
         let items: [(String, UIColor)] = [
             ("复制", AppColor.textPrimary),
             ("删除", AppColor.error),
@@ -8973,9 +9038,6 @@ final class PopoverShowcase: ShowcaseViewController {
 // MARK: - PopupShowcase
 
 final class PopupShowcase: ShowcaseViewController {
-    private var visibleCenter = false
-    private var visibleBottom = false
-    private var visibleCloseable = false
     private var visibleControlled = false
 
     private let centerPopup = PopupContainerView()
@@ -8986,52 +9048,23 @@ final class PopupShowcase: ShowcaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Popup 弹出层"
+        view.backgroundColor = AppColor.bgPage
 
         centerPopup.position = .center
         centerPopup.content = makeLabel("居中弹层内容")
-        centerPopup.onClose = { [weak self] in self?.visibleCenter = false }
 
         bottomPopup.position = .bottom
         bottomPopup.content = makeLabel("底部弹层内容")
-        bottomPopup.onClose = { [weak self] in self?.visibleBottom = false }
 
         closeablePopup.position = .center
         closeablePopup.closeable = true
         closeablePopup.content = makeLabel("带关闭按钮的弹层")
-        closeablePopup.onClose = { [weak self] in self?.visibleCloseable = false }
 
         controlledPopup.position = .center
         controlledPopup.closeable = true
         controlledPopup.content = makeLabel("受控外部驱动弹层")
-        controlledPopup.onClose = { [weak self] in self?.visibleControlled = false }
 
-        sections = [
-            ("D1 · 居中弹层（position=center）", [
-                ("显示居中弹层", .primary) { [weak self] _ in
-                    self?.visibleCenter = true
-                    self?.centerPopup.visible = true
-                }
-            ]),
-            ("D2 · 底部弹层（position=bottom）", [
-                ("显示底部弹层", .primary) { [weak self] _ in
-                    self?.visibleBottom = true
-                    self?.bottomPopup.visible = true
-                }
-            ]),
-            ("D3 · closeable 关闭按钮", [
-                ("显示可关闭弹层", .primary) { [weak self] _ in
-                    self?.visibleCloseable = true
-                    self?.closeablePopup.visible = true
-                }
-            ]),
-            ("D4 · 受控外部驱动", [
-                ("切换弹层显示", .primary) { [weak self] _ in
-                    self?.visibleControlled.toggle()
-                    self?.controlledPopup.visible = self?.visibleControlled ?? false
-                }
-            ])
-        ]
-        tableView.reloadData()
+        setupSections()
     }
 
     private func makeLabel(_ text: String) -> UIView {
@@ -9042,6 +9075,68 @@ final class PopupShowcase: ShowcaseViewController {
         label.textAlignment = .center
         return label
     }
+
+    private func setupSections() {
+        let d1 = makeSectionCard(title: "D1 · 居中弹层（position=center）") { container in
+            let btn = AppButton.primary("显示居中弹层")
+            btn.addTarget(self, action: #selector(self.tapCenter), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.leading.equalToSuperview()
+                make.height.equalTo(AppButton.standardHeight)
+            }
+        }
+
+        let d2 = makeSectionCard(title: "D2 · 底部弹层（position=bottom）") { container in
+            let btn = AppButton.primary("显示底部弹层")
+            btn.addTarget(self, action: #selector(self.tapBottom), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.leading.equalToSuperview()
+                make.height.equalTo(AppButton.standardHeight)
+            }
+        }
+
+        let d3 = makeSectionCard(title: "D3 · closeable 关闭按钮") { container in
+            let btn = AppButton.primary("显示可关闭弹层")
+            btn.addTarget(self, action: #selector(self.tapCloseable), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.leading.equalToSuperview()
+                make.height.equalTo(AppButton.standardHeight)
+            }
+        }
+
+        let d4 = makeSectionCard(title: "D4 · 受控外部驱动") { container in
+            let btn = AppButton.primary("切换弹层显示")
+            btn.addTarget(self, action: #selector(self.tapControlled), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.leading.equalToSuperview()
+                make.height.equalTo(AppButton.standardHeight)
+            }
+        }
+
+        let stack = UIStackView(arrangedSubviews: [d1, d2, d3, d4])
+        stack.axis = .vertical
+        stack.spacing = AppSpace.lg
+        view.addSubview(stack)
+        stack.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(AppSpace.lg)
+        }
+    }
+
+    @objc private func tapCenter() { centerPopup.visible = true }
+    @objc private func tapBottom() { bottomPopup.visible = true }
+    @objc private func tapCloseable() { closeablePopup.visible = true }
+    @objc private func tapControlled() {
+        visibleControlled.toggle()
+        controlledPopup.visible = visibleControlled
+    }
 }
 
 // MARK: - ResultPageShowcase
@@ -9050,49 +9145,96 @@ final class ResultPageShowcase: ShowcaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "ResultPage 结果反馈"
+        view.backgroundColor = AppColor.bgPage
+        setupSections()
+    }
 
-        sections = [
-            ("D1 · 成功+主按钮（type=success）", [
-                ("展示成功页", .primary) { [weak self] _ in
-                    self?.showResultPage(type: .success, title: "提交成功", desc: "您的申请已提交", actions: [
-                        ResultAction(text: "返回首页", style: .primary) { }
-                    ])
-                }
-            ]),
-            ("D2 · 失败+重试（type=error）", [
-                ("展示失败页", .primary) { [weak self] _ in
-                    self?.showResultPage(type: .error, title: "支付失败", desc: "余额不足", actions: [
-                        ResultAction(text: "重试", style: .ghost) { }
-                    ])
-                }
-            ]),
-            ("D3 · 警告+多按钮（type=warning）", [
-                ("展示警告页", .primary) { [weak self] _ in
-                    self?.showResultPage(type: .warning, title: "部分成功", desc: "3 条失败", actions: [
-                        ResultAction(text: "查看详情", style: .primary) { },
-                        ResultAction(text: "返回", style: .ghost) { }
-                    ])
-                }
-            ]),
-            ("D4 · 信息+无按钮（type=info）", [
-                ("展示信息页", .primary) { [weak self] _ in
-                    self?.showResultPage(type: .info, title: "系统维护", desc: "今晚 22:00-24:00", actions: [])
-                }
-            ])
-        ]
-        tableView.reloadData()
+    private func setupSections() {
+        let d1 = makeSectionCard(title: "D1 · 成功+主按钮（type=success）") { container in
+            let btn = AppButton.primary("展示成功页")
+            btn.addTarget(self, action: #selector(self.tapSuccess), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.leading.equalToSuperview()
+                make.height.equalTo(AppButton.standardHeight)
+            }
+        }
+
+        let d2 = makeSectionCard(title: "D2 · 失败+重试（type=error）") { container in
+            let btn = AppButton.primary("展示失败页")
+            btn.addTarget(self, action: #selector(self.tapError), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.leading.equalToSuperview()
+                make.height.equalTo(AppButton.standardHeight)
+            }
+        }
+
+        let d3 = makeSectionCard(title: "D3 · 警告+多按钮（type=warning）") { container in
+            let btn = AppButton.primary("展示警告页")
+            btn.addTarget(self, action: #selector(self.tapWarning), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.leading.equalToSuperview()
+                make.height.equalTo(AppButton.standardHeight)
+            }
+        }
+
+        let d4 = makeSectionCard(title: "D4 · 信息+无按钮（type=info）") { container in
+            let btn = AppButton.primary("展示信息页")
+            btn.addTarget(self, action: #selector(self.tapInfo), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.leading.equalToSuperview()
+                make.height.equalTo(AppButton.standardHeight)
+            }
+        }
+
+        let stack = UIStackView(arrangedSubviews: [d1, d2, d3, d4])
+        stack.axis = .vertical
+        stack.spacing = AppSpace.lg
+        view.addSubview(stack)
+        stack.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(AppSpace.lg)
+        }
+    }
+
+    @objc private func tapSuccess() {
+        showResultPage(type: .success, title: "提交成功", desc: "您的申请已提交", actions: [
+            ResultAction(text: "返回首页", style: .primary) { }
+        ])
+    }
+
+    @objc private func tapError() {
+        showResultPage(type: .error, title: "支付失败", desc: "余额不足", actions: [
+            ResultAction(text: "重试", style: .ghost) { }
+        ])
+    }
+
+    @objc private func tapWarning() {
+        showResultPage(type: .warning, title: "部分成功", desc: "3 条失败", actions: [
+            ResultAction(text: "查看详情", style: .primary) { },
+            ResultAction(text: "返回", style: .ghost) { }
+        ])
+    }
+
+    @objc private func tapInfo() {
+        showResultPage(type: .info, title: "系统维护", desc: "今晚 22:00-24:00", actions: [])
     }
 
     private func showResultPage(type: ResultType, title: String, desc: String, actions: [ResultAction]) {
         let result = ResultPageView()
         result.type = type
         result.title = title
-        result.description = desc
+        result.desc = desc
         result.actions = actions
 
         let container = UIView()
         container.backgroundColor = AppColor.bgPage
-        container.addSubview(result)
         result.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(result)
         NSLayoutConstraint.activate([

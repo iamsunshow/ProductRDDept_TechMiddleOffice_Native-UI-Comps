@@ -17,11 +17,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -36,16 +37,15 @@ import com.zhiqihuayun.foundation.design.AppSpace
  * Loading 加载中：全屏/区域遮罩加载指示器（操作反馈区 #50，全新立项）。
  *
  * 组件 ID：`ui.loading`（api.json 契约对齐，门禁 A AI 代评通过 2026-09-08，
- * 用户"中间任何询问直接通过"总授权；P1–P4 全 A：纯加载指示器模式 +
- * 双类型 circular/spinner + 双方向 horizontal/vertical + 不内置遮罩）。
+ * P1–P4 全 A：纯加载指示器模式 + 双类型 circular/spinner + 双方向 horizontal/vertical + 不内置遮罩）。
  *
  * 一期语义（对标 NutUI React Loading + Vant Loading）：
  * - [type]：图标类型 circular（环形旋转，默认）/ spinner（5 线跳动）
  * - [direction]：图标+文案排列方向 horizontal（水平，默认）/ vertical（竖向）
  * - [text]：可选文案（null=纯图标）
  * - [color]：图标+文案颜色（默认 textSecondary，可配 primary 等）
- * - [size]：图标尺寸（默认 sizeLg 18dp）
- * - [textSize]：文案字号（默认 sizeSm 14sp）
+ * - [size]：图标尺寸（默认 18dp）
+ * - [textSize]：文案字号（默认 14sp）
  * - 不内置遮罩=宿主组合 Overlay #6 做全屏加载（与 NutUI Loading+Overlay 组合模式一致）
  *
  * 用法：
@@ -56,8 +56,6 @@ import com.zhiqihuayun.foundation.design.AppSpace
  * Loading(text = "加载中...", direction = LoadingDirection.VERTICAL)
  * // spinner 类型
  * Loading(type = LoadingType.SPINNER, color = AppColor.primary, size = 32.dp)
- * // 全屏遮罩（宿主组合 Overlay）
- * Overlay(visible = true) { Loading(text = "加载中...", direction = LoadingDirection.VERTICAL) }
  * ```
  *
  * @param type 图标类型（circular/spinner）
@@ -74,7 +72,7 @@ fun Loading(
     direction: LoadingDirection = LoadingDirection.HORIZONTAL,
     text: String? = null,
     color: Color = AppColor.textSecondary,
-    size: Dp = AppFont.sizeLg.dp,
+    size: Dp = 18.dp,
     textSize: androidx.compose.ui.unit.TextUnit = AppFont.sizeSm,
     modifier: Modifier = Modifier
 ) {
@@ -94,15 +92,10 @@ fun Loading(
             content()
         }
     } else {
-        val arrangement = if (direction == LoadingDirection.HORIZONTAL) {
-            Arrangement.Center
-        } else {
-            Arrangement.Center
-        }
         if (direction == LoadingDirection.HORIZONTAL) {
             Row(
                 modifier = modifier,
-                horizontalArrangement = arrangement,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 content()
@@ -115,7 +108,7 @@ fun Loading(
         } else {
             Column(
                 modifier = modifier,
-                verticalArrangement = arrangement,
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 content()
@@ -132,40 +125,50 @@ fun Loading(
 
 /**
  * spinner 类型：5 线交替跳动（与 iOS CAShapeLayer+5 线同构）。
- * 动画：scaleY 0.4↔1，1s ease-in-out infinite，交替延迟 -0.4s~-0s。
+ * 动画：scaleY 0.4↔1，1s ease-in-out infinite，交替延迟 0s~0.4s。
  */
 @Composable
 private fun LoadingSpinner(size: Dp, color: Color) {
+    val density = LocalDensity.current
     val transition = rememberInfiniteTransition(label = "loading_spinner")
-    val lineHeightPx = size.toPx()
-    val lineW = (size.value / 6).dp.coerceAtLeast(2.dp).toPx()
-    val gap = (size.value / 6).dp.coerceAtLeast(2.dp).toPx()
-    val totalW = lineW * 5 + gap * 4
 
-    // 5 线交替延迟，与 iOS 一致：-0.4s, -0.3s, -0.2s, -0.1s, 0s
-    val delays = listOf(-400, -300, -200, -100, 0)
     // 5 线高度比例（与 iOS spec 一致：40%, 70%, 100%, 60%, 35%）
     val heightRatios = listOf(0.4f, 0.7f, 1.0f, 0.6f, 0.35f)
+    // 5 线交替延迟（ms），与 iOS 一致
+    val delays = listOf(0, 100, 200, 300, 400)
 
-    Canvas(modifier = Modifier.size(width = totalW.dp, height = size)) {
-        val totalWFloat = lineW * 5 + gap * 4
+    // 预计算每条线的动画值（必须在 Canvas 外调用 animateFloat，因为 drawScope 非 @Composable 上下文）
+    val anims = List(5) { i ->
+        transition.animateFloat(
+            initialValue = 0.4f,
+            targetValue = 1.0f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1000, delayMillis = delays[i]),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "spinner_line_$i"
+        )
+    }
+
+    val totalWidthDp = with(density) {
+        val lineW = (size.value / 6).dp.coerceAtLeast(2.dp)
+        val gap = (size.value / 6).dp.coerceAtLeast(2.dp)
+        lineW * 5 + gap * 4
+    }
+
+    Canvas(modifier = Modifier.size(width = totalWidthDp, height = size)) {
+        val lineH = size.toPx()
+        val lineW = ((size.value / 6).dp.coerceAtLeast(2.dp)).toPx()
+        val gap = ((size.value / 6).dp.coerceAtLeast(2.dp)).toPx()
         repeat(5) { i ->
-            val anim by transition.animateFloat(
-                initialValue = 0.4f,
-                targetValue = 1.0f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = 1000, delayMillis = delays[i].coerceAtLeast(0)),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "spinner_line_$i"
-            )
-            val lineH = lineHeightPx * heightRatios[i] * anim
+            val animValue = anims[i].value
+            val h = lineH * heightRatios[i] * animValue
             val left = i * (lineW + gap)
             drawRoundRect(
                 color = color,
-                topLeft = Offset(left, (lineHeightPx - lineH) / 2),
-                size = Size(lineW, lineH),
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(lineW / 2, lineW / 2)
+                topLeft = Offset(left, (lineH - h) / 2),
+                size = Size(lineW, h),
+                cornerRadius = CornerRadius(lineW / 2, lineW / 2)
             )
         }
     }

@@ -14,6 +14,22 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.5] - 2026-09-08
+
+三组件新增（MINOR，操作反馈区扩展）。
+
+### Added
+
+- **#53 Popover 气泡弹出框组件（双端）**：操作反馈区第八件，对齐设计规格。受控 `visible` + `content` 内容槽 + `placement` 六向（top/bottom/left/right/start/end）+ `anchor` 锚点定位 + `closeOnClickOutside` + `offset` 微调 + 箭头自绘 8×8 旋转方块 + 自动翻转防边缘溢出 + 淡入缩放 150ms。iOS 用 `keyWindow` 挂载 + `CAShapeLayer` 自绘箭头 + `UITapGestureRecognizer` 外部捕获 + `UIScreen.bounds` 自动翻转；Android 用 `androidx.compose.ui.window.Popup` + `Canvas` 自绘箭头 + `dismissOnClickOutside` + `LocalView` bounds 自动翻转。
+
+- **#54 Popup 弹出层组件（双端）**：操作反馈区第九件，对齐设计规格。通用弹出层容器，受控 `visible` + `content` 内容槽 + `position` 三向（center/bottom/top）+ `closeable` 关闭按钮 + `closeOnClickOverlay` 遮罩点击收起 + `radius` 圆角（center=四角/bottom=顶两角/top=底两角）+ 遮罩 + 动画（center=淡入缩放 200ms/bottom+top=滑入 250ms easeOut）。iOS 用 `keyWindow` 挂载 + `UIView.animate` 动画 + 遮罩 `UITapGestureRecognizer` + closeable 关闭按钮 24×24 圆形灰底白叉；Android 用 `androidx.compose.ui.window.Dialog` + `Alignment` 定位 + scrim clickable + closeable `Icon` + `animateFloatAsState`。
+
+- **#56 ResultPage 结果反馈组件（双端）**：操作反馈区第十件，对齐设计规格。整页/区域级操作结果反馈，`type` 四态（success/error/warning/info）+ `title` + `description` + `actions` 列表数据驱动 `ResultAction{text,style,onClick}` + `ResultActionStyle{primary/ghost/text}` + icon 自定义槽。双端自绘四态图标 56×56 圆形 type 对应色 alpha 0.1 底 + 实色字。按钮复用 AppButton #1。iOS 用 `UIStackView` 垂直居中 + `UIBezierPath` 自绘四态图标；Android 用 `Column` horizontalCenter + `Canvas drawPath` 自绘四态图标。
+
+### Changed
+
+- 组件库全局版本 1.4.4 → 1.4.5（MINOR，三组件新增）。
+
 ## \[1.4.4] - 2026-09-08
 
 三组件新增（MINOR，操作反馈区 + 信息展示区扩展）。

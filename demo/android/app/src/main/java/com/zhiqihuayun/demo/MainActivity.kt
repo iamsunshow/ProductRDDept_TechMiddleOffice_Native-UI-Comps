@@ -278,10 +278,10 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Loading 加载中", reviewed = true, demo = { LoadingDemo() }),
         DemoComponent("NoticeBar 公告栏", reviewed = true, demo = { NoticeBarDemo() }),
         DemoComponent("Notify 消息通知", reviewed = true, demo = { NotifyDemo() }),
-        DemoComponent("Popover 气泡弹出框"),
-        DemoComponent("Popup 弹出层"),
+        DemoComponent("Popover 气泡弹出框", reviewed = true, demo = { PopoverDemo() }),
+        DemoComponent("Popup 弹出层", reviewed = true, demo = { PopupDemo() }),
         DemoComponent("PullToRefresh 下拉刷新"),
-        DemoComponent("ResultPage 结果反馈"),
+        DemoComponent("ResultPage 结果反馈", reviewed = true, demo = { ResultPageDemo() }),
         DemoComponent("Skeleton 骨架屏"),
         DemoComponent("Swipe 滑动"),
         DemoComponent("Toast 吐司"),
@@ -7628,6 +7628,269 @@ fun NotifyDemo() {
                             closeable = true
                         ) { /* onClose */ }
                     }
+                )
+            }
+        }
+    }
+}
+
+// Popover 气泡弹出框 Demo
+@Composable
+fun PopoverDemo() {
+    var visible by remember { mutableStateOf(false) }
+    var placement by remember { mutableStateOf(PopoverPlacement.TOP) }
+    val anchor = remember { mutableStateOf(Rect.Zero) }
+    val onLayout: (Rect) -> Unit = { rect -> anchor.value = rect }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1 基础顶部弹出
+        item {
+            DemoSectionCard(title = "D1 · 基础顶部弹出（placement=TOP）") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AppButton(
+                        text = "点击弹出气泡",
+                        onClick = {
+                            placement = PopoverPlacement.TOP
+                            visible = true
+                        },
+                        modifier = Modifier.onGloballyPositioned { coords ->
+                            val pos = coords.positionInRoot()
+                            val size = coords.size
+                            anchor.value = Rect(
+                                offset = pos,
+                                size = androidx.compose.ui.geometry.Size(size.width.toFloat(), size.height.toFloat())
+                            )
+                        }
+                    )
+                }
+            }
+        }
+
+        // D2 placement 方向切换
+        item {
+            DemoSectionCard(title = "D2 · placement 方向切换") {
+                Column(verticalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+                    AppButton(text = "顶部 (TOP)", onClick = { placement = PopoverPlacement.TOP; visible = true })
+                    AppButton(text = "底部 (BOTTOM)", onClick = { placement = PopoverPlacement.BOTTOM; visible = true })
+                    AppButton(text = "左侧 (LEFT)", onClick = { placement = PopoverPlacement.LEFT; visible = true })
+                    AppButton(text = "右侧 (RIGHT)", onClick = { placement = PopoverPlacement.RIGHT; visible = true })
+                }
+            }
+        }
+
+        // D3 closeOnClickOutside 外部点击
+        item {
+            DemoSectionCard(title = "D3 · closeOnClickOutside 外部点击") {
+                AppButton(
+                    text = "弹出气泡（点外部收起）",
+                    onClick = { visible = true }
+                )
+            }
+        }
+
+        // D4 嵌入菜单内容
+        item {
+            DemoSectionCard(title = "D4 · 嵌入菜单内容") {
+                AppButton(
+                    text = "弹出菜单气泡",
+                    onClick = { placement = PopoverPlacement.TOP; visible = true }
+                )
+            }
+        }
+    }
+
+    Popover(
+        visible = visible,
+        placement = placement,
+        anchor = anchor.value,
+        onClose = { visible = false }
+    ) {
+        Column(modifier = Modifier.padding(AppSpace.sm)) {
+            Text("复制", fontSize = AppFont.sizeSm, color = AppColor.textPrimary, modifier = Modifier.padding(vertical = 4.dp))
+            Text("删除", fontSize = AppFont.sizeSm, color = AppColor.error, modifier = Modifier.padding(vertical = 4.dp))
+            Text("分享", fontSize = AppFont.sizeSm, color = AppColor.textPrimary, modifier = Modifier.padding(vertical = 4.dp))
+        }
+    }
+}
+
+// Popup 弹出层 Demo
+@Composable
+fun PopupDemo() {
+    var visibleCenter by remember { mutableStateOf(false) }
+    var visibleBottom by remember { mutableStateOf(false) }
+    var visibleCloseable by remember { mutableStateOf(false) }
+    var visibleControlled by remember { mutableStateOf(false) }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1 居中弹层
+        item {
+            DemoSectionCard(title = "D1 · 居中弹层（position=CENTER）") {
+                AppButton(text = "显示居中弹层", onClick = { visibleCenter = true })
+            }
+        }
+
+        // D2 底部弹层
+        item {
+            DemoSectionCard(title = "D2 · 底部弹层（position=BOTTOM）") {
+                AppButton(text = "显示底部弹层", onClick = { visibleBottom = true })
+            }
+        }
+
+        // D3 closeable 关闭按钮
+        item {
+            DemoSectionCard(title = "D3 · closeable 关闭按钮") {
+                AppButton(text = "显示可关闭弹层", onClick = { visibleCloseable = true })
+            }
+        }
+
+        // D4 受控外部驱动
+        item {
+            DemoSectionCard(title = "D4 · 受控外部驱动") {
+                AppButton(text = "切换弹层显示", onClick = { visibleControlled = !visibleControlled })
+            }
+        }
+    }
+
+    // 居中弹层
+    Popup(
+        visible = visibleCenter,
+        position = PopupPosition.CENTER,
+        onClose = { visibleCenter = false }
+    ) {
+        Text(
+            "居中弹层内容",
+            fontSize = AppFont.sizeMd,
+            color = AppColor.textPrimary,
+            modifier = Modifier.padding(AppSpace.xl)
+        )
+    }
+
+    // 底部弹层
+    Popup(
+        visible = visibleBottom,
+        position = PopupPosition.BOTTOM,
+        onClose = { visibleBottom = false }
+    ) {
+        Text(
+            "底部弹层内容",
+            fontSize = AppFont.sizeMd,
+            color = AppColor.textPrimary,
+            modifier = Modifier.padding(AppSpace.xl)
+        )
+    }
+
+    // 可关闭弹层
+    Popup(
+        visible = visibleCloseable,
+        position = PopupPosition.CENTER,
+        closeable = true,
+        onClose = { visibleCloseable = false }
+    ) {
+        Text(
+            "带关闭按钮的弹层",
+            fontSize = AppFont.sizeMd,
+            color = AppColor.textPrimary,
+            modifier = Modifier.padding(AppSpace.xl)
+        )
+    }
+
+    // 受控外部驱动
+    Popup(
+        visible = visibleControlled,
+        position = PopupPosition.CENTER,
+        closeable = true,
+        onClose = { visibleControlled = false }
+    ) {
+        Text(
+            "受控外部驱动弹层",
+            fontSize = AppFont.sizeMd,
+            color = AppColor.textPrimary,
+            modifier = Modifier.padding(AppSpace.xl)
+        )
+    }
+}
+
+// ResultPage 结果反馈 Demo
+@Composable
+fun ResultPageDemo() {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1 成功+主按钮
+        item {
+            DemoSectionCard(title = "D1 · 成功+主按钮（type=SUCCESS）") {
+                ResultPage(
+                    type = ResultType.SUCCESS,
+                    title = "提交成功",
+                    description = "您的申请已提交",
+                    actions = listOf(
+                        ResultAction(text = "返回首页", style = ResultActionStyle.PRIMARY) { /* onClick */ }
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        // D2 失败+重试
+        item {
+            DemoSectionCard(title = "D2 · 失败+重试（type=ERROR）") {
+                ResultPage(
+                    type = ResultType.ERROR,
+                    title = "支付失败",
+                    description = "余额不足",
+                    actions = listOf(
+                        ResultAction(text = "重试", style = ResultActionStyle.GHOST) { /* onClick */ }
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        // D3 警告+多按钮
+        item {
+            DemoSectionCard(title = "D3 · 警告+多按钮（type=WARNING）") {
+                ResultPage(
+                    type = ResultType.WARNING,
+                    title = "部分成功",
+                    description = "3 条失败",
+                    actions = listOf(
+                        ResultAction(text = "查看详情", style = ResultActionStyle.PRIMARY) { /* onClick */ },
+                        ResultAction(text = "返回", style = ResultActionStyle.GHOST) { /* onClick */ }
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        // D4 信息+无按钮
+        item {
+            DemoSectionCard(title = "D4 · 信息+无按钮（type=INFO）") {
+                ResultPage(
+                    type = ResultType.INFO,
+                    title = "系统维护",
+                    description = "今晚 22:00-24:00",
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }

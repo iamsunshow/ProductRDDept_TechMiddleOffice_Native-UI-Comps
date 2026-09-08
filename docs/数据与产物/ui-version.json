@@ -1,6 +1,6 @@
 {
-  "version": "1.4.4",
-  "versionKey": "v1.4.4",
+  "version": "1.4.5",
+  "versionKey": "v1.4.5",
   "releaseDate": "2026-09-08",
-  "changelog": "[1.4.4] 2026-09-08 三组件新增（MINOR）：① #50 Loading 加载组件（双端）=操作反馈区第五件，圆形/Spinner 两样式+水平/垂直两布局+可选文案，iOS UIActivityIndicatorView+CAShapeLayer，Android CircularProgressIndicator+Canvas；② #51 NoticeBar 公告栏组件（双端）=横向滚动+纵向轮播两模式+可关闭，iOS CADisplayLink+Timer，Android LaunchedEffect+rememberInfiniteTransition；③ #52 Notify 通知组件（双端）=命令式 API Notify.show(text,type,duration)，iOS keyWindow 挂载+Android contentHost 挂载+自动 dismiss，success/warning/error 三类型。组件库全局版本 1.4.3 → 1.4.4。"
+  "changelog": "[1.4.5] 2026-09-08 三组件新增（MINOR）：① #53 Popover 气泡弹出框组件（双端）=锚点定位+六向 placement+箭头自绘+自动翻转+淡入缩放 150ms；② #54 Popup 弹出层组件（双端）=通用容器+三向 position+遮罩+closeable 关闭按钮+动画；③ #56 ResultPage 结果反馈组件（双端）=四态图标+actions 列表+按钮复用 AppButton。组件库全局版本 1.4.4 → 1.4.5。"
 }

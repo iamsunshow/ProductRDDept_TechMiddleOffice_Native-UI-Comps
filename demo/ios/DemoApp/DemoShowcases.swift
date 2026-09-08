@@ -76,10 +76,10 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: true, create: { LoadingShowcase() }),
             DemoComponent(id: "ui.notice-bar", name: "NoticeBar 公告栏", reviewed: true, create: { NoticeBarShowcase() }),
             DemoComponent(id: "ui.notify", name: "Notify 消息通知", reviewed: true, create: { NotifyShowcase() }),
-            DemoComponent(id: "ui.popover", name: "Popover 气泡弹出框", reviewed: false, create: nil),
-            DemoComponent(id: "ui.popup", name: "Popup 弹出层", reviewed: false, create: nil),
+            DemoComponent(id: "ui.popover", name: "Popover 气泡弹出框", reviewed: true, create: { PopoverShowcase() }),
+            DemoComponent(id: "ui.popup", name: "Popup 弹出层", reviewed: true, create: { PopupShowcase() }),
             DemoComponent(id: "ui.pull-to-refresh", name: "PullToRefresh 下拉刷新", reviewed: false, create: nil),
-            DemoComponent(id: "ui.result-page", name: "ResultPage 结果反馈", reviewed: false, create: nil),
+            DemoComponent(id: "ui.result-page", name: "ResultPage 结果反馈", reviewed: true, create: { ResultPageShowcase() }),
             DemoComponent(id: "ui.skeleton", name: "Skeleton 骨架屏", reviewed: false, create: nil),
             DemoComponent(id: "ui.swipe", name: "Swipe 滑动", reviewed: false, create: nil),
             DemoComponent(id: "ui.toast", name: "Toast 吐司", reviewed: false, create: nil),
@@ -8872,5 +8872,239 @@ final class NotifyShowcase: ShowcaseViewController {
 
     @objc func showD4() {
         Notify.show(message: "可关闭通知（带自定义图标）", closeable: true) { }
+    }
+}
+
+// MARK: - PopoverShowcase
+
+final class PopoverShowcase: ShowcaseViewController {
+    private let popover = PopoverView()
+    private var visible = false {
+        didSet {
+            popover.visible = visible
+        }
+    }
+    private var placement: PopoverPlacement = .top
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Popover 气泡弹出框"
+        rebuildSections()
+
+        popover.onClose = { [weak self] in
+            self?.visible = false
+        }
+        popover.content = makeLabel(text: "气泡提示内容")
+    }
+
+    private func makeLabel(text: String) -> UIView {
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: AppFont.sizeSm)
+        label.textColor = AppColor.textPrimary
+        return label
+    }
+
+    private func showPopover(placement: PopoverPlacement, from button: UIButton) {
+        self.placement = placement
+        popover.placement = placement
+        popover.anchor = button.superview?.convert(button.frame, to: nil) ?? .zero
+        visible = true
+    }
+
+    private func rebuildSections() {
+        sections = [
+            ("D1 · 基础顶部弹出（placement=top）", [
+                ("点击弹出气泡", .primary) { [weak self] btn in
+                    self?.showPopover(placement: .top, from: btn)
+                }
+            ]),
+            ("D2 · placement 方向切换", [
+                ("顶部 (TOP)", .secondary) { [weak self] btn in
+                    self?.showPopover(placement: .top, from: btn)
+                },
+                ("底部 (BOTTOM)", .secondary) { [weak self] btn in
+                    self?.showPopover(placement: .bottom, from: btn)
+                },
+                ("左侧 (LEFT)", .secondary) { [weak self] btn in
+                    self?.showPopover(placement: .left, from: btn)
+                },
+                ("右侧 (RIGHT)", .secondary) { [weak self] btn in
+                    self?.showPopover(placement: .right, from: btn)
+                }
+            ]),
+            ("D3 · closeOnClickOutside 外部点击", [
+                ("弹出气泡（点外部收起）", .primary) { [weak self] btn in
+                    self?.showPopover(placement: .top, from: btn)
+                }
+            ]),
+            ("D4 · 嵌入菜单内容", [
+                ("弹出菜单气泡", .primary) { [weak self] btn in
+                    self?.showPopover(placement: .top, from: btn)
+                    self?.popover.content = self?.makeMenuContent()
+                }
+            ])
+        ]
+        tableView.reloadData()
+    }
+
+    private func makeMenuContent() -> UIView {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.alignment = .leading
+        stack.spacing = 4
+
+        let items: [(String, UIColor)] = [
+            ("复制", AppColor.textPrimary),
+            ("删除", AppColor.error),
+            ("分享", AppColor.textPrimary)
+        ]
+        for (text, color) in items {
+            let label = UILabel()
+            label.text = text
+            label.font = .systemFont(ofSize: AppFont.sizeSm)
+            label.textColor = color
+            stack.addArrangedSubview(label)
+        }
+        return stack
+    }
+}
+
+// MARK: - PopupShowcase
+
+final class PopupShowcase: ShowcaseViewController {
+    private var visibleCenter = false
+    private var visibleBottom = false
+    private var visibleCloseable = false
+    private var visibleControlled = false
+
+    private let centerPopup = PopupContainerView()
+    private let bottomPopup = PopupContainerView()
+    private let closeablePopup = PopupContainerView()
+    private let controlledPopup = PopupContainerView()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Popup 弹出层"
+
+        centerPopup.position = .center
+        centerPopup.content = makeLabel("居中弹层内容")
+        centerPopup.onClose = { [weak self] in self?.visibleCenter = false }
+
+        bottomPopup.position = .bottom
+        bottomPopup.content = makeLabel("底部弹层内容")
+        bottomPopup.onClose = { [weak self] in self?.visibleBottom = false }
+
+        closeablePopup.position = .center
+        closeablePopup.closeable = true
+        closeablePopup.content = makeLabel("带关闭按钮的弹层")
+        closeablePopup.onClose = { [weak self] in self?.visibleCloseable = false }
+
+        controlledPopup.position = .center
+        controlledPopup.closeable = true
+        controlledPopup.content = makeLabel("受控外部驱动弹层")
+        controlledPopup.onClose = { [weak self] in self?.visibleControlled = false }
+
+        sections = [
+            ("D1 · 居中弹层（position=center）", [
+                ("显示居中弹层", .primary) { [weak self] _ in
+                    self?.visibleCenter = true
+                    self?.centerPopup.visible = true
+                }
+            ]),
+            ("D2 · 底部弹层（position=bottom）", [
+                ("显示底部弹层", .primary) { [weak self] _ in
+                    self?.visibleBottom = true
+                    self?.bottomPopup.visible = true
+                }
+            ]),
+            ("D3 · closeable 关闭按钮", [
+                ("显示可关闭弹层", .primary) { [weak self] _ in
+                    self?.visibleCloseable = true
+                    self?.closeablePopup.visible = true
+                }
+            ]),
+            ("D4 · 受控外部驱动", [
+                ("切换弹层显示", .primary) { [weak self] _ in
+                    self?.visibleControlled.toggle()
+                    self?.controlledPopup.visible = self?.visibleControlled ?? false
+                }
+            ])
+        ]
+        tableView.reloadData()
+    }
+
+    private func makeLabel(_ text: String) -> UIView {
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: AppFont.sizeMd)
+        label.textColor = AppColor.textPrimary
+        label.textAlignment = .center
+        return label
+    }
+}
+
+// MARK: - ResultPageShowcase
+
+final class ResultPageShowcase: ShowcaseViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "ResultPage 结果反馈"
+
+        sections = [
+            ("D1 · 成功+主按钮（type=success）", [
+                ("展示成功页", .primary) { [weak self] _ in
+                    self?.showResultPage(type: .success, title: "提交成功", desc: "您的申请已提交", actions: [
+                        ResultAction(text: "返回首页", style: .primary) { }
+                    ])
+                }
+            ]),
+            ("D2 · 失败+重试（type=error）", [
+                ("展示失败页", .primary) { [weak self] _ in
+                    self?.showResultPage(type: .error, title: "支付失败", desc: "余额不足", actions: [
+                        ResultAction(text: "重试", style: .ghost) { }
+                    ])
+                }
+            ]),
+            ("D3 · 警告+多按钮（type=warning）", [
+                ("展示警告页", .primary) { [weak self] _ in
+                    self?.showResultPage(type: .warning, title: "部分成功", desc: "3 条失败", actions: [
+                        ResultAction(text: "查看详情", style: .primary) { },
+                        ResultAction(text: "返回", style: .ghost) { }
+                    ])
+                }
+            ]),
+            ("D4 · 信息+无按钮（type=info）", [
+                ("展示信息页", .primary) { [weak self] _ in
+                    self?.showResultPage(type: .info, title: "系统维护", desc: "今晚 22:00-24:00", actions: [])
+                }
+            ])
+        ]
+        tableView.reloadData()
+    }
+
+    private func showResultPage(type: ResultType, title: String, desc: String, actions: [ResultAction]) {
+        let result = ResultPageView()
+        result.type = type
+        result.title = title
+        result.description = desc
+        result.actions = actions
+
+        let container = UIView()
+        container.backgroundColor = AppColor.bgPage
+        container.addSubview(result)
+        result.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(result)
+        NSLayoutConstraint.activate([
+            result.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+            result.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            result.leadingAnchor.constraint(greaterThanOrEqualTo: container.leadingAnchor, constant: AppSpace.xl),
+            result.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -AppSpace.xl)
+        ])
+
+        let vc = UIViewController()
+        vc.view = container
+        vc.title = "结果反馈"
+        navigationController?.pushViewController(vc, animated: true)
     }
 }

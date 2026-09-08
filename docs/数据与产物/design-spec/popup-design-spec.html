@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Popup 弹出层 · 设计规格 · TMO 组件库 v1.4.4</title>
+<style>
+:root {
+  --bg: #fff; --bg-page: #f5f5f5; --text: #1a1a1a; --text-2: #888; --border: #e8e8e8;
+  --primary: #16A34A; --danger: #DC2626; --radius-lg: 14px; --radius-sm: 8px;
+  --space-md: 12px; --space-lg: 16px; --space-xl: 20px; --hairline: 0.5px;
+  --font-md: 16px; --font-sm: 14px; --font-lg: 18px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif; background: var(--bg-page); color: var(--text); line-height: 1.6; }
+.container { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+h2 { font-size: 20px; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 16px; margin: 20px 0 8px; color: var(--text); }
+p { font-size: 14px; margin-bottom: 8px; }
+code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+th { background: #fafafa; font-weight: 600; }
+.section { background: var(--bg); border-radius: 12px; padding: 20px; margin: 16px 0; border: 1px solid var(--border); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.badge-a { background: #e6f7e6; color: #52c41a; }
+.mock { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0; }
+.mock-frame { width: 200px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--bg-page); }
+.mock-screen { position: relative; height: 280px; background: var(--bg-page); overflow: hidden; }
+.mock-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.45); z-index: 1; }
+.mock-popup { position: absolute; background: var(--bg); z-index: 2; }
+.mock-popup.center { top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80%; border-radius: var(--radius-lg); padding: 20px; }
+.mock-popup.bottom { bottom: 0; left: 0; right: 0; border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 20px; }
+.mock-popup.top { top: 0; left: 0; right: 0; border-radius: 0 0 var(--radius-lg) var(--radius-lg); padding: 20px; }
+.mock-close { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #888; }
+.mock-label { text-align:center;padding:8px;font-size:13px;color:#888 }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Popup 弹出层</h1>
+<p>组件 ID：<code>ui.popup</code> ｜ 任务清单 #54 ｜ 操作反馈区第九件 ｜ TMO 组件库 v1.4.4</p>
+<p>定位：通用弹出层容器——居中/底部/顶部弹出，带遮罩，承载任意自定义内容（表单/卡片/广告/自定义确认等），可关闭。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation 情景</h3>
+<p>业务需要弹出一段自定义内容（登录表单/广告卡片/活动弹窗/自定义确认面板），内容结构不固定，ActionSheet（操作列表）/Dialog（标题+按钮）无法承载。</p>
+<h3>Complication 冲突</h3>
+<p>没有统一组件时=各业务页自拼 UIViewController(iOS)/Dialog(Android)，视觉不统一、无 position 切换、无 closeable、无 closeOnClickOverlay。</p>
+<h3>Question 问题</h3>
+<p>需要一个通用弹出层容器，支持 position 居中/底部/顶部、closeable 关闭按钮、closeOnClickOverlay 遮罩点击收起、content 内容槽，双端视觉一致。</p>
+<h3>Answer 方案</h3>
+<p>Popup——通用弹出层容器，<strong>受控 visible + content 内容槽 + position 三向 + closeable + closeOnClickOverlay + 遮罩 + 动画</strong>（不内置预设内容，纯容器承载宿主内容）。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 Popup 划界</th></tr>
+<tr><td>Dialog #46</td><td>居中确认对话（标题+内容+按钮）</td><td>Dialog=预设确认结构，Popup=通用容器承载任意内容</td></tr>
+<tr><td>ActionSheet #44</td><td>底部动作面板（操作列表）</td><td>ActionSheet=预设操作列表，Popup=通用容器</td></tr>
+<tr><td>Popover #53</td><td>锚点小气泡（无遮罩）</td><td>Popover=锚点小气泡无遮罩，Popup=遮罩弹层</td></tr>
+<tr><td>Overlay #6</td><td>遮罩层基础类</td><td>Overlay=底层遮罩能力，Popup=使用遮罩的业务容器</td></tr>
+<tr><td>Picker #33/DatePicker #26</td><td>专用选择器弹层</td><td>Picker=预设滚轮内容，Popup=通用内容槽</td></tr>
+</table>
+
+<h2>3. API 契约</h2>
+<div class="section">
+<h3>Props</h3>
+<table>
+<tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>visible</code></td><td>Boolean</td><td>必传</td><td>是否展示（受控）</td></tr>
+<tr><td><code>content</code></td><td>Composable / UIView</td><td>必传</td><td>弹层内嵌内容槽（宿主自定义）</td></tr>
+<tr><td><code>position</code></td><td>PopupPosition</td><td>center</td><td>弹出位置：center/bottom/top</td></tr>
+<tr><td><code>closeable</code></td><td>Boolean</td><td>false</td><td>是否显示右上角关闭按钮</td></tr>
+<tr><td><code>closeOnClickOverlay</code></td><td>Boolean</td><td>true</td><td>点击遮罩是否收起（触发 onClose）</td></tr>
+<tr><td><code>radius</code></td><td>Dp</td><td>radiusLg</td><td>弹层圆角（center=四角，bottom=顶两角，top=底两角）</td></tr>
+<tr><td><code>onClose</code></td><td>(() -&gt; Unit)?</td><td>null</td><td>弹层收起回调（closeable/closeOnClickOverlay/外部 visible=false）</td></tr>
+</table>
+
+<h3>PopupPosition 枚举</h3>
+<table>
+<tr><th>值</th><th>说明</th><th>圆角</th><th>动画</th></tr>
+<tr><td><code>center</code></td><td>居中弹出</td><td>四角 radiusLg</td><td>淡入+缩放 0.9→1.0（200ms）</td></tr>
+<tr><td><code>bottom</code></td><td>底部贴底</td><td>顶两角 radiusLg</td><td>从底部滑入（250ms easeOut）</td></tr>
+<tr><td><code>top</code></td><td>顶部贴顶</td><td>底两角 radiusLg</td><td>从顶部滑入（250ms easeOut）</td></tr>
+</table>
+
+<h3>Events</h3>
+<table>
+<tr><th>事件</th><th>回调签名</th><th>触发时机</th></tr>
+<tr><td><code>onClose</code></td><td>() -&gt; Unit</td><td>closeable 关闭按钮点击 / closeOnClickOverlay 遮罩点击 / 外部 visible=false</td></tr>
+</table>
+</div>
+
+<h2>4. 设计规格</h2>
+<div class="section">
+<h3>4.1 布局结构</h3>
+<table>
+<tr><th>区域</th><th>规格</th><th>Token</th></tr>
+<tr><td>遮罩</td><td>全屏 black 45% 透明</td><td>overlay scrim</td></tr>
+<tr><td>弹层容器</td><td>白底，圆角按 position 变化</td><td>bgCard / radiusLg</td></tr>
+<tr><td>内边距</td><td>content 槽外不加 padding（宿主自管）</td><td>—</td></tr>
+<tr><td>关闭按钮</td><td>右上角 24×24 圆形灰底白叉，closeable=true 时显示</td><td>gray6 / radiusFull</td></tr>
+<tr><td>底部安全区</td><td>position=bottom 时 safeArea bottom padding</td><td>SafeArea #7</td></tr>
+</table>
+
+<h3>4.2 交互规格</h3>
+<table>
+<tr><th>交互</th><th>行为</th></tr>
+<tr><td>展开</td><td>遮罩淡入 200ms + 弹层按 position 动画（center=淡入缩放，bottom=底部滑入，top=顶部滑入）</td></tr>
+<tr><td>收起-关闭按钮</td><td>closeable=true 时点击关闭按钮 → 弹层退出动画 + 遮罩淡出 → onClose()</td></tr>
+<tr><td>收起-遮罩点击</td><td>closeOnClickOverlay=true 时点击遮罩 → 弹层退出 + 遮罩淡出 → onClose()</td></tr>
+<tr><td>收起-外部控制</td><td>外部 visible=false → 弹层退出（不触发 onClose）</td></tr>
+</table>
+</div>
+
+<h2>5. Demo 排查 4 组</h2>
+<div class="mock">
+<div class="mock-frame">
+<div class="mock-screen">
+<div class="mock-overlay"></div>
+<div class="mock-popup center">自定义内容</div>
+</div>
+<div class="mock-label">D1 居中弹层</div>
+</div>
+<div class="mock-frame">
+<div class="mock-screen">
+<div class="mock-overlay"></div>
+<div class="mock-popup bottom">底部弹层</div>
+</div>
+<div class="mock-label">D2 底部弹层</div>
+</div>
+<div class="mock-frame">
+<div class="mock-screen">
+<div class="mock-overlay"></div>
+<div class="mock-popup center">
+<div class="mock-close">×</div>
+带关闭按钮
+</div>
+</div>
+<div class="mock-label">D3 closeable 关闭按钮</div>
+</div>
+<div class="mock-frame">
+<div class="mock-screen">
+<div class="mock-overlay"></div>
+<div class="mock-popup bottom">受控外部驱动</div>
+</div>
+<div class="mock-label">D4 受控外部驱动</div>
+</div>
+</div>
+
+<h2>6. 决策投票表</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项</th><th>选定</th><th>理由</th></tr>
+<tr>
+<td>P1</td><td>组件定位</td>
+<td>A. 通用弹出层容器（遮罩+content 槽）<br>B. 预设确认对话<br>C. 预设操作列表</td>
+<td><span class="badge badge-a">A</span></td>
+<td>通用容器=content 槽最灵活，承载任意内容；预设确认=Dialog #46，预设操作=ActionSheet #44</td>
+</tr>
+<tr>
+<td>P2</td><td>展示与收起</td>
+<td>A. 受控 visible 必传<br>B. 内部自持 visible<br>C. 指令式 show()</td>
+<td><span class="badge badge-a">A</span></td>
+<td>与 ActionSheet/Dialog/Popover 一致=受控模式，声明式 Compose 友好</td>
+</tr>
+<tr>
+<td>P3</td><td>位置</td>
+<td>A. position 三向（center/bottom/top）<br>B. 仅 center<br>C. 任意 frame</td>
+<td><span class="badge badge-a">A</span></td>
+<td>三向覆盖 95% 场景，任意 frame 过度设计（需自定义用 Popup+自定义 frame）</td>
+</tr>
+<tr>
+<td>P4</td><td>关闭机制</td>
+<td>A. closeable 关闭按钮 + closeOnClickOverlay 遮罩点击<br>B. 仅 closeable<br>C. 仅遮罩点击</td>
+<td><span class="badge badge-a">A</span></td>
+<td>双路径关闭覆盖不同业务场景（强引导=仅按钮，弱引导=遮罩可点）</td>
+</tr>
+<tr>
+<td>P5</td><td>一期范围</td>
+<td>A. 一期=visible+content+position 三向+closeable+closeOnClickOverlay+radius+遮罩+动画+demo 四段<br>B. 二期=自定义动画/拖拽收起/嵌套 Popup</td>
+<td><span class="badge badge-a">A</span></td>
+<td>一期覆盖 80% 场景（自定义表单/广告/确认面板），拖拽收起/嵌套=二期</td>
+</tr>
+</table>
+</div>
+
+<h2>7. 平台差异表</h2>
+<table>
+<tr><th>差异点</th><th>iOS（UIKit）</th><th>Android（Compose）</th><th>判据</th></tr>
+<tr><td>弹出机制</td><td>keyWindow.addSubview + frame 定位</td><td>Dialog/Popup Composable</td><td>表内放行（系统级弹层机制差异）</td></tr>
+<tr><td>遮罩点击</td><td>UITapGestureRecognizer</td><td>scrim clickable</td><td>表内放行（手势系统差异）</td></tr>
+<tr><td>关闭按钮</td><td>UIButton 自绘白叉</td><td>Icon + clickable</td><td>表内放行（组件库差异）</td></tr>
+<tr><td>动画</td><td>UIView.animate 0.2/0.25s</td><td>tween 200/250ms</td><td>表内放行（动画 API 差异，时长一致）</td></tr>
+<tr><td>安全区</td><td>safeAreaInsets.bottom</td><td>WindowInsets.navigationBars</td><td>表内放行（SafeArea #7 已抽象）</td></tr>
+</table>
+
+<h2>8. 反目标（anti_goals）</h2>
+<table>
+<tr><th>不做</th><th>原因</th></tr>
+<tr><td>预设确认对话结构（标题+内容+按钮）</td><td>用 Dialog #46</td></tr>
+<tr><td>预设操作列表</td><td>用 ActionSheet #44</td></tr>
+<tr><td>无遮罩小气泡</td><td>用 Popover #53</td></tr>
+<tr><td>拖拽收起（下拉手势）</td><td>二期增量，一期 closeable+遮罩点击够用</td></tr>
+<tr><td>嵌套 Popup（Popup 内 Popup）</td><td>复杂场景用多级页面导航</td></tr>
+<tr><td>自定义动画曲线</td><td>一期统一 center=200ms/bottom+top=250ms，曲线参数=二期</td></tr>
+</table>
+
+</div>
+</body>
+</html>

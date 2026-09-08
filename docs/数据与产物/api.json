@@ -7015,6 +7015,200 @@
       "note": "消息通知（操作反馈区 #52，全新立项，2026-09-08）：顶部/底部全局消息通知浮层=命令式 API（Notify.show()/clear()）+自动消失 duration+双位置 top/bottom+distance+navHeight 适配+可关闭 closeable+左右自定义图标 slot+type 类型变色（default/primary/success/warning/danger）；与 NoticeBar #51（页面内嵌占位栏 vs Notify 全局浮层自动消失）/Toast #59（纯文本居中 vs 顶部底部带图标）划界；anti_goals 二期=自定义内容 slot/声明式 visible 模式/Toast 样式。2026-09-08 门禁 A AI 代评通过（规格 design-spec/notify-design-spec.html + ../评审记录/review-notify-A.md，P1–P4 全 A 0 保留意见）+ 同日门禁 B 双端实现入库（NotifyView.swift=final class Notify 静态方法 keyWindow 挂载+Timer；Notify.kt=object Notify 单例 contentHost 挂载+LaunchedEffect），iOS NotifyShowcase / Android NotifyDemo 4 段 1:1（D1 基础通知 / D2 bottom 位置 / D3 type 变色 / D4 可关闭），demo 徽标 v1.0，Android assembleDebug + iOS swiftc -parse 编译通过。验证版本 v1.4.3（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "feedback",
       "reviewed": true
+    },
+    {
+      "id": "ui.popover",
+      "name": "Popover 气泡弹出框",
+      "category": "ui",
+      "summary": "锚点小气泡弹出框（操作反馈区 #53，全新立项）：点击触发元素后弹出带箭头指向锚点的小气泡浮层，内嵌自定义内容（菜单/提示/表单等），点击外部自动收起；受控 visible+content 内容槽+placement 六向（top/bottom/left/right/start/end）+anchor 锚点定位+closeOnClickOutside+offset 微调+箭头自绘+自动翻转；与 Dialog #46（居中确认遮罩 vs 锚点小气泡无遮罩）/ActionSheet #44（底部动作 vs 锚点气泡）/Popup #54（通用容器带遮罩 vs 锚点气泡无遮罩）/Tooltip（纯文本只读 vs 可嵌入内容）划界；anti_goals 二期=自定义箭头偏移/动画曲线/嵌套 Popover/长按触发",
+      "capabilities": [
+        "气泡弹出框",
+        "Popover",
+        "锚点弹出",
+        "箭头指向",
+        "placement 方向",
+        "点击外部收起",
+        "内容槽"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "PopoverView.swift：final class PopoverView UIView；keyWindow addSubview+frame 按 anchor+placement 定位；CAShapeLayer 自绘 8×8 旋转方块箭头；全屏透明 UIView+UITapGestureRecognizer 捕获外部点击；UIView.animate 0.15s easeOut 淡入+缩放；placement 自动翻转（UIScreen.bounds 空间检测）"
+        },
+        "android": {
+          "state": "available",
+          "note": "Popover.kt：@Composable fun Popover(visible, content, placement, anchor, closeOnClickOutside, offset, onClose)；androidx.compose.ui.window.Popup+Alignment 定位；Canvas drawRect 8×8 旋转方块箭头；Popup properties dismissOnClickOutside；animateFloatAsState 150ms 淡入+缩放；LocalView bounds 空间检测自动翻转"
+        },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/PopoverView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Popover.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.popover",
+      "industry_names": [
+        "气泡弹出框",
+        "Popover",
+        "锚点弹出",
+        "箭头指向",
+        "placement 方向",
+        "点击外部收起",
+        "内容槽"
+      ],
+      "props": [
+        ["visible", "Boolean", "是"],
+        ["content", "Composable/UIView", "是"],
+        ["placement", "PopoverPlacement/.top/.bottom/.left/.right/.start/.end (iOS) | PopoverPlacement.TOP/BOTTOM/LEFT/RIGHT/START/END (Android)", "否"],
+        ["anchor", "CGRect/Rect", "是"],
+        ["closeOnClickOutside", "Bool/Boolean", "否"],
+        ["offset", "Offset", "否"],
+        ["onClose", "(() -> Void)?/(() -> Unit)?", "否"]
+      ],
+      "events": [
+        ["onClose", "() => void", "closeOnClickOutside=true 且用户点击气泡外部时触发"]
+      ],
+      "demos": [
+        ["基础顶部弹出（placement=top）", "点击锚点按钮 → 顶部气泡+箭头，验证默认参数（D1）"],
+        ["placement 方向切换", "切换 top/bottom/left/right 四向，验证 placement 参数（D2）"],
+        ["closeOnClickOutside 外部点击", "点击气泡外部自动收起+onClose 回调，验证 closeOnClickOutside（D3）"],
+        ["嵌入菜单内容", "气泡内嵌复制/删除/分享菜单项，验证 content 内容槽（D4）"]
+      ],
+      "note": "气泡弹出框（操作反馈区 #53，全新立项，2026-09-08）：锚点小气泡=受控 visible+content 内容槽+placement 六向（top/bottom/left/right/start/end）+anchor 锚点定位+closeOnClickOutside+offset 微调+箭头自绘 8×8 旋转方块+自动翻转防边缘溢出+淡入缩放 150ms；与 Dialog #46（居中确认遮罩 vs 锚点小气泡无遮罩）/ActionSheet #44（底部动作 vs 锚点气泡）/Popup #54（通用容器带遮罩 vs 锚点气泡无遮罩）/Tooltip（纯文本只读 vs 可嵌入内容）划界；anti_goals 二期=自定义箭头偏移/动画曲线/嵌套 Popover/长按触发。2026-09-08 门禁 A AI 代评通过（规格 design-spec/popover-design-spec.html + ../评审记录/review-popover-A.md，P1–P5 全 A 0 保留意见）+ 同日门禁 B 双端实现入库（PopoverView.swift=final class PopoverView keyWindow 挂载+CAShapeLayer 箭头+UITapGestureRecognizer 外部捕获；Popover.kt=@Composable Popup+Canvas 箭头+dismissOnClickOutside），iOS PopoverShowcase / Android PopoverDemo 4 段 1:1（D1 基础顶部 / D2 方向切换 / D3 外部点击 / D4 嵌入菜单），demo 徽标 v1.0。验证版本 v1.4.5（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "feedback",
+      "reviewed": true
+    },
+    {
+      "id": "ui.popup",
+      "name": "Popup 弹出层",
+      "category": "ui",
+      "summary": "通用弹出层容器（操作反馈区 #54，全新立项）：居中/底部/顶部弹出，带遮罩，承载任意自定义内容（表单/卡片/广告/自定义确认等）；受控 visible+content 内容槽+position 三向（center/bottom/top）+closeable 关闭按钮+closeOnClickOverlay 遮罩点击收起+radius 圆角（center=四角/bottom=顶两角/top=底两角）+遮罩+动画（center=淡入缩放 200ms/bottom+top=滑入 250ms）；与 Dialog #46（预设确认 vs 通用容器）/ActionSheet #44（预设操作列表 vs 通用容器）/Popover #53（锚点小气泡无遮罩 vs 通用容器带遮罩）划界；anti_goals 二期=自定义动画/拖拽收起/嵌套 Popup",
+      "capabilities": [
+        "弹出层",
+        "Popup",
+        "通用容器",
+        "遮罩弹层",
+        "position 三向",
+        "closeable 关闭",
+        "closeOnClickOverlay",
+        "内容槽"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "PopupView.swift：final class PopupContainerView UIView；keyWindow addSubview+frame 按 position 定位（center=居中/bottom=贴底/top=贴顶）；遮罩 UIView+UITapGestureRecognizer closeOnClickOverlay；closeable 关闭按钮 UIButton 24×24 圆形灰底白叉；UIView.animate center=0.2s 淡入缩放/bottom+top=0.25s 滑入 easeOut；safeArea bottom padding"
+        },
+        "android": {
+          "state": "available",
+          "note": "Popup.kt：@Composable fun Popup(visible, content, position, closeable, closeOnClickOverlay, radius, onClose)；androidx.compose.ui.window.Dialog+Alignment 定位（center=Center/bottom=Bottom/top=Top）；scrim Box Modifier.clickable closeOnClickOverlay；closeable Icon(Icons.Default.Close)+clickable；animateFloatAsState center=200ms 淡入缩放/bottom+top=250ms 滑入；WindowInsets.navigationBars"
+        },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/PopupView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Popup.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.popup",
+      "industry_names": [
+        "弹出层",
+        "Popup",
+        "通用容器",
+        "遮罩弹层",
+        "position 三向",
+        "closeable 关闭",
+        "closeOnClickOverlay",
+        "内容槽"
+      ],
+      "props": [
+        ["visible", "Boolean", "是"],
+        ["content", "Composable/UIView", "是"],
+        ["position", "PopupPosition/.center/.bottom/.top (iOS) | PopupPosition.CENTER/BOTTOM/TOP (Android)", "否"],
+        ["closeable", "Bool/Boolean", "否"],
+        ["closeOnClickOverlay", "Bool/Boolean", "否"],
+        ["radius", "CGFloat/Dp", "否"],
+        ["onClose", "(() -> Void)?/(() -> Unit)?", "否"]
+      ],
+      "events": [
+        ["onClose", "() => void", "closeable 关闭按钮点击 / closeOnClickOverlay 遮罩点击 / 外部 visible=false 时触发"]
+      ],
+      "demos": [
+        ["居中弹层（position=center）", "淡入+缩放动画，验证 position=center 默认参数（D1）"],
+        ["底部弹层（position=bottom）", "从底部滑入，验证 position=bottom（D2）"],
+        ["closeable 关闭按钮+遮罩点击", "右上角关闭按钮+遮罩点击收起，验证 closeable+closeOnClickOverlay（D3）"],
+        ["受控外部驱动", "外部 visible 驱动开关，验证受控模式（D4）"]
+      ],
+      "note": "弹出层（操作反馈区 #54，全新立项，2026-09-08）：通用弹出层容器=受控 visible+content 内容槽+position 三向（center/bottom/top）+closeable 关闭按钮+closeOnClickOverlay 遮罩点击收起+radius 圆角（center=四角/bottom=顶两角/top=底两角）+遮罩+动画（center=淡入缩放 200ms/bottom+top=滑入 250ms easeOut）；与 Dialog #46（预设确认 vs 通用容器）/ActionSheet #44（预设操作列表 vs 通用容器）/Popover #53（锚点小气泡无遮罩 vs 通用容器带遮罩）划界；anti_goals 二期=自定义动画/拖拽收起/嵌套 Popup。2026-09-08 门禁 A AI 代评通过（规格 design-spec/popup-design-spec.html + ../评审记录/review-popup-A.md，P1–P5 全 A 0 保留意见）+ 同日门禁 B 双端实现入库（PopupView.swift=final class PopupContainerView keyWindow 挂载+UIView.animate 动画+UITapGestureRecognizer 遮罩；Popup.kt=@Composable Dialog+Alignment 定位+scrim clickable+animateFloatAsState），iOS PopupShowcase / Android PopupDemo 4 段 1:1（D1 居中 / D2 底部 / D3 closeable / D4 受控），demo 徽标 v1.0。验证版本 v1.4.4（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版。",
+      "subcategory": "feedback",
+      "reviewed": true
+    },
+    {
+      "id": "ui.result-page",
+      "name": "ResultPage 结果反馈",
+      "category": "ui",
+      "summary": "整页/区域级操作结果反馈（操作反馈区 #56，全新立项）：四态图标+标题+描述+操作按钮列表；type 四态（success/error/warning/info）+title+description+actions 列表数据驱动（text+style+onClick）+icon 自定义槽；与 Empty #48（无数据空状态 vs 操作结果）/Dialog #46（弹层确认 vs 整页结果）/Notify #52（短时浮层 vs 持续占位）/Loading #50（加载过程 vs 加载结果）划界；anti_goals 二期=自定义布局/进场动画/嵌套内容",
+      "capabilities": [
+        "结果反馈",
+        "ResultPage",
+        "成功页",
+        "失败页",
+        "警告页",
+        "信息页",
+        "四态图标",
+        "操作按钮"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "ResultPageView.swift：final class ResultPageView UIView；UIStackView 垂直居中排列 icon+title+description+按钮组；UIBezierPath 自绘四态图标（对勾/叉/感叹号/i）56×56 圆形 type 对应色 alpha 0.1 底；AppButton 按钮列表水平排列（primary/ghost/text 三 style）；icon!=nil 替换默认图标"
+        },
+        "android": {
+          "state": "available",
+          "note": "ResultPage.kt：@Composable fun ResultPage(type, title, description, actions, icon)；Column horizontalCenter 排列 icon+title+description+按钮组；Canvas drawPath 自绘四态图标（对勾/叉/感叹号/i）56dp 圆形 type 对应色 copyAlpha 0.1f 底；AppButton Composable 按钮列表水平排列；icon!=null 替换默认图标"
+        },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/ResultPageView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/ResultPage.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.result-page",
+      "industry_names": [
+        "结果反馈",
+        "ResultPage",
+        "成功页",
+        "失败页",
+        "警告页",
+        "信息页",
+        "四态图标",
+        "操作按钮"
+      ],
+      "props": [
+        ["type", "ResultType/.success/.error/.warning/.info (iOS) | ResultType.SUCCESS/ERROR/WARNING/INFO (Android)", "否"],
+        ["title", "String", "是"],
+        ["description", "String?", "否"],
+        ["actions", "List<ResultAction>", "否"],
+        ["icon", "UIView?/@Composable?", "否"]
+      ],
+      "events": [
+        ["actions[i].onClick", "() => void", "点击对应操作按钮时触发"]
+      ],
+      "demos": [
+        ["成功+主按钮（type=success）", "对勾图标+主按钮\"返回首页\"，验证 success 默认态（D1）"],
+        ["失败+重试（type=error）", "叉图标+ghost 按钮\"重试\"，验证 error 态（D2）"],
+        ["警告+多按钮（type=warning）", "感叹号图标+主按钮+ghost 按钮，验证 warning+多按钮（D3）"],
+        ["信息+无按钮（type=info）", "i 图标+仅标题描述无按钮，验证 info 态+无按钮边界（D4）"]
+      ],
+      "note": "结果反馈（操作反馈区 #56，全新立项，2026-09-08）：整页/区域级操作结果反馈=type 四态（success/error/warning/info）+title+description+actions 列表数据驱动（ResultAction{text,style,onClick}+ResultActionStyle{primary/ghost/text}）+icon 自定义槽；双端自绘四态图标（对勾/叉/感叹号/i）56×56 圆形 type 对应色 alpha 0.1 底+实色字；按钮复用 AppButton #1；与 Empty #48（无数据空状态 vs 操作结果）/Dialog #46（弹层确认 vs 整页结果）/Notify #52（短时浮层 vs 持续占位）/Loading #50（加载过程 vs 加载结果）划界；anti_goals 二期=自定义布局/进场动画/嵌套内容。2026-09-08 门禁 A AI 代评通过（规格 design-spec/result-page-design-spec.html + ../评审记录/review-result-page-A.md，P1–P5 全 A 0 保留意见）+ 同日门禁 B 双端实现入库（ResultPageView.swift=final class ResultPageView UIStackView+UIBezierPath 自绘四态；ResultPage.kt=@Composable Column+Canvas drawPath 自绘四态），iOS ResultPageShowcase / Android ResultPageDemo 4 段 1:1（D1 成功 / D2 失败重试 / D3 警告多按钮 / D4 信息无按钮），demo 徽标 v1.0。验证版本 v1.4.5（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版。",
+      "subcategory": "feedback",
+      "reviewed": true
     }
   ],
   "businessExtensions": [

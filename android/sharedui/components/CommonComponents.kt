@@ -1,5 +1,6 @@
 package com.zhiqihuayun.sharedui.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,7 +40,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -59,14 +63,33 @@ import com.zhiqihuayun.foundation.design.AppSpace
 import com.zhiqihuayun.foundation.design.AppText
 
 /**
+ * 空态自绘图标种类（双端共用，不依赖任何图标库，v1.4.3 新增）。
+ *
+ * 用于 EmptyStateView 的 iconKind 参数。双端各自用 Canvas/UIBezierPath
+ * 自绘相同形状的 Path，根治 SF Symbol vs Material Icons vs emoji
+ * 三套图标库视觉差异（用户 2026-09-08 反馈）。
+ */
+enum class EmptyIconKind {
+    /** 铃铛（用于「暂无通知/记录」类空态）。 */
+    Bell,
+
+    /** 文件夹（用于「该文件夹为空」类空态）。 */
+    Folder,
+}
+
+/**
  * 列表空态，默认文案对齐 iOS「暂无数据」。
  * 可选 icon 参数：图标居中于文案上方。
+ * iconText 参数：用 emoji 文本做图标（v1.4.2 折中方案，依赖系统 emoji 字体，双端视觉仍不一致）。
+ * iconKind 参数：用 Canvas 自绘矢量图标（v1.4.3 根治方案，双端形状完全一致，不依赖任何图标库），优先于 iconText/icon。
  */
 @Composable
 fun EmptyStateView(
     message: String = "暂无数据",
     modifier: Modifier = Modifier,
     icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+    iconText: String? = null,
+    iconKind: EmptyIconKind? = null,
     iconSize: Int = 48
 ) {
     Box(
@@ -77,7 +100,25 @@ fun EmptyStateView(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(AppSpace.md)
         ) {
-            if (icon != null) {
+            if (iconKind != null) {
+                // 自绘矢量图标：双端形状一致，不依赖 SF Symbol/Material Icons/emoji
+                val iconColor = AppColor.textSecondary
+                Canvas(modifier = Modifier.size(iconSize.dp)) {
+                    val w = this.size.width
+                    val h = this.size.height
+                    val stroke = Stroke(width = w / 16f)
+                    when (iconKind) {
+                        EmptyIconKind.Bell -> drawBellPath(w, h, iconColor, stroke)
+                        EmptyIconKind.Folder -> drawFolderPath(w, h, iconColor, stroke)
+                    }
+                }
+            } else if (iconText != null) {
+                Text(
+                    text = iconText,
+                    fontSize = iconSize.sp,
+                    color = AppColor.textSecondary,
+                )
+            } else if (icon != null) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
@@ -93,6 +134,74 @@ fun EmptyStateView(
             )
         }
     }
+}
+
+/**
+ * 自绘铃铛图标（Bell）。
+ *
+ * 形状（基于宽 w ×高 h 的画布）：
+ * - 钟体：倒 U 形（左下→左上→顶部圆弧→右上→右下）
+ * - 钟口：底部横线
+ * - 顶部挂钩：小弧
+ * - 铃舌：底部小圆（空心）
+ *
+ * 与 iOS EmptyStateView.setIconDrawable(.bell) 的 UIBezierPath 路径 1:1 对齐。
+ */
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBellPath(
+    w: Float,
+    h: Float,
+    color: Color,
+    stroke: Stroke
+) {
+    val path = Path().apply {
+        // 钟体（倒 U 形）
+        moveTo(w * 0.25f, h * 0.75f)
+        lineTo(w * 0.25f, h * 0.45f)
+        cubicTo(w * 0.25f, h * 0.15f, w * 0.75f, h * 0.15f, w * 0.75f, h * 0.45f)
+        lineTo(w * 0.75f, h * 0.75f)
+        // 钟口横线（独立子路径）
+        moveTo(w * 0.15f, h * 0.75f)
+        lineTo(w * 0.85f, h * 0.75f)
+        // 顶部挂钩小弧
+        moveTo(w * 0.42f, h * 0.15f)
+        cubicTo(w * 0.45f, h * 0.02f, w * 0.55f, h * 0.02f, w * 0.58f, h * 0.15f)
+    }
+    drawPath(path, color = color, style = stroke)
+    // 铃舌小圆（空心描边）
+    drawCircle(
+        color = color,
+        radius = w * 0.06f,
+        center = Offset(w * 0.5f, h * 0.87f),
+        style = Stroke(width = stroke.width)
+    )
+}
+
+/**
+ * 自绘文件夹图标（Folder）。
+ *
+ * 形状（基于宽 w ×高 h 的画布）：
+ * - 左上角标签：短斜边梯形
+ * - 主体：大矩形
+ * - 整体闭合轮廓（stroke 描边）
+ *
+ * 与 iOS EmptyStateView.setIconDrawable(.folder) 的 UIBezierPath 路径 1:1 对齐。
+ */
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawFolderPath(
+    w: Float,
+    h: Float,
+    color: Color,
+    stroke: Stroke
+) {
+    val path = Path().apply {
+        moveTo(w * 0.1f, h * 0.25f)
+        lineTo(w * 0.4f, h * 0.25f)
+        lineTo(w * 0.5f, h * 0.35f)
+        lineTo(w * 0.9f, h * 0.35f)
+        lineTo(w * 0.9f, h * 0.8f)
+        lineTo(w * 0.1f, h * 0.8f)
+        close()
+    }
+    drawPath(path, color = color, style = stroke)
 }
 
 /**
@@ -492,7 +601,9 @@ private fun DialogVerticalButtons(actions: List<DialogAction>) {
             AppButton(
                 text = action.text,
                 onClick = action.onClick,
-                style = action.style.toAppButtonStyle()
+                style = action.style.toAppButtonStyle(),
+                height = 44.dp,
+                radius = AppRadius.md
             )
         }
     }
@@ -511,6 +622,8 @@ private fun DialogHorizontalButtons(actions: List<DialogAction>) {
                 text = action.text,
                 onClick = action.onClick,
                 style = action.style.toAppButtonStyle(),
+                height = 44.dp,
+                radius = AppRadius.md,
                 modifier = Modifier.weight(1f)
             )
         }

@@ -1320,11 +1320,10 @@ final class EmptyShowcase: ShowcaseViewController {
         }
         addInfo("setMessage 覆盖默认文案，支持多行。")
 
-        // ── Demo 3：带图标空态 ──
+        // ── Demo 3：带图标空态（双端自绘铃铛，v1.4.3 改 setIconDrawable 根治跨图标库差异）──
         addSection(title: "Demo 3 · 带图标空态") { container in
             let empty = EmptyStateView()
-            let config = UIImage.SymbolConfiguration.preferringMonochrome()
-            empty.setIcon(UIImage(systemName: "bell", withConfiguration: config), size: 48)
+            empty.setIconDrawable(.bell, size: 48)
             empty.setMessage("暂无记录")
             container.addSubview(empty)
             empty.snp.makeConstraints { make in
@@ -1332,9 +1331,9 @@ final class EmptyShowcase: ShowcaseViewController {
                 make.height.equalTo(200)
             }
         }
-        addInfo("setIcon 设置 SF Symbol（monochrome），图标居中于文案上方。")
+        addInfo("setIconDrawable 自绘铃铛矢量图标（双端形状一致，不依赖 SF Symbol/Material Icons/emoji）。")
 
-        // ── Demo 4：固定容器空态（模拟列表空态场景）──
+        // ── Demo 4：固定容器空态（双端自绘文件夹，v1.4.3 改 setIconDrawable 根治跨图标库差异）──
         addSection(title: "Demo 4 · 固定容器空态") { container in
             let wrapper = UIView()
             wrapper.backgroundColor = AppColor.bgCard
@@ -1347,15 +1346,14 @@ final class EmptyShowcase: ShowcaseViewController {
             }
 
             let empty = EmptyStateView()
-            let config = UIImage.SymbolConfiguration.preferringMonochrome()
-            empty.setIcon(UIImage(systemName: "folder.fill", withConfiguration: config), size: 40)
+            empty.setIconDrawable(.folder, size: 40)
             empty.setMessage("该文件夹为空")
             wrapper.addSubview(empty)
             empty.snp.makeConstraints { make in
                 make.edges.equalToSuperview()
             }
         }
-        addInfo("模拟实际场景：圆角容器内嵌空态，图标+文案居中。")
+        addInfo("模拟实际场景：圆角容器内嵌空态，自绘文件夹图标+文案居中。")
     }
 }
 

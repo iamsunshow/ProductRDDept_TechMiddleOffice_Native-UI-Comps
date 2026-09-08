@@ -1,6 +1,6 @@
 {
-  "version": "1.4.1",
-  "versionKey": "v1.4.1",
-  "releaseDate": "2026-09-07",
-  "changelog": "[1.4.1] 2026-09-07 Dialog 对话框 #46 iOS 点击无响应修复：DialogViewController.show() 后调用方局部变量释放致自身被回收，UIButton.addTarget/UIGestureRecognizer 对 target 持弱引用，target 变 nil 后按钮与遮罩点击全失效（视觉可见但事件失联）；新增 selfRetainer 自保留机制，show() 期间强引用自身，dismiss 动画完成回调内置 nil 释放，根治点击无响应且无泄漏。swiftc -parse 语法通过，需 Xcode 实机复验点击回弹。"
+  "version": "1.4.3",
+  "versionKey": "v1.4.3",
+  "releaseDate": "2026-09-08",
+  "changelog": "[1.4.3] 2026-09-08 两组件跨平台一致性根治：① Android Drag #47 拖拽无响应根治=Drag 内部从普通 Column 改为 LazyColumn 自管滚动，隔离外层 verticalScroll 在长按等待期（~500ms）抢先消费触摸事件导致 detectDragGesturesAfterLongPress 收不到 DOWN 的根因（v1.4.2 nestedScroll 方案不够彻底）；② Empty #42 Demo3/Demo4 图标跨平台一致性根治=双端弃用 emoji 文本（依赖系统 emoji 字体 Apple Color Emoji vs Noto Color Emoji 视觉不一致），改为双端各自 Canvas/UIBezierPath 自绘矢量图标（Bell 铃铛 + Folder 文件夹），相同坐标系+相同比例+相同描边粗细，不依赖任何图标库。Android assembleDebug 成功，iOS swiftc -parse 通过。"
 }

@@ -14,6 +14,38 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.3] - 2026-09-08
+
+两组件跨平台一致性根治（PATCH，v1.4.2 方案不彻底的二次修复）。
+
+### Fixed
+
+- **Android Drag #47 拖拽无响应（v1.4.2 方案不彻底的根治）**：v1.4.2 用 nestedScroll + pointerInput key 改 index 的方案不够彻底——nestedScroll 的 `onPreScroll` 只消费"预滚动"阶段，拦不住外层 `Column.verticalScroll` 在长按等待期（~500ms）抢先消费 DOWN 事件导致 `detectDragGesturesAfterLongPress` 收不到 DOWN 的根因。v1.4.3 根治方案=Drag 内部从普通 `Column` 改为 `LazyColumn` 自管滚动，LazyColumn 自身是滚动容器，通过 nestedScroll 协议与外层 verticalScroll 协作，长按等待期手指不动则两层都不消费，`detectDragGesturesAfterLongPress` 正常收到 DOWN 并等待长按。落位后 LazyColumn 按 key 重组自动刷新顺序。移除 nestedScroll connection（不再需要）。
+
+- **Empty #42 Demo3/Demo4 图标跨平台一致性根治（v1.4.2 emoji 方案不彻底的根治）**：v1.4.2 用 emoji 文本（🔔/📂）替代 SF Symbol/Material Icons，但 emoji 依赖系统字体（iOS Apple Color Emoji vs Android Noto Color Emoji），视觉外观本身就不一致，用户 2026-09-08 反馈仍不满足"一套图标库"要求。v1.4.3 根治方案=双端弃用 emoji，改为各自 `Canvas`（Android Compose）/`UIGraphicsImageRenderer`+`UIBezierPath`（iOS）自绘矢量图标（Bell 铃铛 + Folder 文件夹），相同坐标系（24x24 比例缩放）+相同三次贝塞尔曲线控制点+相同描边粗细（size/16），不依赖任何图标库。新增 `EmptyIconKind` 枚举（.bell/.folder）+ Android `EmptyStateView(iconKind:)` 参数 + iOS `EmptyStateView.setIconDrawable(_:size:)` 方法，双端 Demo3/Demo4 改用 iconKind 调用。
+
+### Changed
+
+- 组件库全局版本 1.4.2 → 1.4.3（PATCH，两组件跨平台一致性根治）。
+
+## \[1.4.2] - 2026-09-07
+
+三组件跨平台一致性修复（PATCH）。
+
+### Fixed
+
+- **Empty 空状态 #42 iOS 图标不一致**：iOS EmptyStateView 仅有 setIcon(UIImage?) 走 SF Symbol，Android 用 Material Icons，两端图标视觉差异大。新增 `setIconText(_ text: String?, size: CGFloat = 48)` 方法用 UILabel 渲染 emoji 文本图标，Demo3/Demo4 双端统一为 🔔/📂，根治跨图标库差异。
+
+- **Android Drag #47 拖拽无响应**：根因=外层 Demo Column 的 verticalScroll 在长按等待期（~500ms）消费触摸事件，detectDragGesturesAfterLongPress 被取消。修复=Drag 根 Column 添加 nestedScroll 连接消费父级预滚动事件，阻断父级滚动手势干扰；pointerInput key 从 Unit 改为 index，修复 reorder 后 index 过期导致手势定位错乱。
+
+- **iOS AppButton Destructive 红色边框不一致**：iOS AppButton.destructive 有 `AppColor.error` 红色边框，Android 已改为 null 无边框。iOS 同步改为 `nil` 无边框，双端统一。
+
+- **Android Dialog 按钮尺寸不一致**：iOS Dialog 按钮高 44pt、圆角 AppRadius.md(10)，Android Dialog 经 AppButton 默认高 48dp、圆角 AppRadius.lg(14)。Android Dialog 按钮渲染传入 `height=44.dp, radius=AppRadius.md` 对齐 iOS 设计规格。
+
+### Changed
+
+- 组件库全局版本 1.4.1 → 1.4.2（PATCH，三组件跨平台一致性修复）。
+
 ## \[1.4.1] - 2026-09-07
 
 Dialog 对话框 #46 iOS 点击无响应修复（PATCH）。

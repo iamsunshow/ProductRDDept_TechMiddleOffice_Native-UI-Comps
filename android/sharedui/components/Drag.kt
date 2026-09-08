@@ -4,14 +4,13 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,18 +40,21 @@ private const val DropAnimMs = 250
 /**
  * Drag 拖拽排序（操作反馈区 · ui.drag · #47）：通用列表拖拽排序组件。
  *
- * 实现：Column + verticalScroll + 每个 item 挂 pointerInput(detectDragGesturesAfterLongPress)。
- * 用 Column 而非 LazyColumn——LazyColumn 自身滚动手势会消费触摸事件，
- * 导致 detectDragGesturesAfterLongPress 收不到事件、拖拽完全失效。
- * Column 无内部手势竞争，item 级 pointerInput 可可靠接收长按+拖拽。
+ * 实现：LazyColumn 自管滚动 + 每个 item 挂 pointerInput detectDragGesturesAfterLongPress。
+ * 用 LazyColumn 而非普通 Column 的根因（v1.4.3 修复）：
+ * 普通Column 嵌套在外层 verticalScroll 容器内时，外层滚动手势在长按等待期（~500ms）
+ * 抢先消费触摸事件，导致 detectDragGesturesAfterLongPress 收不到 DOWN 事件而完全失效。
+ * LazyColumn 自身是滚动容器，通过 nestedScroll 协议与外层 verticalScroll 协作，
+ * 长按等待期手指不动则两层都不消费，detectDragGesturesAfterLongPress 正常收到 DOWN 并等待长按。
+ * 落位后 LazyColumn 按 key 重组，自动刷新顺序。
  *
  * @param items 数据列表
- * @param key 唯一标识提供器（用作 Compose key，避免重组错位）
+ * @param key 唯一标识提供器
  * @param itemContent 每项渲染内容
  * @param onReorder 拖拽释放后回调（from=原索引 to=目标索引）
  * @param enabled 是否启用拖拽，默认 true
  * @param handle 是否仅手柄可拖，默认 false
- * @param modifier 修饰符
+ * @param modifier 修饰符（建议传固定高度，让 LazyColumn 在此高度内自管滚动）
  */
 @Composable
 fun <T> Drag(
@@ -69,13 +71,16 @@ fun <T> Drag(
     var dragInitialIndex by remember { mutableStateOf(-1) }
     var dragOffset by remember { mutableFloatStateOf(0f) }
 
-    Column(
+    // LazyColumn 自管滚动，隔离外层 verticalScroll 的手势干扰
+    LazyColumn(
         modifier = modifier
             .fillMaxWidth()
-            .testTag("drag-root")
-            .verticalScroll(rememberScrollState()),
+            .testTag("drag-root"),
     ) {
-        internalItems.forEachIndexed { index, item ->
+        itemsIndexed(
+            items = internalItems,
+            key = { _, item -> key(item) }
+        ) { index, item ->
             val isDragging = draggingIndex == index
             val scale by animateFloatAsState(
                 targetValue = if (isDragging) DragScale else 1f,
@@ -89,7 +94,7 @@ fun <T> Drag(
             )
 
             val dragModifier = if (enabled) {
-                Modifier.pointerInput(Unit) {
+                Modifier.pointerInput(index) {
                     detectDragGesturesAfterLongPress(
                         onDragStart = {
                             draggingIndex = index

@@ -108,6 +108,7 @@ import com.zhiqihuayun.sharedui.components.SummaryCardView
 import com.zhiqihuayun.sharedui.components.ChartPoint
 import com.zhiqihuayun.sharedui.components.TrendChartView
 import com.zhiqihuayun.sharedui.components.Overlay
+import com.zhiqihuayun.sharedui.components.EmptyIconKind
 import com.zhiqihuayun.sharedui.components.EmptyStateView
 import com.zhiqihuayun.sharedui.components.AvatarOption
 import com.zhiqihuayun.sharedui.components.BackTop
@@ -992,16 +993,16 @@ private fun EmptyDemo() {
             EmptyStateView(message = "搜索无结果，换个关键词试试")
         }
 
-        // ── Demo 3：带图标空态（与 iOS 对齐：bell 铃铛图标）──
+        // ── Demo 3：带图标空态（双端自绘铃铛，v1.4.3 改 iconKind 根治跨图标库差异）──
         Text("Demo 3 · 带图标空态", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
         Box(modifier = Modifier.fillMaxWidth().height(200.dp)) {
             EmptyStateView(
                 message = "暂无记录",
-                icon = Icons.Filled.Notifications
+                iconKind = EmptyIconKind.Bell
             )
         }
 
-        // ── Demo 4：固定容器空态（与 iOS 对齐：folder 文件夹图标）──
+        // ── Demo 4：固定容器空态（双端自绘文件夹，v1.4.3 改 iconKind 根治跨图标库差异）──
         Text("Demo 4 · 固定容器空态", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
         Box(
             modifier = Modifier
@@ -1011,7 +1012,7 @@ private fun EmptyDemo() {
         ) {
             EmptyStateView(
                 message = "该文件夹为空",
-                icon = Icons.Filled.Folder,
+                iconKind = EmptyIconKind.Folder,
                 iconSize = 40
             )
         }

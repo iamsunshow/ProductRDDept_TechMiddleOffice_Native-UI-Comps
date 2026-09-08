@@ -408,14 +408,22 @@ private fun ComponentList(
             )
         }
         demoSections.forEach { (category, components) ->
-            item {
-                Text(
-                    text = category,
-                    color = AppColor.textSecondary,
-                    fontSize = AppFont.sizeSm,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(top = AppSpace.md, bottom = AppSpace.xs)
-                )
+            // 分类标题吸顶（与 iOS UITableViewController section header 默认 sticky 一致）
+            // 下一分类滚到顶时顶替上一分类，回滚恢复随流排布
+            stickyHeaderItem(key = "section-$category") {
+                // 吸顶行加白底 + 上下 padding，避免被列表背景透出
+                Surface(
+                    color = AppColor.bgPage,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = category,
+                        color = AppColor.textSecondary,
+                        fontSize = AppFont.sizeSm,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(top = AppSpace.md, bottom = AppSpace.xs)
+                    )
+                }
             }
             items(components) { comp ->
                 ComponentRow(comp, onClick = { onOpen(comp.name, comp.demo!!) })

@@ -1,6 +1,6 @@
 {
-  "version": "1.4.7",
-  "versionKey": "v1.4.7",
+  "version": "1.4.8",
+  "versionKey": "v1.4.8",
   "releaseDate": "2026-09-08",
-  "changelog": "[1.4.7] 2026-09-08 Drag/ResultPage/Popover/Popup 跨端一致性修复（PATCH）：① Drag Android 手柄从左移到右（与 iOS 标准 reorder 一致）+ 拖拽时 translationY 跟随手指平滑移动（不再直接定位）+ 透明度 0.9→0.6 加大可见度 + swap 阈值改用 itemHeight/2 + swap 后 dragOffset 减 itemHeight 保持手指相对位置；② ResultPage iOS 按钮组 distribution 从 equalSpacing 改 fillEqually + leading/trailing 用等式约束让按钮充满容器宽度（与 Android AppButton.fillMaxWidth 一致）；③ Popover iOS show() 显式调用 layoutBubble()+bubbleView.layoutIfNeeded() 同步应用约束到 bubbleView.frame 再启动动画（修复约束在 layoutSubviews 内 setConstraints 后未同步应用导致动画捕获旧 frame=气泡跑到容器外/最底部）+ offset 烘焙进约束避免与 scale transform 冲突；④ Popup Android center 加 defaultMinSize(minWidth=240dp) 与 iOS PopupContainerView width>=240 一致。组件库全局版本 1.4.6 → 1.4.7。"
+  "changelog": "[1.4.8] 2026-09-08 Drag z-order/Popover frame定位/Popup内容padding/ResultPage图标尺寸四项修复（PATCH）：① Drag Android 加 Modifier.zIndex(1f) 让被拖动项渲染在其他项之上不被遮挡（与 iOS 标准 reorder 一致）；② Popover iOS 重写定位逻辑——从 SnapKit AutoLayout 约束改为直接计算 bubbleView.frame（与 Android PopupPositionProvider 一致），根因是约束需额外 layout pass 才能应用到 frame 且 show() 添加到 window 后 self 的 layout 尚未完成导致约束解析到错误坐标=气泡跑到容器外/最底部；同时兼容 iOS 13+ connectedScenes 获取 keyWindow；③ Popup iOS 内容 padding 从 AppSpace.lg(16pt) 上下改为 AppSpace.sm(4pt) 与 Android 一致（Demo2 底部弹层行高不再过高）；Android 加 .clip(shape) 确保圆角裁剪正确；④ ResultPage Android 图标尺寸从 radius*iconScale(=canvasSize/4) 修正为 canvasSize*iconScale(=canvasSize/2) 与 iOS 一致（旧版图标只有 iOS 的 1/2 大小）；info 图标坐标对齐（dot Y=0.1 而非 0.2、line end=0.9 而非 0.85）。组件库全局版本 1.4.7 → 1.4.8。"
 }

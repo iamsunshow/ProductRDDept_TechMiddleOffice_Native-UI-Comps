@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.unit.dp
 import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppFont
@@ -234,6 +235,9 @@ fun <T> Drag(
                 modifier = Modifier
                     .animateItemPlacement()
                     .fillMaxWidth()
+                    // 被拖动项置顶：zIndex=1f 让它在 LazyColumn 中渲染在其他项之上，
+                    // 不被相邻项遮挡（与 iOS 标准 reorder 一致）
+                    .zIndex(if (isDragging) 1f else 0f)
                     .onSizeChanged { size ->
                         if (size.height > 0) itemHeight = size.height.toFloat()
                     }

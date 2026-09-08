@@ -14,6 +14,24 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.8] - 2026-09-08
+
+Drag z-order / Popover frame 定位 / Popup 内容 padding / ResultPage 图标尺寸四项修复（PATCH，跨端一致性 v2）。
+
+### Fixed
+
+- **Drag #47 Android 被拖动项 z-order 置顶**：LazyColumn 中被拖动项被相邻项遮挡（iOS 无此问题）。根因=LazyColumn 的 item 按声明顺序渲染，后渲染的项覆盖先渲染的项；被拖动项因 translationY 移动到相邻项位置时被覆盖。修复=加 `Modifier.zIndex(if (isDragging) 1f else 0f)`，zIndex 大的 item 渲染在上层（与 iOS `bringSubviewToFront` 一致）。
+
+- **Popover #53 iOS 气泡位置跑到容器外/最底部（根因修复 v2）**：v1.4.7 的修复（show() 显式 layoutBubble()+layoutIfNeeded()）仍然无效，根因=SnapKit AutoLayout 约束需额外 layout pass 才能应用到 `bubbleView.frame`，而 `show()` 添加到 window 后 `self` 的 layout 尚未完成 → 约束解析到错误坐标。改为**直接计算 `bubbleView.frame`**（不用 AutoLayout），与 Android `PopoverPositionProvider` 一致：`content.sizeToFit()` 获取内容自然尺寸 → 计算 bubble 宽高(content+padding) → 按 placement 计算 bubble 原点 → 屏幕边缘裁剪 → 直接赋值 `bubbleView.frame`。同时兼容 iOS 13+ 用 `connectedScenes` 获取 keyWindow（`UIApplication.shared.keyWindow` 在 iOS 13+ 已废弃）。`content` 和 `arrowView` 也改为 frame 定位。
+
+- **Popup #54 iOS Demo2 底部弹层行高过高 + Android 圆角裁剪**：① iOS 内容 padding 从 `AppSpace.lg`(16pt) 上下改为 `AppSpace.sm`(4pt) 与 Android `contentTopPadding=0 + padding(bottom=AppSpace.sm)` 一致，不再出现 iOS 底部弹层比 Android 高一个行高的视觉差异；② Android 容器加 `.clip(shape)` 确保 `RoundedCornerShape(topStart, topEnd)` 只圆顶两角（旧版仅 `.background(color, shape)` 不裁剪内容，可能导致四角都圆）；③ 蒙版透明度两端均为 0.45 已对齐。
+
+- **ResultPage #56 Android 图标尺寸只有 iOS 的 1/2**：根因=`iconSize = radius * iconScale = (canvasSize/2) * 0.5 = canvasSize/4`，而 iOS 用 `rect.width * 0.5 = canvasSize * 0.5`。修复=改为 `canvasSize.minDimension * iconScale`，图标占圆形直径 50%（与 iOS 一致）。同时 info 图标坐标对齐：dot Y 从 `0.2f` 改为 `0.1f`（与 iOS 一致）、line end 从 `0.85f` 改为 `0.9f`（与 iOS `maxY - h*0.1` 一致）。
+
+### Changed
+
+- 组件库全局版本 1.4.7 → 1.4.8（PATCH，四组件跨端一致性 v2）。
+
 ## \[1.4.7] - 2026-09-08
 
 Drag/ResultPage/Popover/Popup 跨端一致性修复（PATCH，对齐 iOS 标准 reorder + 弹层尺寸/位置一致性）。

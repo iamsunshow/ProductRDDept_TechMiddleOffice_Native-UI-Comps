@@ -177,13 +177,14 @@ public final class PopupContainerView: UIView {
         guard let content = content else { return }
         content.translatesAutoresizingMaskIntoConstraints = false
         containerStack.addSubview(content)
-        // 关闭按钮在右上角，内容需要留出顶部空间；底部加 padding 避免贴边
-        let topInset = closeable ? Layout.closeButtonSize + Layout.closeButtonInset * 2 : AppSpace.lg
+        // 与 Android 一致：closeable 时顶部留出关闭按钮空间，否则顶部 padding=AppSpace.sm
+        let topInset = closeable ? Layout.closeButtonSize + Layout.closeButtonInset * 2 : AppSpace.sm
         content.snp.prepareConstraints { make in
             make.top.equalToSuperview().offset(topInset)
             make.leading.equalToSuperview().offset(AppSpace.lg)
             make.trailing.equalToSuperview().offset(-AppSpace.lg)
-            make.bottom.equalToSuperview().offset(-AppSpace.lg)
+            // 与 Android 一致：底部 padding=AppSpace.sm（4pt），不再用 AppSpace.lg
+            make.bottom.equalToSuperview().offset(-AppSpace.sm)
         }.forEach { c in
             c.activate()
             contentConstraints.append(c)

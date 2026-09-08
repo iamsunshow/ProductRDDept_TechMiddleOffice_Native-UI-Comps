@@ -141,19 +141,9 @@ public final class PopoverView: UIView {
         contentConstraints = []
         content?.removeFromSuperview()
         guard let content = content else { return }
-        content.translatesAutoresizingMaskIntoConstraints = false
+        // v1.4.8: frame 定位（不用 SnapKit 约束），layoutBubbleFrame() 直接设置 content.frame
+        content.translatesAutoresizingMaskIntoConstraints = true
         bubbleView.addSubview(content)
-        content.snp.prepareConstraints { make in
-            make.edges.equalToSuperview().inset(UIEdgeInsets(
-                top: Layout.contentPaddingV,
-                left: Layout.contentPaddingH,
-                bottom: Layout.contentPaddingV,
-                right: Layout.contentPaddingH
-            ))
-        }.forEach { c in
-            c.activate()
-            contentConstraints.append(c)
-        }
         bubbleView.bringSubviewToFront(arrowView)
     }
 
@@ -161,17 +151,31 @@ public final class PopoverView: UIView {
 
     public override func layoutSubviews() {
         super.layoutSubviews()
-        // 仅在属性变化触发 layoutSubviews 时更新约束；
-        // show() 已显式调用 layoutBubble() + bubbleView.layoutIfNeeded() 应用约束。
-        // 不在此处设置 transform，避免与 show()/hide() 动画 transform 冲突。
-        layoutBubble()
+        // show() 已直接计算 bubbleView.frame；此处仅处理属性变化时的重定位。
+        if bubbleView.superview != nil && bubbleView.frame != .zero {
+            layoutBubbleFrame()
+        }
     }
 
-    private func layoutBubble() {
+    /// 直接计算 bubbleView + arrowView 的 frame（不用 Auto Layout 约束）。
+    /// 根因（v1.4.8）：旧版用 SnapKit 约束设置 bubbleView 的 bottom/top/centerX 等
+    /// 到 anchor 常量值，但约束需额外 layout pass 才能应用到 frame，且 show() 添加到
+    /// window 后 self 的 layout 尚未完成 → 约束解析到错误坐标 → 气泡跑到容器外/最底部。
+    /// 改为直接计算 frame = 与 Android PopupPositionProvider 一致，布局即结果，无延迟。
+    private func layoutBubbleFrame() {
         let effectivePlacement = resolveEffectivePlacement()
         let arrow = Layout.arrowSize
         let margin = Layout.minBubbleMargin
-        // offset 烘焙进约束（避免与 show()/hide() 的 scale transform 冲突）
+        let screen = UIScreen.main.bounds
+
+        // 1. 获取 content 的自然尺寸
+        content?.sizeToFit()
+        let contentSize = content?.frame.size ?? .zero
+        // 2. 计算气泡尺寸 = content + padding
+        let bubbleWidth = contentSize.width + Layout.contentPaddingH * 2
+        let bubbleHeight = contentSize.height + Layout.contentPaddingV * 2
+
+        // 3. offset 烘焙进坐标
         let anchorMinX = anchor.minX + offset.x
         let anchorMaxX = anchor.maxX + offset.x
         let anchorMinY = anchor.minY + offset.y
@@ -179,60 +183,72 @@ public final class PopoverView: UIView {
         let anchorMidX = anchor.midX + offset.x
         let anchorMidY = anchor.midY + offset.y
 
-        // 限制气泡尺寸（通过 intrinsicContentSize）
-        bubbleView.snp.remakeConstraints { make in
-            switch effectivePlacement {
-            case .top, .start, .end:
-                make.bottom.equalTo(anchorMinY).offset(-arrow)
-            case .bottom:
-                make.top.equalTo(anchorMaxY).offset(arrow)
-            case .left:
-                make.trailing.equalTo(anchorMinX).offset(-arrow)
-            case .right:
-                make.leading.equalTo(anchorMaxX).offset(arrow)
-            }
-
-            switch effectivePlacement {
-            case .top, .bottom:
-                make.centerX.equalTo(anchorMidX)
-                make.leading.greaterThanOrEqualToSuperview().offset(margin)
-                make.trailing.lessThanOrEqualToSuperview().offset(-margin)
-            case .left, .right:
-                make.centerY.equalTo(anchorMidY)
-                make.top.greaterThanOrEqualToSuperview().offset(margin)
-                make.bottom.lessThanOrEqualToSuperview().offset(-margin)
-            case .start:
-                make.trailing.equalTo(anchorMinX).offset(-arrow)
-                make.centerY.equalTo(anchorMidY)
-                make.top.greaterThanOrEqualToSuperview().offset(margin)
-                make.bottom.lessThanOrEqualToSuperview().offset(-margin)
-            case .end:
-                make.leading.equalTo(anchorMaxX).offset(arrow)
-                make.centerY.equalTo(anchorMidY)
-                make.top.greaterThanOrEqualToSuperview().offset(margin)
-                make.bottom.lessThanOrEqualToSuperview().offset(-margin)
-            }
-
+        // 4. 按 placement 计算 bubble 原点
+        var bubbleOrigin: CGPoint = .zero
+        switch effectivePlacement {
+        case .top:
+            bubbleOrigin.x = anchorMidX - bubbleWidth / 2
+            bubbleOrigin.y = anchorMinY - arrow - bubbleHeight
+        case .bottom:
+            bubbleOrigin.x = anchorMidX - bubbleWidth / 2
+            bubbleOrigin.y = anchorMaxY + arrow
+        case .left, .start:
+            bubbleOrigin.x = anchorMinX - arrow - bubbleWidth
+            bubbleOrigin.y = anchorMidY - bubbleHeight / 2
+        case .right, .end:
+            bubbleOrigin.x = anchorMaxX + arrow
+            bubbleOrigin.y = anchorMidY - bubbleHeight / 2
         }
 
-        // 箭头位置
-        arrowView.snp.remakeConstraints { make in
-            make.size.equalTo(arrow)
-            switch effectivePlacement {
-            case .top:
-                make.bottom.equalToSuperview().offset(arrow / 2)
-                make.centerX.equalToSuperview().multipliedBy(1)
-            case .bottom:
-                make.top.equalToSuperview().offset(-arrow / 2)
-                make.centerX.equalToSuperview()
-            case .left, .start:
-                make.trailing.equalToSuperview().offset(arrow / 2)
-                make.centerY.equalToSuperview()
-            case .right, .end:
-                make.leading.equalToSuperview().offset(-arrow / 2)
-                make.centerY.equalToSuperview()
-            }
+        // 5. 屏幕边缘裁剪（margin）
+        bubbleOrigin.x = max(margin, min(screen.width - margin - bubbleWidth, bubbleOrigin.x))
+        bubbleOrigin.y = max(margin, min(screen.height - margin - bubbleHeight, bubbleOrigin.y))
+
+        // 6. 设置 bubbleView frame
+        bubbleView.frame = CGRect(origin: bubbleOrigin, size: CGSize(width: bubbleWidth, height: bubbleHeight))
+
+        // 7. content frame（padding 内边）
+        content?.frame = CGRect(
+            x: Layout.contentPaddingH,
+            y: Layout.contentPaddingV,
+            width: bubbleWidth - Layout.contentPaddingH * 2,
+            height: bubbleHeight - Layout.contentPaddingV * 2
+        )
+
+        // 8. 箭头 frame + 旋转
+        let arrowRect: CGRect
+        switch effectivePlacement {
+        case .top:
+            // 箭头在气泡底部居中，露出半个
+            arrowRect = CGRect(
+                x: bubbleWidth / 2 - arrow / 2,
+                y: bubbleHeight - arrow / 2,
+                width: arrow,
+                height: arrow
+            )
+        case .bottom:
+            arrowRect = CGRect(
+                x: bubbleWidth / 2 - arrow / 2,
+                y: -arrow / 2,
+                width: arrow,
+                height: arrow
+            )
+        case .left, .start:
+            arrowRect = CGRect(
+                x: bubbleWidth - arrow / 2,
+                y: bubbleHeight / 2 - arrow / 2,
+                width: arrow,
+                height: arrow
+            )
+        case .right, .end:
+            arrowRect = CGRect(
+                x: -arrow / 2,
+                y: bubbleHeight / 2 - arrow / 2,
+                width: arrow,
+                height: arrow
+            )
         }
+        arrowView.frame = arrowRect
         arrowView.transform = CGAffineTransform(rotationAngle: .pi / 4)
     }
 
@@ -241,7 +257,6 @@ public final class PopoverView: UIView {
         let screen = UIScreen.main.bounds
         switch placement {
         case .top:
-            // 顶部空间不足=翻转到底部
             if anchor.minY < 120 { return .bottom }
             return .top
         case .bottom:
@@ -259,15 +274,25 @@ public final class PopoverView: UIView {
     // MARK: - 展示/隐藏
 
     private func show() {
-        guard let window = UIApplication.shared.keyWindow else { return }
-        frame = window.bounds
-        window.addSubview(self)
-        window.bringSubviewToFront(self)
-        // 显式设置约束 + 强制 layoutSubviews 同步应用约束到 bubbleView.frame，
-        // 然后再启动动画——避免动画捕获到旧 frame（v1.4.5 修复"气泡位置跑到容器外/最底部"）。
-        layoutBubble()
-        bubbleView.setNeedsLayout()
-        bubbleView.layoutIfNeeded()
+        // 兼容 iOS 13+：优先用 connectedScenes 的 keyWindow，回退到 keyWindow
+        let window: UIWindow?
+        if #available(iOS 13, *) {
+            window = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first?.windows.first(where: { $0.isKeyWindow })
+        } else {
+            window = UIApplication.shared.keyWindow
+        }
+        guard let win = window else { return }
+        frame = win.bounds
+        win.addSubview(self)
+        win.bringSubviewToFront(self)
+
+        // 直接计算 frame（不用 Auto Layout），布局即结果，无延迟
+        // bubbleView 和 content 用 frame 定位（translatesAutoresizingMaskIntoConstraints = true）
+        bubbleView.translatesAutoresizingMaskIntoConstraints = true
+        content?.translatesAutoresizingMaskIntoConstraints = true
+        layoutBubbleFrame()
 
         bubbleView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
         bubbleView.alpha = 0

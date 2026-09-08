@@ -176,8 +176,10 @@ private fun ResultIconDrawable(type: ResultType) {
         drawCircle(color = bgColor, radius = radius, center = center)
 
         // 2. 图标自绘（占圆形直径 50%）
+        // v1.4.8 修复：iconSize 应基于 canvasSize（与 iOS rect.width 一致），
+        // 旧版用 radius * iconScale = canvasSize/2 * 0.5 = canvasSize/4，图标只有 iOS 的 1/2 大小
         val iconScale = 0.5f
-        val iconSize = radius * iconScale
+        val iconSize = canvasSize.minDimension * iconScale
         val iconLeft = center.x - iconSize / 2
         val iconTop = center.y - iconSize / 2
         val iconW = iconSize
@@ -227,17 +229,17 @@ private fun ResultIconDrawable(type: ResultType) {
             ResultType.INFO -> {
                 // 字母 i（点+竖线）
                 val cx = iconLeft + iconW / 2
-                // 顶部圆点
+                // 顶部圆点（与 iOS 一致：Y=0.1 而非 0.2）
                 val dotRadius = strokeWidth / 2
                 drawCircle(
                     color = strokeColor,
                     radius = dotRadius,
-                    center = Offset(cx, iconTop + iconH * 0.2f)
+                    center = Offset(cx, iconTop + iconH * 0.1f)
                 )
-                // 竖线
+                // 竖线（与 iOS 一致：0.35 → 0.9 而非 0.85）
                 val path = Path().apply {
                     moveTo(cx, iconTop + iconH * 0.35f)
-                    lineTo(cx, iconTop + iconH * 0.85f)
+                    lineTo(cx, iconTop + iconH * 0.9f)
                 }
                 drawPath(path, color = strokeColor, style = Stroke(width = strokeWidth))
             }

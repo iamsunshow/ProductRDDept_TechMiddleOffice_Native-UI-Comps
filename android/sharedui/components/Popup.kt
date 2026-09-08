@@ -64,6 +64,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -144,6 +145,7 @@ fun Popup(
                     // 与 iOS PopupContainerView 一致：center 弹层最小宽度 240dp，
                     // 避免内容短时弹层过小（v1.4.7 修复 Demo1 iOS/Android 尺寸不一致）
                     .defaultMinSize(minWidth = 240.dp)
+                    .clip(shape)
                     .background(AppColor.bgCard, shape)
                     .padding(horizontal = AppSpace.lg)
                 PopupPosition.BOTTOM -> Modifier
@@ -151,6 +153,7 @@ fun Popup(
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .heightIn(min = 120.dp)
+                    .clip(shape)
                     .background(AppColor.bgCard, shape)
                     .navigationBarsPadding()
                     .padding(bottom = AppSpace.sm)
@@ -159,6 +162,7 @@ fun Popup(
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .heightIn(min = 120.dp)
+                    .clip(shape)
                     .background(AppColor.bgCard, shape)
             }
             Box(

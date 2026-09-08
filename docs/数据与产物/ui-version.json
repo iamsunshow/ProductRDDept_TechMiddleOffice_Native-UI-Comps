@@ -1,6 +1,6 @@
 {
-  "version": "1.4.12",
-  "versionKey": "v1.4.12",
-  "releaseDate": "2026-09-08",
-  "changelog": "[1.4.12] 2026-09-08 Popup Demo 通栏修复 + Demo2 底部高度对齐（PATCH）：① Demo1/3/4 Android Text fillMaxWidth 导致弹层通栏——Popup 用 androidx.compose.ui.window.Popup 全屏约束，fillMaxWidth 让 Text 占满全屏宽度→容器 defaultMinSize 取 max(全屏,240dp)=全屏=通栏；修复=去掉 fillMaxWidth 改用 defaultMinSize(minWidth=208.dp)，Text 固定 208dp 宽（=iOS UILabel 240-32=208pt），textAlign=Center 生效且不导致通栏。② Demo2 bottom 弹层被系统导航栏遮挡——v1.4.11 去掉 navigationBarsPadding 后弹层贴到屏幕底部被导航栏遮挡，可见高度=120dp-导航栏高度(~48dp)=72dp≈1.5 个按钮；iOS 用 safeAreaLayoutGuide 贴到安全区底部不被遮挡=120pt≈3 个按钮；修复=navigationBarsPadding 放在 heightIn(min=120.dp) 之前（更外层），heightIn 限制的是 content 高度（不含 padding），clip+background 放最后（最内层）只覆盖 content 区域，padding 区域透明——弹层贴到安全区底部，可见高度=content 高度=120dp，与 iOS 一致。组件库全局版本 1.4.11 → 1.4.12。"
+  "version": "1.4.13",
+  "versionKey": "v1.4.13",
+  "releaseDate": "2026-09-09",
+  "changelog": "[1.4.13] 2026-09-09 Popup 回归测试用例沉淀（PATCH）：Popup.kt 加内部 testTag（PopupTestTags.MASK/CONTAINER/CLOSE_BUTTON）供自动化单测定位；新建 PopupTest.kt 10 个用例全绿，覆盖回归台账 #47~#52（蒙版透明度/center minWidth 240dp/bottom minHeight 120dp/padding 对齐/fillMaxWidth 通栏/closeable 关闭按钮）；回归测试台账新增 #47~#52 共 6 条 Popup 历史错误。组件库全局版本 1.4.12 → 1.4.13。"
 }

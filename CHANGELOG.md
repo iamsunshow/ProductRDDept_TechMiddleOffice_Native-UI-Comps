@@ -14,6 +14,25 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.13] - 2026-09-09
+
+Popup 回归测试用例沉淀（PATCH）。
+
+### Added
+
+- **Popup #54 自动化单测 PopupTest.kt（10 用例全绿）**：覆盖回归台账 #47~#52 六个历史根因：
+  - #47 蒙版透明度：蒙版节点存在 + closeOnClickOverlay 点击语义（alpha 实机比对=L4）
+  - #48 center 气泡尺寸：center 容器 minWidth ≥ 240dp
+  - #49 bottom 高度：bottom 容器 minHeight ≥ 120dp（content 高度不含 navigationBarsPadding）
+  - #50 padding 对齐：closeable 容器高度 ≥ 40dp（顶部留白）+ 非 closeable 对比
+  - #51 fillMaxWidth 通栏：center minWidth 反向校验（不通栏）
+  - #52 closeable 关闭按钮：24dp 按钮存在 / 非 closeable 不存在
+- **Popup.kt 加内部 testTag**：`PopupTestTags.MASK/CONTAINER/CLOSE_BUTTON`，供单测定位蒙版/容器/关闭按钮。
+
+### Changed
+
+- 组件库全局版本 1.4.12 → 1.4.13（PATCH，回归测试用例沉淀）。
+
 ## \[1.4.12] - 2026-09-08
 
 Popup Demo 通栏修复 + Demo2 底部高度对齐（PATCH，色彩调试法定位）。

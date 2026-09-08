@@ -39,6 +39,7 @@
 package com.zhiqihuayun.sharedui.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.ui.platform.testTag
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -92,6 +93,13 @@ enum class PopupPosition {
     CENTER,   // 居中弹出
     BOTTOM,   // 底部贴底
     TOP       // 顶部贴顶
+}
+
+/** 内部 testTag 常量，供自动化单测定位蒙版/容器/关闭按钮（回归测试台账 L1）。 */
+internal object PopupTestTags {
+    const val MASK = "popup_mask"
+    const val CONTAINER = "popup_container"
+    const val CLOSE_BUTTON = "popup_close_button"
 }
 
 /**
@@ -155,6 +163,7 @@ fun Popup(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.45f))
+                .testTag(PopupTestTags.MASK)
                 .clickable(
                     enabled = closeOnClickOverlay,
                     indication = null,
@@ -196,12 +205,14 @@ fun Popup(
                     .background(AppColor.bgCard, shape)
             }
             Box(
-                modifier = containerModifier.clickable(
-                    enabled = false,  // 阻止点击穿透到遮罩
-                    indication = null,
-                    interactionSource = androidx.compose.foundation.interaction.MutableInteractionSource(),
-                    onClick = {}
-                )
+                modifier = containerModifier
+                    .testTag(PopupTestTags.CONTAINER)
+                    .clickable(
+                        enabled = false,  // 阻止点击穿透到遮罩
+                        indication = null,
+                        interactionSource = androidx.compose.foundation.interaction.MutableInteractionSource(),
+                        onClick = {}
+                    )
             ) {
                 // v1.4.10 统一 padding 与 iOS PopupContainerView 一致：
                 // - 顶部：closeable=40dp（closeButtonSize24 + inset8*2）, 非 closeable=4dp(AppSpace.sm)
@@ -227,7 +238,8 @@ fun Popup(
                             .padding(AppSpace.sm)
                             .size(24.dp)
                             .background(AppColor.gray6, RoundedCornerShape(50))
-                            .clickable { onClose?.invoke() },
+                            .clickable { onClose?.invoke() }
+                            .testTag(PopupTestTags.CLOSE_BUTTON),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(

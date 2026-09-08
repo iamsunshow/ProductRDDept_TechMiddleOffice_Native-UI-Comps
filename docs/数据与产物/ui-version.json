@@ -1,6 +1,6 @@
 {
-  "version": "1.4.9",
-  "versionKey": "v1.4.9",
+  "version": "1.4.10",
+  "versionKey": "v1.4.10",
   "releaseDate": "2026-09-08",
-  "changelog": "[1.4.9] 2026-09-08 Popup去系统dim/Popover气泡尺寸+Demo统一/Drag z-order修复（PATCH）：① Popup Android 从 Dialog 改为 androidx.compose.ui.window.Popup + FullScreenPopupPositionProvider，去除 Dialog 系统级 dim 层（~0.6）叠加在我们的 0.45 黑色蒙版上导致 Android 蒙版明显比 iOS 暗——Popup 不添加系统 dim，只有 Color.Black.copy(alpha=0.45f) 蒙版与 iOS 完全一致；Popup Demo 去掉 Text 的 Modifier.padding(AppSpace.xl) 与 iOS UILabel 无 padding 一致；② Popover iOS 气泡尺寸太小（还没内容大）：根因=arrowView.translatesAutoresizingMaskIntoConstraints=false 导致 Auto Layout 覆盖 frame 赋值；修复=show() 中加 arrowView.translatesAutoresizingMaskIntoConstraints=true；content 尺寸从 sizeToFit() 改为 intrinsicContentSize（UIStackView.sizeToFit() 返回 .zero）；加最小气泡尺寸 80x30 防止 0；Demo 内容统一——iOS D1-D4 全部改为菜单(复制/删除/分享)与 Android 一致，用 UILabel+attributedText(numberOfLines=0) 替代 UIStackView（UIStackView.intrinsicContentSize 返回 .zero 导致气泡尺寸计算为 0）；③ Drag Android 加 Modifier.zIndex(1f) 让被拖动项渲染在其他项之上不被遮挡。组件库全局版本 1.4.8 → 1.4.9。"
+  "changelog": "[1.4.10] 2026-09-08 Popup 气泡尺寸 padding 统一（PATCH）：Android Popup 容器去掉 horizontal=AppSpace.lg padding（旧版 center 容器有 16dp horizontal padding + content 无 horizontal = 与 iOS 不一致），改为 content 槽统一 padding(top=closeable?40:4, start/end=16, bottom=4)与 iOS PopupContainerView.replaceContent 完全一致。色彩调试法定位差异：iOS content 约束 leading/trailing=AppSpace.lg(16) + top=closeable?40:4 + bottom=AppSpace.sm(4)；Android 旧版 center 容器有 horizontal=16 padding + content top=closeable?32:0 + 无 bottom = 顶部差 8dp + 底部差 4dp = 弹层总高度差 12dp。统一后两端弹层尺寸完全一致。组件库全局版本 1.4.9 → 1.4.10。"
 }

@@ -171,12 +171,10 @@ fun Popup(
             val containerModifier = when (position) {
                 PopupPosition.CENTER -> Modifier
                     .align(Alignment.Center)
-                    // 与 iOS PopupContainerView 一致：center 弹层最小宽度 240dp，
-                    // 避免内容短时弹层过小（v1.4.7 修复 Demo1 iOS/Android 尺寸不一致）
+                    // 与 iOS PopupContainerView 一致：center 弹层最小宽度 240dp
                     .defaultMinSize(minWidth = 240.dp)
                     .clip(shape)
                     .background(AppColor.bgCard, shape)
-                    .padding(horizontal = AppSpace.lg)
                 PopupPosition.BOTTOM -> Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
@@ -185,7 +183,6 @@ fun Popup(
                     .clip(shape)
                     .background(AppColor.bgCard, shape)
                     .navigationBarsPadding()
-                    .padding(bottom = AppSpace.sm)
                 PopupPosition.TOP -> Modifier
                     .align(Alignment.TopCenter)
                     .fillMaxWidth()
@@ -202,11 +199,19 @@ fun Popup(
                     onClick = {}
                 )
             ) {
-                // 内容槽（closeable 时顶部留出关闭按钮空间）
-                val contentTopPadding = if (closeable) 32.dp else 0.dp
+                // v1.4.10 统一 padding 与 iOS PopupContainerView 一致：
+                // - 顶部：closeable=40dp（closeButtonSize24 + inset8*2）, 非 closeable=4dp(AppSpace.sm)
+                // - 左右：16dp(AppSpace.lg)
+                // - 底部：4dp(AppSpace.sm)
+                val topPad = if (closeable) 40.dp else AppSpace.sm
                 Box(modifier = Modifier
                     .then(modifier)
-                    .padding(top = contentTopPadding)
+                    .padding(
+                        top = topPad,
+                        start = AppSpace.lg,
+                        end = AppSpace.lg,
+                        bottom = AppSpace.sm
+                    )
                 ) {
                     content()
                 }

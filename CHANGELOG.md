@@ -14,6 +14,22 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.10] - 2026-09-08
+
+Popup 气泡尺寸 padding 统一（PATCH，色彩调试法定位）。
+
+### Fixed
+
+- **Popup #54 Android 弹层尺寸与 iOS 不一致（色彩调试法定位）**：两端 padding 结构不同导致弹层总高度差 12dp。色彩调试法拆解 padding 层级对比：
+  - **iOS（PopupContainerView.replaceContent）**：content 约束 `leading/trailing=AppSpace.lg(16)` + `top=closeable?40(24+8*2):4(AppSpace.sm)` + `bottom=AppSpace.sm(4)`
+  - **Android 旧版**：center 容器有 `.padding(horizontal=AppSpace.lg(16))` + content 槽 `.padding(top=closeable?32:0)` + 无 bottom padding
+  - **差异**：顶部 closeable 差 8dp（40 vs 32）、非 closeable 差 4dp（4 vs 0）、底部差 4dp（4 vs 0）= 总高度差 12dp（closeable）或 8dp（非 closeable）
+  - **修复**：Android 容器去掉 `horizontal=AppSpace.lg` padding（center），统一在 content 槽设置 `.padding(top=closeable?40dp:AppSpace.sm, start=AppSpace.lg, end=AppSpace.lg, bottom=AppSpace.sm)`，与 iOS 完全一致。bottom/top 容器也去掉残留 `.padding(bottom=AppSpace.sm)`，统一由 content 槽处理。
+
+### Changed
+
+- 组件库全局版本 1.4.9 → 1.4.10（PATCH，Popup padding 统一）。
+
 ## \[1.4.9] - 2026-09-08
 
 Popup 去系统 dim / Popover 气泡尺寸 + Demo 统一 / Drag z-order 修复（PATCH，跨端一致性 v3）。

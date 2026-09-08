@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Notify 消息通知 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.viewport{position:relative;background:var(--bgPage);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceMd);margin:var(--spaceMd) 0;min-height:200px;}
+.notify{position:absolute;left:0;right:0;height:40px;display:flex;align-items:center;padding:0 var(--spaceLg);background:var(--textPrimary);color:#FFF;font-size:var(--sizeSm);}
+.notify.top{top:8px;}
+.notify.bottom{bottom:8px;}
+.notify .icon{margin-right:var(--spaceSm);}
+.diff-row{background:#FEF3C7;}
+</style>
+</head>
+<body>
+
+<h1>Notify 消息通知 · 设计规格（操作反馈区 #52 · 门禁 A）</h1>
+<p>组件 ID：<code>ui.notify</code> ｜ 定位：<b>顶部/底部全局消息通知浮层</b>——命令式 API（Notify.show()）+ 自动消失（duration）+ 可关闭+左右图标 slot，对标 NutUI React Notify + Vant Notify。<br/>
+<span class="tag tag-meta" style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:#EEF2FF;color:#3730A3;">组件库版本</span> 设计阶段锁定基线 = v1.4.3（2026-09-08，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 顶部/底部全局消息通知浮层（轻量级、非阻断式反馈）；② 命令式 API（Notify.show() / Notify.clear()）；③ 自动消失（duration 默认 3000ms，0=常驻）；④ 双位置（top/bottom）+ distance 距离；⑤ 可关闭 closeable（右侧 ×+onClose 回调）；⑥ 左右自定义图标 slot</td></tr>
+<tr><td>不适用（N/A）</td><td>① 页面内嵌公告栏 → <b>NoticeBar（ui.notice-bar）#51</b>（页面内嵌占位 vs Notify 全局浮层）；② Toast 轻提示 → <b>Toast（ui.toast）#59</b>（Toast=纯文本居中 vs Notify=顶部/底部带图标）；③ Dialog 弹窗 → <b>Dialog（ui.dialog）#46</b>（Dialog=阻断式 vs Notify=非阻断）；④ Loading 加载 → <b>Loading（ui.loading）#50</b></td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok" style="background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:999px;font-size:12px;">默认态 ✅</span> 显示+自动消失；禁用 N/A（Notify 是瞬态浮层，无"禁用"语义）；其余态 N/A</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens, Overlay #6]。与 NoticeBar #51 划界：NoticeBar=页面内嵌占位栏（持续展示，需手动关闭或 scrollable 循环），Notify=全局浮层（自动消失，不占位）；与 Toast #59 划界：Toast=纯文本居中（屏幕中央），Notify=顶部/底部带图标+背景色；与 Overlay #6 划界：Overlay=通用遮罩层，Notify=消息通知（基于 Overlay/keyWindow 挂载，但非全屏遮罩）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>默认高度 height</td><td>40pt/40dp（默认）</td><td>单行通知栏</td></tr>
+<tr><td>背景色 backgroundColor</td><td>textPrimary（默认，深色底白字）</td><td>主色通知底色，可配 type=primary/success/warning/danger 变色</td></tr>
+<tr><td>文本色 textColor</td><td>textInverse（白色，默认）</td><td>深色底白字，可配覆盖</td></tr>
+<tr><td>文本字号 textSize</td><td>sizeSm 14pt/14dp（默认）</td><td>单行文本</td></tr>
+<tr><td>内边距 padding</td><td>水平 spaceLg 16（默认）</td><td>左右内边距</td></tr>
+<tr><td>位置 position</td><td>top（默认）/bottom</td><td>distance 距离顶部/底部 8pt/8dp（默认）</td></tr>
+<tr><td>自动消失 duration</td><td>3000ms（默认），0=常驻</td><td>双端 Timer/LaunchedEffect delay 自动消失</td></tr>
+<tr><td>关闭按钮</td><td>右侧 × 文本/图标，closeable=true 时展示</td><td>关闭后 onClose 回调</td></tr>
+<tr><td>navHeight</td><td>57pt/57dp（默认，顶部导航高度）</td><td>position=top 时下移 navHeight 避开导航栏</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 一期形态：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：命令式 API（Notify.show() / Notify.clear()）+ 全局浮层+自动消失+可关闭+左右图标 slot</td><td>✅ 与 NutUI/Vant Notify 命令式 API 一致；全局 keyWindow 挂载+自动消失+top/bottom 位置+distance 距离+navHeight 适配</td><td><b>推荐 A</b>：命令式是 Notify 标准用法</td></tr>
+<tr><td>B：声明式组件（<Notify visible={...} />）</td><td>需宿主管理 visible 状态，不符合 Notify 命令式调用习惯。</td><td>淘汰：命令式是标准</td></tr>
+<tr><td>C：Toast 样式（屏幕居中纯文本）</td><td>与 Toast #59 职责重叠。</td><td>淘汰：归 Toast</td></tr>
+</table>
+
+<h3>P2 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：命令式 API+top/bottom+distance+navHeight+duration+closeable+leftIcon/rightIcon+type(primary/success/warning/danger)+Demo 4 组</td><td>✅ 覆盖 NutUI 全部主流 props；type 变色补充 NutUI 缺失（NutUI 需 CSS 变量，一期直接 API 参数化）</td><td><b>推荐 A</b>：范围收敛但覆盖完整</td></tr>
+<tr><td>B：一期仅 top 位置（无 bottom）</td><td>缺 bottom 位置场景，与 NutUI position=bottom 对不齐。</td><td>淘汰：bottom 是基础</td></tr>
+<tr><td>C：一期即支持自定义内容 slot（JSX.Element/UIView 传入）</td><td>增加复杂度，一期无强需求。</td><td>淘汰：登记二期</td></tr>
+</table>
+
+<h3>P3 · iOS 实现：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：静态方法 Notify.show()→ keyWindow 挂载 UIView+Timer 自动消失</td><td>✅ 命令式调用，keyWindow 挂载确保全局顶层；Timer duration 后 removeFromSuperview；navHeight 适配 safeArea+navHeight</td><td><b>推荐 A</b>：keyWindow 挂载是全局浮层标准</td></tr>
+<tr><td>B：UIViewController present</td><td>需 present/dismiss 生命周期管理，多余。</td><td>淘汰：直接 keyWindow 挂载</td></tr>
+<tr><td>C：UIAlertController</td><td>系统样式不可定制。</td><td>淘汰：自定义 UIView</td></tr>
+</table>
+
+<h3>P4 · Android 实现：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：单例 Activity contentHost 挂载 Compose+LaunchedEffect delay 自动消失</td><td>✅ 命令式调用，Activity findViewById(android.R.id.content) 挂载；LaunchedEffect duration 后移除；navHeight 适配 statusBar+actionBar</td><td><b>推荐 A</b>：contentHost 挂载是全局浮层标准</td></tr>
+<tr><td>B：Dialog/Popup</td><td>需 dismiss 生命周期，多余。</td><td>淘汰：直接 contentHost 挂载</td></tr>
+<tr><td>C：Toast 系统组件</td><td>系统样式不可定制。</td><td>淘汰：自定义 Compose</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础通知（top 位置，自动消失）</h3>
+<p>最简用法：Notify.show({ message: "这是一条通知消息" })，top 位置+3s 自动消失，验证默认参数。</p>
+<div class="viewport">
+  <div class="notify top"><span class="icon">📢</span>这是一条通知消息</div>
+</div>
+
+<h3>D2 · bottom 位置 + 自定义 duration</h3>
+<p>Notify.show({ message: "底部通知", position: "bottom", duration: 5000 })，验证 position+duration 参数。</p>
+<div class="viewport">
+  <div class="notify bottom"><span class="icon">📢</span>底部通知（5s 后消失）</div>
+</div>
+
+<h3>D3 · type 类型变色（primary/success/warning/danger）</h3>
+<p>Notify.show({ message: "成功通知", type: "success" })，验证 type 参数（primary 绿/success 绿/warning 黄/danger 红）。</p>
+<div class="viewport">
+  <div class="notify top" style="background:var(--primary);"><span class="icon">✅</span>成功通知（type=success）</div>
+</div>
+
+<h3>D4 · 可关闭 + 自定义图标</h3>
+<p>Notify.show({ message: "可关闭通知", closeable: true, leftIcon: ..., onClose: ... })，验证 closeable+leftIcon 参数。</p>
+<div class="viewport">
+  <div class="notify top"><span class="icon">🔔</span>可关闭通知（带自定义图标）<span style="margin-left:auto;">✕</span></div>
+</div>
+</div>
+
+<h2>05 · 平台差异表</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>挂载容器</td><td>keyWindow addSubview</td><td>Activity contentHost addView</td><td>系统级差异：各自全局容器</td></tr>
+<tr><td>自动消失</td><td>Timer.scheduledTimer duration</td><td>LaunchedEffect delay duration</td><td>系统级差异：各自定时器</td></tr>
+<tr class="diff-row"><td>布局</td><td>UIView+UIStackView</td><td>Compose Box+Row</td><td>同一布局语义（表内放行）</td></tr>
+<tr class="diff-row"><td>关闭按钮</td><td>UIButton ✕</td><td>Text ✕ + clickable</td><td>同一文案双端渲染（表内放行）</td></tr>
+<tr><td>navHeight 适配</td><td>safeAreaInsets.top + navHeight</td><td>statusBarHeight + actionBarHeight</td><td>系统级差异：各自导航适配</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>iOS</td><td><code>static func Notify.show(message: String, position: NotifyPosition = .top, type: NotifyType = .default, duration: TimeInterval = 3.0, closeable: Bool = false, leftIcon: UIView? = nil, rightIcon: UIView? = nil, distance: CGFloat = 8, navHeight: CGFloat = 57, onClick: (() -> Void)? = nil, onClose: (() -> Void)? = nil)</code>；<code>static func Notify.clear()</code>；<br/>枚举：<code>enum NotifyPosition { case top, bottom }</code> / <code>enum NotifyType { case \`default\`, primary, success, warning, danger }</code></td></tr>
+<tr><td>Android</td><td><code>object Notify { fun show(message: String, position: NotifyPosition = NotifyPosition.TOP, type: NotifyType = NotifyType.DEFAULT, duration: Long = 3000L, closeable: Boolean = false, ...); fun clear() }</code>；<br/>枚举：<code>enum class NotifyPosition { TOP, BOTTOM }</code> / <code>enum class NotifyType { DEFAULT, PRIMARY, SUCCESS, WARNING, DANGER }</code></td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：顶部/底部全局消息通知、与 NoticeBar/Toast/Dialog/Loading 划界）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（高度/背景/字号/间距/距离/navHeight 全 token 化）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础 top/自定义位置 bottom/type 变色/可关闭+图标）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，本规格为首立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（挂载容器/自动消失/布局/关闭按钮/navHeight 适配差异）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（自定义内容 slot/声明式 visible 模式/Toast 样式二期）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>NoticeBar 公告栏 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tok{background:var(--primaryMuted);color:var(--primaryPressed);padding:1px 6px;border-radius:var(--radiusSm);font-size:var(--sizeXs);font-weight:600;}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-na{background:#FEF3C7;color:#92400E;}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.viewport{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceMd);margin:var(--spaceMd) 0;}
+.noticebar{display:flex;align-items:center;height:40px;background:#FFF7ED;border-radius:var(--radiusSm);padding:0 var(--spaceSm);gap:var(--spaceSm);}
+.noticebar-icon{width:16px;height:16px;background:var(--warning);border-radius:50%;flex-shrink:0;}
+.noticebar-text{flex:1;font-size:var(--sizeSm);color:var(--textPrimary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.noticebar-close{font-size:var(--sizeSm);color:var(--textSecondary);cursor:pointer;}
+.diff-row{background:#FEF3C7;}
+</style>
+</head>
+<body>
+
+<h1>NoticeBar 公告栏 · 设计规格（操作反馈区 #51 · 门禁 A）</h1>
+<p>组件 ID：<code>ui.notice-bar</code> ｜ 定位：<b>顶部/内嵌公告/通知栏</b>——双方向（horizontal 横向跑马灯/vertical 纵向轮播）+ 可关闭+左右自定义图标，对标 NutUI React NoticeBar + Vant NoticeBar。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.3（2026-09-08，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 顶部公告/通知循环播放（活动公告、系统消息）；② horizontal 横向跑马灯（单条文本自动滚动）；③ vertical 纵向多条轮播（list+垂直切换+停留时间）；④ 可关闭模式（closeable=true 右侧关闭按钮+onClose 回调）；⑤ 左右自定义图标（leftIcon/rightIcon slot）</td></tr>
+<tr><td>不适用（N/A）</td><td>① Toast 轻提示 → <b>Toast（ui.toast）#59</b>；② Notify 顶部通知 → <b>Notify（ui.notify）#52</b>（定位=短时全局浮层 vs NoticeBar=页面内嵌占位）；③ Dialog 弹窗 → <b>Dialog（ui.dialog）#46</b>；④ 全屏加载遮罩 → <b>Loading（ui.loading）#50</b></td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 持续展示+滚动；<span class="tag tag-na">禁用 N/A</span>（NoticeBar 是瞬态信息展示，无"禁用"语义，不展示即移除）；其余态 N/A</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]（颜色/字号/间距 token，零硬编码）。与 Notify #52 划界：Notify=顶部全局短时浮层（自动消失，不占位），NoticeBar=页面内嵌占位栏（持续展示，需手动关闭或 scrollable 循环）；与 Toast #59 划界：Toast=全局轻提示（自动消失），NoticeBar=页面内嵌公告（持续）；与 Loading #50 划界：Loading=加载指示器（旋转图标），NoticeBar=公告信息（文本内容）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>默认高度 height</td><td>40pt/40dp（默认，含 horizontal/vertical）</td><td>vertical 模式每列高度 40，容器高度=40（单列可视）</td></tr>
+<tr><td>背景色 background</td><td>warning 浅底（默认 #FFF7ED）</td><td>主色公告背景，可配 color/backgroundColor 覆盖</td></tr>
+<tr><td>主文本色 textColor</td><td>textPrimary（默认）</td><td>公告文本颜色，可配覆盖</td></tr>
+<tr><td>主文本字号 textSize</td><td>sizeSm 14pt/14dp（默认）</td><td>单行文本，溢出滚动或省略</td></tr>
+<tr><td>左右图标尺寸 iconSize</td><td>16×16（默认）</td><td>leftIcon/rightIcon slot，可配</td></tr>
+<tr><td>内边距 padding</td><td>水平 spaceSm 8（默认）</td><td>左右图标+文本间距 gap=spaceSm</td></tr>
+<tr><td>圆角 radius</td><td>radiusSm 6（默认）</td><td>公告栏外圆角</td></tr>
+<tr><td>horizontal 滚动</td><td>速度 50px/s（默认），delay 1s（默认）</td><td>双端自实现跑马灯（iOS CADisplayLink/Android LaunchedEffect animateScroll）</td></tr>
+<tr><td>vertical 滚动</td><td>速度 50px/s + 停留 1000ms（默认）</td><td>双端自实现垂直轮播（iOS Timer+CATransition/Android LaunchedEffect delay+animateScrollItem）</td></tr>
+<tr><td>关闭按钮</td><td>右侧 × 文本/图标，closeable=true 时展示</td><td>关闭后 onClosed 回调，组件从父视图移除</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 一期形态：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：双方向（horizontal/vertical）+ 可关闭 + 左右图标 slot，页面内嵌占位栏</td><td>✅ 覆盖 NutUI/Vant 主流公告栏场景；horizontal 单条跑马灯+vertical 多条轮播+closeable 关闭+leftIcon/rightIcon 自定义；页面内嵌=不浮层不自动消失</td><td><b>推荐 A</b>：双方向是 NutUI 标准，覆盖全场景</td></tr>
+<tr><td>B：仅 horizontal 跑马灯（无 vertical 多条轮播）</td><td>缺 vertical 多条消息轮播场景，与 NutUI direction=vertical 对不齐。</td><td>淘汰：vertical 是基础场景</td></tr>
+<tr><td>C：浮层模式（顶部弹出+自动消失）</td><td>与 Notify #52 职责重叠，破坏单一职责。</td><td>淘汰：归 Notify</td></tr>
+</table>
+
+<h3>P2 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：horizontal+vertical+closeable+leftIcon/rightIcon+speed/delay/duration+Demo 4 组</td><td>✅ 覆盖 NutUI 主流 props（direction/content/list/closeable/leftIcon/rightIcon/speed/delay/duration）；双方向+关闭+图标 slot 足够；二期再补 autoClose 倒计时圆环/action 操作按钮/tag 信息标/description 副文本</td><td><b>推荐 A</b>：范围收敛但覆盖完整</td></tr>
+<tr><td>B：一期即支持 autoClose 倒计时圆环+action 按钮</td><td>增加 UI 复杂度（圆环动画+按钮 slot），一期无强需求。</td><td>淘汰：登记二期</td></tr>
+<tr><td>C：仅 closeable 关闭（无 direction 滚动）</td><td>缺滚动场景，与 NutUI scrollable 对不齐。</td><td>淘汰：滚动是基础</td></tr>
+</table>
+
+<h3>P3 · iOS horizontal 滚动实现：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：CADisplayLink 驱动 UILabel frame.origin.x 匀速左移</td><td>✅ 系统级定时器+frame 动画，精准可控；文本宽度算好后从右侧→左侧循环；结束回到起点无缝循环</td><td><b>推荐 A</b>：CADisplayLink 是 iOS 标准跑马灯方案</td></tr>
+<tr><td>B：CAKeyframeAnimation 自动循环</td><td>计算 keyframes 路径不如 frame 手动可控。</td><td>淘汰：控制不如 frame</td></tr>
+<tr><td>C：CATextLayer+transform</td><td>不如 UILabel 简单。</td><td>淘汰：UILabel 直观</td></tr>
+</table>
+
+<h3>P4 · Android horizontal 滚动实现：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：LaunchedEffect+animateScrollTo 横向滚动 BasicTextField/Text</td><td>✅ Compose 标准 animateScroll 横向滚动，与 vertical LazyColumn 轮播同构；speed 配置 px/s</td><td><b>推荐 A</b>：animateScroll 是 Compose 标准方案</td></tr>
+<tr><td>B：Handler+postDelayed 手动位移</td><td>不利用 Compose 动画系统，多余。</td><td>淘汰：animateScroll 标准</td></tr>
+<tr><td>C：ViewCompat+_translationX</td><td>不 Compose 原生，破坏一致性。</td><td>淘汰：animateScroll 原生</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础横向滚动（horizontal 跑马灯）</h3>
+<p>最简用法：单条文本+leftIcon 默认喇叭+横向自动滚动，验证 direction=horizontal 默认参数。</p>
+<div class="viewport">
+  <div class="noticebar">
+    <div class="noticebar-icon"></div>
+    <div class="noticebar-text">📢 这是一条公告信息，内容较长会自动横向滚动播放...</div>
+  </div>
+</div>
+
+<h3>D2 · 纵向多条轮播（vertical）</h3>
+<p>direction=vertical+list 多条文本垂直轮播，每条停留 1000ms，验证 vertical 模式+list 参数。</p>
+<div class="viewport">
+  <div class="noticebar">
+    <div class="noticebar-icon"></div>
+    <div class="noticebar-text">🔥 热门：今日 5 折特惠活动</div>
+  </div>
+</div>
+
+<h3>D3 · 可关闭（closeable=true）</h3>
+<p>closeable=true 右侧展示 × 关闭按钮，点击后 onClose 回调+组件移除，验证 closeable 参数。</p>
+<div class="viewport">
+  <div class="noticebar">
+    <div class="noticebar-icon"></div>
+    <div class="noticebar-text">📢 这是一条可关闭的公告信息</div>
+    <div class="noticebar-close">✕</div>
+  </div>
+</div>
+
+<h3>D4 · 自定义左右图标 + 自定义配色</h3>
+<p>leftIcon/rightIcon 自定义 slot + backgroundColor/textColor 覆盖，验证图标 slot+配色参数。</p>
+<div class="viewport">
+  <div class="noticebar" style="background:#DCFCE7;">
+    <div class="noticebar-icon" style="background:var(--primary);"></div>
+    <div class="noticebar-text" style="color:var(--primary);">✅ 自定义图标+配色的公告栏</div>
+    <div class="noticebar-close" style="color:var(--primary);">›</div>
+  </div>
+</div>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>horizontal 滚动</td><td>CADisplayLink 驱动 UILabel frame.origin.x</td><td>LaunchedEffect+animateScrollTo 横向 ScrollState</td><td>系统级差异：各自原生动画系统</td></tr>
+<tr><td>vertical 滚动</td><td>Timer+CATransition 垂直切换</td><td>LaunchedEffect+animateScrollItem LazyColumn</td><td>系统级差异：各自原生动画系统</td></tr>
+<tr class="diff-row"><td>容器布局</td><td>UIView+UIStackView 子视图</td><td>Box+Row/Column Compose</td><td>同一布局语义（表内放行）</td></tr>
+<tr class="diff-row"><td>关闭按钮</td><td>UIButton/UILabel × 文本</td><td>Text × + clickable</td><td>同一文案双端渲染（表内放行）</td></tr>
+<tr><td>图标 slot</td><td>UIView? 自定义传入</td><td>@Composable () -> Unit 自定义传入</td><td>语义一致：均为可替换视图（表内放行）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>iOS</td><td><code>NoticeBarView(direction: NoticeBarDirection = .horizontal, text: String = "", list: [String] = [], closeable: Bool = false, leftIcon: UIView? = nil, rightIcon: UIView? = nil, backgroundColor: UIColor = UIColor(0xFFF7ED), textColor: UIColor = AppColor.textPrimary, textSize: CGFloat = AppFont.sizeSm, height: CGFloat = 40, speed: CGFloat = 50, delay: TimeInterval = 1, duration: TimeInterval = 1.0, onClose: (() -> Void)? = nil)</code>；<br/>枚举：<code>enum NoticeBarDirection { case horizontal, vertical }</code></td></tr>
+<tr><td>Android</td><td><code>@Composable fun NoticeBar(direction: NoticeBarDirection = NoticeBarDirection.HORIZONTAL, text: String = "", list: List&lt;String&gt; = emptyList(), closeable: Boolean = false, leftIcon: @Composable (() -> Unit)? = null, rightIcon: @Composable (() -> Unit)? = null, backgroundColor: Color = Color(0xFFFFF7ED), textColor: Color = AppColor.textPrimary, textSize: TextUnit = AppFont.sizeSm, height: Dp = 40.dp, speed: Float = 50f, delay: Long = 1000L, duration: Long = 1000L, onClose: (() -> Unit)? = null, modifier: Modifier = Modifier)</code>；<br/>枚举：<code>enum class NoticeBarDirection { HORIZONTAL, VERTICAL }</code></td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：顶部/内嵌公告栏、与 Toast/Notify/Dialog/Loading 划界）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（高度/背景/字号/图标/间距/圆角/速度全 token 化）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础横向/纵向轮播/可关闭/自定义图标配色）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，本规格为首立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（horizontal/vertical 滚动系统级差异+容器布局/关闭按钮/图标 slot 渲染差异）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（autoClose 倒计时圆环/action 操作按钮/tag 信息标/description 副文本二期）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

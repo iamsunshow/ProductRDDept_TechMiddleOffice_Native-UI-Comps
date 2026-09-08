@@ -179,15 +179,32 @@ import com.zhiqihuayun.sharedui.components.DialogButtonLayout
 import com.zhiqihuayun.sharedui.components.DialogButtonStyle
 import com.zhiqihuayun.sharedui.components.Drag
 import com.zhiqihuayun.sharedui.components.InfiniteLoading
+import com.zhiqihuayun.sharedui.components.Loading
+import com.zhiqihuayun.sharedui.components.LoadingType
+import com.zhiqihuayun.sharedui.components.LoadingDirection
+import com.zhiqihuayun.sharedui.components.NoticeBar
+import com.zhiqihuayun.sharedui.components.NoticeBarDirection
+import com.zhiqihuayun.sharedui.components.Notify
+import com.zhiqihuayun.sharedui.components.NotifyPosition
+import com.zhiqihuayun.sharedui.components.NotifyType
+import com.zhiqihuayun.sharedui.components.ActivityTracker
 import com.zhiqihuayun.sharedui.components.Uploader
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ActivityTracker.currentActivity = this
         setContent {
             MaterialTheme {
                 TmoDemo()
             }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (ActivityTracker.currentActivity === this) {
+            ActivityTracker.currentActivity = null
         }
     }
 }
@@ -258,9 +275,9 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Drag 拖拽", reviewed = true, demo = { DragDemo() }),
         DemoComponent("Empty 空状态", reviewed = true, demo = { EmptyDemo() }),
         DemoComponent("InfiniteLoading 滚动加载", reviewed = true, demo = { InfiniteLoadingDemo() }),
-        DemoComponent("Loading 加载中"),
-        DemoComponent("NoticeBar 公告栏"),
-        DemoComponent("Notify 消息通知"),
+        DemoComponent("Loading 加载中", reviewed = true, demo = { LoadingDemo() }),
+        DemoComponent("NoticeBar 公告栏", reviewed = true, demo = { NoticeBarDemo() }),
+        DemoComponent("Notify 消息通知", reviewed = true, demo = { NotifyDemo() }),
         DemoComponent("Popover 气泡弹出框"),
         DemoComponent("Popup 弹出层"),
         DemoComponent("PullToRefresh 下拉刷新"),
@@ -7370,6 +7387,250 @@ fun InfiniteLoadingDemo() {
             fontSize = AppFont.sizeXs,
             color = AppColor.textSecondary
         )
+    }
+}
+
+// MARK: - Loading 加载中 Demo
+@Composable
+fun LoadingDemo() {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1 基础加载（circular 无文案）
+        item {
+            DemoSectionCard(title = "D1 · 基础加载（circular 类型，无文案）") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Loading(type = LoadingType.CIRCULAR)
+                }
+            }
+        }
+
+        // D2 带文案（horizontal + vertical）
+        item {
+            DemoSectionCard(title = "D2 · 带文案（horizontal + vertical）") {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Loading(
+                        type = LoadingType.CIRCULAR,
+                        direction = LoadingDirection.HORIZONTAL,
+                        text = "加载中..."
+                    )
+                    Loading(
+                        type = LoadingType.CIRCULAR,
+                        direction = LoadingDirection.VERTICAL,
+                        text = "加载中..."
+                    )
+                }
+            }
+        }
+
+        // D3 spinner + 自定义颜色大小
+        item {
+            DemoSectionCard(title = "D3 · spinner + 自定义颜色大小") {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Loading(
+                        type = LoadingType.SPINNER,
+                        text = "正在加载...",
+                        color = AppColor.primary,
+                        size = 32.dp,
+                        textSize = AppFont.sizeMd
+                    )
+                    Loading(
+                        type = LoadingType.CIRCULAR,
+                        text = "加载中...",
+                        color = AppColor.primary,
+                        size = 32.dp,
+                        textSize = AppFont.sizeMd
+                    )
+                }
+            }
+        }
+
+        // D4 全屏遮罩加载（Overlay+Loading 组合）
+        item {
+            DemoSectionCard(title = "D4 · 全屏遮罩加载（Overlay+Loading 组合）") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp)
+                ) {
+                    // 宿主内容
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(AppRadius.lg))
+                            .background(AppColor.gray4),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "页面内容（被遮罩阻断交互）",
+                            color = AppColor.textSecondary,
+                            fontSize = AppFont.sizeSm
+                        )
+                    }
+                    // Overlay + Loading 组合
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(AppRadius.lg))
+                            .background(Color.Black.copy(alpha = 0.4f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Loading(
+                            type = LoadingType.CIRCULAR,
+                            direction = LoadingDirection.VERTICAL,
+                            text = "加载中...",
+                            color = Color.White
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - NoticeBar 公告栏 Demo
+@Composable
+fun NoticeBarDemo() {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1 基础横向滚动
+        item {
+            DemoSectionCard(title = "D1 · 基础横向滚动（horizontal 跑马灯）") {
+                NoticeBar(
+                    text = "📢 这是一条公告信息，内容较长会自动横向滚动播放..."
+                )
+            }
+        }
+
+        // D2 纵向多条轮播
+        item {
+            DemoSectionCard(title = "D2 · 纵向多条轮播（vertical）") {
+                NoticeBar(
+                    direction = NoticeBarDirection.VERTICAL,
+                    list = listOf(
+                        "🔥 热门：今日 5 折特惠活动",
+                        "📢 公告：系统维护通知",
+                        "🎁 福利：新用户注册领券"
+                    ),
+                    duration = 1500L
+                )
+            }
+        }
+
+        // D3 可关闭
+        item {
+            DemoSectionCard(title = "D3 · 可关闭（closeable=true）") {
+                NoticeBar(
+                    text = "📢 这是一条可关闭的公告信息",
+                    closeable = true
+                )
+            }
+        }
+
+        // D4 自定义配色
+        item {
+            DemoSectionCard(title = "D4 · 自定义配色") {
+                NoticeBar(
+                    text = "✅ 自定义图标配色的公告栏",
+                    backgroundColor = AppColor.primaryMuted,
+                    textColor = AppColor.primary
+                )
+            }
+        }
+    }
+}
+
+// MARK: - Notify 消息通知 Demo
+@Composable
+fun NotifyDemo() {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1 基础通知（top 位置，自动消失）
+        item {
+            DemoSectionCard(title = "D1 · 基础通知（top 位置，自动消失）") {
+                AppButton(
+                    text = "显示 top 通知",
+                    onClick = { Notify.show(message = "这是一条通知消息") }
+                )
+            }
+        }
+
+        // D2 bottom 位置 + 自定义 duration
+        item {
+            DemoSectionCard(title = "D2 · bottom 位置 + 自定义 duration") {
+                AppButton(
+                    text = "显示 bottom 通知",
+                    onClick = {
+                        Notify.show(
+                            message = "底部通知",
+                            position = NotifyPosition.BOTTOM,
+                            duration = 5000L
+                        )
+                    }
+                )
+            }
+        }
+
+        // D3 type 类型变色（success）
+        item {
+            DemoSectionCard(title = "D3 · type 类型变色（success）") {
+                AppButton(
+                    text = "显示 success 通知",
+                    onClick = {
+                        Notify.show(
+                            message = "成功通知",
+                            type = NotifyType.SUCCESS
+                        )
+                    }
+                )
+            }
+        }
+
+        // D4 可关闭 + 自定义图标
+        item {
+            DemoSectionCard(title = "D4 · 可关闭 + 自定义图标") {
+                AppButton(
+                    text = "显示可关闭通知",
+                    onClick = {
+                        Notify.show(
+                            message = "可关闭通知（带自定义图标）",
+                            closeable = true
+                        ) { /* onClose */ }
+                    }
+                )
+            }
+        }
     }
 }
 

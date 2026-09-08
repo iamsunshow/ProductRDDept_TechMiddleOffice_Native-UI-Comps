@@ -73,9 +73,9 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.drag", name: "Drag 拖拽", reviewed: true, create: { DragShowcase() }),
             DemoComponent(id: "ui.empty", name: "Empty 空状态", reviewed: true, create: { EmptyShowcase() }),
             DemoComponent(id: "ui.infinite-loading", name: "InfiniteLoading 滚动加载", reviewed: true, create: { InfiniteLoadingShowcase() }),
-            DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: false, create: nil),
-            DemoComponent(id: "ui.notice-bar", name: "NoticeBar 公告栏", reviewed: false, create: nil),
-            DemoComponent(id: "ui.notify", name: "Notify 消息通知", reviewed: false, create: nil),
+            DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: true, create: { LoadingShowcase() }),
+            DemoComponent(id: "ui.notice-bar", name: "NoticeBar 公告栏", reviewed: true, create: { NoticeBarShowcase() }),
+            DemoComponent(id: "ui.notify", name: "Notify 消息通知", reviewed: true, create: { NotifyShowcase() }),
             DemoComponent(id: "ui.popover", name: "Popover 气泡弹出框", reviewed: false, create: nil),
             DemoComponent(id: "ui.popup", name: "Popup 弹出层", reviewed: false, create: nil),
             DemoComponent(id: "ui.pull-to-refresh", name: "PullToRefresh 下拉刷新", reviewed: false, create: nil),
@@ -8630,5 +8630,247 @@ extension InfiniteLoadingShowcase: UITableViewDataSource, UITableViewDelegate {
             cell.textLabel?.text = ""
         }
         return cell
+    }
+}
+
+// MARK: - Loading 加载中
+final class LoadingShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Loading 加载中"
+        view.backgroundColor = AppColor.bgPage
+        setupSections()
+    }
+
+    private func setupSections() {
+        let d1 = makeSectionCard(title: "D1 · 基础加载（circular 类型，无文案）") { container in
+            let loading = LoadingView(type: .circular)
+            loading.translatesAutoresizingMaskIntoConstraints = false
+            container.addSubview(loading)
+            loading.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+                make.height.equalTo(80)
+            }
+        }
+
+        let d2 = makeSectionCard(title: "D2 · 带文案（horizontal + vertical）") { container in
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.alignment = .center
+            row.distribution = .fillEqually
+            row.spacing = AppSpace.md
+
+            let h = LoadingView(type: .circular, direction: .horizontal, text: "加载中...")
+            let v = LoadingView(type: .circular, direction: .vertical, text: "加载中...")
+            row.addArrangedSubview(h)
+            row.addArrangedSubview(v)
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+                make.height.equalTo(80)
+                make.left.right.equalToSuperview().inset(AppSpace.lg)
+            }
+        }
+
+        let d3 = makeSectionCard(title: "D3 · spinner + 自定义颜色大小") { container in
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.alignment = .center
+            row.distribution = .fillEqually
+            row.spacing = AppSpace.md
+
+            let s = LoadingView(type: .spinner, text: "正在加载...", color: AppColor.primary, size: 32, textSize: AppFont.sizeMd)
+            let c = LoadingView(type: .circular, text: "加载中...", color: AppColor.primary, size: 32, textSize: AppFont.sizeMd)
+            row.addArrangedSubview(s)
+            row.addArrangedSubview(c)
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+                make.height.equalTo(100)
+                make.left.right.equalToSuperview().inset(AppSpace.lg)
+            }
+        }
+
+        let d4 = makeSectionCard(title: "D4 · 全屏遮罩加载（Overlay+Loading 组合）") { container in
+            // 宿主内容
+            let bgView = UIView()
+            bgView.backgroundColor = AppColor.gray4
+            bgView.layer.cornerRadius = AppRadius.lg
+            container.addSubview(bgView)
+            bgView.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(AppSpace.sm)
+                make.height.equalTo(140)
+            }
+
+            let label = UILabel()
+            label.text = "页面内容（被遮罩阻断交互）"
+            label.textColor = AppColor.textSecondary
+            label.font = .systemFont(ofSize: AppFont.sizeSm)
+            label.textAlignment = .center
+            bgView.addSubview(label)
+            label.snp.makeConstraints { make in make.center.equalToSuperview() }
+
+            // Overlay + Loading 组合
+            let mask = UIView()
+            mask.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+            mask.layer.cornerRadius = AppRadius.lg
+            bgView.addSubview(mask)
+            mask.snp.makeConstraints { make in make.edges.equalToSuperview() }
+
+            let loading = LoadingView(type: .circular, direction: .vertical, text: "加载中...", color: .white)
+            mask.addSubview(loading)
+            loading.snp.makeConstraints { make in make.center.equalToSuperview() }
+        }
+
+        let stack = UIStackView(arrangedSubviews: [d1, d2, d3, d4])
+        stack.axis = .vertical
+        stack.spacing = AppSpace.lg
+        view.addSubview(stack)
+        stack.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(AppSpace.lg)
+        }
+    }
+}
+
+// MARK: - NoticeBar 公告栏
+final class NoticeBarShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "NoticeBar 公告栏"
+        view.backgroundColor = AppColor.bgPage
+        setupSections()
+    }
+
+    private func setupSections() {
+        let d1 = makeSectionCard(title: "D1 · 基础横向滚动（horizontal 跑马灯）") { container in
+            let bar = NoticeBarView(text: "📢 这是一条公告信息，内容较长会自动横向滚动播放...")
+            container.addSubview(bar)
+            bar.snp.makeConstraints { make in
+                make.left.right.equalToSuperview().inset(AppSpace.sm)
+                make.top.equalToSuperview().offset(AppSpace.sm)
+            }
+        }
+
+        let d2 = makeSectionCard(title: "D2 · 纵向多条轮播（vertical）") { container in
+            let bar = NoticeBarView(
+                direction: .vertical,
+                list: ["🔥 热门：今日 5 折特惠活动", "📢 公告：系统维护通知", "🎁 福利：新用户注册领券"],
+                duration: 1.5
+            )
+            container.addSubview(bar)
+            bar.snp.makeConstraints { make in
+                make.left.right.equalToSuperview().inset(AppSpace.sm)
+                make.top.equalToSuperview().offset(AppSpace.sm)
+            }
+        }
+
+        let d3 = makeSectionCard(title: "D3 · 可关闭（closeable=true）") { container in
+            let bar = NoticeBarView(text: "📢 这是一条可关闭的公告信息", closeable: true) { }
+            container.addSubview(bar)
+            bar.snp.makeConstraints { make in
+                make.left.right.equalToSuperview().inset(AppSpace.sm)
+                make.top.equalToSuperview().offset(AppSpace.sm)
+            }
+        }
+
+        let d4 = makeSectionCard(title: "D4 · 自定义左右图标 + 配色") { container in
+            let bar = NoticeBarView(
+                text: "✅ 自定义图标+配色的公告栏",
+                backgroundColor: AppColor.primaryMuted,
+                textColor: AppColor.primary
+            )
+            container.addSubview(bar)
+            bar.snp.makeConstraints { make in
+                make.left.right.equalToSuperview().inset(AppSpace.sm)
+                make.top.equalToSuperview().offset(AppSpace.sm)
+            }
+        }
+
+        let stack = UIStackView(arrangedSubviews: [d1, d2, d3, d4])
+        stack.axis = .vertical
+        stack.spacing = AppSpace.lg
+        view.addSubview(stack)
+        stack.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(AppSpace.lg)
+        }
+    }
+}
+
+// MARK: - Notify 消息通知
+final class NotifyShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Notify 消息通知"
+        view.backgroundColor = AppColor.bgPage
+        setupSections()
+    }
+
+    private func setupSections() {
+        let d1 = makeSectionCard(title: "D1 · 基础通知（top 位置，自动消失）") { container in
+            let btn = AppButton.primary("显示 top 通知")
+            btn.addTarget(self, action: #selector(self.showD1), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.left.right.equalToSuperview().inset(AppSpace.sm)
+                make.top.equalToSuperview().offset(AppSpace.sm)
+            }
+        }
+
+        let d2 = makeSectionCard(title: "D2 · bottom 位置 + 自定义 duration") { container in
+            let btn = AppButton.primary("显示 bottom 通知")
+            btn.addTarget(self, action: #selector(self.showD2), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.left.right.equalToSuperview().inset(AppSpace.sm)
+                make.top.equalToSuperview().offset(AppSpace.sm)
+            }
+        }
+
+        let d3 = makeSectionCard(title: "D3 · type 类型变色（success）") { container in
+            let btn = AppButton.primary("显示 success 通知")
+            btn.addTarget(self, action: #selector(self.showD3), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.left.right.equalToSuperview().inset(AppSpace.sm)
+                make.top.equalToSuperview().offset(AppSpace.sm)
+            }
+        }
+
+        let d4 = makeSectionCard(title: "D4 · 可关闭 + 自定义图标") { container in
+            let btn = AppButton.primary("显示可关闭通知")
+            btn.addTarget(self, action: #selector(self.showD4), for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.left.right.equalToSuperview().inset(AppSpace.sm)
+                make.top.equalToSuperview().offset(AppSpace.sm)
+            }
+        }
+
+        let stack = UIStackView(arrangedSubviews: [d1, d2, d3, d4])
+        stack.axis = .vertical
+        stack.spacing = AppSpace.lg
+        view.addSubview(stack)
+        stack.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(AppSpace.lg)
+        }
+    }
+
+    @objc func showD1() {
+        Notify.show(message: "这是一条通知消息")
+    }
+
+    @objc func showD2() {
+        Notify.show(message: "底部通知", position: .bottom, duration: 5)
+    }
+
+    @objc func showD3() {
+        Notify.show(message: "成功通知", type: .success)
+    }
+
+    @objc func showD4() {
+        Notify.show(message: "可关闭通知（带自定义图标）", closeable: true) { }
     }
 }

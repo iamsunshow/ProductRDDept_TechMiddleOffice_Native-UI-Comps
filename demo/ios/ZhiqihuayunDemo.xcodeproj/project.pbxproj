@@ -23,6 +23,9 @@
 		22FF1D0AF3CDF525669996F2 /* Charts in Frameworks */ = {isa = PBXBuildFile; productRef = A1BB258859A836B00224FD3E /* Charts */; };
 		286F72795C5D0F38B4ADEDCD /* MockAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F34F3AD98F674E7DA1E575E8 /* MockAPIClient.swift */; };
 		E1F2A3B4C5D6E7F8A9B0C1D2 /* InfiniteLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2A3B4C5D6E7F8A9B0C1D2E3 /* InfiniteLoadingView.swift */; };
+		E1F2A3B4C5D6E7F8A9B0C1D5 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2A3B4C5D6E7F8A9B0C1D6 /* LoadingView.swift */; };
+		E1F2A3B4C5D6E7F8A9B0C1D7 /* NoticeBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2A3B4C5D6E7F8A9B0C1D8 /* NoticeBarView.swift */; };
+		E1F2A3B4C5D6E7F8A9B0C1D9 /* NotifyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2A3B4C5D6E7F8A9B0C1DA /* NotifyView.swift */; };
 		2AE7010DEAB2D58E00E89317 /* BackTopButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538FFA7C6388387E57FC73DC /* BackTopButton.swift */; };
 		2B5949F9894171578AEE0C72 /* PullRefreshTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 978BB17F3FAD3ECDAB39B58A /* PullRefreshTableView.swift */; };
 		2DBC2739FEC773B4182DE481 /* FixedNavView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC9266A5D4C33CE081B49CC /* FixedNavView.swift */; };
@@ -102,6 +105,9 @@
 		B2C3D4E5F6A7B8C9D0E1F2A3 /* DialogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogView.swift; sourceTree = "<group>"; };
 		B2C3D4E5F6A7B8C9D0E1F2A4 /* DragListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragListView.swift; sourceTree = "<group>"; };
 		F2A3B4C5D6E7F8A9B0C1D2E3 /* InfiniteLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfiniteLoadingView.swift; sourceTree = "<group>"; };
+		F2A3B4C5D6E7F8A9B0C1D6 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		F2A3B4C5D6E7F8A9B0C1D8 /* NoticeBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoticeBarView.swift; sourceTree = "<group>"; };
+		F2A3B4C5D6E7F8A9B0C1DA /* NotifyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotifyView.swift; sourceTree = "<group>"; };
 		45B2561A62A1FAF93C38C686 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
 		538FFA7C6388387E57FC73DC /* BackTopButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackTopButton.swift; sourceTree = "<group>"; };
 		56144D3FE8D7F55AA21E1D9D /* StickyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickyView.swift; sourceTree = "<group>"; };
@@ -192,6 +198,9 @@
 				B2C3D4E5F6A7B8C9D0E1F2A3 /* DialogView.swift */,
 				B2C3D4E5F6A7B8C9D0E1F2A4 /* DragListView.swift */,
 				F2A3B4C5D6E7F8A9B0C1D2E3 /* InfiniteLoadingView.swift */,
+				F2A3B4C5D6E7F8A9B0C1D6 /* LoadingView.swift */,
+				F2A3B4C5D6E7F8A9B0C1D8 /* NoticeBarView.swift */,
+				F2A3B4C5D6E7F8A9B0C1DA /* NotifyView.swift */,
 				AF92DF6DC2897ABCD9C46224 /* AddressView.swift */,
 				E36A0907C0CF11E9783D53FB /* AppButton.swift */,
 				6D173EBBE290117990FB6D2B /* AppIcon.swift */,
@@ -472,6 +481,9 @@
 				A1B2C3D4E5F6A7B8C9D0E1F2 /* DialogView.swift in Sources */,
 				A1B2C3D4E5F6A7B8C9D0E1F3 /* DragListView.swift in Sources */,
 				E1F2A3B4C5D6E7F8A9B0C1D2 /* InfiniteLoadingView.swift in Sources */,
+				E1F2A3B4C5D6E7F8A9B0C1D5 /* LoadingView.swift in Sources */,
+				E1F2A3B4C5D6E7F8A9B0C1D7 /* NoticeBarView.swift in Sources */,
+				E1F2A3B4C5D6E7F8A9B0C1D9 /* NotifyView.swift in Sources */,
 				AC38EC510D173EB064E94DBF /* AddressView.swift in Sources */,
 				12A2A02B2B7C1DCC3F8762C4 /* AppButton.swift in Sources */,
 				CF13E2F0EFAAC8CD1247A518 /* AppDatabase.swift in Sources */,

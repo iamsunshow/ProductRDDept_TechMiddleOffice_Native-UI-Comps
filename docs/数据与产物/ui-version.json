@@ -1,6 +1,6 @@
 {
-  "version": "1.4.3",
-  "versionKey": "v1.4.3",
+  "version": "1.4.4",
+  "versionKey": "v1.4.4",
   "releaseDate": "2026-09-08",
-  "changelog": "[1.4.3] 2026-09-08 两组件跨平台一致性根治：① Android Drag #47 拖拽无响应根治=Drag 内部从普通 Column 改为 LazyColumn 自管滚动，隔离外层 verticalScroll 在长按等待期（~500ms）抢先消费触摸事件导致 detectDragGesturesAfterLongPress 收不到 DOWN 的根因（v1.4.2 nestedScroll 方案不够彻底）；② Empty #42 Demo3/Demo4 图标跨平台一致性根治=双端弃用 emoji 文本（依赖系统 emoji 字体 Apple Color Emoji vs Noto Color Emoji 视觉不一致），改为双端各自 Canvas/UIBezierPath 自绘矢量图标（Bell 铃铛 + Folder 文件夹），相同坐标系+相同比例+相同描边粗细，不依赖任何图标库。Android assembleDebug 成功，iOS swiftc -parse 通过。"
+  "changelog": "[1.4.4] 2026-09-08 三组件新增（MINOR）：① #50 Loading 加载组件（双端）=操作反馈区第五件，圆形/Spinner 两样式+水平/垂直两布局+可选文案，iOS UIActivityIndicatorView+CAShapeLayer，Android CircularProgressIndicator+Canvas；② #51 NoticeBar 公告栏组件（双端）=横向滚动+纵向轮播两模式+可关闭，iOS CADisplayLink+Timer，Android LaunchedEffect+rememberInfiniteTransition；③ #52 Notify 通知组件（双端）=命令式 API Notify.show(text,type,duration)，iOS keyWindow 挂载+Android contentHost 挂载+自动 dismiss，success/warning/error 三类型。组件库全局版本 1.4.3 → 1.4.4。"
 }

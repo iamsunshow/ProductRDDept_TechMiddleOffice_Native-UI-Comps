@@ -6808,6 +6808,213 @@
       "note": "滚动加载（操作反馈区 #49，全新立项，2026-09-08）：列表滚动接近底部时自动触发加载更多的底部状态条组件=四态全量（idle/loading/finished/error）；底部状态条模式=组件=footer+滚动源监听+四态切换+onLoadMore 回调，列表内容由宿主提供不代管内容；iOS KVO 监听 UIScrollView.contentOffset+contentSize 计算距底部触发，Android LazyListState+snapshotFlow 监听可见 item 索引触发；threshold 可配（距底部多远预触发）；文案全部可配覆盖；与 PullRefresh #55（顶部下拉刷新 vs InfiniteLoading 底部自动加载）/Loading #50（全屏遮罩加载 vs 列表内联底部状态条）/Skeleton #57（首屏占位骨架 vs 增量加载状态）划界；anti_goals 二期=自包含列表容器模式/纯监听器模式/自定义 spinner/footer slot。2026-09-08 门禁 A AI 代评通过（规格 design-spec/infinite-loading-design-spec.html + ../评审记录/review-infinite-loading-A.md，P1–P4 全 A 0 保留意见）+ 同日门禁 B 双端实现入库（InfiniteLoadingView.swift=UIView 子类 KVO 监听+四态切换+setLoading/setHasMore/setError；InfiniteLoading.kt=@Composable LaunchedEffect+snapshotFlow 监听+四态切换），iOS InfiniteLoadingShowcase / Android InfiniteLoadingDemo 4 段 1:1（D1 基础滚动加载 / D2 加载完成 / D3 加载失败点击重试 / D4 自定义文案阈值），demo 徽标 v1.0，Android assembleDebug + iOS swiftc -parse 编译通过。验证版本 v1.4.3（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
       "subcategory": "feedback",
       "reviewed": true
+    },
+    {
+      "id": "ui.loading",
+      "name": "Loading 加载中",
+      "category": "ui",
+      "summary": "全屏/区域遮罩加载指示器（操作反馈区 #50，全新立项）：双类型 circular（环形旋转，系统原生）+ spinner（5 线交替跳动）；双方向 horizontal（水平，默认）/ vertical（竖向）；可选文案 text（null=纯图标）；color/size/textSize 全参数化可配；不内置遮罩=宿主组合 Overlay #6 做全屏加载（与 NutUI Loading+Overlay 组合模式一致）；与 InfiniteLoading #49（列表底部状态条=滚动触发+四态 vs Loading 纯展示无状态机）/CircleProgress #64（有进度值环形进度 vs Loading 无进度值无限旋转）/Skeleton #57（首屏占位骨架 vs 加载指示）划界；anti_goals 二期=自包含遮罩/纯图标/Lottie 三方依赖/自定义 icon slot",
+      "capabilities": [
+        "加载中",
+        "Loading",
+        "加载指示",
+        "加载动画",
+        "环形加载",
+        "circular",
+        "spinner",
+        "菊花 loading"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "LoadingView.swift：UIView 子类；circular=UIActivityIndicatorView 系统菊花，spinner=LoadingSpinnerView（CAShapeLayer+5 线 CABasicAnimation scaleY 0.4↔1 交替延迟 -0.4s~-0s）；UIStackView axis=.horizontal/.vertical 排列方向；color/size/textSize 全参数化，size=sizeLg 18、textSize=sizeSm 14、color=textSecondary"
+        },
+        "android": {
+          "state": "available",
+          "note": "Loading.kt：@Composable fun Loading(type, direction, text, color, size, textSize, modifier)；circular=CircularProgressIndicator 系统，spinner=LoadingSpinnerView（Canvas+5 线 animateFloat scaleY 0.4↔1 交替延迟 -0.4s~-0s）；Row/Column 排列方向；color/size/textSize 全参数化，size=sizeLg 18dp、textSize=sizeSm 14sp、color=textSecondary"
+        },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/LoadingView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Loading.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.loading",
+      "industry_names": [
+        "加载中",
+        "Loading",
+        "加载指示",
+        "加载动画",
+        "环形加载",
+        "circular",
+        "spinner",
+        "菊花 loading"
+      ],
+      "props": [
+        ["type", "LoadingType/.circular/.spinner (iOS) | LoadingType.CIRCULAR/SPINNER (Android)", "否"],
+        ["direction", "LoadingDirection/.horizontal/.vertical (iOS) | LoadingDirection.HORIZONTAL/VERTICAL (Android)", "否"],
+        ["text", "String?", "否"],
+        ["color", "UIColor/Color", "否"],
+        ["size", "CGFloat/Dp", "否"],
+        ["textSize", "CGFloat/TextUnit", "否"]
+      ],
+      "events": [],
+      "demos": [
+        ["基础加载（circular 类型，无文案）", "最简用法：circular 环形旋转图标，无文案，验证默认参数（D1）"],
+        ["带文案（horizontal + vertical）", "图标+文案双方向：水平排列（默认）+ 竖向排列，验证 direction 参数（D2）"],
+        ["spinner 类型 + 自定义颜色大小", "type=spinner（5 线跳动）+ color=primary + size=32 + textSize=sizeMd，验证 type/color/size/textSize 参数（D3）"],
+        ["全屏遮罩加载（Overlay+Loading 组合）", "宿主组合 Overlay 做全屏加载：Overlay visible=true + Loading vertical 居中，验证组合模式（D4）"]
+      ],
+      "note": "加载中（操作反馈区 #50，全新立项，2026-09-08）：全屏/区域遮罩加载指示器=双类型（circular 环形旋转系统原生/spinner 5 线交替跳动自绘）+双方向（horizontal/vertical）+可选文案+color/size/textSize 全参数化；不内置遮罩=宿主组合 Overlay #6 做全屏加载（与 NutUI Loading+Overlay 组合模式一致）；与 InfiniteLoading #49（列表底部状态条=滚动触发+四态 vs Loading 纯展示无状态机）/CircleProgress #64（有进度值环形进度 vs Loading 无进度值无限旋转）/Skeleton #57（首屏占位骨架 vs 加载指示）划界；anti_goals 二期=自包含遮罩/纯图标/Lottie 三方依赖/自定义 icon slot。2026-09-08 门禁 A AI 代评通过（规格 design-spec/loading-design-spec.html + ../评审记录/review-loading-A.md，P1–P4 全 A 0 保留意见）+ 同日门禁 B 双端实现入库（LoadingView.swift=UIView 子类 UIActivityIndicatorView+LoadingSpinnerView CAShapeLayer 5 线；Loading.kt=@Composable CircularProgressIndicator+Canvas 5 线），iOS LoadingShowcase / Android LoadingDemo 4 段 1:1（D1 基础加载 / D2 带文案方向 / D3 spinner 自定义 / D4 全屏遮罩组合），demo 徽标 v1.0，Android assembleDebug + iOS swiftc -parse 编译通过。验证版本 v1.4.3（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "feedback",
+      "reviewed": true
+    },
+    {
+      "id": "ui.notice-bar",
+      "name": "NoticeBar 公告栏",
+      "category": "ui",
+      "summary": "顶部/内嵌公告/通知栏（操作反馈区 #51，全新立项）：双方向 horizontal（横向跑马灯，单条文本自动滚动）/ vertical（纵向多条轮播，list+垂直切换+停留时间）；可关闭 closeable（右侧 × 关闭按钮+onClose 回调）；左右自定义图标 slot（leftIcon/rightIcon）；speed/delay/duration 全参数化；页面内嵌占位栏（不浮层不自动消失，需手动关闭或 scrollable 循环）；与 Notify #52（顶部全局短时浮层 vs NoticeBar 页面内嵌占位）/Toast #59（轻提示自动消失 vs 公告持续）/Loading #50 划界；anti_goals 二期=autoClose 倒计时圆环/action 操作按钮/tag 信息标/description 副文本",
+      "capabilities": [
+        "公告栏",
+        "NoticeBar",
+        "通知栏",
+        "跑马灯",
+        "marquee",
+        "横幅",
+        "公告",
+        "通知"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "NoticeBarView.swift：UIView 子类；horizontal=CADisplayLink 驱动 UILabel frame.origin.x 匀速左移循环；vertical=Timer+UIView.transition crossDissolve 切换；UIStackView axis=.horizontal 排列左图标+文本+右图标；closeable=UIButton ✕+onClose；backgroundColor/textColor/textSize/height/speed/delay/duration 全参数化"
+        },
+        "android": {
+          "state": "available",
+          "note": "NoticeBar.kt：@Composable fun NoticeBar(direction, text, list, closeable, ...)；horizontal=LazyRow+LaunchedEffect animateScrollToItem 循环；vertical=LaunchedEffect delay+currentIndex 切换+AnimatedVisibility fade；Row 排列左图标+文本+右图标；closeable=Text ✕+clickable+onClose；backgroundColor/textColor/textSize/height/speed/delay/duration 全参数化"
+        },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/NoticeBarView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/NoticeBar.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.notice-bar",
+      "industry_names": [
+        "公告栏",
+        "NoticeBar",
+        "通知栏",
+        "跑马灯",
+        "marquee",
+        "横幅",
+        "公告",
+        "通知"
+      ],
+      "props": [
+        ["direction", "NoticeBarDirection/.horizontal/.vertical (iOS) | NoticeBarDirection.HORIZONTAL/VERTICAL (Android)", "否"],
+        ["text", "String", "否"],
+        ["list", "[String]/List<String>", "否"],
+        ["closeable", "Bool/Boolean", "否"],
+        ["leftIcon", "UIView?/@Composable (() -> Unit)?", "否"],
+        ["rightIcon", "UIView?/@Composable (() -> Unit)?", "否"],
+        ["backgroundColor", "UIColor/Color", "否"],
+        ["textColor", "UIColor/Color", "否"],
+        ["textSize", "CGFloat/TextUnit", "否"],
+        ["height", "CGFloat/Dp", "否"],
+        ["speed", "CGFloat/Float", "否"],
+        ["delay", "TimeInterval/Long", "否"],
+        ["duration", "TimeInterval/Long", "否"],
+        ["onClose", "(() -> Void)?/(() -> Unit)?", "否"]
+      ],
+      "events": [
+        ["onClose", "() => void", "closeable=true 且用户点击关闭按钮时触发"]
+      ],
+      "demos": [
+        ["基础横向滚动（horizontal 跑马灯）", "单条文本+leftIcon 默认喇叭+横向自动滚动，验证 direction=horizontal 默认参数（D1）"],
+        ["纵向多条轮播（vertical）", "direction=vertical+list 多条文本垂直轮播，每条停留 1000ms，验证 vertical 模式+list 参数（D2）"],
+        ["可关闭（closeable=true）", "closeable=true 右侧展示 × 关闭按钮，点击后 onClose 回调+组件移除，验证 closeable 参数（D3）"],
+        ["自定义左右图标 + 自定义配色", "leftIcon/rightIcon 自定义 slot + backgroundColor/textColor 覆盖，验证图标 slot+配色参数（D4）"]
+      ],
+      "note": "公告栏（操作反馈区 #51，全新立项，2026-09-08）：顶部/内嵌公告/通知栏=双方向（horizontal 横向跑马灯/vertical 纵向多条轮播）+可关闭 closeable+左右自定义图标 slot+speed/delay/duration 全参数化；页面内嵌占位栏（不浮层不自动消失，需手动关闭或 scrollable 循环）；与 Notify #52（顶部全局短时浮层 vs NoticeBar 页面内嵌占位）/Toast #59（轻提示自动消失 vs 公告持续）/Loading #50 划界；anti_goals 二期=autoClose 倒计时圆环/action 操作按钮/tag 信息标/description 副文本。2026-09-08 门禁 A AI 代评通过（规格 design-spec/notice-bar-design-spec.html + ../评审记录/review-notice-bar-A.md，P1–P4 全 A 0 保留意见）+ 同日门禁 B 双端实现入库（NoticeBarView.swift=UIView 子类 CADisplayLink+Timer vertical；NoticeBar.kt=@Composable LazyRow+LaunchedEffect animateScrollToItem），iOS NoticeBarShowcase / Android NoticeBarDemo 4 段 1:1（D1 基础横向滚动 / D2 纵向多条轮播 / D3 可关闭 / D4 自定义图标配色），demo 徽标 v1.0，Android assembleDebug + iOS swiftc -parse 编译通过。验证版本 v1.4.3（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "feedback",
+      "reviewed": true
+    },
+    {
+      "id": "ui.notify",
+      "name": "Notify 消息通知",
+      "category": "ui",
+      "summary": "顶部/底部全局消息通知浮层（操作反馈区 #52，全新立项）：命令式 API（Notify.show()/clear()）+ 自动消失（duration 默认 3000ms，0=常驻）+ 双位置（top/bottom）+ distance 距离+navHeight 导航适配；可关闭 closeable（右侧 ×+onClose 回调）；左右自定义图标 slot（leftIcon/rightIcon）；type 类型变色（default/primary/success/warning/danger）；与 NoticeBar #51（页面内嵌占位栏 vs Notify 全局浮层自动消失）/Toast #59（纯文本居中 vs 顶部底部带图标）划界；anti_goals 二期=自定义内容 slot/声明式 visible 模式/Toast 样式",
+      "capabilities": [
+        "消息通知",
+        "Notify",
+        "通知",
+        "消息提示",
+        "顶部通知",
+        "底部通知",
+        "全局浮层",
+        "通知栏"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "NotifyView.swift：final class Notify 静态方法；Notify.show()→ keyWindow addSubview NotifyContainerView+Timer duration 后 removeFromSuperview；UIStackView 排列左图标+文本+右图标；closeable=UIButton ✕+onClose；type 变色（default/primary/success/warning/danger）；position top/bottom+distance+navHeight 适配 safeAreaInsets；进入/退出动画 alpha+translationY"
+        },
+        "android": {
+          "state": "available",
+          "note": "Notify.kt：object Notify 单例；show()→ Activity contentHost findViewById(android.R.id.content) addView ComposeView；LaunchedEffect delay duration 后 visible=false；Row 排列左图标+文本+右图标；closeable=Text ✕+clickable+onClose；type 变色（DEFAULT/PRIMARY/SUCCESS/WARNING/DANGER）；position TOP/BOTTOM+distance+navHeight 适配 statusBar；AnimatedVisibility fadeIn/fadeOut；ActivityTracker 追踪 currentActivity"
+        },
+        "harmony": { "state": "unavailable", "note": "" },
+        "weixin": { "state": "unavailable", "note": "" },
+        "alipay": { "state": "unavailable", "note": "" }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/NotifyView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Notify.kt"
+      },
+      "embedding_ref": "",
+      "legacy_id": "ui.notify",
+      "industry_names": [
+        "消息通知",
+        "Notify",
+        "通知",
+        "消息提示",
+        "顶部通知",
+        "底部通知",
+        "全局浮层",
+        "通知栏"
+      ],
+      "props": [
+        ["message", "String", "是"],
+        ["position", "NotifyPosition/.top/.bottom (iOS) | NotifyPosition.TOP/BOTTOM (Android)", "否"],
+        ["type", "NotifyType/.default/.primary/.success/.warning/.danger (iOS) | NotifyType.DEFAULT/PRIMARY/SUCCESS/WARNING/DANGER (Android)", "否"],
+        ["duration", "TimeInterval/Long", "否"],
+        ["closeable", "Bool/Boolean", "否"],
+        ["leftIcon", "UIView?（二期）", "否"],
+        ["rightIcon", "UIView?（二期）", "否"],
+        ["distance", "CGFloat/Int", "否"],
+        ["navHeight", "CGFloat/Int", "否"],
+        ["onClick", "(() -> Void)?/(() -> Unit)?", "否"],
+        ["onClose", "(() -> Void)?/(() -> Unit)?", "否"]
+      ],
+      "events": [
+        ["onClick", "() => void", "点击通知内容时触发"],
+        ["onClose", "() => void", "closeable=true 且用户点击关闭按钮或 duration 到期自动消失时触发"]
+      ],
+      "demos": [
+        ["基础通知（top 位置，自动消失）", "Notify.show(message: ...) top 位置+3s 自动消失，验证默认参数（D1）"],
+        ["bottom 位置 + 自定义 duration", "Notify.show(message:, position: .bottom, duration: 5) 验证 position+duration 参数（D2）"],
+        ["type 类型变色（success）", "Notify.show(message:, type: .success) 验证 type 参数变色（D3）"],
+        ["可关闭 + 自定义图标", "Notify.show(message:, closeable: true) { onClose } 验证 closeable+onClose 回调（D4）"]
+      ],
+      "note": "消息通知（操作反馈区 #52，全新立项，2026-09-08）：顶部/底部全局消息通知浮层=命令式 API（Notify.show()/clear()）+自动消失 duration+双位置 top/bottom+distance+navHeight 适配+可关闭 closeable+左右自定义图标 slot+type 类型变色（default/primary/success/warning/danger）；与 NoticeBar #51（页面内嵌占位栏 vs Notify 全局浮层自动消失）/Toast #59（纯文本居中 vs 顶部底部带图标）划界；anti_goals 二期=自定义内容 slot/声明式 visible 模式/Toast 样式。2026-09-08 门禁 A AI 代评通过（规格 design-spec/notify-design-spec.html + ../评审记录/review-notify-A.md，P1–P4 全 A 0 保留意见）+ 同日门禁 B 双端实现入库（NotifyView.swift=final class Notify 静态方法 keyWindow 挂载+Timer；Notify.kt=object Notify 单例 contentHost 挂载+LaunchedEffect），iOS NotifyShowcase / Android NotifyDemo 4 段 1:1（D1 基础通知 / D2 bottom 位置 / D3 type 变色 / D4 可关闭），demo 徽标 v1.0，Android assembleDebug + iOS swiftc -parse 编译通过。验证版本 v1.4.3（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版（未过 C2/D 不升版）。",
+      "subcategory": "feedback",
+      "reviewed": true
     }
   ],
   "businessExtensions": [

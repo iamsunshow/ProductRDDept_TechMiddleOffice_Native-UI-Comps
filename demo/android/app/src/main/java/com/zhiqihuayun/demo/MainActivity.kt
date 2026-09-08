@@ -349,9 +349,11 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
 fun TmoDemo() {
     var current by remember { mutableStateOf<(@Composable () -> Unit)?>(null) }
     var currentTitle by remember { mutableStateOf("") }
+    // 将列表滚动状态提升到此处，进入详情页再返回时保留滚动位置
+    val listState = rememberLazyListState()
 
     if (current == null) {
-        ComponentList(onOpen = { name, demo ->
+        ComponentList(listState = listState, onOpen = { name, demo ->
             currentTitle = name
             current = demo
         })
@@ -383,8 +385,12 @@ fun TmoDemo() {
 }
 
 @Composable
-private fun ComponentList(onOpen: (String, @Composable () -> Unit) -> Unit) {
+private fun ComponentList(
+    listState: androidx.compose.foundation.lazy.LazyListState,
+    onOpen: (String, @Composable () -> Unit) -> Unit
+) {
     LazyColumn(
+        state = listState,
         modifier = Modifier
             .fillMaxSize()
             .background(AppColor.bgPage)

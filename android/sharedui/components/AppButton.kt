@@ -33,7 +33,7 @@ enum class AppButtonStyle {
     /** 次要操作：白底 + 主色描边 + 主色文字。 */
     Secondary,
 
-    /** 破坏性操作：白底 + 红色描边 + 红色文字。 */
+    /** 破坏性操作：白底 + 红色文字（无边框，对齐 iOS）。 */
     Destructive,
 
     /** 中性操作：gray10 浅灰底 + textPrimary 文字（对齐 iOS Dialog Default 样式）。 */
@@ -63,13 +63,14 @@ fun AppButton(
     style: AppButtonStyle = AppButtonStyle.Primary,
     fontSize: TextUnit = AppFont.sizeMd,
     height: Dp = 48.dp,
+    radius: Dp = AppRadius.lg,
     enabled: Boolean = true,
     loading: Boolean = false
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
 
-    val shape = RoundedCornerShape(AppRadius.lg)
+    val shape = RoundedCornerShape(radius)
     // 加载态与禁用态共用 buttonDisabled 灰填充 + 白字，按下态仅 primary 有深色反馈。
     val (container, content, borderColor) = when {
         loading || !enabled -> Triple(AppColor.buttonDisabled, Color.White, null)
@@ -80,7 +81,7 @@ fun AppButton(
         style == AppButtonStyle.Neutral ->
             Triple(AppColor.gray10, AppColor.textPrimary, null)
         else ->
-            Triple(AppColor.bgCard, AppColor.error, AppColor.error)
+            Triple(AppColor.bgCard, AppColor.error, null)
     }
 
     Box(

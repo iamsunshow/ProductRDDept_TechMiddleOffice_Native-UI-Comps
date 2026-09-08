@@ -27,7 +27,7 @@
 /// - Horizontal 按钮：左右并排各 flex 1，高 44，间距 8
 /// - Primary 按钮：primary 底白字
 /// - Default 按钮：gray10 底 textPrimary
-/// - Destructive 按钮：textPrimary 底 danger 字
+/// - Destructive 按钮：bgCard 白底 + danger 红字（无边框，对齐 Android）
 ///
 /// 用法：
 /// ```swift

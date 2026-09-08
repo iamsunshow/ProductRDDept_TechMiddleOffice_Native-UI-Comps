@@ -19,7 +19,7 @@ enum AppButtonStyle {
     case primary
     /// 次要操作：白底 + 主色描边 + 主色文字。
     case secondary
-    /// 破坏性操作：白底 + 红色描边 + 红色文字。
+    /// 破坏性操作：白底 + 红色文字（无边框，对齐 Android）。
     case destructive
 }
 
@@ -106,7 +106,7 @@ final class AppButton: UIButton {
             case .secondary:
                 return (.white, AppColor.primary, AppColor.primary)
             case .destructive:
-                return (.white, AppColor.error, AppColor.error)
+                return (.white, nil, AppColor.error)
             }
         }()
 

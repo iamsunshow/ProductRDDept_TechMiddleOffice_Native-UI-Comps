@@ -179,6 +179,11 @@ fun Popup(
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .wrapContentHeight()
+                    // v1.4.12：navigationBarsPadding 在 heightIn 之前（更外层），
+                    // 让 heightIn 限制的是 content 高度（不含 padding），
+                    // clip+background 在最后（最内层），只覆盖 content 区域，
+                    // padding 区域透明——弹层贴到安全区底部，可见高度=content 高度，与 iOS 一致
+                    .navigationBarsPadding()
                     .heightIn(min = 120.dp)
                     .clip(shape)
                     .background(AppColor.bgCard, shape)

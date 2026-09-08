@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7859,7 +7860,8 @@ fun PopupDemo() {
         }
     }
 
-    // 居中弹层（v1.4.11：Text 加 textAlign=Center + fillMaxWidth 与 iOS UILabel.textAlignment=.center 一致）
+    // 居中弹层（v1.4.12：Text 用 defaultMinSize(208.dp) 替代 fillMaxWidth，
+    // 避免 Popup 全屏约束下 fillMaxWidth 导致弹层通栏；208dp = iOS UILabel 宽度 240-32=208pt）
     Popup(
         visible = visibleCenter,
         position = PopupPosition.CENTER,
@@ -7870,7 +7872,7 @@ fun PopupDemo() {
             fontSize = AppFont.sizeMd,
             color = AppColor.textPrimary,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.defaultMinSize(minWidth = 208.dp)
         )
     }
 
@@ -7885,7 +7887,7 @@ fun PopupDemo() {
             fontSize = AppFont.sizeMd,
             color = AppColor.textPrimary,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.defaultMinSize(minWidth = 208.dp)
         )
     }
 
@@ -7901,7 +7903,7 @@ fun PopupDemo() {
             fontSize = AppFont.sizeMd,
             color = AppColor.textPrimary,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.defaultMinSize(minWidth = 208.dp)
         )
     }
 
@@ -7917,7 +7919,7 @@ fun PopupDemo() {
             fontSize = AppFont.sizeMd,
             color = AppColor.textPrimary,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.defaultMinSize(minWidth = 208.dp)
         )
     }
 }

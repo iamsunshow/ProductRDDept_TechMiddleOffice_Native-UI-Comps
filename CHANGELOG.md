@@ -14,6 +14,20 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.12] - 2026-09-08
+
+Popup Demo 通栏修复 + Demo2 底部高度对齐（PATCH，色彩调试法定位）。
+
+### Fixed
+
+- **Popup #54 Demo1/3/4 Android 文字 fillMaxWidth 导致弹层通栏**：v1.4.11 给 Text 加了 `Modifier.fillMaxWidth()` 实现 `textAlign=Center`，但 Popup 用 `androidx.compose.ui.window.Popup`（全屏约束），`fillMaxWidth` 让 Text 占满全屏宽度 → 容器 `defaultMinSize(minWidth=240.dp)` 取 `max(全屏, 240dp)` = 全屏 = "通栏"。修复=去掉 `fillMaxWidth`，改用 `defaultMinSize(minWidth=208.dp)`，Text 固定 208dp 宽（= iOS UILabel 240-32=208pt），`textAlign=Center` 生效且容器保持 240dp 不通栏。
+
+- **Popup #54 Demo2 bottom 弹层高度不一致（被导航栏遮挡）**：v1.4.11 去掉 `navigationBarsPadding()` 后弹层贴到屏幕底部，被系统导航栏遮挡，可见高度 = 120dp - 导航栏高度(~48dp) = 72dp ≈ 1.5 个按钮。iOS 用 `safeAreaLayoutGuide` 贴到安全区底部（不被遮挡）= 120pt ≈ 3 个按钮。修复=`navigationBarsPadding()` 放在 `heightIn(min=120.dp)` **之前**（更外层），让 `heightIn` 限制的是 content 高度（不含 padding），`clip`+`background` 放最后（最内层）只覆盖 content 区域，padding 区域透明——弹层贴到安全区底部，可见高度 = content 高度 = 120dp，与 iOS 一致。
+
+### Changed
+
+- 组件库全局版本 1.4.11 → 1.4.12（PATCH，Popup Demo 通栏+高度修复）。
+
 ## \[1.4.11] - 2026-09-08
 
 Popup Demo 文字居中 + Demo2 底部高度对齐（PATCH）。

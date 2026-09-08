@@ -225,7 +225,9 @@ class MainActivity : ComponentActivity() {
 data class DemoComponent(
     val name: String,
     val reviewed: Boolean = false,
-    val demo: (@Composable () -> Unit)? = null
+    val demo: (@Composable () -> Unit)? = null,
+    // pending=true：组件已实现有 Demo 可进入，但仍有未解决问题待后续调试，红色"待完善"提示
+    val pending: Boolean = false
 )
 
 private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
@@ -281,7 +283,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("ActionSheet 动作面板", reviewed = true, demo = { ActionSheetDemo() }),
         DemoComponent("Badge 徽标", reviewed = true, demo = { BadgeDemo() }),
         DemoComponent("Dialog 对话框", reviewed = true, demo = { DialogDemo() }),
-        DemoComponent("Drag 拖拽", reviewed = true, demo = { DragDemo() }),
+        DemoComponent("Drag 拖拽", reviewed = true, demo = { DragDemo() }, pending = true),
         DemoComponent("Empty 空状态", reviewed = true, demo = { EmptyDemo() }),
         DemoComponent("InfiniteLoading 滚动加载", reviewed = true, demo = { InfiniteLoadingDemo() }),
         DemoComponent("Loading 加载中", reviewed = true, demo = { LoadingDemo() }),
@@ -434,6 +436,7 @@ private fun ComponentList(
 
 @Composable
 private fun ComponentRow(comp: DemoComponent, onClick: () -> Unit) {
+    // pending 状态也允许点击进入 Demo（有 demo 且 reviewed）
     val enabled = comp.reviewed && comp.demo != null
     Surface(
         onClick = onClick,
@@ -452,9 +455,20 @@ private fun ComponentRow(comp: DemoComponent, onClick: () -> Unit) {
                 fontSize = AppFont.sizeMd
             )
             Spacer(modifier = Modifier.weight(1f))
+            // 三态显示：已评审（绿色）/ 待完善（红色）/ 未评审（灰色）
+            val statusText = when {
+                comp.pending -> "待完善"
+                enabled -> "已评审 ✓"
+                else -> "未评审"
+            }
+            val statusColor = when {
+                comp.pending -> AppColor.error
+                enabled -> AppColor.primary
+                else -> AppColor.gray25
+            }
             Text(
-                text = if (enabled) "已评审 ✓" else "未评审",
-                color = if (enabled) AppColor.primary else AppColor.gray25,
+                text = statusText,
+                color = statusColor,
                 fontSize = AppFont.sizeSm
             )
         }

@@ -11,6 +11,15 @@ struct DemoComponent {
     let name: String
     let reviewed: Bool
     let create: (() -> UIViewController)?
+    // pending=true：组件已实现有 Demo 可进入，但仍有未解决问题待后续调试，红色"待完善"提示
+    let pending: Bool
+    init(id: String, name: String, reviewed: Bool, create: (() -> UIViewController)? = nil, pending: Bool = false) {
+        self.id = id
+        self.name = name
+        self.reviewed = reviewed
+        self.create = create
+        self.pending = pending
+    }
 }
 
 // MARK: - Demo 首页 · 组件列表（分类 + 组件）
@@ -70,7 +79,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.action-sheet", name: "ActionSheet 动作面板", reviewed: true, create: { ActionSheetShowcase() }),
             DemoComponent(id: "ui.badge", name: "Badge 徽标", reviewed: true, create: { BadgeShowcase() }),
             DemoComponent(id: "ui.dialog", name: "Dialog 对话框", reviewed: true, create: { DialogShowcase() }),
-            DemoComponent(id: "ui.drag", name: "Drag 拖拽", reviewed: true, create: { DragShowcase() }),
+            DemoComponent(id: "ui.drag", name: "Drag 拖拽", reviewed: true, create: { DragShowcase() }, pending: true),
             DemoComponent(id: "ui.empty", name: "Empty 空状态", reviewed: true, create: { EmptyShowcase() }),
             DemoComponent(id: "ui.infinite-loading", name: "InfiniteLoading 滚动加载", reviewed: true, create: { InfiniteLoadingShowcase() }),
             DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: true, create: { LoadingShowcase() }),
@@ -164,10 +173,16 @@ final class DemoListViewController: UITableViewController {
         config.textProperties.font = .systemFont(ofSize: AppFont.sizeMd)
         if item.reviewed {
             config.textProperties.color = AppColor.textPrimary
-            config.secondaryText = "已评审 ✓"
-            config.secondaryTextProperties.color = AppColor.primary
             cell.accessoryType = .disclosureIndicator
             cell.selectionStyle = .default
+            // 三态显示：待完善（红色）/ 已评审（绿色）
+            if item.pending {
+                config.secondaryText = "待完善"
+                config.secondaryTextProperties.color = AppColor.error
+            } else {
+                config.secondaryText = "已评审 ✓"
+                config.secondaryTextProperties.color = AppColor.primary
+            }
         } else {
             config.textProperties.color = AppColor.gray25
             config.secondaryText = "未评审"

@@ -8922,7 +8922,8 @@ final class PopoverShowcase: ShowcaseViewController {
         setupSections()
 
         popover.onClose = { [weak self] in self?.visible = false }
-        popover.content = makeLabel(text: "气泡提示内容")
+        // v1.4.9：与 Android 一致，默认用菜单内容（复制/删除/分享）
+        popover.content = makeMenuContent()
     }
 
     private func makeLabel(text: String) -> UIView {
@@ -9005,28 +9006,28 @@ final class PopoverShowcase: ShowcaseViewController {
     }
 
     @objc private func tapD4(_ sender: UIButton) {
-        popover.content = makeMenuContent()
+        // v1.4.9：默认已是菜单内容，D4 与 D1-D3 一致（都是菜单）
         showPopover(placement: .top, from: sender)
     }
 
+    /// 菜单内容（与 Android PopoverDemo 一致：复制/删除/分享）。
+    /// v1.4.9：用 UILabel + attributedText（numberOfLines=0）替代 UIStackView，
+    /// 因为 UIStackView.intrinsicContentSize 返回 .zero 导致气泡尺寸计算为 0。
+    /// UILabel.intrinsicContentSize 对多行文本返回正确尺寸。
     private func makeMenuContent() -> UIView {
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.alignment = .leading
-        stack.spacing = 4
-        let items: [(String, UIColor)] = [
-            ("复制", AppColor.textPrimary),
-            ("删除", AppColor.error),
-            ("分享", AppColor.textPrimary)
-        ]
-        for (text, color) in items {
-            let label = UILabel()
-            label.text = text
-            label.font = .systemFont(ofSize: AppFont.sizeSm)
-            label.textColor = color
-            stack.addArrangedSubview(label)
-        }
-        return stack
+        let label = UILabel()
+        label.numberOfLines = 0
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 4
+        let attrText = NSMutableAttributedString()
+        let font = UIFont.systemFont(ofSize: AppFont.sizeSm)
+        attrText.append(NSAttributedString(string: "复制", attributes: [.font: font, .foregroundColor: AppColor.textPrimary, .paragraphStyle: paragraphStyle]))
+        attrText.append(NSAttributedString(string: "\n", attributes: [.paragraphStyle: paragraphStyle]))
+        attrText.append(NSAttributedString(string: "删除", attributes: [.font: font, .foregroundColor: AppColor.error, .paragraphStyle: paragraphStyle]))
+        attrText.append(NSAttributedString(string: "\n", attributes: [.paragraphStyle: paragraphStyle]))
+        attrText.append(NSAttributedString(string: "分享", attributes: [.font: font, .foregroundColor: AppColor.textPrimary, .paragraphStyle: paragraphStyle]))
+        label.attributedText = attrText
+        return label
     }
 }
 

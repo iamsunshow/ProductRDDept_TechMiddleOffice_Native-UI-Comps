@@ -1,6 +1,6 @@
 {
-  "version": "1.4.8",
-  "versionKey": "v1.4.8",
+  "version": "1.4.9",
+  "versionKey": "v1.4.9",
   "releaseDate": "2026-09-08",
-  "changelog": "[1.4.8] 2026-09-08 Drag z-order/Popover frame定位/Popup内容padding/ResultPage图标尺寸四项修复（PATCH）：① Drag Android 加 Modifier.zIndex(1f) 让被拖动项渲染在其他项之上不被遮挡（与 iOS 标准 reorder 一致）；② Popover iOS 重写定位逻辑——从 SnapKit AutoLayout 约束改为直接计算 bubbleView.frame（与 Android PopupPositionProvider 一致），根因是约束需额外 layout pass 才能应用到 frame 且 show() 添加到 window 后 self 的 layout 尚未完成导致约束解析到错误坐标=气泡跑到容器外/最底部；同时兼容 iOS 13+ connectedScenes 获取 keyWindow；③ Popup iOS 内容 padding 从 AppSpace.lg(16pt) 上下改为 AppSpace.sm(4pt) 与 Android 一致（Demo2 底部弹层行高不再过高）；Android 加 .clip(shape) 确保圆角裁剪正确；④ ResultPage Android 图标尺寸从 radius*iconScale(=canvasSize/4) 修正为 canvasSize*iconScale(=canvasSize/2) 与 iOS 一致（旧版图标只有 iOS 的 1/2 大小）；info 图标坐标对齐（dot Y=0.1 而非 0.2、line end=0.9 而非 0.85）。组件库全局版本 1.4.7 → 1.4.8。"
+  "changelog": "[1.4.9] 2026-09-08 Popup去系统dim/Popover气泡尺寸+Demo统一/Drag z-order修复（PATCH）：① Popup Android 从 Dialog 改为 androidx.compose.ui.window.Popup + FullScreenPopupPositionProvider，去除 Dialog 系统级 dim 层（~0.6）叠加在我们的 0.45 黑色蒙版上导致 Android 蒙版明显比 iOS 暗——Popup 不添加系统 dim，只有 Color.Black.copy(alpha=0.45f) 蒙版与 iOS 完全一致；Popup Demo 去掉 Text 的 Modifier.padding(AppSpace.xl) 与 iOS UILabel 无 padding 一致；② Popover iOS 气泡尺寸太小（还没内容大）：根因=arrowView.translatesAutoresizingMaskIntoConstraints=false 导致 Auto Layout 覆盖 frame 赋值；修复=show() 中加 arrowView.translatesAutoresizingMaskIntoConstraints=true；content 尺寸从 sizeToFit() 改为 intrinsicContentSize（UIStackView.sizeToFit() 返回 .zero）；加最小气泡尺寸 80x30 防止 0；Demo 内容统一——iOS D1-D4 全部改为菜单(复制/删除/分享)与 Android 一致，用 UILabel+attributedText(numberOfLines=0) 替代 UIStackView（UIStackView.intrinsicContentSize 返回 .zero 导致气泡尺寸计算为 0）；③ Drag Android 加 Modifier.zIndex(1f) 让被拖动项渲染在其他项之上不被遮挡。组件库全局版本 1.4.8 → 1.4.9。"
 }

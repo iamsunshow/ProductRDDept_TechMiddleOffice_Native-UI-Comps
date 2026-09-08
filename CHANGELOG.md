@@ -14,6 +14,26 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.9] - 2026-09-08
+
+Popup 去系统 dim / Popover 气泡尺寸 + Demo 统一 / Drag z-order 修复（PATCH，跨端一致性 v3）。
+
+### Fixed
+
+- **Popup #54 Android 蒙版透明度明显高于 iOS（根因修复）**：Android 用 `Dialog` 组件，`Dialog` 系统级会添加 dim 层（~0.6 alpha）叠加在我们的 `Color.Black.copy(alpha = 0.45f)` 蒙版上，总暗度远超 iOS 的 0.45。改为 `androidx.compose.ui.window.Popup` + `FullScreenPopupPositionProvider`（`IntOffset(0,0)` + `fillMaxSize()`），Popup 不添加系统 dim，只有我们的 0.45 黑色蒙版，与 iOS 完全一致。`PopupProperties(focusable=true, dismissOnBackPress=closeOnClickOverlay, dismissOnClickOutside=false)`——`dismissOnClickOutside=false` 由蒙版 `clickable` 自行处理。
+
+- **Popup #54 Demo 气泡尺寸不一致**：Android Demo 的 `Text` 有 `Modifier.padding(AppSpace.xl)`(24dp) 额外 padding，iOS `UILabel` 无 padding。容器自带 `horizontal=AppSpace.lg`(16dp) padding，Android 叠加后内容区=240-16*2-24*2=160dp，iOS=240-16*2=208pt，差异 48dp。去掉 Android Text 的 `padding(AppSpace.xl)` 后两端一致。
+
+- **Popover #53 iOS 气泡尺寸太小（还没内容大）**：根因=`arrowView.translatesAutoresizingMaskIntoConstraints=false`（在 `setupViews` 中设置），Auto Layout 覆盖 `layoutBubbleFrame()` 中的 `arrowView.frame=arrowRect` 赋值。修复=`show()` 中加 `arrowView.translatesAutoresizingMaskIntoConstraints=true`。同时 `content` 尺寸从 `sizeToFit()` 改为 `intrinsicContentSize`（`UIStackView.sizeToFit()` 返回 `.zero`），`sizeToFit()` 作 fallback。加最小气泡尺寸 `80x30` 防止 content 尺寸为 0 时气泡不可见。
+
+- **Popover #53 Demo 内容统一**：iOS D1-D3 用 label "气泡提示内容"、D4 用 UIStackView 菜单(复制/删除/分享)；Android D1-D4 全部用菜单。改为 iOS D1-D4 全部用菜单（与 Android 一致）。`makeMenuContent()` 从 `UIStackView` 改为 `UILabel + attributedText`(numberOfLines=0)，因为 `UIStackView.intrinsicContentSize` 返回 `.zero` 导致气泡尺寸计算为 0。用 `NSMutableParagraphStyle.lineSpacing=4` 控制行间距。
+
+- **Drag #47 Android 被拖动项 z-order 置顶**：LazyColumn 中被拖动项被相邻项遮挡（iOS 无此问题）。修复=加 `Modifier.zIndex(if (isDragging) 1f else 0f)`，zIndex 大的 item 渲染在上层（与 iOS `bringSubviewToFront` 一致）。
+
+### Changed
+
+- 组件库全局版本 1.4.8 → 1.4.9（PATCH，三组件跨端一致性 v3）。
+
 ## \[1.4.8] - 2026-09-08
 
 Drag z-order / Popover frame 定位 / Popup 内容 padding / ResultPage 图标尺寸四项修复（PATCH，跨端一致性 v2）。

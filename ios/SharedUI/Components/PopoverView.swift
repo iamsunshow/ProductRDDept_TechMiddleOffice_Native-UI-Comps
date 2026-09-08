@@ -157,23 +157,38 @@ public final class PopoverView: UIView {
         }
     }
 
-    /// 直接计算 bubbleView + arrowView 的 frame（不用 Auto Layout 约束）。
+    /// 直接计算 bubbleView + arrowView 的 frame（不用 AutoLayout 约束）。
     /// 根因（v1.4.8）：旧版用 SnapKit 约束设置 bubbleView 的 bottom/top/centerX 等
     /// 到 anchor 常量值，但约束需额外 layout pass 才能应用到 frame，且 show() 添加到
     /// window 后 self 的 layout 尚未完成 → 约束解析到错误坐标 → 气泡跑到容器外/最底部。
     /// 改为直接计算 frame = 与 Android PopupPositionProvider 一致，布局即结果，无延迟。
+    ///
+    /// v1.4.9 修复气泡尺寸太小（还没内容大）：
+    /// - arrowView.translatesAutoresizingMaskIntoConstraints 必须设 true，否则 Auto Layout 覆盖 frame 赋值
+    /// - content 尺寸用 intrinsicContentSize（UILabel 可靠），sizeToFit 作 fallback
+    /// - 加最小气泡尺寸（minBubbleWidth=80, minBubbleHeight=30）防止 content 尺寸为 0
     private func layoutBubbleFrame() {
         let effectivePlacement = resolveEffectivePlacement()
         let arrow = Layout.arrowSize
         let margin = Layout.minBubbleMargin
         let screen = UIScreen.main.bounds
 
-        // 1. 获取 content 的自然尺寸
-        content?.sizeToFit()
-        let contentSize = content?.frame.size ?? .zero
-        // 2. 计算气泡尺寸 = content + padding
-        let bubbleWidth = contentSize.width + Layout.contentPaddingH * 2
-        let bubbleHeight = contentSize.height + Layout.contentPaddingV * 2
+        // 1. 获取 content 的自然尺寸（intrinsicContentSize 比 sizeToFit 更可靠，
+        //    UIStackView.sizeToFit() 返回 .zero，但 UILabel.intrinsicContentSize 正确）
+        var contentSize = content?.intrinsicContentSize ?? .zero
+        if contentSize.width == 0 || contentSize.height == 0 {
+            content?.sizeToFit()
+            let fitSize = content?.frame.size ?? .zero
+            contentSize = CGSize(
+                width: max(contentSize.width, fitSize.width),
+                height: max(contentSize.height, fitSize.height)
+            )
+        }
+        // 2. 计算气泡尺寸 = content + padding，加最小尺寸防止 0
+        let minBubbleWidth: CGFloat = 80
+        let minBubbleHeight: CGFloat = 30
+        let bubbleWidth = max(contentSize.width + Layout.contentPaddingH * 2, minBubbleWidth)
+        let bubbleHeight = max(contentSize.height + Layout.contentPaddingV * 2, minBubbleHeight)
 
         // 3. offset 烘焙进坐标
         let anchorMinX = anchor.minX + offset.x
@@ -289,9 +304,11 @@ public final class PopoverView: UIView {
         win.bringSubviewToFront(self)
 
         // 直接计算 frame（不用 Auto Layout），布局即结果，无延迟
-        // bubbleView 和 content 用 frame 定位（translatesAutoresizingMaskIntoConstraints = true）
+        // bubbleView、content、arrowView 全部用 frame 定位
+        // v1.4.9：arrowView 也必须设 true，否则 Auto Layout 覆盖 frame 赋值
         bubbleView.translatesAutoresizingMaskIntoConstraints = true
         content?.translatesAutoresizingMaskIntoConstraints = true
+        arrowView.translatesAutoresizingMaskIntoConstraints = true
         layoutBubbleFrame()
 
         bubbleView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)

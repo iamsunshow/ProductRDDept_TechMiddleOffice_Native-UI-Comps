@@ -7845,7 +7845,8 @@ fun PopupDemo() {
         }
     }
 
-    // 居中弹层
+    // 居中弹层（v1.4.9：去掉 text 额外 padding，与 iOS UILabel 无 padding 一致，
+    // 容器自带 horizontal=AppSpace.lg padding，无需再叠加）
     Popup(
         visible = visibleCenter,
         position = PopupPosition.CENTER,
@@ -7854,8 +7855,7 @@ fun PopupDemo() {
         Text(
             "居中弹层内容",
             fontSize = AppFont.sizeMd,
-            color = AppColor.textPrimary,
-            modifier = Modifier.padding(AppSpace.xl)
+            color = AppColor.textPrimary
         )
     }
 
@@ -7868,8 +7868,7 @@ fun PopupDemo() {
         Text(
             "底部弹层内容",
             fontSize = AppFont.sizeMd,
-            color = AppColor.textPrimary,
-            modifier = Modifier.padding(AppSpace.xl)
+            color = AppColor.textPrimary
         )
     }
 
@@ -7883,8 +7882,7 @@ fun PopupDemo() {
         Text(
             "带关闭按钮的弹层",
             fontSize = AppFont.sizeMd,
-            color = AppColor.textPrimary,
-            modifier = Modifier.padding(AppSpace.xl)
+            color = AppColor.textPrimary
         )
     }
 
@@ -7898,8 +7896,7 @@ fun PopupDemo() {
         Text(
             "受控外部驱动弹层",
             fontSize = AppFont.sizeMd,
-            color = AppColor.textPrimary,
-            modifier = Modifier.padding(AppSpace.xl)
+            color = AppColor.textPrimary
         )
     }
 }

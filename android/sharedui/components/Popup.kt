@@ -45,6 +45,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -62,20 +63,28 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import com.zhiqihuayun.foundation.design.AppColor
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup as WindowPopup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
+import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppRadius
 import com.zhiqihuayun.foundation.design.AppSpace
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 
 /** 弹出位置（与 api.json PopupPosition 对齐）。 */
@@ -83,6 +92,21 @@ enum class PopupPosition {
     CENTER,   // 居中弹出
     BOTTOM,   // 底部贴底
     TOP       // 顶部贴顶
+}
+
+/**
+ * 全屏 Popup 位置提供器：让 Popup 内容从窗口 (0,0) 开始，
+ * 配合 fillMaxSize() 覆盖整个屏幕。
+ * v1.4.9：用 Popup 替代 Dialog，去除 Dialog 系统级 dim 层（~0.6），
+ * 只保留我们的 Color.Black.copy(alpha = 0.45f) 蒙版，与 iOS 完全一致。
+ */
+private object FullScreenPopupPositionProvider : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize
+    ): IntOffset = IntOffset(0, 0)
 }
 
 /**
@@ -110,16 +134,21 @@ fun Popup(
 ) {
     if (!visible) return
 
-    Dialog(
+    // v1.4.9：用 Popup 替代 Dialog——Dialog 会添加系统级 dim 层（~0.6），
+    // 叠加在我们的 0.45 黑色蒙版上导致 Android 蒙版明显比 iOS 暗。
+    // Popup 不添加系统 dim，只有我们的 Color.Black.copy(alpha = 0.45f) 蒙版，与 iOS 完全一致。
+    WindowPopup(
+        popupPositionProvider = FullScreenPopupPositionProvider,
         onDismissRequest = {
             if (closeOnClickOverlay) {
                 onClose?.invoke()
             }
         },
-        properties = DialogProperties(
+        properties = PopupProperties(
+            focusable = true,
             dismissOnBackPress = closeOnClickOverlay,
-            dismissOnClickOutside = closeOnClickOverlay,
-            usePlatformDefaultWidth = false
+            // dismissOnClickOutside=false：由蒙版 clickable 自行处理点击收起
+            dismissOnClickOutside = false
         )
     ) {
         Box(

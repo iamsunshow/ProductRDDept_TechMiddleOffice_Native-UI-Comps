@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Loading 加载中 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tok{background:var(--primaryMuted);color:var(--primaryPressed);padding:1px 6px;border-radius:var(--radiusSm);font-size:var(--sizeXs);font-weight:600;}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-na{background:#FEF3C7;color:#92400E;}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.viewport{position:relative;background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusLg);padding:var(--spaceXl);margin:var(--spaceMd) 0;display:flex;align-items:center;justify-content:center;min-height:120px;}
+.loading-circular{display:inline-block;width:24px;height:24px;border:2.5px solid var(--textSecondary);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;}
+.loading-spinner{display:inline-flex;gap:3px;align-items:flex-end;height:24px;}.loading-spinner i{display:block;width:3px;background:var(--textSecondary);border-radius:2px;animation:stretch 1s ease-in-out infinite;}.loading-spinner i:nth-child(1){height:40%;animation-delay:-.4s;}.loading-spinner i:nth-child(2){height:70%;animation-delay:-.3s;}.loading-spinner i:nth-child(3){height:100%;animation-delay:-.2s;}.loading-spinner i:nth-child(4){height:60%;animation-delay:-.1s;}
+.loading-spinner i:nth-child(5){height:35%;animation-delay:0s;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes stretch{0%,40%,100%{transform:scaleY(0.4);}20%{transform:scaleY(1);}}
+.loading-text{font-size:var(--sizeSm);color:var(--textSecondary);}
+.loading-h{display:flex;align-items:center;gap:var(--spaceSm);}
+.loading-v{display:flex;flex-direction:column;align-items:center;gap:var(--spaceSm);}
+.loading-custom{width:32px;height:32px;border:3px solid var(--primary);border-top-color:transparent;border-radius:50%;animation:spin 0.6s linear infinite;}
+.loading-custom-text{font-size:var(--sizeMd);color:var(--primary);font-weight:600;}
+.overlay-demo{position:relative;background:#F3F4F6;border:1px solid var(--border);border-radius:var(--radiusLg);padding:var(--spaceLg);min-height:160px;display:flex;align-items:center;justify-content:center;}
+.overlay-mask{position:absolute;inset:0;background:rgba(17,24,39,.4);display:flex;align-items:center;justify-content:center;border-radius:var(--radiusLg);}
+.diff-row{background:#FEF3C7;}
+</style>
+</head>
+<body>
+
+<h1>Loading 加载中 · 设计规格（操作反馈区 #50 · 门禁 A）</h1>
+<p>组件 ID：<code>ui.loading</code> ｜ 定位：<b>全屏/区域遮罩加载指示器</b>——双类型（circular 环形/spinner 多线）+ 双方向（horizontal/vertical）+ 可选文案，不内置遮罩（宿主组合 Overlay #6 做全屏加载），对标 NutUI React Loading + Vant Loading。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.3（2026-09-08，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 异步操作加载指示（提交表单/登录/保存等需等待的场景）；② 全屏遮罩加载（与 Overlay 组合，阻断用户交互）；③ 区域内联加载（按钮内/卡片内局部加载）；④ 双类型选择：circular（环形旋转，默认）/ spinner（多线跳动）；⑤ 双方向排列：图标+文案 horizontal（水平，默认）/ vertical（竖向）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 列表底部滚动加载 → <b>InfiniteLoading（ui.infinite-loading）#49</b>；② 有进度值的环形/条形进度 → <b>CircleProgress（ui.progress-circle）#64</b> / <b>Progress（ui.progress）#73</b>；③ 首屏骨架占位 → <b>Skeleton（ui.skeleton）#57</b>；④ 下拉刷新 → <b>PullRefresh（ui.refresh）#55</b>；⑤ Toast 轻提示 → <b>Toast（ui.toast）#59</b></td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 加载指示器持续旋转展示；禁用 N/A（加载是瞬态行为，无"禁用"语义，不加载则不渲染）；其余态 N/A（Loading 无选中/错误/完成态，加载结束即移除组件）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]（颜色/字号/间距 token，零硬编码）。与 InfiniteLoading #49 划界：InfiniteLoading=列表内联底部状态条（四态+滚动触发），Loading=全屏/区域遮罩加载指示（纯展示，无状态机，无滚动监听）；与 CircleProgress #64 划界：CircleProgress=有进度值环形进度（value 0~1），Loading=无进度值无限旋转加载指示；与 Overlay #6 划界：Overlay=通用遮罩层（zIndex/动画/点击穿透），Loading=加载指示器（不内置遮罩，宿主组合 Overlay 做全屏加载=与 NutUI Loading+Overlay 组合模式一致）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>图标默认尺寸 size</td><td>sizeLg 18pt/18dp（默认）</td><td>circular=外径 size×size+border 2.5；spinner=高 size+5 线宽 3 间距 3</td></tr>
+<tr><td>文案默认字号 textSize</td><td>sizeSm 14pt/14dp（默认）</td><td>文案色=textSecondary，与图标同色（可配 color 覆盖）</td></tr>
+<tr><td>默认颜色 color</td><td>textSecondary（默认）</td><td>图标色+文案色统一 color 参数，可配 primary 等覆盖</td></tr>
+<tr><td>方向排列 gap</td><td>horizontal=spaceSm 8 / vertical=spaceSm 8</td><td>图标与文案间距，水平=横排居中，竖向=纵排居中</td></tr>
+<tr><td>circular 动画</td><td>iOS UIActivityIndicatorView / Android CircularProgressIndicator</td><td>系统级原生加载动画，不自制旋转</td></tr>
+<tr><td>spinner 动画</td><td>5 线跳动 scaleY 0.4↔1 / 1s ease-in-out infinite</td><td>双端自绘 5 线 Canvas/UIBezierPath，交替延迟 -0.4s~-0s</td></tr>
+<tr><td>全屏遮罩（宿主组合）</td><td>Overlay visible=true + Loading vertical 居中</td><td>遮罩色 rgba(17,24,39,.4) 由 Overlay 承载，Loading 不内置</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 一期形态：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：纯加载指示器模式——组件 = 图标（circular/spinner）+ 可选文案 + 方向排列，不内置遮罩，宿主组合 Overlay 做全屏加载</td><td>✅ 语义单一只做"加载指示"，遮罩交给 Overlay（与 NutUI Loading+Overlay 组合模式一致）；内联/全屏双路径覆盖（按钮内/卡片内=裸用，全屏=Overlay 包裹）</td><td><b>推荐 A</b>：单一职责，遮罩复用 Overlay #6 不重复造轮子</td></tr>
+<tr><td>B：自包含遮罩模式（组件内置 Overlay 全屏遮罩 + visible 开关）</td><td>组件即插即用，但与 Overlay #6 职责重叠，遮罩参数（色/透明度/点击穿透）重复暴露。</td><td>淘汰：与 Overlay 职责重叠，破坏单一职责</td></tr>
+<tr><td>C：纯图标模式（无文案参数，文案宿主自行拼接）</td><td>双端文案一致性无法保证，且"图标+文案"是基础体验。</td><td>淘汰：文案是基础需求</td></tr>
+</table>
+
+<h3>P2 · 图标类型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：双类型 circular（环形旋转，默认）+ spinner（5 线跳动）</td><td>✅ 覆盖 NutUI/Vant 主流两种加载图标；circular=系统原生（iOS UIActivityIndicatorView/Android CircularProgressIndicator），spinner=双端自绘 5 线 Canvas/UIBezierPath</td><td><b>推荐 A</b>：双类型是 NutUI 标准，circular 系统+spinner 自绘覆盖全场景</td></tr>
+<tr><td>B：仅 circular（系统菊花）</td><td>简洁但缺 spinner 选项，与 NutUI type=spinner 对不齐。</td><td>淘汰：spinner 是主流加载图标之一</td></tr>
+<tr><td>C：自定义 icon slot（JSX.Element/UIView 传入）</td><td>灵活度最高但双端一致性难保证（iOS UIView vs Android Composable），且一期无 Lottie 依赖。</td><td>淘汰：登记二期（anti_goals）</td></tr>
+</table>
+
+<h3>P3 · iOS 实现路径：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：circular=UIActivityIndicatorView 系统 / spinner=CAShapeLayer+5 线 CABasicAnimation 自绘</td><td>✅ circular 用系统原生动画（零自制）；spinner 用 CoreAnimation 5 线 scaleY 交替（与 Android Canvas 同构）；颜色/大小参数化</td><td><b>推荐 A</b>：系统原生优先+自绘补齐 spinner</td></tr>
+<tr><td>B：全自绘（CABasicAnimation 旋转 CAShapeLayer 圆环）</td><td>不利用系统 UIActivityIndicatorView，多此一举。</td><td>淘汰：系统原生优先</td></tr>
+<tr><td>C：Lottie SDK 依赖</td><td>引入三方库依赖，与库内零三方依赖原则冲突。</td><td>淘汰：anti_goals 已登记</td></tr>
+</table>
+
+<h3>P4 · 一期范围裁剪：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：双类型（circular/spinner）+ 双方向（horizontal/vertical）+ 可选文案 + color/size/textSize 参数 + Demo 4 组 1:1</td><td>✅ 覆盖 NutUI 全部主流场景；circular 系统+spinner 自绘双路径；内联/全屏双展示</td><td><b>推荐 A</b>：范围收敛但覆盖完整</td></tr>
+<tr><td>B：一期仅 circular+horizontal（无 spinner/vertical）</td><td>与 NutUI type/direction 对不齐，功能残缺。</td><td>淘汰：spinner/vertical 是基础</td></tr>
+<tr><td>C：一期即支持自定义 icon slot + Lottie</td><td>增加三方依赖+双端一致性风险。</td><td>淘汰：登记二期</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 预览（4 组排查，双端 1:1）</h2>
+<div class="spec-card">
+
+<h3>D1 · 基础加载（circular 类型，无文案）</h3>
+<p>最简用法：circular 环形旋转图标，无文案，验证默认参数。</p>
+<div class="viewport">
+  <span class="loading-circular"></span>
+</div>
+
+<h3>D2 · 带文案（horizontal + vertical 两种排列）</h3>
+<p>图标+文案双方向：水平排列（默认）+ 竖向排列，验证 direction 参数。</p>
+<div class="viewport" style="flex-direction:column;gap:var(--spaceLg);">
+  <div class="loading-h"><span class="loading-circular"></span><span class="loading-text">加载中...</span></div>
+  <div class="loading-v"><span class="loading-circular"></span><span class="loading-text">加载中...</span></div>
+</div>
+
+<h3>D3 · spinner 类型 + 自定义颜色大小</h3>
+<p>type=spinner（5 线跳动）+ color=primary + size=32 + textSize=sizeMd，验证 type/color/size/textSize 参数。</p>
+<div class="viewport" style="flex-direction:column;gap:var(--spaceLg);">
+  <div class="loading-h"><span class="loading-spinner"><i></i><i></i><i></i><i></i><i></i></span><span class="loading-custom-text">正在加载...</span></div>
+  <div class="loading-h"><span class="loading-custom"></span><span class="loading-custom-text">加载中...</span></div>
+</div>
+
+<h3>D4 · 全屏遮罩加载（Overlay + Loading 组合）</h3>
+<p>宿主组合 Overlay 做全屏加载：Overlay visible=true + Loading vertical 居中，验证组合模式（点击遮罩不穿透=阻断交互）。</p>
+<div class="overlay-demo">
+  <span class="loading-text">页面内容（被遮罩阻断交互）</span>
+  <div class="overlay-mask">
+    <div class="loading-v"><span class="loading-circular" style="border-color:#FFF;border-top-color:transparent;"></span><span class="loading-text" style="color:#FFF;">加载中...</span></div>
+  </div>
+</div>
+</div>
+
+<h2>05 · 平台差异表（表内放行，表外必须双端统一）</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>circular 实现</td><td>UIActivityIndicatorView（系统菊花）</td><td>CircularProgressIndicator（Compose 圆形进度）</td><td>系统级原生差异：各自系统加载动画</td></tr>
+<tr><td>spinner 实现</td><td>CAShapeLayer+5 线 CABasicAnimation scaleY</td><td>Canvas+5 线 animateFloat scaleY</td><td>语义一致：均为 5 线交替跳动（表内放行，控制点 1:1 对齐）</td></tr>
+<tr class="diff-row"><td>文案渲染</td><td>UILabel 文本</td><td>Text 文本</td><td>同一文案双端渲染（表内放行）</td></tr>
+<tr class="diff-row"><td>方向排列</td><td>UIStackView axis=.horizontal/.vertical</td><td>Row/Column Arrangement</td><td>语义一致：均为 flex 排列（表内放行）</td></tr>
+<tr><td>全屏遮罩</td><td>宿主 Overlay #6 + keyWindow 挂载</td><td>宿主 Overlay #6 + Dialog/Popup</td><td>遮罩由 Overlay #6 统一承载，Loading 不内置（表内放行）</td></tr>
+</table>
+</div>
+
+<h2>06 · API 草案（双端一致契约，门禁 B 据此登记 api.json）</h2>
+<div class="spec-card">
+<table>
+<tr><th>端</th><th>API</th></tr>
+<tr><td>iOS</td><td><code>Loading(type: LoadingType = .circular, direction: LoadingDirection = .horizontal, text: String? = nil, color: UIColor = AppColor.textSecondary, size: CGFloat = AppFont.sizeLg, textSize: CGFloat = AppFont.sizeSm)</code>；<br/>枚举：<code>enum LoadingType { case circular, spinner }</code> / <code>enum LoadingDirection { case horizontal, vertical }</code></td></tr>
+<tr><td>Android</td><td><code>@Composable fun Loading(type: LoadingType = LoadingType.CIRCULAR, direction: LoadingDirection = LoadingDirection.HORIZONTAL, text: String? = null, color: Color = AppColor.textSecondary, size: Dp = AppFont.sizeLg, textSize: TextUnit = AppFont.sizeSm, modifier: Modifier = Modifier)</code>；<br/>枚举：<code>enum class LoadingType { CIRCULAR, SPINNER }</code> / <code>enum class LoadingDirection { HORIZONTAL, VERTICAL }</code></td></tr>
+</table>
+</div>
+
+<h2>07 · A1–A7 验收清单（门禁 A）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>项</th><th>判定</th><th>结果</th></tr>
+<tr><td>A1</td><td>用途/边界（01 节：全屏/区域加载指示、与列表底部加载/进度值/骨架屏/下拉刷新/Toast 划界）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A2</td><td>Token 零硬编码（图标/文案/颜色/字号/间距全 token 化）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A3</td><td>P1–P4 决策投票表（全 A + 反目标登记）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A4</td><td>Demo 预览 4 组可 1:1 排查（基础/带文案方向/spinner+自定义/全屏遮罩组合）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A5</td><td>实现现状（双端均未实现，本规格为首立项入口）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A6</td><td>平台差异表放行（circular/spinner 系统级差异+文案/方向渲染差异）</td><td>通过</td><td>✅</td></tr>
+<tr><td>A7</td><td>anti_goals 明确（自包含遮罩/纯图标/Lottie 三方依赖/自定义 icon slot 二期）</td><td>通过</td><td>✅</td></tr>
+</table>
+</div>
+</body>
+</html>

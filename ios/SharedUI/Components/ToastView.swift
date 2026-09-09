@@ -99,27 +99,27 @@ public final class Toast {
     // MARK: - 静态方法
 
     /// 显示一条 Toast（默认 text 类型，默认 2 秒）。
-    public static func show(message: String, type: ToastType = .text, duration: TimeInterval = Layout.defaultDuration) {
+    public static func show(message: String, type: ToastType = .text, duration: TimeInterval = 2.0) {
         shared.display(message: message, type: type, duration: duration)
     }
 
     /// 成功提示（绿色 ✓，默认 2 秒）。
-    public static func success(_ message: String, duration: TimeInterval = Layout.defaultDuration) {
+    public static func success(_ message: String, duration: TimeInterval = 2.0) {
         shared.display(message: message, type: .success, duration: duration)
     }
 
     /// 错误提示（红色 ✗，默认 2 秒）。
-    public static func error(_ message: String, duration: TimeInterval = Layout.defaultDuration) {
+    public static func error(_ message: String, duration: TimeInterval = 2.0) {
         shared.display(message: message, type: .error, duration: duration)
     }
 
     /// 警告提示（黄色 ⚠，默认 2 秒）。
-    public static func warning(_ message: String, duration: TimeInterval = Layout.defaultDuration) {
+    public static func warning(_ message: String, duration: TimeInterval = 2.0) {
         shared.display(message: message, type: .warning, duration: duration)
     }
 
     /// 信息提示（蓝色 ℹ，默认 2 秒）。
-    public static func info(_ message: String, duration: TimeInterval = Layout.defaultDuration) {
+    public static func info(_ message: String, duration: TimeInterval = 2.0) {
         shared.display(message: message, type: .info, duration: duration)
     }
 

@@ -9549,10 +9549,10 @@ final class SwipeShowcase: ShowcaseViewController {
         // ── D3 · disabled 禁用 ──
         addSection(title: "Demo 3 · disabled 禁用") { container in
             let item = SwipeItem(
-                disabled: true,
                 actions: [SwipeAction(text: "删除", color: .danger) { [weak self] in
                     self?.showToast("已删除")
-                }]
+                }],
+                disabled: true
             )
             item.contentView = self.makeRow(text: "账目 #3（disabled，不可滑动）", secondary: true)
             container.addSubview(item)

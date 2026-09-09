@@ -154,7 +154,7 @@ public final class SwipeItem: UIView {
             let proposed = startX + translation.x
             let maxRight = leftButtonsWidth    // 右滑最大=左操作总宽
             let maxLeft  = -rightButtonsWidth  // 左滑最大=右操作总宽
-            offsetX =max(maxLeft, min(maxRight, proposed))
+            offsetX = max(maxLeft, min(maxRight, proposed))
             applyOffset(animated: false)
         case .ended, .cancelled:
             let maxRight = leftButtonsWidth

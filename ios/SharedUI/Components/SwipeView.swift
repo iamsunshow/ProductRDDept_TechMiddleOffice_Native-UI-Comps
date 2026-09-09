@@ -215,17 +215,17 @@ public final class SwipeItem: UIView {
     }
 
     private func layoutButtons() {
-        // 左操作——从左到右排列，紧贴左边缘外
+        // 左操作——从左到右排列，紧贴左边缘内（bounds 内，被主内容遮挡，移走后露出）
         var leftX: CGFloat = 0
         for btn in leftButtons {
-            btn.frame = CGRect(x: leftX - leftButtonsWidth, y: 0, width: Layout.actionWidth, height: bounds.height)
+            btn.frame = CGRect(x: leftX, y: 0, width: Layout.actionWidth, height: bounds.height)
             leftX += Layout.actionWidth
         }
-        // 右操作——从右到左排列，紧贴右边缘外
+        // 右操作——从右到左排列，紧贴右边缘内
         var rightX: CGFloat = bounds.width
         for btn in rightButtons {
+            rightX -= Layout.actionWidth
             btn.frame = CGRect(x: rightX, y: 0, width: Layout.actionWidth, height: bounds.height)
-            rightX += Layout.actionWidth
         }
         applyOffset(animated: false)
     }

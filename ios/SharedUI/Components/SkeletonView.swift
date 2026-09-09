@@ -104,15 +104,17 @@ public final class SkeletonBlock: UIView {
 
     public override func updateConstraints() {
         snp.remakeConstraints { make in
+            // percentage 模式不加约束（由外部容器约束决定宽度，避免双重约束冲突）
+            // fixed 模式加固定宽度
             switch width {
-            case .percentage(let pct):
-                make.width.equalToSuperview().multipliedBy(pct)
+            case .percentage:
+                break
             case .fixed(let v):
                 make.width.equalTo(v)
             }
             switch height {
-            case .percentage(let pct):
-                make.height.equalToSuperview().multipliedBy(pct)
+            case .percentage:
+                break
             case .fixed(let v):
                 make.height.equalTo(v)
             }
@@ -142,6 +144,7 @@ public final class SkeletonBlock: UIView {
 // MARK: - SkeletonRow（包裹器）
 
 /// 骨架行包裹器——loading=true 显示骨架行（avatar+title+subtitle），loading=false 显示 content。
+/// 不用 UIStackView（避免 arrangedSubview 的 width 约束冲突），改用纯 UIView + 手动 Auto Layout。
 public final class SkeletonRow: UIView {
 
     // MARK: - Props
@@ -162,14 +165,14 @@ public final class SkeletonRow: UIView {
     public var subtitleWidth: SkeletonDimension = .percentage(0.4) { didSet { updateSkeletonLayout() } }
     public var content: UIView? { didSet { replaceContent() } }
 
-    // MARK: - 子视图
+    // MARK: - 子视图（纯 UIView 容器，不用 stack）
 
-    private let skeletonContainer = UIStackView()
+    private let skeletonContainer = UIView()
     private var avatarBlock: SkeletonBlock?
-    private var textColumn = UIStackView()
     private var titleBlock: SkeletonBlock?
     private var subtitleBlock: SkeletonBlock?
     private var contentView: UIView?
+    private var textColumnView: UIView?
 
     // MARK: - 常量
 
@@ -177,6 +180,7 @@ public final class SkeletonRow: UIView {
         static let avatarSize: CGFloat = 40
         static let blockHeight: CGFloat = 12
         static let spacing: CGFloat = 12
+        static let textSpacing: CGFloat = 6
     }
 
     // MARK: - Init
@@ -203,18 +207,10 @@ public final class SkeletonRow: UIView {
 
     private func setupViews() {
         backgroundColor = .clear
-
-        skeletonContainer.axis = .horizontal
-        skeletonContainer.alignment = .center
-        skeletonContainer.spacing = Layout.spacing
         addSubview(skeletonContainer)
         skeletonContainer.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-
-        textColumn.axis = .vertical
-        textColumn.alignment = .fill
-        textColumn.spacing = 6
     }
 
     // MARK: - Skeleton 显示/隐藏
@@ -231,29 +227,76 @@ public final class SkeletonRow: UIView {
     }
 
     private func updateSkeletonLayout() {
-        // 清空
-        skeletonContainer.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        textColumn.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        // 清空旧 subview
+        skeletonContainer.subviews.forEach { $0.removeFromSuperview() }
+        avatarBlock = nil
+        titleBlock = nil
+        subtitleBlock = nil
+        textColumnView = nil
 
-        // 头像
+        var leadingAnchor = skeletonContainer.snp.leading
+        var leadingOffset: CGFloat = 0
+
+        // 头像（固定 40×40，垂直居中）
         if avatar {
             let av = SkeletonBlock(width: .fixed(Layout.avatarSize), height: .fixed(Layout.avatarSize), cornerRadius: Layout.avatarSize / 2)
             avatarBlock = av
-            skeletonContainer.addArrangedSubview(av)
+            skeletonContainer.addSubview(av)
+            av.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(leadingOffset)
+                make.centerY.equalToSuperview()
+                make.size.equalTo(Layout.avatarSize)
+            }
+            leadingOffset += Layout.avatarSize + Layout.spacing
         }
 
-        // 文字列
+        // 文字列容器（撑满剩余宽度，title/subtitle 在内用 percentage）
+        let textCol = UIView()
+        textCol.backgroundColor = .clear
+        textColumnView = textCol
+        skeletonContainer.addSubview(textCol)
+        textCol.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(leadingOffset)
+            make.trailing.equalToSuperview()
+            make.centerY.equalToSuperview()
+        }
+
+        // title（percentage 相对于 textCol）
         let titleBlk = SkeletonBlock(width: titleWidth, height: .fixed(Layout.blockHeight))
         titleBlock = titleBlk
-        textColumn.addArrangedSubview(titleBlk)
+        textCol.addSubview(titleBlk)
+        titleBlk.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.leading.equalToSuperview()
+            make.height.equalTo(Layout.blockHeight)
+        }
+        switch titleWidth {
+        case .percentage(let pct):
+            titleBlk.snp.makeConstraints { make in make.width.equalTo(textCol).multipliedBy(pct) }
+        case .fixed(let v):
+            titleBlk.snp.makeConstraints { make in make.width.equalTo(v) }
+        }
 
+        // subtitle（percentage 相对于 textCol）
         if subtitle {
             let subBlk = SkeletonBlock(width: subtitleWidth, height: .fixed(Layout.blockHeight))
             subtitleBlock = subBlk
-            textColumn.addArrangedSubview(subBlk)
+            textCol.addSubview(subBlk)
+            subBlk.snp.makeConstraints { make in
+                make.top.equalTo(titleBlk.snp.bottom).offset(Layout.textSpacing)
+                make.leading.equalToSuperview()
+                make.height.equalTo(Layout.blockHeight)
+                make.bottom.equalToSuperview()
+            }
+            switch subtitleWidth {
+            case .percentage(let pct):
+                subBlk.snp.makeConstraints { make in make.width.equalTo(textCol).multipliedBy(pct) }
+            case .fixed(let v):
+                subBlk.snp.makeConstraints { make in make.width.equalTo(v) }
+            }
+        } else {
+            titleBlk.snp.makeConstraints { make in make.bottom.equalToSuperview() }
         }
-
-        skeletonContainer.addArrangedSubview(textColumn)
     }
 
     private func replaceContent() {

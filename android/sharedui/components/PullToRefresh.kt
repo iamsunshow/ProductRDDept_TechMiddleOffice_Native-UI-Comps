@@ -102,9 +102,9 @@ fun PullToRefresh(
     content: @Composable () -> Unit
 ) {
     val density = LocalDensity.current
-    val thresholdPx = with(density) { 72.dp.toPx() }
+    val thresholdPx = with(density) { 56.dp.toPx() }
     val maxPullPx = thresholdPx * 1.6f
-    val holdPx = with(density) { 64.dp.toPx() }
+    val holdPx = with(density) { 48.dp.toPx() }
 
     val pullAnim = remember { Animatable(0f) }
     var dragPull by remember { mutableFloatStateOf(0f) }
@@ -152,7 +152,7 @@ fun PullToRefresh(
                 if (refreshingState.value || !enabledState.value) return Offset.Zero
                 // 到顶后继续下拉 → 顶开内容
                 if (available.y > 0f && canPullState.value()) {
-                    val next = (dragPull + available.y * 0.55f).coerceIn(0f, maxPullPx)
+                    val next = (dragPull + available.y * 0.7f).coerceIn(0f, maxPullPx)
                     val consumedY = next - dragPull
                     dragPull = next
                     return Offset(0f, consumedY)

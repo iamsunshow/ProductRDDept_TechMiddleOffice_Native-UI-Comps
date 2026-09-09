@@ -19,6 +19,10 @@
 //  - primary=#16A34A，danger=#DC2626，warning=#F59E0B，default=#6B7280
 //  - 滑动动画 250ms tween
 //
+//  实现（与 iOS SwipeView 1:1）：
+//  - 底层操作按钮：绝对定位在左端/右端（bounds 内，被主内容遮挡）
+//  - 顶层主内容：offset 整体移动（含背景），移走后露出底层操作按钮
+//
 //  用法：
 //  ```kotlin
 //  SwipeItem(
@@ -37,7 +41,10 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -82,7 +89,13 @@ data class SwipeAction(
 
 // MARK: - 滑动容器
 
-/** 列表项横向滑动露出操作按钮的包裹器（左右双向）。 */
+/**
+ * 列表项横向滑动露出操作按钮的包裹器（左右双向）。
+ *
+ * 实现与 iOS SwipeView 1:1：
+ * - 底层操作按钮绝对定位在左端/右端（bounds 内，被主内容遮挡，移走后露出）
+ * - 顶层主内容 offset 整体移动（含背景白色），露出底层操作按钮
+ */
 @Composable
 fun SwipeItem(
     actions: List<SwipeAction> = emptyList(),
@@ -108,10 +121,10 @@ fun SwipeItem(
         label = "swipe-offset"
     )
 
-    Box(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight()
+            .height(56.dp)
             .pointerInput(disabled) {
                 if (disabled) return@pointerInput
                 detectHorizontalDragGestures(
@@ -144,70 +157,56 @@ fun SwipeItem(
                 }
             }
     ) {
-        // 底层左操作（右滑露出，左对齐）
-        if (leftActions.isNotEmpty()) {
-            Row(
+        val containerWidthPx = with(density) { maxWidth.toPx() }
+
+        // 底层左操作（右滑露出，左对齐绝对定位）
+        leftActions.forEachIndexed { i, action ->
+            val leftOffset = i * actionWidthPx
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
+                    .offset { IntOffset(leftOffset.roundToInt(), 0) }
+                    .width(80.dp)
+                    .fillMaxHeight()
+                    .background(action.color.color)
+                    .pointerInput(action) {
+                        detectTapGestures(onTap = {
+                            action.onClick()
+                            if (autoClose) { targetX = 0f; offsetX = 0f; isAnimating = true }
+                        })
+                    },
+                contentAlignment = Alignment.Center
             ) {
-                leftActions.forEach { action ->
-                    Box(
-                        modifier = Modifier
-                            .width(80.dp)
-                            .height(56.dp)
-                            .background(action.color.color)
-                            .pointerInput(action) {
-                                detectTapGestures(onTap = {
-                                    action.onClick()
-                                    if (autoClose) { targetX = 0f; offsetX = 0f; isAnimating = true }
-                                })
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = action.text, color = Color.White, fontSize = 16.sp)
-                    }
-                }
+                Text(text = action.text, color = Color.White, fontSize = 16.sp)
             }
         }
 
-        // 底层右操作（左滑露出，右对齐）
-        if (actions.isNotEmpty()) {
-            Row(
+        // 底层右操作（左滑露出，右对齐绝对定位，从右到左排列）
+        actions.forEachIndexed { i, action ->
+            val rightOffset = containerWidthPx - (i + 1) * actionWidthPx
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
+                    .offset { IntOffset(rightOffset.roundToInt(), 0) }
+                    .width(80.dp)
+                    .fillMaxHeight()
+                    .background(action.color.color)
+                    .pointerInput(action) {
+                        detectTapGestures(onTap = {
+                            action.onClick()
+                            if (autoClose) { targetX = 0f; offsetX = 0f; isAnimating = true }
+                        })
+                    },
+                contentAlignment = Alignment.Center
             ) {
-                actions.forEach { action ->
-                    Box(
-                        modifier = Modifier
-                            .width(80.dp)
-                            .height(56.dp)
-                            .background(action.color.color)
-                            .pointerInput(action) {
-                                detectTapGestures(onTap = {
-                                    action.onClick()
-                                    if (autoClose) { targetX = 0f; offsetX = 0f; isAnimating = true }
-                                })
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = action.text, color = Color.White, fontSize = 16.sp)
-                    }
-                }
+                Text(text = action.text, color = Color.White, fontSize = 16.sp)
             }
         }
 
-        // 顶层主内容（随偏移移动）
+        // 顶层主内容（整体 offset 移动，含背景白色，露出底层操作按钮）
         val displayX = if (isAnimating) animatedX else offsetX
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .fillMaxHeight()
                 .background(Color.White)
                 .offset { IntOffset(displayX.roundToInt(), 0) }
         ) {

@@ -43,7 +43,14 @@ public final class PullRefreshView: UIView {
         didSet {
             guard refreshing != oldValue else { return }
             if refreshing {
-                refreshControl.beginRefreshing()
+                // 确保 layout 完成后再 beginRefreshing，否则 scrollview 未上屏时指示器不显示
+                contentScrollView.layoutIfNeeded()
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    if self.refreshing {
+                        self.refreshControl.beginRefreshing()
+                    }
+                }
             } else {
                 refreshControl.endRefreshing()
             }
@@ -55,9 +62,15 @@ public final class PullRefreshView: UIView {
         didSet { applyTitle() }
     }
 
-    /// 是否允许下拉刷新，默认 true。
+    /// 是否允许下拉刷新，默认 true。false 时移除 refreshControl 真正禁用下拉手势。
     public var enabled: Bool = true {
-        didSet { refreshControl.isEnabled = enabled }
+        didSet {
+            if enabled {
+                contentScrollView.refreshControl = refreshControl
+            } else {
+                contentScrollView.refreshControl = nil
+            }
+        }
     }
 
     /// 下拉触发刷新回调。

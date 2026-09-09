@@ -9443,20 +9443,35 @@ final class SkeletonShowcase: ShowcaseViewController {
         }
         addInfo("3 行骨架行（avatar+title70%+subtitle40%），2 秒后切换为真实内容。")
 
-        // ── D2 · 自定义骨架块组合（模拟卡片）──
+        // ── D2 · 自定义骨架块组合（模拟卡片，纯 UIView 容器不用 stack 避免 percentage 冲突）──
         addSection(title: "Demo 2 · 自定义骨架块组合") { container in
-            let col = UIStackView()
-            col.axis = .vertical
-            col.spacing = AppSpace.sm
+            let col = UIView()
             let big = SkeletonBlock(width: .percentage(1.0), height: .fixed(120))
             let line1 = SkeletonBlock(width: .percentage(0.7), height: .fixed(12))
             let line2 = SkeletonBlock(width: .percentage(0.4), height: .fixed(12))
-            col.addArrangedSubview(big)
-            col.addArrangedSubview(line1)
-            col.addArrangedSubview(line2)
+            col.addSubview(big)
+            col.addSubview(line1)
+            col.addSubview(line2)
             container.addSubview(col)
             col.snp.makeConstraints { make in
                 make.edges.equalToSuperview().inset(AppSpace.sm)
+            }
+            big.snp.makeConstraints { make in
+                make.top.leading.trailing.equalToSuperview()
+                make.height.equalTo(120)
+            }
+            line1.snp.makeConstraints { make in
+                make.top.equalTo(big.snp.bottom).offset(AppSpace.sm)
+                make.leading.equalToSuperview()
+                make.width.equalTo(col).multipliedBy(0.7)
+                make.height.equalTo(12)
+            }
+            line2.snp.makeConstraints { make in
+                make.top.equalTo(line1.snp.bottom).offset(AppSpace.sm)
+                make.leading.equalToSuperview()
+                make.width.equalTo(col).multipliedBy(0.4)
+                make.height.equalTo(12)
+                make.bottom.equalToSuperview()
             }
         }
         addInfo("原子块自由组合：大矩形块+标题行70%+副标题行40%。")

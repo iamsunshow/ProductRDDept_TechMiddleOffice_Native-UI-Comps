@@ -90,7 +90,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.refresh", name: "PullToRefresh 下拉刷新", reviewed: true, create: { PullRefreshShowcase() }),
             DemoComponent(id: "ui.result-page", name: "ResultPage 结果反馈", reviewed: true, create: { ResultPageShowcase() }),
             DemoComponent(id: "ui.skeleton", name: "Skeleton 骨架屏", reviewed: true, create: { SkeletonShowcase() }),
-            DemoComponent(id: "ui.swipe", name: "Swipe 滑动", reviewed: false, create: nil),
+            DemoComponent(id: "ui.swipe", name: "Swipe 滑动", reviewed: true, create: { SwipeShowcase() }),
             DemoComponent(id: "ui.toast", name: "Toast 吐司", reviewed: false, create: nil),
         ]),
         ("展示组件", [
@@ -9489,5 +9489,132 @@ final class SkeletonShowcase: ShowcaseViewController {
             }
         }
         addInfo("圆形骨架块 64/48/32，shimmer 扫光一致。")
+    }
+}
+
+// MARK: - Swipe 滑动 Showcase（操作反馈区 #58）
+
+final class SwipeShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Swipe 滑动"
+        buildDemo()
+    }
+
+    private func buildDemo() {
+        // ── D1 · 基础右滑删除 ──
+        addSection(title: "Demo 1 · 基础右滑删除") { container in
+            let item = SwipeItem(
+                actions: [SwipeAction(text: "删除", color: .danger) { [weak self] in
+                    self?.showToast("已删除")
+                }]
+            )
+            item.contentView = self.makeRow(text: "账目 #1")
+            container.addSubview(item)
+            item.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                item.topAnchor.constraint(equalTo: container.topAnchor),
+                item.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+                item.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+                item.heightAnchor.constraint(equalToConstant: 56),
+                item.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+            ])
+        }
+        addInfo("右滑露出删除按钮（红底白字 80pt），点击删除回调触发+自动收起。")
+
+        // ── D2 · 双向滑动 ──
+        addSection(title: "Demo 2 · 双向滑动") { container in
+            let item = SwipeItem(
+                actions: [SwipeAction(text: "删除", color: .danger) { [weak self] in
+                    self?.showToast("右滑删除")
+                }],
+                leftActions: [SwipeAction(text: "标记", color: .primary) { [weak self] in
+                    self?.showToast("左滑标记")
+                }]
+            )
+            item.contentView = self.makeRow(text: "账目 #2")
+            container.addSubview(item)
+            item.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                item.topAnchor.constraint(equalTo: container.topAnchor),
+                item.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+                item.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+                item.heightAnchor.constraint(equalToConstant: 56),
+                item.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+            ])
+        }
+        addInfo("右滑露删除（红），左滑露标记（绿），双向均可滑动+点击回调。")
+
+        // ── D3 · disabled 禁用 ──
+        addSection(title: "Demo 3 · disabled 禁用") { container in
+            let item = SwipeItem(
+                disabled: true,
+                actions: [SwipeAction(text: "删除", color: .danger) { [weak self] in
+                    self?.showToast("已删除")
+                }]
+            )
+            item.contentView = self.makeRow(text: "账目 #3（disabled，不可滑动）", secondary: true)
+            container.addSubview(item)
+            item.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                item.topAnchor.constraint(equalTo: container.topAnchor),
+                item.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+                item.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+                item.heightAnchor.constraint(equalToConstant: 56),
+                item.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+            ])
+        }
+        addInfo("disabled=true，滑动无响应，主内容正常显示。")
+
+        // ── D4 · 自定义多操作 ──
+        addSection(title: "Demo 4 · 自定义多操作") { container in
+            let item = SwipeItem(
+                actions: [
+                    SwipeAction(text: "置顶", color: .warning) { [weak self] in
+                        self?.showToast("已置顶")
+                    },
+                    SwipeAction(text: "删除", color: .danger) { [weak self] in
+                        self?.showToast("已删除")
+                    }
+                ]
+            )
+            item.contentView = self.makeRow(text: "账目 #4")
+            container.addSubview(item)
+            item.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                item.topAnchor.constraint(equalTo: container.topAnchor),
+                item.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+                item.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+                item.heightAnchor.constraint(equalToConstant: 56),
+                item.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+            ])
+        }
+        addInfo("右滑露出置顶（黄）+删除（红）两个操作，各 80pt，点击对应回调。")
+    }
+
+    /// 构造标准行视图（白底+文本）。
+    private func makeRow(text: String, secondary: Bool = false) -> UIView {
+        let row = UIView()
+        row.backgroundColor = .white
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: 16)
+        label.textColor = secondary ? AppColor.textSecondary : AppColor.textPrimary
+        label.translatesAutoresizingMaskIntoConstraints = false
+        row.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.leadingAnchor.constraint(equalTo: row.leadingAnchor, constant: 16),
+            label.centerYAnchor.constraint(equalTo: row.centerYAnchor)
+        ])
+        return row
+    }
+
+    /// 简易 toast 提示（复用 ShowcaseViewController 的 toast 能力）。
+    private func showToast(_ msg: String) {
+        let alert = UIAlertController(title: nil, message: msg, preferredStyle: .alert)
+        present(alert, animated: true) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { alert.dismiss(animated: true) }
+        }
     }
 }

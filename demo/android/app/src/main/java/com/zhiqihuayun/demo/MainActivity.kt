@@ -199,6 +199,9 @@ import com.zhiqihuayun.sharedui.components.PullToRefresh
 import com.zhiqihuayun.sharedui.components.isAtTop
 import com.zhiqihuayun.sharedui.components.SkeletonBlock
 import com.zhiqihuayun.sharedui.components.SkeletonRow
+import com.zhiqihuayun.sharedui.components.SwipeItem
+import com.zhiqihuayun.sharedui.components.SwipeAction
+import com.zhiqihuayun.sharedui.components.SwipeActionColor
 import com.zhiqihuayun.sharedui.components.ResultPage
 import com.zhiqihuayun.sharedui.components.ResultType
 import com.zhiqihuayun.sharedui.components.ResultActionStyle
@@ -301,7 +304,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("PullToRefresh 下拉刷新", reviewed = true, demo = { PullToRefreshDemo() }),
         DemoComponent("ResultPage 结果反馈", reviewed = true, demo = { ResultPageDemo() }),
         DemoComponent("Skeleton 骨架屏", reviewed = true, demo = { SkeletonDemo() }),
-        DemoComponent("Swipe 滑动"),
+        DemoComponent("Swipe 滑动", reviewed = true, demo = { SwipeDemo() }),
         DemoComponent("Toast 吐司"),
     ),
     "展示组件" to listOf(
@@ -8346,6 +8349,157 @@ fun SkeletonDemo() {
         item {
             Text(
                 text = "圆形骨架块 64/48/32，shimmer 扫光一致。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
+        }
+    }
+}
+
+/**
+ * Swipe 滑动 Demo（操作反馈区 #58）。
+ * 4 组排查：① 基础右滑删除（actions=[删除 danger]）② 双向滑动（左滑标记 primary+右滑删除 danger）
+ * ③ disabled 禁用（滑动无响应主内容可点）④ 自定义多操作（置顶 warning+删除 danger 双按钮）。
+ * 双端 1:1（Android Swipe vs iOS SwipeItem，均手动偏移+松手回弹）。
+ */
+@Composable
+fun SwipeDemo() {
+    val context = LocalContext.current
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1 基础右滑删除
+        item {
+            DemoSectionCard(title = "D1 · 基础右滑删除") {
+                SwipeItem(
+                    actions = listOf(
+                        SwipeAction("删除", SwipeActionColor.Danger) {
+                            Toast.makeText(context, "已删除", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .background(Color.White)
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("账目 #1", fontSize = AppFont.sizeMd, color = AppColor.textPrimary)
+                    }
+                }
+            }
+        }
+        item {
+            Text(
+                text = "右滑露出删除按钮（红底白字 80dp），点击删除回调触发+自动收起。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
+        }
+
+        // D2 双向滑动
+        item {
+            DemoSectionCard(title = "D2 · 双向滑动") {
+                SwipeItem(
+                    actions = listOf(
+                        SwipeAction("删除", SwipeActionColor.Danger) {
+                            Toast.makeText(context, "右滑删除", Toast.LENGTH_SHORT).show()
+                        }
+                    ),
+                    leftActions = listOf(
+                        SwipeAction("标记", SwipeActionColor.Primary) {
+                            Toast.makeText(context, "左滑标记", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .background(Color.White)
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("账目 #2", fontSize = AppFont.sizeMd, color = AppColor.textPrimary)
+                    }
+                }
+            }
+        }
+        item {
+            Text(
+                text = "右滑露删除（红），左滑露标记（绿），双向均可滑动+点击回调。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
+        }
+
+        // D3 disabled 禁用
+        item {
+            DemoSectionCard(title = "D3 · disabled 禁用") {
+                SwipeItem(
+                    disabled = true,
+                    actions = listOf(
+                        SwipeAction("删除", SwipeActionColor.Danger) {
+                            Toast.makeText(context, "已删除", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .background(Color.White)
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("账目 #3（disabled，不可滑动）", fontSize = AppFont.sizeMd, color = AppColor.textSecondary)
+                    }
+                }
+            }
+        }
+        item {
+            Text(
+                text = "disabled=true，滑动无响应，主内容正常显示。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
+        }
+
+        // D4 自定义多操作
+        item {
+            DemoSectionCard(title = "D4 · 自定义多操作") {
+                SwipeItem(
+                    actions = listOf(
+                        SwipeAction("置顶", SwipeActionColor.Warning) {
+                            Toast.makeText(context, "已置顶", Toast.LENGTH_SHORT).show()
+                        },
+                        SwipeAction("删除", SwipeActionColor.Danger) {
+                            Toast.makeText(context, "已删除", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .background(Color.White)
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("账目 #4", fontSize = AppFont.sizeMd, color = AppColor.textPrimary)
+                    }
+                }
+            }
+        }
+        item {
+            Text(
+                text = "右滑露出置顶（黄）+删除（红）两个操作，各 80dp，点击对应回调。",
                 fontSize = AppFont.sizeXs,
                 color = AppColor.textSecondary
             )

@@ -7323,6 +7323,90 @@
       "status": "stable",
       "note": "骨架屏（操作反馈区 #57，全新立项，2026-09-09）：首屏/加载过渡期占位骨架=灰块模拟内容布局+shimmer 扫光动画；双模式=原子块 SkeletonBlock(width/height/radius) 灵活组合 + 包裹器 SkeletonRow(loading/avatar/titleWidth/subtitle/subtitleWidth + content slot) 开箱即用；loading 受控切换骨架/真实内容；与 InfiniteLoading #49（底部增量 vs 首屏占位）/Loading #50（全屏遮罩 vs 内容布局骨架）/Empty #48（无数据 vs 加载占位）/ResultPage #56（操作结果 vs 加载过渡）划界；anti_goals 二期=自定义 shimmer 颜色/方向、切换动画、动态行数、Lottie。2026-09-09 门禁 A AI 代评通过（规格 design-spec/skeleton-design-spec.html + ../评审记录/review-skeleton-A.md，P1–P4 全 A 0 保留意见）。验证版本 v1.4.14（C1.5 用户双端 Demo 实机验收待走）。",
       "subcategory": "feedback"
+    },
+    {
+      "id": "ui.swipe",
+      "name": "Swipe 滑动",
+      "category": "ui",
+      "summary": "列表项横向滑动露出操作按钮（操作反馈区 #58，全新立项）：左右双向滑动露操作+自定义操作文本/颜色/回调+松手自动回弹；SwipeItem 包裹器（横向滑动容器+主内容+左右操作列表）+ SwipeAction 数据结构（text/color/onClick）；与 Drag #47（长按拖拽排序 vs 横向滑动露操作）/ActionSheet #44（底部遮罩 vs 列表项内嵌）/Notify #52（全局浮层 vs 列表项持续）划界；anti_goals 二期=自定义操作内容/阈值可配/嵌套 Swipe/上下滑/Lottie",
+      "capabilities": [
+        "滑动",
+        "Swipe",
+        "侧滑",
+        "滑动操作",
+        "SwipeAction",
+        "左滑右滑"
+      ],
+      "props": [
+        [
+          "actions",
+          "SwipeAction[]",
+          "否",
+          "右滑露出的操作列表（从右到左排列），默认 []"
+        ],
+        [
+          "leftActions",
+          "SwipeAction[]",
+          "否",
+          "左滑露出的操作列表（从左到右排列），默认 []"
+        ],
+        [
+          "disabled",
+          "boolean",
+          "否",
+          "是否禁用滑动（主内容仍可点击），默认 false"
+        ],
+        [
+          "autoClose",
+          "boolean",
+          "否",
+          "点击操作后是否自动收起回中，默认 true"
+        ],
+        [
+          "slot: children",
+          "—",
+          "是",
+          "主内容（列表项真实内容）"
+        ]
+      ],
+      "events": [],
+      "demos": [
+        [
+          "基础右滑删除",
+          "<SwipeItem actions={[{text:'删除',color:'danger',onClick:()=>{}}]}>主内容</SwipeItem>"
+        ],
+        [
+          "双向滑动",
+          "<SwipeItem actions={[{text:'删除',color:'danger'}]} leftActions={[{text:'标记',color:'primary'}]}>主内容</SwipeItem>"
+        ],
+        [
+          "disabled 禁用",
+          "<SwipeItem disabled actions={[{text:'删除',color:'danger'}]}>主内容</SwipeItem>"
+        ],
+        [
+          "自定义多操作",
+          "<SwipeItem actions={[{text:'置顶',color:'warning'},{text:'删除',color:'danger'}]}>主内容</SwipeItem>"
+        ]
+      ],
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/SwipeView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Swipe.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "自定义操作按钮内容（图标/自定义视图）",
+        "滑动距离阈值可配（一期固定 50% 操作宽度展开）",
+        "嵌套 Swipe（Swipe 内 Swipe）",
+        "滑动方向自由（上下滑）",
+        "Lottie 滑动动画"
+      ],
+      "visual_tokens": [],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "note": "滑动（操作反馈区 #58，全新立项，2026-09-09）：列表项横向滑动露出操作按钮=左右双向+自定义操作文本/颜色/回调+松手自动回弹；SwipeItem 包裹器（横向滑动容器+主内容+左右操作列表）+ SwipeAction 数据结构（text/color/onClick）；与 Drag #47（长按拖拽排序 vs 横向滑动露操作）/ActionSheet #44（底部遮罩 vs 列表项内嵌）/Notify #52（全局浮层 vs 列表项持续）划界；anti_goals 二期=自定义操作内容/阈值可配/嵌套 Swipe/上下滑/Lottie。2026-09-09 门禁 A AI 代评通过（规格 design-spec/swipe-design-spec.html + ../评审记录/review-swipe-A.md，P1–P4 全 A 0 保留意见）。验证版本 v1.4.14（C1.5 用户双端 Demo 实机验收待走）。",
+      "subcategory": "feedback"
     }
   ],
   "businessExtensions": [

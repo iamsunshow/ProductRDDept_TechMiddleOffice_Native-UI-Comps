@@ -115,6 +115,7 @@
 		F2A3B4C5D6E7F8A9B0C1DC /* PopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverView.swift; sourceTree = "<group>"; };
 		F2A3B4C5D6E7F8A9B0C1DE /* PopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupView.swift; sourceTree = "<group>"; };
 		F2A3B4C5D6E7F8A9B0C1E0 /* ResultPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultPageView.swift; sourceTree = "<group>"; };
+		F4B5C6D7E8F9A0B1C2D3E4 /* SkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonView.swift; sourceTree = "<group>"; };
 		45B2561A62A1FAF93C38C686 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
 		538FFA7C6388387E57FC73DC /* BackTopButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackTopButton.swift; sourceTree = "<group>"; };
 		56144D3FE8D7F55AA21E1D9D /* StickyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickyView.swift; sourceTree = "<group>"; };
@@ -211,6 +212,7 @@
 				F2A3B4C5D6E7F8A9B0C1DC /* PopoverView.swift */,
 				F2A3B4C5D6E7F8A9B0C1DE /* PopupView.swift */,
 				F2A3B4C5D6E7F8A9B0C1E0 /* ResultPageView.swift */,
+				F4B5C6D7E8F9A0B1C2D3E4 /* SkeletonView.swift */,
 				AF92DF6DC2897ABCD9C46224 /* AddressView.swift */,
 				E36A0907C0CF11E9783D53FB /* AppButton.swift */,
 				6D173EBBE290117990FB6D2B /* AppIcon.swift */,

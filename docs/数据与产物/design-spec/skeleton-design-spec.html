@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Skeleton 骨架屏 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;--skeletonBase:#F3F4F6;--skeletonActive:#E5E7EB;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-na{background:#FEF3C7;color:#92400E;}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.skel-block{background:var(--skeletonBase);border-radius:var(--radiusSm);animation:shimmer 1.5s ease-in-out infinite;}
+@keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+.skel-row{display:flex;align-items:center;gap:var(--spaceMd);padding:var(--spaceMd);border-bottom:1px solid var(--border);}
+.skel-avatar{width:40px;height:40px;border-radius:50%;background:var(--skeletonBase);}
+.skel-text-col{flex:1;display:flex;flex-direction:column;gap:6px;}
+.skel-line{height:12px;border-radius:var(--radiusSm);}
+.skel-line.short{width:40%;}
+.skel-line.mid{width:70%;}
+.skel-line.long{width:100%;}
+</style>
+</head>
+<body>
+
+<h1>Skeleton 骨架屏 · 设计规格（操作反馈区 #57 · 门禁 A）</h1>
+<p>组件 ID：<code>ui.skeleton</code> ｜ 定位：<b>首屏/加载过渡期占位骨架——用灰色块模拟即将渲染的内容布局，shimmer 动画提示加载中</b>。对标 NutUI Skeleton / Vant Skeleton / Ant Design Skeleton。用于列表项、卡片、文章详情等场景的加载占位，减少白屏焦虑感。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.14（2026-09-09，未过 C2/D 不升版）
+</p>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 列表项加载占位（头像+标题+副标题骨架行）；② 卡片加载占位（图片+标题+描述骨架块）；③ 文章详情加载占位（标题+段落多行骨架）；④ 自定义骨架组合（SkeletonBlock 原子块自由组合）；⑤ 带 shimmer 动画提示加载中</td></tr>
+<tr><td>不适用（N/A）</td><td>① 底部加载更多状态条 → <b>InfiniteLoading（ui.infinite-loading）</b>；② 全屏遮罩加载 → <b>Loading（ui.loading）</b>；③ 下拉触发刷新 → <b>PullToRefresh（ui.refresh）</b>；④ 无数据空状态 → <b>Empty（ui.empty）</b>；⑤ 操作结果反馈 → <b>ResultPage（ui.result-page）</b></td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">加载态 ✅</span> loading=true 时显示骨架占位；<span class="tag tag-ok">完成态 ✅</span> loading=false 时显示真实内容（SkeletonRow 包裹器模式切换）；<span class="tag tag-ok">动画态 ✅</span> shimmer 从左到右渐变扫光动画；无禁用态（骨架屏总是被动展示）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]（颜色/间距/圆角 token，零硬编码）。与 InfiniteLoading #49 划界：Skeleton=首屏占位骨架，InfiniteLoading=底部增量加载状态条；与 Loading #50 划界：Loading=全屏遮罩旋转指示器，Skeleton=内容布局骨架块；与 Empty #48 划界：Empty=无数据空状态引导，Skeleton=加载过渡期占位</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>骨架块底色 base</td><td>gray100（#F3F4F6）</td><td>骨架块静态底色</td></tr>
+<tr><td>骨架块高亮 active</td><td>gray200（#E5E7EB）</td><td>shimmer 扫光高亮色</td></tr>
+<tr><td>骨架行圆角</td><td>radiusSm（6dp/pt）</td><td>骨架块圆角</td></tr>
+<tr><td>骨架头像尺寸</td><td>40×40 dp/pt，圆形（radiusFull）</td><td>SkeletonRow 默认头像骨架</td></tr>
+<tr><td>骨架标题行</td><td>height=12dp/pt，width=70%</td><td>SkeletonRow 默认标题行</td></tr>
+<tr><td>骨架副标题行</td><td>height=12dp/pt，width=40%</td><td>SkeletonRow 默认副标题行</td></tr>
+<tr><td>shimmer 动画</td><td>1.5s linear infinite</td><td>从左到右渐变扫光（base→active→base）</td></tr>
+<tr><td>骨架块默认尺寸</td><td>width=100%, height=12dp/pt</td><td>SkeletonBlock 默认值，可配 width/height/radius</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件形态：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：原子块 + 包裹器双模式——SkeletonBlock(width,height,radius) 原子块 + SkeletonRow(loading,avatar,title,subtitle) { content } 包裹器</td><td>✅ 灵活组合（原子块自定义布局）+ 开箱即用（SkeletonRow 预设行布局）；loading 受控切换骨架/内容；与 NutUI/Vant Skeleton 双模式一致。</td><td><b>推荐 A</b>：原子块=最大灵活性，包裹器=最小使用成本</td></tr>
+<tr><td>B：只做原子块 SkeletonBlock</td><td>灵活但每次需自行组合，使用成本高。</td><td>淘汰：缺少预设布局</td></tr>
+<tr><td>C：只做预设行 SkeletonRow</td><td>开箱即用但不灵活，无法自定义布局。</td><td>淘汰：缺少自定义能力</td></tr>
+</table>
+
+<h3>P2 · Shimmer 动画方案：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：linear-gradient 横向扫光——background linear-gradient(90deg, base, active, base) + background-size 200% + animation shimmer 1.5s</td><td>✅ 双端同构（iOS CAGradientLayer / Android Brush.linearGradient），视觉为从左到右渐变扫光，与 NutUI/Vant 一致。</td><td><b>推荐 A</b>：双端一致，视觉效果好</td></tr>
+<tr><td>B：alpha 闪烁——background base + animation alpha 0.3→1→0.3</td><td>实现简单，但视觉为整体明暗闪烁，不如扫光自然。</td><td>淘汰：视觉效果差</td></tr>
+<tr><td>C：无动画（静态灰色块）</td><td>无动画提示，用户无法感知加载中。</td><td>淘汰</td></tr>
+</table>
+
+<h3>P3 · iOS 实现路径：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：UIView + CAGradientLayer（shimmer 动画）+ 子视图布局</td><td>✅ 原生 UIKit，CAGradientLayer 实现扫光动画自然；SkeletonBlock=UIView+gradientLayer；SkeletonRow=UIStackView 组合 avatar+text column。</td><td><b>推荐 A</b>：原生 UIKit，动画自然</td></tr>
+<tr><td>B：UIStackView + UIView.animate alpha 闪烁</td><td>实现简单但动画效果差（P2-B 方案）。</td><td>淘汰</td></tr>
+<tr><td>C：CAShapeLayer 自绘</td><td>过度复杂，无优势。</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · Android 实现路径：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：Box + Brush.linearGradient（shimmer 动画）+ Compose 布局</td><td>✅ Compose 原生，Brush.linearGradient + animateFloat 实现 shimmer；SkeletonBlock=Box+background brush；SkeletonRow=Row 组合 avatar+text column。</td><td><b>推荐 A</b>：Compose 原生，动画自然</td></tr>
+<tr><td>B：Box + animateFloat alpha 闪烁</td><td>实现简单但动画效果差。</td><td>淘汰</td></tr>
+<tr><td>C：Canvas 自绘</td><td>过度复杂。</td><td>淘汰</td></tr>
+</table>
+
+</div>
+
+<h2>04 · API 契约（与 api.json 对齐）</h2>
+<div class="spec-card">
+<h3>SkeletonRow（预设行包裹器）</h3>
+<table>
+<tr><th>类型</th><th>名称</th><th>必填</th><th>默认值</th><th>说明</th></tr>
+<tr><td>prop</td><td>loading</td><td>是</td><td>—</td><td>Boolean，true=显示骨架，false=显示 content</td></tr>
+<tr><td>prop</td><td>avatar</td><td>否</td><td>true</td><td>Boolean，是否显示头像骨架</td></tr>
+<tr><td>prop</td><td>titleWidth</td><td>否</td><td>"70%"</td><td>标题骨架宽度（百分比或固定值）</td></tr>
+<tr><td>prop</td><td>subtitle</td><td>否</td><td>true</td><td>Boolean，是否显示副标题骨架</td></tr>
+<tr><td>prop</td><td>subtitleWidth</td><td>否</td><td>"40%"</td><td>副标题骨架宽度</td></tr>
+<tr><td>slot</td><td>content</td><td>否</td><td>—</td><td>loading=false 时显示的真实内容</td></tr>
+</table>
+<h3>SkeletonBlock（原子块）</h3>
+<table>
+<tr><th>类型</th><th>名称</th><th>必填</th><th>默认值</th><th>说明</th></tr>
+<tr><td>prop</td><td>width</td><td>否</td><td>"100%"</td><td>骨架块宽度（百分比或固定值）</td></tr>
+<tr><td>prop</td><td>height</td><td>否</td><td>12dp/pt</td><td>骨架块高度</td></tr>
+<tr><td>prop</td><td>radius</td><td>否</td><td>radiusSm</td><td>骨架块圆角（radiusSm=矩形 / radiusFull=圆形）</td></tr>
+</table>
+</div>
+
+<h2>05 · Demo 排查（4 组 1:1）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>名称</th><th>场景</th><th>验收点</th></tr>
+<tr><td>D1</td><td>列表项骨架行</td><td>3 行 SkeletonRow，avatar+title+subtitle，2 秒后切换为真实内容</td><td>骨架行=灰圈头像+标题 70%+副标题 40%+shimmer 扫光；2s 后 loading=false 显示真实行内容</td></tr>
+<tr><td>D2</td><td>自定义骨架块组合</td><td>SkeletonBlock 组合=大矩形块+小行+小行，模拟卡片</td><td>原子块自由组合，shimmer 扫光一致，圆角 radiusSm</td></tr>
+<tr><td>D3</td><td>无头像骨架行</td><td>SkeletonRow(avatar=false)</td><td>无灰圈头像，标题+副标题占满宽度</td></tr>
+<tr><td>D4</td><td>圆形骨架</td><td>SkeletonBlock(radius=radiusFull, width=64, height=64)</td><td>圆形骨架块，shimmer 扫光一致</td></tr>
+</table>
+</div>
+
+<h2>06 · 平台差异表（diff-api.json 登记候选）</h2>
+<div class="spec-card">
+<table>
+<tr><th>差异项</th><th>iOS</th><th>Android</th><th>是否放行</th></tr>
+<tr><td>shimmer 实现</td><td>CAGradientLayer + CABasicAnimation</td><td>Brush.linearGradient + animateFloat</td><td>放行（视觉一致=从左到右扫光）</td></tr>
+<tr><td>骨架块圆角</td><td>layer.cornerRadius</td><td>Modifier.clip(RoundedCornerShape)</td><td>放行</td></tr>
+</table>
+</div>
+
+<h2>07 · anti_goals 反目标（二期不做）</h2>
+<div class="spec-card">
+<ul>
+<li>自定义 shimmer 颜色/速度/方向（一期统一 base→active→base 横向 1.5s）</li>
+<li>骨架嵌套内容切换动画（loading 切换时淡入淡出）</li>
+<li>动态骨架行数（由宿主自行循环渲染 SkeletonRow）</li>
+<li>Lottie 骨架动画</li>
+</ul>
+</div>
+
+</body>
+</html>

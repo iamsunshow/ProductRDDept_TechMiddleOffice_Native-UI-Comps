@@ -65,6 +65,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -196,6 +197,8 @@ import com.zhiqihuayun.sharedui.components.Popup
 import com.zhiqihuayun.sharedui.components.PopupPosition
 import com.zhiqihuayun.sharedui.components.PullToRefresh
 import com.zhiqihuayun.sharedui.components.isAtTop
+import com.zhiqihuayun.sharedui.components.SkeletonBlock
+import com.zhiqihuayun.sharedui.components.SkeletonRow
 import com.zhiqihuayun.sharedui.components.ResultPage
 import com.zhiqihuayun.sharedui.components.ResultType
 import com.zhiqihuayun.sharedui.components.ResultActionStyle
@@ -297,7 +300,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Popup 弹出层", reviewed = true, demo = { PopupDemo() }),
         DemoComponent("PullToRefresh 下拉刷新", reviewed = false, demo = { PullToRefreshDemo() }),
         DemoComponent("ResultPage 结果反馈", reviewed = true, demo = { ResultPageDemo() }),
-        DemoComponent("Skeleton 骨架屏"),
+        DemoComponent("Skeleton 骨架屏", reviewed = false, demo = { SkeletonDemo() }),
         DemoComponent("Swipe 滑动"),
         DemoComponent("Toast 吐司"),
     ),
@@ -8211,6 +8214,138 @@ fun PullToRefreshDemo() {
         item {
             Text(
                 text = "点击「触发刷新」按钮 → refreshing=true → 指示器出现并旋转；再次点击 → refreshing=false → 收起。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
+        }
+    }
+}
+
+@Composable
+fun SkeletonDemo() {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1 列表项骨架行（3 行，2 秒后切换为真实内容）
+        item {
+            DemoSectionCard(title = "D1 · 列表项骨架行") {
+                var loading by remember { mutableStateOf(true) }
+                LaunchedEffect(Unit) {
+                    delay(2000)
+                    loading = false
+                }
+                Column {
+                    repeat(3) { index ->
+                        SkeletonRow(
+                            loading = loading,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 12.dp, horizontal = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .background(AppColor.primary.copy(alpha = 0.1f))
+                                )
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("账目 #${index + 1}", fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+                                    Text("-¥${(index + 1) * 10}", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        item {
+            Text(
+                text = "3 行骨架行（avatar+title70%+subtitle40%），2 秒后切换为真实内容。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
+        }
+
+        // D2 自定义骨架块组合（模拟卡片）
+        item {
+            DemoSectionCard(title = "D2 · 自定义骨架块组合") {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SkeletonBlock(width = 1f, height = 120.dp)
+                    SkeletonBlock(width = 0.7f, height = 12.dp)
+                    SkeletonBlock(width = 0.4f, height = 12.dp)
+                }
+            }
+        }
+        item {
+            Text(
+                text = "原子块自由组合：大矩形块+标题行70%+副标题行40%。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
+        }
+
+        // D3 无头像骨架行
+        item {
+            DemoSectionCard(title = "D3 · 无头像骨架行") {
+                SkeletonRow(
+                    loading = true,
+                    avatar = false,
+                    modifier = Modifier.fillMaxWidth()
+                ) {}
+            }
+        }
+        item {
+            Text(
+                text = "avatar=false，无灰圈头像，标题+副标题占满宽度。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
+        }
+
+        // D4 圆形骨架
+        item {
+            DemoSectionCard(title = "D4 · 圆形骨架") {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    SkeletonBlock(
+                        width = 1f,
+                        height = 64.dp,
+                        radius = 999.dp,
+                        modifier = Modifier.size(64.dp)
+                    )
+                    SkeletonBlock(
+                        width = 1f,
+                        height = 48.dp,
+                        radius = 999.dp,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    SkeletonBlock(
+                        width = 1f,
+                        height = 32.dp,
+                        radius = 999.dp,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            }
+        }
+        item {
+            Text(
+                text = "圆形骨架块 64/48/32，shimmer 扫光一致。",
                 fontSize = AppFont.sizeXs,
                 color = AppColor.textSecondary
             )

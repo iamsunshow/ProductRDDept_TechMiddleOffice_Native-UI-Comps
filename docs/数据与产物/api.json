@@ -7226,6 +7226,103 @@
       "note": "结果反馈（操作反馈区 #56，全新立项，2026-09-08）：整页/区域级操作结果反馈=type 四态（success/error/warning/info）+title+description+actions 列表数据驱动（ResultAction{text,style,onClick}+ResultActionStyle{primary/ghost/text}）+icon 自定义槽；双端自绘四态图标（对勾/叉/感叹号/i）56×56 圆形 type 对应色 alpha 0.1 底+实色字；按钮复用 AppButton #1；与 Empty #48（无数据空状态 vs 操作结果）/Dialog #46（弹层确认 vs 整页结果）/Notify #52（短时浮层 vs 持续占位）/Loading #50（加载过程 vs 加载结果）划界；anti_goals 二期=自定义布局/进场动画/嵌套内容。2026-09-08 门禁 A AI 代评通过（规格 design-spec/result-page-design-spec.html + ../评审记录/review-result-page-A.md，P1–P5 全 A 0 保留意见）+ 同日门禁 B 双端实现入库（ResultPageView.swift=final class ResultPageView UIStackView+UIBezierPath 自绘四态；ResultPage.kt=@Composable Column+Canvas drawPath 自绘四态），iOS ResultPageShowcase / Android ResultPageDemo 4 段 1:1（D1 成功 / D2 失败重试 / D3 警告多按钮 / D4 信息无按钮），demo 徽标 v1.0。验证版本 v1.4.5（C1.5 用户双端 Demo 实机验收待走）。统一待 C1 单测补建 + C2 CR/CI + D 发版。",
       "subcategory": "feedback",
       "reviewed": true
+    },
+    {
+      "id": "ui.skeleton",
+      "name": "Skeleton 骨架屏",
+      "category": "ui",
+      "summary": "首屏/加载过渡期占位骨架（操作反馈区 #57，全新立项）：灰块模拟内容布局+shimmer 扫光动画提示加载中；双模式=原子块 SkeletonBlock(width/height/radius) 灵活组合 + 包裹器 SkeletonRow(loading/avatar/titleWidth/subtitle/subtitleWidth + content slot) 开箱即用；loading 受控切换骨架/真实内容；与 InfiniteLoading #49（底部增量状态条 vs 首屏占位骨架）/Loading #50（全屏遮罩旋转 vs 内容布局骨架）/Empty #48（无数据空状态 vs 加载占位）/ResultPage #56（操作结果 vs 加载过渡）划界；anti_goals 二期=自定义 shimmer 颜色/方向、切换动画、动态行数、Lottie",
+      "capabilities": [
+        "骨架屏",
+        "Skeleton",
+        "占位",
+        "加载占位",
+        "shimmer",
+        "扫光动画"
+      ],
+      "props": [
+        [
+          "loading",
+          "boolean",
+          "是",
+          "true=显示骨架，false=显示 content（SkeletonRow）"
+        ],
+        [
+          "avatar",
+          "boolean",
+          "否",
+          "是否显示头像骨架，默认 true（SkeletonRow）"
+        ],
+        [
+          "titleWidth",
+          "string",
+          "否",
+          "标题骨架宽度，默认「70%」（SkeletonRow）"
+        ],
+        [
+          "subtitle",
+          "boolean",
+          "否",
+          "是否显示副标题骨架，默认 true（SkeletonRow）"
+        ],
+        [
+          "subtitleWidth",
+          "string",
+          "否",
+          "副标题骨架宽度，默认「40%」（SkeletonRow）"
+        ],
+        [
+          "width",
+          "string",
+          "否",
+          "骨架块宽度，默认「100%」（SkeletonBlock）"
+        ],
+        [
+          "height",
+          "number",
+          "否",
+          "骨架块高度，默认 12（SkeletonBlock）"
+        ],
+        [
+          "radius",
+          "string",
+          "否",
+          "骨架块圆角，默认 radiusSm（SkeletonBlock）"
+        ]
+      ],
+      "events": [],
+      "demos": [
+        [
+          "列表项骨架行",
+          "<SkeletonRow loading={loading} avatar titleWidth=\"70%\" subtitle subtitleWidth=\"40%\">{真实行内容}</SkeletonRow>"
+        ],
+        [
+          "自定义骨架块",
+          "<SkeletonBlock width=\"100%\" height={120} radius={radiusSm} />"
+        ],
+        [
+          "圆形骨架",
+          "<SkeletonBlock width={64} height={64} radius={radiusFull} />"
+        ]
+      ],
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/SkeletonView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Skeleton.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "自定义 shimmer 颜色/速度/方向",
+        "骨架嵌套内容切换动画（淡入淡出）",
+        "动态骨架行数（宿主自行循环渲染）",
+        "Lottie 骨架动画"
+      ],
+      "visual_tokens": [],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "note": "骨架屏（操作反馈区 #57，全新立项，2026-09-09）：首屏/加载过渡期占位骨架=灰块模拟内容布局+shimmer 扫光动画；双模式=原子块 SkeletonBlock(width/height/radius) 灵活组合 + 包裹器 SkeletonRow(loading/avatar/titleWidth/subtitle/subtitleWidth + content slot) 开箱即用；loading 受控切换骨架/真实内容；与 InfiniteLoading #49（底部增量 vs 首屏占位）/Loading #50（全屏遮罩 vs 内容布局骨架）/Empty #48（无数据 vs 加载占位）/ResultPage #56（操作结果 vs 加载过渡）划界；anti_goals 二期=自定义 shimmer 颜色/方向、切换动画、动态行数、Lottie。2026-09-09 门禁 A AI 代评通过（规格 design-spec/skeleton-design-spec.html + ../评审记录/review-skeleton-A.md，P1–P4 全 A 0 保留意见）。验证版本 v1.4.14（C1.5 用户双端 Demo 实机验收待走）。",
+      "subcategory": "feedback"
     }
   ],
   "businessExtensions": [

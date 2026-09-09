@@ -89,7 +89,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.popup", name: "Popup 弹出层", reviewed: true, create: { PopupShowcase() }),
             DemoComponent(id: "ui.refresh", name: "PullToRefresh 下拉刷新", reviewed: false, create: { PullRefreshShowcase() }),
             DemoComponent(id: "ui.result-page", name: "ResultPage 结果反馈", reviewed: true, create: { ResultPageShowcase() }),
-            DemoComponent(id: "ui.skeleton", name: "Skeleton 骨架屏", reviewed: false, create: nil),
+            DemoComponent(id: "ui.skeleton", name: "Skeleton 骨架屏", reviewed: false, create: { SkeletonShowcase() }),
             DemoComponent(id: "ui.swipe", name: "Swipe 滑动", reviewed: false, create: nil),
             DemoComponent(id: "ui.toast", name: "Toast 吐司", reviewed: false, create: nil),
         ]),
@@ -9373,5 +9373,121 @@ extension PullRefreshShowcase: UITableViewDataSource, UITableViewDelegate {
         cell.textLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
         cell.selectionStyle = .none
         return cell
+    }
+}
+
+// MARK: - Skeleton 骨架屏
+
+final class SkeletonShowcase: ShowcaseViewController {
+    private var d1Rows: [SkeletonRow] = []
+    private var d1Loading = true
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Skeleton 骨架屏"
+        buildDemo()
+    }
+
+    private func buildDemo() {
+        // ── D1 · 列表项骨架行（3 行，2 秒后切换为真实内容）──
+        addSection(title: "Demo 1 · 列表项骨架行") { container in
+            for i in 1...3 {
+                let row = SkeletonRow(loading: true)
+                row.avatar = true
+                row.titleWidth = .percentage(0.7)
+                row.subtitle = true
+                row.subtitleWidth = .percentage(0.4)
+                // 真实内容
+                let realView = UIView()
+                let avatar = UIView()
+                avatar.backgroundColor = AppColor.primary.withAlphaComponent(0.1)
+                avatar.layer.cornerRadius = 20
+                avatar.translatesAutoresizingMaskIntoConstraints = false
+                let title = UILabel()
+                title.text = "账目 #\(i)"
+                title.font = .systemFont(ofSize: AppFont.sizeSm)
+                title.textColor = AppColor.textPrimary
+                let subtitle = UILabel()
+                subtitle.text = "-¥\(i * 10)"
+                subtitle.font = .systemFont(ofSize: AppFont.sizeXs)
+                subtitle.textColor = AppColor.textSecondary
+                let stack = UIStackView(arrangedSubviews: [avatar, title, subtitle])
+                stack.axis = .horizontal
+                stack.alignment = .center
+                stack.spacing = AppSpace.md
+                stack.translatesAutoresizingMaskIntoConstraints = false
+                realView.addSubview(stack)
+                stack.snp.makeConstraints { make in
+                    make.edges.equalToSuperview()
+                    make.height.equalTo(40)
+                }
+                avatar.snp.makeConstraints { make in
+                    make.size.equalTo(40)
+                }
+                row.content = realView
+                self.d1Rows.append(row)
+                container.addSubview(row)
+                row.snp.makeConstraints { make in
+                    make.leading.trailing.equalToSuperview()
+                    make.height.equalTo(64)
+                    if i == 1 {
+                        make.top.equalToSuperview()
+                    } else {
+                        make.top.equalTo(self.d1Rows[i - 2].snp.bottom)
+                    }
+                }
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+                self?.d1Rows.forEach { $0.loading = false }
+            }
+        }
+        addInfo("3 行骨架行（avatar+title70%+subtitle40%），2 秒后切换为真实内容。")
+
+        // ── D2 · 自定义骨架块组合（模拟卡片）──
+        addSection(title: "Demo 2 · 自定义骨架块组合") { container in
+            let col = UIStackView()
+            col.axis = .vertical
+            col.spacing = AppSpace.sm
+            let big = SkeletonBlock(width: .percentage(1.0), height: .fixed(120))
+            let line1 = SkeletonBlock(width: .percentage(0.7), height: .fixed(12))
+            let line2 = SkeletonBlock(width: .percentage(0.4), height: .fixed(12))
+            col.addArrangedSubview(big)
+            col.addArrangedSubview(line1)
+            col.addArrangedSubview(line2)
+            container.addSubview(col)
+            col.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(AppSpace.sm)
+            }
+        }
+        addInfo("原子块自由组合：大矩形块+标题行70%+副标题行40%。")
+
+        // ── D3 · 无头像骨架行 ──
+        addSection(title: "Demo 3 · 无头像骨架行") { container in
+            let row = SkeletonRow(loading: true)
+            row.avatar = false
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.height.equalTo(64)
+            }
+        }
+        addInfo("avatar=false，无灰圈头像，标题+副标题占满宽度。")
+
+        // ── D4 · 圆形骨架 ──
+        addSection(title: "Demo 4 · 圆形骨架") { container in
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.spacing = AppSpace.lg
+            row.alignment = .center
+            for size in [64, 48, 32] {
+                let block = SkeletonBlock(width: .fixed(CGFloat(size)), height: .fixed(CGFloat(size)), cornerRadius: AppRadius.full)
+                row.addArrangedSubview(block)
+            }
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+            }
+        }
+        addInfo("圆形骨架块 64/48/32，shimmer 扫光一致。")
     }
 }

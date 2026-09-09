@@ -202,6 +202,8 @@ import com.zhiqihuayun.sharedui.components.SkeletonRow
 import com.zhiqihuayun.sharedui.components.SwipeItem
 import com.zhiqihuayun.sharedui.components.SwipeAction
 import com.zhiqihuayun.sharedui.components.SwipeActionColor
+import com.zhiqihuayun.sharedui.components.ToastType
+import com.zhiqihuayun.sharedui.components.Toast as AppToast
 import com.zhiqihuayun.sharedui.components.ResultPage
 import com.zhiqihuayun.sharedui.components.ResultType
 import com.zhiqihuayun.sharedui.components.ResultActionStyle
@@ -305,7 +307,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("ResultPage 结果反馈", reviewed = true, demo = { ResultPageDemo() }),
         DemoComponent("Skeleton 骨架屏", reviewed = true, demo = { SkeletonDemo() }),
         DemoComponent("Swipe 滑动", reviewed = true, demo = { SwipeDemo() }),
-        DemoComponent("Toast 吐司"),
+        DemoComponent("Toast 吐司", reviewed = true, demo = { ToastDemo() }),
     ),
     "展示组件" to listOf(
         DemoComponent("Animate 动画"),
@@ -8500,6 +8502,99 @@ fun SwipeDemo() {
         item {
             Text(
                 text = "右滑露出置顶（黄）+删除（红）两个操作，各 80dp，点击对应回调。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
+        }
+    }
+}
+
+/**
+ * Toast 吐司 Demo（操作反馈区 #59）。
+ * 4 组排查：① 纯文本提示（Toast.show 2s 淡出）② 类型图标提示（success/error/warning/info 4 按钮）
+ * ③ loading 持续（loading 不自动消失+2s 后 dismiss）④ 自定义时长（duration=5s）。
+ * 双端 1:1（Android Toast vs iOS Toast，均 Window 层级居中淡入淡出）。
+ */
+@Composable
+fun ToastDemo() {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1 纯文本提示
+        item {
+            DemoSectionCard(title = "D1 · 纯文本提示") {
+                Button(
+                    onClick = { AppToast.show("保存成功") },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("显示纯文本 Toast") }
+            }
+        }
+        item {
+            Text(
+                text = "Toast.show(message) 居中深色浮层，2 秒后淡出消失。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
+        }
+
+        // D2 类型图标提示
+        item {
+            DemoSectionCard(title = "D2 · 类型图标提示") {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { AppToast.success("操作成功") }, modifier = Modifier.fillMaxWidth()) { Text("Success（绿色 ✓）") }
+                    Button(onClick = { AppToast.error("操作失败") }, modifier = Modifier.fillMaxWidth()) { Text("Error（红色 ✗）") }
+                    Button(onClick = { AppToast.warning("请注意") }, modifier = Modifier.fillMaxWidth()) { Text("Warning（黄色 ⚠）") }
+                    Button(onClick = { AppToast.info("友情提示") }, modifier = Modifier.fillMaxWidth()) { Text("Info（蓝色 ℹ）") }
+                }
+            }
+        }
+        item {
+            Text(
+                text = "4 种类型各触发对应颜色图标，2 秒后消失。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
+        }
+
+        // D3 loading 持续
+        item {
+            DemoSectionCard(title = "D3 · loading 持续") {
+                Button(
+                    onClick = {
+                        AppToast.loading("加载中...")
+                        CoroutineScope(Dispatchers.Main).launch {
+                            delay(2000)
+                            AppToast.dismiss()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("显示 Loading（2 秒后关闭）") }
+            }
+        }
+        item {
+            Text(
+                text = "loading Toast 显示 spinner 不自动消失，2 秒后手动 dismiss 关闭。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
+        }
+
+        // D4 自定义时长
+        item {
+            DemoSectionCard(title = "D4 · 自定义时长") {
+                Button(
+                    onClick = { AppToast.show("5 秒后消失", duration = 5000) },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("显示 5 秒 Toast") }
+            }
+        }
+        item {
+            Text(
+                text = "Toast.show(message, duration=5000) 显示 5 秒后消失（非默认 2 秒）。",
                 fontSize = AppFont.sizeXs,
                 color = AppColor.textSecondary
             )

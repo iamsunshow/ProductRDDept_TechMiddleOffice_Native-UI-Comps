@@ -7407,6 +7407,58 @@
       "status": "stable",
       "note": "滑动（操作反馈区 #58，全新立项，2026-09-09）：列表项横向滑动露出操作按钮=左右双向+自定义操作文本/颜色/回调+松手自动回弹；SwipeItem 包裹器（横向滑动容器+主内容+左右操作列表）+ SwipeAction 数据结构（text/color/onClick）；与 Drag #47（长按拖拽排序 vs 横向滑动露操作）/ActionSheet #44（底部遮罩 vs 列表项内嵌）/Notify #52（全局浮层 vs 列表项持续）划界；anti_goals 二期=自定义操作内容/阈值可配/嵌套 Swipe/上下滑/Lottie。2026-09-09 门禁 A AI 代评通过（规格 design-spec/swipe-design-spec.html + ../评审记录/review-swipe-A.md，P1–P4 全 A 0 保留意见）。验证版本 v1.4.14（C1.5 用户双端 Demo 实机验收待走）。",
       "subcategory": "feedback"
+    },
+    {
+      "id": "ui.toast",
+      "name": "Toast 吐司",
+      "category": "ui",
+      "summary": "全局轻量提示浮层（操作反馈区 #59，全新立项）：屏幕居中短时显示文本+类型图标，自动消失，不阻断用户操作；Toast 静态方法（show/success/error/warning/info/loading/dismiss）+ ToastType 枚举（success/error/warning/info/loading/text）；与 Notify #52（条状持续 vs 居中短时）/Dialog #46（需确认 vs 无需确认）/ActionSheet #44（选动作 vs 纯展示）划界；anti_goals 二期=自定义内容/可点击交互/堆叠多条/位置可配/Lottie",
+      "capabilities": [
+        "Toast",
+        "吐司",
+        "轻提示",
+        "消息提示",
+        "全局浮层"
+      ],
+      "props": [],
+      "events": [],
+      "demos": [
+        [
+          "纯文本提示",
+          "Toast.show(message: \"保存成功\")"
+        ],
+        [
+          "类型图标提示",
+          "Toast.success(\"成功\") / Toast.error(\"失败\") / Toast.warning(\"警告\") / Toast.info(\"信息\")"
+        ],
+        [
+          "loading 持续",
+          "Toast.loading(\"加载中...\"); DispatchQueue.asyncAfter(2s) { Toast.dismiss() }"
+        ],
+        [
+          "自定义时长",
+          "Toast.show(message: \"5 秒后消失\", duration: 5)"
+        ]
+      ],
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/ToastView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Toast.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "自定义 Toast 内容（插槽/自定义视图）",
+        "可点击交互（Toast 内按钮）",
+        "堆叠多条（一期同一时刻只显示一条）",
+        "位置可配（顶部/底部）",
+        "Lottie 动画图标"
+      ],
+      "visual_tokens": [],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "note": "吐司（操作反馈区 #59，全新立项，2026-09-09）：全局轻量提示浮层=屏幕居中短时+文本/类型图标+自动消失+不阻断交互；Toast 静态方法（show/success/error/warning/info/loading/dismiss）+ ToastType 枚举（success/error/warning/info/loading/text）；与 Notify #52（条状持续 vs 居中短时）/Dialog #46（需确认 vs 无需确认）/ActionSheet #44（选动作 vs 纯展示）划界；anti_goals 二期=自定义内容/可点击交互/堆叠多条/位置可配/Lottie。2026-09-09 门禁 A AI 代评通过（规格 design-spec/toast-design-spec.html + ../评审记录/review-toast-A.md，P1–P4 全 A 0 保留意见）。验证版本 v1.4.14（C1.5 用户双端 Demo 实机验收待走）。",
+      "subcategory": "feedback"
     }
   ],
   "businessExtensions": [

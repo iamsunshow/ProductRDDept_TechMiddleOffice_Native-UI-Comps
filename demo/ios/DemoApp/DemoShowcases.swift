@@ -91,7 +91,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.result-page", name: "ResultPage 结果反馈", reviewed: true, create: { ResultPageShowcase() }),
             DemoComponent(id: "ui.skeleton", name: "Skeleton 骨架屏", reviewed: true, create: { SkeletonShowcase() }),
             DemoComponent(id: "ui.swipe", name: "Swipe 滑动", reviewed: true, create: { SwipeShowcase() }),
-            DemoComponent(id: "ui.toast", name: "Toast 吐司", reviewed: false, create: nil),
+            DemoComponent(id: "ui.toast", name: "Toast 吐司", reviewed: true, create: { ToastShowcase() }),
         ]),
         ("展示组件", [
             DemoComponent(id: "ui.animate", name: "Animate 动画", reviewed: false, create: nil),
@@ -9617,4 +9617,128 @@ final class SwipeShowcase: ShowcaseViewController {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) { alert.dismiss(animated: true) }
         }
     }
+}
+
+// MARK: - Toast 吐司 Showcase（操作反馈区 #59）
+
+final class ToastShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Toast 吐司"
+        buildDemo()
+    }
+
+    private func buildDemo() {
+        // ── D1 · 纯文本提示 ──
+        addSection(title: "Demo 1 · 纯文本提示") { container in
+            let btn = self.makeButton(title: "显示纯文本 Toast") { _ in
+                Toast.show(message: "保存成功")
+            }
+            container.addSubview(btn)
+            self.pinFullWidth(btn, in: container)
+        }
+        addInfo("Toast.show(message) 居中深色浮层，2 秒后淡出消失。")
+
+        // ── D2 · 类型图标提示 ──
+        addSection(title: "Demo 2 · 类型图标提示") { container in
+            let stack = UIStackView()
+            stack.axis = .vertical
+            stack.spacing = 8
+            stack.distribution = .fillEqually
+
+            let successBtn = self.makeButton(title: "Success（绿色 ✓）") { _ in
+                Toast.success("操作成功")
+            }
+            let errorBtn = self.makeButton(title: "Error（红色 ✗）") { _ in
+                Toast.error("操作失败")
+            }
+            let warningBtn = self.makeButton(title: "Warning（黄色 ⚠）") { _ in
+                Toast.warning("请注意")
+            }
+            let infoBtn = self.makeButton(title: "Info（蓝色 ℹ）") { _ in
+                Toast.info("友情提示")
+            }
+
+            stack.addArrangedSubview(successBtn)
+            stack.addArrangedSubview(errorBtn)
+            stack.addArrangedSubview(warningBtn)
+            stack.addArrangedSubview(infoBtn)
+
+            container.addSubview(stack)
+            stack.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                stack.topAnchor.constraint(equalTo: container.topAnchor),
+                stack.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+                stack.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+                stack.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+            ])
+        }
+        addInfo("4 种类型各触发对应颜色图标，2 秒后消失。")
+
+        // ── D3 · loading 持续 ──
+        addSection(title: "Demo 3 · loading 持续") { container in
+            let btn = self.makeButton(title: "显示 Loading（2 秒后关闭）") { _ in
+                Toast.loading("加载中...")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    Toast.dismiss()
+                }
+            }
+            container.addSubview(btn)
+            self.pinFullWidth(btn, in: container)
+        }
+        addInfo("loading Toast 显示 spinner 不自动消失，2 秒后手动 dismiss 关闭。")
+
+        // ── D4 · 自定义时长 ──
+        addSection(title: "Demo 4 · 自定义时长") { container in
+            let btn = self.makeButton(title: "显示 5 秒 Toast") { _ in
+                Toast.show(message: "5 秒后消失", type: .text, duration: 5)
+            }
+            container.addSubview(btn)
+            self.pinFullWidth(btn, in: container)
+        }
+        addInfo("Toast.show(message, duration: 5) 显示 5 秒后消失（非默认 2 秒）。")
+    }
+
+    /// 构造标准按钮。
+    private func makeButton(title: String, action: @escaping (UIButton) -> Void) -> UIButton {
+        let btn = UIButton(type: .system)
+        btn.setTitle(title, for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 16)
+        btn.backgroundColor = AppColor.primary
+        btn.setTitleColor(.white, for: .normal)
+        btn.layer.cornerRadius = 8
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        // 简单 closure 模式
+        btn.tag = btn.hashValue
+        let actionWrapper = ActionWrapper(action: action)
+        objc_setAssociatedObject(btn, &ActionWrapper.key, actionWrapper, .OBJC_ASSOCIATION_RETAIN)
+        btn.addTarget(self, action: #selector(handleButtonTap(_:)), for: .touchUpInside)
+        return btn
+    }
+
+    @objc private func handleButtonTap(_ sender: UIButton) {
+        if let wrapper = objc_getAssociatedObject(sender, &ActionWrapper.key) as? ActionWrapper {
+            wrapper.action(sender)
+        }
+    }
+
+    /// 全宽约束。
+    private func pinFullWidth(_ view: UIView, in container: UIView) {
+        view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            view.topAnchor.constraint(equalTo: container.topAnchor),
+            view.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            view.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            view.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+        ])
+    }
+}
+
+/// Action 包装器（用于 UIButton closure 回调）。
+private final class ActionWrapper {
+    static var key: UInt8 = 0
+    let action: (UIButton) -> Void
+    init(action: @escaping (UIButton) -> Void) { self.action = action }
 }

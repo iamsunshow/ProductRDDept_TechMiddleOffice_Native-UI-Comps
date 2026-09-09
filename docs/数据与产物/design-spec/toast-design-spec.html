@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Toast 吐司 · 设计规格 · TMO 组件库 v1.4.14</title>
+<style>
+:root {
+  --bg: #fff; --bg-page: #f5f5f5; --text: #1a1a1a; --text-2: #888; --border: #e8e8e8;
+  --primary: #3B82F6; --success: #16A34A; --danger: #DC2626; --warning: #F59E0B;
+  --toast-bg: rgba(26,26,26,0.9); --toast-text: #fff;
+  --radius-md: 8px; --radius-lg: 12px;
+  --space-sm: 8px; --space-md: 12px; --space-lg: 16px; --space-xl: 24px;
+  --font-sm: 14px; --font-md: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif; background: var(--bg-page); color: var(--text); line-height: 1.6; }
+.container { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+h2 { font-size: 20px; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 16px; margin: 20px 0 8px; }
+p { font-size: 14px; margin-bottom: 8px; }
+code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+th { background: #fafafa; font-weight: 600; }
+.section { background: var(--bg); border-radius: 12px; padding: 20px; margin: 16px 0; border: 1px solid var(--border); }
+.mock { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0; }
+.mock-frame { width: 320px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--bg-page); height: 200px; position: relative; display: flex; align-items: center; justify-content: center; }
+.mock-toast { background: var(--toast-bg); color: var(--toast-text); padding: 10px 16px; border-radius: var(--radius-md); font-size: var(--font-md); max-width: 80%; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Toast 吐司</h1>
+<p>组件 ID：<code>ui.toast</code> ｜ 任务清单 #59 ｜ 操作反馈区第十五件 ｜ TMO 组件库 v1.4.14</p>
+<p>定位：全局轻量提示浮层——屏幕居中短时显示文本/图标，自动消失，不阻断用户操作。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation 情景</h3>
+<p>用户执行操作后需要轻量反馈（保存成功/复制成功/网络错误），不需要用户确认，2~3 秒后自动消失。</p>
+<h3>Complication 冲突</h3>
+<p>无统一组件时=各业务自拼 Android.widget.Toast / iOS MBProgressHUD，视觉不统一、无类型图标、无自定义时长、无堆叠管理。</p>
+<h3>Question 问题</h3>
+<p>需要一个全局轻量提示浮层，支持文本+类型图标（success/error/warning/info/loading）、自定义时长、自动消失、多条堆叠，双端视觉一致。</p>
+<h3>Answer 方案</h3>
+<p>Toast——Window 层级浮层（iOS UIWindow / Android WindowOverlay），屏幕居中或顶部，纯展示无交互，自动消失。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 Toast 划界</th></tr>
+<tr><td>Notify #52</td><td>全局消息通知条</td><td>Notify=顶部/底部条状持续通知（需手动关闭或超时），Toast=居中短时浮层（无关闭按钮自动消失）</td></tr>
+<tr><td>Dialog #46</td><td>居中确认对话</td><td>Dialog=需用户确认（按钮），Toast=无需确认自动消失</td></tr>
+<tr><td>ActionSheet #44</td><td>底部动作面板</td><td>ActionSheet=用户选择动作，Toast=纯展示反馈</td></tr>
+<tr><td>ResultPage #56</td><td>整页操作结果</td><td>ResultPage=整页结果反馈，Toast=浮层轻量提示</td></tr>
+<tr><td>Overlay #6</td><td>遮罩层</td><td>Overlay=阻断交互遮罩，Toast=不阻断交互浮层</td></tr>
+</table>
+
+<h2>3. API 契约</h2>
+<div class="section">
+<h3>Toast 静态方法</h3>
+<table>
+<tr><th>方法</th><th>参数</th><th>说明</th></tr>
+<tr><td>Toast.show(message, type, duration)</td><td>message: string / type: ToastType / duration: TimeInterval</td><td>显示一条 Toast，自动消失</td></tr>
+<tr><td>Toast.success(message, duration)</td><td>message / duration(默认 2s)</td><td>快捷成功提示（绿色 ✓）</td></tr>
+<tr><td>Toast.error(message, duration)</td><td>message / duration(默认 2s)</td><td>快捷错误提示（红色 ✗）</td></tr>
+<tr><td>Toast.warning(message, duration)</td><td>message / duration(默认 2s)</td><td>快捷警告提示（黄色 ⚠）</td></tr>
+<tr><td>Toast.info(message, duration)</td><td>message / duration(默认 2s)</td><td>快捷信息提示（蓝色 ℹ）</td></tr>
+<tr><td>Toast.loading(message)</td><td>message</td><td>显示 loading Toast（不自动消失，需手动 dismiss）</td></tr>
+<tr><td>Toast.dismiss()</td><td>—</td><td>手动关闭当前 Toast（用于 loading）</td></tr>
+</table>
+<h3>ToastType 枚举</h3>
+<table>
+<tr><th>值</th><th>图标</th><th>颜色</th><th>说明</th></tr>
+<tr><td>success</td><td>✓</td><td>#16A34A</td><td>成功</td></tr>
+<tr><td>error</td><td>✗</td><td>#DC2626</td><td>错误</td></tr>
+<tr><td>warning</td><td>⚠</td><td>#F59E0B</td><td>警告</td></tr>
+<tr><td>info</td><td>ℹ</td><td>#3B82F6</td><td>信息</td></tr>
+<tr><td>loading</td><td>spinner</td><td>#fff</td><td>加载中（不自动消失）</td></tr>
+<tr><td>text</td><td>无</td><td>—</td><td>纯文本（无图标）</td></tr>
+</table>
+</div>
+
+<h2>4. 尺寸/Token 规格（零硬编码）</h2>
+<div class="section">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>浮层背景</td><td>rgba(26,26,26,0.9)</td><td>深色半透明底</td></tr>
+<tr><td>浮层文字</td><td>#FFFFFF fontMd(16)</td><td>白色 16px</td></tr>
+<tr><td>浮层圆角</td><td>radiusMd(8)</td><td>8dp 圆角</td></tr>
+<tr><td>浮层内边距</td><td>10×16</td><td>垂直 10 水平 16</td></tr>
+<tr><td>最大宽度</td><td>屏幕 80%</td><td>长文本换行</td></tr>
+<tr><td>默认时长</td><td>2s</td><td>success/error/warning/info 默认 2 秒</td></tr>
+<tr><td>动画</td><td>0.25s easeOut</td><td>淡入淡出</td></tr>
+<tr><td>层级</td><td>Window 最顶层</td><td>不阻断下层交互</td></tr>
+</table>
+</div>
+
+<h2>5. 关键决策 PREP/ACE（P1–P4，AI 代评待用户总审）</h2>
+<div class="section">
+<h3>P1 · 组件形态：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：Toast 静态方法 + 单例容器（Toast.show() 触发，内部单例管理显示/消失/堆叠）</td><td>✅ 调用最简（一行 API），与 Vant Toast / NutUI Toast 一致，自动管理生命周期。</td><td><b>推荐 A</b>：一行 API + 自动管理</td></tr>
+<tr><td>B：ToastView 组件声明式</td><td>声明式但需宿主管理 visible 状态，调用繁琐。</td><td>淘汰：提示场景指令式更友好</td></tr>
+<tr><td>C：宿主自拼</td><td>重复造轮子。</td><td>淘汰</td></tr>
+</table>
+<h3>P2 · 浮层层级：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：Window 层级（iOS UIWindow + windowLevel / Android WindowOverlay/Popup）</td><td>✅ 脱离当前 ViewController/Compose 树，全局顶层，不阻断下层交互。</td><td><b>推荐 A</b>：全局顶层不阻断</td></tr>
+<tr><td>B：ViewController present</td><td>iOS 会阻断下层交互（modal 遮罩）。</td><td>淘汰：阻断交互</td></tr>
+<tr><td>C：Compose 树内 Box 叠层</td><td>Android 局限于 Compose 树，跨页面不持久。</td><td>淘汰：跨页面不持久</td></tr>
+</table>
+<h3>P3 · iOS 实现路径：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：UIWindow + windowLevel = .alert + 透明 rootVC + UIView 淡入淡出</td><td>✅ UIKit 原生，独立 Window 不阻断下层，UIView.animate 淡入淡出，定时器自动消失。</td><td><b>推荐 A</b>：UIWindow 顶层不阻断</td></tr>
+<tr><td>B：UIViewController present</td><td>modal 阻断下层交互。</td><td>淘汰</td></tr>
+<tr><td>C：MBProgressHUD 第三方库</td><td>依赖外部库，不符合组件库自包含原则。</td><td>淘汰</td></tr>
+</table>
+<h3>P4 · Android 实现路径：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：ComposeWindow + ComposableContent + Box 居中 + animateAlpha 淡入淡出</td><td>✅ Compose 原生，独立 Window 不阻断下层，animateFloatAsState 淡入淡出，协程延迟自动消失。</td><td><b>推荐 A</b>：ComposeWindow 顶层不阻断</td></tr>
+<tr><td>B：android.widget.Toast</td><td>系统原生但样式不可定制（系统主题约束）。</td><td>淘汰：样式不可控</td></tr>
+<tr><td>C：Dialog</td><td>会阻断下层交互（dim 遮罩）。</td><td>淘汰：阻断交互</td></tr>
+</table>
+</div>
+
+<h2>6. Demo 排查（4 组 1:1）</h2>
+<div class="section">
+<table>
+<tr><th>#</th><th>名称</th><th>场景</th><th>验收点</th></tr>
+<tr><td>D1</td><td>纯文本提示</td><td>Toast.show("保存成功")</td><td>居中深色浮层显示"保存成功"，2 秒后淡出消失</td></tr>
+<tr><td>D2</td><td>类型图标提示</td><td>4 按钮：success("成功")/error("失败")/warning("警告")/info("信息")</td><td>各按钮点击触发对应类型 Toast，图标颜色正确（绿/红/黄/蓝），2 秒消失</td></tr>
+<tr><td>D3</td><td>loading 持续</td><td>Toast.loading("加载中...") + 2 秒后 Toast.dismiss()</td><td>loading Toast 显示 spinner 不自动消失，2 秒后手动 dismiss 关闭</td></tr>
+<tr><td>D4</td><td>自定义时长</td><td>Toast.show("5 秒后消失", duration: 5)</td><td>Toast 显示 5 秒后消失（非默认 2 秒）</td></tr>
+</table>
+</div>
+
+<h2>7. 平台差异表（diff-api.json 登记候选）</h2>
+<div class="section">
+<table>
+<tr><th>差异项</th><th>iOS</th><th>Android</th><th>是否放行</th></tr>
+<tr><td>浮层载体</td><td>UIWindow + windowLevel=.alert</td><td>ComposeWindow + WindowManager</td><td>放行（视觉一致=居中深色浮层）</td></tr>
+<tr><td>淡入淡出</td><td>UIView.animate alpha 0.25s</td><td>animateFloatAsState tween 250ms</td><td>放行（时长曲线一致）</td></tr>
+<tr><td>自动消失</td><td>DispatchQueue.asyncAfter</td><td>Coroutine delay</td><td>放行</td></tr>
+<tr><td>spinner</td><td>UIActivityIndicatorView</td><td>CircularProgressIndicator</td><td>放行（视觉一致=旋转圈）</td></tr>
+</table>
+</div>
+
+<h2>8. anti_goals 反目标（二期不做）</h2>
+<div class="section">
+<ul>
+<li>自定义 Toast 内容（插槽/自定义视图）——一期纯文本+图标覆盖 80%</li>
+<li>可点击交互（Toast 内按钮）——Toast 纯展示，交互用 Dialog</li>
+<li>堆叠多条（一期同一时刻只显示一条，新 Toast 替换旧的）</li>
+<li>位置可配（顶部/底部）——一期固定居中</li>
+<li>Lottie 动画图标</li>
+</ul>
+</div>
+
+</div>
+</body>
+</html>

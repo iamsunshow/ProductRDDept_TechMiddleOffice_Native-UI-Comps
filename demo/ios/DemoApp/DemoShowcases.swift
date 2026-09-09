@@ -9480,7 +9480,7 @@ final class SkeletonShowcase: ShowcaseViewController {
             row.spacing = AppSpace.lg
             row.alignment = .center
             for size in [64, 48, 32] {
-                let block = SkeletonBlock(width: .fixed(CGFloat(size)), height: .fixed(CGFloat(size)), cornerRadius: AppRadius.full)
+                let block = SkeletonBlock(width: .fixed(CGFloat(size)), height: .fixed(CGFloat(size)), cornerRadius: CGFloat(size) / 2)
                 row.addArrangedSubview(block)
             }
             container.addSubview(row)

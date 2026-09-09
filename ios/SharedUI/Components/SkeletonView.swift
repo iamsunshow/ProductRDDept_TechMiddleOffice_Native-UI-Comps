@@ -181,6 +181,12 @@ public final class SkeletonRow: UIView {
 
     // MARK: - Init
 
+    /// 便利构造器：loading 受控初始化（默认 true 显示骨架）。
+    public convenience init(loading: Bool = true) {
+        self.init(frame: .zero)
+        self.loading = loading
+    }
+
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()

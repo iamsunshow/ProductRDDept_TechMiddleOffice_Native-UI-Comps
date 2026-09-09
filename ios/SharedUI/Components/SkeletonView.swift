@@ -66,7 +66,7 @@ public final class SkeletonBlock: UIView {
 
     // MARK: - Init
 
-    public init(width: SkeletonDimension = .percentage(1.0), height: SkeletonDimension = .fixed(12), cornerRadius: CGFloat = AppRadius.sm) {
+    public init(width: SkeletonDimension = .percentage(1.0), height: SkeletonDimension = .fixed(12), cornerRadius: CGFloat = 6) {
         self.width = width
         self.height = height
         self.cornerRadius = cornerRadius
@@ -231,7 +231,7 @@ public final class SkeletonRow: UIView {
 
         // 头像
         if avatar {
-            let av = SkeletonBlock(width: .fixed(Layout.avatarSize), height: .fixed(Layout.avatarSize), cornerRadius: AppRadius.full)
+            let av = SkeletonBlock(width: .fixed(Layout.avatarSize), height: .fixed(Layout.avatarSize), cornerRadius: Layout.avatarSize / 2)
             avatarBlock = av
             skeletonContainer.addArrangedSubview(av)
         }

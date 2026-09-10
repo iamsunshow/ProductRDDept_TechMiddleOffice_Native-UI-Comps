@@ -14,6 +14,19 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.16] - 2026-09-10
+
+Avatar Android 星座符号透明修复 + Demo 可滚动（PATCH）。
+
+### Fixed
+
+- **Avatar Android 星座符号文字透明修复**：`ZodiacAvatar` 内 `Color(option.tintHex)` 把 `0xDC2626`（RGB 3字节）当成 ARGB 4字节处理，alpha=0x00 透明，导致 Demo2/Demo3 星座符号 ♈♉♊♋♌ 看不见（背景 `.copy(alpha=0.18f)` 会覆盖 alpha 所以可见，文字没 .copy 所以透明）。修复：加 `tintColor(hex) = Color(0xFF000000 or hex)` helper 补 0xFF alpha 前缀，与 iOS `UIColor(hex:alpha:)` RGB 语义对齐。
+- **AvatarDemo Android 可滚动**：外层 Column 漏加 `verticalScroll(rememberScrollState())`，4 组 Demo 超出屏幕无法下滑看 Demo4。修复：补加 verticalScroll。
+
+### Changed
+
+- 组件库全局版本 1.4.15 → 1.4.16（PATCH，Avatar Android 星座符号透明+Demo 滚动修复）。
+
 ## \[1.4.15] - 2026-09-10
 
 Avatar iOS 尺寸缺陷修复（PATCH）。

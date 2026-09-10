@@ -50,19 +50,23 @@ fun ZodiacAvatar(
     modifier: Modifier = Modifier,
     size: Dp = 56.dp
 ) {
+    // tintHex 是 RGB 3 字节（与 iOS UIColor(hex:alpha:) 语义一致），Android Color(Long) 要 ARGB 4 字节，
+    // 必须补 0xFF alpha 前缀，否则 alpha=0x00 透明（文字看不见的根因）。
+    fun tintColor(hex: Long): Color = Color(0xFF000000 or hex)
+
     Box(
         modifier = modifier
             .size(size)
             .clip(CircleShape)
             .background(
-                if (option != null) Color(option.tintHex).copy(alpha = 0.18f)
+                if (option != null) tintColor(option.tintHex).copy(alpha = 0.18f)
                 else AppColor.primaryMuted
             ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = option?.symbol ?: nickname.take(1),
-            color = if (option != null) Color(option.tintHex) else AppColor.primary,
+            color = if (option != null) tintColor(option.tintHex) else AppColor.primary,
             fontSize = if (option != null) AppFont.sizeXl else AppFont.sizeLg,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center

@@ -9884,7 +9884,7 @@ final class CarouselShowcase: ShowcaseViewController {
 
     // MARK: - 演示素材
 
-    /// 生成 3 张 Banner 视图（蓝/绿/橙 + 白色圆 + 标题文字），供 4 组 Demo 复用。
+    /// 生成 3 张 Banner 视图（蓝/绿/橙 + 居中标题文字），供 4 组 Demo 复用。
     private func makeBannerViews() -> [UIView] {
         let configs: [(hex: UInt32, title: String)] = [
             (0x176DE8, "轮播 1"),
@@ -9899,7 +9899,7 @@ final class CarouselShowcase: ShowcaseViewController {
         }
     }
 
-    /// 生成 320×200 Banner 图：纯色背景 + 白色圆 + 居中标题文字。
+    /// 生成 320×200 Banner 图：纯色背景 + 居中标题文字（与 Android makeCarouselPage 1:1）。
     /// - Parameters:
     ///   - color: 图片标题文字（如「轮播 1」）。
     ///   - hex: 背景颜色十六进制值（如 0x176DE8）。
@@ -9912,16 +9912,7 @@ final class CarouselShowcase: ShowcaseViewController {
             // 背景填色（蓝/绿/橙）
             UIColor(hex: hex).setFill()
             cg.fill(CGRect(x: 0, y: 0, width: width, height: height))
-            // 白色圆（居中偏上，半径 36）
-            UIColor.white.setFill()
-            let circleCenterX = width * 0.5
-            let circleCenterY = height * 0.42
-            let radius: CGFloat = 36
-            cg.fillEllipse(in: CGRect(x: circleCenterX - radius,
-                                      y: circleCenterY - radius,
-                                      width: radius * 2,
-                                      height: radius * 2))
-            // 标题文字（居中下方，白色加粗）
+            // 标题文字（居中，白色加粗）
             let textAttr: [NSAttributedString.Key: Any] = [
                 .font: UIFont.systemFont(ofSize: 20, weight: .semibold),
                 .foregroundColor: UIColor.white,
@@ -9929,7 +9920,7 @@ final class CarouselShowcase: ShowcaseViewController {
             let str = title as NSString
             let textSize = str.size(withAttributes: textAttr)
             let textRect = CGRect(x: (width - textSize.width) / 2,
-                                  y: circleCenterY + radius + 8,
+                                  y: (height - textSize.height) / 2,
                                   width: textSize.width,
                                   height: textSize.height)
             str.draw(in: textRect, withAttributes: textAttr)

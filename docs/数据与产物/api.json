@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "updatedAt": "2026-09-05T20:00:00+08:00",
-  "componentCount": 41,
+  "componentCount": 42,
   "components": [
     {
       "id": "ui.empty",
@@ -7323,6 +7323,121 @@
       "status": "stable",
       "note": "骨架屏（操作反馈区 #57，全新立项，2026-09-09）：首屏/加载过渡期占位骨架=灰块模拟内容布局+shimmer 扫光动画；双模式=原子块 SkeletonBlock(width/height/radius) 灵活组合 + 包裹器 SkeletonRow(loading/avatar/titleWidth/subtitle/subtitleWidth + content slot) 开箱即用；loading 受控切换骨架/真实内容；与 InfiniteLoading #49（底部增量 vs 首屏占位）/Loading #50（全屏遮罩 vs 内容布局骨架）/Empty #48（无数据 vs 加载占位）/ResultPage #56（操作结果 vs 加载过渡）划界；anti_goals 二期=自定义 shimmer 颜色/方向、切换动画、动态行数、Lottie。2026-09-09 门禁 A AI 代评通过（规格 design-spec/skeleton-design-spec.html + ../评审记录/review-skeleton-A.md，P1–P4 全 A 0 保留意见）。验证版本 v1.4.14（C1.5 用户双端 Demo 实机验收待走）。",
       "subcategory": "feedback"
+    },
+    {
+      "id": "ui.carousel",
+      "name": "Carousel 轮播",
+      "category": "ui",
+      "summary": "图片/内容轮播组件（信息展示区 #59，全新立项）：横向滑动切换内容+自动播放+循环+指示器；Carousel 包裹器（items 内容数组+autoPlay 自动播放+duration 间隔+loop 循环+showIndicators 指示器+indicatorColor 指示器颜色+onChange 回调+currentIndex 受控）；与 List #60（分组列表 vs 轮播切换）/Image #61（单图 vs 多图轮播）/ImagePreview planned v2.0（图片预览 vs 轮播展示）划界；anti_goals 二期=自定义指示器样式/垂直轮播/3D 翻转/Lottie",
+      "capabilities": [
+        "轮播",
+        "Carousel",
+        "Swiper",
+        "Swipe",
+        "图片轮播",
+        "自动播放",
+        "循环轮播",
+        "指示器"
+      ],
+      "props": [
+        [
+          "items",
+          "array",
+          "是",
+          "轮播内容数组（每项为 @Composable / UIView content）"
+        ],
+        [
+          "autoPlay",
+          "boolean",
+          "否",
+          "是否自动播放，默认 true"
+        ],
+        [
+          "duration",
+          "number",
+          "否",
+          "自动播放间隔（毫秒），默认 3000"
+        ],
+        [
+          "loop",
+          "boolean",
+          "否",
+          "是否循环轮播，默认 true"
+        ],
+        [
+          "showIndicators",
+          "boolean",
+          "否",
+          "是否显示指示器，默认 true"
+        ],
+        [
+          "indicatorColor",
+          "string",
+          "否",
+          "指示器颜色，默认 primary"
+        ],
+        [
+          "currentIndex",
+          "number",
+          "否",
+          "当前索引（受控）"
+        ],
+        [
+          "onChange",
+          "function",
+          "否",
+          "索引变化回调"
+        ]
+      ],
+      "events": [
+        [
+          "onChange",
+          "(index: number) => void",
+          "索引变化时触发"
+        ]
+      ],
+      "demos": [
+        [
+          "基础轮播",
+          "<Carousel items={3 张图片} />"
+        ],
+        [
+          "关闭自动播放",
+          "<Carousel items={3 张图片} autoPlay={false} />"
+        ],
+        [
+          "关闭循环",
+          "<Carousel items={3 张图片} loop={false} />"
+        ],
+        [
+          "自定义指示器颜色",
+          "<Carousel items={3 张图片} indicatorColor={AppColor.danger} />"
+        ]
+      ],
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/CarouselView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Carousel.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "自定义指示器样式（数字/条形/自定义位置）",
+        "垂直方向轮播",
+        "3D 翻转效果",
+        "Lottie 动画",
+        "缩略图导航"
+      ],
+      "visual_tokens": [
+        "AppColor.primary",
+        "AppColor.bgPage",
+        "AppSpace.sm",
+        "AppRadius.md"
+      ],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "note": "轮播组件（信息展示区 #59，全新立项，2026-09-10）：图片/内容横向轮播+自动播放+循环+指示器；Carousel 包裹器（items+autoPlay+duration+loop+showIndicators+indicatorColor+onChange+currentIndex）；与 List #60（分组列表 vs 轮播）/Image #61（单图 vs 多图轮播）/ImagePreview planned v2.0（预览 vs 展示）划界；anti_goals 二期=自定义指示器/垂直/3D/Lottie。验证版本 v1.4.20（门禁 A/B 走，C1.5 待验收）。",
+      "subcategory": "display"
     },
     {
       "id": "ui.swipe",

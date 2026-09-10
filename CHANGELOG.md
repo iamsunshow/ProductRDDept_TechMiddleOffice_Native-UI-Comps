@@ -14,6 +14,29 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.21] - 2026-09-10
+
+Carousel 轮播组件全新立项（MINOR，信息展示区 #59）。
+
+### Added
+
+- **Carousel 轮播组件双端实现**（门禁 A→B→C1 全走）：
+  - 门禁 A 设计规格：`design-spec/carousel-design-spec.html`（SCQA/PREP/ACE/平台差异/anti_goals 全覆盖）
+  - 门禁 B api.json 契约：items/autoPlay/duration/loop/showIndicators/indicatorColor/currentIndex/onChange（componentCount 41→42）
+  - 门禁 C1 双端实现：
+    - iOS `CarouselView.swift`：UICollectionView+isPagingEnabled+Timer 自动播放+10000 倍假循环+8×8 圆点指示器
+    - Android `Carousel.kt`：HorizontalPager+rememberPagerState+LaunchedEffect+delay 自动播放+Int.MAX_VALUE 假循环
+  - 双端 Demo：D1 基础轮播/D2 关闭自动播放/D3 关闭循环/D4 自定义指示器颜色（红色）
+  - 双端编译 BUILD SUCCEEDED
+
+### Fixed
+
+- iOS CarouselView convenience init 默认参数引用 internal `AppColor` 编译错误：改 `indicatorColor: UIColor? = nil` + 内部赋值。
+
+### Changed
+
+- 组件库全局版本 1.4.20 → 1.4.21（MINOR，新组件 Carousel 立项）。
+
 ## \[1.4.20] - 2026-09-10
 
 Skeleton D1 约束冲突+容器高度+红色调试背景彻底修复（PATCH）。

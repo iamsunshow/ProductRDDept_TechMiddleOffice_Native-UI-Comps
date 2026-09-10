@@ -147,6 +147,7 @@ import com.zhiqihuayun.sharedui.components.AddressResult
 import com.zhiqihuayun.sharedui.components.RegionOption
 import com.zhiqihuayun.sharedui.components.CalendarCard
 import com.zhiqihuayun.sharedui.components.CalendarDate
+import com.zhiqihuayun.sharedui.components.Carousel
 import com.zhiqihuayun.sharedui.components.Cascader
 import com.zhiqihuayun.sharedui.components.CascaderOption
 import com.zhiqihuayun.sharedui.components.CascaderResult
@@ -328,7 +329,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Avatar 头像", reviewed = true, demo = { AvatarDemo() }, passed = true),
         DemoComponent("Badge 徽标", reviewed = true, demo = { BadgeDemo() }, passed = true),
         DemoComponent("Cell 单元格", reviewed = true, demo = { CellDemo() }, passed = true),
-        DemoComponent("Carousel 轮播"),
+        DemoComponent("Carousel 轮播", reviewed = true, demo = { CarouselDemo() }),
         DemoComponent("Collapse 折叠面板", planned = true),
         DemoComponent("CountDown 倒计时", planned = true),
         DemoComponent("Ellipsis 文本省略", planned = true),
@@ -343,7 +344,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Progress 进度条", planned = true),
         DemoComponent("ResultPage 结果反馈", reviewed = true, demo = { ResultPageDemo() }, passed = true),
         DemoComponent("Segmented 分段选择器", planned = true),
-        DemoComponent("Skeleton 骨架屏", reviewed = true, demo = { SkeletonDemo() }),
+        DemoComponent("Skeleton 骨架屏", reviewed = true, demo = { SkeletonDemo() }, passed = true),
         DemoComponent("Steps 步骤条", planned = true),
         DemoComponent("Table 表格", planned = true),
         DemoComponent("Tag 标签", planned = true),
@@ -8389,6 +8390,113 @@ fun SkeletonDemo() {
                 color = AppColor.textSecondary
             )
         }
+    }
+}
+
+/**
+ * Carousel 轮播 Demo（信息展示区 #59）。
+ * 4 组排查：① 基础轮播（autoPlay/loop/showIndicators 默认开）② 关闭自动播放 autoPlay=false
+ * ③ 关闭循环 loop=false（末张后停止 autoPlay）④ 自定义指示器颜色 indicatorColor=AppColor.error。
+ * 双端 1:1（Android Carousel vs iOS CarouselView）。
+ */
+@Composable
+fun CarouselDemo() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // D1 基础轮播：3 张图片，autoPlay/loop/showIndicators 均默认 true
+        DemoSectionCard(title = "Demo 1 · 基础轮播") {
+            Carousel(
+                items = listOf(
+                    { makeCarouselPage("轮播 1", Color(0xFF176DE8)) },
+                    { makeCarouselPage("轮播 2", Color(0xFF16A34A)) },
+                    { makeCarouselPage("轮播 3", Color(0xFFF79E1B)) }
+                )
+            )
+        }
+        Text(
+            text = "3 张图片自动轮播，3 秒切换，循环+底部指示器（主色）。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // D2 关闭自动播放
+        DemoSectionCard(title = "Demo 2 · 关闭自动播放") {
+            Carousel(
+                items = listOf(
+                    { makeCarouselPage("轮播 1", Color(0xFF176DE8)) },
+                    { makeCarouselPage("轮播 2", Color(0xFF16A34A)) },
+                    { makeCarouselPage("轮播 3", Color(0xFFF79E1B)) }
+                ),
+                autoPlay = false
+            )
+        }
+        Text(
+            text = "autoPlay=false，仅手动滑动切换，无定时翻页。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // D3 关闭循环
+        DemoSectionCard(title = "Demo 3 · 关闭循环") {
+            Carousel(
+                items = listOf(
+                    { makeCarouselPage("轮播 1", Color(0xFF176DE8)) },
+                    { makeCarouselPage("轮播 2", Color(0xFF16A34A)) },
+                    { makeCarouselPage("轮播 3", Color(0xFFF79E1B)) }
+                ),
+                loop = false
+            )
+        }
+        Text(
+            text = "loop=false，末张后停止 autoPlay，不回到首张。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // D4 自定义指示器颜色
+        DemoSectionCard(title = "Demo 4 · 自定义指示器颜色") {
+            Carousel(
+                items = listOf(
+                    { makeCarouselPage("轮播 1", Color(0xFF176DE8)) },
+                    { makeCarouselPage("轮播 2", Color(0xFF16A34A)) },
+                    { makeCarouselPage("轮播 3", Color(0xFFF79E1B)) }
+                ),
+                indicatorColor = AppColor.error
+            )
+        }
+        Text(
+            text = "indicatorColor=AppColor.error（红色），当前页红点+其他页淡红点。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+    }
+}
+
+/**
+ * 生成轮播示例页：纯色背景 + 居中白色文字。
+ * @param text 显示文字
+ * @param color 背景色
+ */
+@Composable
+fun makeCarouselPage(text: String, color: Color) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            color = Color.White,
+            fontSize = AppFont.sizeLg,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }
 

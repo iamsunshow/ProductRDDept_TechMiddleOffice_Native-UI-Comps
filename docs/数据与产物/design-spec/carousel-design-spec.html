@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Carousel 轮播 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;--carouselMask:rgba(0,0,0,.0);}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-na{background:#FEF3C7;color:#92400E;}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+/* 轮播演示框 */
+.carousel-frame{position:relative;width:320px;height:180px;border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;border:1px solid var(--border);}
+.carousel-track{display:flex;height:100%;width:300%;animation:carousel-cycle 9s ease-in-out infinite;}
+.carousel-slide{flex:0 0 33.3333%;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:var(--sizeMd);font-weight:600;}
+.carousel-slide.s1{background:linear-gradient(135deg,#16A34A,#15803D);}
+.carousel-slide.s2{background:linear-gradient(135deg,#3B82F6,#1D4ED8);}
+.carousel-slide.s3{background:linear-gradient(135deg,#F59E0B,#DC2626);}
+.carousel-indicators{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);display:flex;gap:8px;}
+.carousel-dot{width:8px;height:8px;border-radius:50%;background:#E5E7EB;}
+.carousel-dot.d1{animation:dot1 9s ease-in-out infinite;}
+.carousel-dot.d2{animation:dot2 9s ease-in-out infinite;}
+.carousel-dot.d3{animation:dot3 9s ease-in-out infinite;}
+@keyframes carousel-cycle{0%,28%{transform:translateX(0);}33%,61%{transform:translateX(-33.3333%);}66%,94%{transform:translateX(-66.6666%);}100%{transform:translateX(0);}}
+@keyframes dot1{0%,28%{background:var(--primary);transform:scale(1.25);}33%,100%{background:#E5E7EB;transform:scale(1);}}
+@keyframes dot2{0%,28%{background:#E5E7EB;transform:scale(1);}33%,61%{background:var(--primary);transform:scale(1.25);}66%,100%{background:#E5E7EB;transform:scale(1);}}
+@keyframes dot3{0%,61%{background:#E5E7EB;transform:scale(1);}66%,94%{background:var(--primary);transform:scale(1.25);}100%{transform:scale(1);}}
+.callout{display:inline-block;margin-top:var(--spaceSm);font-size:var(--sizeXs);color:var(--textSecondary);}
+</style>
+</head>
+<body>
+
+<h1>Carousel 轮播 · 设计规格（信息展示区 · 门禁 A）</h1>
+<p>组件 ID：<code>ui.carousel</code> ｜ 定位：<b>图片/内容轮播容器——支持自动播放、循环、指示器与手动滑动，用于 Banner 广告位、活动推荐、商品图集等横向翻页展示</b>。对标 Ant Design Mobile Swiper / Vant Swipe / NutUI Carousel。提供 items 内容数组、autoPlay 自动播放、loop 循环、showIndicators 指示器、currentIndex 受控等能力。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v1.4.20（2026-09-09，未过 C2/D 不升版）
+</p>
+
+<div class="spec-card">
+<div class="carousel-frame">
+  <div class="carousel-track">
+    <div class="carousel-slide s1">首页 Banner</div>
+    <div class="carousel-slide s2">活动推荐</div>
+    <div class="carousel-slide s3">限时优惠</div>
+  </div>
+  <div class="carousel-indicators">
+    <span class="carousel-dot d1"></span>
+    <span class="carousel-dot d2"></span>
+    <span class="carousel-dot d3"></span>
+  </div>
+</div>
+<p class="callout">演示框：3 张幻灯片自动循环 ｜ 指示器 8×8 圆形 ｜ 间距 8dp/pt ｜ 底部居中 ｜ 自动播放 3000ms 间隔 ｜ 滑动 300ms ease-in-out</p>
+</div>
+
+<h2>01 · 组件用途 & 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>Situation 情景</td><td>首页/活动页/商品详情等场景需在同一广告位横向展示多张图片或内容卡片，单屏仅展示一项，用户通过左右滑动或自动播放切换，空间利用率高、信息密度集中</td></tr>
+<tr><td>Complication 冲突</td><td>无统一组件时=各业务自拼 UIScrollView(UIScrollView+isPagingEnabled)/HorizontalScrollView，自动播放定时器、循环首尾衔接、指示器联动、受控索引等能力各自重复造轮子，视觉与手势不一致、循环闪烁、自动播放与手动滑动互相打架</td></tr>
+<tr><td>Question 问题</td><td>需要一个横向分页轮播容器，支持自动播放（可配间隔/开关）、循环（首尾衔接）、指示器（可配颜色/开关）、手动滑动、受控当前索引与切换回调，双端手势一致</td></tr>
+<tr><td>Answer 方案</td><td>Carousel——横向分页轮播容器，<strong>纯展示+回调</strong>（不内置业务逻辑），items 数组驱动内容，autoPlay/loop/showIndicators 等开关控制行为，currentIndex 受控 + onChange 回调同步外部状态</td></tr>
+<tr><td>适用场景</td><td>① 首页 Banner 广告轮播（多张活动图自动播放）；② 商品/图集横向浏览（手动滑动为主）；③ 活动推荐位（自动播放+点击跳转）；④ 引导页/新手引导翻页（loop=false 收尾停止）；⑤ 自定义内容轮播（items 可放任意视图/卡片）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 列表项侧滑操作 → <b>Swipe（ui.swipe）</b>；② 纵向拖拽排序 → <b>Drag（ui.drag）</b>；③ 单张图片展示/预览放大 → <b>Image（ui.image）/ ImagePreview（ui.image-preview）</b>；④ 标签页横向切换 → <b>Tabs（ui.tabs）</b>（Tabs=页签内容切换，Carousel=图片内容轮播）；⑤ 全屏画廊/相册滑动 → 二期 ImagePreview 承载</td></tr>
+<tr><td>五态适配</td><td><span class="tag tag-ok">默认态 ✅</span> 展示当前幻灯片+指示器；<span class="tag tag-ok">自动播放态 ✅</span> autoPlay=true 每 duration ms 自动切换下一张；<span class="tag tag-ok">循环态 ✅</span> loop=true 末张→首张无缝衔接；<span class="tag tag-ok">手动滑动态 ✅</span> 手势左右滑动翻页（松手吸附到最近页）；<span class="tag tag-na">禁用态 N/A</span> 无禁用态（轮播被动展示，可用 autoPlay=false 静止）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]（颜色/间距/圆角 token，零硬编码）。与 Swipe #58 划界：Swipe=列表项侧滑露操作按钮，Carousel=整屏内容横向翻页轮播；与 Tabs 划界：Tabs=页签标题+内容切换（内容可异构），Carousel=等宽图片/卡片内容轮播（内容同构）；与 Image 划界：Image=单张图片展示，Carousel=多张内容横向轮播容器（内部可嵌 Image）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>轮播容器默认高度</td><td>200 dp/pt</td><td>Carousel 默认高度，可由 height prop 覆盖（如 160/240）</td></tr>
+<tr><td>轮播容器圆角</td><td>radiusMd（10 dp/pt）</td><td>容器外圆角，溢出裁剪</td></tr>
+<tr><td>容器背景</td><td>bgCard（#FFFFFF）/ bgPage（#F9FAFB）</td><td>幻灯片未铺满时的底色</td></tr>
+<tr><td>指示器尺寸</td><td>8×8 dp/pt，圆形（radiusFull）</td><td>单个指示器圆点直径 8</td></tr>
+<tr><td>指示器间距</td><td>spaceSm（8 dp/pt）</td><td>指示器圆点之间间距 8</td></tr>
+<tr><td>指示器位置</td><td>底部居中，距底 8 dp/pt</td><td>absolute bottom center，距容器底部 8</td></tr>
+<tr><td>指示器未选中色</td><td>border（#E5E7EB）半透明</td><td>非当前指示器灰色低对比，不打扰内容</td></tr>
+<tr><td>指示器选中色</td><td>primary（#16A34A）默认 / indicatorColor 可配</td><td>当前指示器高亮色，可自定义</td></tr>
+<tr><td>指示器选中放大</td><td>scale(1.25) + 切换 300ms ease-in-out</td><td>当前指示器轻微放大+颜色切换，与滑动动画同步</td></tr>
+<tr><td>滑动动画</td><td>300ms ease-in-out</td><td>手动松手吸附 / 自动播放翻页动画时长曲线</td></tr>
+<tr><td>自动播放间隔</td><td>3000ms（duration 默认）</td><td>autoPlay=true 时每张停留时间，可配 duration</td></tr>
+<tr><td>幻灯片宽度</td><td>=容器宽度（100%）</td><td>每张幻灯片等宽分页，flex:0 0 100%</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>PREP · 组件形态总览（结论先行）</h3>
+<table>
+<tr><th>维度</th><th>说明</th></tr>
+<tr><td>Point 结论</td><td>采用单容器 Carousel（items 数组驱动 + autoPlay/loop/showIndicators/currentIndex 开关 + onChange 回调），不做 Carousel+CarouselItem 子组件拆分，开箱即用且与 Vant Swipe / NutUI Carousel 一致</td></tr>
+<tr><td>Reason 理由</td><td>① 轮播内容同构（等宽图片/卡片），用 items 数组比插槽更简洁；② 双端分页容器都是"数据驱动 + 横向翻页"模型，数组 API 与原生 Paging 模型天然契合；③ 竞品（Vant/NutUI/AntD Mobile Swiper）均采用 items/swiperItems 数组驱动，开发者心智模型一致</td></tr>
+<tr><td>Example 案例</td><td>Vant Swipe 接收 <code>swiperList</code> 数组渲染等宽项；NutUI Carousel 接收 <code>list</code> 数组；AntD Mobile Swiper 接收 children 数组或 items</td></tr>
+<tr><td>Point 结论</td><td>单 Carousel 容器 + items 数组驱动，受控 currentIndex + 非受控自动播放双模式，下方 P1–P4 为形态/循环/双端实现的 ACE 细节</td></tr>
+</table>
+
+<h3>P1 · 组件形态：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：单容器 Carousel——items 数组驱动内容 + autoPlay/loop/showIndicators/currentIndex/onChange 开关回调，无子组件</td><td>✅ 开箱即用（传入 items 即自动渲染分页），API 简洁，与 Vant Swipe/NutUI Carousel 一致；受控/非受控双模式（currentIndex 受控切换 / autoPlay 内部自驱）。</td><td><b>推荐 A</b>：开箱即用+数组驱动+双端一致</td></tr>
+<tr><td>B：Carousel + CarouselItem 子组件插槽</td><td>灵活可放异构内容，但需用户手动循环渲染 CarouselItem，使用成本高，且轮播内容通常同构。</td><td>淘汰：使用成本高，一期 items 数组覆盖</td></tr>
+<tr><td>C：纯手势容器（无数据驱动，宿主自拼内容）</td><td>灵活但自动播放/循环/指示器需宿主自建，重复造轮子。</td><td>淘汰</td></tr>
+</table>
+
+<h3>P2 · 循环（loop）方案：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：首尾克隆法——在首部插入末张克隆、尾部插入首张克隆，滑动越界时无感重置 currentIndex 到真实位置</td><td>✅ 双端同构（iOS/Android 均可克隆 cell/item），末张→首张 / 首张→末张无缝衔接，无空白闪烁，与 Vant Swipe loop / NutUI Carousel loop 一致。</td><td><b>推荐 A</b>：无缝衔接+双端一致</td></tr>
+<tr><td>B：到达末张后索引重置回 0（带动画）</td><td>实现简单但末张→首张会反向"倒带"滑动，视觉突兀。</td><td>淘汰：视觉突兀</td></tr>
+<tr><td>C：不实现循环（loop=false 默认行为）</td><td>末张后停止，需手动滑回。loop=false 时采用此行为（一期支持开关）。</td><td>loop=false 时采用</td></tr>
+</table>
+
+<h3>P3 · iOS 实现路径：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：UICollectionView + isPagingEnabled=true + 横向布局（UICollectionViewFlowLayout scrollDirection=.horizontal）</td><td>✅ UIKit 原生分页滚动，cell 复用机制内存友好；isPagingEnabled 自动吸附到页边界；配合 Timer 实现 autoPlay（scrollToItem），克隆 cell 实现 loop；指示器用 UIView 叠加 bottom 容器。</td><td><b>推荐 A</b>：UIKit 原生分页+cell 复用+吸附</td></tr>
+<tr><td>B：UIScrollView + isPagingEnabled + 手动 contentSize</td><td>可实现但无 cell 复用，items 多时内存占用高；需手动布局子视图。</td><td>淘汰：无复用，items 多时低效</td></tr>
+<tr><td>C：UIPageViewController</td><td>原生分页但每页一个 ViewController 过重，且循环/自动播放需大量自定义，与 cell 复用模型不符。</td><td>淘汰：过重，模型不符</td></tr>
+</table>
+
+<h3>P4 · Android 实现路径：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：HorizontalPager（Compose Foundation androidx.compose.foundation.pager）+ state 驱动</td><td>✅ Compose 原生分页，PagerState 驱动 currentPage/scrollOffset，内置吸附+手势；LaunchedEffect + delay 实现 autoPlay（pagerState.scrollToPage）；克隆 item 实现 loop；指示器 Box 叠加 bottom Row。</td><td><b>推荐 A</b>：Compose 原生分页+state 驱动+吸附</td></tr>
+<tr><td>B：ViewPager2（View 体系）</td><td>原生分页但属 View 体系，与组件库 Compose 优先策略不符，需 AndroidView 桥接，集成成本高。</td><td>淘汰：View 体系，集成成本高</td></tr>
+<tr><td>C：LazyRow + 手动吸附逻辑</td><td>可实现但吸附/分页需手写滚动逻辑，易出 bug。</td><td>淘汰：吸附需自写，易错</td></tr>
+</table>
+
+</div>
+
+<h2>04 · API 契约（与 api.json 对齐）</h2>
+<div class="spec-card">
+<h3>Carousel Props</h3>
+<table>
+<tr><th>类型</th><th>名称</th><th>必填</th><th>默认值</th><th>说明</th></tr>
+<tr><td>prop</td><td>items</td><td>是</td><td>—</td><td>Array&lt;CarouselItem&gt;，轮播内容数组（每项含图片/自定义内容），至少 1 项</td></tr>
+<tr><td>prop</td><td>autoPlay</td><td>否</td><td>true</td><td>Boolean，是否自动播放（每 duration ms 切换下一张）</td></tr>
+<tr><td>prop</td><td>duration</td><td>否</td><td>3000</td><td>Number，自动播放间隔毫秒（autoPlay=true 时生效，建议 ≥1000）</td></tr>
+<tr><td>prop</td><td>loop</td><td>否</td><td>true</td><td>Boolean，是否循环（末张→首张无缝衔接，loop=false 时末张后停止）</td></tr>
+<tr><td>prop</td><td>showIndicators</td><td>否</td><td>true</td><td>Boolean，是否显示底部指示器</td></tr>
+<tr><td>prop</td><td>indicatorColor</td><td>否</td><td>primary(#16A34A)</td><td>String，当前指示器高亮色（支持任意 hex/DesignTokens 颜色名）</td></tr>
+<tr><td>prop</td><td>currentIndex</td><td>否</td><td>0</td><td>Number，受控当前索引（外部传入则受控，切换需配合 onChange 更新）</td></tr>
+<tr><td>prop</td><td>height</td><td>否</td><td>200</td><td>Number/String，轮播容器高度（dp/pt）</td></tr>
+<tr><td>event</td><td>onChange</td><td>否</td><td>—</td><td>(index: number) =&gt; void，当前页切换回调（自动播放/手动滑动/受控切换均触发）</td></tr>
+</table>
+<h3>CarouselItem 数据结构</h3>
+<table>
+<tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>key</td><td>string/number</td><td>否</td><td>项唯一标识（用于 cell 复用/diff，缺省用数组索引）</td></tr>
+<tr><td>image</td><td>string（url）</td><td>否</td><td>图片地址（与 content 二选一，image 优先渲染为铺满图片）</td></tr>
+<tr><td>content</td><td>Slot/自定义视图</td><td>否</td><td>自定义内容（图片以外的卡片/视图，image 为空时生效）</td></tr>
+<tr><td>onTap</td><td>() =&gt; void</td><td>否</td><td>点击当前幻灯片回调</td></tr>
+</table>
+</div>
+
+<h2>05 · Demo 排查（4 组 1:1）</h2>
+<div class="spec-card">
+<table>
+<tr><th>#</th><th>名称</th><th>场景</th><th>验收点</th></tr>
+<tr><td>D1</td><td>基础轮播</td><td>Carousel items=[3 张图片]，autoPlay/loop/showIndicators 均默认 true，duration=3000</td><td>3 张图片自动播放每 3s 切换，循环无缝衔接，底部指示器 3 个圆点当前项绿色放大 1.25，左右手动滑动吸附到页，onChange 回调输出当前 index</td></tr>
+<tr><td>D2</td><td>自动播放关闭</td><td>Carousel items=[3 张图片]，autoPlay=false</td><td>不自动播放，仅手动滑动切换，指示器仍联动当前页，loop 默认 true 仍可手动循环</td></tr>
+<tr><td>D3</td><td>循环关闭</td><td>Carousel items=[3 张图片]，loop=false</td><td>末张后停止（不可继续右滑到首张），首张前不可左滑，autoPlay 末张后停止（不再回 0），指示器末项保持高亮</td></tr>
+<tr><td>D4</td><td>自定义指示器颜色</td><td>Carousel items=[3 张图片]，indicatorColor="#F59E0B"（warning 黄）</td><td>当前指示器高亮为黄色而非默认绿色，其余行为同 D1，验证 indicatorColor 可配生效</td></tr>
+</table>
+</div>
+
+<h2>06 · 平台差异表（diff-api.json 登记候选）</h2>
+<div class="spec-card">
+<table>
+<tr><th>差异项</th><th>iOS</th><th>Android</th><th>是否放行</th></tr>
+<tr><td>分页容器</td><td>UICollectionView + isPagingEnabled</td><td>HorizontalPager（Compose Foundation）</td><td>放行（视觉一致=等宽分页吸附）</td></tr>
+<tr><td>自动播放</td><td>Timer + scrollToItem(at:) 动画</td><td>LaunchedEffect + delay + pagerState.scrollToPage</td><td>放行（间隔 3000ms 一致）</td></tr>
+<tr><td>循环实现</td><td>首尾克隆 cell + 无感重置 currentIndex</td><td>首尾克隆 item + 无感重置 currentPage</td><td>放行（首尾衔接视觉一致）</td></tr>
+<tr><td>滑动动画</td><td>UICollectionView 默认 paging 动画 / UIView.animate 300ms ease-in-out</td><td>HorizontalPager 默认 animationSpec / tween 300ms ease-in-out</td><td>放行（时长曲线一致）</td></tr>
+<tr><td>指示器</td><td>UIView 叠加 bottom 容器（圆点+颜色切换+缩放）</td><td>Box 叠加 bottom Row（圆点+颜色切换+缩放）</td><td>放行（尺寸 8×8/间距 8/底部居中一致）</td></tr>
+</table>
+</div>
+
+<h2>07 · anti_goals 反目标（二期不做）</h2>
+<div class="spec-card">
+<ul>
+<li>3D 翻页/卡片层叠效果（一期统一平面横向滑动）</li>
+<li>指示器自定义形状（数字/进度条/自定义视图）——一期纯圆点覆盖 80%</li>
+<li>纵向轮播（Carousel 仅横向）</li>
+<li>自动播放手势冲突暂停的高级策略（一期统一"滑动时暂停定时器，松手恢复"）</li>
+<li>懒加载/虚拟化超长列表（items 通常 ≤10，无虚拟化需求）</li>
+<li>Lottie 翻页转场动画</li>
+</ul>
+</div>
+
+</body>
+</html>

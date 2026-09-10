@@ -114,7 +114,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.avatar", name: "Avatar 头像", reviewed: true, create: { AvatarShowcase() }, passed: true),
             DemoComponent(id: "ui.badge", name: "Badge 徽标", reviewed: true, create: { BadgeShowcase() }, passed: true),
             DemoComponent(id: "ui.cell", name: "Cell 单元格", reviewed: true, create: { CellShowcase() }, passed: true),
-            DemoComponent(id: "ui.carousel", name: "Carousel 轮播", reviewed: false, create: nil),
+            DemoComponent(id: "ui.carousel", name: "Carousel 轮播", reviewed: true, create: { CarouselShowcase() }),
             DemoComponent(id: "ui.collapse", name: "Collapse 折叠面板", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.count-down", name: "CountDown 倒计时", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.ellipsis", name: "Ellipsis 文本省略", reviewed: false, create: nil, planned: true),
@@ -129,7 +129,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.progress", name: "Progress 进度条", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.result-page", name: "ResultPage 结果反馈", reviewed: true, create: { ResultPageShowcase() }, passed: true),
             DemoComponent(id: "ui.segmented", name: "Segmented 分段选择器", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.skeleton", name: "Skeleton 骨架屏", reviewed: true, create: { SkeletonShowcase() }),
+            DemoComponent(id: "ui.skeleton", name: "Skeleton 骨架屏", reviewed: true, create: { SkeletonShowcase() }, passed: true),
             DemoComponent(id: "ui.steps", name: "Steps 步骤条", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.table", name: "Table 表格", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.tag", name: "Tag 标签", reviewed: false, create: nil, planned: true),
@@ -9792,4 +9792,147 @@ private final class ActionWrapper {
     static var key: UInt8 = 0
     let action: (UIButton) -> Void
     init(action: @escaping (UIButton) -> Void) { self.action = action }
+}
+
+// MARK: - Carousel 轮播（信息展示区 #59，对齐 Android CarouselDemo）
+
+/// Carousel 轮播组件 Demo 页（4 组排查：基础 / 关闭自动播放 / 关闭循环 / 自定义指示器色）。
+/// 组件实现：ios/SharedUI/Components/CarouselView.swift ｜ 契约：api.json `ui.carousel` ｜ 版本 v1.4.20。
+final class CarouselShowcase: ShowcaseViewController {
+
+    /// 顶部常驻反馈条：onChange 在此就地更新（显示当前页索引）。
+    private var feedbackLabel: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Carousel 轮播"
+
+        // demo 徽标版本 = 组件库正式版本（ui-version.json v1.4.20；§7h 强制：发版必升徽标版本）。
+        addVersionBadge(componentName: "Carousel", version: "v1.4.20", builtAt: "2026-09-10")
+        feedbackLabel = addFeedbackBar()
+        feedbackLabel?.text = "滑动或自动播放后查看 onChange 回调反馈"
+
+        // ── D1 · 基础轮播（autoPlay=true / loop=true / showIndicators=true，全默认）──
+        addSection(title: "Demo 1 · 基础轮播（默认自动播放+循环+指示器）") { [weak self] container in
+            guard let self else { return }
+            let carousel = CarouselView(items: self.makeBannerViews(),
+                                         onChange: { [weak self] idx in
+                self?.feedbackLabel?.text = "D1 onChange：当前页 = \(idx)"
+            })
+            container.addSubview(carousel)
+            carousel.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+                make.height.equalTo(200)
+            }
+        }
+        addInfo("3 张不同颜色 Banner，autoPlay=true（默认 3 秒/张），loop=true 无限循环，showIndicators=true 底部圆点指示器。")
+
+        // ── D2 · 关闭自动播放（autoPlay=false，手动滑动）──
+        addSection(title: "Demo 2 · 关闭自动播放（手动滑动）") { [weak self] container in
+            guard let self else { return }
+            let carousel = CarouselView(items: self.makeBannerViews(),
+                                         autoPlay: false,
+                                         onChange: { [weak self] idx in
+                self?.feedbackLabel?.text = "D2 onChange：当前页 = \(idx)"
+            })
+            container.addSubview(carousel)
+            carousel.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+                make.height.equalTo(200)
+            }
+        }
+        addInfo("autoPlay=false 不自动翻页，可手动左右滑动切换；onChange 在手动滑停后触发。")
+
+        // ── D3 · 关闭循环（loop=false，末张停止）──
+        addSection(title: "Demo 3 · 关闭循环（末张停止）") { [weak self] container in
+            guard let self else { return }
+            let carousel = CarouselView(items: self.makeBannerViews(),
+                                         loop: false,
+                                         onChange: { [weak self] idx in
+                self?.feedbackLabel?.text = "D3 onChange：当前页 = \(idx)"
+            })
+            container.addSubview(carousel)
+            carousel.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+                make.height.equalTo(200)
+            }
+        }
+        addInfo("loop=false 到末张（第 3 张）后停止，不再回到首张；适合有限条数场景。")
+
+        // ── D4 · 自定义指示器颜色（红色）──
+        addSection(title: "Demo 4 · 自定义指示器颜色（红色）") { [weak self] container in
+            guard let self else { return }
+            // 注：AppColor 未定义 danger 别名，语义红色为 error（#DC2626），
+            // 与 BadgeView「danger 红 = AppColor.error」一致。
+            let carousel = CarouselView(items: self.makeBannerViews(),
+                                         indicatorColor: AppColor.error,
+                                         onChange: { [weak self] idx in
+                self?.feedbackLabel?.text = "D4 onChange：当前页 = \(idx)"
+            })
+            container.addSubview(carousel)
+            carousel.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+                make.height.equalTo(200)
+            }
+        }
+        addInfo("indicatorColor=AppColor.error（红色 #DC2626），当前页指示器变红，其他页 30% 透明度。")
+    }
+
+    // MARK: - 演示素材
+
+    /// 生成 3 张 Banner 视图（蓝/绿/橙 + 白色圆 + 标题文字），供 4 组 Demo 复用。
+    private func makeBannerViews() -> [UIView] {
+        let configs: [(hex: UInt32, title: String)] = [
+            (0x176DE8, "轮播 1"),
+            (0x16A34A, "轮播 2"),
+            (0xF79E1B, "轮播 3"),
+        ]
+        return configs.map { hex, title in
+            let iv = UIImageView(image: CarouselShowcase.makeBannerImage(color: title, hex: hex))
+            iv.contentMode = .scaleAspectFill
+            iv.clipsToBounds = true
+            return iv
+        }
+    }
+
+    /// 生成 320×200 Banner 图：纯色背景 + 白色圆 + 居中标题文字。
+    /// - Parameters:
+    ///   - color: 图片标题文字（如「轮播 1」）。
+    ///   - hex: 背景颜色十六进制值（如 0x176DE8）。
+    private static func makeBannerImage(color title: String, hex: UInt32) -> UIImage {
+        let width: CGFloat = 320
+        let height: CGFloat = 200
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: width, height: height))
+        return renderer.image { ctx in
+            let cg = ctx.cgContext
+            // 背景填色（蓝/绿/橙）
+            UIColor(hex: hex).setFill()
+            cg.fill(CGRect(x: 0, y: 0, width: width, height: height))
+            // 白色圆（居中偏上，半径 36）
+            UIColor.white.setFill()
+            let circleCenterX = width * 0.5
+            let circleCenterY = height * 0.42
+            let radius: CGFloat = 36
+            cg.fillEllipse(in: CGRect(x: circleCenterX - radius,
+                                      y: circleCenterY - radius,
+                                      width: radius * 2,
+                                      height: radius * 2))
+            // 标题文字（居中下方，白色加粗）
+            let textAttr: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 20, weight: .semibold),
+                .foregroundColor: UIColor.white,
+            ]
+            let str = title as NSString
+            let textSize = str.size(withAttributes: textAttr)
+            let textRect = CGRect(x: (width - textSize.width) / 2,
+                                  y: circleCenterY + radius + 8,
+                                  width: textSize.width,
+                                  height: textSize.height)
+            str.draw(in: textRect, withAttributes: textAttr)
+        }
+    }
 }

@@ -222,6 +222,7 @@ private fun PageButton(page: Int, selected: Boolean, onClick: () -> Unit) {
             text = "$page",
             color = if (selected) Color.White else AppColor.textPrimary,
             fontSize = AppFont.sizeSm,
+            lineHeight = AppFont.sizeSm,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
             textAlign = TextAlign.Center,
         )
@@ -243,6 +244,7 @@ private fun EllipsisView() {
             text = "···",
             color = AppColor.gray25,
             fontSize = AppFont.sizeSm,
+            lineHeight = AppFont.sizeSm,
             textAlign = TextAlign.Center,
         )
     }
@@ -265,12 +267,14 @@ private fun SimpleLabel(current: Int, total: Int) {
                 text = "$current",
                 color = AppColor.primary,
                 fontSize = AppFont.sizeSm,
+                lineHeight = AppFont.sizeSm,
                 fontWeight = FontWeight.SemiBold,
             )
             Text(
                 text = " / $total",
                 color = AppColor.textPrimary,
                 fontSize = AppFont.sizeSm,
+                lineHeight = AppFont.sizeSm,
             )
         }
     }

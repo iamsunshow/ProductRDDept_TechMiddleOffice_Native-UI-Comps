@@ -232,9 +232,6 @@ public final class SkeletonRow: UIView {
 
         var leadingOffset: CGFloat = 0
 
-        // 色彩调试法：skeletonContainer=红色（验证行容器是否撑开）
-        skeletonContainer.backgroundColor = UIColor.red.withAlphaComponent(0.2)
-
         // 头像（固定 40×40，垂直居中）
         if avatar {
             let av = SkeletonBlock(width: .fixed(Layout.avatarSize), height: .fixed(Layout.avatarSize), cornerRadius: Layout.avatarSize / 2)

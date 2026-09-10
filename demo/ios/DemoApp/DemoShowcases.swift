@@ -9449,7 +9449,8 @@ final class SkeletonShowcase: ShowcaseViewController {
                 stack.translatesAutoresizingMaskIntoConstraints = false
                 realView.addSubview(stack)
                 stack.snp.makeConstraints { make in
-                    make.edges.equalToSuperview()
+                    make.leading.trailing.equalToSuperview()
+                    make.centerY.equalToSuperview()
                     make.height.equalTo(40)
                 }
                 avatar.snp.makeConstraints { make in
@@ -9465,6 +9466,9 @@ final class SkeletonShowcase: ShowcaseViewController {
                         make.top.equalToSuperview()
                     } else {
                         make.top.equalTo(self.d1Rows[i - 2].snp.bottom)
+                    }
+                    if i == 3 {
+                        make.bottom.equalToSuperview()
                     }
                 }
             }

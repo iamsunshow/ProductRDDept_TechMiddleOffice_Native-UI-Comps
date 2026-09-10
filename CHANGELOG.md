@@ -14,6 +14,20 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.20] - 2026-09-10
+
+Skeleton D1 约束冲突+容器高度+红色调试背景彻底修复（PATCH）。
+
+### Fixed
+
+- **Skeleton D1 stack 约束冲突修复**：realView 的 stack 约束 `edges.equalToSuperview()` + `height.equalTo(40)` 冲突——edges 含 top/bottom/leading/trailing 撑满 64pt row，加 height=40 矛突，Auto Layout 破坏布局导致骨架灰色文案盖住真实内容。修复：改为 `leading.trailing+centerY+height=40` 消除冲突。
+- **Skeleton D1 容器高度不足修复**：3 行 row 用手动约束排列，最后一行（i==3）无 `bottom` 约束，container 无底部锚点高度为 0，Demo2 直接盖住 Demo1。修复：i==3 时加 `make.bottom.equalToSuperview()` 让 container 撑开到 3×64=192pt。
+- **Skeleton D3 红色调试背景彻底清除**：上次 Edit 未真正生效（skeletonContainer 红色背景仍在），本次重新删除，红色调试色已彻底清除。
+
+### Changed
+
+- 组件库全局版本 1.4.19 → 1.4.20（PATCH，Skeleton D1 约束+容器高度+调试色彻底修复）。
+
 ## \[1.4.19] - 2026-09-10
 
 Skeleton 三处布局修复 + 调试颜色清除（PATCH）。

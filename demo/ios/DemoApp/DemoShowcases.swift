@@ -108,9 +108,9 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.toast", name: "Toast 吐司", reviewed: true, create: { ToastShowcase() }, passed: true),
         ]),
         ("信息展示", [
-            DemoComponent(id: "ui.animate", name: "Animate 动画", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.animating-numbers", name: "AnimatingNumbers 数字动画", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.audio", name: "Audio 音频播放器", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.animate", name: "Animate 动画", reviewed: false, create: nil),
+            DemoComponent(id: "ui.animating-numbers", name: "AnimatingNumbers 数字动画", reviewed: false, create: nil),
+            DemoComponent(id: "ui.audio", name: "Audio 音频播放器", reviewed: false, create: nil),
             DemoComponent(id: "ui.avatar", name: "Avatar 头像", reviewed: true, create: { AvatarShowcase() }),
             DemoComponent(id: "ui.badge", name: "Badge 徽标", reviewed: true, create: { BadgeShowcase() }, passed: true),
             DemoComponent(id: "ui.cell", name: "Cell 单元格", reviewed: true, create: { CellShowcase() }, passed: true),
@@ -136,7 +136,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.table", name: "Table 表格", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.tag", name: "Tag 标签", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.tour", name: "Tour 引导", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.video", name: "Video 视频播放器", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.video", name: "Video 视频播放器", reviewed: false, create: nil),
             DemoComponent(id: "ui.virtual-list", name: "VirtualList 虚拟列表", reviewed: false, create: nil, planned: true),
         ]),
         ("特色组件", [

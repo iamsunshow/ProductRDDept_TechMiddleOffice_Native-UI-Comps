@@ -322,9 +322,9 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Toast 吐司", reviewed = true, demo = { ToastDemo() }, passed = true),
     ),
     "信息展示" to listOf(
-        DemoComponent("Animate 动画", planned = true),
-        DemoComponent("AnimatingNumbers 数字动画", planned = true),
-        DemoComponent("Audio 音频播放器", planned = true),
+        DemoComponent("Animate 动画"),
+        DemoComponent("AnimatingNumbers 数字动画"),
+        DemoComponent("Audio 音频播放器"),
         DemoComponent("Avatar 头像", reviewed = true, demo = { AvatarDemo() }),
         DemoComponent("Badge 徽标", reviewed = true, demo = { BadgeDemo() }, passed = true),
         DemoComponent("Cell 单元格", reviewed = true, demo = { CellDemo() }, passed = true),
@@ -350,7 +350,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Table 表格", planned = true),
         DemoComponent("Tag 标签", planned = true),
         DemoComponent("Tour 引导", planned = true),
-        DemoComponent("Video 视频播放器", planned = true),
+        DemoComponent("Video 视频播放器"),
         DemoComponent("VirtualList 虚拟列表", planned = true),
     ),
     "特色组件" to listOf(

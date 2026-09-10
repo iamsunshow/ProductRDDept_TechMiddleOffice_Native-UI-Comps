@@ -89,7 +89,7 @@ public final class CarouselView: UIView {
     // MARK: - 子视图
 
     private let collectionView: UICollectionView
-    private let indicatorContainer = UIStackView()
+    private let indicatorContainer = UIView()
     private var dotViews: [UIView] = []
 
     // MARK: - 内部状态
@@ -189,16 +189,13 @@ public final class CarouselView: UIView {
             make.edges.equalToSuperview()
         }
 
-        indicatorContainer.axis = .horizontal
-        indicatorContainer.alignment = .center
-        indicatorContainer.distribution = .fill
-        indicatorContainer.spacing = Layout.indicatorSpacing
         indicatorContainer.isUserInteractionEnabled = false // 点击穿透到 cell
         indicatorContainer.isHidden = true
         addSubview(indicatorContainer)
         indicatorContainer.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.bottom.equalToSuperview().offset(-Layout.indicatorBottomInset)
+            make.height.equalTo(Layout.indicatorSize)
         }
     }
 
@@ -235,14 +232,22 @@ public final class CarouselView: UIView {
     private func rebuildIndicators() {
         dotViews.forEach { $0.removeFromSuperview() }
         dotViews = []
-        for _ in items {
+        let count = items.count
+        let totalWidth = CGFloat(count) * Layout.indicatorSize + CGFloat(max(0, count - 1)) * Layout.indicatorSpacing
+        for i in 0..<count {
             let dot = UIView()
             dot.layer.cornerRadius = Layout.indicatorSize / 2
-            indicatorContainer.addArrangedSubview(dot)
+            indicatorContainer.addSubview(dot)
             dot.snp.makeConstraints { make in
                 make.size.equalTo(Layout.indicatorSize)
+                make.centerY.equalToSuperview()
+                make.leading.equalToSuperview().offset(CGFloat(i) * (Layout.indicatorSize + Layout.indicatorSpacing))
             }
             dotViews.append(dot)
+        }
+        // 设置 indicatorContainer 宽度=圆点总宽度
+        indicatorContainer.snp.updateConstraints { make in
+            make.width.equalTo(totalWidth)
         }
         indicatorContainer.isHidden = !showIndicators || items.isEmpty
         applyIndicatorColors(for: logicalIndex)

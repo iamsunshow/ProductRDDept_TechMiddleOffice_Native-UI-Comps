@@ -55,10 +55,10 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.elevator", name: "Elevator 电梯楼层", reviewed: true, create: { ElevatorShowcase() }, passed: true),
             DemoComponent(id: "ui.fixed-nav", name: "FixedNav 悬浮导航", reviewed: true, create: { FixedNavShowcase() }, passed: true),
             DemoComponent(id: "ui.hover-button", name: "HoverButton 悬浮按钮", reviewed: true, create: { HoverButtonShowcase() }, passed: true),
-            DemoComponent(id: "ui.indicator", name: "Indicator 指示器", reviewed: false, create: nil),
+            DemoComponent(id: "ui.indicator", name: "Indicator 指示器", reviewed: true, create: { IndicatorShowcase() }, passed: true),
             DemoComponent(id: "ui.menu", name: "Menu 菜单", reviewed: true, create: { MenuShowcase() }, passed: true),
             DemoComponent(id: "ui.nav-bar", name: "NavBar 头部导航", reviewed: true, create: { NavBarShowcase() }, passed: true),
-            DemoComponent(id: "ui.pagination", name: "Pagination 分页", reviewed: false, create: nil),
+            DemoComponent(id: "ui.pagination", name: "Pagination 分页", reviewed: true, create: { PaginationShowcase() }, passed: true),
             DemoComponent(id: "ui.side-bar", name: "SideBar 侧边导航", reviewed: true, create: { SideBarShowcase() }, passed: true),
             DemoComponent(id: "ui.side-nav-bar", name: "SideNavBar 侧边导航栏", reviewed: false, create: nil),
             DemoComponent(id: "ui.tabbar", name: "Tabbar 标签栏", reviewed: true, create: { TabbarShowcase() }, passed: true),
@@ -123,7 +123,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.image-preview", name: "ImagePreview 图片预览", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.list", name: "List 分组列表", reviewed: true, create: { ListShowcase() }, passed: true),
             DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: true, create: { LoadingShowcase() }, passed: true),
-            DemoComponent(id: "ui.lottie", name: "Lottie 动画", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.lottie", name: "Lottie 动画", reviewed: true, create: { LottieShowcase() }, passed: true),
             DemoComponent(id: "ui.notice-bar", name: "NoticeBar 公告栏", reviewed: true, create: { NoticeBarShowcase() }, passed: true),
             DemoComponent(id: "ui.price", name: "Price 价格", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.progress", name: "Progress 进度条", reviewed: false, create: nil, planned: true),
@@ -8656,6 +8656,189 @@ final class CollapseShowcase: ShowcaseViewController {
     }
 }
 
+// MARK: - Pagination Showcase（Pagination 分页 Demo 页，导航区 #71，验证组件库 v1.4.30）
+// D1 基础分页（5 页全显无省略号·multi）/ D2 简洁模式（mode=simple「1/5」文本）/
+// D3 显示省略号（10 页·itemSize=5·首尾+省略号折叠）/ D4 自定义页码按钮数量（itemSize=3·3 按钮窗口+省略号）
+final class PaginationShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Pagination 分页"
+
+        addVersionBadge(componentName: "Pagination", version: "v1.4.30", builtAt: "2026-09-11 00:00:00")
+
+        // D1 基础分页：total=50/pageSize=10 → 5 页全显无省略号（currentValue=0 内部自管理）
+        addSection(title: "D1 基础分页（5 页全显无省略号）") { container in
+            let pager = PaginationView()
+            pager.total = 50
+            pager.pageSize = 10
+            pager.itemSize = 5
+            container.addSubview(pager)
+            pager.snp.makeConstraints { make in
+                make.top.leading.trailing.equalToSuperview()
+            }
+
+            let feedback = UILabel()
+            feedback.font = .systemFont(ofSize: AppFont.sizeSm)
+            feedback.textColor = AppColor.textSecondary
+            feedback.text = "当前页：1 / 5"
+            container.addSubview(feedback)
+            feedback.snp.makeConstraints { make in
+                make.top.equalTo(pager.snp.bottom).offset(AppSpace.sm)
+                make.leading.trailing.bottom.equalToSuperview()
+            }
+            pager.onChange = { page in
+                feedback.text = "当前页：\(page) / 5"
+            }
+        }
+        addInfo("排查点：5 页全显无省略号；当前页 primary 反白；上一页在第 1 页禁用、下一页在第 5 页禁用；点击页码/箭头翻页并回写当前页。")
+
+        // D2 简洁模式：mode=simple，显示「1/5」文本翻页
+        addSection(title: "D2 简洁模式（x/y 文本翻页）") { container in
+            let pager = PaginationView()
+            pager.total = 50
+            pager.pageSize = 10
+            pager.mode = .simple
+            container.addSubview(pager)
+            pager.snp.makeConstraints { make in
+                make.top.leading.trailing.equalToSuperview()
+            }
+
+            let feedback = UILabel()
+            feedback.font = .systemFont(ofSize: AppFont.sizeSm)
+            feedback.textColor = AppColor.textSecondary
+            feedback.text = "当前页：1 / 5"
+            container.addSubview(feedback)
+            feedback.snp.makeConstraints { make in
+                make.top.equalTo(pager.snp.bottom).offset(AppSpace.sm)
+                make.leading.trailing.bottom.equalToSuperview()
+            }
+            pager.onChange = { page in
+                feedback.text = "当前页：\(page) / 5"
+            }
+        }
+        addInfo("排查点：简洁模式显示「当前页/总页数」文本，当前页 primary 高亮；上一页/下一页箭头翻页。")
+
+        // D3 显示省略号：total=100/pageSize=10 → 10 页，itemSize=5，首尾+省略号折叠
+        addSection(title: "D3 显示省略号（10 页·itemSize=5）") { container in
+            let pager = PaginationView()
+            pager.total = 100
+            pager.pageSize = 10
+            pager.itemSize = 5
+            container.addSubview(pager)
+            pager.snp.makeConstraints { make in
+                make.top.leading.trailing.equalToSuperview()
+            }
+
+            let feedback = UILabel()
+            feedback.font = .systemFont(ofSize: AppFont.sizeSm)
+            feedback.textColor = AppColor.textSecondary
+            feedback.text = "当前页：1 / 10"
+            container.addSubview(feedback)
+            feedback.snp.makeConstraints { make in
+                make.top.equalTo(pager.snp.bottom).offset(AppSpace.sm)
+                make.leading.trailing.bottom.equalToSuperview()
+            }
+            pager.onChange = { page in
+                feedback.text = "当前页：\(page) / 10"
+            }
+        }
+        addInfo("排查点：10 页超过 itemSize=5，自动省略号折叠；第 1 页显「1 2 3 4 5 ··· 10」；翻到中间显「1 ··· 4 5 6 ··· 10」；末页显「1 ··· 6 7 8 9 10」。")
+
+        // D4 自定义页码按钮数量：itemSize=3，3 按钮窗口+省略号
+        addSection(title: "D4 自定义页码按钮数量（itemSize=3）") { container in
+            let pager = PaginationView()
+            pager.total = 100
+            pager.pageSize = 10
+            pager.itemSize = 3
+            container.addSubview(pager)
+            pager.snp.makeConstraints { make in
+                make.top.leading.trailing.equalToSuperview()
+            }
+
+            let feedback = UILabel()
+            feedback.font = .systemFont(ofSize: AppFont.sizeSm)
+            feedback.textColor = AppColor.textSecondary
+            feedback.text = "当前页：1 / 10"
+            container.addSubview(feedback)
+            feedback.snp.makeConstraints { make in
+                make.top.equalTo(pager.snp.bottom).offset(AppSpace.sm)
+                make.leading.trailing.bottom.equalToSuperview()
+            }
+            pager.onChange = { page in
+                feedback.text = "当前页：\(page) / 10"
+            }
+        }
+        addInfo("排查点：itemSize=3 只显 3 个页码按钮窗口；第 1 页显「1 2 3 ··· 10」；翻到第 5 页显「1 ··· 4 5 6 ··· 10」；窗口随当前页滑动。")
+    }
+}
+
+// MARK: - Indicator Showcase（Indicator 指示器 Demo 页，导航区 #69，验证组件库 v1.4.29）
+// D1 基础指示器（横向 5 点·第 2 高亮·色变）/ D2 数字总页数（showNumber 胶囊「2/5」）/
+// D3 竖向指示器（direction=vertical）/ D4 自定义样式（block 长条 + success 绿 + size 8）
+final class IndicatorShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Indicator 指示器"
+
+        addVersionBadge(componentName: "Indicator", version: "v1.4.29", builtAt: "2026-09-11 00:00:00")
+
+        // D1 基础指示器：横向 5 点，current=1（第 2 高亮），block=false 色变
+        addSection(title: "D1 基础指示器（横向 5 点·第 2 高亮）") { container in
+            let indicator = IndicatorView()
+            indicator.current = 1
+            indicator.total = 5
+            container.addSubview(indicator)
+            indicator.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+            }
+        }
+        addInfo("排查点：5 个圆点横向排布，第 2 个高亮（primary 蓝），其余灰（gray15）；block=false 仅色变不变形。")
+
+        // D2 数字总页数：showNumber=true，显示「2/5」胶囊
+        addSection(title: "D2 数字总页数（showNumber 胶囊）") { container in
+            let indicator = IndicatorView()
+            indicator.current = 1
+            indicator.total = 5
+            indicator.showNumber = true
+            container.addSubview(indicator)
+            indicator.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+            }
+        }
+        addInfo("排查点：显示「2 / 5」数字胶囊，primary 底白字 12pt Semibold，圆角胶囊。")
+
+        // D3 竖向指示器：direction=vertical，4 点竖向排布
+        addSection(title: "D3 竖向指示器（direction=vertical）") { container in
+            let indicator = IndicatorView()
+            indicator.current = 1
+            indicator.total = 4
+            indicator.direction = .vertical
+            container.addSubview(indicator)
+            indicator.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+            }
+        }
+        addInfo("排查点：4 个圆点纵向排布，第 2 个高亮；竖向场景（竖向轮播/分步表单侧边指示）。")
+
+        // D4 自定义样式：block=true 长条 + activeColor=success 绿 + size=8
+        addSection(title: "D4 自定义样式（block 长条 + success 绿 + size 8）") { container in
+            let indicator = IndicatorView()
+            indicator.current = 1
+            indicator.total = 4
+            indicator.block = true
+            indicator.size = 8
+            indicator.activeColor = AppColor.success
+            container.addSubview(indicator)
+            indicator.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+            }
+        }
+        addInfo("排查点：选中点变长条（width=size*2.5=20pt），success 绿色，size=8pt；其余圆点灰色不变形。")
+    }
+}
+
 // MARK: - Drag Showcase（Drag 拖拽排序 Demo 页，操作反馈区 #47，验证组件库 v1.4.0，demo 徽标 v1.0）
 // D1 基础拖拽排序（3 项长按拖拽）/ D2 handle 手柄模式（仅手柄可拖）/
 // D3 disabled 禁用拖拽（纯列表不可拖）/ D4 实时回调（拖拽后 Alert 显示新顺序）
@@ -10304,6 +10487,107 @@ final class CarouselShowcase: ShowcaseViewController {
                                   width: textSize.width,
                                   height: textSize.height)
             str.draw(in: textRect, withAttributes: textAttr)
+        }
+    }
+}
+
+// MARK: - Lottie Showcase（Lottie 动画 Demo 页，信息展示区 #70，验证组件库 v1.4.29）
+// D1 基础动画（autoplay 自动播放）/ D2 循环播放（loop=true 持续循环）/
+// D3 控制播放暂停（按钮 play/pause/stop）/ D4 自定义尺寸（80×80）
+final class LottieShowcase: ShowcaseViewController {
+
+    /// D3 受控面板句柄（按钮点击时调 play/pause/stop）。
+    private weak var controlLottie: LottieView?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Lottie 动画"
+
+        addVersionBadge(componentName: "Lottie", version: "v1.4.29", builtAt: "2026-09-11 00:00:00")
+
+        // D1 基础动画：autoplay=true 自动播放
+        addCard(title: "D1 基础动画（autoplay 自动播放）", contentHeight: 120) { container in
+            let lottie = LottieView()
+            lottie.source = "happy"
+            lottie.autoplay = true
+            lottie.loop = true
+            container.addSubview(lottie)
+            lottie.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+            }
+        }
+        addInfo("排查点：挂载后自动播放，环形旋转指示器转动 + 显示动画名称「happy」+ 状态「播放中」。")
+
+        // D2 循环播放：loop=true 持续循环
+        addCard(title: "D2 循环播放（loop=true 持续循环）", contentHeight: 120) { container in
+            let lottie = LottieView()
+            lottie.source = "loop"
+            lottie.autoplay = true
+            lottie.loop = true
+            container.addSubview(lottie)
+            lottie.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+            }
+        }
+        addInfo("排查点：loop=true 时持续循环播放，不触发 onComplete；状态始终为「播放中」。")
+
+        // D3 控制播放暂停：按钮调 play/pause/stop
+        addCard(title: "D3 控制播放暂停（按钮切换）", contentHeight: 120) { container in
+            let lottie = LottieView()
+            lottie.source = "control"
+            lottie.autoplay = true
+            lottie.loop = true
+            container.addSubview(lottie)
+            lottie.snp.makeConstraints { make in
+                make.top.leading.trailing.equalToSuperview()
+            }
+            self.controlLottie = lottie
+        }
+
+        let buttonRow = UIStackView()
+        buttonRow.axis = .horizontal
+        buttonRow.spacing = AppSpace.sm
+        buttonRow.distribution = .fillEqually
+        contentStack.addArrangedSubview(buttonRow)
+        buttonRow.snp.makeConstraints { make in
+            make.height.equalTo(40)
+        }
+        for title in ["播放", "暂停", "停止"] {
+            let btn = UIButton(type: .system)
+            btn.setTitle(title, for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
+            btn.tintColor = AppColor.primary
+            // 手册禁令：用 target/action + objc，不用 UIAction block。
+            btn.addTarget(self, action: #selector(lottieControlButtonTapped(_:)), for: .touchUpInside)
+            buttonRow.addArrangedSubview(btn)
+        }
+        addInfo("排查点：点「播放」环形旋转启动+状态「播放中」；点「暂停」旋转停止+状态「已暂停」；点「停止」旋转停止+状态「已停止」。")
+
+        // D4 自定义尺寸：size=80×80
+        addCard(title: "D4 自定义尺寸（80×80）", contentHeight: 120) { container in
+            let lottie = LottieView()
+            lottie.source = "mini"
+            lottie.autoplay = true
+            lottie.loop = true
+            lottie.size = CGSize(width: 80, height: 80)
+            container.addSubview(lottie)
+            lottie.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+            }
+        }
+        addInfo("排查点：size=80×80 时动画区域缩小，spinner 等比缩小，仍正常播放+显示名称「mini」。")
+    }
+
+    // MARK: - D3 控制按钮处理
+
+    @objc private func lottieControlButtonTapped(_ sender: UIButton) {
+        guard let lottie = controlLottie else { return }
+        let title = sender.title(for: .normal) ?? ""
+        switch title {
+        case "播放": lottie.play()
+        case "暂停": lottie.pause()
+        case "停止": lottie.stop()
+        default: break
         }
     }
 }

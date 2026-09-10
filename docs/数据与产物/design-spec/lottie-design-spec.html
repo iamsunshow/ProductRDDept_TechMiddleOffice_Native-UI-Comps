@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lottie 动画 · 设计规格 · TMO 组件库 v1.4.29</title>
+<style>
+:root {
+  --bg: #fff; --bg-page: #f5f5f5; --text: #1a1a1a; --text-2: #888; --border: #e8e8e8;
+  --primary: #16A34A; --danger: #DC2626; --warn: #F59E0B; --success: #16A34A;
+  --gray6: #E5E5E5; --gray25: #8C8C8C; --textSecondary: #6B7280;
+  --radius-lg: 14px; --radius-sm: 6px;
+  --font-xs: 12px; --font-sm: 14px; --font-md: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif; background: var(--bg-page); color: var(--text); line-height: 1.6; }
+.container { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+h2 { font-size: 20px; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 16px; margin: 20px 0 8px; }
+p { font-size: 14px; margin-bottom: 8px; }
+code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+th { background: #fafafa; font-weight: 600; }
+.section { background: var(--bg); border-radius: 12px; padding: 20px; margin: 16px 0; border: 1px solid var(--border); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.badge-a { background: #e6f7e6; color: #16A34A; }
+.badge-na { background: #f0f0f0; color: #888; }
+
+/* Lottie 占位 mock */
+.mock-wrap { display: flex; gap: 24px; flex-wrap: wrap; margin: 16px 0; align-items: flex-start; }
+.mock-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.lottie-box { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.spinner { width: 28px; height: 28px; border: 3px solid var(--gray6); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.lottie-name { font-size: var(--font-xs); color: var(--textSecondary); }
+.lottie-tag { font-size: 10px; color: var(--primary); background: #e6f7e6; padding: 1px 6px; border-radius: 4px; }
+.lottie-paused .spinner { animation-play-state: paused; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Lottie 动画</h1>
+<p>组件 ID：<code>ui.lottie</code> ｜ 信息展示区组件 #70 ｜ TMO 组件库 v1.4.29</p>
+<p>定位：渲染 Lottie/Bodymovin JSON 动画的容器组件——输入动画源（source）、是否自动播放（autoplay）、是否循环（loop）、播放速度（speed）、自定义尺寸（size），提供 play/pause/stop 播放控制接口与 onComplete 回调，用于加载状态、引导动画、品牌动效等场景。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation 情景</h3>
+<p>App 中常需播放设计师从 After Effects 导出的 Lottie 动画（启动页引导、空状态插画动效、加载动画、点赞/收藏微交互等），这些矢量动画体积小、不失真，远优于 GIF/序列帧。</p>
+<h3>Complication 冲突</h3>
+<p>各业务页自行接入 lottie 库、各自封装播放控制与尺寸适配，源数据格式不一（本地 JSON / 远程 URL）、autoplay/loop 默认值不统一、播放/暂停/停止接口缺失，双端表现漂移且样板代码重复。</p>
+<h3>Question 问题</h3>
+<p>需要一个统一的 Lottie 动画组件，支持动画源接入、自动播放、循环、播放速度、自定义尺寸，提供 play/pause/stop 控制接口与播放完成回调，双端 1:1 视觉与 API 一致。</p>
+<h3>Answer 方案</h3>
+<p>Lottie——声明式动画容器组件，source 指定动画源（一期占位=动画名称，Lottie 库渲染=二期），autoplay 控制自动播放（默认 true），loop 控制循环（默认 true），speed 控制播放速度（默认 1.0），size 控制自定义尺寸，提供 play()/pause()/stop() 控制接口与 onComplete 回调。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 Lottie 划界</th></tr>
+<tr><td>Loading #50</td><td>加载指示器</td><td>Loading=通用加载旋转图标（无外部动画源）；Lottie=播放设计师生成的 JSON 动画文件（可承载更复杂的品牌/插画动效）</td></tr>
+<tr><td>Empty #1</td><td>空状态占位</td><td>Empty=静态图标+文案占位；Empty 内容区可嵌 Lottie 播放动效插画增强表现力</td></tr>
+<tr><td>Image #22</td><td>静态图片展示</td><td>Image=静态位图/矢量图；Lottie=帧动画（按时间轴逐帧渲染）</td></tr>
+<tr><td>Animate</td><td>属性过渡动画</td><td>Animate=组件属性（位移/缩放/透明度）过渡；Lottie=播放独立 JSON 动画文件（多图层合成）</td></tr>
+</table>
+
+<h2>3. Token 清单</h2>
+<div class="section">
+<table>
+<tr><th>区域</th><th>规格</th><th>Token</th></tr>
+<tr><td>占位旋转图标（一期）</td><td>环形旋转，主色，28×28</td><td>AppColor.primary</td></tr>
+<tr><td>动画名称文案</td><td>字号 12，textSecondary</td><td>AppFont.sizeXs / textSecondary</td></tr>
+<tr><td>容器背景</td><td>透明（由宿主决定）</td><td>—</td></tr>
+<tr><td>状态标签（播放中/已暂停）</td><td>字号 10，主色浅底</td><td>AppColor.primary / primaryMuted</td></tr>
+<tr><td>容器圆角（占位卡片）</td><td>6</td><td>radius.sm</td></tr>
+</table>
+</div>
+
+<h2>4. 决策投票表（ACE 模型：选项 / 评估后果 / 选最优）</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项（Alternatives）</th><th>评估后果（Consequences）</th><th>选最优（Evaluate）</th><th>理由</th></tr>
+<tr>
+<td>P1</td><td>动画源接入方式</td>
+<td>A. 仅本地 JSON 数据<br>B. 仅远程 URL<br>C. source 字符串（名称标识，一期占位=名称+旋转占位，二期接 Lottie 库渲染真实 JSON）</td>
+<td>A. 需平台文件加载/打包，iOS/Android JSON 格式解析需各自适配<br>B. 需网络下载+缓存，离线不可用<br>C. 一期零三方依赖、API 契约先行确定，二期接入 Lottie 库后 source 直接映射 JSON，调用方零改动</td>
+<td><span class="badge badge-a">C</span></td>
+<td>source 字符串占位=一期不引三方库（编译稳定优先），API 契约与二期一致，二期接入 airbnb/lottie-ios 与 Lottie Compose 后 source 映射 JSON 文件即激活真实渲染</td>
+</tr>
+<tr>
+<td>P2</td><td>默认 autoplay/loop</td>
+<td>A. autoplay=true loop=true（与 NutUI/lottie-react 默认一致）<br>B. autoplay=false loop=false</td>
+<td>A. 即挂即播，符合动画组件直觉，D1 基础场景零配置<br>B. 调用方必须显式 play，样板多</td>
+<td><span class="badge badge-a">A</span></td>
+<td>与 NutUI Lottie / lottie-react 默认对齐（autoplay+loop 默认 true），D1 零配置即播放；非循环场景显式 loop=false 并靠 onComplete 回调</td>
+</tr>
+<tr>
+<td>P3</td><td>播放控制接口</td>
+<td>A. 提供 play()/pause()/stop() 命令式接口 + autoplay 声明式<br>B. 仅声明式（autoplay/isPaused 属性驱动）</td>
+<td>A. 双模：声明式开场+命令式精细控制，D3 播放暂停按钮场景直接调 play/pause<br>B. 纯声明式需外部 state 切换 isPaused，命令式场景啰嗦</td>
+<td><span class="badge badge-a">A</span></td>
+<td>双模覆盖 D1(autoplay)/D3(命令式控制)，与 lottie-react isPaused+play()/pause() 双模一致；stop 区别于 pause=复位到首帧</td>
+</tr>
+<tr>
+<td>P4</td><td>一期范围</td>
+<td>A. 一期=占位渲染+source/autoplay/loop/speed/size/play/pause/stop+demo 四段<br>B. 二期=Lottie 库集成+真实 JSON 渲染+segments 片段+direction 反向+远程 URL 缓存</td>
+<td>A. 零三方依赖、双端编译稳定、API 契约先行确定<br>B. 二期增量，不阻塞一期 API 对齐</td>
+<td><span class="badge badge-a">A</span></td>
+<td>一期占位优先编译稳定与 API 契约对齐（与全仓"先 API 后实现"先例一致）；真实 Lottie 渲染=二期接入 airbnb/lottie 后激活</td>
+</tr>
+</table>
+</div>
+
+<h2>5. 四组 Demo 预览</h2>
+<div class="mock-wrap">
+<div class="mock-item">
+<div class="lottie-box" style="width:160px;height:120px">
+<div class="spinner"></div>
+<div class="lottie-name">happy.json</div>
+</div>
+<p style="font-size:13px;color:#888">D1 基础动画（autoplay 自动播放）</p>
+</div>
+<div class="mock-item">
+<div class="lottie-box" style="width:160px;height:120px">
+<div class="spinner"></div>
+<div class="lottie-name">loop.json</div>
+<div class="lottie-tag">循环中</div>
+</div>
+<p style="font-size:13px;color:#888">D2 循环播放（loop=true）</p>
+</div>
+<div class="mock-item">
+<div class="lottie-box lottie-paused" style="width:160px;height:120px">
+<div class="spinner"></div>
+<div class="lottie-name">control.json</div>
+<div class="lottie-tag" style="color:#888;background:#f0f0f0">已暂停</div>
+</div>
+<p style="font-size:13px;color:#888">D3 控制播放暂停（按钮切换）</p>
+</div>
+<div class="mock-item">
+<div class="lottie-box" style="width:80px;height:80px">
+<div class="spinner" style="width:20px;height:20px;border-width:2px"></div>
+<div class="lottie-name">mini.json</div>
+</div>
+<p style="font-size:13px;color:#888">D4 自定义尺寸（80×80）</p>
+</div>
+</div>
+
+<h2>6. 平台差异预告</h2>
+<table>
+<tr><th>差异点</th><th>iOS（UIKit）</th><th>Android（Compose）</th><th>判据</th></tr>
+<tr><td>状态管理</td><td>isPlaying 属性 + play()/pause()/stop() 方法</td><td>remember mutableStateOf(isPlaying) + 同名方法</td><td>语义一致，表内放行</td></tr>
+<tr><td>占位渲染</td><td>UIActivityIndicatorView（环形旋转）+ UILabel 动画名</td><td>CircularProgressIndicator + Text 动画名</td><td>平台原生指示器，视觉一致=放行</td></tr>
+<tr><td>尺寸控制</td><td>frame 约束 / sizeToFit</td><td>Modifier.size(width, height)</td><td>布局系统差异，视觉一致=放行</td></tr>
+<tr><td>圆角裁切</td><td>layer.cornerRadius + clipsToBounds</td><td>background(RoundedCornerShape)（禁 clip/graphicsLayer）</td><td>遵循安卓禁令用 background(shape)</td></tr>
+</table>
+
+<h2>7. API 速览</h2>
+<div class="section">
+<h3>Lottie Props</h3>
+<table>
+<tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>source</code></td><td>String</td><td>""</td><td>动画源标识（一期=动画名称占位，二期=Lottie JSON 文件名/路径）</td></tr>
+<tr><td><code>loop</code></td><td>Boolean</td><td>true</td><td>是否循环播放</td></tr>
+<tr><td><code>autoplay</code></td><td>Boolean</td><td>true</td><td>是否自动播放（挂载后立即播放）</td></tr>
+<tr><td><code>speed</code></td><td>Float</td><td>1.0</td><td>播放速度（1.0=正常，0.5=慢速，2.0=快速）</td></tr>
+<tr><td><code>size</code></td><td>CGSize / Dp 尺寸</td><td>自适应</td><td>自定义动画尺寸（宽高），D4 自定义尺寸场景</td></tr>
+<tr><td><code>onComplete</code></td><td>(() -&gt; Void)?</td><td>null</td><td>播放完成回调（仅 loop=false 时触发；循环模式不触发）</td></tr>
+</table>
+<h3>控制方法</h3>
+<table>
+<tr><th>方法</th><th>说明</th></tr>
+<tr><td><code>play()</code></td><td>从当前位置继续播放（暂停后恢复）</td></tr>
+<tr><td><code>pause()</code></td><td>暂停在当前帧，不复位</td></tr>
+<tr><td><code>stop()</code></td><td>停止并复位到首帧</td></tr>
+</table>
+</div>
+
+</div>
+</body>
+</html>

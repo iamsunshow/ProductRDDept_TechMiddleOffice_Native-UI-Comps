@@ -1,6 +1,6 @@
 {
-  "version": "1.4.29",
-  "versionKey": "v1.4.29",
-  "releaseDate": "2026-09-10",
-  "changelog": "[1.4.29] 2026-09-10 TrendChartView 双端视觉对齐 PATCH 修复：Android TrendChartView 重构布局消除叠加覆盖，4 处差异对齐 iOS（① 数据节点圆圈恢复显示 ② 起始点不再跑进纵坐标 ③ X 轴标签上方圆圈对齐 ④ 数据区域底部横线恢复显示）。核心改动：单 Canvas 统一绘制网格线+Y轴标签+折线+圆点+X轴标签，padLeft/padBottom 从 40f/24f 像素值改为 40.dp/24.dp 经 LocalDensity 转 px，Y轴标签用 nativeCanvas+Paint 精确对齐网格线 y 坐标，X轴标签用 nativeCanvas 居中对齐数据点 x 坐标。Android assembleDebug BUILD SUCCESSFUL。组件库全局版本 1.4.28 → 1.4.29。"
+  "version": "1.4.30",
+  "versionKey": "v1.4.30",
+  "releaseDate": "2026-09-11",
+  "changelog": "[1.4.30] 2026-09-11 信息展示区三组件合并 MINOR 发版：Indicator 指示器（#69 ui.indicator）+ Lottie 动画（#70 ui.lottie）+ Pagination 分页（#71 ui.pagination）。三件均门禁 A（设计规格 H5+评审单 AI 代评全 A）+门禁 B（api.json 契约登记 reviewed=true）+ C1 双端实现入库+Demo 4 段 1:1+独立编译验证通过（Android assembleDebug BUILD SUCCESSFUL / iOS xcodebuild BUILD SUCCEEDED）。componentCount 45→48。组件库全局版本 1.4.29 → 1.4.30。"
 }

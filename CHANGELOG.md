@@ -14,6 +14,35 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.30] - 2026-09-11
+
+信息展示区三组件合并发版（Indicator 指示器 #69 + Lottie 动画 #70 + Pagination 分页 #71，MINOR）。
+
+### Added
+
+- **Indicator 指示器双端组件入库（#69 ui.indicator）**：
+  - iOS `IndicatorView.swift`（UIKit）：UIView 子类+UIStackView（axis 随 direction 变化）排布圆点；showNumber=true 渲染数字胶囊 UILabel「current+1/total」；block=false 选中点色变（gray15→primary），block=true 选中点变长条（width=size*2.5）；SnapKit 约束。
+  - Android `Indicator.kt`（Compose）：Row/Column（Arrangement）排布圆点；showNumber=true 渲染数字胶囊 Text；block=false 选中点色变，block=true 选中点变长条 Box；CircleShape/RoundedCornerShape 圆角。
+  - 门禁 A：`indicator-design-spec.html`+`review-indicator-A.md`（AI 代评 A1-A7 全 ✅）；门禁 B：api.json `ui.indicator` 条目（reviewed=true）。
+- **Lottie 动画双端组件入库（#70 ui.lottie）**：
+  - iOS `LottieView.swift`（UIKit）：一期占位渲染（UIActivityIndicatorView 环形旋转）+source=动画名称占位；API 契约与二期（Lottie 库集成）完全一致；play()/pause()/stop() 命令式控制；onComplete 回调（仅 loop=false 触发）。
+  - Android `Lottie.kt`（Compose）：一期占位渲染（CircularProgressIndicator 环形旋转）；同样 API 契约；play()/pause()/stop() 命令式控制。
+  - 门禁 A：`lottie-design-spec.html`+`review-lottie-A.md`（AI 代评 A1-A7 全 ✅）；门禁 B：api.json `ui.lottie` 条目（reviewed=true）。
+  - 备注：一期占位渲染，二期 Lottie 库集成后激活真实渲染，调用方零改动。
+- **Pagination 分页双端组件入库（#71 ui.pagination）**：
+  - iOS `PaginationView.swift`（UIKit）：UIStackView 横向排布+UITapGestureRecognizer+objc 遵手册禁令；省略号折叠算法=当前页居中 window+首尾固定+省略号（双端纯函数一致）。
+  - Android `Pagination.kt`（Compose）：Row+RoundedCornerShape 遵安卓禁令；省略号折叠算法同 iOS。
+  - 核心 API：currentValue(0=内部自管理/>0=受控)、total、pageSize、itemSize、mode(multi/simple)、onChange。
+  - 门禁 A：`pagination-design-spec.html`+`review-pagination-A.md`（AI 代评 A1-A7 全 ✅）；门禁 B：api.json `ui.pagination` 条目（reviewed=true）。
+- **三件双端 Demo 4 段 1:1**：Indicator（D1 基础指示器/D2 数字总页数/D3 竖向/D4 自定义样式）/ Lottie（D1 基础循环播放/D2 单次播放+回调/D3 播放控制/D4 自定义尺寸）/ Pagination（D1 基础分页/D2 简洁模式/D3 显示省略号/D4 自定义按钮数）。
+- **api.json componentCount 45→48**（+3 新组件）。
+
+### Patched
+
+- 组件库全局版本 1.4.29 → 1.4.30。
+
+***
+
 ## \[1.4.29] - 2026-09-10
 
 TrendChartView 双端视觉对齐修复（PATCH）。

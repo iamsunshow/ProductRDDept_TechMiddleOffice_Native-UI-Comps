@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "updatedAt": "2026-09-05T20:00:00+08:00",
-  "componentCount": 45,
+  "componentCount": 48,
   "components": [
     {
       "id": "ui.empty",
@@ -7989,6 +7989,444 @@
       "status": "stable",
       "note": "吐司（操作反馈区 #59，全新立项，2026-09-09）：全局轻量提示浮层=屏幕居中短时+文本/类型图标+自动消失+不阻断交互；Toast 静态方法（show/success/error/warning/info/loading/dismiss）+ ToastType 枚举（success/error/warning/info/loading/text）；与 Notify #52（条状持续 vs 居中短时）/Dialog #46（需确认 vs 无需确认）/ActionSheet #44（选动作 vs 纯展示）划界；anti_goals 二期=自定义内容/可点击交互/堆叠多条/位置可配/Lottie。2026-09-09 门禁 A AI 代评通过（规格 design-spec/toast-design-spec.html + ../评审记录/review-toast-A.md，P1–P4 全 A 0 保留意见）。验证版本 v1.4.14（C1.5 用户双端 Demo 实机验收待走）。",
       "subcategory": "feedback"
+    },
+    {
+      "id": "ui.indicator",
+      "name": "指示器 Indicator",
+      "category": "ui",
+      "summary": "页面位置指示器——圆点/数字形态标记当前页与总页数，用于轮播、引导页、分步表单等场景的位置感知。纯展示型内容组件，current/total 驱动高亮位置，direction 控制横向/竖向排布，showNumber 切数字形态，block 开长条选中态，color/activeColor/size/gap 自定义视觉",
+      "capabilities": [
+        "指示器",
+        "Indicator",
+        "圆点指示器",
+        "轮播指示器",
+        "位置指示",
+        "页码指示",
+        "指示器 Indicator",
+        "basic.indicator",
+        "ui.indicator"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "IndicatorView.swift：UIView 子类 + UIStackView（axis=horizontal/vertical）排布圆点；showNumber=true 渲染数字胶囊 UILabel「current+1/total」paddingH10 radiusFull primary 底白字 12 Semibold；block=false 选中点仅色变（gray15→primary），block=true 选中点变长条（width=size*2.5 cornerRadius=size/3）；size 默认 6dp、gap 默认 8dp；total≤0 不渲染"
+        },
+        "android": {
+          "state": "available",
+          "note": "Indicator.kt：Compose Row/Column（Arrangement）排布圆点；showNumber=true 渲染数字胶囊 Text paddingH10 RoundedCornerShape(50) primary 底白字 12sp SemiBold；block=false 选中点仅色变，block=true 选中点变长条 Box width=size*2.5 RoundedCornerShape(size/3)；size 默认 6.dp、gap 默认 8.dp；total≤0 不渲染"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/IndicatorView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Indicator.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "点击跳转=Indicator 纯展示位置，跳转由容器（Carousel 等）承载；二期增量",
+        "动画过渡=二期增量，一期静态切换已够用",
+        "自定义渲染（插槽）=一期只做圆点/数字两形态，自定义渲染=二期",
+        "自动跟随容器=Indicator 不自动绑定容器，current/total 由调用方驱动（解耦）"
+      ],
+      "visual_tokens": [
+        "color.primary",
+        "color.gray15",
+        "color.success"
+      ],
+      "apis": "",
+      "visual_refs": [
+        "ProductRDDept/TechMiddleOffice/Native-UI-Comps/docs/数据与产物/design-spec/indicator-design-spec.html"
+      ],
+      "status": "stable",
+      "search_text": "basic.indicator 指示器 Indicator 圆点指示器 轮播指示器 位置指示 页码指示 指示器 Indicator basic.indicator ui.indicator",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "Indicator",
+        "指示器",
+        "DotIndicator"
+      ],
+      "props": [
+        [
+          "current",
+          "Int",
+          "否，默认 0",
+          "当前页索引（从 0 开始），高亮第 current 个点"
+        ],
+        [
+          "total",
+          "Int",
+          "否，默认 0",
+          "总页数（渲染 total 个点）；total≤0 不渲染"
+        ],
+        [
+          "direction",
+          "Direction",
+          "否，默认 horizontal",
+          "排布方向：horizontal 横向 / vertical 竖向"
+        ],
+        [
+          "showNumber",
+          "Boolean",
+          "否，默认 false",
+          "数字形态：true 显示「current+1/total」胶囊，false 显示圆点序列"
+        ],
+        [
+          "block",
+          "Boolean",
+          "否，默认 false",
+          "选中态长条形态：true 选中点变长条，false 选中点仅色变"
+        ],
+        [
+          "size",
+          "Float",
+          "否，默认 6",
+          "指示点直径/边长（dp），数字形态忽略"
+        ],
+        [
+          "gap",
+          "Float",
+          "否，默认 8",
+          "指示点间距（dp），数字形态忽略"
+        ],
+        [
+          "color",
+          "Color/AppColor",
+          "否，默认 gray15",
+          "未选中点颜色"
+        ],
+        [
+          "activeColor",
+          "Color/AppColor",
+          "否，默认 primary",
+          "选中点颜色"
+        ]
+      ],
+      "events": [],
+      "demos": [
+        [
+          "基础指示器",
+          "D1：横向 5 点，current=1（第 2 高亮），block=false 色变"
+        ],
+        [
+          "数字总页数",
+          "D2：showNumber=true，显示「2/5」胶囊"
+        ],
+        [
+          "竖向指示器",
+          "D3：direction=vertical，4 点竖向排布，current=1 高亮"
+        ],
+        [
+          "自定义样式",
+          "D4：block=true 长条+activeColor=success 绿+size=8"
+        ]
+      ],
+      "note": "指示器 Indicator（导航区第二十件，任务清单 #69）：页面位置指示器=纯展示型内容组件，current/total 驱动高亮位置，direction 横向/竖向，showNumber 切数字形态，block 开长条选中态，color/activeColor/size/gap 自定义视觉。2026-09-11 门禁 A AI 代评通过（design-spec/indicator-design-spec.html + 评审记录/review-indicator-A.md，P1–P4 全 A/C）+ 同日门禁 B 双端实现入库（IndicatorView.swift=UIKit UIStackView+SnapKit / Indicator.kt=Compose Row/Column）+ iOS IndicatorShowcase/Android IndicatorDemo 4 段 1:1。验证版本 v1.4.29；统一待 C1.5 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版。",
+      "subcategory": "display",
+      "tier": "navigation",
+      "reviewed": true
+    },
+    {
+      "id": "ui.lottie",
+      "name": "Lottie 动画",
+      "category": "ui",
+      "summary": "渲染 Lottie/Bodymovin JSON 动画的容器组件——输入动画源（source）、自动播放（autoplay，默认 true）、循环（loop，默认 true）、播放速度（speed，默认 1.0）、自定义尺寸（size），提供 play/pause/stop 命令式控制接口与 onComplete 播放完成回调（仅 loop=false 触发）。一期 source=动画名称占位+环形旋转占位渲染（Lottie 库集成=二期），API 契约与二期一致",
+      "capabilities": [
+        "Lottie",
+        "动画",
+        "Lottie 动画",
+        "Bodymovin",
+        "帧动画",
+        "播放控制",
+        "autoplay",
+        "loop",
+        "display.lottie",
+        "ui.lottie"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "LottieView.swift：UIView 子类，source(动画名称占位)/loop/autoplay/speed 属性 + play()/pause()/stop() 方法；一期占位=UIActivityIndicatorView 环形旋转+UILabel 动画名；autoplay=true 挂载即播；loop=true 持续循环；stop 复位首帧；onComplete 仅 loop=false 触发；SnapKit 布局；size 自定义尺寸约束"
+        },
+        "android": {
+          "state": "available",
+          "note": "Lottie.kt：Compose Box，source/loop/autoplay/speed 参数 + remember mutableStateOf(isPlaying)；一期占位=CircularProgressIndicator 环形旋转+Text 动画名；autoplay=true LaunchedEffect 自动播；loop=true 持续循环；stop 复位；onComplete 仅 loop=false 触发；Modifier.size 自定义尺寸；background(RoundedCornerShape) 遵安卓禁令"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/LottieView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Lottie.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "Lottie 库集成（真实 JSON 渲染）=二期增量，一期占位渲染优先编译稳定与 API 契约先行",
+        "segments 片段播放=二期",
+        "direction 反向播放=二期",
+        "远程 URL 下载+缓存=二期，一期不引三方依赖"
+      ],
+      "visual_tokens": [
+        "color.primary",
+        "color.textSecondary",
+        "color.primaryMuted",
+        "font.sizeXs",
+        "radius.sm"
+      ],
+      "apis": "",
+      "visual_refs": [
+        "ProductRDDept/TechMiddleOffice/Native-UI-Comps/docs/数据与产物/design-spec/lottie-design-spec.html"
+      ],
+      "status": "stable",
+      "search_text": "display.lottie Lottie 动画 Lottie Bodymovin 帧动画 播放控制 autoplay loop display.lottie ui.lottie",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "Lottie",
+        "Lottie 动画",
+        "Bodymovin",
+        "Animation"
+      ],
+      "props": [
+        [
+          "source",
+          "String",
+          "否，默认 \"\"",
+          "动画源标识（一期=动画名称占位，二期=Lottie JSON 文件名/路径）"
+        ],
+        [
+          "loop",
+          "Boolean",
+          "否，默认 true",
+          "是否循环播放"
+        ],
+        [
+          "autoplay",
+          "Boolean",
+          "否，默认 true",
+          "是否自动播放（挂载后立即播放）"
+        ],
+        [
+          "speed",
+          "Float",
+          "否，默认 1.0",
+          "播放速度（1.0=正常，0.5=慢速，2.0=快速）"
+        ],
+        [
+          "size",
+          "CGSize / Dp 尺寸",
+          "否，默认自适应",
+          "自定义动画尺寸（宽高），D4 自定义尺寸场景"
+        ],
+        [
+          "onComplete",
+          "(() -> Unit)?",
+          "否，默认 null",
+          "播放完成回调（仅 loop=false 时触发；循环模式不触发）"
+        ]
+      ],
+      "events": [],
+      "demos": [
+        [
+          "基础动画",
+          "D1：autoplay=true 自动播放，source 指定动画名称"
+        ],
+        [
+          "循环播放",
+          "D2：loop=true 持续循环播放，不触发 onComplete"
+        ],
+        [
+          "控制播放暂停",
+          "D3：按钮调 play()/pause()/stop() 切换播放状态"
+        ],
+        [
+          "自定义尺寸",
+          "D4：size=80×80 小尺寸展示"
+        ]
+      ],
+      "note": "Lottie 动画（信息展示区组件 #70，任务清单 #70）：渲染 Lottie/Bodymovin JSON 动画容器=source 动画源 + autoplay 自动播放(默认 true) + loop 循环(默认 true) + speed 播放速度 + size 自定义尺寸 + play/pause/stop 命令式控制 + onComplete 回调。与 Loading #50（通用加载旋转图标无外部源）划界=Lottie 播放设计师 JSON 动画文件；与 Empty #1（静态占位）划界=Empty 可嵌 Lottie 增强动效。2026-09-11 门禁 A AI 代评通过（design-spec/lottie-design-spec.html + 评审记录/review-lottie-A.md，P1–P4 全 A 0 保留意见）+ 同日门禁 B 双端实现入库（LottieView.swift=UIKit UIView+SnapKit+UIActivityIndicator 占位 / Lottie.kt=Compose Box+CircularProgressIndicator 占位）+ iOS LottieShowcase/Android LottieDemo 4 段 1:1。一期占位渲染（source=动画名称+环形旋转），Lottie 库集成=二期。验证版本 v1.4.29；统一待 C1.5 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版。",
+      "subcategory": "display",
+      "tier": "information-display",
+      "reviewed": true
+    },
+    {
+      "id": "ui.pagination",
+      "name": "分页 Pagination",
+      "category": "ui",
+      "summary": "受控页码驱动的分页器——当数据总量较大需分页浏览时提供上一页/下一页 + 页码按钮翻页，或简洁模式（x/y 文本）翻页，页码超量时自动省略号折叠。currentValue 驱动当前页，total + pageSize 计算总页数，itemSize 控制可见页码按钮数，mode 切换 multi/simple，onChange 回调翻页",
+      "capabilities": [
+        "分页",
+        "Pagination",
+        "页码",
+        "翻页",
+        "上一页",
+        "下一页",
+        "省略号",
+        "简洁模式",
+        "分页 Pagination",
+        "basic.pagination",
+        "ui.pagination"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "PaginationView.swift：UIView 子类 + UIStackView（axis=horizontal）横向排布按钮；multi 模式渲染上一页/下一页 chevron + 页码按钮（selected 反白 primary 白字）/省略号 UILabel gray25；simple 模式渲染 x/y 文本 UILabel（当前页 primary 高亮）；省略号折叠算法=当前页居中 window(itemSize)+首尾固定+省略号；currentValue=0 内部自管理初始 defaultValue，>0 受控；itemSize 默认 5、pageSize 默认 10"
+        },
+        "android": {
+          "state": "available",
+          "note": "Pagination.kt：Compose Row（Arrangement.spacedBy）横向排布按钮；multi 模式渲染上一页/下一页 Icon KeyboardArrowLeft/Right + 页码按钮（selected background primary RoundedCornerShape 白字）/省略号 Text gray25；simple 模式渲染 x/y Text（当前页 primary 高亮）；省略号折叠算法同 iOS；currentValue=0 内部 remember 自管理初始 defaultValue，>0 受控"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/PaginationView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Pagination.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "跳页输入框=二期增量（一期按钮/省略号翻页优先）",
+        "自定义按钮渲染（插槽）=二期，一期只做默认按钮形态",
+        "pageSize 选择器=二期",
+        "自定义翻页动画=二期，一期瞬切",
+        "组件只做分页器不承载列表数据获取（数据层归业务）"
+      ],
+      "visual_tokens": [
+        "color.primary",
+        "color.textPrimary",
+        "color.textSecondary",
+        "color.gray25",
+        "color.border",
+        "color.bgCard",
+        "radius.sm",
+        "radius.lg"
+      ],
+      "apis": "",
+      "visual_refs": [
+        "ProductRDDept/TechMiddleOffice/Native-UI-Comps/docs/数据与产物/design-spec/pagination-design-spec.html"
+      ],
+      "status": "stable",
+      "search_text": "basic.pagination 分页 Pagination 页码 翻页 上一页 下一页 省略号 简洁模式 分页 Pagination basic.pagination ui.pagination",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "Pagination",
+        "分页",
+        "Pager"
+      ],
+      "props": [
+        [
+          "currentValue",
+          "Int",
+          "否，默认 0",
+          "当前页（1-based）；0=内部自管理状态（初始取 defaultValue），>0=受控"
+        ],
+        [
+          "defaultValue",
+          "Int",
+          "否，默认 1",
+          "默认当前页（非受控初始值）"
+        ],
+        [
+          "total",
+          "Int",
+          "否，默认 0",
+          "数据总条数"
+        ],
+        [
+          "pageSize",
+          "Int",
+          "否，默认 10",
+          "每页条数"
+        ],
+        [
+          "itemSize",
+          "Int",
+          "否，默认 5",
+          "可见页码按钮数（超出自动省略号折叠）"
+        ],
+        [
+          "mode",
+          "PaginationMode",
+          "否，默认 multi",
+          "multi 按钮模式 / simple 简洁模式（x/y 文本）"
+        ],
+        [
+          "prevText",
+          "String?",
+          "否，默认 null",
+          "自定义上一页按钮文案（null=默认 chevron 箭头）"
+        ],
+        [
+          "nextText",
+          "String?",
+          "否，默认 null",
+          "自定义下一页按钮文案（null=默认 chevron 箭头）"
+        ]
+      ],
+      "events": [
+        [
+          "onChange",
+          "(page: Int) => void",
+          "翻页回调，返回目标页码"
+        ]
+      ],
+      "demos": [
+        [
+          "基础分页",
+          "D1：total=50/pageSize=10 → 5 页全显无省略号，multi 模式"
+        ],
+        [
+          "简洁模式",
+          "D2：mode=simple，显示「1/5」文本翻页"
+        ],
+        [
+          "显示省略号",
+          "D3：total=100/pageSize=10 → 10 页 itemSize=5，首尾+省略号折叠"
+        ],
+        [
+          "自定义按钮数",
+          "D4：itemSize=3 total=100，3 按钮窗口+省略号"
+        ]
+      ],
+      "note": "分页 Pagination（导航区第二十一件，任务清单 #71）：受控页码驱动的分页器=上一页/下一页+页码按钮翻页 or 简洁模式 x/y 文本翻页，页码超量自动省略号折叠。与 Tabs #78（同屏页签切换 vs 数据分页翻页）/InfiniteLoading #56（触底自动加载 vs 显式页码翻页）/BackTop #6（回顶部 vs 数据分页）/Stepper #48（数值增减 vs 总页数跳页）划界；anti_goals 二期=跳页输入框/自定义按钮渲染/pageSize 选择器/翻页动画。2026-09-11 门禁 A AI 代评通过（design-spec/pagination-design-spec.html + 评审记录/review-pagination-A.md，P1–P4 全 A/C 0 保留意见）+ 同日门禁 B 双端实现入库（PaginationView.swift=UIKit UIStackView+SnapKit / Pagination.kt=Compose Row）+ iOS PaginationShowcase/Android PaginationDemo 4 段 1:1。验证版本 v1.4.30；统一待 C1.5 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版。",
+      "subcategory": "display",
+      "tier": "navigation",
+      "reviewed": true
     }
   ],
   "businessExtensions": [

@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pagination 分页 · 设计规格 · TMO 组件库 v1.4.30</title>
+<style>
+:root {
+  --bg: #fff; --bg-page: #f5f5f5; --text: #1a1a1a; --text-2: #888; --border: #e8e8e8;
+  --primary: #16A34A; --danger: #DC2626; --warn: #F59E0B; --success: #16A34A;
+  --gray6: #E5E5E5; --gray25: #8C8C8C; --textSecondary: #6B7280;
+  --radius-lg: 14px; --radius-sm: 6px;
+  --font-xs: 12px; --font-sm: 14px; --font-md: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif; background: var(--bg-page); color: var(--text); line-height: 1.6; }
+.container { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+h2 { font-size: 20px; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 16px; margin: 20px 0 8px; }
+p { font-size: 14px; margin-bottom: 8px; }
+code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+th { background: #fafafa; font-weight: 600; }
+.section { background: var(--bg); border-radius: 12px; padding: 20px; margin: 16px 0; border: 1px solid var(--border); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.badge-a { background: #e6f7e6; color: #16A34A; }
+.badge-na { background: #f0f0f0; color: #888; }
+
+/* 分页 mock */
+.pager { display: inline-flex; align-items: center; gap: 6px; padding: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.btn { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); font-size: var(--font-sm); color: var(--textSecondary); cursor: pointer; user-select: none; border: 1px solid transparent; }
+.btn.nav { color: var(--textSecondary); }
+.btn.page { color: var(--text); }
+.btn.active { background: var(--primary); color: #fff; font-weight: 600; }
+.btn.disabled { color: var(--gray25); cursor: not-allowed; }
+.ellipsis { color: var(--gray25); padding: 0 4px; user-select: none; }
+.simple { font-size: var(--font-sm); color: var(--text); }
+.simple .cur { color: var(--primary); font-weight: 600; }
+.mock-wrap { display: flex; gap: 24px; flex-wrap: wrap; margin: 16px 0; align-items: flex-start; }
+.mock-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.chev-l { width: 8px; height: 8px; border-left: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); }
+.chev-r { width: 8px; height: 8px; border-right: 2px solid currentColor; border-top: 2px solid currentColor; transform: rotate(45deg); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Pagination 分页</h1>
+<p>组件 ID：<code>ui.pagination</code> ｜ 导航区组件 #71 ｜ TMO 组件库 v1.4.30</p>
+<p>定位：受控页码驱动的分页器——当数据总量较大需分页浏览时，提供上一页/下一页 + 页码按钮翻页，或简洁模式（x/y）翻页，页码超量时自动省略号折叠。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation 情景</h3>
+<p>App 中订单列表、搜索结果、消息记录等长数据需分页浏览，用户需在多页之间快速翻页定位内容。</p>
+<h3>Complication 冲突</h3>
+<p>各业务页自绘页码按钮 + 上一页/下一页 + 省略号折叠逻辑，按钮选中态/禁用态/省略号窗口算法各异，移动端页码过密难以点击，双端表现漂移。</p>
+<h3>Question 问题</h3>
+<p>需要一个分页组件，支持页码按钮翻页、简洁模式（x/y 文本）、页码超量时省略号折叠、自定义可见按钮数，双端 1:1 视觉一致。</p>
+<h3>Answer 方案</h3>
+<p>Pagination——受控 currentValue 驱动的分页器，total + pageSize 计算总页数，itemSize 控制可见页码按钮数（超出自动省略号折叠），mode 切换 multi（按钮）/ simple（x/y），首尾页与当前页窗口固定渲染、中间间隔以省略号占位，onChange 回调翻页。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 Pagination 划界</th></tr>
+<tr><td>Tabs #78</td><td>页签横向切换</td><td>Tabs=同屏页签切换不同面板（无翻页概念）；Pagination=数据分页翻页（同列表不同页数据）</td></tr>
+<tr><td>InfiniteLoading #56</td><td>滚动无限加载</td><td>InfiniteLoading=下拉触底自动加载下一页（无显式页码）；Pagination=显式页码按钮翻页（用户主动跳页）</td></tr>
+<tr><td>BackTop #6</td><td>返回顶部</td><td>BackTop=长页面回到顶部；Pagination=数据分页（页码切换，非滚动定位）</td></tr>
+<tr><td>Stepper #48</td><td>数字步进</td><td>Stepper=小范围数值增减（无总页数概念）；Pagination=基于总页数的页码跳转</td></tr>
+</table>
+
+<h2>3. Token 清单</h2>
+<div class="section">
+<table>
+<tr><th>区域</th><th>规格</th><th>Token</th></tr>
+<tr><td>页码按钮</td><td>36×36，字号 14，圆角 6，默认 textPrimary，选中 primary 反白</td><td>AppSpace.lg 尺寸 / AppFont.sizeSm / AppRadius.sm / textPrimary / primary</td></tr>
+<tr><td>页码按钮（禁用）</td><td>gray25 灰，不可点</td><td>gray25</td></tr>
+<tr><td>上一页/下一页按钮</td><td>36×36，chevron 箭头，textSecondary</td><td>AppSpace.lg / textSecondary</td></tr>
+<tr><td>上一页/下一页（禁用）</td><td>gray25 灰，不可点（首/末页时）</td><td>gray25</td></tr>
+<tr><td>省略号</td><td>gray25 灰，不可点，居中</td><td>gray25</td></tr>
+<tr><td>简洁模式文本</td><td>字号 14，textPrimary，当前页 primary 高亮，"/" 分隔</td><td>AppFont.sizeSm / textPrimary / primary</td></tr>
+<tr><td>按钮间距</td><td>6</td><td>AppSpace.xs</td></tr>
+<tr><td>容器背景</td><td>白底 + 圆角 14 + 1px border</td><td>bgCard / radius.lg / border</td></tr>
+</table>
+</div>
+
+<h2>4. 决策投票表（ACE 模型：选项 / 评估后果 / 选最优）</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项（Alternatives）</th><th>评估后果（Consequences）</th><th>选最优（Evaluate）</th><th>理由</th></tr>
+<tr>
+<td>P1</td><td>受控策略</td>
+<td>A. 纯受控（currentValue+onChange 必传）<br>B. 纯非受控（内部状态自管理）<br>C. 混合（currentValue&gt;0=受控，0=内部自管理）</td>
+<td>A. 使用方必须管状态=样板代码多，D1 基础场景啰嗦<br>B. 无法外部驱动翻页，D4 受控场景做不到<br>C. 两种模式自动切换=覆盖 D1-D4 全场景，灵活且零样板</td>
+<td><span class="badge badge-a">C</span></td>
+<td>混合模式=currentValue&gt;0 走受控、0 走内部状态，一处入口覆盖自管理/外部驱动两类需求，与 Collapse/NutUI 受控语义对齐</td>
+</tr>
+<tr>
+<td>P2</td><td>省略号算法</td>
+<td>A. 标准滑动窗口（当前页居中 window + 首尾固定 + 省略号折叠）<br>B. 全量渲染所有页码</td>
+<td>A. 页码多时只显 itemSize 个按钮 + 省略号，移动端可点击不密集，行业标配<br>B. 10+ 页时按钮过密难点击，移动端不可用</td>
+<td><span class="badge badge-a">A</span></td>
+<td>滑动窗口+省略号是分页器行业标配（NutUI/Ant 一致）；全量渲染在移动端不可用</td>
+</tr>
+<tr>
+<td>P3</td><td>简洁模式</td>
+<td>A. 支持 mode=simple（x/y 文本翻页）<br>B. 只做 multi 按钮模式</td>
+<td>A. 移动端简洁场景（如订单分页）用文本翻页省空间，与 NutUI 对齐<br>B. 移动端按钮模式占位大，简洁场景无方案</td>
+<td><span class="badge badge-a">A</span></td>
+<td>移动端简洁场景需要 x/y 文本翻页（NutUI simple 模式先例）；与 multi 二选一不增加复杂度</td>
+</tr>
+<tr>
+<td>P4</td><td>一期范围</td>
+<td>A. 一期=基础翻页/简洁/省略号/自定义按钮数+demo 四段<br>B. 二期=跳页输入框/自定义按钮渲染/pageSize 选择器</td>
+<td>A. 覆盖 95% 分页场景，范围可控<br>B. 二期增量，不阻塞一期交付</td>
+<td><span class="badge badge-a">A</span></td>
+<td>一期四段 demo 覆盖常见场景；跳页输入框/pageSize 选择器/自定义按钮=二期</td>
+</tr>
+</table>
+</div>
+
+<h2>5. 四组 Demo 预览</h2>
+<div class="mock-wrap">
+<div class="mock-item">
+<div class="pager">
+<span class="btn nav disabled"><span class="chev-l"></span></span>
+<span class="btn page active">1</span>
+<span class="btn page">2</span>
+<span class="btn page">3</span>
+<span class="btn page">4</span>
+<span class="btn page">5</span>
+<span class="btn nav"><span class="chev-r"></span></span>
+</div>
+<p style="font-size:13px;color:#888">D1 基础分页（5 页全显无省略号）</p>
+</div>
+<div class="mock-item">
+<div class="pager">
+<span class="btn nav disabled"><span class="chev-l"></span></span>
+<span class="simple"><span class="cur">1</span> / 5</span>
+<span class="btn nav"><span class="chev-r"></span></span>
+</div>
+<p style="font-size:13px;color:#888">D2 简洁模式（x/y 文本翻页）</p>
+</div>
+<div class="mock-item">
+<div class="pager">
+<span class="btn nav disabled"><span class="chev-l"></span></span>
+<span class="btn page active">1</span>
+<span class="btn page">2</span>
+<span class="btn page">3</span>
+<span class="btn page">4</span>
+<span class="btn page">5</span>
+<span class="ellipsis">···</span>
+<span class="btn page">10</span>
+<span class="btn nav"><span class="chev-r"></span></span>
+</div>
+<p style="font-size:13px;color:#888">D3 显示省略号（10 页 itemSize=5）</p>
+</div>
+<div class="mock-item">
+<div class="pager">
+<span class="btn nav disabled"><span class="chev-l"></span></span>
+<span class="btn page active">1</span>
+<span class="btn page">2</span>
+<span class="btn page">3</span>
+<span class="ellipsis">···</span>
+<span class="btn page">10</span>
+<span class="btn nav"><span class="chev-r"></span></span>
+</div>
+<p style="font-size:13px;color:#888">D4 自定义按钮数（itemSize=3）</p>
+</div>
+</div>
+
+<h2>6. 平台差异预告</h2>
+<table>
+<tr><th>差异点</th><th>iOS（UIKit）</th><th>Android（Compose）</th><th>判据</th></tr>
+<tr><td>状态管理</td><td>currentValue 属性 0=内部状态，&gt;0=受控</td><td>currentValue 参数 0=内部 remember，&gt;0=受控</td><td>语义一致，表内放行</td></tr>
+<tr><td>按钮横向排列</td><td>UIStackView axis=.horizontal</td><td>Row(horizontalArrangement=spacedBy)</td><td>布局系统差异，视觉一致=放行</td></tr>
+<tr><td>chevron 箭头</td><td>UIImage chevron.left/right</td><td>Icons KeyboardArrowLeft/Right</td><td>同全库先例，放行</td></tr>
+<tr><td>按钮选中态</td><td>backgroundColor=primary + 白字</td><td>background(primary, RoundedCornerShape) + 白字</td><td>遵循安卓禁令用 background(shape)</td></tr>
+<tr><td>圆角裁切</td><td>layer.cornerRadius + clipsToBounds</td><td>background(RoundedCornerShape)（禁 clip/graphicsLayer）</td><td>遵循安卓禁令</td></tr>
+</table>
+
+<h2>7. API 速览</h2>
+<div class="section">
+<h3>Pagination Props</h3>
+<table>
+<tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>currentValue</code></td><td>Int</td><td>0</td><td>当前页（1-based）；0=内部自管理状态（初始取 defaultValue），&gt;0=受控</td></tr>
+<tr><td><code>defaultValue</code></td><td>Int</td><td>1</td><td>默认当前页（非受控初始值）</td></tr>
+<tr><td><code>total</code></td><td>Int</td><td>0</td><td>数据总条数</td></tr>
+<tr><td><code>pageSize</code></td><td>Int</td><td>10</td><td>每页条数</td></tr>
+<tr><td><code>itemSize</code></td><td>Int</td><td>5</td><td>可见页码按钮数（超出自动省略号折叠）</td></tr>
+<tr><td><code>mode</code></td><td>PaginationMode</td><td>.multi</td><td>.multi 按钮模式 / .simple 简洁模式（x/y 文本）</td></tr>
+<tr><td><code>prevText</code></td><td>String?</td><td>null</td><td>自定义上一页按钮文案（null=默认 chevron 箭头）</td></tr>
+<tr><td><code>nextText</code></td><td>String?</td><td>null</td><td>自定义下一页按钮文案（null=默认 chevron 箭头）</td></tr>
+<tr><td><code>onChange</code></td><td>((Int) -&gt; Unit)?</td><td>null</td><td>翻页回调，返回目标页码</td></tr>
+</table>
+<h3>PaginationMode 枚举</h3>
+<table>
+<tr><th>值</th><th>说明</th></tr>
+<tr><td><code>multi</code></td><td>按钮模式：上一页/下一页 + 页码按钮（含省略号）</td></tr>
+<tr><td><code>simple</code></td><td>简洁模式：上一页/下一页 + x/y 文本</td></tr>
+</table>
+<h3>省略号折叠算法</h3>
+<p>总页数 ≤ itemSize → 全量渲染 1..总页数；总页数 &gt; itemSize → 当前页居中 window（itemSize 个按钮）+ 首尾固定 + 间隔省略号：</p>
+<p>① window 居中：<code>left = current - (itemSize-1)/2</code>，<code>right = left + itemSize - 1</code>；边界 clamp（left&lt;1 → left=1/right=itemSize；right&gt;总页数 → right=总页数/left=总页数-itemSize+1）；</p>
+<p>② 左侧：left&gt;1 显首页，left&gt;2 加省略号；右侧：right&lt;总页数 显末页，right&lt;总页数-1 加省略号。</p>
+</div>
+
+</div>
+</body>
+</html>

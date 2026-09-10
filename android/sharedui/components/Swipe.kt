@@ -21,7 +21,8 @@
 //
 //  实现（与 iOS SwipeView 1:1）：
 //  - 底层操作按钮：绝对定位在左端/右端（bounds 内，被主内容遮挡）
-//  - 顶层主内容：offset 整体移动（含背景），移走后露出底层操作按钮
+//  - 顶层主内容：offset 整体移动（不含背景，背景由 content slot 决定），移走后露出底层操作按钮
+//  - 不硬编码高度（由 content slot 撑高，与 iOS contentView autoresizingMask 一致）
 //
 //  用法：
 //  ```kotlin
@@ -39,17 +40,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -93,8 +89,10 @@ data class SwipeAction(
  * 列表项横向滑动露出操作按钮的包裹器（左右双向）。
  *
  * 实现与 iOS SwipeView 1:1：
+ * - 不硬编码高度（由 content slot 撑高，与 iOS contentView autoresizingMask 一致）
+ * - 顶层主内容不加 background（由 content slot 决定背景色，与 iOS makeRow.backgroundColor=.white 一致）
  * - 底层操作按钮绝对定位在左端/右端（bounds 内，被主内容遮挡，移走后露出）
- * - 顶层主内容 offset 整体移动（含背景白色），露出底层操作按钮
+ * - 顶层主内容 offset 整体移动，露出底层操作按钮
  */
 @Composable
 fun SwipeItem(
@@ -124,7 +122,7 @@ fun SwipeItem(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
+            // 不硬编码高度——由 content slot 撑高（与 iOS contentView autoresizingMask 一致）
             .pointerInput(disabled) {
                 if (disabled) return@pointerInput
                 detectHorizontalDragGestures(
@@ -201,13 +199,12 @@ fun SwipeItem(
             }
         }
 
-        // 顶层主内容（整体 offset 移动，含背景白色，露出底层操作按钮）
+        // 顶层主内容（整体 offset 移动，不加 background——由 content slot 决定背景色）
         val displayX = if (isAnimating) animatedX else offsetX
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .background(Color.White)
                 .offset { IntOffset(displayX.roundToInt(), 0) }
         ) {
             content()

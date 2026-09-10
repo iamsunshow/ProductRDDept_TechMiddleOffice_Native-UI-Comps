@@ -8374,26 +8374,32 @@ fun SwipeDemo() {
             .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {
-        // D1 基础右滑删除
+        // D1 基础右滑删除（平铺，不用 DemoSectionCard——与 iOS addSection 一致，无圆角卡片包裹）
         item {
-            DemoSectionCard(title = "D1 · 基础右滑删除") {
-                SwipeItem(
-                    actions = listOf(
-                        SwipeAction("删除", SwipeActionColor.Danger) {
-                            Toast.makeText(context, "已删除", Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .background(Color.White)
-                            .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("账目 #1", fontSize = AppFont.sizeMd, color = AppColor.textPrimary)
+            Text(
+                text = "Demo 1 · 基础右滑删除",
+                fontSize = AppFont.sizeSm,
+                fontWeight = FontWeight.SemiBold,
+                color = AppColor.textPrimary
+            )
+        }
+        item {
+            SwipeItem(
+                actions = listOf(
+                    SwipeAction("删除", SwipeActionColor.Danger) {
+                        Toast.makeText(context, "已删除", Toast.LENGTH_SHORT).show()
                     }
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .background(Color.White)
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("账目 #1", fontSize = AppFont.sizeMd, color = AppColor.textPrimary)
                 }
             }
         }
@@ -8407,29 +8413,35 @@ fun SwipeDemo() {
 
         // D2 双向滑动
         item {
-            DemoSectionCard(title = "D2 · 双向滑动") {
-                SwipeItem(
-                    actions = listOf(
-                        SwipeAction("删除", SwipeActionColor.Danger) {
-                            Toast.makeText(context, "右滑删除", Toast.LENGTH_SHORT).show()
-                        }
-                    ),
-                    leftActions = listOf(
-                        SwipeAction("标记", SwipeActionColor.Primary) {
-                            Toast.makeText(context, "左滑标记", Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .background(Color.White)
-                            .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("账目 #2", fontSize = AppFont.sizeMd, color = AppColor.textPrimary)
+            Text(
+                text = "Demo 2 · 双向滑动",
+                fontSize = AppFont.sizeSm,
+                fontWeight = FontWeight.SemiBold,
+                color = AppColor.textPrimary
+            )
+        }
+        item {
+            SwipeItem(
+                actions = listOf(
+                    SwipeAction("删除", SwipeActionColor.Danger) {
+                        Toast.makeText(context, "右滑删除", Toast.LENGTH_SHORT).show()
                     }
+                ),
+                leftActions = listOf(
+                    SwipeAction("标记", SwipeActionColor.Primary) {
+                        Toast.makeText(context, "左滑标记", Toast.LENGTH_SHORT).show()
+                    }
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .background(Color.White)
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("账目 #2", fontSize = AppFont.sizeMd, color = AppColor.textPrimary)
                 }
             }
         }
@@ -8443,25 +8455,31 @@ fun SwipeDemo() {
 
         // D3 disabled 禁用
         item {
-            DemoSectionCard(title = "D3 · disabled 禁用") {
-                SwipeItem(
-                    disabled = true,
-                    actions = listOf(
-                        SwipeAction("删除", SwipeActionColor.Danger) {
-                            Toast.makeText(context, "已删除", Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .background(Color.White)
-                            .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("账目 #3（disabled，不可滑动）", fontSize = AppFont.sizeMd, color = AppColor.textSecondary)
+            Text(
+                text = "Demo 3 · disabled 禁用",
+                fontSize = AppFont.sizeSm,
+                fontWeight = FontWeight.SemiBold,
+                color = AppColor.textPrimary
+            )
+        }
+        item {
+            SwipeItem(
+                disabled = true,
+                actions = listOf(
+                    SwipeAction("删除", SwipeActionColor.Danger) {
+                        Toast.makeText(context, "已删除", Toast.LENGTH_SHORT).show()
                     }
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .background(Color.White)
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("账目 #3（disabled，不可滑动）", fontSize = AppFont.sizeMd, color = AppColor.textSecondary)
                 }
             }
         }
@@ -8475,27 +8493,33 @@ fun SwipeDemo() {
 
         // D4 自定义多操作
         item {
-            DemoSectionCard(title = "D4 · 自定义多操作") {
-                SwipeItem(
-                    actions = listOf(
-                        SwipeAction("置顶", SwipeActionColor.Warning) {
-                            Toast.makeText(context, "已置顶", Toast.LENGTH_SHORT).show()
-                        },
-                        SwipeAction("删除", SwipeActionColor.Danger) {
-                            Toast.makeText(context, "已删除", Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .background(Color.White)
-                            .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("账目 #4", fontSize = AppFont.sizeMd, color = AppColor.textPrimary)
+            Text(
+                text = "Demo 4 · 自定义多操作",
+                fontSize = AppFont.sizeSm,
+                fontWeight = FontWeight.SemiBold,
+                color = AppColor.textPrimary
+            )
+        }
+        item {
+            SwipeItem(
+                actions = listOf(
+                    SwipeAction("置顶", SwipeActionColor.Warning) {
+                        Toast.makeText(context, "已置顶", Toast.LENGTH_SHORT).show()
+                    },
+                    SwipeAction("删除", SwipeActionColor.Danger) {
+                        Toast.makeText(context, "已删除", Toast.LENGTH_SHORT).show()
                     }
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .background(Color.White)
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("账目 #4", fontSize = AppFont.sizeMd, color = AppColor.textPrimary)
                 }
             }
         }

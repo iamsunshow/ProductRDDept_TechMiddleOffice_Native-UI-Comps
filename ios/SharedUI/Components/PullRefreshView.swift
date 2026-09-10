@@ -43,16 +43,25 @@ public final class PullRefreshView: UIView {
         didSet {
             guard refreshing != oldValue else { return }
             if refreshing {
-                // 确保 layout 完成后再 beginRefreshing，否则 scrollview 未上屏时指示器不显示
+                // UIRefreshControl.beginRefreshing() 在 scrollview 未被用户交互过时不显示指示器，
+                // 需手动偏移 contentOffset 让指示器进入可视区域（iOS 已知行为根治）
                 contentScrollView.layoutIfNeeded()
-                DispatchQueue.main.async { [weak self] in
-                    guard let self = self else { return }
-                    if self.refreshing {
-                        self.refreshControl.beginRefreshing()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+                    guard let self = self, self.refreshing else { return }
+                    let rcHeight = self.refreshControl.bounds.height
+                    if rcHeight > 0 && self.contentScrollView.contentOffset.y == 0 {
+                        self.contentScrollView.setContentOffset(
+                            CGPoint(x: 0, y: -rcHeight), animated: true
+                        )
                     }
+                    self.refreshControl.beginRefreshing()
                 }
             } else {
                 refreshControl.endRefreshing()
+                // 恢复 contentOffset（外部驱动结束后 scrollview 回到顶部）
+                if contentScrollView.contentOffset.y < 0 {
+                    contentScrollView.setContentOffset(.zero, animated: true)
+                }
             }
         }
     }

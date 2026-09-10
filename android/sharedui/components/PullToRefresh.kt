@@ -135,6 +135,14 @@ fun PullToRefresh(
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 if (refreshingState.value || !enabledState.value) return Offset.Zero
+                // 下拉（available.y > 0）且在顶部 → 主动拦截消费，顶开内容
+                // （之前用 onPostScroll 只拿子组件剩余，LazyColumn 顶部下拉时自消费导致不灵敏）
+                if (available.y > 0f && canPullState.value()) {
+                    val next = (dragPull + available.y * 0.7f).coerceIn(0f, maxPullPx)
+                    val consumedY = next - dragPull
+                    dragPull = next
+                    return Offset(0f, consumedY)
+                }
                 // 上推时先收起已露出的空白区
                 if (available.y < 0f && dragPull > 0f) {
                     val consumed = available.y.coerceAtLeast(-dragPull)
@@ -149,14 +157,7 @@ fun PullToRefresh(
                 available: Offset,
                 source: NestedScrollSource
             ): Offset {
-                if (refreshingState.value || !enabledState.value) return Offset.Zero
-                // 到顶后继续下拉 → 顶开内容
-                if (available.y > 0f && canPullState.value()) {
-                    val next = (dragPull + available.y * 0.7f).coerceIn(0f, maxPullPx)
-                    val consumedY = next - dragPull
-                    dragPull = next
-                    return Offset(0f, consumedY)
-                }
+                // onPreScroll 已主动拦截下拉，这里不再处理
                 return Offset.Zero
             }
 
@@ -233,7 +234,9 @@ fun PullToRefresh(
                         Text(
                             text = title,
                             color = AppColor.textSecondary,
-                            fontSize = AppFont.sizeSm
+                            fontSize = AppFont.sizeSm,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                     }
                 }

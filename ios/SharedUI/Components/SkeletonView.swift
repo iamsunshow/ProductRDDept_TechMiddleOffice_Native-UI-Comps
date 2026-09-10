@@ -53,8 +53,6 @@ public final class SkeletonBlock: UIView {
     // MARK: - Layers
 
     private let gradientLayer = CAGradientLayer()
-    private var widthConstraint: Constraint?
-    private var heightConstraint: Constraint?
 
     // MARK: - 常量
 
@@ -98,12 +96,27 @@ public final class SkeletonBlock: UIView {
         layer.addSublayer(gradientLayer)
 
         startShimmer()
+        applySelfConstraints()
     }
 
     // MARK: - Layout
-    // 不重写 updateConstraints——SkeletonBlock 的尺寸约束完全由外部容器决定
-    // （与 Android Compose modifier 一致，外部 makeConstraints 设置 width/height/top/leading 等）
-    // 之前 updateConstraints 调用 snp.remakeConstraints 会覆盖外部约束导致布局错乱
+    // 不重写 updateConstraints——外部 makeConstraints 设置的约束不会被覆盖
+    // 但 fixed 模式需要自身 width/height 约束（UIStackView 等 intrinsic 布局容器需要）
+    // percentage 模式由外部容器设置 multipliedBy 约束，不在 self 上设约束
+    private var widthConstraint: Constraint?
+    private var heightConstraint: Constraint?
+
+    /// 在 setupViews 后调用——为 fixed 模式设置自身约束；percentage 模式不设（由外部容器设）
+    private func applySelfConstraints() {
+        snp.makeConstraints { make in
+            if case .fixed(let v) = width {
+                widthConstraint = make.width.equalTo(v).constraint
+            }
+            if case .fixed(let v) = height {
+                heightConstraint = make.height.equalTo(v).constraint
+            }
+        }
+    }
 
     public override func layoutSubviews() {
         super.layoutSubviews()
@@ -219,6 +232,9 @@ public final class SkeletonRow: UIView {
 
         var leadingOffset: CGFloat = 0
 
+        // 色彩调试法：skeletonContainer=红色（验证行容器是否撑开）
+        skeletonContainer.backgroundColor = UIColor.red.withAlphaComponent(0.2)
+
         // 头像（固定 40×40，垂直居中）
         if avatar {
             let av = SkeletonBlock(width: .fixed(Layout.avatarSize), height: .fixed(Layout.avatarSize), cornerRadius: Layout.avatarSize / 2)
@@ -234,7 +250,8 @@ public final class SkeletonRow: UIView {
 
         // 文字列容器（撑满剩余宽度，title/subtitle 在内用 percentage）
         let textCol = UIView()
-        textCol.backgroundColor = .clear
+        // 色彩调试法：textCol=蓝色（验证文字列容器是否撑开）
+        textCol.backgroundColor = UIColor.blue.withAlphaComponent(0.2)
         textColumnView = textCol
         skeletonContainer.addSubview(textCol)
         textCol.snp.makeConstraints { make in

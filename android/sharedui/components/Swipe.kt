@@ -201,12 +201,13 @@ fun SwipeItem(
             }
         }
 
-        // 顶层主内容（整体 offset 移动，不加 background——由 content slot 决定背景色）
-        // 主内容用 fillMaxWidth 撑宽 + 自然撑高父容器（BoxWithConstraints 高度由 content 决定）
+        // 顶层主内容（整体 offset 移动，加白色背景遮挡底层操作按钮，初始 offsetX=0 时覆盖操作区）
+        // 与 iOS makeRow.backgroundColor=.white 一致
         val displayX = if (isAnimating) animatedX else offsetX
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(Color.White)
                 .offset { IntOffset(displayX.roundToInt(), 0) }
         ) {
             content()

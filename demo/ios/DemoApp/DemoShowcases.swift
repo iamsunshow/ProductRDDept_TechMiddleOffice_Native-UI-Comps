@@ -93,21 +93,21 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.uploader", name: "Uploader 上传", reviewed: true, create: { UploaderShowcase() }, passed: true),
         ]),
         ("操作反馈", [
-            DemoComponent(id: "ui.action-sheet", name: "ActionSheet 动作面板", reviewed: true, create: { ActionSheetShowcase() }),
+            DemoComponent(id: "ui.action-sheet", name: "ActionSheet 动作面板", reviewed: true, create: { ActionSheetShowcase() }, passed: true),
             DemoComponent(id: "ui.circle-progress", name: "CircleProgress 环形进度", reviewed: false, create: nil),
-            DemoComponent(id: "ui.dialog", name: "Dialog 对话框", reviewed: true, create: { DialogShowcase() }),
+            DemoComponent(id: "ui.dialog", name: "Dialog 对话框", reviewed: true, create: { DialogShowcase() }, passed: true),
             DemoComponent(id: "ui.drag", name: "Drag 拖拽", reviewed: true, create: { DragShowcase() }, pending: true),
-            DemoComponent(id: "ui.infinite-loading", name: "InfiniteLoading 滚动加载", reviewed: true, create: { InfiniteLoadingShowcase() }),
+            DemoComponent(id: "ui.infinite-loading", name: "InfiniteLoading 滚动加载", reviewed: true, create: { InfiniteLoadingShowcase() }, passed: true),
             DemoComponent(id: "ui.loading-more", name: "LoadingMore 加载更多", reviewed: false, create: nil),
             DemoComponent(id: "ui.masking", name: "Masking 遮罩", reviewed: false, create: nil),
-            DemoComponent(id: "ui.notify", name: "Notify 消息通知", reviewed: true, create: { NotifyShowcase() }),
-            DemoComponent(id: "ui.popover", name: "Popover 气泡弹出框", reviewed: true, create: { PopoverShowcase() }),
+            DemoComponent(id: "ui.notify", name: "Notify 消息通知", reviewed: true, create: { NotifyShowcase() }, passed: true),
+            DemoComponent(id: "ui.popover", name: "Popover 气泡弹出框", reviewed: true, create: { PopoverShowcase() }, passed: true),
             DemoComponent(id: "ui.popup-swiper", name: "PopupSwiper 弹出滑动", reviewed: false, create: nil),
             DemoComponent(id: "ui.refresh", name: "PullToRefresh 下拉刷新", reviewed: true, create: { PullRefreshShowcase() }),
             DemoComponent(id: "ui.swipe", name: "Swipe 滑动", reviewed: true, create: { SwipeShowcase() }),
             DemoComponent(id: "ui.swipe-action", name: "SwipeAction 滑动操作", reviewed: false, create: nil),
             DemoComponent(id: "ui.swipe-loading", name: "SwipeLoading 滑动加载", reviewed: false, create: nil),
-            DemoComponent(id: "ui.toast", name: "Toast 吐司", reviewed: true, create: { ToastShowcase() }),
+            DemoComponent(id: "ui.toast", name: "Toast 吐司", reviewed: true, create: { ToastShowcase() }, passed: true),
         ]),
         ("信息展示", [
             DemoComponent(id: "ui.animate", name: "Animate 动画", reviewed: false, create: nil, planned: true),
@@ -9421,8 +9421,6 @@ final class SkeletonShowcase: ShowcaseViewController {
     private func buildDemo() {
         // ── D1 · 列表项骨架行（3 行，2 秒后切换为真实内容）──
         addSection(title: "Demo 1 · 列表项骨架行") { container in
-            // 色彩调试法：红色背景验证 container 是否撑开
-            container.backgroundColor = UIColor.red.withAlphaComponent(0.2)
             for i in 1...3 {
                 let row = SkeletonRow(loading: true)
                 row.avatar = true
@@ -9477,8 +9475,6 @@ final class SkeletonShowcase: ShowcaseViewController {
 
         // ── D2 · 自定义骨架块组合（模拟卡片，纯 UIView 容器不用 stack 避免 percentage 冲突）──
         addSection(title: "Demo 2 · 自定义骨架块组合") { container in
-            // 色彩调试法：蓝色背景验证 container 是否撑开
-            container.backgroundColor = UIColor.blue.withAlphaComponent(0.2)
             let col = UIView()
             let big = SkeletonBlock(width: .percentage(1.0), height: .fixed(120))
             let line1 = SkeletonBlock(width: .percentage(0.7), height: .fixed(12))
@@ -9524,8 +9520,6 @@ final class SkeletonShowcase: ShowcaseViewController {
 
         // ── D4 · 圆形骨架 ──
         addSection(title: "Demo 4 · 圆形骨架") { container in
-            // 色彩调试法：黄色背景验证 container 是否撑开
-            container.backgroundColor = UIColor.yellow.withAlphaComponent(0.2)
             let row = UIStackView()
             row.axis = .horizontal
             row.spacing = AppSpace.lg

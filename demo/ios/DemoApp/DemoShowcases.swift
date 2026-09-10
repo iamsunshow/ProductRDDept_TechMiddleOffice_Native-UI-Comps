@@ -101,7 +101,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.notify", name: "Notify 消息通知", reviewed: true, create: { NotifyShowcase() }, passed: true),
             DemoComponent(id: "ui.popover", name: "Popover 气泡弹出框", reviewed: true, create: { PopoverShowcase() }, passed: true),
             DemoComponent(id: "ui.popup-swiper", name: "PopupSwiper 弹出滑动", reviewed: false, create: nil),
-            DemoComponent(id: "ui.refresh", name: "PullToRefresh 下拉刷新", reviewed: true, create: { PullRefreshShowcase() }),
+            DemoComponent(id: "ui.refresh", name: "PullToRefresh 下拉刷新", reviewed: true, create: { PullRefreshShowcase() }, pending: true),
             DemoComponent(id: "ui.swipe", name: "Swipe 滑动操作", reviewed: true, create: { SwipeShowcase() }, pending: true),
             DemoComponent(id: "ui.swipe-action", name: "SwipeAction 滑动操作", reviewed: false, create: nil),
             DemoComponent(id: "ui.swipe-loading", name: "SwipeLoading 滑动加载", reviewed: false, create: nil),

@@ -315,7 +315,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Notify 消息通知", reviewed = true, demo = { NotifyDemo() }, passed = true),
         DemoComponent("Popover 气泡弹出框", reviewed = true, demo = { PopoverDemo() }, passed = true),
         DemoComponent("PopupSwiper 弹出滑动"),
-        DemoComponent("PullToRefresh 下拉刷新", reviewed = true, demo = { PullToRefreshDemo() }),
+        DemoComponent("PullToRefresh 下拉刷新", reviewed = true, demo = { PullToRefreshDemo() }, pending = true),
         DemoComponent("Swipe 滑动操作", reviewed = true, demo = { SwipeDemo() }, pending = true),
         DemoComponent("SwipeAction 滑动操作"),
         DemoComponent("SwipeLoading 滑动加载"),

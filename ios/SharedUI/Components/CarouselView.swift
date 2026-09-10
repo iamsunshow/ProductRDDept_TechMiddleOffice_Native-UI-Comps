@@ -258,9 +258,8 @@ public final class CarouselView: UIView {
 
     /// 更新指示器颜色（当前页 indicatorColor，其他默认灰）。
     private func applyIndicatorColors(for index: Int) {
-        // 色彩调试法：强制设红色 tint，验证 dot 是否可见
-        pageControl.pageIndicatorTintColor = .red
-        pageControl.currentPageIndicatorTintColor = .red
+        pageControl.pageIndicatorTintColor = indicatorColor.withAlphaComponent(0.3)
+        pageControl.currentPageIndicatorTintColor = indicatorColor
         pageControl.currentPage = index
     }
 

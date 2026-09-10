@@ -15,13 +15,16 @@ struct DemoComponent {
     let pending: Bool
     // planned=true：本版本需加入但尚未评审（灰色"未评审"）；false 且 reviewed=false 则为"待开发 v2.0"（蓝色）
     let planned: Bool
-    init(id: String, name: String, reviewed: Bool, create: (() -> UIViewController)? = nil, pending: Bool = false, planned: Bool = false) {
+    // passed=true：最终验收签字通过（绿色"已通过"）；passed=false 且 reviewed=true 为"已评审"（黄色）
+    let passed: Bool
+    init(id: String, name: String, reviewed: Bool, create: (() -> UIViewController)? = nil, pending: Bool = false, planned: Bool = false, passed: Bool = false) {
         self.id = id
         self.name = name
         self.reviewed = reviewed
         self.create = create
         self.pending = pending
         self.planned = planned
+        self.passed = passed
     }
 }
 
@@ -31,63 +34,63 @@ final class DemoListViewController: UITableViewController {
 
     private let sections: [(category: String, components: [DemoComponent])] = [
         ("基础组件", [
-            DemoComponent(id: "ui.button", name: "Button 按钮", reviewed: true, create: { ButtonShowcase() }),
-            DemoComponent(id: "ui.cell", name: "Cell 单元格", reviewed: true, create: { CellShowcase() }),
-            DemoComponent(id: "ui.config-provider", name: "ConfigProvider 全局配置", reviewed: true, create: { ConfigProviderShowcase() }),
-            DemoComponent(id: "ui.icon", name: "Icon 图标", reviewed: true, create: { IconShowcase() }),
-            DemoComponent(id: "ui.overlay", name: "Overlay 遮罩层", reviewed: true, create: { OverlayShowcase() }),
-            DemoComponent(id: "ui.popup", name: "Popup 弹出层", reviewed: true, create: { PopupShowcase() }),
+            DemoComponent(id: "ui.button", name: "Button 按钮", reviewed: true, create: { ButtonShowcase() }, passed: true),
+            DemoComponent(id: "ui.cell", name: "Cell 单元格", reviewed: true, create: { CellShowcase() }, passed: true),
+            DemoComponent(id: "ui.config-provider", name: "ConfigProvider 全局配置", reviewed: true, create: { ConfigProviderShowcase() }, passed: true),
+            DemoComponent(id: "ui.icon", name: "Icon 图标", reviewed: true, create: { IconShowcase() }, passed: true),
+            DemoComponent(id: "ui.overlay", name: "Overlay 遮罩层", reviewed: true, create: { OverlayShowcase() }, passed: true),
+            DemoComponent(id: "ui.popup", name: "Popup 弹出层", reviewed: true, create: { PopupShowcase() }, passed: true),
         ]),
         ("布局组件", [
-            DemoComponent(id: "ui.divider", name: "Divider 分割线", reviewed: true, create: { DividerShowcase() }),
-            DemoComponent(id: "ui.grid", name: "Grid 宫格", reviewed: true, create: { GridShowcase() }),
-            DemoComponent(id: "ui.layout", name: "Layout 布局", reviewed: true, create: { LayoutShowcase() }),
+            DemoComponent(id: "ui.divider", name: "Divider 分割线", reviewed: true, create: { DividerShowcase() }, passed: true),
+            DemoComponent(id: "ui.grid", name: "Grid 宫格", reviewed: true, create: { GridShowcase() }, passed: true),
+            DemoComponent(id: "ui.layout", name: "Layout 布局", reviewed: true, create: { LayoutShowcase() }, passed: true),
             DemoComponent(id: "ui.row", name: "Row 行布局", reviewed: false, create: nil),
-            DemoComponent(id: "ui.safe-area", name: "SafeArea 安全区", reviewed: true, create: { SafeAreaShowcase() }),
-            DemoComponent(id: "ui.space", name: "Space 间距", reviewed: true, create: { SpaceShowcase() }),
-            DemoComponent(id: "ui.sticky", name: "Sticky 粘性布局", reviewed: true, create: { StickyShowcase() }),
+            DemoComponent(id: "ui.safe-area", name: "SafeArea 安全区", reviewed: true, create: { SafeAreaShowcase() }, passed: true),
+            DemoComponent(id: "ui.space", name: "Space 间距", reviewed: true, create: { SpaceShowcase() }, passed: true),
+            DemoComponent(id: "ui.sticky", name: "Sticky 粘性布局", reviewed: true, create: { StickyShowcase() }, passed: true),
         ]),
         ("导航组件", [
-            DemoComponent(id: "ui.back-top", name: "BackTop 返回顶部", reviewed: true, create: { BackTopShowcase() }),
+            DemoComponent(id: "ui.back-top", name: "BackTop 返回顶部", reviewed: true, create: { BackTopShowcase() }, passed: true),
             DemoComponent(id: "ui.dropdown", name: "DropDown 下拉菜单", reviewed: false, create: nil),
             DemoComponent(id: "ui.dropdown-menu", name: "DropDownMenu 下拉菜单项", reviewed: false, create: nil),
-            DemoComponent(id: "ui.elevator", name: "Elevator 电梯楼层", reviewed: true, create: { ElevatorShowcase() }),
-            DemoComponent(id: "ui.fixed-nav", name: "FixedNav 悬浮导航", reviewed: true, create: { FixedNavShowcase() }),
-            DemoComponent(id: "ui.hover-button", name: "HoverButton 悬浮按钮", reviewed: true, create: { HoverButtonShowcase() }),
+            DemoComponent(id: "ui.elevator", name: "Elevator 电梯楼层", reviewed: true, create: { ElevatorShowcase() }, passed: true),
+            DemoComponent(id: "ui.fixed-nav", name: "FixedNav 悬浮导航", reviewed: true, create: { FixedNavShowcase() }, passed: true),
+            DemoComponent(id: "ui.hover-button", name: "HoverButton 悬浮按钮", reviewed: true, create: { HoverButtonShowcase() }, passed: true),
             DemoComponent(id: "ui.indicator", name: "Indicator 指示器", reviewed: false, create: nil),
-            DemoComponent(id: "ui.menu", name: "Menu 菜单", reviewed: true, create: { MenuShowcase() }),
-            DemoComponent(id: "ui.nav-bar", name: "NavBar 头部导航", reviewed: true, create: { NavBarShowcase() }),
+            DemoComponent(id: "ui.menu", name: "Menu 菜单", reviewed: true, create: { MenuShowcase() }, passed: true),
+            DemoComponent(id: "ui.nav-bar", name: "NavBar 头部导航", reviewed: true, create: { NavBarShowcase() }, passed: true),
             DemoComponent(id: "ui.pagination", name: "Pagination 分页", reviewed: false, create: nil),
-            DemoComponent(id: "ui.side-bar", name: "SideBar 侧边导航", reviewed: true, create: { SideBarShowcase() }),
+            DemoComponent(id: "ui.side-bar", name: "SideBar 侧边导航", reviewed: true, create: { SideBarShowcase() }, passed: true),
             DemoComponent(id: "ui.side-nav-bar", name: "SideNavBar 侧边导航栏", reviewed: false, create: nil),
-            DemoComponent(id: "ui.tabbar", name: "Tabbar 标签栏", reviewed: true, create: { TabbarShowcase() }),
-            DemoComponent(id: "ui.tabs", name: "Tabs 选项卡", reviewed: true, create: { TabsShowcase() }),
+            DemoComponent(id: "ui.tabbar", name: "Tabbar 标签栏", reviewed: true, create: { TabbarShowcase() }, passed: true),
+            DemoComponent(id: "ui.tabs", name: "Tabs 选项卡", reviewed: true, create: { TabsShowcase() }, passed: true),
         ]),
         ("数据录入", [
-            DemoComponent(id: "ui.address", name: "Address 地址", reviewed: true, create: { AddressShowcase() }),
-            DemoComponent(id: "ui.calendar-card", name: "CalendarCard 日历卡片", reviewed: true, create: { CalendarCardShowcase() }),
-            DemoComponent(id: "ui.cascader", name: "Cascader 级联选择", reviewed: true, create: { CascaderShowcase() }),
-            DemoComponent(id: "ui.checkbox", name: "Checkbox 复选", reviewed: true, create: { CheckboxShowcase() }),
-            DemoComponent(id: "ui.date-picker", name: "DatePicker 日期选择", reviewed: true, create: { DatePickerShowcase() }),
-            DemoComponent(id: "ui.form", name: "Form 表单", reviewed: true, create: { FormShowcase() }),
+            DemoComponent(id: "ui.address", name: "Address 地址", reviewed: true, create: { AddressShowcase() }, passed: true),
+            DemoComponent(id: "ui.calendar-card", name: "CalendarCard 日历卡片", reviewed: true, create: { CalendarCardShowcase() }, passed: true),
+            DemoComponent(id: "ui.cascader", name: "Cascader 级联选择", reviewed: true, create: { CascaderShowcase() }, passed: true),
+            DemoComponent(id: "ui.checkbox", name: "Checkbox 复选", reviewed: true, create: { CheckboxShowcase() }, passed: true),
+            DemoComponent(id: "ui.date-picker", name: "DatePicker 日期选择", reviewed: true, create: { DatePickerShowcase() }, passed: true),
+            DemoComponent(id: "ui.form", name: "Form 表单", reviewed: true, create: { FormShowcase() }, passed: true),
             DemoComponent(id: "ui.image-view", name: "ImageView 图片视图", reviewed: false, create: nil),
-            DemoComponent(id: "ui.input", name: "Input 输入框", reviewed: true, create: { InputShowcase() }),
-            DemoComponent(id: "ui.input-number", name: "InputNumber 数字输入", reviewed: true, create: { InputNumberShowcase() }),
+            DemoComponent(id: "ui.input", name: "Input 输入框", reviewed: true, create: { InputShowcase() }, passed: true),
+            DemoComponent(id: "ui.input-number", name: "InputNumber 数字输入", reviewed: true, create: { InputNumberShowcase() }, passed: true),
             DemoComponent(id: "ui.keyboard", name: "Keyboard 键盘", reviewed: false, create: nil),
-            DemoComponent(id: "ui.number-keyboard", name: "NumberKeyboard 数字键盘", reviewed: true, create: { NumberKeyboardShowcase() }),
-            DemoComponent(id: "ui.picker", name: "Picker 选择器", reviewed: true, create: { PickerShowcase() }),
+            DemoComponent(id: "ui.number-keyboard", name: "NumberKeyboard 数字键盘", reviewed: true, create: { NumberKeyboardShowcase() }, passed: true),
+            DemoComponent(id: "ui.picker", name: "Picker 选择器", reviewed: true, create: { PickerShowcase() }, passed: true),
             DemoComponent(id: "ui.picker-view", name: "PickerView 多列选择器", reviewed: false, create: nil),
-            DemoComponent(id: "ui.radio", name: "Radio 单选", reviewed: true, create: { RadioShowcase() }),
-            DemoComponent(id: "ui.range", name: "Range 区间选择", reviewed: true, create: { RangeShowcase() }),
-            DemoComponent(id: "ui.rate", name: "Rate 评分", reviewed: true, create: { RateShowcase() }),
-            DemoComponent(id: "ui.search-bar", name: "SearchBar 搜索栏", reviewed: true, create: { SearchBarShowcase() }),
-            DemoComponent(id: "ui.short-password", name: "ShortPassword 短密码", reviewed: true, create: { ShortPasswordShowcase() }),
-            DemoComponent(id: "ui.signature", name: "Signature 签名", reviewed: true, create: { SignatureShowcase() }),
+            DemoComponent(id: "ui.radio", name: "Radio 单选", reviewed: true, create: { RadioShowcase() }, passed: true),
+            DemoComponent(id: "ui.range", name: "Range 区间选择", reviewed: true, create: { RangeShowcase() }, passed: true),
+            DemoComponent(id: "ui.rate", name: "Rate 评分", reviewed: true, create: { RateShowcase() }, passed: true),
+            DemoComponent(id: "ui.search-bar", name: "SearchBar 搜索栏", reviewed: true, create: { SearchBarShowcase() }, passed: true),
+            DemoComponent(id: "ui.short-password", name: "ShortPassword 短密码", reviewed: true, create: { ShortPasswordShowcase() }, passed: true),
+            DemoComponent(id: "ui.signature", name: "Signature 签名", reviewed: true, create: { SignatureShowcase() }, passed: true),
             DemoComponent(id: "ui.slider", name: "Slider 滑块", reviewed: false, create: nil),
             DemoComponent(id: "ui.stepper", name: "Stepper 步进器", reviewed: false, create: nil),
-            DemoComponent(id: "ui.switch", name: "Switch 开关", reviewed: true, create: { SwitchShowcase() }),
-            DemoComponent(id: "ui.textarea", name: "TextArea 文本域", reviewed: true, create: { TextAreaShowcase() }),
-            DemoComponent(id: "ui.uploader", name: "Uploader 上传", reviewed: true, create: { UploaderShowcase() }),
+            DemoComponent(id: "ui.switch", name: "Switch 开关", reviewed: true, create: { SwitchShowcase() }, passed: true),
+            DemoComponent(id: "ui.textarea", name: "TextArea 文本域", reviewed: true, create: { TextAreaShowcase() }, passed: true),
+            DemoComponent(id: "ui.uploader", name: "Uploader 上传", reviewed: true, create: { UploaderShowcase() }, passed: true),
         ]),
         ("操作反馈", [
             DemoComponent(id: "ui.action-sheet", name: "ActionSheet 动作面板", reviewed: true, create: { ActionSheetShowcase() }),
@@ -138,16 +141,16 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.virtual-list", name: "VirtualList 虚拟列表", reviewed: false, create: nil, planned: true),
         ]),
         ("特色组件", [
-            DemoComponent(id: "ui.quick-enter", name: "QuickEnter 快捷入口", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.avatar-cropper", name: "AvatarCropper 头像裁剪", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.barrage", name: "Barrage 弹幕", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.card", name: "Card 商品卡片", reviewed: true, create: { CardShowcase() }),
-            DemoComponent(id: "ui.time-select", name: "TimeSelect 配送时间", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.trend-arrow", name: "TrendArrow 趋势箭头", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.water-mark", name: "WaterMark 水印", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.calendar-tools", name: "Calendar 日历工具", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.system-bars", name: "SystemBars 系统栏", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.design-tokens", name: "DesignTokens 设计令牌", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.quick-enter", name: "QuickEnter 快捷入口", reviewed: false, create: nil),
+            DemoComponent(id: "ui.avatar-cropper", name: "AvatarCropper 头像裁剪", reviewed: false, create: nil),
+            DemoComponent(id: "ui.barrage", name: "Barrage 弹幕", reviewed: false, create: nil),
+            DemoComponent(id: "ui.card", name: "Card 商品卡片", reviewed: false, create: nil),
+            DemoComponent(id: "ui.time-select", name: "TimeSelect 配送时间", reviewed: false, create: nil),
+            DemoComponent(id: "ui.trend-arrow", name: "TrendArrow 趋势箭头", reviewed: false, create: nil),
+            DemoComponent(id: "ui.water-mark", name: "WaterMark 水印", reviewed: false, create: nil),
+            DemoComponent(id: "ui.calendar-tools", name: "Calendar 日历工具", reviewed: false, create: nil),
+            DemoComponent(id: "ui.system-bars", name: "SystemBars 系统栏", reviewed: false, create: nil),
+            DemoComponent(id: "ui.design-tokens", name: "DesignTokens 设计令牌", reviewed: false, create: nil),
         ]),
         ("底层能力 foundation", [
             DemoComponent(id: "foundation.calendar", name: "Calendar 日历工具", reviewed: true, create: { CalendarShowcase() }),
@@ -193,13 +196,16 @@ final class DemoListViewController: UITableViewController {
             config.textProperties.color = AppColor.textPrimary
             cell.accessoryType = .disclosureIndicator
             cell.selectionStyle = .default
-            // 三态显示：待完善（红色）/ 已评审（绿色）
+            // 五态显示：已通过（绿色）/ 已评审（黄色）/ 待完善（红色）/ 未评审（灰色）/ 待开发 v2.0（蓝色）
             if item.pending {
                 config.secondaryText = "待完善"
                 config.secondaryTextProperties.color = AppColor.error
-            } else {
-                config.secondaryText = "已评审 ✓"
+            } else if item.passed {
+                config.secondaryText = "已通过 ✓"
                 config.secondaryTextProperties.color = AppColor.primary
+            } else {
+                config.secondaryText = "已评审"
+                config.secondaryTextProperties.color = UIColor.systemYellow
             }
         } else {
             // planned=true=本版本需加入但尚未评审（灰色"未评审"）；false=待开发 v2.0（蓝色）
@@ -9415,6 +9421,8 @@ final class SkeletonShowcase: ShowcaseViewController {
     private func buildDemo() {
         // ── D1 · 列表项骨架行（3 行，2 秒后切换为真实内容）──
         addSection(title: "Demo 1 · 列表项骨架行") { container in
+            // 色彩调试法：红色背景验证 container 是否撑开
+            container.backgroundColor = UIColor.red.withAlphaComponent(0.2)
             for i in 1...3 {
                 let row = SkeletonRow(loading: true)
                 row.avatar = true
@@ -9469,6 +9477,8 @@ final class SkeletonShowcase: ShowcaseViewController {
 
         // ── D2 · 自定义骨架块组合（模拟卡片，纯 UIView 容器不用 stack 避免 percentage 冲突）──
         addSection(title: "Demo 2 · 自定义骨架块组合") { container in
+            // 色彩调试法：蓝色背景验证 container 是否撑开
+            container.backgroundColor = UIColor.blue.withAlphaComponent(0.2)
             let col = UIView()
             let big = SkeletonBlock(width: .percentage(1.0), height: .fixed(120))
             let line1 = SkeletonBlock(width: .percentage(0.7), height: .fixed(12))
@@ -9514,6 +9524,8 @@ final class SkeletonShowcase: ShowcaseViewController {
 
         // ── D4 · 圆形骨架 ──
         addSection(title: "Demo 4 · 圆形骨架") { container in
+            // 色彩调试法：黄色背景验证 container 是否撑开
+            container.backgroundColor = UIColor.yellow.withAlphaComponent(0.2)
             let row = UIStackView()
             row.axis = .horizontal
             row.spacing = AppSpace.lg

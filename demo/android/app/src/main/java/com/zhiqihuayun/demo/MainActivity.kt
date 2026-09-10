@@ -241,68 +241,70 @@ data class DemoComponent(
     // pending=true：组件已实现有 Demo 可进入，但仍有未解决问题待后续调试，红色"待完善"提示
     val pending: Boolean = false,
     // planned=true：本版本需加入但尚未评审（灰色"未评审"）；false 且 reviewed=false 则为"待开发 v2.0"（蓝色）
-    val planned: Boolean = false
+    val planned: Boolean = false,
+    // passed=true：最终验收签字通过（绿色"已通过"）；passed=false 且 reviewed=true 为"已评审"（黄色）
+    val passed: Boolean = false
 )
 
 private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
     "基础组件" to listOf(
-        DemoComponent("Button 按钮", reviewed = true, demo = { ButtonDemo() }),
-        DemoComponent("Cell 单元格", reviewed = true, demo = { CellDemo() }),
-        DemoComponent("ConfigProvider 全局配置", reviewed = true, demo = { ConfigProviderDemo() }),
-        DemoComponent("Icon 图标", reviewed = true, demo = { IconDemo() }),
-        DemoComponent("Overlay 遮罩层", reviewed = true, demo = { OverlayDemo() }),
-        DemoComponent("Popup 弹出层", reviewed = true, demo = { PopupDemo() }),
+        DemoComponent("Button 按钮", reviewed = true, demo = { ButtonDemo() }, passed = true),
+        DemoComponent("Cell 单元格", reviewed = true, demo = { CellDemo() }, passed = true),
+        DemoComponent("ConfigProvider 全局配置", reviewed = true, demo = { ConfigProviderDemo() }, passed = true),
+        DemoComponent("Icon 图标", reviewed = true, demo = { IconDemo() }, passed = true),
+        DemoComponent("Overlay 遮罩层", reviewed = true, demo = { OverlayDemo() }, passed = true),
+        DemoComponent("Popup 弹出层", reviewed = true, demo = { PopupDemo() }, passed = true),
     ),
     "布局组件" to listOf(
-        DemoComponent("Divider 分割线", reviewed = true, demo = { DividerDemo() }),
-        DemoComponent("Grid 宫格", reviewed = true, demo = { GridDemo() }),
-        DemoComponent("Layout 布局", reviewed = true, demo = { LayoutDemo() }),
+        DemoComponent("Divider 分割线", reviewed = true, demo = { DividerDemo() }, passed = true),
+        DemoComponent("Grid 宫格", reviewed = true, demo = { GridDemo() }, passed = true),
+        DemoComponent("Layout 布局", reviewed = true, demo = { LayoutDemo() }, passed = true),
         DemoComponent("Row 行布局"),
-        DemoComponent("SafeArea 安全区", reviewed = true, demo = { SafeAreaDemo() }),
-        DemoComponent("Space 间距", reviewed = true, demo = { SpaceDemo() }),
-        DemoComponent("Sticky 粘性布局", reviewed = true, demo = { StickyDemo() }),
+        DemoComponent("SafeArea 安全区", reviewed = true, demo = { SafeAreaDemo() }, passed = true),
+        DemoComponent("Space 间距", reviewed = true, demo = { SpaceDemo() }, passed = true),
+        DemoComponent("Sticky 粘性布局", reviewed = true, demo = { StickyDemo() }, passed = true),
     ),
     "导航组件" to listOf(
-        DemoComponent("BackTop 返回顶部", reviewed = true, demo = { BackTopDemo() }),
+        DemoComponent("BackTop 返回顶部", reviewed = true, demo = { BackTopDemo() }, passed = true),
         DemoComponent("DropDown 下拉菜单"),
         DemoComponent("DropDownMenu 下拉菜单项"),
-        DemoComponent("Elevator 电梯楼层", reviewed = true, demo = { ElevatorDemo() }),
-        DemoComponent("FixedNav 悬浮导航", reviewed = true, demo = { FixedNavDemo() }),
-        DemoComponent("HoverButton 悬浮按钮", reviewed = true, demo = { HoverButtonDemo() }),
+        DemoComponent("Elevator 电梯楼层", reviewed = true, demo = { ElevatorDemo() }, passed = true),
+        DemoComponent("FixedNav 悬浮导航", reviewed = true, demo = { FixedNavDemo() }, passed = true),
+        DemoComponent("HoverButton 悬浮按钮", reviewed = true, demo = { HoverButtonDemo() }, passed = true),
         DemoComponent("Indicator 指示器"),
-        DemoComponent("Menu 菜单", reviewed = true, demo = { MenuDemo() }),
-        DemoComponent("NavBar 头部导航", reviewed = true, demo = { NavBarDemo() }),
+        DemoComponent("Menu 菜单", reviewed = true, demo = { MenuDemo() }, passed = true),
+        DemoComponent("NavBar 头部导航", reviewed = true, demo = { NavBarDemo() }, passed = true),
         DemoComponent("Pagination 分页"),
-        DemoComponent("SideBar 侧边导航", reviewed = true, demo = { SideBarDemo() }),
+        DemoComponent("SideBar 侧边导航", reviewed = true, demo = { SideBarDemo() }, passed = true),
         DemoComponent("SideNavBar 侧边导航栏"),
-        DemoComponent("Tabbar 标签栏", reviewed = true, demo = { TabbarDemo() }),
-        DemoComponent("Tabs 选项卡", reviewed = true, demo = { TabsDemo() }),
+        DemoComponent("Tabbar 标签栏", reviewed = true, demo = { TabbarDemo() }, passed = true),
+        DemoComponent("Tabs 选项卡", reviewed = true, demo = { TabsDemo() }, passed = true),
     ),
     "数据录入" to listOf(
-        DemoComponent("Address 地址", reviewed = true, demo = { AddressDemo() }),
-        DemoComponent("CalendarCard 日历卡片", reviewed = true, demo = { CalendarCardDemo() }),
-        DemoComponent("Cascader 级联选择", reviewed = true, demo = { CascaderDemo() }),
-        DemoComponent("Checkbox 复选", reviewed = true, demo = { CheckboxDemo() }),
-        DemoComponent("DatePicker 日期选择", reviewed = true, demo = { DatePickerDemo() }),
-        DemoComponent("Form 表单", reviewed = true, demo = { FormDemo() }),
+        DemoComponent("Address 地址", reviewed = true, demo = { AddressDemo() }, passed = true),
+        DemoComponent("CalendarCard 日历卡片", reviewed = true, demo = { CalendarCardDemo() }, passed = true),
+        DemoComponent("Cascader 级联选择", reviewed = true, demo = { CascaderDemo() }, passed = true),
+        DemoComponent("Checkbox 复选", reviewed = true, demo = { CheckboxDemo() }, passed = true),
+        DemoComponent("DatePicker 日期选择", reviewed = true, demo = { DatePickerDemo() }, passed = true),
+        DemoComponent("Form 表单", reviewed = true, demo = { FormDemo() }, passed = true),
         DemoComponent("ImageView 图片视图"),
-        DemoComponent("Input 输入框", reviewed = true, demo = { InputDemo() }),
-        DemoComponent("InputNumber 数字输入", reviewed = true, demo = { InputNumberDemo() }),
+        DemoComponent("Input 输入框", reviewed = true, demo = { InputDemo() }, passed = true),
+        DemoComponent("InputNumber 数字输入", reviewed = true, demo = { InputNumberDemo() }, passed = true),
         DemoComponent("Keyboard 键盘"),
-        DemoComponent("NumberKeyboard 数字键盘", reviewed = true, demo = { NumberKeyboardDemo() }),
-        DemoComponent("Picker 选择器", reviewed = true, demo = { PickerDemo() }),
+        DemoComponent("NumberKeyboard 数字键盘", reviewed = true, demo = { NumberKeyboardDemo() }, passed = true),
+        DemoComponent("Picker 选择器", reviewed = true, demo = { PickerDemo() }, passed = true),
         DemoComponent("PickerView 多列选择器"),
-        DemoComponent("Radio 单选", reviewed = true, demo = { RadioDemo() }),
-        DemoComponent("Range 区间选择", reviewed = true, demo = { RangeDemo() }),
-        DemoComponent("Rate 评分", reviewed = true, demo = { RateDemo() }),
-        DemoComponent("SearchBar 搜索栏", reviewed = true, demo = { SearchBarDemo() }),
-        DemoComponent("ShortPassword 短密码", reviewed = true, demo = { ShortPasswordDemo() }),
-        DemoComponent("Signature 签名", reviewed = true, demo = { SignatureDemo() }),
+        DemoComponent("Radio 单选", reviewed = true, demo = { RadioDemo() }, passed = true),
+        DemoComponent("Range 区间选择", reviewed = true, demo = { RangeDemo() }, passed = true),
+        DemoComponent("Rate 评分", reviewed = true, demo = { RateDemo() }, passed = true),
+        DemoComponent("SearchBar 搜索栏", reviewed = true, demo = { SearchBarDemo() }, passed = true),
+        DemoComponent("ShortPassword 短密码", reviewed = true, demo = { ShortPasswordDemo() }, passed = true),
+        DemoComponent("Signature 签名", reviewed = true, demo = { SignatureDemo() }, passed = true),
         DemoComponent("Slider 滑块"),
         DemoComponent("Stepper 步进器"),
-        DemoComponent("Switch 开关", reviewed = true, demo = { SwitchDemo() }),
-        DemoComponent("TextArea 文本域", reviewed = true, demo = { TextAreaDemo() }),
-        DemoComponent("Uploader 上传", reviewed = true, demo = { UploaderDemo() }),
+        DemoComponent("Switch 开关", reviewed = true, demo = { SwitchDemo() }, passed = true),
+        DemoComponent("TextArea 文本域", reviewed = true, demo = { TextAreaDemo() }, passed = true),
+        DemoComponent("Uploader 上传", reviewed = true, demo = { UploaderDemo() }, passed = true),
     ),
     "操作反馈" to listOf(
         DemoComponent("ActionSheet 动作面板", reviewed = true, demo = { ActionSheetDemo() }),
@@ -353,16 +355,16 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("VirtualList 虚拟列表", planned = true),
     ),
     "特色组件" to listOf(
-        DemoComponent("QuickEnter 快捷入口", planned = true),
-        DemoComponent("AvatarCropper 头像裁剪", planned = true),
-        DemoComponent("Barrage 弹幕", planned = true),
-        DemoComponent("Card 商品卡片", reviewed = true, demo = { CardDemo() }),
-        DemoComponent("TimeSelect 配送时间", planned = true),
-        DemoComponent("TrendArrow 趋势箭头", planned = true),
-        DemoComponent("WaterMark 水印", planned = true),
-        DemoComponent("Calendar 日历工具", planned = true),
-        DemoComponent("SystemBars 系统栏", planned = true),
-        DemoComponent("DesignTokens 设计令牌", planned = true),
+        DemoComponent("QuickEnter 快捷入口"),
+        DemoComponent("AvatarCropper 头像裁剪"),
+        DemoComponent("Barrage 弹幕"),
+        DemoComponent("Card 商品卡片"),
+        DemoComponent("TimeSelect 配送时间"),
+        DemoComponent("TrendArrow 趋势箭头"),
+        DemoComponent("WaterMark 水印"),
+        DemoComponent("Calendar 日历工具"),
+        DemoComponent("SystemBars 系统栏"),
+        DemoComponent("DesignTokens 设计令牌"),
     ),
     "底层能力 foundation" to listOf(
         DemoComponent("Calendar 日历工具", reviewed = true, demo = { CalendarDemo() }),
@@ -484,16 +486,18 @@ private fun ComponentRow(comp: DemoComponent, onClick: () -> Unit) {
                 fontSize = AppFont.sizeMd
             )
             Spacer(modifier = Modifier.weight(1f))
-            // 四态显示：已评审（绿色）/ 待完善（红色）/ 未评审（灰色=本版本需加入）/ 待开发 v2.0（蓝色）
+            // 五态显示：已通过（绿色）/ 已评审（黄色）/ 待完善（红色）/ 未评审（灰色=本版本需加入）/ 待开发 v2.0（蓝色）
             val statusText = when {
                 comp.pending -> "待完善"
-                enabled -> "已评审 ✓"
+                comp.passed -> "已通过 ✓"
+                enabled -> "已评审"
                 comp.planned -> "未评审"
                 else -> "待开发 v2.0"
             }
             val statusColor = when {
                 comp.pending -> AppColor.error
-                enabled -> AppColor.primary
+                comp.passed -> AppColor.primary
+                enabled -> Color(0xFFF59E0B) // 黄色=已评审（待最终验收）
                 comp.planned -> AppColor.gray25
                 else -> Color(0xFF3B82F6) // 蓝色=待开发 v2.0
             }

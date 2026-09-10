@@ -121,7 +121,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.empty", name: "Empty 空状态", reviewed: true, create: { EmptyShowcase() }, passed: true),
             DemoComponent(id: "ui.image", name: "Image 图片", reviewed: true, create: { ImageShowcase() }, passed: true),
             DemoComponent(id: "ui.image-preview", name: "ImagePreview 图片预览", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.list", name: "List 分组列表", reviewed: true, create: { ListShowcase() }),
+            DemoComponent(id: "ui.list", name: "List 分组列表", reviewed: true, create: { ListShowcase() }, passed: true),
             DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: true, create: { LoadingShowcase() }, passed: true),
             DemoComponent(id: "ui.lottie", name: "Lottie 动画", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.notice-bar", name: "NoticeBar 公告栏", reviewed: true, create: { NoticeBarShowcase() }, passed: true),
@@ -9531,7 +9531,8 @@ final class SkeletonShowcase: ShowcaseViewController {
             }
             container.addSubview(row)
             row.snp.makeConstraints { make in
-                make.center.equalToSuperview()
+                make.top.bottom.equalToSuperview().inset(AppSpace.sm)
+                make.centerX.equalToSuperview()
             }
         }
         addInfo("圆形骨架块 64/48/32，shimmer 扫光一致。")

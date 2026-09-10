@@ -250,8 +250,6 @@ public final class SkeletonRow: UIView {
 
         // 文字列容器（撑满剩余宽度，title/subtitle 在内用 percentage）
         let textCol = UIView()
-        // 色彩调试法：textCol=蓝色（验证文字列容器是否撑开）
-        textCol.backgroundColor = UIColor.blue.withAlphaComponent(0.2)
         textColumnView = textCol
         skeletonContainer.addSubview(textCol)
         textCol.snp.makeConstraints { make in

@@ -132,8 +132,14 @@ public final class CarouselView: UIView {
             self.indicatorColor = color
         }
         self.onChange = onChange
-        // items 最后赋值以触发布局刷新
-        if !items.isEmpty { self.items = items }
+        // Swift 语言特性：init 内赋值 stored property 不触发 didSet
+        // 所以 items 赋值后需显式调用 rebuildIndicators + reloadData + resetToStartPosition
+        if !items.isEmpty {
+            self.items = items
+            rebuildIndicators()
+            collectionView.reloadData()
+            resetToStartPosition()
+        }
     }
 
     // MARK: - 默认尺寸
@@ -236,9 +242,13 @@ public final class CarouselView: UIView {
     }
 
     private func rebuildIndicators() {
+        print("🔄 rebuildIndicators: items.count=\(items.count), pageControl.frame=\(pageControl.frame), isHidden=\(pageControl.isHidden)")
         pageControl.numberOfPages = items.count
         pageControl.currentPage = logicalIndex
         pageControl.isHidden = !showIndicators || items.isEmpty
+        // 强制重新布局 dot（iOS 17+ 模拟器 numberOfPages 变化后需 sizeToFit）
+        pageControl.sizeToFit()
+        print("🔄 after sizeToFit: pageControl.frame=\(pageControl.frame), numberOfPages=\(pageControl.numberOfPages)")
         applyIndicatorColors()
     }
 
@@ -248,9 +258,9 @@ public final class CarouselView: UIView {
 
     /// 更新指示器颜色（当前页 indicatorColor，其他默认灰）。
     private func applyIndicatorColors(for index: Int) {
-        // UIPageControl 用 pageIndicatorTintColor / currentPageIndicatorTintColor
-        pageControl.pageIndicatorTintColor = indicatorColor.withAlphaComponent(0.3)
-        pageControl.currentPageIndicatorTintColor = indicatorColor
+        // 色彩调试法：强制设红色 tint，验证 dot 是否可见
+        pageControl.pageIndicatorTintColor = .red
+        pageControl.currentPageIndicatorTintColor = .red
         pageControl.currentPage = index
     }
 

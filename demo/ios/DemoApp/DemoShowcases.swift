@@ -122,7 +122,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.image", name: "Image 图片", reviewed: true, create: { ImageShowcase() }, passed: true),
             DemoComponent(id: "ui.image-preview", name: "ImagePreview 图片预览", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.list", name: "List 分组列表", reviewed: true, create: { ListShowcase() }),
-            DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: true, create: { LoadingShowcase() }),
+            DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: true, create: { LoadingShowcase() }, passed: true),
             DemoComponent(id: "ui.lottie", name: "Lottie 动画", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.notice-bar", name: "NoticeBar 公告栏", reviewed: true, create: { NoticeBarShowcase() }, passed: true),
             DemoComponent(id: "ui.price", name: "Price 价格", reviewed: false, create: nil, planned: true),

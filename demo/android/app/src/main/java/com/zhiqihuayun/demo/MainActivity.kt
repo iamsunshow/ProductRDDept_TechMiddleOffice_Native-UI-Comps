@@ -336,7 +336,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Image 图片", reviewed = true, demo = { ImageDemo() }, passed = true),
         DemoComponent("ImagePreview 图片预览", planned = true),
         DemoComponent("List 分组列表", reviewed = true, demo = { ListDemo() }),
-        DemoComponent("Loading 加载中", reviewed = true, demo = { LoadingDemo() }),
+        DemoComponent("Loading 加载中", reviewed = true, demo = { LoadingDemo() }, passed = true),
         DemoComponent("Lottie 动画", planned = true),
         DemoComponent("NoticeBar 公告栏", reviewed = true, demo = { NoticeBarDemo() }, passed = true),
         DemoComponent("Price 价格", planned = true),

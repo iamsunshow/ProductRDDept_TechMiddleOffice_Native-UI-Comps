@@ -158,13 +158,15 @@ fun SwipeItem(
         val containerWidthPx = with(density) { maxWidth.toPx() }
 
         // 底层左操作（右滑露出，左对齐绝对定位）
+        // matchParentSize 填满 BoxWithConstraints 的实际高度（=content slot 撑开的高度）
+        // fillMaxHeight 在 BoxWithConstraints 中会取父约束全高（可能不等于 content 高度）
         leftActions.forEachIndexed { i, action ->
             val leftOffset = i * actionWidthPx
             Box(
                 modifier = Modifier
                     .offset { IntOffset(leftOffset.roundToInt(), 0) }
                     .width(80.dp)
-                    .fillMaxHeight()
+                    .matchParentSize()
                     .background(action.color.color)
                     .pointerInput(action) {
                         detectTapGestures(onTap = {
@@ -185,7 +187,7 @@ fun SwipeItem(
                 modifier = Modifier
                     .offset { IntOffset(rightOffset.roundToInt(), 0) }
                     .width(80.dp)
-                    .fillMaxHeight()
+                    .matchParentSize()
                     .background(action.color.color)
                     .pointerInput(action) {
                         detectTapGestures(onTap = {
@@ -200,11 +202,11 @@ fun SwipeItem(
         }
 
         // 顶层主内容（整体 offset 移动，不加 background——由 content slot 决定背景色）
+        // 主内容用 fillMaxWidth 撑宽 + 自然撑高父容器（BoxWithConstraints 高度由 content 决定）
         val displayX = if (isAnimating) animatedX else offsetX
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight()
                 .offset { IntOffset(displayX.roundToInt(), 0) }
         ) {
             content()

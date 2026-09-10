@@ -8551,10 +8551,9 @@ fun ToastDemo() {
         // D1 纯文本提示
         item {
             DemoSectionCard(title = "D1 · 纯文本提示") {
-                Button(
-                    onClick = { AppToast.show("保存成功") },
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("显示纯文本 Toast") }
+                DemoPrimaryButton(text = "显示纯文本 Toast") {
+                    AppToast.show("保存成功")
+                }
             }
         }
         item {
@@ -8569,10 +8568,10 @@ fun ToastDemo() {
         item {
             DemoSectionCard(title = "D2 · 类型图标提示") {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = { AppToast.success("操作成功") }, modifier = Modifier.fillMaxWidth()) { Text("Success（绿色 ✓）") }
-                    Button(onClick = { AppToast.error("操作失败") }, modifier = Modifier.fillMaxWidth()) { Text("Error（红色 ✗）") }
-                    Button(onClick = { AppToast.warning("请注意") }, modifier = Modifier.fillMaxWidth()) { Text("Warning（黄色 ⚠）") }
-                    Button(onClick = { AppToast.info("友情提示") }, modifier = Modifier.fillMaxWidth()) { Text("Info（蓝色 ℹ）") }
+                    DemoPrimaryButton(text = "Success（绿色 ✓）") { AppToast.success("操作成功") }
+                    DemoPrimaryButton(text = "Error（红色 ✗）") { AppToast.error("操作失败") }
+                    DemoPrimaryButton(text = "Warning（黄色 ⚠）") { AppToast.warning("请注意") }
+                    DemoPrimaryButton(text = "Info（蓝色 ℹ）") { AppToast.info("友情提示") }
                 }
             }
         }
@@ -8587,16 +8586,13 @@ fun ToastDemo() {
         // D3 loading 持续
         item {
             DemoSectionCard(title = "D3 · loading 持续") {
-                Button(
-                    onClick = {
-                        AppToast.loading("加载中...")
-                        CoroutineScope(Dispatchers.Main).launch {
-                            delay(2000)
-                            AppToast.dismiss()
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("显示 Loading（2 秒后关闭）") }
+                DemoPrimaryButton(text = "显示 Loading（2 秒后关闭）") {
+                    AppToast.loading("加载中...")
+                    CoroutineScope(Dispatchers.Main).launch {
+                        delay(2000)
+                        AppToast.dismiss()
+                    }
+                }
             }
         }
         item {
@@ -8610,10 +8606,9 @@ fun ToastDemo() {
         // D4 自定义时长
         item {
             DemoSectionCard(title = "D4 · 自定义时长") {
-                Button(
-                    onClick = { AppToast.show("5 秒后消失", duration = 5000) },
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("显示 5 秒 Toast") }
+                DemoPrimaryButton(text = "显示 5 秒 Toast") {
+                    AppToast.show("5 秒后消失", duration = 5000)
+                }
             }
         }
         item {
@@ -8623,6 +8618,28 @@ fun ToastDemo() {
                 color = AppColor.textSecondary
             )
         }
+    }
+}
+
+/**
+ * Demo 主按钮：绿色主题标准按钮（与 iOS makeButton 1:1）。
+ * AppColor.primary(#16A34A) + 圆角 8 + 高度 44dp + 白字 16sp + fillMaxWidth。
+ * 用于替换 Material3 Button（紫色主题+36dp 小尺寸），统一双端按钮主题和标准。
+ */
+@Composable
+fun DemoPrimaryButton(
+    text: String,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(44.dp)
+            .background(AppColor.primary, RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = text, color = Color.White, fontSize = 16.sp)
     }
 }
 

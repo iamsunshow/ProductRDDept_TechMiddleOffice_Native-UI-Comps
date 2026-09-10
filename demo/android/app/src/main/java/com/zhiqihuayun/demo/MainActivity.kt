@@ -346,7 +346,6 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Segmented 分段选择器", planned = true),
         DemoComponent("Skeleton 骨架屏", reviewed = true, demo = { SkeletonDemo() }),
         DemoComponent("Steps 步骤条", planned = true),
-        DemoComponent("Swiper 轮播", planned = true),
         DemoComponent("Table 表格", planned = true),
         DemoComponent("Tag 标签", planned = true),
         DemoComponent("Tour 引导", planned = true),

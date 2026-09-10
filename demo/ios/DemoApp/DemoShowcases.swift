@@ -132,7 +132,6 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.segmented", name: "Segmented 分段选择器", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.skeleton", name: "Skeleton 骨架屏", reviewed: true, create: { SkeletonShowcase() }),
             DemoComponent(id: "ui.steps", name: "Steps 步骤条", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.swiper", name: "Swiper 轮播", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.table", name: "Table 表格", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.tag", name: "Tag 标签", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.tour", name: "Tour 引导", reviewed: false, create: nil, planned: true),

@@ -75,7 +75,7 @@ public final class CarouselView: UIView {
 
     /// 是否显示指示器，默认 true。
     public var showIndicators: Bool = true {
-        didSet { indicatorContainer.isHidden = !showIndicators || items.isEmpty }
+        didSet { pageControl.isHidden = !showIndicators }
     }
 
     /// 指示器高亮色，默认 AppColor.primary。
@@ -89,8 +89,7 @@ public final class CarouselView: UIView {
     // MARK: - 子视图
 
     private let collectionView: UICollectionView
-    private let indicatorContainer = UIView()
-    private var dotViews: [UIView] = []
+    private let pageControl = UIPageControl()
 
     // MARK: - 内部状态
 
@@ -189,13 +188,19 @@ public final class CarouselView: UIView {
             make.edges.equalToSuperview()
         }
 
-        indicatorContainer.isUserInteractionEnabled = false // 点击穿透到 cell
-        indicatorContainer.isHidden = true
-        addSubview(indicatorContainer)
-        indicatorContainer.snp.makeConstraints { make in
+        // UIPageControl = iOS 原生分页指示器
+        pageControl.currentPage = 0
+        pageControl.hidesForSinglePage = false
+        pageControl.isUserInteractionEnabled = false
+        // 色彩调试法：pageControl 加红色背景验证是否渲染
+        pageControl.backgroundColor = .red
+        addSubview(pageControl)
+        bringSubviewToFront(pageControl)
+        pageControl.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview().offset(-Layout.indicatorBottomInset)
-            make.height.equalTo(Layout.indicatorSize)
+            make.bottom.equalToSuperview().offset(-8)
+            make.height.equalTo(20)
+            make.width.equalTo(100)
         }
     }
 
@@ -230,41 +235,22 @@ public final class CarouselView: UIView {
     }
 
     private func rebuildIndicators() {
-        dotViews.forEach { $0.removeFromSuperview() }
-        dotViews = []
-        let count = items.count
-        let totalWidth = CGFloat(count) * Layout.indicatorSize + CGFloat(max(0, count - 1)) * Layout.indicatorSpacing
-        for i in 0..<count {
-            let dot = UIView()
-            dot.layer.cornerRadius = Layout.indicatorSize / 2
-            indicatorContainer.addSubview(dot)
-            dot.snp.makeConstraints { make in
-                make.size.equalTo(Layout.indicatorSize)
-                make.centerY.equalToSuperview()
-                make.leading.equalToSuperview().offset(CGFloat(i) * (Layout.indicatorSize + Layout.indicatorSpacing))
-            }
-            dotViews.append(dot)
-        }
-        // 设置 indicatorContainer 宽度=圆点总宽度
-        indicatorContainer.snp.updateConstraints { make in
-            make.width.equalTo(totalWidth)
-        }
-        indicatorContainer.isHidden = !showIndicators || items.isEmpty
-        applyIndicatorColors(for: logicalIndex)
+        pageControl.numberOfPages = items.count
+        pageControl.currentPage = logicalIndex
+        pageControl.isHidden = !showIndicators || items.isEmpty
+        applyIndicatorColors()
     }
 
     private func applyIndicatorColors() {
         applyIndicatorColors(for: logicalIndex)
     }
 
-    /// 更新指示器颜色（当前页 indicatorColor，其他 0.3 透明度）。
+    /// 更新指示器颜色（当前页 indicatorColor，其他默认灰）。
     private func applyIndicatorColors(for index: Int) {
-        guard !dotViews.isEmpty else { return }
-        for (i, dot) in dotViews.enumerated() {
-            dot.backgroundColor = (i == index)
-                ? indicatorColor
-                : indicatorColor.withAlphaComponent(0.3)
-        }
+        // UIPageControl 用 pageIndicatorTintColor / currentPageIndicatorTintColor
+        pageControl.pageIndicatorTintColor = indicatorColor.withAlphaComponent(0.3)
+        pageControl.currentPageIndicatorTintColor = indicatorColor
+        pageControl.currentPage = index
     }
 
     // MARK: - 自动播放定时器

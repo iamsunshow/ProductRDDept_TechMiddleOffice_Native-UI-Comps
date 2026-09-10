@@ -14,6 +14,19 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.24] - 2026-09-10
+
+Carousel iOS 指示器改用 UIPageControl + 红色调试背景（DEBUG）。
+
+### Changed
+
+- **Carousel iOS 指示器彻底换方案**：放弃自定义 dot + 手动布局（多次尝试 UIStackView/UIView+手动布局/startX 计算均不可见），改用 iOS 原生 UIPageControl。
+- **色彩调试法**：pageControl 加红色背景 + width=100，验证是否渲染（用户反馈多轮修改均不可见，需排查是否根本未渲染）。
+
+### Patched
+
+- 组件库全局版本 1.4.23 → 1.4.24。
+
 ## \[1.4.23] - 2026-09-10
 
 Carousel iOS 指示器不可见修复（PATCH）。

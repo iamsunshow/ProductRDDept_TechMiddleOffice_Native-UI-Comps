@@ -192,15 +192,16 @@ public final class CarouselView: UIView {
         pageControl.currentPage = 0
         pageControl.hidesForSinglePage = false
         pageControl.isUserInteractionEnabled = false
-        // 色彩调试法：pageControl 加红色背景验证是否渲染
-        pageControl.backgroundColor = .red
+        // iOS 14+ 显式设置背景样式，避免系统默认气泡干扰 dot 可见性
+        if #available(iOS 14.0, *) {
+            pageControl.backgroundStyle = .minimal
+        }
         addSubview(pageControl)
         bringSubviewToFront(pageControl)
         pageControl.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.bottom.equalToSuperview().offset(-8)
             make.height.equalTo(20)
-            make.width.equalTo(100)
         }
     }
 

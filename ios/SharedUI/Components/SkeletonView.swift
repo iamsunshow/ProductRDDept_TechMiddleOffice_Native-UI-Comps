@@ -101,26 +101,9 @@ public final class SkeletonBlock: UIView {
     }
 
     // MARK: - Layout
-
-    public override func updateConstraints() {
-        snp.remakeConstraints { make in
-            // percentage 模式不加约束（由外部容器约束决定宽度，避免双重约束冲突）
-            // fixed 模式加固定宽度
-            switch width {
-            case .percentage:
-                break
-            case .fixed(let v):
-                make.width.equalTo(v)
-            }
-            switch height {
-            case .percentage:
-                break
-            case .fixed(let v):
-                make.height.equalTo(v)
-            }
-        }
-        super.updateConstraints()
-    }
+    // 不重写 updateConstraints——SkeletonBlock 的尺寸约束完全由外部容器决定
+    // （与 Android Compose modifier 一致，外部 makeConstraints 设置 width/height/top/leading 等）
+    // 之前 updateConstraints 调用 snp.remakeConstraints 会覆盖外部约束导致布局错乱
 
     public override func layoutSubviews() {
         super.layoutSubviews()
@@ -234,7 +217,6 @@ public final class SkeletonRow: UIView {
         subtitleBlock = nil
         textColumnView = nil
 
-        var leadingAnchor = skeletonContainer.snp.leading
         var leadingOffset: CGFloat = 0
 
         // 头像（固定 40×40，垂直居中）

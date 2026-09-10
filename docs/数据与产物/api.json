@@ -8201,7 +8201,8 @@
       "apis": "",
       "visual_refs": [],
       "status": "stable",
-      "note": "轮播组件（信息展示区 #59，全新立项，2026-09-10）：图片/内容横向轮播+自动播放+循环+指示器；Carousel 包裹器（items+autoPlay+duration+loop+showIndicators+indicatorColor+onChange+currentIndex）；与 List #60（分组列表 vs 轮播）/Image #61（单图 vs 多图轮播）/ImagePreview planned v2.0（预览 vs 展示）划界；anti_goals 二期=自定义指示器/垂直/3D/Lottie。验证版本 v1.4.20（门禁 A/B 走，C1.5 待验收）。",
+      "note": "轮播组件（信息展示区，全新立项，2026-09-10）：图片/内容横向轮播+自动播放+循环+指示器；Carousel 包裹器（items+autoPlay+duration+loop+showIndicators+indicatorColor+onChange+currentIndex）；与 List（分组列表 vs 轮播）/Image（单图 vs 多图轮播）/ImagePreview planned v2.0（预览 vs 展示）划界；anti_goals 二期=自定义指示器/垂直/3D/Lottie。验证版本 v1.4.20（门禁 A/B 走，C1.5 用户 Demo 实机验收通过 2026-09-11）。",
+      "reviewed": true,
       "subcategory": "display"
     },
     {

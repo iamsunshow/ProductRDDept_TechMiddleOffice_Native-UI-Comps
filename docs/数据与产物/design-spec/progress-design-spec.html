@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Progress 进度条 · 设计规格 · TMO 组件库 v1.4.30</title>
+<style>
+:root {
+  --bg: #fff; --bg-page: #f5f5f5; --text: #1a1a1a; --text-2: #888; --border: #e8e8e8;
+  --primary: #16A34A; --danger: #DC2626; --warn: #F59E0B; --success: #16A34A;
+  --gray6: #E5E5E5; --gray25: #8C8C8C; --textSecondary: #6B7280;
+  --radius-lg: 14px; --radius-sm: 6px;
+  --font-xs: 12px; --font-sm: 14px; --font-md: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif; background: var(--bg-page); color: var(--text); line-height: 1.6; }
+.container { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+h2 { font-size: 20px; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 16px; margin: 20px 0 8px; }
+p { font-size: 14px; margin-bottom: 8px; }
+code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+th { background: #fafafa; font-weight: 600; }
+.section { background: var(--bg); border-radius: 12px; padding: 20px; margin: 16px 0; border: 1px solid var(--border); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.badge-a { background: #e6f7e6; color: #16A34A; }
+.badge-na { background: #f0f0f0; color: #888; }
+
+/* 进度条 mock */
+.progress-row { display: flex; flex-direction: column; gap: 12px; width: 320px; }
+.progress-item { display: flex; align-items: center; gap: 12px; }
+.progress-track { flex: 1; height: 8px; background: var(--gray6); border-radius: 4px; overflow: hidden; }
+.progress-bar { height: 100%; background: var(--primary); border-radius: 4px; transition: width .3s; }
+.progress-text { font-size: var(--font-sm); color: var(--text); font-weight: 500; min-width: 40px; text-align: right; }
+.progress-track.thin { height: 4px; }
+.progress-track.thick { height: 12px; }
+.progress-bar.warn { background: var(--warn); }
+.progress-bar.danger { background: var(--danger); }
+.mock-wrap { display: flex; gap: 24px; flex-wrap: wrap; margin: 16px 0; align-items: flex-start; }
+.mock-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Progress 进度条</h1>
+<p>组件 ID：<code>ui.progress</code> ｜ 信息展示区组件 #73 ｜ TMO 组件库 v1.4.30</p>
+<p>定位：用于展示操作的当前进度——一条带填充色的横向轨道，填充宽度按百分比（0-100）自适应，支持自定义颜色、高度、百分比文字显示与动态进度变化。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation 情景</h3>
+<p>App 中常出现上传/下载/表单提交/资源加载等耗时操作，用户需要直观感知当前完成比例与剩余进度。</p>
+<h3>Complication 冲突</h3>
+<p>各业务页自绘背景条+前色块+手写百分比文字，颜色/高度/圆角不统一，动态更新时双端动画曲线漂移，禁用态/越界值处理缺失。</p>
+<h3>Question 问题</h3>
+<p>需要一个进度条组件，支持百分比驱动、自定义颜色与高度、百分比文字显示、动态进度更新，双端 1:1 视觉一致。</p>
+<h3>Answer 方案</h3>
+<p>Progress——数据驱动的横向进度条，percentage 控制填充宽度（0-100 clamp），color 自定义填充色、trackColor 轨道底色，height 控制条高，showText 开关百分比文字显示，动态更新 percentage 时填充宽度平滑过渡动画。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 Progress 划界</th></tr>
+<tr><td>CircleProgress 环形进度 #73</td><td>环形/圆形进度展示</td><td>CircleProgress=环形描边进度（圆形）；Progress=横向线性进度条（矩形）</td></tr>
+<tr><td>Loading 加载中 #60</td><td>不确定时长的转圈动画</td><td>Loading=无具体百分比的不确定等待；Progress=有明确百分比的确定进度</td></tr>
+<tr><td>Skeleton 骨架屏 #63</td><td>数据加载占位骨架</td><td>Skeleton=整页/整块占位闪烁；Progress=单条进度数值展示</td></tr>
+<tr><td>Steps 步骤条</td><td>分步骤流程进度</td><td>Steps=离散步骤节点进度；Progress=连续百分比线性进度</td></tr>
+</table>
+
+<h2>3. Token 清单</h2>
+<div class="section">
+<table>
+<tr><th>区域</th><th>规格</th><th>Token</th></tr>
+<tr><td>轨道底色</td><td>gray6 灰（#E5E5E5）</td><td>AppColor.gray6</td></tr>
+<tr><td>填充色（默认）</td><td>primary 主色绿（#16A34A）</td><td>AppColor.primary</td></tr>
+<tr><td>进度条高度（默认）</td><td>8</td><td>无专用 token，height 参数默认 8</td></tr>
+<tr><td>进度条圆角</td><td>height/2 半圆（圆角裁切）</td><td>由 height 推导</td></tr>
+<tr><td>百分比文字</td><td>字号 14，textPrimary，右侧对齐</td><td>AppFont.sizeSm / textPrimary</td></tr>
+<tr><td>文字与条间距</td><td>8</td><td>AppSpace.sm</td></tr>
+</table>
+</div>
+
+<h2>4. 决策投票表（ACE 模型：选项 / 评估后果 / 选最优）</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项（Alternatives）</th><th>评估后果（Consequences）</th><th>选最优（Evaluate）</th><th>理由</th></tr>
+<tr>
+<td>P1</td><td>百分比取值范围</td>
+<td>A. 0-100 clamp（越界自动钳制）<br>B. 不校验，使用方自负<br>C. 0-1 小数比例</td>
+<td>A. 越界安全，UI 不溢出，与 NutUI percentage 0-100 对齐<br>B. 负数/超 100 会导致填充溢出轨道、文字异常<br>C. 与 NutUI/业界惯例（0-100）不符，使用方易混淆</td>
+<td><span class="badge badge-a">A</span></td>
+<td>0-100 clamp 是业界标准（NutUI/AntD 均用 0-100），自动钳制越界值保证 UI 安全；小数比例=二期可加 normalized 参数</td>
+</tr>
+<tr>
+<td>P2</td><td>进度变化动画</td>
+<td>A. 默认带过渡动画（宽度 0.3s ease）<br>B. 一期无动画瞬切<br>C. 可配置 animated 参数开关</td>
+<td>A. 动态更新平滑自然，体验好，但双端动画曲线需对齐<br>B. 实现简单但动态更新生硬<br>C. 灵活，默认开启动画，需要瞬切时关闭</td>
+<td><span class="badge badge-a">C</span></td>
+<td>animated 参数默认 true 带过渡动画（0.3s ease），需要瞬切时设 false；与 Badge 一期静态先例不同——Progress 动态更新是核心场景，动画是刚需，双端用同曲线 0.3s 对齐</td>
+</tr>
+<tr>
+<td>P3</td><td>百分比文字位置</td>
+<td>A. 右侧外部显示（条+文字横向排列）<br>B. 条内嵌入显示（文字叠在填充条上）<br>C. 无文字（纯条）</td>
+<td>A. 文字清晰不被条遮挡，布局简单，与 NutUI textIn=false 一致<br>B. 进度低时文字易溢出/被裁，实现复杂<br>C. 最简洁但缺数值反馈</td>
+<td><span class="badge badge-a">A</span></td>
+<td>右侧外部显示=showText 开关控制，文字清晰不遮挡，与 NutUI 默认 textIn=false 对齐；条内嵌入=二期可加 textPosition 参数</td>
+</tr>
+<tr>
+<td>P4</td><td>一期范围</td>
+<td>A. 一期=基础进度/自定义颜色+高度/百分比文字/动态进度+demo 四段<br>B. 二期=条纹样式(striped)/条纹动画(animated stripe)/渐变填充/条内文字</td>
+<td>A. 覆盖 95% 进度条场景，范围可控<br>B. 二期增量，不阻塞一期交付</td>
+<td><span class="badge badge-a">A</span></td>
+<td>一期四段 demo 覆盖常见场景；条纹样式/条纹动画/渐变/条内文字=二期</td>
+</tr>
+</table>
+</div>
+
+<h2>5. 四组 Demo 预览</h2>
+<div class="mock-wrap">
+<div class="mock-item">
+<div class="progress-row">
+<div class="progress-item"><div class="progress-track"><div class="progress-bar" style="width:30%"></div></div></div>
+</div>
+<p style="font-size:13px;color:#888">D1 基础进度条（percentage=30）</p>
+</div>
+<div class="mock-item">
+<div class="progress-row">
+<div class="progress-item"><div class="progress-track thick"><div class="progress-bar warn" style="width:60%"></div></div></div>
+<div class="progress-item"><div class="progress-track thin"><div class="progress-bar danger" style="width:80%"></div></div></div>
+</div>
+<p style="font-size:13px;color:#888">D2 自定义颜色+高度（warn/12px + danger/4px）</p>
+</div>
+<div class="mock-item">
+<div class="progress-row">
+<div class="progress-item"><div class="progress-track"><div class="progress-bar" style="width:75%"></div></div><span class="progress-text">75%</span></div>
+</div>
+<p style="font-size:13px;color:#888">D3 百分比文字显示（showText=true）</p>
+</div>
+<div class="mock-item">
+<div class="progress-row">
+<div class="progress-item"><div class="progress-track"><div class="progress-bar" style="width:45%"></div></div><span class="progress-text">45%</span></div>
+</div>
+<p style="font-size:13px;color:#888">D4 动态进度（按钮驱动 percentage 递增）</p>
+</div>
+</div>
+
+<h2>6. 平台差异预告</h2>
+<table>
+<tr><th>差异点</th><th>iOS（UIKit）</th><th>Android（Compose）</th><th>判据</th></tr>
+<tr><td>填充宽度更新</td><td>UIView.animate(withDuration: 0.3) 更新约束 multiplier/snp.updateConstraints</td><td>animateFloatAsState(targetValue, animationSpec = tween(300))</td><td>同曲线 0.3s 对齐，视觉一致=放行</td></tr>
+<tr><td>圆角裁切</td><td>layer.cornerRadius + clipsToBounds</td><td>background(RoundedCornerShape(percent=50))（禁 clip/graphicsLayer）</td><td>遵循安卓禁令用 background(shape)</td></tr>
+<tr><td>百分比 clamp</td><td>min(max(percentage, 0), 100)</td><td>percentage.coerceIn(0f, 100f)</td><td>语义一致，表内放行</td></tr>
+<tr><td>文字渲染</td><td>UILabel sizeSm textPrimary</td><td>Text fontSize=sizeSm color=textPrimary</td><td>同 token，放行</td></tr>
+</table>
+
+<h2>7. API 速览</h2>
+<div class="section">
+<h3>Progress Props</h3>
+<table>
+<tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>percentage</code></td><td>Double / Float</td><td>0</td><td>进度百分比（0-100，越界自动 clamp）</td></tr>
+<tr><td><code>color</code></td><td>UIColor / Color</td><td>primary</td><td>进度条填充色</td></tr>
+<tr><td><code>trackColor</code></td><td>UIColor / Color</td><td>gray6</td><td>轨道底色</td></tr>
+<tr><td><code>height</code></td><td>CGFloat / Dp</td><td>8</td><td>进度条高度</td></tr>
+<tr><td><code>showText</code></td><td>Boolean</td><td>false</td><td>是否显示右侧百分比文字</td></tr>
+<tr><td><code>textColor</code></td><td>UIColor / Color</td><td>textPrimary</td><td>百分比文字颜色</td></tr>
+<tr><td><code>animated</code></td><td>Boolean</td><td>true</td><td>进度变化是否带过渡动画（0.3s ease）</td></tr>
+</table>
+</div>
+
+</div>
+</body>
+</html>

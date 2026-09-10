@@ -14,6 +14,36 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.31] - 2026-09-11
+
+信息展示区三组件合并发版（Price 价格 #72 + Progress 进度条 #73 + Steps 步骤条 #75，MINOR）。
+
+### Added
+
+- **Price 价格双端组件入库（#72 ui.price）**：
+  - iOS `PriceView.swift`（UIKit）：UIStackView 水平排列 prefix/symbol/int/dec/suffix，alignment=.lastBaseline 底部对齐；NumberFormatter 千分位+maximumFractionDigits 小数位+四舍五入；PriceSize（small/medium/large）映射整数/符号字号；PriceSymbolPosition（front/after）；默认 AppColor.error，前后缀 textSecondary+sizeXs。
+  - Android `Price.kt`（Compose）：Row(Alignment.Bottom) 顺序渲染 Text，DecimalFormat 千分位+小数位四舍五入；与 iOS 同构的 PriceSize/PriceSymbolPosition 枚举、API 对齐。
+  - 门禁 A：`price-design-spec.html`+`review-price-A.md`（AI 代评 A1-A7 全 ✅）；门禁 B：api.json `ui.price` 条目（reviewed=true）。
+- **Progress 进度条双端组件入库（#73 ui.progress）**：
+  - iOS `ProgressView.swift`（UIKit）：轨道+填充条双层，percentage didSet 驱动 0.3s 动画；颜色/轨道色/高度/显示文字/文字色/动画开关。
+  - Android `Progress.kt`（Compose）：animateFloatAsState tween 300 驱动填充宽度；同 API 契约。
+  - 门禁 A：`progress-design-spec.html`+`review-progress-A.md`（AI 代评 A1-A7 全 ✅）；门禁 B：api.json `ui.progress` 条目（reviewed=true）。
+- **Steps 步骤条双端组件入库（#75 ui.steps）**：
+  - iOS `StepsView.swift`（UIKit）：三态（已完成 primary 填充+白对勾 / 当前白底 primary 描边+数字 / 未开始白底灰描边+灰数字），连线已完成段主色/未完成段灰色；items+current(-1=自管理/≥0=受控)+direction(horizontal/vertical)+onChange。
+  - Android `Steps.kt`（Compose）：同三态逻辑+同 API 契约。
+  - 门禁 A：`steps-design-spec.html`+`review-steps-A.md`（AI 代评 A1-A7 全 ✅）；门禁 B：api.json `ui.steps` 条目（reviewed=true）。
+- **三件双端 Demo 4 段 1:1**：Price（D1 基础价格/D2 千分位+小数位/D3 符号大小位置/D4 前后缀）/ Progress（D1 基础进度条/D2 自定义颜色+高度/D3 百分比文字/D4 动态进度）/ Steps（D1 基础步骤条/D2 横向+竖向/D3 当前步骤高亮/D4 自定义图标）。
+
+### Fixed
+
+- **api.json componentCount 修正**：三子 agent 各自+1导致 48/49/51/75 冲突，统一修正为 77（实际 ui.* 条目数）。
+
+### Patched
+
+- 组件库全局版本 1.4.30 → 1.4.31。
+
+***
+
 ## \[1.4.30] - 2026-09-11
 
 信息展示区三组件合并发版（Indicator 指示器 #69 + Lottie 动画 #70 + Pagination 分页 #71，MINOR）。

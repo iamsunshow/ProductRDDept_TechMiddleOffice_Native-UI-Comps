@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Price 价格 · 设计规格 · TMO 组件库 v1.4.31</title>
+<style>
+:root {
+  --bg: #fff; --bg-page: #f5f5f5; --text: #1a1a1a; --text-2: #888; --border: #e8e8e8;
+  --primary: #16A34A; --danger: #DC2626; --warn: #F59E0B; --success: #16A34A;
+  --gray6: #E5E5E5; --gray25: #8C8C8C; --textSecondary: #6B7280;
+  --radius-lg: 14px; --radius-sm: 6px;
+  --font-xs: 12px; --font-sm: 14px; --font-md: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif; background: var(--bg-page); color: var(--text); line-height: 1.6; }
+.container { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+h2 { font-size: 20px; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 16px; margin: 20px 0 8px; }
+p { font-size: 14px; margin-bottom: 8px; }
+code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+th { background: #fafafa; font-weight: 600; }
+.section { background: var(--bg); border-radius: 12px; padding: 20px; margin: 16px 0; border: 1px solid var(--border); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.badge-a { background: #e6f7e6; color: #16A34A; }
+.badge-na { background: #f0f0f0; color: #888; }
+
+/* Price mock */
+.price-row { display: flex; align-items: baseline; gap: 4px; color: var(--danger); }
+.price-row .sym { font-size: 14px; font-weight: 600; }
+.price-row .int { font-size: 22px; font-weight: 700; }
+.price-row .dec { font-size: 14px; font-weight: 600; }
+.price-row .affix { font-size: 12px; color: var(--textSecondary); }
+.price-row.size-lg .sym { font-size: 16px; }
+.price-row.size-lg .int { font-size: 32px; font-weight: 700; }
+.price-row.size-lg .dec { font-size: 16px; }
+.price-row.size-sm .sym { font-size: 12px; }
+.price-row.size-sm .int { font-size: 16px; }
+.price-row.size-sm .dec { font-size: 12px; }
+.mock-wrap { display: flex; gap: 24px; flex-wrap: wrap; margin: 16px 0; align-items: flex-start; }
+.mock-item { display: flex; flex-direction: column; gap: 12px; min-width: 220px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
+.mock-label { font-size: 13px; color: var(--text-2); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Price 价格</h1>
+<p>组件 ID：<code>ui.price</code> ｜ 信息展示区组件 #72 ｜ TMO 组件库 v1.4.31</p>
+<p>定位：用于商品、订单、营销等场景的价格展示——支持货币符号、千分位、小数位、符号大小与位置、前缀后缀文本，双端 1:1 视觉一致。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation 情景</h3>
+<p>电商、交易、账本等 App 中价格是最高频的信息单元，商品卡片、订单详情、营销会场、对账列表都需要展示金额。</p>
+<h3>Complication 冲突</h3>
+<p>各业务页手写字符串拼接「¥」+ 数字 + 「元」，千分位/小数位规则不统一，符号大小与数字脱节、前后缀颜色字号各自实现，双端表现漂移且易错（如缺小数位、符号间距过大）。</p>
+<h3>Question 问题</h3>
+<p>需要一个价格展示组件，统一货币符号、千分位分隔、小数位数、符号相对数字的大小与位置，支持前缀后缀文本，双端 1:1 视觉一致。</p>
+<h3>Answer 方案</h3>
+<p>Price——由「前缀文本 + 货币符号 + 整数部分 + 小数部分 + 后缀文本」组成的行内价格组件，price 数值驱动，decimal-places 控制小数位、thousands 千分位、symbol 货币符号及大小/位置、prefix/suffix 自定义前后缀，颜色与字号通过 color/size 配置。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 Price 划界</th></tr>
+<tr><td>Badge #64</td><td>右上角数字/圆点徽标</td><td>Badge=提醒标记；Price=金额展示，形态是「符号+数字+前后缀」行内排版</td></tr>
+<tr><td>Tag #37</td><td>状态/分类标签</td><td>Tag=胶囊文本标签；Price 无背景胶囊，是金额数字本身</td></tr>
+<tr><td>InputNumber #44</td><td>数字步进输入</td><td>InputNumber=可交互输入数字；Price=纯展示不可编辑</td></tr>
+<tr><td>CountDown #60</td><td>倒计时数字展示</td><td>CountDown=时间倒计时动态刷新；Price=静态金额展示（数字动画=二期）</td></tr>
+</table>
+
+<h2>3. Token 清单</h2>
+<div class="section">
+<table>
+<tr><th>区域</th><th>规格</th><th>Token</th></tr>
+<tr><td>价格主色</td><td>默认 danger 红（金额强调）</td><td>AppColor.error / expense</td></tr>
+<tr><td>整数部分（size md）</td><td>22 Bold</td><td>AppFont.sizeXl</td></tr>
+<tr><td>符号（size md）</td><td>14 Semibold，与整数底部 baseline 对齐</td><td>AppFont.sizeSm</td></tr>
+<tr><td>小数部分（size md）</td><td>14 Semibold</td><td>AppFont.sizeSm</td></tr>
+<tr><td>size 大</td><td>整数 32 Bold / 符号 16 / 小数 16</td><td>sizeDisplay / sizeLg</td></tr>
+<tr><td>size 小</td><td>整数 16 Medium / 符号 12 / 小数 12</td><td>sizeMd / sizeXs</td></tr>
+<tr><td>前缀/后缀文本</td><td>12 textSecondary</td><td>AppFont.sizeXs / AppColor.textSecondary</td></tr>
+<tr><td>段间间距</td><td>4</td><td>AppSpace.xs</td></tr>
+</table>
+</div>
+
+<h2>4. 决策投票表（ACE 模型：选项 / 评估后果 / 选最优）</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项（Alternatives）</th><th>评估后果（Consequences）</th><th>选最优（Evaluate）</th><th>理由</th></tr>
+<tr>
+<td>P1</td><td>price 输入类型</td>
+<td>A. number 数值<br>B. string 字符串</td>
+<td>A. 数值可参与计算、可统一做千分位/小数位格式化，业务无需手动格式化<br>B. 使用方需提前格式化，组件做不了千分位/小数位，且无法防非法</td>
+<td><span class="badge badge-a">A</span></td>
+<td>number 驱动千分位与小数位逻辑，与 NutUI 一致；非法/非数字 fallback「0」保证不崩</td>
+</tr>
+<tr>
+<td>P2</td><td>千分位与小数位</td>
+<td>A. thousands=true 显示逗号，decimal-places=2 默认两位小数<br>B. 不格式化原样输出</td>
+<td>A. 大金额更易读，小数位统一对齐；电商金额惯例保留两位<br>B. 简单但金额可读性差、小数位不统一</td>
+<td><span class="badge badge-a">A</span></td>
+<td>默认 thousands=true、decimal-places=2，与金额场景惯例一致；decimal-places=0 可隐藏小数</td>
+</tr>
+<tr>
+<td>P3</td><td>符号大小与位置</td>
+<td>A. symbol 单独字号（默认 = 小数位字号）+ symbolPosition front/after<br>B. 符号与整数同字号</td>
+<td>A. 视觉上符号略小于整数是价格排版惯例，front/after 适配「¥199」「199元」两种形态<br>B. 符号与整数同高会显得符号突兀</td>
+<td><span class="badge badge-a">A</span></td>
+<td>符号用独立 symbolSize（默认跟随 size 阶梯的小数位字号），position 支持前/后，覆盖「¥199」与「199元」</td>
+</tr>
+<tr>
+<td>P4</td><td>前后缀文本</td>
+<td>A. prefix/suffix 自定义文本（textSecondary、小字号）<br>B. 仅支持 symbol</td>
+<td>A. 覆盖「￥199 起」「到手 ￥199」等组合文案<br>B. 复杂场景需业务外层再拼文本</td>
+<td><span class="badge badge-a">A</span></td>
+<td>prefix/suffix 支持组合文案，颜色默认 textSecondary、字号 sizeXs，与价格主体形成层级</td>
+</tr>
+</table>
+</div>
+
+<h2>5. 四组 Demo 预览</h2>
+<div class="mock-wrap">
+
+<div class="mock-item">
+  <div class="price-row size-md"><span class="sym">¥</span><span class="int">199</span><span class="dec">.00</span></div>
+  <p class="mock-label">D1 基础价格：price=199，默认两位小数、符号前置、danger 红</p>
+</div>
+
+<div class="mock-item">
+  <div class="price-row size-md"><span class="sym">¥</span><span class="int">12,345</span><span class="dec">.68</span></div>
+  <div class="price-row size-md"><span class="sym">¥</span><span class="int">9,999</span></div>
+  <p class="mock-label">D2 千分位 + 小数位：12345.678 → 12,345.68；decimal-places=0 → 无小数</p>
+</div>
+
+<div class="mock-item">
+  <div class="price-row size-lg"><span class="sym">¥</span><span class="int">299</span><span class="dec">.00</span></div>
+  <div class="price-row size-md"><span class="int">199</span><span class="dec">.00</span><span class="sym">元</span></div>
+  <div class="price-row size-sm"><span class="sym">¥</span><span class="int">99</span></div>
+  <p class="mock-label">D3 符号大小/位置：size lg 大整数；symbolPosition=after 后缀「元」；size sm 小尺寸</p>
+</div>
+
+<div class="mock-item">
+  <div class="price-row size-md"><span class="affix">到手价</span><span class="sym">¥</span><span class="int">199</span><span class="dec">.00</span><span class="affix">起</span></div>
+  <div class="price-row size-md"><span class="sym">¥</span><span class="int">1,299</span><span class="dec">.00</span><span class="affix">/月</span></div>
+  <p class="mock-label">D4 前缀/后缀：prefix「到手价」+ suffix「起」；suffix「/月」</p>
+</div>
+
+</div>
+
+<h2>6. 平台差异预告</h2>
+<table>
+<tr><th>差异点</th><th>iOS（UIKit）</th><th>Android（Compose）</th><th>判据</th></tr>
+<tr><td>容器</td><td>UIStackView horizontal + arrangedSubviews（prefix/symbol/int/dec/suffix）</td><td>Row(horizontalArrangement) 顺序渲染 Text</td><td>视觉一致，表内放行</td></tr>
+<tr><td>baseline 对齐</td><td>setLastBaselineAnchor 对齐整数/符号/小数底部</td><td>Row(verticalAlignment = Alignment.Bottom) + Text baseline</td><td>布局系统差异，视觉一致=放行</td></tr>
+<tr><td>千分位格式化</td><td>NumberFormatter(groupingSeparator=",", usesGroupingSeparator=true)</td><td>String 手动按位插逗号</td><td>实现差异，结果一致=放行</td></tr>
+<tr><td>price 类型</td><td>Double（CGFloat 兼容）</td><td>Double</td><td>语义一致</td></tr>
+</table>
+
+<h2>7. API 速览</h2>
+<div class="section">
+<h3>Price Props</h3>
+<table>
+<tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>price</code></td><td>Double</td><td>0</td><td>价格数值</td></tr>
+<tr><td><code>symbol</code></td><td>String</td><td>"¥"</td><td>货币符号（空字符串则不显示）</td></tr>
+<tr><td><code>decimal-places</code></td><td>Int</td><td>2</td><td>小数位数，0 表示不显示小数</td></tr>
+<tr><td><code>thousands</code></td><td>Bool</td><td>true</td><td>是否显示千分位分隔符</td></tr>
+<tr><td><code>size</code></td><td>"small" | "medium" | "large"</td><td>"medium"</td><td>价格尺寸，影响整数/符号/小数字号</td></tr>
+<tr><td><code>symbolPosition</code></td><td>"front" | "after"</td><td>"front"</td><td>符号位置（前/后）</td></tr>
+<tr><td><code>color</code></td><td>Color</td><td>error</td><td>价格主色（符号+整数+小数）</td></tr>
+<tr><td><code>prefix</code></td><td>String</td><td>""</td><td>前缀文本（textSecondary、小字号）</td></tr>
+<tr><td><code>suffix</code></td><td>String</td><td>""</td><td>后缀文本（textSecondary、小字号）</td></tr>
+</table>
+</div>
+
+</div>
+</body>
+</html>

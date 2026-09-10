@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Steps 步骤条 · 设计规格 · TMO 组件库 v1.4.30</title>
+<style>
+:root {
+  --bg: #fff; --bg-page: #f5f5f5; --text: #1a1a1a; --text-2: #888; --border: #e8e8e8;
+  --primary: #16A34A; --danger: #DC2626; --warn: #F59E0B; --success: #16A34A;
+  --gray6: #E5E5E5; --gray25: #8C8C8C; --textSecondary: #6B7280;
+  --radius-lg: 14px; --radius-sm: 6px;
+  --font-xs: 12px; --font-sm: 14px; --font-md: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif; background: var(--bg-page); color: var(--text); line-height: 1.6; }
+.container { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+h2 { font-size: 20px; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 16px; margin: 20px 0 8px; }
+p { font-size: 14px; margin-bottom: 8px; }
+code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+th { background: #fafafa; font-weight: 600; }
+.section { background: var(--bg); border-radius: 12px; padding: 20px; margin: 16px 0; border: 1px solid var(--border); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.badge-a { background: #e6f7e6; color: #16A34A; }
+.badge-na { background: #f0f0f0; color: #888; }
+
+/* Steps mock */
+.steps-h { display: flex; align-items: flex-start; width: 360px; }
+.steps-h .step { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+.steps-h .circle { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; position: relative; z-index: 2; }
+.steps-h .circle.finished { background: var(--primary); color: #fff; }
+.steps-h .circle.active { background: #fff; border: 2px solid var(--primary); color: var(--primary); }
+.steps-h .circle.inactive { background: #fff; border: 1px solid var(--gray6); color: var(--gray25); }
+.steps-h .line { position: absolute; top: 11px; left: 50%; right: -50%; height: 1px; z-index: 1; }
+.steps-h .line.done { background: var(--primary); }
+.steps-h .line.pending { background: var(--gray6); }
+.steps-h .step:last-child .line { display: none; }
+.steps-h .title { font-size: var(--font-sm); margin-top: 8px; text-align: center; }
+.steps-h .title.finished, .steps-h .title.active { color: var(--text); }
+.steps-h .title.inactive { color: var(--textSecondary); }
+.steps-h .desc { font-size: var(--font-xs); color: var(--textSecondary); margin-top: 4px; text-align: center; max-width: 90px; }
+
+.steps-v { display: flex; flex-direction: column; width: 280px; }
+.steps-v .step { display: flex; align-items: flex-start; position: relative; padding-bottom: 20px; }
+.steps-v .step:last-child { padding-bottom: 0; }
+.steps-v .circle { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; position: relative; z-index: 2; }
+.steps-v .circle.finished { background: var(--primary); color: #fff; }
+.steps-v .circle.active { background: #fff; border: 2px solid var(--primary); color: var(--primary); }
+.steps-v .circle.inactive { background: #fff; border: 1px solid var(--gray6); color: var(--gray25); }
+.steps-v .content { margin-left: 12px; }
+.steps-v .title { font-size: var(--font-sm); }
+.steps-v .title.finished, .steps-v .title.active { color: var(--text); }
+.steps-v .title.inactive { color: var(--textSecondary); }
+.steps-v .desc { font-size: var(--font-xs); color: var(--textSecondary); margin-top: 4px; }
+.steps-v .line { position: absolute; top: 24px; bottom: 0; left: 11px; width: 1px; z-index: 1; }
+.steps-v .line.done { background: var(--primary); }
+.steps-v .line.pending { background: var(--gray6); }
+.steps-v .step:last-child .line { display: none; }
+
+.mock-wrap { display: flex; gap: 24px; flex-wrap: wrap; margin: 16px 0; align-items: flex-start; }
+.mock-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.mock-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Steps 步骤条</h1>
+<p>组件 ID：<code>ui.steps</code> ｜ 信息展示区组件 #75 ｜ TMO 组件库 v1.4.30</p>
+<p>定位：展示一个含多个步骤的流程进度——已完成步骤打勾、当前步骤高亮、未到达步骤置灰，横向或竖向排列，用于引导用户理解多步流程的当前进度。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation 情景</h3>
+<p>App 中下单、注册、提现、实名认证等流程常需展示「当前进行到第几步」，让用户对流程全貌与当前位置有清晰感知。</p>
+<h3>Complication 冲突</h3>
+<p>各业务页自绘圆点+连线+数字，步骤状态（已完成/当前/未开始）颜色规则不一、横竖方向各自实现、自定义图标缺失，双端表现漂移。</p>
+<h3>Question 问题</h3>
+<p>需要一个步骤条组件，支持横向/竖向排列、当前步骤驱动、已完成打勾、当前高亮、未开始置灰、自定义图标，双端 1:1 视觉一致。</p>
+<h3>Answer 方案</h3>
+<p>Steps——数据驱动的步骤条组件，items 数组定义每步（title + desc + 可选 icon），current 控制当前步骤索引（-1=内部自管理，≥0=受控），direction 切换横向/竖向，已完成步骤显示对勾并把连线染主色，当前步骤主色描边高亮，未开始步骤灰色置灰，支持 onChange 回调与自定义图标。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 Steps 划界</th></tr>
+<tr><td>Tabs #78</td><td>页签横向切换</td><td>Tabs=点击切换不同内容面板；Steps=展示流程进度（只读为主，可点击切换步骤但不切面板）</td></tr>
+<tr><td>Collapse #65</td><td>内容折叠展开</td><td>Collapse=纵向折叠内容区；Steps=流程节点展示，无内容折叠</td></tr>
+<tr><td>Pagination #71</td><td>分页翻页</td><td>Pagination=数据分页翻页（页码按钮）；Steps=业务流程步骤展示（节点+连线）</td></tr>
+<tr><td>Indicator #69</td><td>轮播指示器</td><td>Indicator=轮播图小圆点指示器；Steps=多步业务流程的步骤节点</td></tr>
+</table>
+
+<h2>3. Token 清单</h2>
+<div class="section">
+<table>
+<tr><th>区域</th><th>规格</th><th>Token</th></tr>
+<tr><td>步骤圆点</td><td>24×24 圆形，字号 12 Medium</td><td>AppFont.sizeXs / weight medium</td></tr>
+<tr><td>已完成圆点</td><td>primary 填充 + 白色对勾</td><td>AppColor.primary / white</td></tr>
+<tr><td>当前圆点</td><td>白底 + primary 描边(2px) + primary 数字</td><td>AppColor.primary / bgCard</td></tr>
+<tr><td>未开始圆点</td><td>白底 + gray6 描边(1px) + gray25 数字</td><td>AppColor.gray6 / AppColor.gray25</td></tr>
+<tr><td>步骤连线（已完成段）</td><td>1px primary 实线</td><td>AppColor.primary</td></tr>
+<tr><td>步骤连线（未完成段）</td><td>1px gray6 实线</td><td>AppColor.gray6</td></tr>
+<tr><td>步骤标题</td><td>字号 14，已完成/当前=textPrimary，未开始=textSecondary</td><td>AppFont.sizeSm / textPrimary / textSecondary</td></tr>
+<tr><td>步骤描述</td><td>字号 12，textSecondary</td><td>AppFont.sizeXs / textSecondary</td></tr>
+<tr><td>圆点与标题间距</td><td>8</td><td>AppSpace.sm</td></tr>
+</table>
+</div>
+
+<h2>4. 决策投票表（ACE 模型：选项 / 评估后果 / 选最优）</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项（Alternatives）</th><th>评估后果（Consequences）</th><th>选最优（Evaluate）</th><th>理由</th></tr>
+<tr>
+<td>P1</td><td>受控策略</td>
+<td>A. 纯受控（current+onChange 必传）<br>B. 纯非受控（内部状态自管理）<br>C. 混合（current=-1=内部自管理，≥0=受控）</td>
+<td>A. 使用方必须管状态=样板代码多，D1 基础场景啰嗦<br>B. 无法外部驱动当前步骤，D3 切换场景做不到<br>C. 两种模式自动切换=覆盖 D1-D4 全场景，灵活且零样板</td>
+<td><span class="badge badge-a">C</span></td>
+<td>混合模式=current=-1 走内部状态、≥0 走受控，一处入口覆盖自管理/外部驱动两类需求，与 NutUI 受控语义对齐</td>
+</tr>
+<tr>
+<td>P2</td><td>步骤可点击性</td>
+<td>A. 一期不可点击（纯展示）<br>B. 一期可点击已完成步骤回退<br>C. 一期可点击任意步骤跳转</td>
+<td>A. 实现简单稳定，双端 1:1 易对齐，但交互性弱<br>B. 仅允许回退到已完成步骤，符合流程约束，但需维护可点击态<br>C. 任意跳转不符合业务流程约束（不能跳过未完成步骤）</td>
+<td><span class="badge badge-a">B</span></td>
+<td>一期支持点击已完成步骤回退（onChange 回调），未开始步骤不可点击，符合流程语义；纯展示=一期默认，交互=增强</td>
+</tr>
+<tr>
+<td>P3</td><td>已完成图标</td>
+<td>A. 默认对勾（checkmark）<br>B. 数字不变（仅变色）<br>C. 可自定义图标</td>
+<td>A. 步骤条通用视觉语言，零额外配置<br>B. 用户难以区分已完成/当前<br>C. 一期增加 API 复杂度，需平台图标映射</td>
+<td><span class="badge badge-a">A</span></td>
+<td>对勾是步骤条已完成的标准视觉语义，默认即用，与 NutUI 一致；自定义图标=D4 演示 icon 字段覆盖</td>
+</tr>
+<tr>
+<td>P4</td><td>一期范围</td>
+<td>A. 一期=基础步骤条/横向+竖向/当前步骤高亮/自定义图标+demo 四段<br>B. 二期=步骤点击动画/错误态/迷你尺寸/垂直描边样式</td>
+<td>A. 覆盖 95% 步骤条场景，范围可控<br>B. 二期增量，不阻塞一期交付</td>
+<td><span class="badge badge-a">A</span></td>
+<td>一期四段 demo 覆盖常见场景；动画/错误态/迷你=二期</td>
+</tr>
+</table>
+</div>
+
+<h2>5. 四组 Demo 预览</h2>
+<div class="mock-wrap">
+<div class="mock-item">
+<div class="mock-card">
+<div class="steps-h">
+  <div class="step"><div class="circle finished">✓</div><div class="line done"></div><div class="title finished">已完成</div></div>
+  <div class="step"><div class="circle active">2</div><div class="line pending"></div><div class="title active">进行中</div></div>
+  <div class="step"><div class="circle inactive">3</div><div class="title inactive">未开始</div></div>
+</div>
+</div>
+<p style="font-size:13px;color:#888">D1 基础步骤条（横向 3 步，当前第 2 步）</p>
+</div>
+<div class="mock-item">
+<div class="mock-card">
+<div class="steps-v">
+  <div class="step"><div class="circle finished">✓</div><div class="line done"></div><div class="content"><div class="title finished">已完成</div><div class="desc">步骤描述一</div></div></div>
+  <div class="step"><div class="circle active">2</div><div class="line pending"></div><div class="content"><div class="title active">进行中</div><div class="desc">步骤描述二</div></div></div>
+  <div class="step"><div class="circle inactive">3</div><div class="content"><div class="title inactive">未开始</div><div class="desc">步骤描述三</div></div></div>
+</div>
+</div>
+<p style="font-size:13px;color:#888">D2 横向+竖向（同屏对比方向）</p>
+</div>
+<div class="mock-item">
+<div class="mock-card">
+<div class="steps-h">
+  <div class="step"><div class="circle finished">✓</div><div class="line done"></div><div class="title finished">第一步</div></div>
+  <div class="step"><div class="circle finished">✓</div><div class="line done"></div><div class="title finished">第二步</div></div>
+  <div class="step"><div class="circle active">3</div><div class="line pending"></div><div class="title active">第三步</div></div>
+  <div class="step"><div class="circle inactive">4</div><div class="title inactive">第四步</div></div>
+</div>
+</div>
+<p style="font-size:13px;color:#888">D3 当前步骤高亮（第 3 步，前两步已完成）</p>
+</div>
+<div class="mock-item">
+<div class="mock-card">
+<div class="steps-h">
+  <div class="step"><div class="circle finished">★</div><div class="line done"></div><div class="title finished">收藏</div></div>
+  <div class="step"><div class="circle active">♥</div><div class="line pending"></div><div class="title active">点赞</div></div>
+  <div class="step"><div class="circle inactive">✉</div><div class="title inactive">分享</div></div>
+</div>
+</div>
+<p style="font-size:13px;color:#888">D4 自定义图标（每步自定义图标）</p>
+</div>
+</div>
+
+<h2>6. 平台差异预告</h2>
+<table>
+<tr><th>差异点</th><th>iOS（UIKit）</th><th>Android（Compose）</th><th>判据</th></tr>
+<tr><td>状态管理</td><td>current 属性 -1=内部状态，≥0=受控</td><td>current 参数 -1=内部 remember，≥0=受控</td><td>语义一致，表内放行</td></tr>
+<tr><td>步骤圆点</td><td>UIView + layer.cornerRadius + UILabel/SF Symbol</td><td>Box(shape=CircleShape) + Text/Icon</td><td>布局系统差异，视觉一致=放行</td></tr>
+<tr><td>自定义图标</td><td>UIImage(systemName:) SF Symbols</td><td>Icons.Filled.* Material Icons</td><td>平台图标库差异，语义对齐=放行</td></tr>
+<tr><td>连线渲染</td><td>UIView 1px 高度/宽度 + 背景色</td><td>Spacer/Box 1.dp + background</td><td>同全库先例，放行</td></tr>
+</table>
+
+<h2>7. API 速览</h2>
+<div class="section">
+<h3>Steps Props</h3>
+<table>
+<tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>items</code></td><td>List&lt;StepsItem&gt;</td><td>[]</td><td>步骤数据数组</td></tr>
+<tr><td><code>current</code></td><td>Int</td><td>-1</td><td>当前步骤索引（0-based）；-1=内部自管理状态（初始 0），≥0=受控</td></tr>
+<tr><td><code>direction</code></td><td>StepsDirection</td><td>.horizontal</td><td>步骤条方向：horizontal 横向 / vertical 竖向</td></tr>
+<tr><td><code>onChange</code></td><td>((Int) -&gt; Unit)?</td><td>null</td><td>步骤切换回调（点击已完成步骤回退时触发，返回目标索引）</td></tr>
+</table>
+<h3>StepsItem</h3>
+<table>
+<tr><th>字段</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>title</code></td><td>String</td><td>—</td><td>步骤标题</td></tr>
+<tr><td><code>desc</code></td><td>String?</td><td>null</td><td>步骤描述（可选）</td></tr>
+<tr><td><code>icon</code></td><td>String?</td><td>null</td><td>自定义图标名（iOS=SF Symbol 名，Android=Material Icon 名映射）；null=默认数字/对勾</td></tr>
+</table>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,6 +1,6 @@
 {
-  "version": "1.4.30",
-  "versionKey": "v1.4.30",
+  "version": "1.4.31",
+  "versionKey": "v1.4.31",
   "releaseDate": "2026-09-11",
-  "changelog": "[1.4.30] 2026-09-11 信息展示区三组件合并 MINOR 发版：Indicator 指示器（#69 ui.indicator）+ Lottie 动画（#70 ui.lottie）+ Pagination 分页（#71 ui.pagination）。三件均门禁 A（设计规格 H5+评审单 AI 代评全 A）+门禁 B（api.json 契约登记 reviewed=true）+ C1 双端实现入库+Demo 4 段 1:1+独立编译验证通过（Android assembleDebug BUILD SUCCESSFUL / iOS xcodebuild BUILD SUCCEEDED）。componentCount 45→48。组件库全局版本 1.4.29 → 1.4.30。"
+  "changelog": "[1.4.31] 2026-09-11 信息展示区三组件合并 MINOR 发版：Price 价格（#72 ui.price）+ Progress 进度条（#73 ui.progress）+ Steps 步骤条（#75 ui.steps）。三件均门禁 A（设计规格 H5+评审单 AI 代评全 A）+门禁 B（api.json 契约登记 reviewed=true）+ C1 双端实现入库+Demo 4 段 1:1+独立编译验证通过（Android assembleDebug BUILD SUCCESSFUL / iOS xcodebuild BUILD SUCCEEDED）。componentCount 修正为 77（实际 ui.* 条目数，之前三子 agent 各自+1导致 48/49/51/75 冲突）。组件库全局版本 1.4.30 → 1.4.31。"
 }

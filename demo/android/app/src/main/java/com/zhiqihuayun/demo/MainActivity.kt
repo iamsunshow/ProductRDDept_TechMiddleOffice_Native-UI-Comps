@@ -196,6 +196,7 @@ import com.zhiqihuayun.sharedui.components.Popover
 import com.zhiqihuayun.sharedui.components.PopoverPlacement
 import com.zhiqihuayun.sharedui.components.Popup
 import com.zhiqihuayun.sharedui.components.PopupPosition
+import com.zhiqihuayun.sharedui.components.Progress
 import com.zhiqihuayun.sharedui.components.PullToRefresh
 import com.zhiqihuayun.sharedui.components.isAtTop
 import com.zhiqihuayun.sharedui.components.SkeletonBlock
@@ -340,12 +341,12 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Loading 加载中", reviewed = true, demo = { LoadingDemo() }, passed = true),
         DemoComponent("Lottie 动画", reviewed = true, demo = { LottieDemo() }, passed = true),
         DemoComponent("NoticeBar 公告栏", reviewed = true, demo = { NoticeBarDemo() }, passed = true),
-        DemoComponent("Price 价格", planned = true),
-        DemoComponent("Progress 进度条", planned = true),
+        DemoComponent("Price 价格", reviewed = true, demo = { PriceDemo() }, passed = true),
+        DemoComponent("Progress 进度条", reviewed = true, demo = { ProgressDemo() }, passed = true),
         DemoComponent("ResultPage 结果反馈", reviewed = true, demo = { ResultPageDemo() }, passed = true),
         DemoComponent("Segmented 分段选择器", planned = true),
         DemoComponent("Skeleton 骨架屏", reviewed = true, demo = { SkeletonDemo() }, passed = true),
-        DemoComponent("Steps 步骤条", planned = true),
+        DemoComponent("Steps 步骤条", reviewed = true, demo = { StepsDemo() }, passed = true),
         DemoComponent("Table 表格", planned = true),
         DemoComponent("Tag 标签", planned = true),
         DemoComponent("Tour 引导", planned = true),
@@ -8808,6 +8809,107 @@ fun DemoSectionCard(
             color = AppColor.textPrimary
         )
         content()
+    }
+}
+
+// ===== Progress 进度条组件 Demo 页（独立页面，与 iOS ProgressShowcase 一一对应） =====
+// 4 组排查：D1 基础进度条 / D2 自定义颜色+高度 / D3 百分比文字显示 / D4 动态进度。
+
+@Composable
+private fun ProgressDemo() {
+    // D4 动态进度状态
+    var d4Value by remember { mutableStateOf(0f) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        // 组件版本徽标：与 iOS 端保持同一版本号。
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm))
+                .padding(horizontal = 10.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = "Progress 组件 v1.4.30",
+                color = AppColor.primary,
+                fontSize = AppFont.sizeXs,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        // D1 基础进度条：percentage=30，默认 primary 填充，height=8
+        Text(
+            text = "D1 基础进度条（percentage=30）",
+            color = AppColor.textPrimary,
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold
+        )
+        Progress(percentage = 30f)
+        Text(
+            text = "排查点：30% 宽度 primary 绿色填充条，轨道 gray6 灰，圆角=height/2 半圆。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs
+        )
+
+        // D2 自定义颜色+高度：warn 橙 height=12 + danger 红 height=4 两条对照
+        Text(
+            text = "D2 自定义颜色+高度（warn/12 + danger/4）",
+            color = AppColor.textPrimary,
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold
+        )
+        Column(verticalArrangement = Arrangement.spacedBy(AppSpace.md)) {
+            Progress(percentage = 60f, color = AppColor.warning, height = 12.dp)
+            Progress(percentage = 80f, color = AppColor.error, height = 4.dp)
+        }
+        Text(
+            text = "排查点：上条 warn 橙 height12（60%），下条 danger 红 height4（80%）；圆角均=height/2。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs
+        )
+
+        // D3 百分比文字显示：showText=true，右侧显示 75%
+        Text(
+            text = "D3 百分比文字显示（showText=true，75%）",
+            color = AppColor.textPrimary,
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold
+        )
+        Progress(percentage = 75f, showText = true)
+        Text(
+            text = "排查点：填充条右侧显示「75%」文字，与条间距 8dp，文字 sizeSm textPrimary。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs
+        )
+
+        // D4 动态进度：按钮驱动 percentage 0→100 递增，动画过渡
+        Text(
+            text = "D4 动态进度（按钮驱动 +10，0→100）",
+            color = AppColor.textPrimary,
+            fontSize = AppFont.sizeMd,
+            fontWeight = FontWeight.SemiBold
+        )
+        AppButton(
+            text = "进度 +10",
+            style = AppButtonStyle.Primary,
+            onClick = {
+                d4Value = if (d4Value >= 100f) 0f else d4Value + 10f
+            }
+        )
+        Progress(percentage = d4Value, showText = true)
+        Text(
+            text = "排查点：点击「进度 +10」按钮，进度从 0 每次 +10 到 100，填充宽度 300ms 动画过渡，右侧文字同步更新。",
+            color = AppColor.textSecondary,
+            fontSize = AppFont.sizeXs
+        )
     }
 }
 

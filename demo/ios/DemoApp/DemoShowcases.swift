@@ -125,8 +125,8 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: true, create: { LoadingShowcase() }, passed: true),
             DemoComponent(id: "ui.lottie", name: "Lottie 动画", reviewed: true, create: { LottieShowcase() }, passed: true),
             DemoComponent(id: "ui.notice-bar", name: "NoticeBar 公告栏", reviewed: true, create: { NoticeBarShowcase() }, passed: true),
-            DemoComponent(id: "ui.price", name: "Price 价格", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.progress", name: "Progress 进度条", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.price", name: "Price 价格", reviewed: true, create: { PriceShowcase() }, passed: true),
+            DemoComponent(id: "ui.progress", name: "Progress 进度条", reviewed: true, create: { ProgressShowcase() }, passed: true),
             DemoComponent(id: "ui.result-page", name: "ResultPage 结果反馈", reviewed: true, create: { ResultPageShowcase() }, passed: true),
             DemoComponent(id: "ui.segmented", name: "Segmented 分段选择器", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.skeleton", name: "Skeleton 骨架屏", reviewed: true, create: { SkeletonShowcase() }, passed: true),
@@ -10591,3 +10591,303 @@ final class LottieShowcase: ShowcaseViewController {
         }
     }
 }
+
+// MARK: - Price Showcase（Price 价格 Demo 页，信息展示区 #72，验证组件库 v1.4.31）
+// D1 基础价格（price=199，默认两位小数、符号前置、danger 红）/
+// D2 千分位+小数位（12345.678→12,345.68；decimalPlaces=0 无小数）/
+// D3 符号大小/位置（size large 大整数；symbolPosition=after 后缀「元」；size small）/
+// D4 前缀/后缀（prefix「到手价」+ suffix「起」；suffix「/月」）
+final class PriceShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Price 价格"
+
+        addVersionBadge(componentName: "Price", version: "v1.4.31", builtAt: "2026-09-11 00:00:00")
+
+        // D1 基础价格：price=199，默认两位小数、符号前置、danger 红
+        addSection(title: "D1 基础价格（price=199）") { container in
+            let price = PriceView(price: 199)
+            container.addSubview(price)
+            price.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("排查点：显示「¥199.00」，符号 ¥ 前置、danger 红，整数 22 Bold、符号/小数 14 Semibold，底部 baseline 对齐。")
+
+        // D2 千分位 + 小数位：12345.678→12,345.68；decimalPlaces=0 无小数
+        addSection(title: "D2 千分位 + 小数位") { container in
+            let col = UIStackView()
+            col.axis = .vertical
+            col.spacing = AppSpace.md
+            container.addSubview(col)
+            col.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            // 12345.678 → 12,345.68（四舍五入 + 千分位 + 两位小数）
+            let p1 = PriceView(price: 12345.678)
+            // 9999.5 → 10,000（decimalPlaces=0 不显示小数）
+            let p2 = PriceView(price: 9999.5)
+            p2.decimalPlaces = 0
+            col.addArrangedSubview(p1)
+            col.addArrangedSubview(p2)
+        }
+        addInfo("排查点：第一行「¥12,345.68」（千分位逗号 + 四舍五入到两位）；第二行「¥10,000」（decimalPlaces=0 无小数）。")
+
+        // D3 符号大小/位置：size large；symbolPosition=after 后缀「元」；size small
+        addSection(title: "D3 符号大小/位置（size / symbolPosition）") { container in
+            let col = UIStackView()
+            col.axis = .vertical
+            col.spacing = AppSpace.md
+            container.addSubview(col)
+            col.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            // size large：整数 32 Bold
+            let pLarge = PriceView(price: 299)
+            pLarge.size = .large
+            // symbolPosition=after：「199.00元」
+            let pAfter = PriceView(price: 199)
+            pAfter.symbol = "元"
+            pAfter.symbolPosition = .after
+            // size small：整数 16
+            let pSmall = PriceView(price: 99)
+            pSmall.size = .small
+            col.addArrangedSubview(pLarge)
+            col.addArrangedSubview(pAfter)
+            col.addArrangedSubview(pSmall)
+        }
+        addInfo("排查点：第一行 size large（整数 32 号字更大）；第二行「199.00元」符号后置；第三行 size small（整数 16 号字更小）。")
+
+        // D4 前缀/后缀：prefix「到手价」+ suffix「起」；suffix「/月」
+        addSection(title: "D4 前缀/后缀（prefix / suffix）") { container in
+            let col = UIStackView()
+            col.axis = .vertical
+            col.spacing = AppSpace.md
+            container.addSubview(col)
+            col.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            // prefix + suffix
+            let p1 = PriceView(price: 199)
+            p1.prefix = "到手价"
+            p1.suffix = "起"
+            // suffix「/月」
+            let p2 = PriceView(price: 1299)
+            p2.suffix = "/月"
+            col.addArrangedSubview(p1)
+            col.addArrangedSubview(p2)
+        }
+        addInfo("排查点：第一行「到手价 ¥199.00 起」（前缀「到手价」+ 后缀「起」均为 textSecondary 12 号）；第二行「¥1,299.00 /月」（后缀「/月」）。")
+    }
+}
+
+// MARK: - Progress Showcase（Progress 进度条 Demo 页，信息展示区 #73，验证组件库 v1.4.30）
+// D1 基础进度条（percentage=30）/ D2 自定义颜色+高度（warn/12 + danger/4）/
+// D3 百分比文字显示（showText=true，75%）/ D4 动态进度（按钮驱动 percentage 0→100 递增）
+
+final class ProgressShowcase: ShowcaseViewController {
+
+    /// D4 动态进度条引用。
+    private var d4Progress: ProgressView?
+    /// D4 当前进度值。
+    private var d4Value: Double = 0
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Progress 进度条"
+        addVersionBadge(componentName: "Progress", version: "v1.4.30", builtAt: "2026-09-11 00:00:00")
+
+        // D1 基础进度条：percentage=30，默认 primary 填充，height=8
+        addSection(title: "D1 基础进度条（percentage=30）") { container in
+            let progress = ProgressView(percentage: 30)
+            container.addSubview(progress)
+            progress.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("排查点：30% 宽度 primary 绿色填充条，轨道 gray6 灰，圆角=height/2 半圆。")
+
+        // D2 自定义颜色+高度：warn 橙 height=12 + danger 红 height=4 两条对照
+        addSection(title: "D2 自定义颜色+高度（warn/12 + danger/4）") { container in
+            let stack = UIStackView()
+            stack.axis = .vertical
+            stack.spacing = AppSpace.md
+            container.addSubview(stack)
+            stack.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            let warn = ProgressView(percentage: 60)
+            warn.color = AppColor.warning
+            warn.height = 12
+            let danger = ProgressView(percentage: 80)
+            danger.color = AppColor.error
+            danger.height = 4
+            stack.addArrangedSubview(warn)
+            stack.addArrangedSubview(danger)
+        }
+        addInfo("排查点：上条 warn 橙 height12（60%），下条 danger 红 height4（80%）；圆角均=height/2。")
+
+        // D3 百分比文字显示：showText=true，右侧显示 75%
+        addSection(title: "D3 百分比文字显示（showText=true，75%）") { container in
+            let progress = ProgressView(percentage: 75)
+            progress.showText = true
+            container.addSubview(progress)
+            progress.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("排查点：填充条右侧显示「75%」文字，与条间距 8pt，文字 sizeSm textPrimary。")
+
+        // D4 动态进度：按钮驱动 percentage 0→100 递增，动画过渡
+        addSection(title: "D4 动态进度（按钮驱动 +10，0→100）") { container in
+            let button = UIButton(type: .system)
+            button.setTitle("进度 +10", for: .normal)
+            button.setTitleColor(.white, for: .normal)
+            button.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .medium)
+            button.backgroundColor = AppColor.primary
+            button.layer.cornerRadius = AppRadius.sm
+            button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+            button.addTarget(self, action: #selector(incrementD4), for: .touchUpInside)
+            container.addSubview(button)
+            button.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.md)
+                make.top.equalToSuperview()
+            }
+            let progress = ProgressView(percentage: 0)
+            progress.showText = true
+            container.addSubview(progress)
+            progress.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
+                make.top.equalTo(button.snp.bottom).offset(AppSpace.md)
+                make.bottom.equalToSuperview()
+            }
+            self.d4Progress = progress
+        }
+        addInfo("排查点：点击「进度 +10」按钮，进度从 0 每次 +10 到 100，填充宽度 0.3s 动画过渡，右侧文字同步更新。")
+    }
+
+    // MARK: - D4 进度递增
+
+    @objc private func incrementD4() {
+        guard let progress = d4Progress else { return }
+        d4Value = min(d4Value + 10, 100)
+        progress.percentage = d4Value
+        if d4Value >= 100 { d4Value = 0 } // 下次回到 0 循环演示
+    }
+}
+
+// MARK: - Steps Showcase（Steps 步骤条 Demo 页，信息展示区 #75，验证组件库 v1.4.30）
+// D1 基础步骤条（横向 3 步·当前第 2 步）/ D2 横向+竖向（同屏对比方向）/
+// D3 当前步骤高亮（4 步·当前第 3 步·前两步已完成）/ D4 自定义图标（每步自定义 icon）
+
+final class StepsShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Steps 步骤条"
+
+        addVersionBadge(componentName: "Steps", version: "v1.4.30", builtAt: "2026-09-11 00:00:00")
+
+        // D1 基础步骤条：横向 3 步，当前第 2 步（current=1），第 1 步已完成打勾
+        addSection(title: "D1 基础步骤条（横向 3 步，当前第 2 步）") { container in
+            let steps = StepsView()
+            steps.direction = .horizontal
+            steps.current = 1
+            steps.items = [
+                StepsItem(title: "已完成", desc: "步骤一"),
+                StepsItem(title: "进行中", desc: "步骤二"),
+                StepsItem(title: "未开始", desc: "步骤三"),
+            ]
+            container.addSubview(steps)
+            steps.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(AppSpace.md)
+                make.height.equalTo(100)
+            }
+        }
+        addInfo("排查点：横向 3 步等宽排列；第 1 步 primary 填充+白对勾、连线主色；第 2 步白底 primary 描边+数字高亮；第 3 步灰描边+灰数字；标题已完成/当前 textPrimary，未开始 textSecondary。")
+
+        // D2 横向+竖向：同屏对比两种方向
+        addSection(title: "D2 横向+竖向（同屏对比方向）") { container in
+            let stack = UIStackView()
+            stack.axis = .vertical
+            stack.spacing = AppSpace.xl
+            container.addSubview(stack)
+            stack.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(AppSpace.md)
+            }
+
+            let hSteps = StepsView()
+            hSteps.direction = .horizontal
+            hSteps.current = 1
+            hSteps.items = [
+                StepsItem(title: "横向一"),
+                StepsItem(title: "横向二"),
+                StepsItem(title: "横向三"),
+            ]
+            stack.addArrangedSubview(hSteps)
+            hSteps.snp.makeConstraints { make in
+                make.height.equalTo(70)
+            }
+
+            let vSteps = StepsView()
+            vSteps.direction = .vertical
+            vSteps.current = 1
+            vSteps.items = [
+                StepsItem(title: "竖向一", desc: "竖向描述一"),
+                StepsItem(title: "竖向二", desc: "竖向描述二"),
+                StepsItem(title: "竖向三", desc: "竖向描述三"),
+            ]
+            stack.addArrangedSubview(vSteps)
+            vSteps.snp.makeConstraints { make in
+                make.height.equalTo(160)
+            }
+        }
+        addInfo("排查点：上方横向（圆点顶部居中、连线水平向右）；下方竖向（圆点左侧、文字在右、连线竖直向下）。")
+
+        // D3 当前步骤高亮：4 步，当前第 3 步（current=2），前两步已完成
+        addSection(title: "D3 当前步骤高亮（4 步，当前第 3 步）") { container in
+            let steps = StepsView()
+            steps.direction = .horizontal
+            steps.current = 2
+            steps.items = [
+                StepsItem(title: "第一步"),
+                StepsItem(title: "第二步"),
+                StepsItem(title: "第三步"),
+                StepsItem(title: "第四步"),
+            ]
+            container.addSubview(steps)
+            steps.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(AppSpace.md)
+                make.height.equalTo(80)
+            }
+        }
+        addInfo("排查点：前两步对勾+主色连线；第 3 步主色描边高亮；第 4 步灰色置灰。点击前两步可回退（onChange 触发）。")
+
+        // D4 自定义图标：每步自定义 SF Symbol 图标
+        addSection(title: "D4 自定义图标（每步自定义 icon）") { container in
+            let steps = StepsView()
+            steps.direction = .horizontal
+            steps.current = 1
+            steps.items = [
+                StepsItem(title: "收藏", icon: "star.fill"),
+                StepsItem(title: "点赞", icon: "heart.fill"),
+                StepsItem(title: "分享", icon: "square.and.arrow.up"),
+            ]
+            container.addSubview(steps)
+            steps.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(AppSpace.md)
+                make.height.equalTo(80)
+            }
+        }
+        addInfo("排查点：第 1 步星标（主色填充白图标）、第 2 步心形（白底主色描边主色图标）、第 3 步分享（白底灰描边灰图标）；自定义图标覆盖默认数字/对勾。")
+    }
+}
+

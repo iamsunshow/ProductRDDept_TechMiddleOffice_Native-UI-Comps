@@ -1244,6 +1244,7 @@ private fun ListDemo() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {
@@ -1737,6 +1738,7 @@ private fun LineChartDemo() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {

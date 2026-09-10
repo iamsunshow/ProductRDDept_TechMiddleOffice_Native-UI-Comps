@@ -482,16 +482,16 @@ private fun ComponentRow(comp: DemoComponent, onClick: () -> Unit) {
                 fontSize = AppFont.sizeMd
             )
             Spacer(modifier = Modifier.weight(1f))
-            // 三态显示：已评审（绿色）/ 待完善（红色）/ 未评审（灰色）
+            // 三态显示：已评审（绿色）/ 待完善（红色）/ 待开发 v2.0（蓝色）
             val statusText = when {
                 comp.pending -> "待完善"
                 enabled -> "已评审 ✓"
-                else -> "未评审"
+                else -> "待开发 v2.0"
             }
             val statusColor = when {
                 comp.pending -> AppColor.error
                 enabled -> AppColor.primary
-                else -> AppColor.gray25
+                else -> Color(0xFF3B82F6) // 蓝色=待开发 v2.0
             }
             Text(
                 text = statusText,

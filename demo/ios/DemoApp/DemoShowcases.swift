@@ -199,9 +199,10 @@ final class DemoListViewController: UITableViewController {
                 config.secondaryTextProperties.color = AppColor.primary
             }
         } else {
+            // 待开发（v2.0 实现）=蓝色，与已评审绿色/待完善红色区分
             config.textProperties.color = AppColor.gray25
-            config.secondaryText = "未评审"
-            config.secondaryTextProperties.color = AppColor.gray25
+            config.secondaryText = "待开发 v2.0"
+            config.secondaryTextProperties.color = UIColor.systemBlue
             cell.accessoryType = .none
             cell.selectionStyle = .none
         }

@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -43,6 +44,22 @@ data class AvatarOption(
     val tintHex: Long
 )
 
+/**
+ * Avatar 测试标签（供 Robolectric 单测定位节点）。
+ */
+internal object AvatarTestTags {
+    const val CONTAINER = "avatar_container"
+    const val SYMBOL = "avatar_symbol"
+}
+
+/**
+ * RGB 3字节 hex 转 ARGB Color（补 0xFF alpha 前缀）。
+ *
+ * 根因 #54：Android Color(Long) 期望 ARGB 4字节，传入 RGB 3字节（如 0xDC2626）时
+ * alpha=0x00 透明，导致星座符号文字看不见。此函数与 iOS UIColor(hex:alpha:) 语义对齐。
+ */
+internal fun avatarTintColor(hex: Long): Color = Color(0xFF000000 or hex)
+
 @Composable
 fun ZodiacAvatar(
     option: AvatarOption?,
@@ -50,26 +67,24 @@ fun ZodiacAvatar(
     modifier: Modifier = Modifier,
     size: Dp = 56.dp
 ) {
-    // tintHex 是 RGB 3 字节（与 iOS UIColor(hex:alpha:) 语义一致），Android Color(Long) 要 ARGB 4 字节，
-    // 必须补 0xFF alpha 前缀，否则 alpha=0x00 透明（文字看不见的根因）。
-    fun tintColor(hex: Long): Color = Color(0xFF000000 or hex)
-
     Box(
         modifier = modifier
+            .testTag(AvatarTestTags.CONTAINER)
             .size(size)
             .clip(CircleShape)
             .background(
-                if (option != null) tintColor(option.tintHex).copy(alpha = 0.18f)
+                if (option != null) avatarTintColor(option.tintHex).copy(alpha = 0.18f)
                 else AppColor.primaryMuted
             ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = option?.symbol ?: nickname.take(1),
-            color = if (option != null) tintColor(option.tintHex) else AppColor.primary,
+            color = if (option != null) avatarTintColor(option.tintHex) else AppColor.primary,
             fontSize = if (option != null) AppFont.sizeXl else AppFont.sizeLg,
             fontWeight = FontWeight.SemiBold,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.testTag(AvatarTestTags.SYMBOL)
         )
     }
 }

@@ -1,6 +1,6 @@
 {
-  "version": "1.4.16",
-  "versionKey": "v1.4.16",
+  "version": "1.4.17",
+  "versionKey": "v1.4.17",
   "releaseDate": "2026-09-09",
   "changelog": "[1.4.14] 2026-09-09 PullToRefresh 下拉刷新组件（操作反馈区 #55，MINOR）：门禁 A 设计规格 refresh-design-spec.html + 评审单 review-refresh-A.md 通过；门禁 B api.json ui.refresh 契约补全（refreshing 受控+title+enabled+onRefresh）；双端实现入库=iOS PullRefreshView.swift（UIRefreshControl 系统原生 wrapper，content 为 UIScrollView）/ Android PullToRefresh.kt（NestedScrollConnection 顶开模式，复用旧 IosStylePullRefresh 逻辑，适配 refreshing 受控 API）；删除旧实现 PullRefreshTableView.swift/IosStylePullRefresh.kt；双端 Demo 4 段 1:1（D1 基础下拉刷新/D2 自定义文案/D3 禁用下拉/D4 外部驱动刷新）；Android assembleDebug + iOS xcodebuild BUILD SUCCEEDED。组件库全局版本 1.4.13 → 1.4.14。"
 }

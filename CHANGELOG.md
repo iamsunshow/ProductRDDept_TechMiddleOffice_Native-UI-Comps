@@ -14,6 +14,23 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.17] - 2026-09-10
+
+Avatar 测试用例沉淀 + 标记已通过（PATCH）。
+
+### Added
+
+- **Avatar #53~#55 自动化单测 AvatarTest.kt（8 用例全绿）**：覆盖 2026-09-10 多轮调试复盘的三个根因，防复发：
+  - #53 iOS UIView 在 UIStackView 中无 intrinsicContentSize 退化成 0 → L1 容器尺寸=size 参数校验（3 用例：option=null/非null/自定义40dp）
+  - #54 Android Color(tintHex) RGB 3字节当 ARGB=alpha=0 透明 → L1 avatarTintColor 补 0xFF alpha 校验（2 用例：单色+五星座色）+ 文字节点存在校验（2 用例：昵称首字+星座符号）
+  - #55 AvatarDemo 外层漏 verticalScroll → 容器尺寸用例间接保证内容可渲染
+- **ProfileAvatarComponents.kt 加 testTag + 提取 avatarTintColor 为 internal 函数**：供单测定位节点与直接验证颜色不透明。
+
+### Changed
+
+- Avatar 双端标记 passed=true（已通过）。
+- 组件库全局版本 1.4.16 → 1.4.17（PATCH，测试用例沉淀）。
+
 ## \[1.4.16] - 2026-09-10
 
 Avatar Android 星座符号透明修复 + Demo 可滚动（PATCH）。

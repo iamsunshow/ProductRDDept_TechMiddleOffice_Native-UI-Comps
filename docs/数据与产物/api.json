@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "updatedAt": "2026-09-05T20:00:00+08:00",
-  "componentCount": 42,
+  "componentCount": 45,
   "components": [
     {
       "id": "ui.empty",
@@ -4506,6 +4506,421 @@
       "note": "徽标 Badge（操作反馈区第二件，任务清单 #45）：展示在宿主右上角的数字/圆点/文本提醒=纯展示型内容组件，count/text/dot 三参数自动推断形态，maxCount 截断、color 主题色、offset 锚点偏移、wrapper 模式定位内部化。2026-09-07 门禁 A AI 代评通过（design-spec/badge-design-spec.html + 评审记录/review-badge-A.md，P1–P4 全 A）+ 同日门禁 B 双端实现入库（BadgeView.swift=UIKit UIView+SnapKit 锚定 / Badge.kt=Compose Box+TopEnd offset）+ iOS BadgeShowcase/Android BadgeDemo 4 段 1:1。验证版本 v1.4.0；统一待 C1.5 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版。",
       "subcategory": "feedback",
       "tier": "action-feedback",
+      "reviewed": true
+    },
+    {
+      "id": "ui.collapse",
+      "name": "折叠面板 Collapse",
+      "category": "ui",
+      "summary": "可折叠/展开的内容区域——点击标题展开或收起内容，用于将较长内容分组收纳、节省页面纵向空间。数据驱动 items 数组（每项 title+content+key+disabled），activeKeys 控制展开项 key 列表（null/nil=内部自管理，非空=受控），accordion 开手风琴互斥（只展一项），右侧 chevron 箭头展开时旋转，onChange 回调同步展开态",
+      "capabilities": [
+        "折叠面板",
+        "Collapse",
+        "折叠",
+        "展开",
+        "手风琴",
+        "accordion",
+        "折叠面板 Collapse",
+        "display.collapse",
+        "ui.collapse"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "CollapseView.swift：UIView 子类，items=[CollapseItem(title,contentView,key,disabled)]；activeKeys 属性 nil=内部状态/non-nil=受控；accordion 互斥；标题行(titleLabel+chevron)+内容区(contentView)；展开=chevron CGAffineTransform rotation 45°+内容区约束显隐；禁用态标题置灰不可点；SnapKit 布局；项间 border 分隔；bgCard+radius.lg 圆角"
+        },
+        "android": {
+          "state": "available",
+          "note": "Collapse.kt：Compose Column，items=List<CollapseItem(title,content:@Composable,key,disabled)>；activeKeys 参数 null=remember 内部状态/non-null=受控；accordion 互斥；标题行(Text+chevron Icon Modifier.rotate)+内容区 if(expanded) content()；展开=chevron rotate 90°；禁用态标题置灰+clickable 失效；项间 Divider；background(RoundedCornerShape) 遵安卓禁令"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/CollapseView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Collapse.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "高度过渡动画=二期增量，一期瞬切显隐优先稳定与双端一致",
+        "自定义展开图标槽=二期，一期默认右侧 chevron 旋转",
+        "嵌套折叠=二期，一期只做单层",
+        "内置滚动=容器承载，组件只负责折叠展开"
+      ],
+      "visual_tokens": [
+        "color.textPrimary",
+        "color.textSecondary",
+        "color.border",
+        "color.bgCard",
+        "space.lg",
+        "space.cellVertical",
+        "font.sizeMd",
+        "font.sizeSm",
+        "radius.lg"
+      ],
+      "apis": "",
+      "visual_refs": [
+        "ProductRDDept/TechMiddleOffice/Native-UI-Comps/docs/数据与产物/design-spec/collapse-design-spec.html"
+      ],
+      "status": "stable",
+      "search_text": "display.collapse 折叠面板 Collapse 折叠 展开 手风琴 accordion 折叠面板 Collapse display.collapse ui.collapse",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "Collapse",
+        "折叠面板",
+        "Accordion",
+        "CollapseView"
+      ],
+      "props": [
+        [
+          "items",
+          "List<CollapseItem>",
+          "否，默认 []",
+          "折叠项数据数组，每项含 title/content/key/disabled"
+        ],
+        [
+          "activeKeys",
+          "List<String>?",
+          "否，默认 null",
+          "展开项 key 列表；null=内部自管理状态，非 null=受控"
+        ],
+        [
+          "onChange",
+          "((List<String>) -> Unit)?",
+          "否，默认 null",
+          "展开态变化回调，返回最新 activeKeys"
+        ],
+        [
+          "accordion",
+          "Boolean",
+          "否，默认 false",
+          "手风琴模式：true 时只允许一项展开，展新项自动收旧项"
+        ]
+      ],
+      "events": [],
+      "demos": [
+        [
+          "基础折叠",
+          "D1：多项可同时展开，点击标题切换该项展开/收起"
+        ],
+        [
+          "手风琴模式",
+          "D2：accordion=true，同时只展一项，展新自动收旧"
+        ],
+        [
+          "禁用项",
+          "D3：disabled=true 的项标题置灰、不可点击展开"
+        ],
+        [
+          "受控外部驱动",
+          "D4：外部 activeKeys 控制展开态，按钮切换驱动面板"
+        ]
+      ],
+      "note": "折叠面板 Collapse（信息展示区组件 #65）：可折叠/展开内容区域=数据驱动 items(title+content+key+disabled) + activeKeys 受控/自管理混合 + accordion 手风琴互斥 + chevron 旋转。2026-09-10 门禁 A AI 代评通过（design-spec/collapse-design-spec.html + 评审记录/review-collapse-A.md，P1–P4 全选最优）+ 同日门禁 B 双端实现入库（CollapseView.swift=UIKit UIView+SnapKit / Collapse.kt=Compose Column+remember 状态）+ iOS CollapseShowcase/Android CollapseDemo 4 段 1:1。验证版本 v1.4.27；统一待 C1.5 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版。",
+      "subcategory": "display",
+      "tier": "information-display",
+      "reviewed": true
+    },
+    {
+      "id": "ui.count-down",
+      "name": "倒计时 CountDown",
+      "category": "ui",
+      "summary": "纯展示型倒计时数字组件——输入目标结束时间戳（targetTime）或剩余秒数（remaining），组件自驱每秒基于时间戳重算 remaining 并格式化显示（HH:mm:ss / DD 天 HH:mm:ss / mm:ss），支持半受控暂停（paused）与结束回调（onEnd）；不负责业务结束动作（跳转/提示由宿主在 onEnd 处理）",
+      "capabilities": [
+        "倒计时",
+        "CountDown",
+        "Countdown",
+        "秒杀倒计时",
+        "验证码倒计时",
+        "订单倒计时",
+        "活动倒计时",
+        "计时器",
+        "时间倒计",
+        "basic.countdown",
+        "ui.count-down"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "CountDownView.swift：UIView 子类内嵌 UILabel；Timer.scheduledTimer(timeInterval:1,repeats,block) 每秒重算 remaining=targetTime-now（基于时间戳无累积误差）；paused=true 时 invalidate Timer 存 pauseStart，resume 时 targetTime += now-pauseStart 重建 Timer（剩余值连续）；format 占位符替换 DD/HH/mm/ss；结束触发 onEnd 一次；monospacedDigitSystemFont 等宽数字防抖"
+        },
+        "android": {
+          "state": "available",
+          "note": "CountDown.kt：Compose；LaunchedEffect(Unit)+delay(1000) 循环每秒重算 remaining=targetTime-now（基于时间戳无累积误差）；paused=true 时 LaunchedEffect keyed 空循环不 advance，resume 时同公式累加 targetTime；format 字符串 replace DD/HH/mm/ss；onEnd 在 remaining≤0 触发一次（remember 已触发标志）；tabular-nums PlatformTextStyle 等宽数字"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/CountDownView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/CountDown.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "数字单元格分隔样式=二期增量，一期纯文本格式化已够用",
+        "毫秒级精度=二期，一期秒级精度足够秒杀/验证码场景",
+        "自定义渲染插槽=二期，一期固定 Text/UILabel 渲染",
+        "业务结束动作（跳转/提示）=宿主在 onEnd 处理，CountDown 纯展示倒计时数字"
+      ],
+      "visual_tokens": [
+        "color.textPrimary",
+        "color.textSecondary",
+        "color.error",
+        "color.bgCard",
+        "font.sizeLg",
+        "font.sizeMd",
+        "space.sm",
+        "radius.sm"
+      ],
+      "apis": "",
+      "visual_refs": [
+        "ProductRDDept/TechMiddleOffice/Native-UI-Comps/docs/数据与产物/design-spec/countdown-design-spec.html"
+      ],
+      "status": "stable",
+      "search_text": "basic.countdown 倒计时 CountDown 秒杀倒计时 验证码倒计时 订单倒计时 活动倒计时 计时器 时间倒计 ui.count-down",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "CountDown",
+        "倒计时",
+        "Countdown",
+        "CountDownView"
+      ],
+      "props": [
+        [
+          "targetTime",
+          "Long",
+          "否，默认 0",
+          "目标结束时间戳（epoch 毫秒，绝对时间，优先级高于 remaining）。0 表示使用 remaining"
+        ],
+        [
+          "remaining",
+          "Long",
+          "否，默认 0",
+          "剩余秒数（targetTime 为 0 时使用，内部转 targetTime = now + remaining×1000）"
+        ],
+        [
+          "format",
+          "String",
+          "否，默认 \"HH:mm:ss\"",
+          "格式串，占位符：DD=天 / HH=时(24h) / mm=分 / ss=秒，支持字面量（如 \"DD 天 HH:mm:ss\"、\"mm:ss\"）"
+        ],
+        [
+          "autoStart",
+          "Boolean",
+          "否，默认 true",
+          "是否自动开始倒计时（false 时需外部把 paused 置 false 启动）"
+        ],
+        [
+          "paused",
+          "Boolean",
+          "否，默认 false",
+          "半受控暂停：true=暂停计时（停表保剩余值）；false=继续（targetTime 累加暂停时长，剩余值连续）"
+        ]
+      ],
+      "events": [
+        [
+          "onEnd",
+          "() -> Unit",
+          "剩余时间归零（remaining ≤ 0）时触发一次；业务结束动作（跳转/提示）由宿主在此处理"
+        ]
+      ],
+      "demos": [
+        [
+          "基础倒计时",
+          "D1：剩余 1 小时，format=HH:mm:ss，自驱每秒递减至 00:00:00"
+        ],
+        [
+          "自定义格式",
+          "D2：跨天长倒计时，format=DD 天 HH:mm:ss，显示天/时/分/秒"
+        ],
+        [
+          "暂停/继续",
+          "D3：按钮外部驱动 paused=true/false，倒计时冻结/恢复，恢复后剩余值连续（不跳秒）"
+        ],
+        [
+          "结束回调",
+          "D4：短倒计时 5 秒，onEnd 触发宿主提示文案"
+        ]
+      ],
+      "note": "倒计时 CountDown（信息展示区 #66，任务清单 #66）：纯展示型倒计时数字组件，targetTime/remaining 双入口（targetTime 优先=绝对时间精度高不受暂停/挂起影响），每秒基于时间戳重算 remaining（无累积误差），format 占位符替换，paused 半受控（恢复时 targetTime+=暂停时长保剩余连续），onEnd 结束回调。2026-09-10 门禁 A AI 代评通过（design-spec/countdown-design-spec.html + 评审记录/review-countdown-A.md，P1-P4 全 A）+ 同日门禁 B 双端实现入库（CountDownView.swift=UIKit UIView+Timer.scheduledTimer / CountDown.kt=Compose LaunchedEffect+delay）+ iOS CountDownShowcase/Android CountDownDemo 4 段 1:1。验证版本 v1.4.27；统一待 C1.5 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版。",
+      "subcategory": "display",
+      "tier": "information-display",
+      "reviewed": true
+    },
+    {
+      "id": "ui.ellipsis",
+      "name": "文本省略 Ellipsis",
+      "category": "ui",
+      "summary": "文本超出指定行数时自动截断显示省略号，支持点击展开/收起——用于商品描述、公告摘要、评论正文等长文本场景。纯展示型文本截断组件，输入 content+rows 自动尾部截断，expandText/collapseText 控制展开收起文案，expanded 半受控（nil=内部自持/非 nil=外部驱动），onExpandChange 回调",
+      "capabilities": [
+        "文本省略",
+        "Ellipsis",
+        "文本截断",
+        "省略号",
+        "展开收起",
+        "文本折叠",
+        "多行截断",
+        "文本省略 Ellipsis",
+        "basic.ellipsis",
+        "ui.ellipsis"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "EllipsisView.swift：UIView 子类包裹 UILabel+展开按钮；UILabel numberOfLines=rows + lineBreakMode=.byTruncatingTail 尾部截断；展开态 numberOfLines=0 不截断；expanded=nil 内部自持点击切换 / 非 nil 外部驱动受控；UITapGestureRecognizer 点击切换；onExpandChange 回调；expandText/collapseText 默认「展开」/「收起」"
+        },
+        "android": {
+          "state": "available",
+          "note": "Ellipsis.kt：Compose Column 包裹 Text+展开按钮 Text；Text maxLines=rows + overflow=TextOverflow.Ellipsis 尾部截断；展开态 maxLines=Int.MAX_VALUE 不截断；expanded=null 内部 remember mutableStateOf 自持 / 非 null 外部驱动受控；Modifier.clickable 点击切换；onExpandChange 回调；expandText/collapseText 默认「展开」/「收起」"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/EllipsisView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Ellipsis.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "中间省略(middle)/头部省略(head)=二期，Android Compose overflow 仅支持尾部，跨端不一致风险高",
+        "展开/收起动画过渡=二期增量，一期静态切换已够用",
+        "disabled 禁用态=二期增量，一期默认可点击",
+        "文本编辑=Ellipsis 纯展示组件，编辑由 TextArea/Input 承载",
+        "自定义省略符号=一期用系统默认「…」二期增量"
+      ],
+      "visual_tokens": [
+        "color.textPrimary",
+        "color.textSecondary",
+        "color.primary",
+        "color.bgPage",
+        "font.sizeMd",
+        "font.sizeSm",
+        "font.weightMedium",
+        "space.xl",
+        "space.md",
+        "space.lg"
+      ],
+      "apis": "",
+      "visual_refs": [
+        "ProductRDDept/TechMiddleOffice/Native-UI-Comps/docs/数据与产物/design-spec/ellipsis-design-spec.html"
+      ],
+      "status": "stable",
+      "search_text": "basic.ellipsis 文本省略 Ellipsis 文本截断 省略号 展开收起 文本折叠 多行截断 文本省略 Ellipsis basic.ellipsis ui.ellipsis",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "Ellipsis",
+        "文本省略",
+        "文本截断",
+        "EllipsisView"
+      ],
+      "props": [
+        [
+          "content",
+          "String",
+          "否，默认 \"\"",
+          "要显示的文本内容"
+        ],
+        [
+          "rows",
+          "Int",
+          "否，默认 1",
+          "最大显示行数，超出时截断显示省略号"
+        ],
+        [
+          "direction",
+          "EllipsisDirection",
+          "否，默认 .tail",
+          "省略方向（一期仅 .tail，.middle/.head = 二期）"
+        ],
+        [
+          "expandText",
+          "String",
+          "否，默认 \"展开\"",
+          "展开按钮文案"
+        ],
+        [
+          "collapseText",
+          "String",
+          "否，默认 \"收起\"",
+          "收起按钮文案"
+        ],
+        [
+          "expanded",
+          "Bool?",
+          "否，默认 nil",
+          "半受控展开态：nil=内部自持点击切换，非 nil=外部驱动受控"
+        ],
+        [
+          "onExpandChange",
+          "((Boolean) -> Unit)?",
+          "否，默认 null",
+          "展开态变化回调（expanded 新值）"
+        ]
+      ],
+      "events": [
+        [
+          "onExpandChange",
+          "(expanded: Boolean) -> Unit",
+          "展开态变化时触发，参数为新的展开态"
+        ]
+      ],
+      "demos": [
+        [
+          "基础单行省略+点击展开/收起",
+          "D1：rows=1 长文本截断尾部省略号，点击展开显示全文+收起按钮，点击收起恢复截断"
+        ],
+        [
+          "多行省略",
+          "D2：rows=3 长文本截断到 3 行+省略号，点击展开显示全文"
+        ],
+        [
+          "自定义展开收起文案",
+          "D3：expandText=\"查看全部\" / collapseText=\"收起内容\"，按钮文案自定义"
+        ],
+        [
+          "受控外部驱动 expanded",
+          "D4：expanded 由外部 state 驱动，外部按钮控制展开/收起态，onExpandChange 回调"
+        ]
+      ],
+      "note": "文本省略 Ellipsis（信息展示区 #67，任务清单 #67）：文本超出指定行数自动截断尾部省略号+点击展开/收起=纯展示型文本截断组件，content+rows+direction(仅tail)+expandText/collapseText+半受控expanded+onExpandChange。2026-09-10 门禁 A AI 代评通过（design-spec/ellipsis-design-spec.html + 评审记录/review-ellipsis-A.md，P1–P4 全 A）+ 同日门禁 B 双端实现入库（EllipsisView.swift=UIKit UILabel+numberOfLines+lineBreakMode / Ellipsis.kt=Compose Text+maxLines+overflow）+ iOS EllipsisShowcase/Android EllipsisDemo 4 段 1:1。验证版本 v1.4.27；统一待 C1.5 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版。",
+      "subcategory": "display",
+      "tier": "info-display",
       "reviewed": true
     },
     {

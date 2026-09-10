@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CountDown 倒计时 · 设计规格 · TMO 组件库 v1.4.27</title>
+<style>
+:root {
+  --bg: #fff; --bg-page: #f5f5f5; --text: #1a1a1a; --text-2: #888; --border: #e8e8e8;
+  --primary: #16A34A; --danger: #DC2626; --warn: #F59E0B; --success: #16A34A;
+  --radius-lg: 14px; --radius-sm: 6px; --radius-full: 999px;
+  --font-sm: 12px; --font-md: 16px; --font-lg: 18px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif; background: var(--bg-page); color: var(--text); line-height: 1.6; }
+.container { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+h2 { font-size: 20px; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 16px; margin: 20px 0 8px; }
+p { font-size: 14px; margin-bottom: 8px; }
+code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+th { background: #fafafa; font-weight: 600; }
+.section { background: var(--bg); border-radius: 12px; padding: 20px; margin: 16px 0; border: 1px solid var(--border); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.badge-a { background: #e6f7e6; color: #16A34A; }
+.badge-b { background: #fef3e6; color: #F59E0B; }
+.badge-c { background: #f0f0f0; color: #888; }
+.mock { display: flex; gap: 24px; flex-wrap: wrap; margin: 16px 0; align-items: stretch; }
+.mock-item { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); min-width: 180px; }
+.cd-box { display: inline-flex; align-items: center; gap: 4px; padding: 8px 12px; background: #1a1a1a; color: #fff; border-radius: 6px; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.cd-sep { color: #888; }
+.cd-label { color: var(--text-2); font-size: 12px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 4px 12px; border: 1px solid var(--primary); color: var(--primary); border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>CountDown 倒计时</h1>
+<p>组件 ID：<code>ui.count-down</code> ｜ 任务清单 #66 ｜ 信息展示区 ｜ TMO 组件库 v1.4.27</p>
+<p>定位：纯展示型倒计时数字组件——输入目标结束时间戳（或剩余秒数），组件自驱每秒刷新显示格式化字符串（DD 天 HH:mm:ss / HH:mm:ss / mm:ss），结束时触发 onEnd 回调。不负责业务逻辑（跳转/提示由宿主在 onEnd 处理）。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation 情景</h3>
+<p>App 中大量场景需要倒计时数字展示：秒杀活动倒计时、验证码重发倒计时、订单支付时限、活动开始/结束倒计时。</p>
+<h3>Complication 冲突</h3>
+<p>没有统一组件时=各业务页用 Handler/postDelayed 自写计时+拼字符串，暂停/继续、格式化、结束回调各实现一遍，时间漂移、页面切后台后计时错乱。</p>
+<h3>Question 问题</h3>
+<p>需要一个倒计时展示组件：支持绝对目标时间戳驱动（精度高、不受暂停影响），支持自定义格式串（HH:mm:ss / DD 天 HH:mm:ss / mm:ss），支持半受控暂停/继续，结束时回调宿主。</p>
+<h3>Answer 方案</h3>
+<p>CountDown——纯展示型内容组件，targetTime（绝对时间戳）优先、remaining（剩余秒数）便捷参数，每秒重算 remaining = targetTime - now（基于时间戳、无累积误差），format 字符串占位符替换（DD/HH/mm/ss），paused 半受控（暂停时停表、恢复时把暂停时长累加到 targetTime 保持剩余值连续），onEnd 结束回调。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 CountDown 划界</th></tr>
+<tr><td>Progress #64</td><td>进度条/环形进度</td><td>Progress=进度比例可视化（0-100%），CountDown=时间数字倒计；Progress 用百分比，CountDown 用时间字符串</td></tr>
+<tr><td>Toast #59</td><td>短暂浮层提示</td><td>Toast=居中短暂自动消失提示，CountDown=持久嵌入页面的时间数字</td></tr>
+<tr><td>Skeleton #67</td><td>骨架屏占位</td><td>Skeleton=内容加载前的占位灰块，CountDown=已加载内容中的倒计时数字</td></tr>
+<tr><td>NoticeBar #51</td><td>公告栏横向滚动</td><td>NoticeBar=文字横向滚动公告，CountDown=固定位置时间数字递减</td></tr>
+</table>
+
+<h2>3. Token 清单</h2>
+<div class="section">
+<table>
+<tr><th>Token</th><th>值</th><th>用途</th></tr>
+<tr><td><code>color.textPrimary</code></td><td>#111827</td><td>倒计时数字主色（深灰近黑）</td></tr>
+<tr><td><code>color.textSecondary</code></td><td>#6B7280</td><td>分隔符（":"/"天"）次级色</td></tr>
+<tr><td><code>color.error</code></td><td>#DC2626</td><td>结束时态强调色（剩余 ≤ 阈值可选）</td></tr>
+<tr><td><code>color.bgCard</code></td><td>#FFFFFF / #1a1a1a</td><td>数字单元格背景（一期纯文本可省，二期单元格样式）</td></tr>
+<tr><td><code>color.textInverse</code></td><td>#FFFFFF</td><td>单元格样式白字（二期）</td></tr>
+<tr><td><code>font.sizeLg</code></td><td>18</td><td>倒计时数字字号（突出展示）</td></tr>
+<tr><td><code>font.sizeMd</code></td><td>16</td><td>辅助文案字号</td></tr>
+<tr><td><code>space.sm</code></td><td>8</td><td>数字与分隔符间距</td></tr>
+<tr><td><code>radius.sm</code></td><td>6</td><td>单元格样式圆角（二期）</td></tr>
+<tr><td>weight.Semibold</td><td>600</td><td>数字字重（tabular-nums 等宽数字，避免抖动）</td></tr>
+</table>
+<p>说明：一期为纯文本格式化展示（一个 Text/UILabel 渲染整串），不渲染独立单元格；二期增量=数字单元格分隔样式（每个数字独立圆角背景块）。Token 已覆盖两期。</p>
+</div>
+
+<h2>4. 决策投票表（ACE 模型：选项 / 评估后果 / 选最优）</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项（Alternatives）</th><th>评估后果（Consequences）</th><th>选定（Evaluate）</th></tr>
+<tr>
+<td>P1</td>
+<td>时间驱动方式</td>
+<td>A. 仅 targetTime 绝对时间戳<br>B. 仅 remaining 相对剩余秒<br>C. 同时支持 targetTime + remaining，targetTime 优先</td>
+<td>A. 精度高、不受暂停/挂起影响；但调用方需算时间戳<br>B. 简单直接；但暂停/后台后基于"剩余秒"自减会漂移、需自维护基准<br>C. 两全：默认 targetTime 精确驱动，remaining 便捷入口（内部转 targetTime=now+remaining）</td>
+<td><span class="badge badge-a">C</span></td>
+</tr>
+<tr>
+<td>P2</td>
+<td>计时驱动实现</td>
+<td>A. iOS Timer.scheduledTimer + Android LaunchedEffect+delay 循环，每秒重算 remaining=target-now<br>B. iOS CADisplayLink + Android Handler 60fps<br>C. 累积自减（每秒 remaining--）</td>
+<td>A. 每秒基于时间戳重算=无累积误差（手册要求"用整数秒计算，避免浮点累积误差"），1Hz 足够，省电<br>B. 60fps 杀鸡用牛刀，倒计时秒级精度无需<br>C. 累积误差：每次 tick 漂移几十 ms，长时间/后台后明显失真</td>
+<td><span class="badge badge-a">A</span></td>
+</tr>
+<tr>
+<td>P3</td>
+<td>暂停语义</td>
+<td>A. 半受控 paused 属性（外部驱动 true/false），暂停时停表、恢复时把暂停时长累加到 targetTime<br>B. 命令式 start()/pause()/reset() 方法<br>C. autoStart + 暂停时改 targetTime</td>
+<td>A. 声明式、与 React NutUI paused 对齐、易组合；恢复时 targetTime += (now-pauseStart) 剩余值连续<br>B. 命令式与 Compose 声明式范式冲突、需 ref 暴露方法<br>C. 把控制流混入数据流，语义不清</td>
+<td><span class="badge badge-a">A</span></td>
+</tr>
+<tr>
+<td>P4</td>
+<td>一期范围</td>
+<td>A. 一期=基础倒计时+自定义格式+暂停/继续+onEnd 回调+纯文本格式化+demo 四段<br>B. 二期=数字单元格分隔样式、毫秒级、自定义渲染插槽</td>
+<td>A. 覆盖 95% 业务场景（秒杀/验证码/订单时限/活动倒计时），纯文本格式化即 NutUI 默认形态<br>B. 单元格样式/毫秒=二期增量，一期不做避免过度设计</td>
+<td><span class="badge badge-a">A</span></td>
+</tr>
+</table>
+</div>
+
+<h2>5. 四组 Demo 预览</h2>
+<div class="mock">
+<div class="mock-item">
+<div class="cd-box"><span>01</span><span class="cd-sep">:</span><span>00</span><span class="cd-sep">:</span><span>00</span></div>
+<p class="cd-label">D1 基础倒计时<br>剩余 1 小时 · HH:mm:ss</p>
+</div>
+<div class="mock-item">
+<div class="cd-box"><span>01</span><span class="cd-sep"> 天 </span><span>02</span><span class="cd-sep">:</span><span>30</span><span class="cd-sep">:</span><span>45</span></div>
+<p class="cd-label">D2 自定义格式<br>长倒计时 · DD 天 HH:mm:ss</p>
+</div>
+<div class="mock-item">
+<div class="cd-box"><span>00</span><span class="cd-sep">:</span><span>03</span><span class="cd-sep">:</span><span>20</span></div>
+<span class="btn">暂停</span>
+<p class="cd-label">D3 暂停/继续<br>半受控 paused 外部驱动</p>
+</div>
+<div class="mock-item">
+<div class="cd-box"><span>00</span><span class="cd-sep">:</span><span>00</span><span class="cd-sep">:</span><span>00</span></div>
+<p class="cd-label" style="color:var(--danger)">D4 结束回调<br>onEnd 触发宿主提示</p>
+</div>
+</div>
+
+<h2>6. 平台差异预告</h2>
+<table>
+<tr><th>差异点</th><th>iOS（UIKit）</th><th>Android（Compose）</th><th>判据</th></tr>
+<tr><td>计时驱动</td><td>Timer.scheduledTimer(timeInterval:1, repeats:true, block)</td><td>LaunchedEffect + delay(1000) 循环</td><td>表内放行（各自平台惯用计时 API，语义一致=每秒基于时间戳重算）</td></tr>
+<tr><td>暂停实现</td><td>pause 时 invalidate Timer 存 pauseStart；resume 时 targetTime += now-pauseStart 重建 Timer</td><td>LaunchedEffect keyed by paused：paused=true 时空循环不 advance；resume 时同公式累加 targetTime</td><td>表内放行（算法同构，暂停期间剩余值连续）</td></tr>
+<tr><td>渲染</td><td>UILabel.text 替换 + textColor/font</td><td>Text(text=, color=, fontSize=, fontWeight=)</td><td>无差异（纯文本格式化）</td></tr>
+<tr><td>等宽数字</td><td>UIFont.monospacedDigitSystemFont</td><td>tabular-nums（PlatformTextStyle）</td><td>表内放行（同视觉效果=数字不抖动）</td></tr>
+</table>
+
+<h2>7. API 速览</h2>
+<div class="section">
+<h3>Props</h3>
+<table>
+<tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>targetTime</code></td><td>Long（epoch 毫秒）</td><td>0</td><td>目标结束时间戳（绝对时间，优先级高于 remaining）。0 表示用 remaining</td></tr>
+<tr><td><code>remaining</code></td><td>Long（秒）</td><td>0</td><td>剩余秒数（targetTime 为 0 时使用，内部转 targetTime = now + remaining×1000）</td></tr>
+<tr><td><code>format</code></td><td>String</td><td>"HH:mm:ss"</td><td>格式串，占位符：DD=天 / HH=时 / mm=分 / ss=秒，支持字面量（如"DD 天 HH:mm:ss"、"mm:ss"）</td></tr>
+<tr><td><code>autoStart</code></td><td>Boolean</td><td>true</td><td>是否自动开始倒计时（false 时需外部把 paused 置 false 启动）</td></tr>
+<tr><td><code>paused</code></td><td>Boolean</td><td>false</td><td>半受控暂停：true=暂停计时（停表保剩余值）；false=继续（targetTime 累加暂停时长）</td></tr>
+</table>
+<h3>Events</h3>
+<table>
+<tr><th>事件</th><th>类型</th><th>触发时机</th></tr>
+<tr><td><code>onEnd</code></td><td>() -&gt; Unit</td><td>剩余时间归零（remaining ≤ 0）时触发一次；业务结束动作（跳转/提示）由宿主在此处理</td></tr>
+</table>
+<h3>格式占位符</h3>
+<table>
+<tr><th>占位符</th><th>含义</th><th>示例（剩余 1 天 2 时 30 分 45 秒）</th></tr>
+<tr><td>DD</td><td>天（2 位，不足补 0）</td><td>01</td></tr>
+<tr><td>HH</td><td>时（2 位，24 小时制）</td><td>02</td></tr>
+<tr><td>mm</td><td>分（2 位）</td><td>30</td></tr>
+<tr><td>ss</td><td>秒（2 位）</td><td>45</td></tr>
+</table>
+<p>常用组合：<code>HH:mm:ss</code>（1 小时内）/ <code>DD 天 HH:mm:ss</code>（跨天）/ <code>mm:ss</code>（分钟内）。</p>
+</div>
+
+</div>
+</body>
+</html>

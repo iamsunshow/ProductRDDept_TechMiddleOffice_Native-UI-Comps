@@ -14,6 +14,35 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.28] - 2026-09-10
+
+信息展示区三组件合并发版（Collapse 折叠面板 #65 + CountDown 倒计时 #66 + Ellipsis 文本省略 #67，MINOR）。
+
+### Added
+
+- **Collapse 折叠面板双端组件入库（#65 ui.collapse）**：
+  - iOS `CollapseView.swift`（UIKit）：UIStackView 垂直布局+tap 手势+chevron 旋转+contentContainer 显隐；混合受控 activeKeys（nil=内部自管理，非空=受控）；accordion 手风琴互斥。
+  - Android `Collapse.kt`（Compose）：混合受控（activeKeys null 走内部状态）+accordion 手风琴+chevron 旋转 90°+disabled 置灰+分隔线。
+  - 门禁 A：`collapse-design-spec.html`+`review-collapse-A.md`（AI 代评 A1-A7 全 ✅）；门禁 B：api.json `ui.collapse` 条目（reviewed=true）。
+- **CountDown 倒计时双端组件入库（#66 ui.count-down）**：
+  - iOS `CountDownView.swift`（UIKit）：UIView 子类+SnapKit 内嵌 UILabel；Timer.scheduledTimer 每秒基于时间戳重算 remaining=target-now+pausedAccum+ongoing（无累积误差）；targetTime/remaining 双入口（targetTime 优先）；paused 半受控（pause 记 pauseStart+invalidate，resume 折叠暂停时长进 pausedAccum+重建 Timer）；format replacingOccurrences DD/HH/mm/ss；onEnd 逃逸闭包 [weak self]+显式 self. 前缀+ended 防重；monospacedDigitSystemFont 等宽数字防秒数抖动。
+  - Android `CountDown.kt`（Compose）：LaunchedEffect+delay(1000) 每秒同算法重算；targetTime/remaining 双入口；paused 半受控（running=autoStart&&!paused）；format replace DD/HH/mm/ss；onEnd 在 remMs≤0 触发一次。
+  - 门禁 A：`countdown-design-spec.html`+`review-countdown-A.md`（AI 代评 A1-A7 全 ✅）；门禁 B：api.json `ui.count-down` 条目（reviewed=true）。
+- **Ellipsis 文本省略双端组件入库（#67 ui.ellipsis）**：
+  - iOS `EllipsisView.swift`（UIKit）：UIView 子类包裹 UILabel+展开按钮 UILabel；收起态 numberOfLines=rows+lineBreakMode=.byTruncatingTail；展开态 numberOfLines=0；UITapGestureRecognizer(target:action:) 老式点击（兼容低版本）；expanded didSet 响应式更新；半受控 expanded（nil=内部自持）。
+  - Android `Ellipsis.kt`（Compose）：Column 包裹 Text+展开按钮 Text；收起态 maxLines=rows+overflow=TextOverflow.Ellipsis；展开态 maxLines=Int.MAX_VALUE；expanded=null 内部 remember mutableStateOf 自持/非 null 外部驱动；Modifier.clickable 点击切换。
+  - 门禁 A：`ellipsis-design-spec.html`+`review-ellipsis-A.md`（AI 代评 A1-A7 全 ✅）；门禁 B：api.json `ui.ellipsis` 条目（reviewed=true）。
+- **三件双端 Demo 4 段 1:1**：Collapse（D1 基础折叠/D2 手风琴/D3 禁用项/D4 受控外部驱动）/ CountDown（D1 基础倒计时/D2 跨天格式/D3 暂停继续/D4 结束回调）/ Ellipsis（D1 单行省略/D2 多行省略 rows=3/D3 自定义文案/D4 受控外部驱动）。
+- **api.json componentCount 42→45**（+3 新组件）。
+
+### Fixed
+
+- **CountDown iOS 编译错误修复**：`Date.timeIntervalSince1970` 是实例属性非静态属性，需用 `Date().timeIntervalSince1970`（创建 Date 实例后访问）。全文件 5 处替换。
+
+### Patched
+
+- 组件库全局版本 1.4.27 → 1.4.28。
+
 ## \[1.4.27] - 2026-09-10
 
 Carousel iOS 指示器恢复正式绿色 + 清理调试代码（PATCH）。

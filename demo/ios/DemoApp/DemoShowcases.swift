@@ -115,9 +115,9 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.badge", name: "Badge 徽标", reviewed: true, create: { BadgeShowcase() }, passed: true),
             DemoComponent(id: "ui.cell", name: "Cell 单元格", reviewed: true, create: { CellShowcase() }, passed: true),
             DemoComponent(id: "ui.carousel", name: "Carousel 轮播", reviewed: true, create: { CarouselShowcase() }, passed: true),
-            DemoComponent(id: "ui.collapse", name: "Collapse 折叠面板", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.count-down", name: "CountDown 倒计时", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.ellipsis", name: "Ellipsis 文本省略", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.collapse", name: "Collapse 折叠面板", reviewed: true, create: { CollapseShowcase() }, passed: true),
+            DemoComponent(id: "ui.count-down", name: "CountDown 倒计时", reviewed: true, create: { CountDownShowcase() }, passed: true),
+            DemoComponent(id: "ui.ellipsis", name: "Ellipsis 文本省略", reviewed: true, create: { EllipsisShowcase() }, passed: true),
             DemoComponent(id: "ui.empty", name: "Empty 空状态", reviewed: true, create: { EmptyShowcase() }, passed: true),
             DemoComponent(id: "ui.image", name: "Image 图片", reviewed: true, create: { ImageShowcase() }, passed: true),
             DemoComponent(id: "ui.image-preview", name: "ImagePreview 图片预览", reviewed: false, create: nil, planned: true),
@@ -8273,6 +8273,386 @@ final class BadgeShowcase: ShowcaseViewController {
             make.center.equalToSuperview()
         }
         return host
+    }
+}
+
+// MARK: - CountDown Showcase（CountDown 倒计时 Demo 页，信息展示区 #66，验证组件库 v1.4.27，demo 徽标 v1.0）
+// D1 基础倒计时（remaining=3600s，HH:mm:ss）/ D2 自定义格式（跨天 DD 天 HH:mm:ss）/
+// D3 暂停/继续（半受控 paused 外部按钮驱动，恢复后剩余值连续）/ D4 结束回调（5s 短倒计时 onEnd 触发宿主提示）
+final class CountDownShowcase: ShowcaseViewController {
+
+    private var d3CountDown: CountDownView?
+    private var d3Button: UIButton?
+    private var d4Container: UIView?
+    private var d4CountDown: CountDownView?
+    private var d4Feedback: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "CountDown 倒计时"
+        addVersionBadge(componentName: "CountDown", version: "v1.4.27", builtAt: "2026-09-10 00:00:00")
+
+        // D1 基础倒计时：剩余 1 小时，format=HH:mm:ss
+        addSection(title: "D1 基础倒计时（remaining=3600s，HH:mm:ss）") { container in
+            let cd = CountDownView(remaining: 3600, format: "HH:mm:ss")
+            container.addSubview(cd)
+            cd.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("排查点：显示「01:00:00」并每秒自驱递减至「00:00:00」；基于时间戳重算无累积误差。")
+
+        // D2 自定义格式：跨天长倒计时，format=DD 天 HH:mm:ss
+        addSection(title: "D2 自定义格式（跨天长倒计时，DD 天 HH:mm:ss）") { container in
+            // 1 天 2 时 30 分 45 秒 = 86400 + 7200 + 1800 + 45 = 95445 秒
+            let cd = CountDownView(remaining: 95445, format: "DD 天 HH:mm:ss")
+            container.addSubview(cd)
+            cd.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("排查点：显示「01 天 02:30:45」并每秒递减；占位符 DD/HH/mm/ss 替换为 2 位数字，字面量「 天 」原样保留。")
+
+        // D3 暂停/继续：半受控 paused 外部按钮驱动
+        addSection(title: "D3 暂停/继续（半受控 paused 外部驱动）") { container in
+            let button = UIButton(type: .system)
+            button.setTitle("暂停", for: .normal)
+            button.setTitleColor(.white, for: .normal)
+            button.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .medium)
+            button.backgroundColor = AppColor.primary
+            button.layer.cornerRadius = AppRadius.sm
+            button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+            button.addTarget(self, action: #selector(toggleD3), for: .touchUpInside)
+            container.addSubview(button)
+            button.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.top.equalToSuperview()
+            }
+            let cd = CountDownView(remaining: 600, format: "mm:ss")
+            container.addSubview(cd)
+            cd.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.top.equalTo(button.snp.bottom).offset(AppSpace.md)
+                make.bottom.equalToSuperview()
+            }
+            self.d3CountDown = cd
+            self.d3Button = button
+        }
+        addInfo("排查点：点「暂停」倒计时冻结（mm:ss 停住），点「继续」从冻结值恢复递减（不跳秒，剩余值连续）。")
+
+        // D4 结束回调：短倒计时 5 秒，onEnd 触发宿主提示
+        addSection(title: "D4 结束回调（remaining=5s，onEnd 触发宿主提示）") { container in
+            let button = UIButton(type: .system)
+            button.setTitle("重置 5 秒倒计时", for: .normal)
+            button.setTitleColor(.white, for: .normal)
+            button.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .medium)
+            button.backgroundColor = AppColor.primary
+            button.layer.cornerRadius = AppRadius.sm
+            button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+            button.addTarget(self, action: #selector(resetD4), for: .touchUpInside)
+            container.addSubview(button)
+            button.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.top.equalToSuperview()
+            }
+            let cdContainer = UIView()
+            container.addSubview(cdContainer)
+            cdContainer.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.top.equalTo(button.snp.bottom).offset(AppSpace.md)
+                make.bottom.equalToSuperview()
+                make.height.greaterThanOrEqualTo(40)
+            }
+            self.d4Container = cdContainer
+            self.installD4CountDown()
+        }
+        let feedback = addDynamicInfo("排查点：5 秒后倒计时归零，onEnd 触发，提示文案由灰变绿。")
+        self.d4Feedback = feedback
+    }
+
+    // MARK: - D3 暂停/继续
+
+    @objc private func toggleD3() {
+        guard let cd = d3CountDown else { return }
+        cd.paused = !cd.paused
+        d3Button?.setTitle(cd.paused ? "继续" : "暂停", for: .normal)
+    }
+
+    // MARK: - D4 结束回调
+
+    /// 安装一个新的 5 秒 CountDownView 到 d4Container（首次及重置时调用）。
+    private func installD4CountDown() {
+        d4CountDown?.removeFromSuperview()
+        // onEnd 为逃逸闭包：[weak self] 避免与 self 互相持有；显式 self?.d4Ended() 前缀。
+        let cd = CountDownView(remaining: 5, format: "ss 秒", onEnd: { [weak self] in
+            self?.d4Ended()
+        })
+        d4Container?.addSubview(cd)
+        cd.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+        d4CountDown = cd
+        d4Feedback?.text = "排查点：5 秒后倒计时归零，onEnd 触发，提示文案由灰变绿。"
+        d4Feedback?.textColor = AppColor.textSecondary
+    }
+
+    @objc private func resetD4() {
+        installD4CountDown()
+    }
+
+    private func d4Ended() {
+        d4Feedback?.text = "✅ 倒计时结束，onEnd 已触发宿主提示"
+        d4Feedback?.textColor = AppColor.primary
+    }
+}
+
+// MARK: - Ellipsis Showcase（Ellipsis 文本省略 Demo 页，信息展示区 #67，验证组件库 v1.4.27，demo 徽标 v1.0）
+// D1 基础单行省略+点击展开/收起（rows=1，expanded=nil 内部自持）
+// D2 多行省略（rows=3 长文本截断+展开）
+// D3 自定义展开收起文案（expandText="查看全部" / collapseText="收起内容"）
+// D4 受控外部驱动 expanded（外部按钮控制展开态+onExpandChange 回调）
+final class EllipsisShowcase: ShowcaseViewController {
+
+    private var d4Ellipsis: EllipsisView?
+    private var d4Feedback: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Ellipsis 文本省略"
+
+        addVersionBadge(componentName: "Ellipsis", version: "v1.4.27", builtAt: "2026-09-10 00:00:00")
+
+        // D1 基础单行省略 + 点击展开/收起（rows=1，expanded=nil 内部自持）
+        addSection(title: "D1 基础单行省略 + 点击展开/收起（rows=1）") { container in
+            let ellipsis = EllipsisView(
+                content: "这是一段很长的文本内容用于演示单行省略效果，当文本超出容器宽度时会自动截断显示省略号，点击可展开查看完整内容。",
+                rows: 1
+            )
+            container.addSubview(ellipsis)
+            ellipsis.snp.makeConstraints { make in
+                make.leading.trailing.top.equalToSuperview()
+                make.bottom.equalToSuperview().offset(-AppSpace.xs)
+            }
+        }
+        addInfo("排查点：单行文本超出宽度截断尾部省略号；点击文本任意位置展开显示全文+「收起」按钮；点击「收起」恢复截断。expanded=nil=内部自持 state。")
+
+        // D2 多行省略（rows=3 长文本截断 + 展开）
+        addSection(title: "D2 多行省略（rows=3 长文本截断 + 展开）") { container in
+            let ellipsis = EllipsisView(
+                content: "这是一段很长的多行文本内容用于演示多行省略效果。当文本超过指定行数（此处 rows=3）时，会在第三行末尾截断并显示省略号。用户可以点击展开按钮查看完整内容，再次点击则收起回到截断状态。多行省略在商品描述、活动公告等场景非常常用，能够有效控制页面布局不被过长文本撑开。",
+                rows: 3
+            )
+            container.addSubview(ellipsis)
+            ellipsis.snp.makeConstraints { make in
+                make.leading.trailing.top.equalToSuperview()
+                make.bottom.equalToSuperview().offset(-AppSpace.xs)
+            }
+        }
+        addInfo("排查点：3 行后截断尾部省略号；点击展开后显示全文 + 「收起」按钮；点击收起恢复 3 行截断。")
+
+        // D3 自定义展开收起文案
+        addSection(title: "D3 自定义展开收起文案（expandText=\"查看全部\" / collapseText=\"收起内容\"）") { container in
+            let ellipsis = EllipsisView(
+                content: "自定义展开收起文案的演示文本，展开按钮文字改为「查看全部」，收起按钮文字改为「收起内容」，满足不同业务场景的文案需求。例如电商商品详情可能用「查看全部」更自然，而通知列表可能用「展开全文」更合适。",
+                rows: 2,
+                expandText: "查看全部",
+                collapseText: "收起内容"
+            )
+            container.addSubview(ellipsis)
+            ellipsis.snp.makeConstraints { make in
+                make.leading.trailing.top.equalToSuperview()
+                make.bottom.equalToSuperview().offset(-AppSpace.xs)
+            }
+        }
+        addInfo("排查点：展开按钮显示「查看全部」而非默认「展开」；收起按钮显示「收起内容」而非默认「收起」。")
+
+        // D4 受控外部驱动 expanded（外部按钮控制展开态）
+        addSection(title: "D4 受控外部驱动 expanded（外部按钮控制展开态）") { container in
+            let feedback = UILabel()
+            feedback.text = "等待 onExpandChange 回调…"
+            feedback.font = .systemFont(ofSize: AppFont.sizeXs)
+            feedback.textColor = AppColor.primary
+            feedback.numberOfLines = 0
+            container.addSubview(feedback)
+
+            let ellipsis = EllipsisView(
+                content: "受控模式演示：expanded 由外部 state 驱动，组件内部不自持。点击下方按钮切换展开/收起态，onExpandChange 回调会通知外部。受控模式适用于需要在外部逻辑中管理展开态的场景，例如只有登录用户才能展开全文。",
+                rows: 2,
+                expanded: false,
+                onExpandChange: { [weak self] newValue in
+                    self?.d4Feedback?.text = "onExpandChange 回调：expanded=\(newValue)（外部按钮可同步切换）"
+                }
+            )
+            container.addSubview(ellipsis)
+            ellipsis.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+                make.top.equalTo(feedback.snp.bottom).offset(AppSpace.xs)
+            }
+
+            let expandBtn = AppButton.primary("外部展开")
+            let collapseBtn = AppButton.primary("外部收起")
+
+            let buttonRow = UIStackView(arrangedSubviews: [expandBtn, collapseBtn])
+            buttonRow.axis = .horizontal
+            buttonRow.spacing = AppSpace.sm
+            buttonRow.distribution = .fillEqually
+            container.addSubview(buttonRow)
+            buttonRow.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+                make.top.equalTo(ellipsis.snp.bottom).offset(AppSpace.sm)
+                make.bottom.equalToSuperview()
+                make.height.equalTo(40)
+            }
+
+            expandBtn.addTarget(self, action: #selector(Self.d4Expand(_:)), for: .touchUpInside)
+            collapseBtn.addTarget(self, action: #selector(Self.d4Collapse(_:)), for: .touchUpInside)
+
+            self.d4Ellipsis = ellipsis
+            self.d4Feedback = feedback
+        }
+        addInfo("排查点：外部按钮点击后文本展开/收起；onExpandChange 回调触发反馈条更新；组件不自持 state 完全由外部 expanded 驱动。")
+    }
+
+    @objc private func d4Expand(_ sender: AppButton) {
+        d4Ellipsis?.expanded = true
+        d4Feedback?.text = "外部按钮设置 expanded=true"
+    }
+
+    @objc private func d4Collapse(_ sender: AppButton) {
+        d4Ellipsis?.expanded = false
+        d4Feedback?.text = "外部按钮设置 expanded=false"
+    }
+}
+
+// MARK: - Collapse Showcase（Collapse 折叠面板 Demo 页，信息展示区 #65，验证组件库 v1.4.27）
+// D1 基础折叠（多项可同时展开）/ D2 手风琴模式（只展一项，展新收旧）/
+// D3 禁用项（标题置灰不可展）/ D4 受控外部驱动（外部 activeKeys 控制）
+final class CollapseShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Collapse 折叠面板"
+
+        addVersionBadge(componentName: "Collapse", version: "v1.4.27", builtAt: "2026-09-10 00:00:00")
+
+        // D1 基础折叠：多项可同时展开（activeKeys=nil 内部自管理）
+        addSection(title: "D1 基础折叠（多项可同时展开）") { container in
+            let panel = CollapseView()
+            panel.items = [
+                CollapseItem(key: "1", title: "标题一", contentView: Self.makeBody("NutUI 是一套京东风格的多端组件库，支持 React、Vue、小程序等多端开发，提供建议的组件与业务页面。")),
+                CollapseItem(key: "2", title: "标题二", contentView: Self.makeBody("Collapse 折叠面板：可折叠/展开的内容区域，用于将较长内容分组收纳，节省页面纵向空间。")),
+                CollapseItem(key: "3", title: "标题三", contentView: Self.makeBody("手风琴模式（accordion）下同时只允许一项展开，展开新项时自动收起旧项。")),
+            ]
+            container.addSubview(panel)
+            panel.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("排查点：三项均可独立展开/收起，互不影响；右侧箭头展开时由右指旋转为下指；项间有分隔线。")
+
+        // D2 手风琴模式：accordion=true，只展一项
+        addSection(title: "D2 手风琴模式（accordion，只展一项）") { container in
+            let panel = CollapseView()
+            panel.accordion = true
+            panel.items = [
+                CollapseItem(key: "a", title: "第一章 概述", contentView: Self.makeBody("本章介绍组件库的整体定位与设计原则。")),
+                CollapseItem(key: "b", title: "第二章 安装", contentView: Self.makeBody("本章说明如何引入组件库并初始化主题。")),
+                CollapseItem(key: "c", title: "第三章 使用", contentView: Self.makeBody("本章演示基础组件与业务组件的调用方式。")),
+            ]
+            container.addSubview(panel)
+            panel.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("排查点：展开新项时自动收起旧项，同时最多一项展开。")
+
+        // D3 禁用项：第二项 disabled=true
+        addSection(title: "D3 禁用项（标题置灰不可展开）") { container in
+            let panel = CollapseView()
+            panel.items = [
+                CollapseItem(key: "x1", title: "可用项", contentView: Self.makeBody("点击标题可展开/收起此项内容。")),
+                CollapseItem(key: "x2", title: "禁用项（不可展开）", contentView: Self.makeBody("此项不可展开。"), disabled: true),
+                CollapseItem(key: "x3", title: "可用项", contentView: Self.makeBody("此项正常展开。")),
+            ]
+            container.addSubview(panel)
+            panel.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+        addInfo("排查点：第二项「禁用项」标题置灰、箭头灰、点击无响应不展开。")
+
+        // D4 受控外部驱动：外部 activeKeys 控制，按钮切换
+        addSection(title: "D4 受控外部驱动（外部 activeKeys 控制）") { container in
+            let panel = CollapseView()
+            // 受控：activeKeys 非空，由外部 state 驱动。
+            panel.activeKeys = ["k1"]
+            panel.items = [
+                CollapseItem(key: "k1", title: "受控项一", contentView: Self.makeBody("外部 activeKeys 包含此项 key 时展开，否则收起。")),
+                CollapseItem(key: "k2", title: "受控项二", contentView: Self.makeBody("点击标题仍可切换，但最终态由外部 state 决定（onChange 回写）。")),
+            ]
+            // onChange 回写外部 state，保证点击标题也能更新受控态。
+            panel.onChange = { [weak panel] keys in
+                panel?.activeKeys = keys
+            }
+            container.addSubview(panel)
+            panel.snp.makeConstraints { make in
+                make.top.leading.trailing.equalToSuperview()
+            }
+
+            // 按钮行：切换受控 activeKeys
+            let buttonRow = UIStackView()
+            buttonRow.axis = .horizontal
+            buttonRow.spacing = AppSpace.sm
+            buttonRow.distribution = .fillEqually
+            container.addSubview(buttonRow)
+            buttonRow.snp.makeConstraints { make in
+                make.top.equalTo(panel.snp.bottom).offset(AppSpace.md)
+                make.leading.trailing.bottom.equalToSuperview()
+                make.height.equalTo(40)
+            }
+            for title in ["只展项一", "只展项二", "全部收起"] {
+                let btn = UIButton(type: .system)
+                btn.setTitle(title, for: .normal)
+                btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
+                btn.tintColor = AppColor.primary
+                // 手册禁令：用 target/action + objc，不用 UIAction block。
+                btn.addTarget(self, action: #selector(self.collapseControlButtonTapped(_:)), for: .touchUpInside)
+                buttonRow.addArrangedSubview(btn)
+            }
+            // 按钮以 title 映射驱动 activeKeys（见下方 collapseControlButtonTapped）。
+            self.collapseControlPanel = panel
+        }
+        addInfo("排查点：外部按钮切换 activeKeys 驱动面板展开态；点击标题也可切换并通过 onChange 回写外部 state。")
+    }
+
+    // MARK: - D4 受控按钮处理
+
+    /// D4 受控面板句柄（按钮点击时回写 activeKeys）。
+    private weak var collapseControlPanel: CollapseView?
+
+    @objc private func collapseControlButtonTapped(_ sender: UIButton) {
+        guard let panel = collapseControlPanel else { return }
+        let title = sender.title(for: .normal) ?? ""
+        switch title {
+        case "只展项一": panel.activeKeys = ["k1"]
+        case "只展项二": panel.activeKeys = ["k2"]
+        case "全部收起": panel.activeKeys = []
+        default: break
+        }
+    }
+
+    // MARK: - 工具
+
+    /// 构造内容文本视图（与 Android BodyText 一致：sizeSm + textSecondary）。
+    private static func makeBody(_ text: String) -> UIView {
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: AppFont.sizeSm)
+        label.textColor = AppColor.textSecondary
+        label.numberOfLines = 0
+        return label
     }
 }
 

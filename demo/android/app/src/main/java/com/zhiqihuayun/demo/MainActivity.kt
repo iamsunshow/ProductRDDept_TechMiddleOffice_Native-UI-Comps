@@ -335,7 +335,6 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Empty 空状态", reviewed = true, demo = { EmptyDemo() }, passed = true),
         DemoComponent("Image 图片", reviewed = true, demo = { ImageDemo() }, passed = true),
         DemoComponent("ImagePreview 图片预览", planned = true),
-        DemoComponent("LineChart 折线图", reviewed = true, demo = { LineChartDemo() }),
         DemoComponent("List 分组列表", reviewed = true, demo = { ListDemo() }),
         DemoComponent("Loading 加载中", reviewed = true, demo = { LoadingDemo() }),
         DemoComponent("Lottie 动画", planned = true),
@@ -351,6 +350,9 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Tour 引导", planned = true),
         DemoComponent("Video 视频播放器"),
         DemoComponent("VirtualList 虚拟列表", planned = true),
+    ),
+    "图表组件" to listOf(
+        DemoComponent("LineChart 折线图", reviewed = true, demo = { LineChartDemo() }),
     ),
     "特色组件" to listOf(
         DemoComponent("QuickEnter 快捷入口"),

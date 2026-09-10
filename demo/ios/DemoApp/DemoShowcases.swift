@@ -121,7 +121,6 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.empty", name: "Empty 空状态", reviewed: true, create: { EmptyShowcase() }, passed: true),
             DemoComponent(id: "ui.image", name: "Image 图片", reviewed: true, create: { ImageShowcase() }, passed: true),
             DemoComponent(id: "ui.image-preview", name: "ImagePreview 图片预览", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.line-chart", name: "LineChart 折线图", reviewed: true, create: { LineChartShowcase() }),
             DemoComponent(id: "ui.list", name: "List 分组列表", reviewed: true, create: { ListShowcase() }),
             DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: true, create: { LoadingShowcase() }),
             DemoComponent(id: "ui.lottie", name: "Lottie 动画", reviewed: false, create: nil, planned: true),
@@ -137,6 +136,9 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.tour", name: "Tour 引导", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.video", name: "Video 视频播放器", reviewed: false, create: nil),
             DemoComponent(id: "ui.virtual-list", name: "VirtualList 虚拟列表", reviewed: false, create: nil, planned: true),
+        ]),
+        ("图表组件", [
+            DemoComponent(id: "ui.line-chart", name: "LineChart 折线图", reviewed: true, create: { LineChartShowcase() }),
         ]),
         ("特色组件", [
             DemoComponent(id: "ui.quick-enter", name: "QuickEnter 快捷入口", reviewed: false, create: nil),

@@ -14,6 +14,25 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.4.29] - 2026-09-10
+
+TrendChartView 双端视觉对齐修复（PATCH）。
+
+### Fixed
+
+- **Android TrendChartView 4 处视觉差异对齐 iOS**：
+  - ① **数据节点圆圈恢复显示**：原 Canvas padLeft=40f(px) 远小于 Y 轴标签 40dp(≈105px@density=2.625)，数据点圆圈画在 Y 轴标签区域内被文字覆盖；重构后单 Canvas 统一绘制，圆圈不再被覆盖。
+  - ② **起始点不再跑进纵坐标**：原第一个数据点 x=40px 落在 Y 轴标签 40dp 区域内；重构后 yAxisWPx=40dp 经 LocalDensity 转 px，第一个数据点在 Y 轴标签右侧。
+  - ③ **X 轴标签上方圆圈对齐**：原数据点 x 坐标与 X 轴标签 x 坐标不对齐；重构后 X 轴标签用 nativeCanvas 居中绘制到数据点 x 坐标，与 iOS Charts labelCount 对齐。
+  - ④ **数据区域底部横线恢复显示**：原底部网格线 y=canvasH-24px 被 X 轴标签 Row 覆盖；重构后网格线+X 轴标签在同一 Canvas 内统一绘制，底部网格线（gridCount=4 i=4）正常显示。
+- **核心改动**：原 Box(Canvas+Y轴标签Row+X轴标签Row 三层叠加) → 单 Canvas 统一绘制网格线+Y轴标签+折线+圆点+X轴标签，padLeft/padBottom 从 40f/24f 像素值改为 40.dp/24.dp 经 LocalDensity 转 px，Y轴标签用 nativeCanvas+Paint 精确对齐网格线 y 坐标，X轴标签用 nativeCanvas 居中对齐数据点 x 坐标。
+
+### Patched
+
+- 组件库全局版本 1.4.28 → 1.4.29。
+
+***
+
 ## \[1.4.28] - 2026-09-10
 
 信息展示区三组件合并发版（Collapse 折叠面板 #65 + CountDown 倒计时 #66 + Ellipsis 文本省略 #67，MINOR）。

@@ -239,7 +239,9 @@ data class DemoComponent(
     val reviewed: Boolean = false,
     val demo: (@Composable () -> Unit)? = null,
     // pending=true：组件已实现有 Demo 可进入，但仍有未解决问题待后续调试，红色"待完善"提示
-    val pending: Boolean = false
+    val pending: Boolean = false,
+    // planned=true：本版本需加入但尚未评审（灰色"未评审"）；false 且 reviewed=false 则为"待开发 v2.0"（蓝色）
+    val planned: Boolean = false
 )
 
 private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
@@ -320,54 +322,54 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Toast 吐司", reviewed = true, demo = { ToastDemo() }),
     ),
     "信息展示" to listOf(
-        DemoComponent("Animate 动画"),
-        DemoComponent("AnimatingNumbers 数字动画"),
-        DemoComponent("Audio 音频播放器"),
+        DemoComponent("Animate 动画", planned = true),
+        DemoComponent("AnimatingNumbers 数字动画", planned = true),
+        DemoComponent("Audio 音频播放器", planned = true),
         DemoComponent("Avatar 头像", reviewed = true, demo = { AvatarDemo() }),
         DemoComponent("Badge 徽标", reviewed = true, demo = { BadgeDemo() }),
         DemoComponent("Carousel 轮播"),
-        DemoComponent("Collapse 折叠面板"),
-        DemoComponent("CountDown 倒计时"),
-        DemoComponent("Ellipsis 文本省略"),
+        DemoComponent("Collapse 折叠面板", planned = true),
+        DemoComponent("CountDown 倒计时", planned = true),
+        DemoComponent("Ellipsis 文本省略", planned = true),
         DemoComponent("Empty 空状态", reviewed = true, demo = { EmptyDemo() }),
         DemoComponent("Image 图片", reviewed = true, demo = { ImageDemo() }),
-        DemoComponent("ImagePreview 图片预览"),
+        DemoComponent("ImagePreview 图片预览", planned = true),
         DemoComponent("LineChart 折线图", reviewed = true, demo = { LineChartDemo() }),
         DemoComponent("List 分组列表", reviewed = true, demo = { ListDemo() }),
         DemoComponent("Loading 加载中", reviewed = true, demo = { LoadingDemo() }),
-        DemoComponent("Lottie 动画"),
+        DemoComponent("Lottie 动画", planned = true),
         DemoComponent("NoticeBar 公告栏", reviewed = true, demo = { NoticeBarDemo() }),
-        DemoComponent("Price 价格"),
-        DemoComponent("Progress 进度条"),
+        DemoComponent("Price 价格", planned = true),
+        DemoComponent("Progress 进度条", planned = true),
         DemoComponent("ResultPage 结果反馈", reviewed = true, demo = { ResultPageDemo() }),
-        DemoComponent("Segmented 分段选择器"),
+        DemoComponent("Segmented 分段选择器", planned = true),
         DemoComponent("Skeleton 骨架屏", reviewed = true, demo = { SkeletonDemo() }),
-        DemoComponent("Steps 步骤条"),
-        DemoComponent("Swiper 轮播"),
-        DemoComponent("Table 表格"),
-        DemoComponent("Tag 标签"),
-        DemoComponent("Tour 引导"),
-        DemoComponent("Video 视频播放器"),
-        DemoComponent("VirtualList 虚拟列表"),
+        DemoComponent("Steps 步骤条", planned = true),
+        DemoComponent("Swiper 轮播", planned = true),
+        DemoComponent("Table 表格", planned = true),
+        DemoComponent("Tag 标签", planned = true),
+        DemoComponent("Tour 引导", planned = true),
+        DemoComponent("Video 视频播放器", planned = true),
+        DemoComponent("VirtualList 虚拟列表", planned = true),
     ),
     "特色组件" to listOf(
-        DemoComponent("QuickEnter 快捷入口"),
-        DemoComponent("AvatarCropper 头像裁剪"),
-        DemoComponent("Barrage 弹幕"),
+        DemoComponent("QuickEnter 快捷入口", planned = true),
+        DemoComponent("AvatarCropper 头像裁剪", planned = true),
+        DemoComponent("Barrage 弹幕", planned = true),
         DemoComponent("Card 商品卡片", reviewed = true, demo = { CardDemo() }),
-        DemoComponent("TimeSelect 配送时间"),
-        DemoComponent("TrendArrow 趋势箭头"),
-        DemoComponent("WaterMark 水印"),
-        DemoComponent("Calendar 日历工具"),
-        DemoComponent("SystemBars 系统栏"),
-        DemoComponent("DesignTokens 设计令牌"),
+        DemoComponent("TimeSelect 配送时间", planned = true),
+        DemoComponent("TrendArrow 趋势箭头", planned = true),
+        DemoComponent("WaterMark 水印", planned = true),
+        DemoComponent("Calendar 日历工具", planned = true),
+        DemoComponent("SystemBars 系统栏", planned = true),
+        DemoComponent("DesignTokens 设计令牌", planned = true),
     ),
     "底层能力 foundation" to listOf(
         DemoComponent("Calendar 日历工具", reviewed = true, demo = { CalendarDemo() }),
-        DemoComponent("Router 路由"),
-        DemoComponent("Storage 本地存储"),
-        DemoComponent("HTTPClient 网络客户端"),
-        DemoComponent("MoneyFormat 金额格式化"),
+        DemoComponent("Router 路由", planned = true),
+        DemoComponent("Storage 本地存储", planned = true),
+        DemoComponent("HTTPClient 网络客户端", planned = true),
+        DemoComponent("MoneyFormat 金额格式化", planned = true),
     ),
 )
 
@@ -482,15 +484,17 @@ private fun ComponentRow(comp: DemoComponent, onClick: () -> Unit) {
                 fontSize = AppFont.sizeMd
             )
             Spacer(modifier = Modifier.weight(1f))
-            // 三态显示：已评审（绿色）/ 待完善（红色）/ 待开发 v2.0（蓝色）
+            // 四态显示：已评审（绿色）/ 待完善（红色）/ 未评审（灰色=本版本需加入）/ 待开发 v2.0（蓝色）
             val statusText = when {
                 comp.pending -> "待完善"
                 enabled -> "已评审 ✓"
+                comp.planned -> "未评审"
                 else -> "待开发 v2.0"
             }
             val statusColor = when {
                 comp.pending -> AppColor.error
                 enabled -> AppColor.primary
+                comp.planned -> AppColor.gray25
                 else -> Color(0xFF3B82F6) // 蓝色=待开发 v2.0
             }
             Text(

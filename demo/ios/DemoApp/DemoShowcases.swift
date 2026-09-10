@@ -13,12 +13,15 @@ struct DemoComponent {
     let create: (() -> UIViewController)?
     // pending=true：组件已实现有 Demo 可进入，但仍有未解决问题待后续调试，红色"待完善"提示
     let pending: Bool
-    init(id: String, name: String, reviewed: Bool, create: (() -> UIViewController)? = nil, pending: Bool = false) {
+    // planned=true：本版本需加入但尚未评审（灰色"未评审"）；false 且 reviewed=false 则为"待开发 v2.0"（蓝色）
+    let planned: Bool
+    init(id: String, name: String, reviewed: Bool, create: (() -> UIViewController)? = nil, pending: Bool = false, planned: Bool = false) {
         self.id = id
         self.name = name
         self.reviewed = reviewed
         self.create = create
         self.pending = pending
+        self.planned = planned
     }
 }
 
@@ -104,54 +107,54 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.toast", name: "Toast 吐司", reviewed: true, create: { ToastShowcase() }),
         ]),
         ("信息展示", [
-            DemoComponent(id: "ui.animate", name: "Animate 动画", reviewed: false, create: nil),
-            DemoComponent(id: "ui.animating-numbers", name: "AnimatingNumbers 数字动画", reviewed: false, create: nil),
-            DemoComponent(id: "ui.audio", name: "Audio 音频播放器", reviewed: false, create: nil),
+            DemoComponent(id: "ui.animate", name: "Animate 动画", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.animating-numbers", name: "AnimatingNumbers 数字动画", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.audio", name: "Audio 音频播放器", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.avatar", name: "Avatar 头像", reviewed: true, create: { AvatarShowcase() }),
             DemoComponent(id: "ui.badge", name: "Badge 徽标", reviewed: true, create: { BadgeShowcase() }),
             DemoComponent(id: "ui.carousel", name: "Carousel 轮播", reviewed: false, create: nil),
-            DemoComponent(id: "ui.collapse", name: "Collapse 折叠面板", reviewed: false, create: nil),
-            DemoComponent(id: "ui.count-down", name: "CountDown 倒计时", reviewed: false, create: nil),
-            DemoComponent(id: "ui.ellipsis", name: "Ellipsis 文本省略", reviewed: false, create: nil),
+            DemoComponent(id: "ui.collapse", name: "Collapse 折叠面板", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.count-down", name: "CountDown 倒计时", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.ellipsis", name: "Ellipsis 文本省略", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.empty", name: "Empty 空状态", reviewed: true, create: { EmptyShowcase() }),
             DemoComponent(id: "ui.image", name: "Image 图片", reviewed: true, create: { ImageShowcase() }),
-            DemoComponent(id: "ui.image-preview", name: "ImagePreview 图片预览", reviewed: false, create: nil),
+            DemoComponent(id: "ui.image-preview", name: "ImagePreview 图片预览", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.line-chart", name: "LineChart 折线图", reviewed: true, create: { LineChartShowcase() }),
             DemoComponent(id: "ui.list", name: "List 分组列表", reviewed: true, create: { ListShowcase() }),
             DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: true, create: { LoadingShowcase() }),
-            DemoComponent(id: "ui.lottie", name: "Lottie 动画", reviewed: false, create: nil),
+            DemoComponent(id: "ui.lottie", name: "Lottie 动画", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.notice-bar", name: "NoticeBar 公告栏", reviewed: true, create: { NoticeBarShowcase() }),
-            DemoComponent(id: "ui.price", name: "Price 价格", reviewed: false, create: nil),
-            DemoComponent(id: "ui.progress", name: "Progress 进度条", reviewed: false, create: nil),
+            DemoComponent(id: "ui.price", name: "Price 价格", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.progress", name: "Progress 进度条", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.result-page", name: "ResultPage 结果反馈", reviewed: true, create: { ResultPageShowcase() }),
-            DemoComponent(id: "ui.segmented", name: "Segmented 分段选择器", reviewed: false, create: nil),
+            DemoComponent(id: "ui.segmented", name: "Segmented 分段选择器", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.skeleton", name: "Skeleton 骨架屏", reviewed: true, create: { SkeletonShowcase() }),
-            DemoComponent(id: "ui.steps", name: "Steps 步骤条", reviewed: false, create: nil),
-            DemoComponent(id: "ui.swiper", name: "Swiper 轮播", reviewed: false, create: nil),
-            DemoComponent(id: "ui.table", name: "Table 表格", reviewed: false, create: nil),
-            DemoComponent(id: "ui.tag", name: "Tag 标签", reviewed: false, create: nil),
-            DemoComponent(id: "ui.tour", name: "Tour 引导", reviewed: false, create: nil),
-            DemoComponent(id: "ui.video", name: "Video 视频播放器", reviewed: false, create: nil),
-            DemoComponent(id: "ui.virtual-list", name: "VirtualList 虚拟列表", reviewed: false, create: nil),
+            DemoComponent(id: "ui.steps", name: "Steps 步骤条", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.swiper", name: "Swiper 轮播", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.table", name: "Table 表格", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.tag", name: "Tag 标签", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.tour", name: "Tour 引导", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.video", name: "Video 视频播放器", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.virtual-list", name: "VirtualList 虚拟列表", reviewed: false, create: nil, planned: true),
         ]),
         ("特色组件", [
-            DemoComponent(id: "ui.quick-enter", name: "QuickEnter 快捷入口", reviewed: false, create: nil),
-            DemoComponent(id: "ui.avatar-cropper", name: "AvatarCropper 头像裁剪", reviewed: false, create: nil),
-            DemoComponent(id: "ui.barrage", name: "Barrage 弹幕", reviewed: false, create: nil),
+            DemoComponent(id: "ui.quick-enter", name: "QuickEnter 快捷入口", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.avatar-cropper", name: "AvatarCropper 头像裁剪", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.barrage", name: "Barrage 弹幕", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.card", name: "Card 商品卡片", reviewed: true, create: { CardShowcase() }),
-            DemoComponent(id: "ui.time-select", name: "TimeSelect 配送时间", reviewed: false, create: nil),
-            DemoComponent(id: "ui.trend-arrow", name: "TrendArrow 趋势箭头", reviewed: false, create: nil),
-            DemoComponent(id: "ui.water-mark", name: "WaterMark 水印", reviewed: false, create: nil),
-            DemoComponent(id: "ui.calendar-tools", name: "Calendar 日历工具", reviewed: false, create: nil),
-            DemoComponent(id: "ui.system-bars", name: "SystemBars 系统栏", reviewed: false, create: nil),
-            DemoComponent(id: "ui.design-tokens", name: "DesignTokens 设计令牌", reviewed: false, create: nil),
+            DemoComponent(id: "ui.time-select", name: "TimeSelect 配送时间", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.trend-arrow", name: "TrendArrow 趋势箭头", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.water-mark", name: "WaterMark 水印", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.calendar-tools", name: "Calendar 日历工具", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.system-bars", name: "SystemBars 系统栏", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.design-tokens", name: "DesignTokens 设计令牌", reviewed: false, create: nil, planned: true),
         ]),
         ("底层能力 foundation", [
             DemoComponent(id: "foundation.calendar", name: "Calendar 日历工具", reviewed: true, create: { CalendarShowcase() }),
-            DemoComponent(id: "ui.router", name: "Router 路由", reviewed: false, create: nil),
-            DemoComponent(id: "ui.storage", name: "Storage 本地存储", reviewed: false, create: nil),
-            DemoComponent(id: "ui.http-client", name: "HTTPClient 网络客户端", reviewed: false, create: nil),
-            DemoComponent(id: "ui.money-format", name: "MoneyFormat 金额格式化", reviewed: false, create: nil),
+            DemoComponent(id: "ui.router", name: "Router 路由", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.storage", name: "Storage 本地存储", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.http-client", name: "HTTPClient 网络客户端", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.money-format", name: "MoneyFormat 金额格式化", reviewed: false, create: nil, planned: true),
         ]),
     ]
 
@@ -199,10 +202,15 @@ final class DemoListViewController: UITableViewController {
                 config.secondaryTextProperties.color = AppColor.primary
             }
         } else {
-            // 待开发（v2.0 实现）=蓝色，与已评审绿色/待完善红色区分
+            // planned=true=本版本需加入但尚未评审（灰色"未评审"）；false=待开发 v2.0（蓝色）
             config.textProperties.color = AppColor.gray25
-            config.secondaryText = "待开发 v2.0"
-            config.secondaryTextProperties.color = UIColor.systemBlue
+            if item.planned {
+                config.secondaryText = "未评审"
+                config.secondaryTextProperties.color = AppColor.gray25
+            } else {
+                config.secondaryText = "待开发 v2.0"
+                config.secondaryTextProperties.color = UIColor.systemBlue
+            }
             cell.accessoryType = .none
             cell.selectionStyle = .none
         }

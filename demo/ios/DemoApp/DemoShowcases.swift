@@ -8785,7 +8785,8 @@ final class IndicatorShowcase: ShowcaseViewController {
         addVersionBadge(componentName: "Indicator", version: "v1.4.29", builtAt: "2026-09-11 00:00:00")
 
         // D1 基础指示器：横向 5 点，current=1（第 2 高亮），block=false 色变
-        addSection(title: "D1 基础指示器（横向 5 点·第 2 高亮）") { container in
+        // 与 Android DemoSectionCard 对齐：白底圆角卡片 + 固定高度内容区。
+        addCard(title: "D1 基础指示器（横向 5 点·第 2 高亮）", contentHeight: 80) { container in
             let indicator = IndicatorView()
             indicator.current = 1
             indicator.total = 5
@@ -8797,7 +8798,7 @@ final class IndicatorShowcase: ShowcaseViewController {
         addInfo("排查点：5 个圆点横向排布，第 2 个高亮（primary 蓝），其余灰（gray15）；block=false 仅色变不变形。")
 
         // D2 数字总页数：showNumber=true，显示「2/5」胶囊
-        addSection(title: "D2 数字总页数（showNumber 胶囊）") { container in
+        addCard(title: "D2 数字总页数（showNumber 胶囊）", contentHeight: 80) { container in
             let indicator = IndicatorView()
             indicator.current = 1
             indicator.total = 5
@@ -8810,7 +8811,7 @@ final class IndicatorShowcase: ShowcaseViewController {
         addInfo("排查点：显示「2 / 5」数字胶囊，primary 底白字 12pt Semibold，圆角胶囊。")
 
         // D3 竖向指示器：direction=vertical，4 点竖向排布
-        addSection(title: "D3 竖向指示器（direction=vertical）") { container in
+        addCard(title: "D3 竖向指示器（direction=vertical）", contentHeight: 80) { container in
             let indicator = IndicatorView()
             indicator.current = 1
             indicator.total = 4
@@ -8823,7 +8824,7 @@ final class IndicatorShowcase: ShowcaseViewController {
         addInfo("排查点：4 个圆点纵向排布，第 2 个高亮；竖向场景（竖向轮播/分步表单侧边指示）。")
 
         // D4 自定义样式：block=true 长条 + activeColor=success 绿 + size=8
-        addSection(title: "D4 自定义样式（block 长条 + success 绿 + size 8）") { container in
+        addCard(title: "D4 自定义样式（block 长条 + success 绿 + size 8）", contentHeight: 80) { container in
             let indicator = IndicatorView()
             indicator.current = 1
             indicator.total = 4

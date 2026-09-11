@@ -272,7 +272,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Elevator 电梯楼层", reviewed = true, demo = { ElevatorDemo() }, passed = true),
         DemoComponent("FixedNav 悬浮导航", reviewed = true, demo = { FixedNavDemo() }, passed = true),
         DemoComponent("HoverButton 悬浮按钮", reviewed = true, demo = { HoverButtonDemo() }, passed = true),
-        DemoComponent("Indicator 指示器", reviewed = true, demo = { IndicatorDemo() }),
+        DemoComponent("Indicator 指示器", reviewed = true, demo = { IndicatorDemo() }, passed = true),
         DemoComponent("Menu 菜单", reviewed = true, demo = { MenuDemo() }, passed = true),
         DemoComponent("NavBar 头部导航", reviewed = true, demo = { NavBarDemo() }, passed = true),
         DemoComponent("Pagination 分页", reviewed = true, demo = { PaginationDemo() }),

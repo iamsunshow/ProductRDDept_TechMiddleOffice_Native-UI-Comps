@@ -55,7 +55,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.elevator", name: "Elevator 电梯楼层", reviewed: true, create: { ElevatorShowcase() }, passed: true),
             DemoComponent(id: "ui.fixed-nav", name: "FixedNav 悬浮导航", reviewed: true, create: { FixedNavShowcase() }, passed: true),
             DemoComponent(id: "ui.hover-button", name: "HoverButton 悬浮按钮", reviewed: true, create: { HoverButtonShowcase() }, passed: true),
-            DemoComponent(id: "ui.indicator", name: "Indicator 指示器", reviewed: true, create: { IndicatorShowcase() }),
+            DemoComponent(id: "ui.indicator", name: "Indicator 指示器", reviewed: true, create: { IndicatorShowcase() }, passed: true),
             DemoComponent(id: "ui.menu", name: "Menu 菜单", reviewed: true, create: { MenuShowcase() }, passed: true),
             DemoComponent(id: "ui.nav-bar", name: "NavBar 头部导航", reviewed: true, create: { NavBarShowcase() }, passed: true),
             DemoComponent(id: "ui.pagination", name: "Pagination 分页", reviewed: true, create: { PaginationShowcase() }),

@@ -337,7 +337,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Ellipsis 文本省略", reviewed = true, demo = { EllipsisDemo() }, passed = true),
         DemoComponent("Empty 空状态", reviewed = true, demo = { EmptyDemo() }, passed = true),
         DemoComponent("Image 图片", reviewed = true, demo = { ImageDemo() }, passed = true),
-        DemoComponent("ImagePreview 图片预览", planned = true),
+        DemoComponent("ImagePreview 图片预览", reviewed = true, demo = { ImagePreviewDemo() }),
         DemoComponent("List 分组列表", reviewed = true, demo = { ListDemo() }, passed = true),
         DemoComponent("Loading 加载中", reviewed = true, demo = { LoadingDemo() }),
         DemoComponent("Lottie 动画", reviewed = true, demo = { LottieDemo() }, passed = true),
@@ -345,14 +345,14 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Price 价格", reviewed = true, demo = { PriceDemo() }, passed = true),
         DemoComponent("Progress 进度条", reviewed = true, demo = { ProgressDemo() }, passed = true),
         DemoComponent("ResultPage 结果反馈", reviewed = true, demo = { ResultPageDemo() }),
-        DemoComponent("Segmented 分段选择器", planned = true),
+        DemoComponent("Segmented 分段选择器", reviewed = true, demo = { SegmentedDemo() }),
         DemoComponent("Skeleton 骨架屏", reviewed = true, demo = { SkeletonDemo() }, passed = true),
         DemoComponent("Steps 步骤条", reviewed = true, demo = { StepsDemo() }),
-        DemoComponent("Table 表格", planned = true),
-        DemoComponent("Tag 标签", planned = true),
-        DemoComponent("Tour 引导", planned = true),
+        DemoComponent("Table 表格", reviewed = true, demo = { TableDemo() }),
+        DemoComponent("Tag 标签", reviewed = true, demo = { TagDemo() }),
+        DemoComponent("Tour 引导", reviewed = true, demo = { TourDemo() }),
         DemoComponent("Video 视频播放器", planned = true),
-        DemoComponent("VirtualList 虚拟列表", planned = true),
+        DemoComponent("VirtualList 虚拟列表", reviewed = true, demo = { VirtualListDemo() }),
     ),
     "图表组件" to listOf(
         DemoComponent("LineChart 折线图", reviewed = true, demo = { LineChartDemo() }),
@@ -9113,6 +9113,371 @@ private fun ProgressDemo() {
             color = AppColor.textSecondary,
             fontSize = AppFont.sizeXs
         )
+    }
+}
+
+// ─── Tag 标签 Demo ───
+
+@Composable
+private fun TagDemo() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        Text("Tag 组件 v1.4.32", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium,
+            modifier = Modifier.fillMaxWidth().background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm)).padding(horizontal = 10.dp, vertical = 6.dp))
+
+        // D1 三种形态
+        Text("D1 三种形态（filled / outline / light）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            Tag(text = " filled ", variant = TagVariant.FILLED)
+            Tag(text = "outline", variant = TagVariant.OUTLINE)
+            Tag(text = " light ", variant = TagVariant.LIGHT)
+        }
+        Text("排查点：filled 实心白字 / outline 描边深色字 / light 浅色底深色字，三种形态并排。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+        // D2 四种主题色
+        Text("D2 四种主题色", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            Tag(text = "primary", color = TagColor.PRIMARY)
+            Tag(text = "success", color = TagColor.SUCCESS)
+            Tag(text = "warning", color = TagColor.WARNING)
+            Tag(text = "error", color = TagColor.ERROR)
+        }
+        Text("排查点：四种颜色标签并排，primary 绿 / success 绿 / warning 黄 / error 红。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+        // D3 三种尺寸
+        Text("D3 三种尺寸（sm / md / lg）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            Tag(text = "sm", size = TagSize.SM)
+            Tag(text = "md", size = TagSize.MD)
+            Tag(text = "lg", size = TagSize.LG)
+        }
+        Text("排查点：sm 最小 / md 中等 / lg 最大，高度递增。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+        // D4 可关闭标签
+        Text("D4 可关闭标签", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+        var visible by remember { mutableStateOf(true) }
+        if (visible) {
+            Tag(text = "可关闭", closable = true, onClose = { visible = false })
+        } else {
+            AppButton(text = "重置", style = AppButtonStyle.Secondary, onClick = { visible = true })
+        }
+        Text("排查点：标签右侧有关闭按钮，点击后消失，出现「重置」按钮。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+    }
+}
+
+// ─── Segmented 分段选择器 Demo ───
+
+@Composable
+private fun SegmentedDemo() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        Text("Segmented 组件 v1.4.32", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium,
+            modifier = Modifier.fillMaxWidth().background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm)).padding(horizontal = 10.dp, vertical = 6.dp))
+
+        // D1 基础分段（3 项）
+        Text("D1 基础分段（3 项）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+        var d1 by remember { mutableStateOf(0) }
+        Segmented(
+            options = listOf(SegmentedItem("列表"), SegmentedItem("卡片"), SegmentedItem("网格")),
+            selectedIndex = d1,
+            onSelect = { d1 = it },
+        )
+        Text("排查点：3 段胶囊，选中项深色填充白字，点击切换。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+        // D2 固定宽度 200dp
+        Text("D2 固定宽度 200dp", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+        var d2 by remember { mutableStateOf(1) }
+        Segmented(
+            options = listOf(SegmentedItem("日"), SegmentedItem("周"), SegmentedItem("月"), SegmentedItem("年")),
+            selectedIndex = d2,
+            onSelect = { d2 = it },
+            width = 200.dp,
+        )
+        Text("排查点：4 段固定 200dp 宽，选中项居中高亮。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+        // D3 禁用项
+        Text("D3 禁用项（第 2 项 disabled）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+        var d3 by remember { mutableStateOf(0) }
+        Segmented(
+            options = listOf(SegmentedItem("全部"), SegmentedItem("禁用", enabled = false), SegmentedItem("待办")),
+            selectedIndex = d3,
+            onSelect = { d3 = it },
+        )
+        Text("排查点：中间项灰色半透明，点击无响应。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+        // D4 通栏自适应
+        Text("D4 通栏自适应（width=null）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+        var d4 by remember { mutableStateOf(0) }
+        Segmented(
+            options = listOf(SegmentedItem("选项一"), SegmentedItem("选项二")),
+            selectedIndex = d4,
+            onSelect = { d4 = it },
+            width = null,
+        )
+        Text("排查点：2 段通栏等分，填满容器宽度。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+    }
+}
+
+// ─── Table 表格 Demo ───
+
+@Composable
+private fun TableDemo() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        Text("Table 组件 v1.4.32", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium,
+            modifier = Modifier.fillMaxWidth().background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm)).padding(horizontal = 10.dp, vertical = 6.dp))
+
+        // D1 基础表格
+        Text("D1 基础表格（3 列 4 行）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+        Table(
+            columns = listOf(TableColumn("姓名"), TableColumn("年龄"), TableColumn("城市")),
+            data = listOf(
+                TableRow(listOf("张三", "28", "北京")),
+                TableRow(listOf("李四", "32", "上海")),
+                TableRow(listOf("王五", "25", "广州")),
+                TableRow(listOf("赵六", "30", "深圳")),
+            ),
+        )
+        Text("排查点：表头加粗，4 行数据等宽三列，圆角边框。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+        // D2 斑马纹
+        Text("D2 斑马纹（striped=true）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+        Table(
+            columns = listOf(TableColumn("商品"), TableColumn("价格"), TableColumn("库存")),
+            data = listOf(
+                TableRow(listOf("苹果", "¥5.9", "120")),
+                TableRow(listOf("香蕉", "¥3.5", "85")),
+                TableRow(listOf("橙子", "¥4.2", "200")),
+                TableRow(listOf("葡萄", "¥8.0", "60")),
+            ),
+            striped = true,
+        )
+        Text("排查点：奇数行白底、偶数行灰底交替。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+        // D3 自定义列宽+对齐
+        Text("D3 自定义列宽+对齐", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+        Table(
+            columns = listOf(
+                TableColumn("名称", width = 100.dp),
+                TableColumn("金额", width = 80.dp, align = TextAlign.End),
+                TableColumn("状态", width = 60.dp, align = TextAlign.Center),
+            ),
+            data = listOf(
+                TableRow(listOf("订单A", "¥128.00", "已完成")),
+                TableRow(listOf("订单B", "¥56.50", "待发货")),
+                TableRow(listOf("订单C", "¥299.00", "已签收")),
+            ),
+        )
+        Text("排查点：名称左对齐 100dp / 金额右对齐 80dp / 状态居中 60dp。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+        // D4 表头吸顶样式
+        Text("D4 表头吸顶样式（stickyHeader=true）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+        Table(
+            columns = listOf(TableColumn("编号"), TableColumn("内容"), TableColumn("时间")),
+            data = listOf(
+                TableRow(listOf("#001", "系统更新", "09-11")),
+                TableRow(listOf("#002", "数据备份", "09-10")),
+                TableRow(listOf("#003", "日志清理", "09-09")),
+            ),
+            stickyHeader = true,
+        )
+        Text("排查点：表头行灰色背景区分（真实吸顶需配合滚动容器，一期仅视觉区分）。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+    }
+}
+
+// ─── Tour 引导 Demo ───
+
+@Composable
+private fun TourDemo() {
+    Box(modifier = Modifier.fillMaxSize().background(AppColor.bgPage)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
+            verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+        ) {
+            Text("Tour 组件 v1.4.32", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium,
+                modifier = Modifier.fillMaxWidth().background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm)).padding(horizontal = 10.dp, vertical = 6.dp))
+
+            Text("D1 基础引导（3 步）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+            var d1Visible by remember { mutableStateOf(false) }
+            var d1Current by remember { mutableStateOf(0) }
+            AppButton(text = if (d1Visible) "引导中..." else "开始引导", style = AppButtonStyle.Primary, onClick = { d1Visible = true; d1Current = 0 })
+            Tour(
+                steps = listOf(
+                    TourStep("欢迎使用", "这是第一步，介绍应用的核心功能。"),
+                    TourStep("个人中心", "在这里管理您的个人信息和设置。"),
+                    TourStep("开始探索", "一切就绪，开始使用吧！"),
+                ),
+                current = d1Current,
+                visible = d1Visible,
+                onChange = { d1Current = it },
+                onFinish = { d1Visible = false },
+            )
+            Text("排查点：点击按钮弹出全屏遮罩+中央卡片，支持上一步/下一步/跳过/完成。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+            Text("D2 隐藏跳过按钮", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+            var d2Visible by remember { mutableStateOf(false) }
+            var d2Current by remember { mutableStateOf(0) }
+            AppButton(text = if (d2Visible) "引导中..." else "开始引导（无跳过）", style = AppButtonStyle.Primary, onClick = { d2Visible = true; d2Current = 0 })
+            Tour(
+                steps = listOf(TourStep("步骤一", "必须完成的引导"), TourStep("步骤二", "不可跳过")),
+                current = d2Current,
+                visible = d2Visible,
+                onChange = { d2Current = it },
+                onFinish = { d2Visible = false },
+                showSkip = false,
+            )
+            Text("排查点：无「跳过」按钮，只能逐步点完。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+            Text("D3 单步引导", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+            var d3Visible by remember { mutableStateOf(false) }
+            AppButton(text = if (d3Visible) "引导中..." else "单步引导", style = AppButtonStyle.Primary, onClick = { d3Visible = true })
+            Tour(
+                steps = listOf(TourStep("唯一一步", "这是一个只有单步的引导。")),
+                current = 0,
+                visible = d3Visible,
+                onChange = {},
+                onFinish = { d3Visible = false },
+            )
+            Text("排查点：只有「完成」按钮，无「上一步」。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+            Text("D4 自定义遮罩颜色", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+            var d4Visible by remember { mutableStateOf(false) }
+            var d4Current by remember { mutableStateOf(0) }
+            AppButton(text = if (d4Visible) "引导中..." else "自定义遮罩", style = AppButtonStyle.Primary, onClick = { d4Visible = true; d4Current = 0 })
+            Tour(
+                steps = listOf(TourStep("半透明蓝", "遮罩颜色改为蓝色 50% 透明")),
+                current = d4Current,
+                visible = d4Visible,
+                onChange = { d4Current = it },
+                onFinish = { d4Visible = false },
+                maskColor = Color(0x800000FF),
+            )
+            Text("排查点：遮罩为蓝色半透明，非默认黑色。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        }
+    }
+}
+
+// ─── ImagePreview 图片预览 Demo ───
+
+@Composable
+private fun ImagePreviewDemo() {
+    Box(modifier = Modifier.fillMaxSize().background(AppColor.bgPage)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
+            verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+        ) {
+            Text("ImagePreview 组件 v1.4.32", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium,
+                modifier = Modifier.fillMaxWidth().background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm)).padding(horizontal = 10.dp, vertical = 6.dp))
+
+            Text("D1 基础预览（3 张）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+            var d1Visible by remember { mutableStateOf(false) }
+            AppButton(text = "打开预览", style = AppButtonStyle.Primary, onClick = { d1Visible = true })
+            ImagePreview(
+                images = listOf(ImageSource("1"), ImageSource("2"), ImageSource("3")),
+                visible = d1Visible,
+                onDismiss = { d1Visible = false },
+            )
+            Text("排查点：全屏黑色背景，3 张色块占位可横滑切换，底部圆点指示器，顶部页码。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+            Text("D2 指定初始页", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+            var d2Visible by remember { mutableStateOf(false) }
+            AppButton(text = "从第 3 张开始", style = AppButtonStyle.Primary, onClick = { d2Visible = true })
+            ImagePreview(
+                images = listOf(ImageSource("1"), ImageSource("2"), ImageSource("3"), ImageSource("4"), ImageSource("5")),
+                initialIndex = 2,
+                visible = d2Visible,
+                onDismiss = { d2Visible = false },
+            )
+            Text("排查点：打开后默认展示第 3 张（index=2），可左右滑动。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+            Text("D3 隐藏指示器", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+            var d3Visible by remember { mutableStateOf(false) }
+            AppButton(text = "无指示器预览", style = AppButtonStyle.Primary, onClick = { d3Visible = true })
+            ImagePreview(
+                images = listOf(ImageSource("1"), ImageSource("2")),
+                visible = d3Visible,
+                onDismiss = { d3Visible = false },
+                showIndicator = false,
+            )
+            Text("排查点：无底部圆点和顶部页码，纯图片展示。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+            Text("D4 单图预览", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+            var d4Visible by remember { mutableStateOf(false) }
+            AppButton(text = "单图预览", style = AppButtonStyle.Primary, onClick = { d4Visible = true })
+            ImagePreview(
+                images = listOf(ImageSource("1")),
+                visible = d4Visible,
+                onDismiss = { d4Visible = false },
+            )
+            Text("排查点：单张图片无指示器（size=1 自动隐藏），点击关闭。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        }
+    }
+}
+
+// ─── VirtualList 虚拟列表 Demo ───
+
+@Composable
+private fun VirtualListDemo() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
+    ) {
+        Text("VirtualList 组件 v1.4.32", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium,
+            modifier = Modifier.fillMaxWidth().background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm)).padding(horizontal = 10.dp, vertical = 6.dp))
+
+        Text("D1 基础列表（100 条）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+        val d1Items = remember { (1..100).map { VirtualListItem(title = "项目 #$it") } }
+        Box(modifier = Modifier.fillMaxWidth().height(300.dp)) {
+            VirtualList(items = d1Items)
+        }
+        Text("排查点：100 条数据仅渲染可见区域，快速滚动流畅，每项 56dp 固定高度。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+        Text("D2 双行列表（带副标题）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+        val d2Items = remember { (1..50).map { VirtualListItem(title = "订单 #$it", subtitle = "2026-09-${(it % 28 + 1).toString().padStart(2, '0')}  ¥${it * 10}.00") } }
+        Box(modifier = Modifier.fillMaxWidth().height(300.dp)) {
+            VirtualList(items = d2Items)
+        }
+        Text("排查点：每项有主标题+副标题，行高 64dp，分隔线可见。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+        Text("D3 无分隔线", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+        val d3Items = remember { (1..30).map { VirtualListItem(title = "通知 #$it") } }
+        Box(modifier = Modifier.fillMaxWidth().height(250.dp)) {
+            VirtualList(items = d3Items, showSeparator = false)
+        }
+        Text("排查点：无分隔线，项间无分割线。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+        Text("D4 空态", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
+        Box(modifier = Modifier.fillMaxWidth().height(200.dp)) {
+            VirtualList(items = emptyList(), emptyText = "列表为空，下拉刷新试试")
+        }
+        Text("排查点：居中显示「列表为空，下拉刷新试试」。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
     }
 }
 

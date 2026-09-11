@@ -120,7 +120,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.ellipsis", name: "Ellipsis 文本省略", reviewed: true, create: { EllipsisShowcase() }, passed: true),
             DemoComponent(id: "ui.empty", name: "Empty 空状态", reviewed: true, create: { EmptyShowcase() }, passed: true),
             DemoComponent(id: "ui.image", name: "Image 图片", reviewed: true, create: { ImageShowcase() }, passed: true),
-            DemoComponent(id: "ui.image-preview", name: "ImagePreview 图片预览", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.image-preview", name: "ImagePreview 图片预览", reviewed: true, create: { ImagePreviewShowcase() }),
             DemoComponent(id: "ui.list", name: "List 分组列表", reviewed: true, create: { ListShowcase() }, passed: true),
             DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: true, create: { LoadingShowcase() }),
             DemoComponent(id: "ui.lottie", name: "Lottie 动画", reviewed: true, create: { LottieShowcase() }, passed: true),
@@ -128,14 +128,14 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.price", name: "Price 价格", reviewed: true, create: { PriceShowcase() }, passed: true),
             DemoComponent(id: "ui.progress", name: "Progress 进度条", reviewed: true, create: { ProgressShowcase() }, passed: true),
             DemoComponent(id: "ui.result-page", name: "ResultPage 结果反馈", reviewed: true, create: { ResultPageShowcase() }),
-            DemoComponent(id: "ui.segmented", name: "Segmented 分段选择器", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.segmented", name: "Segmented 分段选择器", reviewed: true, create: { SegmentedShowcase() }),
             DemoComponent(id: "ui.skeleton", name: "Skeleton 骨架屏", reviewed: true, create: { SkeletonShowcase() }, passed: true),
             DemoComponent(id: "ui.steps", name: "Steps 步骤条", reviewed: true, create: { StepsShowcase() }),
-            DemoComponent(id: "ui.table", name: "Table 表格", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.tag", name: "Tag 标签", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.tour", name: "Tour 引导", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.table", name: "Table 表格", reviewed: true, create: { TableShowcase() }),
+            DemoComponent(id: "ui.tag", name: "Tag 标签", reviewed: true, create: { TagShowcase() }),
+            DemoComponent(id: "ui.tour", name: "Tour 引导", reviewed: true, create: { TourShowcase() }),
             DemoComponent(id: "ui.video", name: "Video 视频播放器", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.virtual-list", name: "VirtualList 虚拟列表", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.virtual-list", name: "VirtualList 虚拟列表", reviewed: true, create: { VirtualListShowcase() }),
         ]),
         ("图表组件", [
             DemoComponent(id: "ui.line-chart", name: "LineChart 折线图", reviewed: true, create: { LineChartShowcase() }),
@@ -10889,6 +10889,540 @@ final class StepsShowcase: ShowcaseViewController {
             }
         }
         addInfo("排查点：第 1 步星标（主色填充白图标）、第 2 步心形（白底主色描边主色图标）、第 3 步分享（白底灰描边灰图标）；自定义图标覆盖默认数字/对勾。")
+    }
+}
+
+// ─── Tag 标签 Showcase ───
+
+final class TagShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Tag 标签"
+        addVersionBadge(componentName: "Tag", version: "v1.4.32", builtAt: "2026-09-11")
+
+        // D1 三种形态
+        addSection(title: "D1 三种形态（filled / outline / light）") { container in
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.spacing = AppSpace.sm
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            row.addArrangedSubview(TagView(text: "filled", variant: .filled, color: .primary, size: .sm))
+            row.addArrangedSubview(TagView(text: "outline", variant: .outline, color: .primary, size: .sm))
+            row.addArrangedSubview(TagView(text: "light", variant: .light, color: .primary, size: .sm))
+        }
+        addInfo("排查点：filled 实心白字 / outline 描边深色字 / light 浅色底深色字。")
+
+        // D2 四种主题色
+        addSection(title: "D2 四种主题色") { container in
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.spacing = AppSpace.sm
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            row.addArrangedSubview(TagView(text: "primary", variant: .filled, color: .primary, size: .sm))
+            row.addArrangedSubview(TagView(text: "success", variant: .filled, color: .success, size: .sm))
+            row.addArrangedSubview(TagView(text: "warning", variant: .filled, color: .warning, size: .sm))
+            row.addArrangedSubview(TagView(text: "error", variant: .filled, color: .error, size: .sm))
+        }
+        addInfo("排查点：四种颜色标签并排。")
+
+        // D3 三种尺寸
+        addSection(title: "D3 三种尺寸（sm / md / lg）") { container in
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.spacing = AppSpace.sm
+            row.alignment = .center
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            row.addArrangedSubview(TagView(text: "sm", variant: .filled, color: .primary, size: .sm))
+            row.addArrangedSubview(TagView(text: "md", variant: .filled, color: .primary, size: .md))
+            row.addArrangedSubview(TagView(text: "lg", variant: .filled, color: .primary, size: .lg))
+        }
+        addInfo("排查点：sm 最小 / md 中等 / lg 最大。")
+
+        // D4 可关闭标签
+        addSection(title: "D4 可关闭标签") { container in
+            let tag = TagView(text: "可关闭", variant: .filled, color: .primary, size: .sm, closable: true)
+            tag.onClose = { tag.removeFromSuperview() }
+            container.addSubview(tag)
+            tag.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("排查点：标签右侧有关闭按钮，点击后消失。")
+    }
+}
+
+// ─── Segmented 分段选择器 Showcase ───
+
+final class SegmentedShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Segmented 分段选择器"
+        addVersionBadge(componentName: "Segmented", version: "v1.4.32", builtAt: "2026-09-11")
+
+        // D1 基础分段
+        addSection(title: "D1 基础分段（3 项）") { container in
+            let seg = SegmentedView()
+            seg.options = [SegmentedItem(label: "列表"), SegmentedItem(label: "卡片"), SegmentedItem(label: "网格")]
+            seg.trackWidth = 200
+            container.addSubview(seg)
+            seg.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("排查点：3 段胶囊，选中项深色填充白字。")
+
+        // D2 固定宽度
+        addSection(title: "D2 固定宽度 200pt") { container in
+            let seg = SegmentedView()
+            seg.options = [SegmentedItem(label: "日"), SegmentedItem(label: "周"), SegmentedItem(label: "月"), SegmentedItem(label: "年")]
+            seg.trackWidth = 200
+            container.addSubview(seg)
+            seg.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("排查点：4 段固定 200pt 宽。")
+
+        // D3 禁用项
+        addSection(title: "D3 禁用项（第 2 项 disabled）") { container in
+            let seg = SegmentedView()
+            seg.options = [SegmentedItem(label: "全部"), SegmentedItem(label: "禁用", enabled: false), SegmentedItem(label: "待办")]
+            seg.trackWidth = 200
+            container.addSubview(seg)
+            seg.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("排查点：中间项灰色半透明，点击无响应。")
+
+        // D4 通栏
+        addSection(title: "D4 通栏自适应（trackWidth=nil）") { container in
+            let seg = SegmentedView()
+            seg.options = [SegmentedItem(label: "选项一"), SegmentedItem(label: "选项二")]
+            seg.trackWidth = nil
+            container.addSubview(seg)
+            seg.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("排查点：2 段通栏等分。")
+    }
+}
+
+// ─── Table 表格 Showcase ───
+
+final class TableShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Table 表格"
+        addVersionBadge(componentName: "Table", version: "v1.4.32", builtAt: "2026-09-11")
+
+        // D1 基础表格
+        addSection(title: "D1 基础表格（3 列 4 行）") { container in
+            let table = TableView()
+            table.columns = [TableColumnDef(title: "姓名"), TableColumnDef(title: "年龄"), TableColumnDef(title: "城市")]
+            table.data = [
+                TableRowData(cells: ["张三", "28", "北京"]),
+                TableRowData(cells: ["李四", "32", "上海"]),
+                TableRowData(cells: ["王五", "25", "广州"]),
+                TableRowData(cells: ["赵六", "30", "深圳"]),
+            ]
+            container.addSubview(table)
+            table.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
+                make.top.bottom.equalToSuperview()
+            }
+        }
+        addInfo("排查点：表头加粗，4 行数据等宽三列，圆角边框。")
+
+        // D2 斑马纹
+        addSection(title: "D2 斑马纹（striped=true）") { container in
+            let table = TableView()
+            table.columns = [TableColumnDef(title: "商品"), TableColumnDef(title: "价格"), TableColumnDef(title: "库存")]
+            table.data = [
+                TableRowData(cells: ["苹果", "¥5.9", "120"]),
+                TableRowData(cells: ["香蕉", "¥3.5", "85"]),
+                TableRowData(cells: ["橙子", "¥4.2", "200"]),
+                TableRowData(cells: ["葡萄", "¥8.0", "60"]),
+            ]
+            table.striped = true
+            container.addSubview(table)
+            table.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
+                make.top.bottom.equalToSuperview()
+            }
+        }
+        addInfo("排查点：奇数行白底、偶数行灰底交替。")
+
+        // D3 自定义列宽+对齐
+        addSection(title: "D3 自定义列宽+对齐") { container in
+            let table = TableView()
+            table.columns = [
+                TableColumnDef(title: "名称", width: 100),
+                TableColumnDef(title: "金额", width: 80, align: .right),
+                TableColumnDef(title: "状态", width: 60, align: .center),
+            ]
+            table.data = [
+                TableRowData(cells: ["订单A", "¥128.00", "已完成"]),
+                TableRowData(cells: ["订单B", "¥56.50", "待发货"]),
+                TableRowData(cells: ["订单C", "¥299.00", "已签收"]),
+            ]
+            container.addSubview(table)
+            table.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
+                make.top.bottom.equalToSuperview()
+            }
+        }
+        addInfo("排查点：名称左对齐 100pt / 金额右对齐 80pt / 状态居中 60pt。")
+
+        // D4 表头吸顶样式
+        addSection(title: "D4 表头吸顶样式") { container in
+            let table = TableView()
+            table.columns = [TableColumnDef(title: "编号"), TableColumnDef(title: "内容"), TableColumnDef(title: "时间")]
+            table.data = [
+                TableRowData(cells: ["#001", "系统更新", "09-11"]),
+                TableRowData(cells: ["#002", "数据备份", "09-10"]),
+                TableRowData(cells: ["#003", "日志清理", "09-09"]),
+            ]
+            table.stickyHeader = true
+            container.addSubview(table)
+            table.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.md)
+                make.top.bottom.equalToSuperview()
+            }
+        }
+        addInfo("排查点：表头行灰色背景区分。")
+    }
+}
+
+// ─── Tour 引导 Showcase ───
+
+final class TourShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Tour 引导"
+        addVersionBadge(componentName: "Tour", version: "v1.4.32", builtAt: "2026-09-11")
+
+        // D1 基础引导
+        addSection(title: "D1 基础引导（3 步）") { container in
+            let btn = UIButton(type: .system)
+            btn.setTitle("开始引导", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .medium)
+            btn.backgroundColor = AppColor.primary
+            btn.setTitleColor(.white, for: .normal)
+            btn.layer.cornerRadius = AppRadius.sm
+            btn.contentEdgeInsets = .init(top: 8, left: 16, bottom: 8, right: 16)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            btn.addTarget(self, action: #selector(startTour1), for: .touchUpInside)
+        }
+        addInfo("排查点：点击按钮弹出全屏遮罩+中央卡片，支持上一步/下一步/跳过/完成。")
+
+        // D2 隐藏跳过
+        addSection(title: "D2 隐藏跳过按钮") { container in
+            let btn = UIButton(type: .system)
+            btn.setTitle("开始引导（无跳过）", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .medium)
+            btn.backgroundColor = AppColor.primary
+            btn.setTitleColor(.white, for: .normal)
+            btn.layer.cornerRadius = AppRadius.sm
+            btn.contentEdgeInsets = .init(top: 8, left: 16, bottom: 8, right: 16)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            btn.addTarget(self, action: #selector(startTour2), for: .touchUpInside)
+        }
+        addInfo("排查点：无「跳过」按钮，只能逐步点完。")
+
+        // D3 单步引导
+        addSection(title: "D3 单步引导") { container in
+            let btn = UIButton(type: .system)
+            btn.setTitle("单步引导", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .medium)
+            btn.backgroundColor = AppColor.primary
+            btn.setTitleColor(.white, for: .normal)
+            btn.layer.cornerRadius = AppRadius.sm
+            btn.contentEdgeInsets = .init(top: 8, left: 16, bottom: 8, right: 16)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            btn.addTarget(self, action: #selector(startTour3), for: .touchUpInside)
+        }
+        addInfo("排查点：只有「完成」按钮，无「上一步」。")
+
+        // D4 自定义遮罩
+        addSection(title: "D4 自定义遮罩颜色") { container in
+            let btn = UIButton(type: .system)
+            btn.setTitle("自定义遮罩", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .medium)
+            btn.backgroundColor = AppColor.primary
+            btn.setTitleColor(.white, for: .normal)
+            btn.layer.cornerRadius = AppRadius.sm
+            btn.contentEdgeInsets = .init(top: 8, left: 16, bottom: 8, right: 16)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            btn.addTarget(self, action: #selector(startTour4), for: .touchUpInside)
+        }
+        addInfo("排查点：遮罩为蓝色半透明。")
+    }
+
+    @objc private func startTour1() {
+        let tour = TourView()
+        tour.steps = [
+            TourStep(title: "欢迎使用", description: "这是第一步，介绍应用的核心功能。"),
+            TourStep(title: "个人中心", description: "在这里管理您的个人信息和设置。"),
+            TourStep(title: "开始探索", description: "一切就绪，开始使用吧！"),
+        ]
+        view.window?.rootViewController?.view.addSubview(tour)
+        tour.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        tour.onFinish = { tour.removeFromSuperview() }
+    }
+
+    @objc private func startTour2() {
+        let tour = TourView()
+        tour.steps = [
+            TourStep(title: "步骤一", description: "必须完成的引导"),
+            TourStep(title: "步骤二", description: "不可跳过"),
+        ]
+        tour.showSkip = false
+        view.window?.rootViewController?.view.addSubview(tour)
+        tour.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        tour.onFinish = { tour.removeFromSuperview() }
+    }
+
+    @objc private func startTour3() {
+        let tour = TourView()
+        tour.steps = [TourStep(title: "唯一一步", description: "这是一个只有单步的引导。")]
+        view.window?.rootViewController?.view.addSubview(tour)
+        tour.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        tour.onFinish = { tour.removeFromSuperview() }
+    }
+
+    @objc private func startTour4() {
+        let tour = TourView()
+        tour.steps = [TourStep(title: "半透明蓝", description: "遮罩颜色改为蓝色 50% 透明")]
+        tour.maskColor = UIColor.blue.withAlphaComponent(0.5)
+        view.window?.rootViewController?.view.addSubview(tour)
+        tour.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        tour.onFinish = { tour.removeFromSuperview() }
+    }
+}
+
+// ─── ImagePreview 图片预览 Showcase ───
+
+final class ImagePreviewShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "ImagePreview 图片预览"
+        addVersionBadge(componentName: "ImagePreview", version: "v1.4.32", builtAt: "2026-09-11")
+
+        // D1 基础预览
+        addSection(title: "D1 基础预览（3 张）") { container in
+            let btn = UIButton(type: .system)
+            btn.setTitle("打开预览", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .medium)
+            btn.backgroundColor = AppColor.primary
+            btn.setTitleColor(.white, for: .normal)
+            btn.layer.cornerRadius = AppRadius.sm
+            btn.contentEdgeInsets = .init(top: 8, left: 16, bottom: 8, right: 16)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            btn.addTarget(self, action: #selector(openPreview1), for: .touchUpInside)
+        }
+        addInfo("排查点：全屏黑色背景，3 张色块占位可横滑切换，底部圆点指示器。")
+
+        // D2 指定初始页
+        addSection(title: "D2 指定初始页（index=2）") { container in
+            let btn = UIButton(type: .system)
+            btn.setTitle("从第 3 张开始", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .medium)
+            btn.backgroundColor = AppColor.primary
+            btn.setTitleColor(.white, for: .normal)
+            btn.layer.cornerRadius = AppRadius.sm
+            btn.contentEdgeInsets = .init(top: 8, left: 16, bottom: 8, right: 16)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            btn.addTarget(self, action: #selector(openPreview2), for: .touchUpInside)
+        }
+        addInfo("排查点：打开后默认展示第 3 张。")
+
+        // D3 隐藏指示器
+        addSection(title: "D3 隐藏指示器") { container in
+            let btn = UIButton(type: .system)
+            btn.setTitle("无指示器预览", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .medium)
+            btn.backgroundColor = AppColor.primary
+            btn.setTitleColor(.white, for: .normal)
+            btn.layer.cornerRadius = AppRadius.sm
+            btn.contentEdgeInsets = .init(top: 8, left: 16, bottom: 8, right: 16)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            btn.addTarget(self, action: #selector(openPreview3), for: .touchUpInside)
+        }
+        addInfo("排查点：无底部圆点和顶部页码。")
+
+        // D4 单图
+        addSection(title: "D4 单图预览") { container in
+            let btn = UIButton(type: .system)
+            btn.setTitle("单图预览", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .medium)
+            btn.backgroundColor = AppColor.primary
+            btn.setTitleColor(.white, for: .normal)
+            btn.layer.cornerRadius = AppRadius.sm
+            btn.contentEdgeInsets = .init(top: 8, left: 16, bottom: 8, right: 16)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            btn.addTarget(self, action: #selector(openPreview4), for: .touchUpInside)
+        }
+        addInfo("排查点：单张图片无指示器，点击关闭。")
+    }
+
+    @objc private func openPreview1() {
+        let preview = ImagePreviewView()
+        preview.images = [ImageSource(url: "1"), ImageSource(url: "2"), ImageSource(url: "3")]
+        preview.visible = true
+        view.window?.rootViewController?.view.addSubview(preview)
+        preview.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        preview.onDismiss = { preview.removeFromSuperview() }
+    }
+
+    @objc private func openPreview2() {
+        let preview = ImagePreviewView()
+        preview.images = (1...5).map { ImageSource(url: "\($0)") }
+        preview.initialIndex = 2
+        preview.visible = true
+        view.window?.rootViewController?.view.addSubview(preview)
+        preview.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        preview.onDismiss = { preview.removeFromSuperview() }
+    }
+
+    @objc private func openPreview3() {
+        let preview = ImagePreviewView()
+        preview.images = [ImageSource(url: "1"), ImageSource(url: "2")]
+        preview.visible = true
+        preview.showIndicator = false
+        view.window?.rootViewController?.view.addSubview(preview)
+        preview.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        preview.onDismiss = { preview.removeFromSuperview() }
+    }
+
+    @objc private func openPreview4() {
+        let preview = ImagePreviewView()
+        preview.images = [ImageSource(url: "1")]
+        preview.visible = true
+        view.window?.rootViewController?.view.addSubview(preview)
+        preview.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        preview.onDismiss = { preview.removeFromSuperview() }
+    }
+}
+
+// ─── VirtualList 虚拟列表 Showcase ───
+
+final class VirtualListShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "VirtualList 虚拟列表"
+        addVersionBadge(componentName: "VirtualList", version: "v1.4.32", builtAt: "2026-09-11")
+
+        // D1 基础列表
+        addSection(title: "D1 基础列表（100 条）") { container in
+            let list = VirtualListView()
+            list.items = (1...100).map { VirtualListItem(title: "项目 #\($0)") }
+            container.addSubview(list)
+            list.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+                make.height.equalTo(300)
+                make.top.bottom.equalToSuperview()
+            }
+        }
+        addInfo("排查点：100 条数据仅渲染可见区域，快速滚动流畅。")
+
+        // D2 双行列表
+        addSection(title: "D2 双行列表（带副标题）") { container in
+            let list = VirtualListView()
+            list.items = (1...50).map {
+                VirtualListItem(title: "订单 #\($0)", subtitle: String(format: "2026-09-%02d  ¥%d.00", ($0 % 28 + 1), $0 * 10))
+            }
+            container.addSubview(list)
+            list.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+                make.height.equalTo(300)
+                make.top.bottom.equalToSuperview()
+            }
+        }
+        addInfo("排查点：每项有主标题+副标题，行高 64pt。")
+
+        // D3 无分隔线
+        addSection(title: "D3 无分隔线") { container in
+            let list = VirtualListView()
+            list.items = (1...30).map { VirtualListItem(title: "通知 #\($0)") }
+            list.showSeparator = false
+            container.addSubview(list)
+            list.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+                make.height.equalTo(250)
+                make.top.bottom.equalToSuperview()
+            }
+        }
+        addInfo("排查点：无分隔线。")
+
+        // D4 空态
+        addSection(title: "D4 空态") { container in
+            let list = VirtualListView()
+            list.emptyText = "列表为空，下拉刷新试试"
+            container.addSubview(list)
+            list.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+                make.height.equalTo(200)
+                make.top.bottom.equalToSuperview()
+            }
+        }
+        addInfo("排查点：居中显示「列表为空，下拉刷新试试」。")
     }
 }
 

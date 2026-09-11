@@ -83,14 +83,14 @@ final class PaginationView: UIView {
         currentValue > 0 ? currentValue : internalPage
     }
 
-    /// 横向容器：上一页 + 页码/简洁文本 + 下一页。
-    private let containerStack: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.spacing = AppSpace.xs
-        stack.alignment = .center
-        return stack
-    }()
+    /// 上一页容器。
+    private let prevContainer = UIView()
+
+    /// 下一页容器。
+    private let nextContainer = UIView()
+
+    /// 页码内容区（prev 与 next 之间的页码/简洁文本）。
+    private let contentRow = UIView()
 
     // MARK: - 初始化
 
@@ -109,9 +109,21 @@ final class PaginationView: UIView {
         layer.cornerRadius = AppRadius.lg
         clipsToBounds = true
 
-        addSubview(containerStack)
-        containerStack.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.sm, left: AppSpace.sm, bottom: AppSpace.sm, right: AppSpace.sm))
+        // 直接约束布局：prev 居左 → contentRow 居中区域 → next 居右，多余空间留在右侧（与 Android Row 对齐）。
+        addSubview(prevContainer)
+        addSubview(contentRow)
+        addSubview(nextContainer)
+
+        prevContainer.snp.makeConstraints { make in
+            make.leading.top.bottom.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.sm, left: AppSpace.sm, bottom: AppSpace.sm, right: 0))
+        }
+        contentRow.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.sm, left: 0, bottom: AppSpace.sm, right: 0))
+            make.leading.equalTo(prevContainer.snp.trailing).offset(AppSpace.xs)
+        }
+        nextContainer.snp.makeConstraints { make in
+            make.top.bottom.trailing.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.sm, left: 0, bottom: AppSpace.sm, right: AppSpace.sm))
+            make.leading.equalTo(contentRow.snp.trailing).offset(AppSpace.xs)
         }
     }
 
@@ -127,7 +139,10 @@ final class PaginationView: UIView {
 
     /// 全量重建：清空容器并按当前状态重新生成按钮。
     private func rebuild() {
-        containerStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        // 清空容器内子视图（容器本身保留，约束不变）。
+        contentRow.subviews.forEach { $0.removeFromSuperview() }
+        prevContainer.subviews.forEach { $0.removeFromSuperview() }
+        nextContainer.subviews.forEach { $0.removeFromSuperview() }
 
         let pages = totalPages
         guard pages > 0 else { return }
@@ -137,30 +152,45 @@ final class PaginationView: UIView {
 
         // 上一页按钮：page<=1 时禁用。
         let prev = makeNavButton(isPrev: true, disabled: page <= 1)
-        containerStack.addArrangedSubview(prev)
+        prevContainer.addSubview(prev)
+        prev.snp.makeConstraints { make in make.center.equalToSuperview() }
 
         if mode == .simple {
             // 简洁模式：x/y 文本（当前页 primary 高亮）。
             let label = makeSimpleLabel(current: page, total: pages)
-            containerStack.addArrangedSubview(label)
+            contentRow.addSubview(label)
+            label.snp.makeConstraints { make in
+                make.leading.top.bottom.equalToSuperview()
+            }
         } else {
-            // 按钮模式：页码按钮 + 省略号折叠。
+            // 按钮模式：页码按钮 + 省略号折叠，从左到右顺序排列。
             let buttons = Self.computeButtons(current: page, total: pages, itemSize: itemSize)
+            var previousView: UIView?
             for button in buttons {
+                let subview: UIView
                 switch button {
                 case .page(let n):
-                    let btn = makePageButton(page: n, selected: n == page)
-                    containerStack.addArrangedSubview(btn)
+                    subview = makePageButton(page: n, selected: n == page)
                 case .ellipsis:
-                    let el = makeEllipsis()
-                    containerStack.addArrangedSubview(el)
+                    subview = makeEllipsis()
                 }
+                contentRow.addSubview(subview)
+                subview.snp.makeConstraints { make in
+                    make.top.bottom.equalToSuperview()
+                    if let prev = previousView {
+                        make.leading.equalTo(prev.snp.trailing).offset(AppSpace.xs)
+                    } else {
+                        make.leading.equalToSuperview()
+                    }
+                }
+                previousView = subview
             }
         }
 
         // 下一页按钮：page>=pages 时禁用。
         let next = makeNavButton(isPrev: false, disabled: page >= pages)
-        containerStack.addArrangedSubview(next)
+        nextContainer.addSubview(next)
+        next.snp.makeConstraints { make in make.center.equalToSuperview() }
     }
 
     /// 状态变化后重建（受控/内部切换均走此处）。

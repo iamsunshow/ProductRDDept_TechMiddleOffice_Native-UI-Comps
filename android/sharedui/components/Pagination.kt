@@ -15,6 +15,7 @@ package com.zhiqihuayun.sharedui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -117,48 +119,54 @@ fun Pagination(
     }
 
     // 安卓禁令：圆角裁切用 background(shape=圆角矩形)，不用 Modifier.clip()/graphicsLayer()。
-    Row(
+    val scrollState = rememberScrollState()
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(AppColor.bgCard, RoundedCornerShape(AppRadius.lg))
-            .padding(horizontal = AppSpace.sm, vertical = AppSpace.sm),
-        horizontalArrangement = Arrangement.spacedBy(AppSpace.xs),
-        verticalAlignment = Alignment.CenterVertically,
+            .background(AppColor.bgCard, RoundedCornerShape(AppRadius.lg)),
     ) {
-        // 上一页：page<=1 时禁用。
-        NavButton(
-            isPrev = true,
-            disabled = page <= 1,
-            prevText = prevText,
-            onClick = { goTo(page - 1) },
-        )
-        when (mode) {
-            PaginationMode.MULTI -> {
-                // 页码按钮 + 省略号折叠。
-                val buttons = computeButtons(current = page, total = totalPages, itemSize = itemSize)
-                buttons.forEach { button ->
-                    when (button) {
-                        is PaginationButton.Page -> PageButton(
-                            page = button.page,
-                            selected = button.page == page,
-                            onClick = { goTo(button.page) },
-                        )
-                        is PaginationButton.Ellipsis -> EllipsisView()
+        Row(
+            modifier = Modifier
+                .horizontalScroll(scrollState)
+                .padding(horizontal = AppSpace.sm, vertical = AppSpace.sm),
+            horizontalArrangement = Arrangement.spacedBy(AppSpace.xs),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            // 上一页：page<=1 时禁用。
+            NavButton(
+                isPrev = true,
+                disabled = page <= 1,
+                prevText = prevText,
+                onClick = { goTo(page - 1) },
+            )
+            when (mode) {
+                PaginationMode.MULTI -> {
+                    // 页码按钮 + 省略号折叠。
+                    val buttons = computeButtons(current = page, total = totalPages, itemSize = itemSize)
+                    buttons.forEach { button ->
+                        when (button) {
+                            is PaginationButton.Page -> PageButton(
+                                page = button.page,
+                                selected = button.page == page,
+                                onClick = { goTo(button.page) },
+                            )
+                            is PaginationButton.Ellipsis -> EllipsisView()
+                        }
                     }
                 }
+                PaginationMode.SIMPLE -> {
+                    // 简洁模式：x/y 文本（当前页 primary 高亮）。
+                    SimpleLabel(current = page, total = totalPages)
+                }
             }
-            PaginationMode.SIMPLE -> {
-                // 简洁模式：x/y 文本（当前页 primary 高亮）。
-                SimpleLabel(current = page, total = totalPages)
-            }
+            // 下一页：page>=totalPages 时禁用。
+            NavButton(
+                isPrev = false,
+                disabled = page >= totalPages,
+                nextText = nextText,
+                onClick = { goTo(page + 1) },
+            )
         }
-        // 下一页：page>=totalPages 时禁用。
-        NavButton(
-            isPrev = false,
-            disabled = page >= totalPages,
-            nextText = nextText,
-            onClick = { goTo(page + 1) },
-        )
     }
 }
 

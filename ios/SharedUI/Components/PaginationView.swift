@@ -150,31 +150,28 @@ final class PaginationView: UIView {
         // 当前页 clamp 到 [1, pages]。
         let page = min(max(effectivePage, 1), pages)
 
-        // 上一页按钮：page<=1 时禁用。
+        // 上一页按钮：page<=1 时禁用（prevContainer 是普通 UIView，用 Auto Layout）。
         let prev = makeNavButton(isPrev: true, disabled: page <= 1)
         prevContainer.addSubview(prev)
         prev.snp.makeConstraints { make in make.center.equalToSuperview() }
 
-        // 内容宽度跟踪。
-        let itemW = CGFloat(AppSpace.lg)
+        // UIScrollView 内部约束规则：
+        // - top.bottom.equalToSuperview() → 定义内容高度（= 按钮高度）
+        // - leading → 第一个元素的 leading 锚定到内容区左边缘
+        // - trailing → 最后一个元素的 trailing 锚定到内容区右边缘（定义内容宽度，启用滚动）
+        // - 不用 centerY（引用框架中心 → 循环依赖）
+        // - 不用 contentSize（与 Auto Layout 冲突）
         let gap = CGFloat(AppSpace.xs)
-        let contentH = CGFloat(AppSpace.lg)
 
         if mode == .simple {
-            // 简洁模式：x/y 文本（当前页 primary 高亮）。
             let label = makeSimpleLabel(current: page, total: pages)
             contentRow.addSubview(label)
             label.snp.makeConstraints { make in
+                make.top.bottom.equalToSuperview()
                 make.leading.equalTo(contentRow.snp.leading)
-                make.height.equalTo(contentH)
-                make.centerY.equalTo(contentRow.snp.centerY)
-            }
-            // 尾部约束：定义内容宽度 + 启用滚动。
-            label.snp.makeConstraints { make in
                 make.trailing.equalTo(contentRow.snp.trailing)
             }
         } else {
-            // 按钮模式：页码按钮 + 省略号折叠，从左到右顺序排列。
             let buttons = Self.computeButtons(current: page, total: pages, itemSize: itemSize)
             var previousView: UIView?
             for button in buttons {
@@ -187,8 +184,7 @@ final class PaginationView: UIView {
                 }
                 contentRow.addSubview(subview)
                 subview.snp.makeConstraints { make in
-                    make.height.equalTo(contentH)
-                    make.centerY.equalTo(contentRow.snp.centerY)
+                    make.top.bottom.equalToSuperview()
                     if let p = previousView {
                         make.leading.equalTo(p.snp.trailing).offset(gap)
                     } else {
@@ -197,7 +193,7 @@ final class PaginationView: UIView {
                 }
                 previousView = subview
             }
-            // 尾部约束：最后一个按钮 trailing = contentRow trailing，定义内容宽度并启用滚动。
+            // 尾部约束：定义内容宽度，启用滚动。
             previousView?.snp.makeConstraints { make in
                 make.trailing.equalTo(contentRow.snp.trailing)
             }

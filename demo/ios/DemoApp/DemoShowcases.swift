@@ -9542,39 +9542,134 @@ final class PopoverShowcase: ShowcaseViewController {
     }
 }
 
-// MARK: - PopupShowcase
+// MARK: - PopupShowcase（Popup 弹出层 Demo 页，8 组场景）
 
 final class PopupShowcase: ShowcaseViewController {
-    private var visibleControlled = false
 
-    private let centerPopup = PopupContainerView()
+    private let basicPopup = PopupContainerView()
+    private let topPopup = PopupContainerView()
     private let bottomPopup = PopupContainerView()
+    private let leftPopup = PopupContainerView()
+    private let rightPopup = PopupContainerView()
     private let closeablePopup = PopupContainerView()
-    private let controlledPopup = PopupContainerView()
+    private let blockingPopup = PopupContainerView()
+    private let radiusPopup = PopupContainerView()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Popup 弹出层"
-        view.backgroundColor = AppColor.bgPage
 
-        centerPopup.position = .center
-        centerPopup.content = makeLabel("居中弹层内容")
+        addVersionBadge(componentName: "Popup", version: "v1.4.31", builtAt: "2026-09-11")
+
+        addInfo("8 组排查：① 常规弹出层；② 顶部弹出；③ 底部弹出；④ 左侧弹出；⑤ 右侧弹出；⑥ 带关闭图标；⑦ 阻塞关闭；⑧ 圆角。点击下方按钮触发对应 Demo。")
+
+        // ── Demo 1：展示弹出层 ──
+        addSection(title: "Demo 1 · 展示弹出层") { container in
+            let btn = self.buildDemoButton(title: "打开常规弹出层") { [weak self] in self?.showDemo1() }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in make.edges.equalToSuperview(); make.height.equalTo(56) }
+        }
+        addInfo("position=CENTER（默认）；closeOnClickOverlay=true（默认）；点击遮罩关闭。")
+
+        // ── Demo 2：顶部弹出的 ──
+        addSection(title: "Demo 2 · 顶部弹出的") { container in
+            let btn = self.buildDemoButton(title: "打开顶部弹出层") { [weak self] in self?.showDemo2() }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in make.edges.equalToSuperview(); make.height.equalTo(56) }
+        }
+        addInfo("position=TOP：从顶部滑入，底两角圆角。")
+
+        // ── Demo 3：底部弹出的 ──
+        addSection(title: "Demo 3 · 底部弹出的") { container in
+            let btn = self.buildDemoButton(title: "打开底部弹出层") { [weak self] in self?.showDemo3() }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in make.edges.equalToSuperview(); make.height.equalTo(56) }
+        }
+        addInfo("position=BOTTOM：从底部滑入，顶两角圆角。")
+
+        // ── Demo 4：左侧弹出的 ──
+        addSection(title: "Demo 4 · 左侧弹出的") { container in
+            let btn = self.buildDemoButton(title: "打开左侧弹出层") { [weak self] in self?.showDemo4() }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in make.edges.equalToSuperview(); make.height.equalTo(56) }
+        }
+        addInfo("position=LEFT：从左侧滑入，右两角圆角。")
+
+        // ── Demo 5：右侧弹出的 ──
+        addSection(title: "Demo 5 · 右侧弹出的") { container in
+            let btn = self.buildDemoButton(title: "打开右侧弹出层") { [weak self] in self?.showDemo5() }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in make.edges.equalToSuperview(); make.height.equalTo(56) }
+        }
+        addInfo("position=RIGHT：从右侧滑入，左两角圆角。")
+
+        // ── Demo 6：带关闭图标的 ──
+        addSection(title: "Demo 6 · 带关闭图标的") { container in
+            let btn = self.buildDemoButton(title: "打开带关闭图标弹出层") { [weak self] in self?.showDemo6() }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in make.edges.equalToSuperview(); make.height.equalTo(56) }
+        }
+        addInfo("closeable=true：右上角显示关闭按钮（24pt 圆形灰底白叉）。")
+
+        // ── Demo 7：阻塞关闭的 ──
+        addSection(title: "Demo 7 · 阻塞关闭的") { container in
+            let btn = self.buildDemoButton(title: "打开阻塞关闭弹出层") { [weak self] in self?.showDemo7() }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in make.edges.equalToSuperview(); make.height.equalTo(56) }
+        }
+        addInfo("closeOnClickOverlay=false：点击遮罩不关闭，只能通过内容中的按钮关闭。")
+
+        // ── Demo 8：圆角的 ──
+        addSection(title: "Demo 8 · 圆角的") { container in
+            let btn = self.buildDemoButton(title: "打开大圆角弹出层") { [weak self] in self?.showDemo8() }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in make.edges.equalToSuperview(); make.height.equalTo(56) }
+        }
+        addInfo("radius=24pt：自定义大圆角，四角统一。")
+
+        // 初始化 Popup 配置
+        basicPopup.position = .center
+        basicPopup.content = makePopupLabel("常规弹出层内容")
+
+        topPopup.position = .top
+        topPopup.content = makePopupLabel("顶部弹出层内容")
 
         bottomPopup.position = .bottom
-        bottomPopup.content = makeLabel("底部弹层内容")
+        bottomPopup.content = makePopupLabel("底部弹出层内容")
+
+        leftPopup.position = .left
+        leftPopup.content = makePopupColumn(title: "左侧弹出层", subtitle: "从左侧滑入，右两角圆角。")
+
+        rightPopup.position = .right
+        rightPopup.content = makePopupColumn(title: "右侧弹出层", subtitle: "从右侧滑入，左两角圆角。")
 
         closeablePopup.position = .center
         closeablePopup.closeable = true
-        closeablePopup.content = makeLabel("带关闭按钮的弹层")
+        closeablePopup.content = makePopupLabel("带关闭图标的弹出层")
 
-        controlledPopup.position = .center
-        controlledPopup.closeable = true
-        controlledPopup.content = makeLabel("受控外部驱动弹层")
+        blockingPopup.position = .center
+        blockingPopup.closeOnClickOverlay = false
+        blockingPopup.content = makeBlockingContent()
 
-        setupSections()
+        radiusPopup.position = .center
+        radiusPopup.radius = 24
+        radiusPopup.content = makePopupLabel("大圆角弹出层（24pt）")
     }
 
-    private func makeLabel(_ text: String) -> UIView {
+    // MARK: - Demo 触发
+
+    private func showDemo1() { basicPopup.visible = true }
+    private func showDemo2() { topPopup.visible = true }
+    private func showDemo3() { bottomPopup.visible = true }
+    private func showDemo4() { leftPopup.visible = true }
+    private func showDemo5() { rightPopup.visible = true }
+    private func showDemo6() { closeablePopup.visible = true }
+    private func showDemo7() { blockingPopup.visible = true }
+    private func showDemo8() { radiusPopup.visible = true }
+
+    // MARK: - 工具
+
+    private func makePopupLabel(_ text: String) -> UIView {
         let label = UILabel()
         label.text = text
         label.font = .systemFont(ofSize: AppFont.sizeMd)
@@ -9583,58 +9678,62 @@ final class PopupShowcase: ShowcaseViewController {
         return label
     }
 
-    private func setupSections() {
-        addCard(title: "D1 · 居中弹层（position=center）", contentHeight: 48) { container in
-            let btn = AppButton.primary("显示居中弹层")
-            btn.addTarget(self, action: #selector(self.tapCenter), for: .touchUpInside)
-            container.addSubview(btn)
-            btn.snp.makeConstraints { make in
-                make.left.right.equalToSuperview()
-                make.top.bottom.equalToSuperview()
-                make.height.equalTo(AppButton.standardHeight)
-            }
-        }
-
-        addCard(title: "D2 · 底部弹层（position=bottom）", contentHeight: 48) { container in
-            let btn = AppButton.primary("显示底部弹层")
-            btn.addTarget(self, action: #selector(self.tapBottom), for: .touchUpInside)
-            container.addSubview(btn)
-            btn.snp.makeConstraints { make in
-                make.left.right.equalToSuperview()
-                make.top.bottom.equalToSuperview()
-                make.height.equalTo(AppButton.standardHeight)
-            }
-        }
-
-        addCard(title: "D3 · closeable 关闭按钮", contentHeight: 48) { container in
-            let btn = AppButton.primary("显示可关闭弹层")
-            btn.addTarget(self, action: #selector(self.tapCloseable), for: .touchUpInside)
-            container.addSubview(btn)
-            btn.snp.makeConstraints { make in
-                make.left.right.equalToSuperview()
-                make.top.bottom.equalToSuperview()
-                make.height.equalTo(AppButton.standardHeight)
-            }
-        }
-
-        addCard(title: "D4 · 受控外部驱动", contentHeight: 48) { container in
-            let btn = AppButton.primary("切换弹层显示")
-            btn.addTarget(self, action: #selector(self.tapControlled), for: .touchUpInside)
-            container.addSubview(btn)
-            btn.snp.makeConstraints { make in
-                make.left.right.equalToSuperview()
-                make.top.bottom.equalToSuperview()
-                make.height.equalTo(AppButton.standardHeight)
-            }
-        }
+    private func makePopupColumn(title: String, subtitle: String) -> UIView {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 8
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = .boldSystemFont(ofSize: AppFont.sizeMd)
+        titleLabel.textColor = AppColor.textPrimary
+        let subLabel = UILabel()
+        subLabel.text = subtitle
+        subLabel.font = .systemFont(ofSize: AppFont.sizeXs)
+        subLabel.textColor = AppColor.textSecondary
+        stack.addArrangedSubview(titleLabel)
+        stack.addArrangedSubview(subLabel)
+        return stack
     }
 
-    @objc private func tapCenter() { centerPopup.visible = true }
-    @objc private func tapBottom() { bottomPopup.visible = true }
-    @objc private func tapCloseable() { closeablePopup.visible = true }
-    @objc private func tapControlled() {
-        visibleControlled.toggle()
-        controlledPopup.visible = visibleControlled
+    private func makeBlockingContent() -> UIView {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 12
+        stack.alignment = .center
+
+        let title = UILabel()
+        title.text = "阻塞关闭的弹出层"
+        title.font = .boldSystemFont(ofSize: AppFont.sizeMd)
+        title.textColor = AppColor.textPrimary
+        title.textAlignment = .center
+
+        let desc = UILabel()
+        desc.text = "点击遮罩不会关闭，只能通过下方按钮关闭。"
+        desc.font = .systemFont(ofSize: AppFont.sizeXs)
+        desc.textColor = AppColor.textSecondary
+        desc.textAlignment = .center
+        desc.numberOfLines = 0
+
+        let btn = buildDemoButton(title: "我知道了") { [weak self] in
+            self?.blockingPopup.visible = false
+        }
+        btn.snp.makeConstraints { make in make.height.equalTo(40) }
+
+        stack.addArrangedSubview(title)
+        stack.addArrangedSubview(desc)
+        stack.addArrangedSubview(btn)
+        return stack
+    }
+
+    private func buildDemoButton(title: String, onTap: @escaping () -> Void) -> UIButton {
+        let b = UIButton(type: .system)
+        b.setTitle(title, for: .normal)
+        b.setTitleColor(.white, for: .normal)
+        b.backgroundColor = AppColor.primary
+        b.layer.cornerRadius = 10
+        b.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+        b.addAction(UIAction { _ in onTap() }, for: .touchUpInside)
+        return b
     }
 }
 

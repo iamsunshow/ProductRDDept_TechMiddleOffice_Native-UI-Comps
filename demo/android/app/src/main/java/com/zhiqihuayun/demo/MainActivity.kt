@@ -7910,13 +7910,17 @@ fun PopoverDemo() {
     }
 }
 
-// Popup 弹出层 Demo
+// Popup 弹出层 Demo（8 组场景：常规/顶部/底部/左侧/右侧/带关闭图标/阻塞关闭/圆角）
 @Composable
 fun PopupDemo() {
-    var visibleCenter by remember { mutableStateOf(false) }
+    var visibleBasic by remember { mutableStateOf(false) }
+    var visibleTop by remember { mutableStateOf(false) }
     var visibleBottom by remember { mutableStateOf(false) }
+    var visibleLeft by remember { mutableStateOf(false) }
+    var visibleRight by remember { mutableStateOf(false) }
     var visibleCloseable by remember { mutableStateOf(false) }
-    var visibleControlled by remember { mutableStateOf(false) }
+    var visibleBlocking by remember { mutableStateOf(false) }
+    var visibleRadius by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = Modifier
@@ -7925,44 +7929,122 @@ fun PopupDemo() {
             .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {
-        // D1 居中弹层
+        // 版本徽标
         item {
-            DemoSectionCard(title = "D1 · 居中弹层（position=CENTER）") {
-                AppButton(text = "显示居中弹层", onClick = { visibleCenter = true })
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm))
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+            ) {
+                Text(
+                    text = "Popup 组件 v1.4.31",
+                    color = AppColor.primary,
+                    fontSize = AppFont.sizeXs,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
 
-        // D2 底部弹层
         item {
-            DemoSectionCard(title = "D2 · 底部弹层（position=BOTTOM）") {
-                AppButton(text = "显示底部弹层", onClick = { visibleBottom = true })
-            }
+            Text(
+                text = "8 组排查：① 常规弹出层；② 顶部弹出；③ 底部弹出；④ 左侧弹出；⑤ 右侧弹出；⑥ 带关闭图标；⑦ 阻塞关闭；⑧ 圆角。点击下方按钮触发对应 Demo。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary
+            )
         }
 
-        // D3 closeable 关闭按钮
+        // ── Demo 1：常规弹出层 ──
         item {
-            DemoSectionCard(title = "D3 · closeable 关闭按钮") {
-                AppButton(text = "显示可关闭弹层", onClick = { visibleCloseable = true })
+            DemoSectionCard(title = "Demo 1 · 展示弹出层") {
+                AppButton(text = "打开常规弹出层", onClick = { visibleBasic = true })
             }
         }
-
-        // D4 受控外部驱动
         item {
-            DemoSectionCard(title = "D4 · 受控外部驱动") {
-                AppButton(text = "切换弹层显示", onClick = { visibleControlled = !visibleControlled })
+            Text("position=CENTER（默认）；closeOnClickOverlay=true（默认）；点击遮罩关闭。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+        }
+
+        // ── Demo 2：顶部弹出的 ──
+        item {
+            DemoSectionCard(title = "Demo 2 · 顶部弹出的") {
+                AppButton(text = "打开顶部弹出层", onClick = { visibleTop = true })
             }
+        }
+        item {
+            Text("position=TOP：从顶部滑入，底两角圆角。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+        }
+
+        // ── Demo 3：底部弹出的 ──
+        item {
+            DemoSectionCard(title = "Demo 3 · 底部弹出的") {
+                AppButton(text = "打开底部弹出层", onClick = { visibleBottom = true })
+            }
+        }
+        item {
+            Text("position=BOTTOM：从底部滑入，顶两角圆角。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+        }
+
+        // ── Demo 4：左侧弹出的 ──
+        item {
+            DemoSectionCard(title = "Demo 4 · 左侧弹出的") {
+                AppButton(text = "打开左侧弹出层", onClick = { visibleLeft = true })
+            }
+        }
+        item {
+            Text("position=LEFT：从左侧滑入，右两角圆角。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+        }
+
+        // ── Demo 5：右侧弹出的 ──
+        item {
+            DemoSectionCard(title = "Demo 5 · 右侧弹出的") {
+                AppButton(text = "打开右侧弹出层", onClick = { visibleRight = true })
+            }
+        }
+        item {
+            Text("position=RIGHT：从右侧滑入，左两角圆角。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+        }
+
+        // ── Demo 6：带关闭图标的 ──
+        item {
+            DemoSectionCard(title = "Demo 6 · 带关闭图标的") {
+                AppButton(text = "打开带关闭图标弹出层", onClick = { visibleCloseable = true })
+            }
+        }
+        item {
+            Text("closeable=true：右上角显示关闭按钮（24dp 圆形灰底白叉）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+        }
+
+        // ── Demo 7：阻塞关闭的 ──
+        item {
+            DemoSectionCard(title = "Demo 7 · 阻塞关闭的") {
+                AppButton(text = "打开阻塞关闭弹出层", onClick = { visibleBlocking = true })
+            }
+        }
+        item {
+            Text("closeOnClickOverlay=false：点击遮罩不关闭，只能通过内容中的按钮关闭。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+        }
+
+        // ── Demo 8：圆角的 ──
+        item {
+            DemoSectionCard(title = "Demo 8 · 圆角的") {
+                AppButton(text = "打开大圆角弹出层", onClick = { visibleRadius = true })
+            }
+        }
+        item {
+            Text("radius=24dp：自定义大圆角，四角统一。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
         }
     }
 
-    // 居中弹层（v1.4.12：Text 用 defaultMinSize(208.dp) 替代 fillMaxWidth，
-    // 避免 Popup 全屏约束下 fillMaxWidth 导致弹层通栏；208dp = iOS UILabel 宽度 240-32=208pt）
+    // Demo 1：常规弹出层
     Popup(
-        visible = visibleCenter,
+        visible = visibleBasic,
         position = PopupPosition.CENTER,
-        onClose = { visibleCenter = false }
+        onClose = { visibleBasic = false }
     ) {
         Text(
-            "居中弹层内容",
+            "常规弹出层内容",
             fontSize = AppFont.sizeMd,
             color = AppColor.textPrimary,
             textAlign = TextAlign.Center,
@@ -7970,14 +8052,29 @@ fun PopupDemo() {
         )
     }
 
-    // 底部弹层
+    // Demo 2：顶部弹出的
+    Popup(
+        visible = visibleTop,
+        position = PopupPosition.TOP,
+        onClose = { visibleTop = false }
+    ) {
+        Text(
+            "顶部弹出层内容",
+            fontSize = AppFont.sizeMd,
+            color = AppColor.textPrimary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.defaultMinSize(minWidth = 208.dp)
+        )
+    }
+
+    // Demo 3：底部弹出的
     Popup(
         visible = visibleBottom,
         position = PopupPosition.BOTTOM,
         onClose = { visibleBottom = false }
     ) {
         Text(
-            "底部弹层内容",
+            "底部弹出层内容",
             fontSize = AppFont.sizeMd,
             color = AppColor.textPrimary,
             textAlign = TextAlign.Center,
@@ -7985,7 +8082,37 @@ fun PopupDemo() {
         )
     }
 
-    // 可关闭弹层
+    // Demo 4：左侧弹出的
+    Popup(
+        visible = visibleLeft,
+        position = PopupPosition.LEFT,
+        onClose = { visibleLeft = false }
+    ) {
+        Column(
+            modifier = Modifier.padding(vertical = AppSpace.lg),
+            verticalArrangement = Arrangement.spacedBy(AppSpace.sm)
+        ) {
+            Text("左侧弹出层", fontSize = AppFont.sizeMd, fontWeight = FontWeight.Bold, color = AppColor.textPrimary)
+            Text("从左侧滑入，右两角圆角。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+        }
+    }
+
+    // Demo 5：右侧弹出的
+    Popup(
+        visible = visibleRight,
+        position = PopupPosition.RIGHT,
+        onClose = { visibleRight = false }
+    ) {
+        Column(
+            modifier = Modifier.padding(vertical = AppSpace.lg),
+            verticalArrangement = Arrangement.spacedBy(AppSpace.sm)
+        ) {
+            Text("右侧弹出层", fontSize = AppFont.sizeMd, fontWeight = FontWeight.Bold, color = AppColor.textPrimary)
+            Text("从右侧滑入，左两角圆角。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+        }
+    }
+
+    // Demo 6：带关闭图标的
     Popup(
         visible = visibleCloseable,
         position = PopupPosition.CENTER,
@@ -7993,7 +8120,7 @@ fun PopupDemo() {
         onClose = { visibleCloseable = false }
     ) {
         Text(
-            "带关闭按钮的弹层",
+            "带关闭图标的弹出层",
             fontSize = AppFont.sizeMd,
             color = AppColor.textPrimary,
             textAlign = TextAlign.Center,
@@ -8001,15 +8128,44 @@ fun PopupDemo() {
         )
     }
 
-    // 受控外部驱动
+    // Demo 7：阻塞关闭的（closeOnClickOverlay=false）
     Popup(
-        visible = visibleControlled,
+        visible = visibleBlocking,
         position = PopupPosition.CENTER,
-        closeable = true,
-        onClose = { visibleControlled = false }
+        closeOnClickOverlay = false,
+        onClose = { visibleBlocking = false }
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(AppSpace.md),
+            modifier = Modifier.defaultMinSize(minWidth = 208.dp)
+        ) {
+            Text(
+                "阻塞关闭的弹出层",
+                fontSize = AppFont.sizeMd,
+                fontWeight = FontWeight.Bold,
+                color = AppColor.textPrimary,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                "点击遮罩不会关闭，只能通过下方按钮关闭。",
+                fontSize = AppFont.sizeXs,
+                color = AppColor.textSecondary,
+                textAlign = TextAlign.Center
+            )
+            AppButton(text = "我知道了", onClick = { visibleBlocking = false })
+        }
+    }
+
+    // Demo 8：圆角的（radius=24dp）
+    Popup(
+        visible = visibleRadius,
+        position = PopupPosition.CENTER,
+        radius = 24.dp,
+        onClose = { visibleRadius = false }
     ) {
         Text(
-            "受控外部驱动弹层",
+            "大圆角弹出层（24dp）",
             fontSize = AppFont.sizeMd,
             color = AppColor.textPrimary,
             textAlign = TextAlign.Center,

@@ -43,6 +43,8 @@ public enum PopupPosition {
     case center   // 居中弹出
     case bottom   // 底部贴底
     case top      // 顶部贴顶
+    case left     // 左侧弹出
+    case right    // 右侧弹出
 }
 
 // MARK: - 组件
@@ -151,6 +153,12 @@ public final class PopupContainerView: UIView {
                 make.leading.trailing.equalToSuperview()
                 make.top.equalTo(self.safeAreaLayoutGuide.snp.top)
                 make.height.greaterThanOrEqualTo(120)
+            case .left:
+                make.top.bottom.leading.equalToSuperview()
+                make.width.greaterThanOrEqualTo(120)
+            case .right:
+                make.top.bottom.trailing.equalToSuperview()
+                make.width.greaterThanOrEqualTo(120)
             }
         }
         // 圆角按 position 变化
@@ -165,6 +173,12 @@ public final class PopupContainerView: UIView {
         case .top:
             containerStack.layer.cornerRadius = r
             containerStack.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        case .left:
+            containerStack.layer.cornerRadius = r
+            containerStack.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMaxXMaxYCorner]
+        case .right:
+            containerStack.layer.cornerRadius = r
+            containerStack.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner]
         }
     }
 
@@ -225,6 +239,20 @@ public final class PopupContainerView: UIView {
                 self.overlayView.alpha = 1
                 self.containerStack.transform = .identity
             }
+        case .left:
+            overlayView.alpha = 0
+            containerStack.transform = CGAffineTransform(translationX: -containerStack.bounds.width, y: 0)
+            UIView.animate(withDuration: Layout.animationDurationSlide, delay: 0, options: .curveEaseOut) {
+                self.overlayView.alpha = 1
+                self.containerStack.transform = .identity
+            }
+        case .right:
+            overlayView.alpha = 0
+            containerStack.transform = CGAffineTransform(translationX: containerStack.bounds.width, y: 0)
+            UIView.animate(withDuration: Layout.animationDurationSlide, delay: 0, options: .curveEaseOut) {
+                self.overlayView.alpha = 1
+                self.containerStack.transform = .identity
+            }
         }
     }
 
@@ -233,7 +261,7 @@ public final class PopupContainerView: UIView {
         switch position {
         case .center:
             duration = Layout.animationDurationCenter
-        case .bottom, .top:
+        case .bottom, .top, .left, .right:
             duration = Layout.animationDurationSlide
         }
         UIView.animate(withDuration: duration, delay: 0, options: .curveEaseIn, animations: {
@@ -246,6 +274,10 @@ public final class PopupContainerView: UIView {
                 self.containerStack.transform = CGAffineTransform(translationX: 0, y: self.containerStack.bounds.height)
             case .top:
                 self.containerStack.transform = CGAffineTransform(translationX: 0, y: -self.containerStack.bounds.height)
+            case .left:
+                self.containerStack.transform = CGAffineTransform(translationX: -self.containerStack.bounds.width, y: 0)
+            case .right:
+                self.containerStack.transform = CGAffineTransform(translationX: self.containerStack.bounds.width, y: 0)
             }
         }) { _ in
             self.removeFromSuperview()

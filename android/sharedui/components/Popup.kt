@@ -44,6 +44,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -53,11 +55,14 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -92,7 +97,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 enum class PopupPosition {
     CENTER,   // 居中弹出
     BOTTOM,   // 底部贴底
-    TOP       // 顶部贴顶
+    TOP,      // 顶部贴顶
+    LEFT,     // 左侧弹出
+    RIGHT     // 右侧弹出
 }
 
 /** 内部 testTag 常量，供自动化单测定位蒙版/容器/关闭按钮（回归测试台账 L1）。 */
@@ -176,6 +183,8 @@ fun Popup(
                 PopupPosition.CENTER -> RoundedCornerShape(radius)
                 PopupPosition.BOTTOM -> RoundedCornerShape(topStart = radius, topEnd = radius)
                 PopupPosition.TOP -> RoundedCornerShape(bottomStart = radius, bottomEnd = radius)
+                PopupPosition.LEFT -> RoundedCornerShape(topEnd = radius, bottomEnd = radius)
+                PopupPosition.RIGHT -> RoundedCornerShape(topStart = radius, bottomStart = radius)
             }
             val containerModifier = when (position) {
                 PopupPosition.CENTER -> Modifier
@@ -201,6 +210,20 @@ fun Popup(
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .heightIn(min = 120.dp)
+                    .clip(shape)
+                    .background(AppColor.bgCard, shape)
+                PopupPosition.LEFT -> Modifier
+                    .align(Alignment.CenterStart)
+                    .fillMaxHeight()
+                    .wrapContentWidth()
+                    .widthIn(min = 120.dp)
+                    .clip(shape)
+                    .background(AppColor.bgCard, shape)
+                PopupPosition.RIGHT -> Modifier
+                    .align(Alignment.CenterEnd)
+                    .fillMaxHeight()
+                    .wrapContentWidth()
+                    .widthIn(min = 120.dp)
                     .clip(shape)
                     .background(AppColor.bgCard, shape)
             }

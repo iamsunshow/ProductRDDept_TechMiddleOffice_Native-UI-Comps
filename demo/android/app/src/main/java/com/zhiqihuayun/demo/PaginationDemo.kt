@@ -83,7 +83,7 @@ fun PaginationDemo() {
             .fillMaxSize()
             .background(AppColor.bgPage)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {
         // 组件版本徽标：与 iOS 端保持同一版本号。

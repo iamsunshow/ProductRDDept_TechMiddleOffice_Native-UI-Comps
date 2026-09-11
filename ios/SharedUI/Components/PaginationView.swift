@@ -155,19 +155,24 @@ final class PaginationView: UIView {
         prevContainer.addSubview(prev)
         prev.snp.makeConstraints { make in make.center.equalToSuperview() }
 
-        // 内容宽度跟踪（用于 UIScrollView contentSize）。
-        var contentWidth: CGFloat = 0
+        // 内容宽度跟踪。
         let itemW = CGFloat(AppSpace.lg)
         let gap = CGFloat(AppSpace.xs)
+        let contentH = CGFloat(AppSpace.lg)
 
         if mode == .simple {
             // 简洁模式：x/y 文本（当前页 primary 高亮）。
             let label = makeSimpleLabel(current: page, total: pages)
             contentRow.addSubview(label)
             label.snp.makeConstraints { make in
-                make.leading.top.bottom.equalToSuperview()
+                make.leading.equalTo(contentRow.snp.leading)
+                make.height.equalTo(contentH)
+                make.centerY.equalTo(contentRow.snp.centerY)
             }
-            contentWidth = 60
+            // 尾部约束：定义内容宽度 + 启用滚动。
+            label.snp.makeConstraints { make in
+                make.trailing.equalTo(contentRow.snp.trailing)
+            }
         } else {
             // 按钮模式：页码按钮 + 省略号折叠，从左到右顺序排列。
             let buttons = Self.computeButtons(current: page, total: pages, itemSize: itemSize)
@@ -182,23 +187,21 @@ final class PaginationView: UIView {
                 }
                 contentRow.addSubview(subview)
                 subview.snp.makeConstraints { make in
-                    make.top.bottom.equalToSuperview()
+                    make.height.equalTo(contentH)
+                    make.centerY.equalTo(contentRow.snp.centerY)
                     if let p = previousView {
                         make.leading.equalTo(p.snp.trailing).offset(gap)
                     } else {
-                        make.leading.equalToSuperview()
+                        make.leading.equalTo(contentRow.snp.leading)
                     }
                 }
                 previousView = subview
-                contentWidth += itemW
             }
-            if buttons.count > 1 {
-                contentWidth += gap * CGFloat(buttons.count - 1)
+            // 尾部约束：最后一个按钮 trailing = contentRow trailing，定义内容宽度并启用滚动。
+            previousView?.snp.makeConstraints { make in
+                make.trailing.equalTo(contentRow.snp.trailing)
             }
         }
-
-        // 设置滚动区域宽度（内容超出时可横向滚动）。
-        contentRow.contentSize = CGSize(width: contentWidth, height: 0)
 
         // 下一页按钮：page>=pages 时禁用。
         let next = makeNavButton(isPrev: false, disabled: page >= pages)

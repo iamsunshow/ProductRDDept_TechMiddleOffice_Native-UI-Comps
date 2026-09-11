@@ -64,8 +64,19 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import androidx.compose.ui.window.PopupPositionProvider
 import com.zhiqihuayun.foundation.design.AppColor
 import kotlin.math.roundToInt
+
+/** Overlay 全屏 Popup 位置提供器：让 Popup 内容从窗口 (0,0) 开始，配合 fillMaxSize() 覆盖整个屏幕。 */
+private object OverlayFullScreenPopupPositionProvider : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize
+    ): IntOffset = IntOffset(0, 0)
+}
 
 // ============== 枚举/解析工具（与 iOS 类一一对应，取值字符串 100% 一致）==============
 
@@ -203,7 +214,7 @@ fun Overlay(
     // 唯一合法=用 Compose Popup=弹出层=触摸事件 100% 由 Compose pointerInput 分发=不会被 Android 系统 Dialog window 拦截=点击 100% 有响应=用户亲测可验=与 iOS keyWindow.addSubview 挂载语义=1:1 对齐（全屏浮层=由我们自处理触摸=不被系统 window 截）
     if (!visible) return
     Popup(
-        alignment = Alignment.Center,
+        popupPositionProvider = OverlayFullScreenPopupPositionProvider,
         onDismissRequest = {
             // Popup 标准：返回键走这里；点击 Popup 外=我们自己平级 mask clickable 接管（dismissOnClickOutside=false 永久关=保证 closeOnMaskClick/clickThrough 开关可控）
             if (dismissOnBackPress) {

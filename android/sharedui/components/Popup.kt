@@ -39,13 +39,15 @@
 package com.zhiqihuayun.sharedui.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.ui.platform.testTag
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -69,7 +71,11 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -77,6 +83,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -147,7 +154,13 @@ fun Popup(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
-    if (!visible) return
+    // 弹层动画状态（始终渲染 Popup，由 AnimatedVisibility 控制进入/退出动画）
+    var animVisible by remember { mutableStateOf(visible) }
+    LaunchedEffect(visible) {
+        if (visible) animVisible = true
+    }
+
+    if (!visible && !animVisible) return
 
     // v1.4.9：用 Popup 替代 Dialog——Dialog 会添加系统级 dim 层（~0.6），
     // 叠加在我们的 0.45 黑色蒙版上导致 Android 蒙版明显比 iOS 暗。
@@ -166,6 +179,22 @@ fun Popup(
             dismissOnClickOutside = false
         )
     ) {
+        // 动画参数：按 position 选择进入/退出过渡
+        val enterTransition = when (position) {
+            PopupPosition.CENTER -> fadeIn(animationSpec = tween(200)) + scaleIn(initialScale = 0.9f, animationSpec = tween(200))
+            PopupPosition.BOTTOM -> fadeIn(animationSpec = tween(250)) + slideInVertically(initialOffsetY = { it }, animationSpec = tween(250))
+            PopupPosition.TOP -> fadeIn(animationSpec = tween(250)) + slideInVertically(initialOffsetY = { -it }, animationSpec = tween(250))
+            PopupPosition.LEFT -> fadeIn(animationSpec = tween(250)) + slideInHorizontally(initialOffsetX = { -it }, animationSpec = tween(250))
+            PopupPosition.RIGHT -> fadeIn(animationSpec = tween(250)) + slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(250))
+        }
+        val exitTransition = when (position) {
+            PopupPosition.CENTER -> fadeOut(animationSpec = tween(200)) + scaleOut(targetScale = 0.9f, animationSpec = tween(200))
+            PopupPosition.BOTTOM -> fadeOut(animationSpec = tween(250)) + slideOutVertically(targetOffsetY = { it }, animationSpec = tween(250))
+            PopupPosition.TOP -> fadeOut(animationSpec = tween(250)) + slideOutVertically(targetOffsetY = { -it }, animationSpec = tween(250))
+            PopupPosition.LEFT -> fadeOut(animationSpec = tween(250)) + slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(250))
+            PopupPosition.RIGHT -> fadeOut(animationSpec = tween(250)) + slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(250))
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -178,7 +207,12 @@ fun Popup(
                     onClick = { onClose?.invoke() }
                 )
         ) {
-            // 弹层容器（白底+圆角按 position 变化）
+            // 弹层容器（白底+圆角按 position 变化）——用 AnimatedVisibility 包裹以提供进入/退出动画
+            AnimatedVisibility(
+                visible = visible,
+                enter = enterTransition,
+                exit = exitTransition
+            ) {
             val shape = when (position) {
                 PopupPosition.CENTER -> RoundedCornerShape(radius)
                 PopupPosition.BOTTOM -> RoundedCornerShape(topStart = radius, topEnd = radius)
@@ -274,6 +308,7 @@ fun Popup(
                     }
                 }
             }
+            } // AnimatedVisibility
         }
     }
 }

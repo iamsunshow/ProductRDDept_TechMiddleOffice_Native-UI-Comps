@@ -2510,7 +2510,7 @@ final class OverlayShowcase: ShowcaseViewController {
     // Demo 3：设置显示动画的遮罩层
     private func showDemo3() {
         var overlay: Overlay? = nil
-        overlay = makeOverlay(animation: true, position: .center, radius: .lg, tag: "Demo3") { container in
+        overlay = makeOverlay(position: .center, radius: .lg, animation: true, tag: "Demo3") { container in
             container.backgroundColor = .white; container.widthAnchor.constraint(equalToConstant: 240).isActive = true
             let title = UILabel(); title.text = "有动画的遮罩"; title.font = .boldSystemFont(ofSize: 16); title.textAlignment = .center
             let sub = UILabel(); sub.text = "fade-in 200ms / fade-out 180ms"; sub.font = .systemFont(ofSize: 13); sub.textColor = AppColor.textSecondary; sub.textAlignment = .center
@@ -2524,7 +2524,7 @@ final class OverlayShowcase: ShowcaseViewController {
     // Demo 4：背后内容可以滚动的遮罩层（clickThrough=true）
     private func showDemo4() {
         var overlay: Overlay? = nil
-        overlay = makeOverlay(clickThrough: true, closeOnMaskClick: false, position: .bottom, radius: .lg, tag: "Demo4") { container in
+        overlay = makeOverlay(closeOnMaskClick: false, clickThrough: true, position: .bottom, radius: .lg, tag: "Demo4") { container in
             container.backgroundColor = .white
             container.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width).isActive = true
             let handle = UIView(); handle.backgroundColor = UIColor(red: 0xE5/255, green: 0xE7/255, blue: 0xEB/255, alpha: 1); handle.layer.cornerRadius = 2

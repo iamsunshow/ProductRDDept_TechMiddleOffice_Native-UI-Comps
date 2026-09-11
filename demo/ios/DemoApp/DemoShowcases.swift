@@ -2367,79 +2367,84 @@ final class LineChartShowcase: ShowcaseViewController {
     }
 }
 
-// MARK: - OverlayShowcase（基础组件 #6，四组 Demo 与设计规格 §04 / Android OverlayDemo 1:1 对齐）
+// MARK: - OverlayShowcase（基础组件 #6，6 组 Demo 双端 1:1 对齐）
 
 final class OverlayShowcase: ShowcaseViewController {
 
-    private var overlayRefs: [Overlay] = []   // 持有强引用，保证闭包外生命周期
+    private var overlayRefs: [Overlay] = []
     private var feedbackLabel: UILabel!
-    // ⚠️ Demo2 气泡点击手势临时弱引用 overlay：UIGestureRecognizer.addAction 需要 iOS 14+，为兼容低版本用 addTarget:action: 老写法=必须把局部 overlay 通过属性挂到 self 上供 @objc selector 读取（避免用 associated object=太重）
-    private weak var demo2TapOverlay: Overlay?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Overlay 遮罩层"
 
-        // 组件版本 v2.0（iOS 布局完整修复：递归测量 + 防御重建 + init 顺序），组件库版本 v1.3.13
-        addVersionBadge(componentName: "Overlay", version: "v2.0", builtAt: "2026-09-04")
+        addVersionBadge(componentName: "Overlay", version: "v1.4.31", builtAt: "2026-09-11")
         feedbackLabel = addFeedbackBar()
 
-        addInfo("定位：浮层通用基座。4 组排查：① 默认遮罩+居中确认框；② 透明穿透+新手气泡 top-right；③ 底部抽屉（contentPosition=bottom + radius=lg 顶两圆角）；④ 圆角卡片居中。双端 1:1，点击下方按钮触发对应 Demo。")
+        addInfo("6 组排查：① 常规遮罩层；② 自定义透明度遮罩层；③ 显示动画遮罩层；④ 背后内容可滚动遮罩层；⑤ 有内容的遮罩层；⑥ 有内容且不可关闭遮罩层。点击下方按钮触发对应 Demo。")
 
-        // ── Demo 1：默认遮罩+居中确认框（onClose 由遮罩背景点击触发，onMaskClick 回调解耦）──
-        addSection(title: "Demo 1 · 默认遮罩 + 居中确认框") { container in
-            let btn = buildDemoButton(title: "打开确认退出弹窗") { [weak self] in
-                self?.showDemo1ConfirmDialog()
+        // ── Demo 1：常规遮罩层 ──
+        addSection(title: "Demo 1 · 常规遮罩层") { container in
+            let btn = self.buildDemoButton(title: "打开常规遮罩") { [weak self] in
+                self?.showDemo1()
             }
             container.addSubview(btn)
-            btn.snp.makeConstraints { make in
-                make.edges.equalToSuperview()
-                make.height.equalTo(56)
-            }
+            btn.snp.makeConstraints { make in make.edges.equalToSuperview(); make.height.equalTo(56) }
         }
-        addInfo("maskColor=default（55% 黑）；closeOnMaskClick=默认 true；contentPosition=center；点击外部→onMaskClick→onClose。")
+        addInfo("maskColor=default（55% 黑）；closeOnMaskClick=true（默认）；点击遮罩空白区关闭。")
 
-        // ── Demo 2：透明穿透 + 新手气泡 top-right（clickThrough=true）──
-        addSection(title: "Demo 2 · 透明穿透 + 新手气泡（top-right）") { container in
-            let btn = buildDemoButton(title: "显示气泡蒙版 3 秒") { [weak self] in
-                self?.showDemo2TransparentBubble()
+        // ── Demo 2：设置透明度的遮罩层 ──
+        addSection(title: "Demo 2 · 设置透明度的遮罩层") { container in
+            let btn = self.buildDemoButton(title: "打开低透明度遮罩") { [weak self] in
+                self?.showDemo2()
             }
             container.addSubview(btn)
-            btn.snp.makeConstraints { make in
-                make.edges.equalToSuperview()
-                make.height.equalTo(56)
-            }
+            btn.snp.makeConstraints { make in make.edges.equalToSuperview(); make.height.equalTo(56) }
         }
-        addInfo("maskColor=transparent + clickThrough=true（事件穿透到底层页面；气泡本身仍可点击）；contentPosition=top-right；offset y=状态栏+44pt。")
+        addInfo("maskColor=custom(20% 黑)；自定义遮罩透明度，比默认更透明。")
 
-        // ── Demo 3：底部抽屉（contentPosition=bottom + contentRadius=lg 顶两圆角自动）──
-        addSection(title: "Demo 3 · 底部抽屉（顶两圆角 radius=lg）") { container in
-            let btn = buildDemoButton(title: "打开日期范围选择器") { [weak self] in
-                self?.showDemo3BottomSheet()
+        // ── Demo 3：设置显示动画的遮罩层 ──
+        addSection(title: "Demo 3 · 设置显示动画的遮罩层") { container in
+            let btn = self.buildDemoButton(title: "打开有动画遮罩") { [weak self] in
+                self?.showDemo3()
             }
             container.addSubview(btn)
-            btn.snp.makeConstraints { make in
-                make.edges.equalToSuperview()
-                make.height.equalTo(56)
-            }
+            btn.snp.makeConstraints { make in make.edges.equalToSuperview(); make.height.equalTo(56) }
         }
-        addInfo("contentPosition=bottom + contentRadius=lg → 底两角=0（贴边自动保留直角）；点击遮罩空白区 = 触发 onMaskClick + onClose。")
+        addInfo("animation=true（默认）：fade-in 200ms / fade-out 180ms。")
 
-        // ── Demo 4：圆角卡片居中（4 圆角 Radius=lg）──
-        addSection(title: "Demo 4 · 圆角卡片居中（4 圆角 radius=lg）") { container in
-            let btn = buildDemoButton(title: "显示已保存 3 条记账") { [weak self] in
-                self?.showDemo4RoundedCard()
+        // ── Demo 4：背后内容可以滚动的遮罩层 ──
+        addSection(title: "Demo 4 · 背后内容可以滚动的遮罩层") { container in
+            let btn = self.buildDemoButton(title: "打开可穿透遮罩") { [weak self] in
+                self?.showDemo4()
             }
             container.addSubview(btn)
-            btn.snp.makeConstraints { make in
-                make.edges.equalToSuperview()
-                make.height.equalTo(56)
-            }
+            btn.snp.makeConstraints { make in make.edges.equalToSuperview(); make.height.equalTo(56) }
         }
-        addInfo("contentPosition=center + contentRadius=lg；4 角全 14px；animation=默认 true（fade in/out）。")
+        addInfo("clickThrough=true：遮罩不拦截事件，穿透到底层页面；底层列表仍可滚动/点击。")
+
+        // ── Demo 5：有内容的遮罩层 ──
+        addSection(title: "Demo 5 · 有内容的遮罩层") { container in
+            let btn = self.buildDemoButton(title: "打开有内容的遮罩") { [weak self] in
+                self?.showDemo5()
+            }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in make.edges.equalToSuperview(); make.height.equalTo(56) }
+        }
+        addInfo("contentPosition=center + contentRadius=lg；遮罩内嵌自定义卡片内容，点击遮罩空白区关闭。")
+
+        // ── Demo 6：有内容且不可关闭的遮罩层 ──
+        addSection(title: "Demo 6 · 有内容且不可关闭的遮罩层") { container in
+            let btn = self.buildDemoButton(title: "打开不可关闭遮罩") { [weak self] in
+                self?.showDemo6()
+            }
+            container.addSubview(btn)
+            btn.snp.makeConstraints { make in make.edges.equalToSuperview(); make.height.equalTo(56) }
+        }
+        addInfo("closeOnMaskClick=false：点击遮罩不关闭，只能通过内容中的「提交」按钮关闭。")
     }
 
-    // ============== Demo 内容工厂 ==============
+    // ============== Demo 内容工厂（6 组新 Demo）=============
 
     private func makeOverlay(
         maskColor: OverlayMaskColor = .default,
@@ -2463,222 +2468,122 @@ final class OverlayShowcase: ShowcaseViewController {
             animation: animation,
             content: contentBuilder,
             onClose: { [weak self] in
-                self?.feedbackLabel.text = "[\(tag)] onClose 触发 → 已关闭"
+                self?.feedbackLabel.text = "[\(tag)] onClose → 已关闭"
             },
             onMaskClick: { [weak self] in
-                self?.feedbackLabel.text = "[\(tag)] onMaskClick → onClose 将紧随其后"
+                self?.feedbackLabel.text = "[\(tag)] onMaskClick"
             }
         )
         overlayRefs.append(overlay)
         return overlay
     }
 
-    // Demo 1：确认退出弹窗（center + closeOnMaskClick）
-    private func showDemo1ConfirmDialog() {
-        // ⚠️ 永久钉死变量声明顺序（真 build 第92/93/94/95 条实锤=4条 Closure captures 'overlay' before it is declared 同根因）：
-        // 绝对不能写 let overlay = makeOverlay(内容闭包/嵌套闭包里捕获 overlay)= 因为 makeOverlay 的初始化表达式执行时= overlay 这个 let 常量还没绑定（绑定要等表达式返回后才做）= 闭包里捕获 overlay=必然炸！
-        // 唯一合法写法=先 var overlay: Overlay? = nil（先声明占位=overlay已经存在于作用域），然后 overlay = makeOverlay(...)（赋值给已声明变量=闭包里捕获 overlay 时=它已经存在=不炸）；函数尾打开 visible=写 overlay?.visible = true（可选链=安全）
+    // Demo 1：常规遮罩层
+    private func showDemo1() {
         var overlay: Overlay? = nil
         overlay = makeOverlay(position: .center, radius: .lg, tag: "Demo1") { container in
             container.backgroundColor = .white
-
-            let titleLabel = UILabel()
-            titleLabel.text = "确认退出？"
-            titleLabel.font = .boldSystemFont(ofSize: 16)
-            titleLabel.textColor = UIColor(red: 0x11/255, green: 0x18/255, blue: 0x27/255, alpha: 1)
-
-            let subLabel = UILabel()
-            subLabel.text = "退出后当前编辑内容不会自动保存"
-            subLabel.font = .systemFont(ofSize: 13)
-            subLabel.textColor = UIColor(red: 0x6B/255, green: 0x72/255, blue: 0x80/255, alpha: 1)
-            subLabel.numberOfLines = 0
-
-            let cancel = self.makeDialogButton(title: "取消", primary: false) { [weak overlay] in
-                overlay?.visible = false
-            }
-            let confirm = self.makeDialogButton(title: "确定", primary: true) { [weak overlay, weak self] in
-                overlay?.visible = false
-                self?.feedbackLabel.text = "[Demo1] 确定点击 → 手动 visible=false 关（不重复触发 onClose）"
-            }
-
-            let btnStack = UIStackView(arrangedSubviews: [cancel, confirm])
-            btnStack.axis = .horizontal
-            btnStack.spacing = 8
-            btnStack.distribution = .fillEqually
-
-            let stack = UIStackView(arrangedSubviews: [titleLabel, subLabel, btnStack])
-            stack.axis = .vertical
-            stack.spacing = 14
-            // ⚠️ 用 center + 固定宽度 + inset padding 代替 edges.equalToSuperview()
-            // edges 让子视图尺寸=父容器尺寸→循环依赖→Auto Layout 无法解析高度
-            // center + intrinsicContentSize → Auto Layout 能正确解析
-            container.addSubview(stack)
-            stack.snp.makeConstraints { make in
-                make.center.equalToSuperview()
-                make.width.equalTo(240) // 280 - 20*2 inset
-            }
-            // container 宽度由 stack + padding 决定
-            container.snp.makeConstraints { make in
-                make.width.equalTo(280)
-                make.top.equalTo(stack).offset(-20)
-                make.bottom.equalTo(stack).offset(20)
-            }
+            container.widthAnchor.constraint(equalToConstant: 240).isActive = true
+            let title = UILabel(); title.text = "常规遮罩层"; title.font = .boldSystemFont(ofSize: 16); title.textAlignment = .center
+            let sub = UILabel(); sub.text = "点击遮罩空白区关闭"; sub.font = .systemFont(ofSize: 13); sub.textColor = AppColor.textSecondary; sub.textAlignment = .center; sub.numberOfLines = 0
+            let stack = UIStackView(arrangedSubviews: [title, sub]); stack.axis = .vertical; stack.spacing = 8; stack.alignment = .fill
+            stack.isLayoutMarginsRelativeArrangement = true; stack.layoutMargins = .init(top: 24, left: 24, bottom: 24, right: 24)
+            container.addSubview(stack); stack.snp.makeConstraints { make in make.edges.equalToSuperview() }
         }
-        feedbackLabel.text = "[Demo1] 打开遮罩，点击空白区域观察 onMaskClick→onClose 顺序（或点 确定/取消）"
-        overlay?.visible = true
+        feedbackLabel.text = "[Demo1] 常规遮罩层已打开"; overlay?.visible = true
     }
 
-    // Demo 2：透明穿透 + 新手气泡 top-right
-    private func showDemo2TransparentBubble() {
-        // ⚠️ 同上=永久钉死变量声明顺序（必须先 var overlay: Overlay? = nil 再赋值=内容闭包里引用 overlay=才不会捕获前声明）
+    // Demo 2：设置透明度的遮罩层
+    private func showDemo2() {
         var overlay: Overlay? = nil
-        overlay = makeOverlay(
-            maskColor: .transparent,
-            closeOnMaskClick: false,
-            clickThrough: true,
-            position: .topRight,
-            offset: CGPoint(x: -12, y: 88),
-            radius: .md,
-            tag: "Demo2"
-        ) { container in
-            container.backgroundColor = UIColor(red: 0x16/255, green: 0xA3/255, blue: 0x4A/255, alpha: 1)
-            container.widthAnchor.constraint(equalToConstant: 200).isActive = true
-
-            let text = UILabel()
-            text.text = "🎉 新手引导：点击「+」可快速记账哦～"
-            text.textColor = .white
-            text.numberOfLines = 0
-            text.font = .systemFont(ofSize: 12)
-            container.addSubview(text)
-            text.snp.makeConstraints { make in
-                make.edges.equalToSuperview().inset(12)
-            }
-            // 气泡本身点击（非遮罩，clickThrough 不影响子控件）
-            // ⚠️ UITapGestureRecognizer.addAction(UIAction) 需要 iOS 14+，为兼容所有 Deployment Target（真 build 第 26 条实锤=低版本 has no member addAction）=改 iOS 2.0+ 通用老写法 addTarget + @objc selector
-            // ⚠️ 再补=makeOverlay 的内容闭包是 @escaping=闭包内引用 self 的方法=必须显式写 self.（真 build 第 91 条实锤=Call to method onDemo2BubbleTap in closure requires explicit self → 所以 #selector(...) 里写成 self.onDemo2BubbleTap(_:)）
-            let tap = UITapGestureRecognizer(target: self, action: #selector(self.onDemo2BubbleTap(_:)))
-            // 把局部 overlay 临时存入 weak 属性（供 selector 读取，避免 associated object 复杂度）
-            self.demo2TapOverlay = overlay
-            container.addGestureRecognizer(tap)
+        overlay = makeOverlay(maskColor: .custom(UIColor(red: 0, green: 0, blue: 0, alpha: 0.2)), position: .center, radius: .lg, tag: "Demo2") { container in
+            container.backgroundColor = .white; container.widthAnchor.constraint(equalToConstant: 240).isActive = true
+            let title = UILabel(); title.text = "低透明度遮罩"; title.font = .boldSystemFont(ofSize: 16); title.textAlignment = .center
+            let sub = UILabel(); sub.text = "rgba(0,0,0,0.2)"; sub.font = .systemFont(ofSize: 13); sub.textColor = AppColor.textSecondary; sub.textAlignment = .center
+            let stack = UIStackView(arrangedSubviews: [title, sub]); stack.axis = .vertical; stack.spacing = 8; stack.alignment = .fill
+            stack.isLayoutMarginsRelativeArrangement = true; stack.layoutMargins = .init(top: 24, left: 24, bottom: 24, right: 24)
+            container.addSubview(stack); stack.snp.makeConstraints { make in make.edges.equalToSuperview() }
         }
-        feedbackLabel.text = "[Demo2] 已显示气泡 3 秒：遮罩透明+穿透，仍可操作 Demo 列表下方按钮；3s 后自动关闭（或点击气泡立即关）"
-        overlay?.visible = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak overlay] in
-            overlay?.visible = false
-        }
+        feedbackLabel.text = "[Demo2] 低透明度遮罩已打开"; overlay?.visible = true
     }
 
-    // ⚠️ Demo2 气泡点击 @objc selector（与 UITapGestureRecognizer addTarget:action: 老写法配对=兼容 iOS 所有版本，避免 iOS 14+ addAction 的版本门槛）
-    @objc private func onDemo2BubbleTap(_ sender: UITapGestureRecognizer) {
-        self.demo2TapOverlay?.visible = false
-        self.feedbackLabel.text = "[Demo2] 气泡点击 → 立即关闭"
-    }
-
-    // Demo 3：底部抽屉（position=bottom + radius=lg → 顶两圆角）
-    private func showDemo3BottomSheet() {
-        // ⚠️ 同上=永久钉死变量声明顺序（必须先 var overlay: Overlay? = nil 再赋值=嵌套闭包捕获 overlay=才不会捕获前声明）
+    // Demo 3：设置显示动画的遮罩层
+    private func showDemo3() {
         var overlay: Overlay? = nil
-        overlay = makeOverlay(position: .bottom, radius: .lg, tag: "Demo3") { container in
+        overlay = makeOverlay(animation: true, position: .center, radius: .lg, tag: "Demo3") { container in
+            container.backgroundColor = .white; container.widthAnchor.constraint(equalToConstant: 240).isActive = true
+            let title = UILabel(); title.text = "有动画的遮罩"; title.font = .boldSystemFont(ofSize: 16); title.textAlignment = .center
+            let sub = UILabel(); sub.text = "fade-in 200ms / fade-out 180ms"; sub.font = .systemFont(ofSize: 13); sub.textColor = AppColor.textSecondary; sub.textAlignment = .center
+            let stack = UIStackView(arrangedSubviews: [title, sub]); stack.axis = .vertical; stack.spacing = 8; stack.alignment = .fill
+            stack.isLayoutMarginsRelativeArrangement = true; stack.layoutMargins = .init(top: 24, left: 24, bottom: 24, right: 24)
+            container.addSubview(stack); stack.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        }
+        feedbackLabel.text = "[Demo3] 动画遮罩已打开"; overlay?.visible = true
+    }
+
+    // Demo 4：背后内容可以滚动的遮罩层（clickThrough=true）
+    private func showDemo4() {
+        var overlay: Overlay? = nil
+        overlay = makeOverlay(clickThrough: true, closeOnMaskClick: false, position: .bottom, radius: .lg, tag: "Demo4") { container in
             container.backgroundColor = .white
             container.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width).isActive = true
-
-            let handle = UIView()
-            handle.backgroundColor = UIColor(red: 0xE5/255, green: 0xE7/255, blue: 0xEB/255, alpha: 1)
-            handle.layer.cornerRadius = 2
-            handle.snp.makeConstraints { make in
-                make.width.equalTo(40)
-                make.height.equalTo(4)
-            }
-            let handleWrap = UIView()
-            handleWrap.addSubview(handle)
-            handle.snp.makeConstraints { make in
-                make.centerX.equalToSuperview()
-                make.top.equalToSuperview().offset(10)
-                make.bottom.equalToSuperview().offset(-6)
-            }
-
-            let titleLabel = UILabel()
-            titleLabel.text = "选择日期范围"
-            titleLabel.font = .boldSystemFont(ofSize: 16)
-
-            let sub = UILabel()
-            sub.text = "本周 / 本月 / 自定义…"
-            sub.font = .systemFont(ofSize: 13)
-            sub.textColor = UIColor(red: 0x6B/255, green: 0x72/255, blue: 0x80/255, alpha: 1)
-
-            // ⚠️ 闭包内调用 self.makeOptionRow 必须显式 self（Swift 闭包捕获语义=显式 make capture semantics explicit）+ capture list 加 [weak self] 防循环引用（否则强引用 self=闭包不释放）
-            let row1 = self.makeOptionRow(title: "本周") { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo3] 选择「本周」" }
-            let row2 = self.makeOptionRow(title: "本月") { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo3] 选择「本月」" }
-            let row3 = self.makeOptionRow(title: "自定义…") { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo3] 选择「自定义…」" }
-
-            let stack = UIStackView(arrangedSubviews: [handleWrap, titleLabel, sub, row1, row2, row3])
-            stack.axis = .vertical
-            stack.spacing = 12
-            stack.isLayoutMarginsRelativeArrangement = true
-            stack.layoutMargins = .init(top: 6, left: 16, bottom: 24, right: 16)
-            container.addSubview(stack)
-            stack.snp.makeConstraints { make in
-                make.edges.equalToSuperview()
-            }
+            let handle = UIView(); handle.backgroundColor = UIColor(red: 0xE5/255, green: 0xE7/255, blue: 0xEB/255, alpha: 1); handle.layer.cornerRadius = 2
+            handle.snp.makeConstraints { make in make.width.equalTo(40); make.height.equalTo(4) }
+            let handleWrap = UIView(); handleWrap.addSubview(handle)
+            handle.snp.makeConstraints { make in make.centerX.equalToSuperview(); make.top.equalToSuperview().offset(10); make.bottom.equalToSuperview().offset(-6) }
+            let title = UILabel(); title.text = "穿透遮罩（clickThrough）"; title.font = .boldSystemFont(ofSize: 16)
+            let sub = UILabel(); sub.text = "遮罩不拦截事件，底层列表仍可滚动/点击。"; sub.font = .systemFont(ofSize: 13); sub.textColor = AppColor.textSecondary; sub.numberOfLines = 0
+            let closeBtn = self.buildDemoButton(title: "关闭遮罩") { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo4] 手动关闭" }
+            closeBtn.snp.makeConstraints { make in make.height.equalTo(40) }
+            let stack = UIStackView(arrangedSubviews: [handleWrap, title, sub, closeBtn]); stack.axis = .vertical; stack.spacing = 12
+            stack.isLayoutMarginsRelativeArrangement = true; stack.layoutMargins = .init(top: 6, left: 16, bottom: 24, right: 16)
+            container.addSubview(stack); stack.snp.makeConstraints { make in make.edges.equalToSuperview() }
         }
-        feedbackLabel.text = "[Demo3] 底部抽屉顶两圆角 / 底两直角 = 0（贴边自动掩膜）；点击遮罩空白区 → 关闭"
-        overlay?.visible = true
+        feedbackLabel.text = "[Demo4] 穿透遮罩已打开，底层仍可滚动"; overlay?.visible = true
     }
 
-    // Demo 4：圆角卡片居中（4 圆角）
-    private func showDemo4RoundedCard() {
-        // ⚠️ 同上=永久钉死变量声明顺序（必须先 var overlay: Overlay? = nil 再赋值=嵌套闭包捕获 overlay=才不会捕获前声明）
+    // Demo 5：有内容的遮罩层
+    private func showDemo5() {
         var overlay: Overlay? = nil
-        overlay = makeOverlay(position: .center, radius: .lg, tag: "Demo4") { container in
-            container.backgroundColor = .white
-            container.widthAnchor.constraint(equalToConstant: 260).isActive = true
-
-            let emoji = UILabel()
-            emoji.text = "💸"
-            emoji.font = .systemFont(ofSize: 28)
-            emoji.textAlignment = .center
-
-            let title = UILabel()
-            title.text = "已保存 3 条记账"
-            title.font = .boldSystemFont(ofSize: 16)
-            title.textAlignment = .center
-
-            let sub = UILabel()
-            sub.text = "总支出 ¥ 328.00"
-            sub.font = .systemFont(ofSize: 13)
-            sub.textColor = UIColor(red: 0x6B/255, green: 0x72/255, blue: 0x80/255, alpha: 1)
-            sub.textAlignment = .center
-
-            let done = self.makeDialogButton(title: "好的", primary: true) { [weak overlay, weak self] in
-                _ = self // 显式 capture self=避免编译器警告；闭包捕获语义显式化
-                overlay?.visible = false
-            }
-
-            let stack = UIStackView(arrangedSubviews: [emoji, title, sub, done])
-            stack.axis = .vertical
-            stack.spacing = 12
-            stack.alignment = .fill
-            stack.isLayoutMarginsRelativeArrangement = true
-            stack.layoutMargins = .init(top: 24, left: 20, bottom: 20, right: 20)
-            container.addSubview(stack)
-            stack.snp.makeConstraints { make in
-                make.edges.equalToSuperview()
-            }
-            done.snp.makeConstraints { make in
-                make.height.equalTo(40)
-            }
+        overlay = makeOverlay(position: .center, radius: .lg, tag: "Demo5") { container in
+            container.backgroundColor = .white; container.widthAnchor.constraint(equalToConstant: 280).isActive = true
+            let title = UILabel(); title.text = "有内容的遮罩"; title.font = .boldSystemFont(ofSize: 16)
+            let desc = UILabel(); desc.text = "这是一个包含自定义卡片内容的遮罩层。遮罩内可以放置任意自定义内容。"; desc.font = .systemFont(ofSize: 13); desc.textColor = AppColor.textSecondary; desc.numberOfLines = 0
+            let cancel = self.makeDialogButton(title: "取消", primary: false) { [weak overlay] in overlay?.visible = false }
+            let confirm = self.makeDialogButton(title: "确定", primary: true) { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo5] 确定 → 关闭" }
+            let btnStack = UIStackView(arrangedSubviews: [cancel, confirm]); btnStack.axis = .horizontal; btnStack.spacing = 8; btnStack.distribution = .fillEqually
+            let stack = UIStackView(arrangedSubviews: [title, desc, btnStack]); stack.axis = .vertical; stack.spacing = 14
+            container.addSubview(stack); stack.snp.makeConstraints { make in make.center.equalToSuperview(); make.width.equalTo(240) }
+            container.snp.makeConstraints { make in make.width.equalTo(280); make.top.equalTo(stack).offset(-20); make.bottom.equalTo(stack).offset(20) }
         }
-        feedbackLabel.text = "[Demo4] 已保存 3 条记账（center + 4 圆角 radius=lg）：fade-in 动画 200ms"
-        overlay?.visible = true
+        feedbackLabel.text = "[Demo5] 有内容的遮罩已打开"; overlay?.visible = true
     }
 
-    // ============== 私有：按钮/选项行 工厂 ==============
+    // Demo 6：有内容且不可关闭的遮罩层
+    private func showDemo6() {
+        var overlay: Overlay? = nil
+        overlay = makeOverlay(closeOnMaskClick: false, position: .center, radius: .lg, tag: "Demo6") { container in
+            container.backgroundColor = .white; container.widthAnchor.constraint(equalToConstant: 280).isActive = true
+            let title = UILabel(); title.text = "不可关闭的遮罩"; title.font = .boldSystemFont(ofSize: 16)
+            let desc = UILabel(); desc.text = "点击遮罩/返回键均不关闭。只能通过下方「提交」按钮关闭。"; desc.font = .systemFont(ofSize: 13); desc.textColor = AppColor.textSecondary; desc.numberOfLines = 0
+            let nameField = self.makeFormField(placeholder: "请输入姓名")
+            let noteField = self.makeFormField(placeholder: "请输入备注", multiline: true)
+            let submit = self.makeDialogButton(title: "提交", primary: true) { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo6] 提交 → 手动关闭" }
+            submit.snp.makeConstraints { make in make.height.equalTo(40) }
+            let stack = UIStackView(arrangedSubviews: [title, desc, nameField, noteField, submit]); stack.axis = .vertical; stack.spacing = 12
+            container.addSubview(stack); stack.snp.makeConstraints { make in make.center.equalToSuperview(); make.width.equalTo(240) }
+            container.snp.makeConstraints { make in make.width.equalTo(280); make.top.equalTo(stack).offset(-20); make.bottom.equalTo(stack).offset(20) }
+        }
+        feedbackLabel.text = "[Demo6] 不可关闭遮罩已打开，只能通过「提交」关闭"; overlay?.visible = true
+    }
+
+    // ============== 私有：工具方法 ==============
 
     private func buildDemoButton(title: String, onTap: @escaping () -> Void) -> UIButton {
         let b = UIButton(type: .system)
         b.setTitle(title, for: .normal)
         b.setTitleColor(.white, for: .normal)
-        b.backgroundColor = UIColor(red: 0x16/255, green: 0xA3/255, blue: 0x4A/255, alpha: 1)
+        b.backgroundColor = AppColor.primary
         b.layer.cornerRadius = 10
         b.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
         b.addAction(UIAction { _ in onTap() }, for: .touchUpInside)
@@ -2689,25 +2594,21 @@ final class OverlayShowcase: ShowcaseViewController {
         let b = UIButton(type: .system)
         b.setTitle(title, for: .normal)
         b.setTitleColor(primary ? .white : UIColor(red: 0x11/255, green: 0x18/255, blue: 0x27/255, alpha: 1), for: .normal)
-        b.backgroundColor = primary ? UIColor(red: 0x16/255, green: 0xA3/255, blue: 0x4A/255, alpha: 1)
-            : UIColor(red: 0xE5/255, green: 0xE7/255, blue: 0xEB/255, alpha: 1)
+        b.backgroundColor = primary ? AppColor.primary : UIColor(red: 0xE5/255, green: 0xE7/255, blue: 0xEB/255, alpha: 1)
         b.layer.cornerRadius = 10
         b.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
         b.addAction(UIAction { _ in onTap() }, for: .touchUpInside)
         return b
     }
 
-    private func makeOptionRow(title: String, onTap: @escaping () -> Void) -> UIView {
-        let b = UIButton(type: .system)
-        b.contentHorizontalAlignment = .left
-        b.setTitle(title, for: .normal)
-        b.setTitleColor(UIColor(red: 0x11/255, green: 0x18/255, blue: 0x27/255, alpha: 1), for: .normal)
-        b.titleLabel?.font = .systemFont(ofSize: 15)
-        b.snp.makeConstraints { make in
-            make.height.equalTo(44)
-        }
-        b.addAction(UIAction { _ in onTap() }, for: .touchUpInside)
-        return b
+    private func makeFormField(placeholder: String, multiline: Bool = false) -> UIView {
+        let field = UIView()
+        field.backgroundColor = UIColor(red: 0xF3/255, green: 0xF4/255, blue: 0xF6/255, alpha: 1)
+        field.layer.cornerRadius = 6
+        let label = UILabel(); label.text = placeholder; label.font = .systemFont(ofSize: 13); label.textColor = AppColor.gray25
+        field.addSubview(label); label.snp.makeConstraints { make in make.edges.equalToSuperview().inset(12) }
+        if multiline { field.snp.makeConstraints { make in make.height.equalTo(60) } }
+        return field
     }
 }
 

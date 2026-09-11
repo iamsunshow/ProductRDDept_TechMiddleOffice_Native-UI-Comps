@@ -13,6 +13,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -1801,21 +1802,10 @@ private fun LineChartDemo() {
     }
 }
 
-// ===== OverlayDemo（基础组件 #6，与 OverlayShowcase 1:1 对齐）=====
+// ===== OverlayDemo（基础组件 #6，6 组 Demo 双端 1:1 对齐）=====
 
 @Composable
 private fun OverlayDemo() {
-    // 组件版本 v2.0（iOS 布局完整修复），组件库版本 v1.3.13
-    Text(
-        text = "Overlay v2.0 (lib v1.3.13)",
-        fontSize = AppFont.sizeSm,
-        color = Color.White,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color(0xFF111827))
-            .padding(horizontal = 12.dp, vertical = 6.dp)
-    )
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -1824,134 +1814,148 @@ private fun OverlayDemo() {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(AppSpace.md)
     ) {
-        Text(
-            text = "定位：浮层通用基座。4 组排查：① 默认遮罩+居中确认框；② 透明穿透+新手气泡 top-right；③ 底部抽屉（contentPosition=bottom + radius=lg 顶两圆角）；④ 圆角卡片居中。双端 1:1，点击下方按钮触发对应 Demo。",
-            fontSize = AppFont.sizeSm, color = AppColor.textSecondary
-        )
-
-        // 反馈栏（对应 iOS addFeedbackBar）
-        var feedback by remember { mutableStateOf("点击下方按钮触发 Demo，这里会显示 onMaskClick / onClose 回调顺序。") }
+        // 版本徽标
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFFF0FDF4), RoundedCornerShape(8.dp))
-                .clip(RoundedCornerShape(8.dp))
+                .background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm))
+                .padding(horizontal = 10.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = "Overlay 组件 v1.4.31",
+                color = AppColor.primary,
+                fontSize = AppFont.sizeXs,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        Text(
+            text = "6 组排查：① 常规遮罩层；② 自定义透明度遮罩层；③ 显示动画遮罩层；④ 背后内容可滚动遮罩层；⑤ 有内容的遮罩层；⑥ 有内容且不可关闭遮罩层。点击下方按钮触发对应 Demo。",
+            fontSize = AppFont.sizeSm, color = AppColor.textSecondary
+        )
+
+        // 反馈栏
+        var feedback by remember { mutableStateOf("点击下方按钮触发 Demo。") }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(AppColor.primaryMuted, RoundedCornerShape(8.dp))
                 .padding(12.dp)
         ) {
-            Text(feedback, fontSize = AppFont.sizeSm, color = Color(0xFF065F46))
+            Text(feedback, fontSize = AppFont.sizeSm, color = AppColor.primary)
         }
 
-        // Demo 1：默认遮罩+居中确认框
+        // ── Demo 1：常规遮罩层 ──
         var d1Visible by remember { mutableStateOf(false) }
-        DemoSection(title = "Demo 1 · 默认遮罩 + 居中确认框") {
-            AppButton(text = "打开确认退出弹窗", style = AppButtonStyle.Primary, onClick = { d1Visible = true })
+        DemoSection(title = "Demo 1 · 常规遮罩层") {
+            AppButton(text = "打开常规遮罩", style = AppButtonStyle.Primary, onClick = { d1Visible = true })
         }
-        Text("maskColor=default（55% 黑）；closeOnMaskClick=默认 true；contentPosition=center；点击外部→onMaskClick→onClose。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+        Text("maskColor=default（55% 黑）；closeOnMaskClick=true（默认）；点击遮罩空白区关闭。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
 
-        // Demo 2：透明穿透 + 新手气泡
+        // ── Demo 2：设置透明度的遮罩层 ──
         var d2Visible by remember { mutableStateOf(false) }
-        DemoSection(title = "Demo 2 · 透明穿透 + 新手气泡（top-right）") {
-            AppButton(text = "显示气泡蒙版 3 秒", style = AppButtonStyle.Primary, onClick = { d2Visible = true })
+        DemoSection(title = "Demo 2 · 设置透明度的遮罩层") {
+            AppButton(text = "打开低透明度遮罩", style = AppButtonStyle.Primary, onClick = { d2Visible = true })
         }
-        Text("maskColor=transparent + clickThrough=true（Dialog 独占 window 的限制：近似=背景透明 + 不挂遮罩点击，事件穿透取决于宿主；气泡本身仍可点击）；contentPosition=top-right；offset y=状态栏+44dp。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+        Text("maskColor=rgba(0,0,0,0.2)（20% 黑，比默认更透明）；自定义遮罩透明度。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
 
-        // Demo 3：底部抽屉（顶两圆角）
+        // ── Demo 3：设置显示动画的遮罩层 ──
         var d3Visible by remember { mutableStateOf(false) }
-        DemoSection(title = "Demo 3 · 底部抽屉（顶两圆角 radius=lg）") {
-            AppButton(text = "打开日期范围选择器", style = AppButtonStyle.Primary, onClick = { d3Visible = true })
+        DemoSection(title = "Demo 3 · 设置显示动画的遮罩层") {
+            AppButton(text = "打开有动画遮罩", style = AppButtonStyle.Primary, onClick = { d3Visible = true })
         }
-        Text("contentPosition=bottom + contentRadius=lg → 底两角=0（贴边自动保留直角）；点击遮罩空白区 = 触发 onMaskClick + onClose。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+        Text("animation=true（默认）：fade-in 200ms / fade-out 180ms。对比无动画遮罩的即时切换。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
 
-        // Demo 4：圆角卡片居中（4 圆角）
+        // ── Demo 4：背后内容可以滚动的遮罩层 ──
         var d4Visible by remember { mutableStateOf(false) }
-        DemoSection(title = "Demo 4 · 圆角卡片居中（4 圆角 radius=lg）") {
-            AppButton(text = "显示已保存 3 条记账", style = AppButtonStyle.Primary, onClick = { d4Visible = true })
+        DemoSection(title = "Demo 4 · 背后内容可以滚动的遮罩层") {
+            AppButton(text = "打开可穿透遮罩", style = AppButtonStyle.Primary, onClick = { d4Visible = true })
         }
-        Text("contentPosition=center + contentRadius=lg；4 角全 14dp；animation=默认 true（fade in/out）。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+        Text("clickThrough=true：遮罩不拦截事件，穿透到底层页面；底层列表仍可滚动/点击。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+
+        // ── Demo 5：有内容的遮罩层 ──
+        var d5Visible by remember { mutableStateOf(false) }
+        DemoSection(title = "Demo 5 · 有内容的遮罩层") {
+            AppButton(text = "打开有内容的遮罩", style = AppButtonStyle.Primary, onClick = { d5Visible = true })
+        }
+        Text("contentPosition=center + contentRadius=lg；遮罩内嵌自定义卡片内容，点击遮罩空白区关闭。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+
+        // ── Demo 6：有内容且不可关闭的遮罩层 ──
+        var d6Visible by remember { mutableStateOf(false) }
+        DemoSection(title = "Demo 6 · 有内容且不可关闭的遮罩层") {
+            AppButton(text = "打开不可关闭遮罩", style = AppButtonStyle.Primary, onClick = { d6Visible = true })
+        }
+        Text("closeOnMaskClick=false + dismissOnBackPress=false：点击遮罩/返回键均不关闭，只能通过内容中的「提交」按钮关闭。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
 
         Spacer(Modifier.height(24.dp))
 
-        // ⚠️ 永久钉死=下面 4 个 Overlay() 实例声明=必须放在本 Column { } 闭包的**内部**（不能写在 Column 结束大括号之后=真 build 35 条 d1Visible/d4Visible/feedback Unresolved=跨作用域根因）
-        // 因为 L1349/L1361-L1380 用 remember { mutableStateOf } 声明的 feedback + d1~d4Visible=作用域是 Column content lambda（remember {} 仅在当前 Composable 子树作用域可见）
-        // —— 下面 4 个 Overlay 和 feedback/Visible 同作用域=才能读写 state ——
+        // ──── Overlay 实例声明（6 个，与上方 state 同作用域）────
 
-        // ──── Overlay 实例声明（4 个）────
+        // Demo 1：常规遮罩层
         Overlay(
             visible = d1Visible,
+            onClose = { d1Visible = false; feedback = "[Demo1] onClose → 已关闭" },
+            onMaskClick = { feedback = "[Demo1] onMaskClick → 遮罩点击" }
+        ) {
+            Surface(color = Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.width(240.dp)) {
+                Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("常规遮罩层", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
+                    Text("点击遮罩空白区关闭", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                }
+            }
+        }
+
+        // Demo 2：设置透明度的遮罩层
+        Overlay(
+            visible = d2Visible,
+            maskColor = "rgba(0,0,0,0.2)",
+            onClose = { d2Visible = false; feedback = "[Demo2] onClose → 已关闭" },
+            onMaskClick = { feedback = "[Demo2] onMaskClick → 低透明度遮罩" }
+        ) {
+            Surface(color = Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.width(240.dp)) {
+                Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("低透明度遮罩", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
+                    Text("rgba(0,0,0,0.2)", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                }
+            }
+        }
+
+        // Demo 3：设置显示动画的遮罩层
+        Overlay(
+            visible = d3Visible,
+            animation = true,
+            onClose = { d3Visible = false; feedback = "[Demo3] onClose → 已关闭" },
+            onMaskClick = { feedback = "[Demo3] onMaskClick → 动画遮罩" }
+        ) {
+            Surface(color = Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.width(240.dp)) {
+                Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("有动画的遮罩", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
+                    Text("fade-in 200ms / fade-out 180ms", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                }
+            }
+        }
+
+        // Demo 4：背后内容可以滚动的遮罩层（clickThrough=true）
+        Overlay(
+            visible = d4Visible,
+            clickThrough = true,
+            closeOnMaskClick = false,
+            contentPosition = "bottom",
             contentRadius = "lg",
-            onClose = { d1Visible = false; feedback = "[Demo1] onClose 触发 → 已关闭" },
-            onMaskClick = { feedback = "[Demo1] onMaskClick → onClose 将紧随其后" }
+            onClose = { d4Visible = false; feedback = "[Demo4] onClose → 已关闭" },
+            onMaskClick = { feedback = "[Demo4] onMaskClick → 穿透遮罩" }
         ) {
             Surface(
                 color = Color.White,
-                shape = RoundedCornerShape(14.dp),
-                modifier = Modifier.width(280.dp)
+                shape = RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    Text("确认退出？", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
-                    Text("退出后当前编辑内容不会自动保存", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        TextButton(onClick = { d1Visible = false }, modifier = Modifier.weight(1f)) { Text("取消", color = Color(0xFF111827)) }
-                        AppButton(text = "确定", style = AppButtonStyle.Primary, onClick = {
-                            d1Visible = false
-                            feedback = "[Demo1] 确定点击 → 手动 visible=false 关（不重复触发 onClose）"
-                        }, modifier = Modifier.weight(1f))
-                    }
-                }
-            }
-        }
-
-        Overlay(
-            visible = d2Visible,
-            maskColor = "transparent",
-            closeOnMaskClick = false,
-            clickThrough = true,
-            contentPosition = "top-right",
-            contentOffsetY = 88,
-            contentOffsetX = -12,
-            contentRadius = "md",
-            onClose = { d2Visible = false },
-            onMaskClick = { /* clickThrough=true 近似：忽略 */ }
-        ) {
-            Box(
-                modifier = Modifier
-                    .width(200.dp)
-                    // ⚠️ 永久钉死=**绝不使用 Modifier.clip(shape) 扩展来做形状裁切**（用户 gradle 真 build 连续 5 条实锤=Unresolved reference clip×N 连炸=与 Overlay.kt L321-L324 永久禁令完全对齐）
-                    // Compose Modifier.background 的 shape 参数=除了画背景色=还会自动把后面内容按 shape 裁切=效果与 iOS clipsToBounds 完全等价=0 新 import=绝对稳=所以这里直接 background(color, shape) 一次搞定=不需要再单独 .clip()
-                    .background(Color(0xFF16A34A), RoundedCornerShape(10.dp))
-                    .clickable {
-                        d2Visible = false
-                        feedback = "[Demo2] 气泡点击 → 立即关闭"
-                    }
-                    .padding(12.dp)
-            ) {
-                Text("🎉 新手引导：点击「+」可快速记账哦～", color = Color.White, fontSize = AppFont.sizeSm)
-            }
-            // 3 秒自动关闭
-            if (d2Visible) {
-                LaunchedEffect(Unit) {
-                    feedback = "[Demo2] 已显示气泡 3 秒：遮罩透明+近似穿透；3s 后自动关闭（或点击气泡立即关）"
-                    kotlinx.coroutines.delay(3000)
-                    d2Visible = false
-                }
-            }
-        }
-
-        Overlay(
-            visible = d3Visible,
-            contentPosition = "bottom",
-            contentRadius = "lg",
-            onClose = { d3Visible = false; feedback = "[Demo3] onClose 触发 → 已关闭" },
-            onMaskClick = { feedback = "[Demo3] onMaskClick → 关闭" }
-        ) {
-            Surface(color = Color.White, shape = RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp)) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 24.dp),
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // 把手
                     Spacer(
                         Modifier
                             .height(4.dp)
@@ -1959,42 +1963,85 @@ private fun OverlayDemo() {
                             .background(Color(0xFFE5E7EB), RoundedCornerShape(2.dp))
                             .align(Alignment.CenterHorizontally)
                     )
-                    Text("选择日期范围", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
-                    Text("本周 / 本月 / 自定义…", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
-                    BottomSheetRow(title = "本周") { d3Visible = false; feedback = "[Demo3] 选择「本周」" }
-                    BottomSheetRow(title = "本月") { d3Visible = false; feedback = "[Demo3] 选择「本月」" }
-                    BottomSheetRow(title = "自定义…") { d3Visible = false; feedback = "[Demo3] 选择「自定义…」" }
+                    Text("穿透遮罩（clickThrough）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
+                    Text("遮罩不拦截事件，底层列表仍可滚动/点击。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                    AppButton(
+                        text = "关闭遮罩",
+                        style = AppButtonStyle.Primary,
+                        onClick = { d4Visible = false; feedback = "[Demo4] 手动关闭" },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }
 
+        // Demo 5：有内容的遮罩层
         Overlay(
-            visible = d4Visible,
+            visible = d5Visible,
             contentRadius = "lg",
-            onClose = { d4Visible = false },
-            onMaskClick = { feedback = "[Demo4] onMaskClick → onClose 将紧随其后" }
+            onClose = { d5Visible = false; feedback = "[Demo5] onClose → 已关闭" },
+            onMaskClick = { feedback = "[Demo5] onMaskClick → 遮罩点击" }
         ) {
-            Surface(color = Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.width(260.dp)) {
-                Column(
-                    modifier = Modifier.padding(top = 24.dp, start = 20.dp, end = 20.dp, bottom = 20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text("💸", fontSize = AppFont.sizeXl)
-                    Text("已保存 3 条记账", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827), textAlign = TextAlign.Center)
-                    Text("总支出 ¥ 328.00", fontSize = AppFont.sizeSm, color = AppColor.textSecondary, textAlign = TextAlign.Center)
-                    AppButton(text = "好的", style = AppButtonStyle.Primary, onClick = {
-                        d4Visible = false
-                    }, modifier = Modifier.fillMaxWidth())
-                }
-            }
-            if (d4Visible) {
-                LaunchedEffect(Unit) {
-                    feedback = "[Demo4] 已保存 3 条记账（center + 4 圆角 radius=lg）：fade-in 动画 200ms"
+            Surface(color = Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.width(280.dp)) {
+                Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Text("有内容的遮罩", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
+                    Text("这是一个包含自定义卡片内容的遮罩层。遮罩内可以放置任意 Composable 内容。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        AppButton(
+                            text = "取消",
+                            style = AppButtonStyle.Secondary,
+                            onClick = { d5Visible = false },
+                            modifier = Modifier.weight(1f)
+                        )
+                        AppButton(
+                            text = "确定",
+                            style = AppButtonStyle.Primary,
+                            onClick = { d5Visible = false; feedback = "[Demo5] 确定 → 关闭" },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
             }
         }
-    } // —— Column { } 结束大括号=**必须在这里才闭合**（把 4 个 Overlay 实例全部包进 Column 作用域=与 remember 的 5 个 state 同作用域=解决 35 条 Unresolved）
+
+        // Demo 6：有内容且不可关闭的遮罩层
+        Overlay(
+            visible = d6Visible,
+            closeOnMaskClick = false,
+            dismissOnBackPress = false,
+            contentRadius = "lg",
+            onClose = { feedback = "[Demo6] onClose 不应触发" },
+            onMaskClick = { feedback = "[Demo6] onMaskClick → 遮罩不可关闭" }
+        ) {
+            Surface(color = Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.width(280.dp)) {
+                Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("不可关闭的遮罩", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
+                    Text("点击遮罩/返回键均不关闭。只能通过下方按钮关闭。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                    Text("姓名", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFFF3F4F6), RoundedCornerShape(6.dp))
+                            .padding(12.dp)
+                    ) { Text("请输入姓名", fontSize = AppFont.sizeSm, color = AppColor.gray25) }
+                    Text("备注", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp)
+                            .background(Color(0xFFF3F4F6), RoundedCornerShape(6.dp))
+                            .padding(12.dp)
+                    ) { Text("请输入备注", fontSize = AppFont.sizeSm, color = AppColor.gray25) }
+                    AppButton(
+                        text = "提交",
+                        style = AppButtonStyle.Primary,
+                        onClick = { d6Visible = false; feedback = "[Demo6] 提交 → 手动关闭" },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable

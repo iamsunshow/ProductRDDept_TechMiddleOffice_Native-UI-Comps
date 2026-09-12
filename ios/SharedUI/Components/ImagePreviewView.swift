@@ -73,8 +73,14 @@ final class ImagePreviewView: UIView {
             make.top.equalTo(safeAreaLayoutGuide).offset(AppSpace.xl)
         }
 
-        // 点击关闭
+        // 点击关闭（与 UIScrollView 手势共存）
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapped))
+        tap.cancelsTouchesInView = false
+        if let scrollGestures = scrollView.gestureRecognizers {
+            for g in scrollGestures {
+                tap.require(toFail: g)
+            }
+        }
         addGestureRecognizer(tap)
     }
 
@@ -92,7 +98,7 @@ final class ImagePreviewView: UIView {
             // 一期占位：色块 + 序号
             let page = UIView()
             page.backgroundColor = UIColor(red: 0.12, green: 0.16, blue: 0.22, alpha: 1)
-            page.snp.makeConstraints { make in make.width.equalTo(snp.width) }
+            page.snp.makeConstraints { make in make.width.equalTo(self) }
 
             let numLabel = UILabel()
             numLabel.text = "\(index + 1)"

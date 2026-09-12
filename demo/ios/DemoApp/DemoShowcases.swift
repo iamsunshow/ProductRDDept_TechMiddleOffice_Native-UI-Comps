@@ -11460,39 +11460,43 @@ final class ImagePreviewShowcase: ShowcaseViewController {
     }
 
     @objc private func openPreview1() {
+        guard let window = view.window else { return }
         let preview = ImagePreviewView()
         preview.images = [ImageSource(url: "1"), ImageSource(url: "2"), ImageSource(url: "3")]
         preview.visible = true
-        view.window?.rootViewController?.view.addSubview(preview)
+        window.addSubview(preview)
         preview.snp.makeConstraints { make in make.edges.equalToSuperview() }
         preview.onDismiss = { preview.removeFromSuperview() }
     }
 
     @objc private func openPreview2() {
+        guard let window = view.window else { return }
         let preview = ImagePreviewView()
         preview.images = (1...5).map { ImageSource(url: "\($0)") }
         preview.initialIndex = 2
         preview.visible = true
-        view.window?.rootViewController?.view.addSubview(preview)
+        window.addSubview(preview)
         preview.snp.makeConstraints { make in make.edges.equalToSuperview() }
         preview.onDismiss = { preview.removeFromSuperview() }
     }
 
     @objc private func openPreview3() {
+        guard let window = view.window else { return }
         let preview = ImagePreviewView()
         preview.images = [ImageSource(url: "1"), ImageSource(url: "2")]
         preview.visible = true
         preview.showIndicator = false
-        view.window?.rootViewController?.view.addSubview(preview)
+        window.addSubview(preview)
         preview.snp.makeConstraints { make in make.edges.equalToSuperview() }
         preview.onDismiss = { preview.removeFromSuperview() }
     }
 
     @objc private func openPreview4() {
+        guard let window = view.window else { return }
         let preview = ImagePreviewView()
         preview.images = [ImageSource(url: "1")]
         preview.visible = true
-        view.window?.rootViewController?.view.addSubview(preview)
+        window.addSubview(preview)
         preview.snp.makeConstraints { make in make.edges.equalToSuperview() }
         preview.onDismiss = { preview.removeFromSuperview() }
     }

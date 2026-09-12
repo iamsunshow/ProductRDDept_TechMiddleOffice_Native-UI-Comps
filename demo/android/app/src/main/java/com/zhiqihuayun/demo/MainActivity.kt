@@ -9490,6 +9490,12 @@ private fun TourDemo() {
 
 @Composable
 private fun ImagePreviewDemo() {
+    // 状态提升到 Box 层级，使 ImagePreview 能全屏覆盖
+    var d1Visible by remember { mutableStateOf(false) }
+    var d2Visible by remember { mutableStateOf(false) }
+    var d3Visible by remember { mutableStateOf(false) }
+    var d4Visible by remember { mutableStateOf(false) }
+
     Box(modifier = Modifier.fillMaxSize().background(AppColor.bgPage)) {
         Column(
             modifier = Modifier
@@ -9502,47 +9508,45 @@ private fun ImagePreviewDemo() {
                 modifier = Modifier.fillMaxWidth().background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm)).padding(horizontal = 10.dp, vertical = 6.dp))
 
             Text("D1 基础预览（3 张）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-            var d1Visible by remember { mutableStateOf(false) }
             AppButton(text = "打开预览", style = AppButtonStyle.Primary, onClick = { d1Visible = true })
-            ImagePreview(
-                images = listOf(ImageSource("1"), ImageSource("2"), ImageSource("3")),
-                visible = d1Visible,
-                onDismiss = { d1Visible = false },
-            )
             Text("排查点：全屏黑色背景，3 张色块占位可横滑切换，底部圆点指示器，顶部页码。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 
             Text("D2 指定初始页", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-            var d2Visible by remember { mutableStateOf(false) }
             AppButton(text = "从第 3 张开始", style = AppButtonStyle.Primary, onClick = { d2Visible = true })
-            ImagePreview(
-                images = listOf(ImageSource("1"), ImageSource("2"), ImageSource("3"), ImageSource("4"), ImageSource("5")),
-                initialIndex = 2,
-                visible = d2Visible,
-                onDismiss = { d2Visible = false },
-            )
             Text("排查点：打开后默认展示第 3 张（index=2），可左右滑动。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 
             Text("D3 隐藏指示器", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-            var d3Visible by remember { mutableStateOf(false) }
             AppButton(text = "无指示器预览", style = AppButtonStyle.Primary, onClick = { d3Visible = true })
-            ImagePreview(
-                images = listOf(ImageSource("1"), ImageSource("2")),
-                visible = d3Visible,
-                onDismiss = { d3Visible = false },
-                showIndicator = false,
-            )
             Text("排查点：无底部圆点和顶部页码，纯图片展示。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 
             Text("D4 单图预览", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-            var d4Visible by remember { mutableStateOf(false) }
             AppButton(text = "单图预览", style = AppButtonStyle.Primary, onClick = { d4Visible = true })
-            ImagePreview(
-                images = listOf(ImageSource("1")),
-                visible = d4Visible,
-                onDismiss = { d4Visible = false },
-            )
             Text("排查点：单张图片无指示器（size=1 自动隐藏），点击关闭。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
         }
+
+        // ImagePreview 放在 Box 层级，fillMaxSize 可真正全屏覆盖
+        ImagePreview(
+            images = listOf(ImageSource("1"), ImageSource("2"), ImageSource("3")),
+            visible = d1Visible,
+            onDismiss = { d1Visible = false },
+        )
+        ImagePreview(
+            images = listOf(ImageSource("1"), ImageSource("2"), ImageSource("3"), ImageSource("4"), ImageSource("5")),
+            initialIndex = 2,
+            visible = d2Visible,
+            onDismiss = { d2Visible = false },
+        )
+        ImagePreview(
+            images = listOf(ImageSource("1"), ImageSource("2")),
+            visible = d3Visible,
+            onDismiss = { d3Visible = false },
+            showIndicator = false,
+        )
+        ImagePreview(
+            images = listOf(ImageSource("1")),
+            visible = d4Visible,
+            onDismiss = { d4Visible = false },
+        )
     }
 }
 

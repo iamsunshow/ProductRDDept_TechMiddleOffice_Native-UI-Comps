@@ -20,6 +20,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 - **Slider #45 Android thumb 圆形位于横线上方（未与轨道垂直居中）**：`Slider.kt` 灰轨道与 primary 激活段均以 `Alignment.CenterStart` 对齐——在 44dp 高容器内已垂直居中（中心 22dp）——却又叠加 `offset(y = (44-4)/2 = 20dp)`，轨道被二次下移到 y=40 贴底（中心 42dp）；thumb 仅 CenterStart 无 y 偏移（中心 22dp），于是圆形跑到横线上方 20dp。修复：删除轨道/激活段两处多余 y 偏移，三层（thumb/灰轨道/激活段）共用 CenterStart 同轴居中，与 iOS `SliderView`（trackY=20、thumbY=10，中心同为 22pt）一致；同时为三层补 `slider-track/slider-active/slider-thumb` testTag。回归台账 #54 建档，新增 `SliderTest` 7 例 Robolectric 真绿：value 0/50/100 三档三层中心 Y=容器中心、轨道 4dp/thumb 24dp 同轴、点击轨道两端回调 0/100、steps=3 分档点击吸附 50。
 
+## \[1.5.4] - 2026-09-12
+
+### Fixed
+
+- **Pagination iOS 分页数字不可见**：`PaginationView.setup()` 中 `prevContainer`（普通 UIView）只有 `leading.top.bottom` 无宽度约束，`contentRow`（UIScrollView）只有 `leading` 无 `trailing` 约束，`nextContainer` 只有 `trailing` 无宽度约束 → 三者宽度均不确定，Auto Layout 将 `contentRow` 宽度解析为 0 → `clipsToBounds` 裁切内部所有页码按钮，用户只看到 chevron 箭头看不到数字。修复：`prevContainer`/`nextContainer` 补 `width.equalTo(AppSpace.lg)` 显式宽度，`contentRow` 补 `trailing.equalTo(nextContainer.snp.leading).offset(-AppSpace.xs)` 完成宽度链。
+
 ## \[1.5.3] - 2026-09-12
 
 ### Fixed

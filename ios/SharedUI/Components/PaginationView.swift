@@ -116,14 +116,16 @@ final class PaginationView: UIView {
 
         prevContainer.snp.makeConstraints { make in
             make.leading.top.bottom.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.sm, left: AppSpace.sm, bottom: AppSpace.sm, right: 0))
+            make.width.equalTo(AppSpace.lg)
         }
         contentRow.snp.makeConstraints { make in
             make.top.bottom.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.sm, left: 0, bottom: AppSpace.sm, right: 0))
             make.leading.equalTo(prevContainer.snp.trailing).offset(AppSpace.xs)
+            make.trailing.equalTo(nextContainer.snp.leading).offset(-AppSpace.xs)
         }
         nextContainer.snp.makeConstraints { make in
             make.top.bottom.trailing.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.sm, left: 0, bottom: AppSpace.sm, right: AppSpace.sm))
-            make.leading.equalTo(contentRow.snp.trailing).offset(AppSpace.xs)
+            make.width.equalTo(AppSpace.lg)
         }
 
         // 显式高度 = 导航按钮尺寸 + 上下间距。

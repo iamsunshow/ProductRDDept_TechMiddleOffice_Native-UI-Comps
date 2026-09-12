@@ -45,6 +45,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -158,15 +159,17 @@ fun SwipeItem(
         val containerWidthPx = with(density) { maxWidth.toPx() }
 
         // 底层左操作（右滑露出，左对齐绝对定位）
-        // matchParentSize 在前=匹配父高度；width(80.dp) 在后=覆盖宽度为 80dp（只保留高度匹配）
-        // 顺序反了 width 会被 matchParentSize 覆盖成全宽=红色占满整行
+        // matchParentSize 撑高度；requiredWidth(80.dp) 强制 80dp 宽度——
+        // 必须用 requiredWidth 而非 width：matchParentSize 将 minWidth 钉为父宽，
+        // width(80.dp) 被钳到 minWidth=全宽（80 < 360 → 钳到 360），按钮变全宽
+        // → 右侧漏红 + 滑动后看不到独立按钮块（台账 #67 根因）
         leftActions.forEachIndexed { i, action ->
             val leftOffset = i * actionWidthPx
             Box(
                 modifier = Modifier
                     .offset { IntOffset(leftOffset.roundToInt(), 0) }
                     .matchParentSize()
-                    .width(80.dp)
+                    .requiredWidth(80.dp)
                     .background(action.color.color)
                     .pointerInput(action) {
                         detectTapGestures(onTap = {
@@ -187,7 +190,7 @@ fun SwipeItem(
                 modifier = Modifier
                     .offset { IntOffset(rightOffset.roundToInt(), 0) }
                     .matchParentSize()
-                    .width(80.dp)
+                    .requiredWidth(80.dp)
                     .background(action.color.color)
                     .pointerInput(action) {
                         detectTapGestures(onTap = {

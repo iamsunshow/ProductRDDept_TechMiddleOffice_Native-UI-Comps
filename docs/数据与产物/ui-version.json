@@ -1,6 +1,6 @@
 {
-  "version": "1.8.2",
-  "versionKey": "v1.8.2",
+  "version": "1.8.3",
+  "versionKey": "v1.8.3",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.8.2] 2026-09-12 Fixed：iOS VirtualList #66——v1.8.1 修复约束后 Demo1-4 可见但列表仍无数据。根因：items.didSet 只调 tableView.reloadData()，未调 updateEmpty()——setup 时 items=[] → updateEmpty() 设 tableView.isHidden=true；Demo 设 items 后 didSet 不更新 hidden 状态，tableView 仍被隐藏。修复：items.didSet 补 updateEmpty() 调用。"
+  "changelog": "[1.8.3] 2026-09-12 Fixed：Android Swipe #67——① 没滑动前最右侧就有红色区域漏出来（iOS 滑动后才出现）；② 滑动后什么也没有显示（iOS 滑动后会出现绿色标记、红色删除等矩形块）。根因：Swipe.kt 操作按钮的修饰符链 .matchParentSize().width(80.dp) 中，matchParentSize 将 minWidth 钉为父宽（如 360dp），width(80.dp) 被钳到 minWidth=全宽（80 < 360 → 钳到 360），按钮变全宽而非 80dp。修复：width(80.dp) 改为 requiredWidth(80.dp)——requiredWidth 忽略 incoming constraints 强制 80dp，不被 matchParentSize 的 minWidth 钳制。"
 }

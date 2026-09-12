@@ -143,6 +143,10 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
         titleLabel.font = .systemFont(ofSize: AppFont.sizeSm)
         titleLabel.textColor = AppColor.textSecondary
         titleLabel.text = title
+        // 横向 hugging 提至必需：防止标题与值标签等宽竞争时标题被拉伸、值文字停在标题旁
+        // （用户 2026-09-12 反馈 D4「iOS 顺序排列」，Android 值恒居 chevron 左侧）
+        titleLabel.setContentHuggingPriority(.required, for: .horizontal)
+        titleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         addSubview(titleLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -172,10 +176,10 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
             chevronView.widthAnchor.constraint(equalToConstant: 8),
             chevronView.heightAnchor.constraint(equalToConstant: 8),
 
-            // 文字与箭头固定 4pt 间距（对齐 Android spacedBy(4.dp)；旧 8pt 偏大且随文本观感不一）
+            // 值标签 leading 改「≥标题尾部」：标签被右侧 chevron 拉满，文字右对齐恒居箭头左侧（对齐 Android）
             valueLabel.trailingAnchor.constraint(equalTo: chevronView.leadingAnchor, constant: -4),
             valueLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            valueLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: AppSpace.xs),
+            valueLabel.leadingAnchor.constraint(greaterThanOrEqualTo: titleLabel.trailingAnchor, constant: AppSpace.xs),
         ])
     }
 
@@ -207,6 +211,8 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
         tv.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         tv.rowHeight = Metrics.panelRowHeight
         tv.separatorInset = UIEdgeInsets(top: 0, left: AppSpace.md, bottom: 0, right: AppSpace.md)
+        // 双端统一：无选项分隔横线（Android DropdownMenu 无横线，用户 2026-09-12 反馈）
+        tv.separatorStyle = .none
         tv.isScrollEnabled = options.count > 6
         panel.addSubview(tv)
         tv.translatesAutoresizingMaskIntoConstraints = false
@@ -224,7 +230,24 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
         hostView.addSubview(panel)
         hostView.bringSubviewToFront(panel)
         panel.translatesAutoresizingMaskIntoConstraints = false
-        let anchorFrame = anchorView.convert(anchorView.bounds, to: hostView)
+        let anchorFrame: CGRect
+        if let anchor = anchor {
+            // 多列（D2）：锚点=列按钮
+            anchorFrame = anchor.convert(anchor.bounds, to: hostView)
+        } else {
+            // 单列（D1/D3/D4）：锚点=右侧「选中值文字+箭头」区域，面板从选中值文字下方弹出
+            // （对齐 Android DropdownMenu 挂在右侧 Box；旧锚点=整行，面板出现在左侧标题下方）
+            let btnFrame = triggerButton.convert(triggerButton.bounds, to: hostView)
+            let shown = valueLabel.text ?? title
+            let textWidth = (shown as NSString).size(withAttributes: [.font: UIFont.systemFont(ofSize: AppFont.sizeMd)]).width
+            let rightInset = AppSpace.md + 8 + 4
+            anchorFrame = CGRect(
+                x: btnFrame.maxX - rightInset - textWidth,
+                y: btnFrame.minY,
+                width: textWidth + rightInset,
+                height: btnFrame.height
+            )
+        }
         // 面板宽度模式：单列（D1/D3/D4）= 内容自适应（对齐 Android DropdownMenu）；多列（D2）= 列按钮宽
         // （matchAnchor，对齐 Android 列宽面板；v1.7.7 误将 D2 也收窄致文字截断）。
         let textFont = UIFont.systemFont(ofSize: AppFont.sizeMd)
@@ -233,11 +256,15 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
         if widthMode == .matchAnchor {
             panelWidth = anchorFrame.width
         } else {
-            panelWidth = min(anchorFrame.width, maxOptionWidth + AppSpace.md * 2 + 15)
+            panelWidth = maxOptionWidth + AppSpace.md * 2 + 15
         }
+        // 水平位置：左缘对齐锚点；右缘超出屏幕时左移收进安全边距
+        var panelLeading = anchorFrame.minX
+        let maxLeading = hostView.bounds.width - AppSpace.md - panelWidth
+        if panelLeading > maxLeading { panelLeading = max(AppSpace.md, maxLeading) }
         NSLayoutConstraint.activate([
             panel.topAnchor.constraint(equalTo: hostView.topAnchor, constant: anchorFrame.maxY + 4),
-            panel.leadingAnchor.constraint(equalTo: hostView.leadingAnchor, constant: anchorFrame.minX),
+            panel.leadingAnchor.constraint(equalTo: hostView.leadingAnchor, constant: panelLeading),
             panel.widthAnchor.constraint(equalToConstant: panelWidth),
             panel.heightAnchor.constraint(equalToConstant: height),
         ])
@@ -313,6 +340,7 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
         cell.accessoryType = selected ? .checkmark : .none
         cell.tintColor = AppColor.primary
         cell.backgroundColor = .clear
+        cell.selectionStyle = .none
         return cell
     }
 
@@ -399,7 +427,8 @@ public class DropDownMenuView: UIView {
             btn.setTitle(item.title, for: .normal)
             btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeMd)
             btn.setTitleColor(AppColor.textPrimary, for: .normal)
-            btn.backgroundColor = AppColor.bgPage
+            // 双端统一 D2 列按钮底色=黑 4% 叠加（bgPage=F9FAFB 过浅，白卡上肉眼不可见=用户反馈「纯白」；台账 #63）
+            btn.backgroundColor = UIColor.black.withAlphaComponent(0.04)
             btn.layer.cornerRadius = AppRadius.md
             btn.tag = i
             btn.addTarget(self, action: #selector(columnTapped(_:)), for: .touchUpInside)

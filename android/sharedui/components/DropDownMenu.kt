@@ -68,7 +68,10 @@ fun DropDown(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val selectedText = options.firstOrNull { it.value == value }?.text ?: title
+    // 内部选中态：外部 value 变更（如 D4「外部切到 C」）时同步；用户点选项时立即回写，
+    // 即使调用方未传 onValueChange（D4），触发器显示也即时更新（台账 #63，对齐 iOS valueStorage 机制）。
+    var innerValue by remember(value) { mutableStateOf(value) }
+    val selectedText = options.firstOrNull { it.value == innerValue }?.text ?: title
 
     Box(modifier = modifier.testTag("dropdown-root")) {
         Row(
@@ -97,7 +100,7 @@ fun DropDown(
                     Text(
                         text = selectedText,
                         fontSize = AppFont.sizeMd,
-                        color = if (options.any { it.value == value }) AppColor.textPrimary else AppColor.textSecondary.copy(alpha = 0.5f),
+                        color = if (options.any { it.value == innerValue }) AppColor.textPrimary else AppColor.textSecondary.copy(alpha = 0.5f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.widthIn(max = 120.dp)
@@ -111,16 +114,27 @@ fun DropDown(
                     modifier = Modifier.background(AppColor.bgCard)
                 ) {
                     options.forEach { opt ->
-                        val selected = opt.value == value
+                        val selected = opt.value == innerValue
                         DropdownMenuItem(
                             text = {
-                                Text(
-                                    text = opt.text,
-                                    color = if (selected) AppColor.primary else AppColor.textPrimary,
-                                    fontSize = AppFont.sizeMd
-                                )
+                                // 双端统一：选中项=绿字 + 右侧 ✓ 对勾（对齐 iOS cell.textLabel primary + checkmark）
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = opt.text,
+                                        color = if (selected) AppColor.primary else AppColor.textPrimary,
+                                        fontSize = AppFont.sizeMd
+                                    )
+                                    if (selected) {
+                                        Text("✓", color = AppColor.primary, fontSize = AppFont.sizeMd)
+                                    }
+                                }
                             },
                             onClick = {
+                                innerValue = opt.value
                                 onValueChange?.invoke(opt.value)
                                 expanded = false
                             }
@@ -162,7 +176,9 @@ fun DropDownMenu(
                             .fillMaxWidth()
                             .height(44.dp)
                             .clip(RoundedCornerShape(AppRadius.md))
-                            .background(AppColor.bgPage)
+                            // 双端统一 D2 列按钮底色=黑 4% 叠加（bgPage=F9FAFB 过浅，白卡上 iOS 侧肉眼不可见，
+                            // 台账 #63）；alpha 黑双端数学一致
+                            .background(Color.Black.copy(alpha = 0.04f))
                             .clickable {
                                 expandedIndex = if (expandedIndex == index) -1 else index
                             }

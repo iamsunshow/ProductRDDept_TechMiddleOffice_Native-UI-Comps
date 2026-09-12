@@ -1,6 +1,6 @@
 {
-  "version": "1.7.9",
-  "versionKey": "v1.7.9",
+  "version": "1.8.0",
+  "versionKey": "v1.8.0",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.7.9] 2026-09-12 Fixed：iOS ImagePreview #62——Demo1-4 点击即 crash（Unable to activate constraint... no common ancestor）。根因：rebuild() 中 page（新建 UIView）在 addArrangedSubview 之前就 page.width==self.width 建约束，page 未入树与 self（ImagePreviewView）无共同祖先。修复：先 contentStack.addArrangedSubview(page) 再 page.snp.makeConstraints；dot 同理先 add 再建 size 约束；Demo 4 个 preview 调用顺序调整：先 window.addSubview+建约束再设 images，避免 rebuild 时 bounds=0 致 scrollTo 偏移错。"
+  "changelog": "[1.8.0] 2026-09-12 Fixed：DropDown #64 六项视觉/交互统一——① iOS 单列面板锚点从整行改右侧「选中值+箭头」区域（与 Android 一样从值文字下方弹出）；② iOS tv.separatorStyle=.none+cell selectionStyle=.none 去选项横线；③ Android D1 选中项补 ✓（双端统一=绿字+对勾）；④ 双端 D2 列按钮底色统一黑 4% 叠加（bgPage F9FAFB 过浅 iOS 侧显白）；⑤ Android DropDown 新增 innerValue 内部选中态（remember(value)），D4 无 onValueChange 时点选即时更新、外部赋值同步；⑥ iOS titleLabel hugging required+valueLabel leading 改 ≥，值文字恒居箭头左侧（对齐 Android 居右）。注：v1.7.9 被并发会话 ImagePreview crash 修复（9ecb1b1）占用，本批顺延 v1.8.0。"
 }

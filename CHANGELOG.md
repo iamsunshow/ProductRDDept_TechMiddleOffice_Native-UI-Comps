@@ -27,6 +27,19 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 - **iOS Tour Demo1-4 点击下一步无反应/无法关闭**：4 个 Demo 均缺 `tour.onChange = { tour.current = $0 }` 回调，导致 `nextTapped()` 调用 `onChange?(current + 1)` 时 `current` 不更新、`updateContent()` 不触发，按钮文字与步骤指示停滞；Demo2（`showSkip=false`）尤为明显——只能走"下一步→完成"路径，但 `isLast` 永远为 `false`，"完成"按钮永不出现，引导层无法关闭。4 个 Demo 统一补 `onChange` 回调，步骤切换与完成/关闭恢复正常。
 - **iOS Tour 按钮文字紧贴边缘**：`nextButton`/`prevButton`/`skipButton` 三按钮均未设 `contentEdgeInsets`，文字紧贴按钮边缘（Android Tour `TourButton` 用 `.padding(horizontal = AppSpace.md=12, vertical = AppSpace.sm=8)`）。iOS 三按钮统一加 `contentEdgeInsets = (top: sm=8, left: md=12, bottom: sm=8, right: md=12)` 对齐 Android；同时去掉 `nextButton`/`prevButton` 固定 `height.equalTo(36)` 约束，让按钮按 insets + 文字自适应撑开，与 Android `Box+padding` 行为同构。
 
+## \[1.8.0] - 2026-09-12（DropDown #64 六项视觉/交互统一）
+
+> 版本说明：v1.7.9 已被并发会话 ImagePreview crash 修复（commit 9ecb1b1）占用，本批顺延 v1.8.0。
+
+### Fixed
+
+- **iOS 单列菜单位置**：锚点从整行（左侧标题「排序方式」下）改为右侧「选中值文字+箭头」区域，面板与 Android 一样从选中值文字下方弹出；右缘超屏自动左移。
+- **iOS 选项横线**：`tableView.separatorStyle = .none` + `cell.selectionStyle = .none`，去掉每项下方分隔线与点击灰底，对齐 Android DropdownMenu。
+- **选中态统一（绿字+对勾）**：Android D1 选项此前仅绿字无对勾（D2 已有），补右侧 ✓——双端四 Demo 统一=primary 绿字 + ✓。
+- **D2 按钮灰底统一**：双端列按钮底色由 bgPage（#F9FAFB，白卡上 iOS 侧肉眼≈纯白）统一改为黑 4% 叠加（双端数学一致、可辨识浅灰）。
+- **Android D4 点选无反应**：DropDown 新增 `innerValue` 内部选中态（`remember(value)` 同步外部赋值），调用方不传 onValueChange 时点选也即时更新触发器显示，对齐 iOS `valueStorage` 机制；外部按钮赋值仍正常同步。
+- **iOS D4 值文字位置**：titleLabel 横向 hugging 提至 required、valueLabel leading 改 ≥ 标题尾部（原为等号，两标签等优先级竞争时值可能停在标题旁=「顺序排列」），值文字恒居箭头左侧右对齐，对齐 Android。
+
 ## \[1.7.8] - 2026-09-12（DropDown #17 交互统一）
 
 ### Fixed

@@ -43,7 +43,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.divider", name: "Divider 分割线", reviewed: true, create: { DividerShowcase() }, passed: true),
             DemoComponent(id: "ui.grid", name: "Grid 宫格", reviewed: true, create: { GridShowcase() }, passed: true),
             DemoComponent(id: "ui.layout", name: "Layout 布局", reviewed: true, create: { LayoutShowcase() }, passed: true),
-            DemoComponent(id: "ui.row", name: "Row 行布局", reviewed: false, create: nil),
+            DemoComponent(id: "ui.row", name: "Row 行布局", reviewed: true, create: { RowShowcase() }),
             DemoComponent(id: "ui.safe-area", name: "SafeArea 安全区", reviewed: true, create: { SafeAreaShowcase() }, passed: true),
             DemoComponent(id: "ui.space", name: "Space 间距", reviewed: true, create: { SpaceShowcase() }, passed: true),
             DemoComponent(id: "ui.sticky", name: "Sticky 粘性布局", reviewed: true, create: { StickyShowcase() }, passed: true),
@@ -1935,6 +1935,129 @@ final class LayoutShowcase: ShowcaseViewController {
             make.height.equalTo(32)
         }
         return pill
+    }
+}
+
+// MARK: - Row Showcase（Row 行布局组件独立 Demo 页，与 Android RowDemo 一一对应）
+
+final class RowShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Row 行布局"
+        addVersionBadge(componentName: "Row", version: "v1.0", builtAt: "2026-09-12")
+
+        addInfo("4 组排查：① 等分三栏 ② 不等分 1:2:1 ③ gutter 间距 ④ 垂直对齐对照。双端 1:1 对齐。")
+
+        // ── Demo 1：等分三栏（span 1:1:1）──
+        addSection(title: "Demo 1 · 等分三栏（span 1:1:1）") { container in
+            let row = RowView(gutter: 0)
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(AppSpace.md)
+                make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+            }
+            let colors: [UIColor] = [AppColor.primaryMuted, AppColor.primary, AppColor.primaryMuted]
+            let labels = ["span 1", "span 1", "span 1"]
+            row.addCols(zip(labels, colors).map { label, color in
+                let col = ColView(span: 1)
+                let box = self.makeBox(text: label, bg: color)
+                col.addSubview(box)
+                box.snp.makeConstraints { $0.edges.equalToSuperview() }
+                return col
+            })
+        }
+        addInfo("ColView(span: 1) × 3，totalSpan=3，每栏占 1/3。")
+
+        // ── Demo 2：不等分（span 1:2:1）──
+        addSection(title: "Demo 2 · 不等分（span 1:2:1）") { container in
+            let row = RowView(gutter: 0)
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(AppSpace.md)
+                make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+            }
+            let items: [(String, Int, UIColor)] = [
+                ("span 1", 1, AppColor.primaryMuted),
+                ("span 2", 2, AppColor.primary),
+                ("span 1", 1, AppColor.primaryMuted),
+            ]
+            row.addCols(items.map { label, span, color in
+                let col = ColView(span: span)
+                let box = self.makeBox(text: label, bg: color)
+                col.addSubview(box)
+                box.snp.makeConstraints { $0.edges.equalToSuperview() }
+                return col
+            })
+        }
+        addInfo("ColView(span: 1/2/1)，totalSpan=4，中间栏占 2/4=50%。")
+
+        // ── Demo 3：gutter 间距 ──
+        addSection(title: "Demo 3 · gutter 间距（AppSpace.md）") { container in
+            let row = RowView(gutter: AppSpace.md)
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(AppSpace.md)
+                make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+            }
+            let items: [(String, Int)] = [("span 1", 1), ("span 1", 1), ("span 1", 1)]
+            row.addCols(items.map { label, span in
+                let col = ColView(span: span)
+                let box = self.makeBox(text: label, bg: AppColor.primaryMuted)
+                col.addSubview(box)
+                box.snp.makeConstraints { $0.edges.equalToSuperview() }
+                return col
+            })
+        }
+        addInfo("gutter = AppSpace.md（12pt），子项间有 12pt 间距，首尾无 padding。")
+
+        // ── Demo 4：垂直对齐对照 ──
+        addSection(title: "Demo 4 · 垂直对齐（top / center / bottom）") { container in
+            for (label, align) in [("top", RowAlign.top), ("center", RowAlign.center), ("bottom", RowAlign.bottom)] {
+                let row = RowView(align: align, gutter: AppSpace.sm)
+                container.addSubview(row)
+                row.snp.makeConstraints { make in
+                    make.top.equalToSuperview().offset(AppSpace.md)
+                    make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                    make.height.equalTo(60)
+                }
+                // 高 col
+                let tallCol = ColView(span: 1)
+                let tallBox = self.makeBox(text: "高", bg: AppColor.primaryMuted)
+                tallCol.addSubview(tallBox)
+                tallBox.snp.makeConstraints { $0.edges.equalToSuperview() }
+                tallBox.snp.remakeConstraints { $0.edges.equalToSuperview(); $0.height.equalTo(56) }
+                row.addCol(tallCol)
+                // 矮 col
+                let shortCol = ColView(span: 1)
+                let shortBox = self.makeBox(text: "矮", bg: AppColor.primary)
+                shortCol.addSubview(shortBox)
+                shortBox.snp.makeConstraints { $0.edges.equalToSuperview(); $0.height.equalTo(28) }
+                row.addCol(shortCol)
+
+                let tag = UILabel()
+                tag.text = "align: \(label)"
+                tag.font = .systemFont(ofSize: AppFont.sizeXs)
+                tag.textColor = AppColor.textSecondary
+                container.addSubview(tag)
+                tag.snp.makeConstraints { $0.top.equalTo(row.snp.bottom).offset(AppSpace.xs); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+            }
+        }
+        addInfo("RowView(align:) 控制子项垂直对齐：top 顶部 / center 居中 / bottom 底部。")
+    }
+
+    private func makeBox(text: String, bg: UIColor) -> UIView {
+        let box = UIView()
+        box.backgroundColor = bg
+        box.layer.cornerRadius = AppRadius.sm
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: AppFont.sizeSm, weight: .medium)
+        label.textColor = bg == AppColor.primary ? .white : AppColor.textPrimary
+        label.textAlignment = .center
+        box.addSubview(label)
+        label.snp.makeConstraints { $0.center.equalToSuperview() }
+        return box
     }
 }
 

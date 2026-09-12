@@ -43,7 +43,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.divider", name: "Divider 分割线", reviewed: true, create: { DividerShowcase() }, passed: true),
             DemoComponent(id: "ui.grid", name: "Grid 宫格", reviewed: true, create: { GridShowcase() }, passed: true),
             DemoComponent(id: "ui.layout", name: "Layout 布局", reviewed: true, create: { LayoutShowcase() }, passed: true),
-            DemoComponent(id: "ui.row", name: "Row 行布局", reviewed: true, create: { RowShowcase() }),
+            DemoComponent(id: "ui.row", name: "Row 行布局", reviewed: true, create: { RowShowcase() }, passed: true),
             DemoComponent(id: "ui.safe-area", name: "SafeArea 安全区", reviewed: true, create: { SafeAreaShowcase() }, passed: true),
             DemoComponent(id: "ui.space", name: "Space 间距", reviewed: true, create: { SpaceShowcase() }, passed: true),
             DemoComponent(id: "ui.sticky", name: "Sticky 粘性布局", reviewed: true, create: { StickyShowcase() }, passed: true),

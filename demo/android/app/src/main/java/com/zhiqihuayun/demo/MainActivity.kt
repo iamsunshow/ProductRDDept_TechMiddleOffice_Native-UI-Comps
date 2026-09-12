@@ -287,7 +287,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Divider 分割线", reviewed = true, demo = { DividerDemo() }, passed = true),
         DemoComponent("Grid 宫格", reviewed = true, demo = { GridDemo() }, passed = true),
         DemoComponent("Layout 布局", reviewed = true, demo = { LayoutDemo() }, passed = true),
-        DemoComponent("Row 行布局", reviewed = true, demo = { RowDemo() }),
+        DemoComponent("Row 行布局", reviewed = true, passed = true, demo = { RowDemo() }),
         DemoComponent("SafeArea 安全区", reviewed = true, demo = { SafeAreaDemo() }, passed = true),
         DemoComponent("Space 间距", reviewed = true, demo = { SpaceDemo() }, passed = true),
         DemoComponent("Sticky 粘性布局", reviewed = true, demo = { StickyDemo() }, passed = true),

@@ -1,6 +1,6 @@
 {
-  "version": "1.7.0",
-  "versionKey": "v1.7.0",
+  "version": "1.7.1",
+  "versionKey": "v1.7.1",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.7.0] 2026-09-12 Changed：Pagination #71 用户 C1.5 实机验收通过，台账补验收记录原话。双端 Demo 代码 passed=true 同步：Android MainActivity.kt PaginationDemo 加 passed=true；iOS DemoShowcases.swift ui.pagination 加 passed: true。xcodebuild + gradle 双端 0 错误。"
+  "changelog": "[1.7.1] 2026-09-12 Changed：Row #13 用户 C1.5 实机验收通过，台账补验收记录原话。双端 Demo 代码 passed=true 同步：Android MainActivity.kt RowDemo 加 passed=true；iOS DemoShowcases.swift ui.row 加 passed: true。xcodebuild + gradle 双端 0 错误。"
 }

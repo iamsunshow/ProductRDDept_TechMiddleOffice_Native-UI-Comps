@@ -11813,7 +11813,8 @@ final class PickerViewShowcase: ShowcaseViewController {
         addSection(title: "Demo 1 · 单列基础") { container in
             let picker = PickerView(options: self.provinces, value: "gd", title: "选择省份")
             picker.backgroundColor = AppColor.bgCard
-            self.pinFullWidth(picker, in: container)
+            container.addSubview(picker)
+            picker.snp.makeConstraints { $0.top.equalToSuperview(); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(PickerView.Metrics.barHeight + PickerView.Metrics.wheelHeight); $0.bottom.equalToSuperview() }
         }
         addInfo("单列滚轮选择器内容块=工具栏 44 + 滚轮 220；确定提交 / 取消滚回 value。")
 
@@ -11821,28 +11822,30 @@ final class PickerViewShowcase: ShowcaseViewController {
             let opts = self.provinces + [PickerOption(value: "tw", text: "台湾省（暂不可选）", disabled: true)]
             let picker = PickerView(options: opts, value: "bj", title: "选择省份")
             picker.backgroundColor = AppColor.bgCard
-            self.pinFullWidth(picker, in: container)
+            container.addSubview(picker)
+            picker.snp.makeConstraints { $0.top.equalToSuperview(); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(PickerView.Metrics.barHeight + PickerView.Metrics.wheelHeight); $0.bottom.equalToSuperview() }
         }
         addInfo("disabled 选项灰显且滚掠不可停靠（自动吸附最近可用行）。")
 
         addSection(title: "Demo 3 · 禁用态") { container in
             let picker = PickerView(options: self.provinces, value: "sh", disabled: true, title: "选择省份")
             picker.backgroundColor = AppColor.bgCard
-            self.pinFullWidth(picker, in: container)
+            container.addSubview(picker)
+            picker.snp.makeConstraints { $0.top.equalToSuperview(); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(PickerView.Metrics.barHeight + PickerView.Metrics.wheelHeight); $0.bottom.equalToSuperview() }
         }
         addInfo("disabled=true：整体 40% 灰 + 滚轮/工具栏不可交互。")
 
         addSection(title: "Demo 4 · 受控外部驱动") { container in
             let picker = PickerView(options: self.cities, value: "cd", title: "选择城市")
             picker.backgroundColor = AppColor.bgCard
-            self.pinFullWidth(picker, in: container)
-            picker.snp.makeConstraints { $0.bottom.equalToSuperview().offset(-AppSpace.md) }
+            container.addSubview(picker)
+            picker.snp.makeConstraints { $0.top.equalToSuperview(); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(PickerView.Metrics.barHeight + PickerView.Metrics.wheelHeight) }
             let btn = UIButton(type: .system)
             btn.setTitle("外部切到乐山", for: .normal)
             btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs)
             btn.addAction(UIAction { _ in picker.value = "leshan" }, for: .touchUpInside)
             container.addSubview(btn)
-            btn.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+            btn.snp.makeConstraints { $0.top.equalTo(picker.snp.bottom).offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.bottom.equalToSuperview().offset(-AppSpace.md) }
         }
         addInfo("外部赋值 value 仅同步滚轮位置（不触发 onChange）。")
     }

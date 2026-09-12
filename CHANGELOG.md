@@ -26,6 +26,15 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 - **LineChart #84 Android 双端视觉对齐三优化**（用户实机复验 v1.6.5 后反馈）。① **内边距**：组件根 Box 补 `padding(top/bottom=AppSpace.sm, start/end=AppSpace.md)`，对齐 iOS `chartView` 的 `edges.inset`（TrendChartView.swift L48-51），数据不再紧贴图表边缘。② **网格横线可见**：旧 `strokeWidth=0.5f` 为裸 px（2.625 密度真机≈0.19dp 亚像素，抗锯齿后不可见——台账 #58「禁止裸 px」禁令的又一案例），改 `0.5.dp→px` 对齐 iOS 默认网格 0.5pt 语义，4+1 条横线恢复可见。③ **y 域留白**：新增 `yFor()` 对齐 DGCharts 默认 `spaceTop/spaceBottom=0.1`（`axisMinimum=0`+自动上限），数据最高点上方与 0 值下方各留 10% 空隙；网格线、Y 轴标签、折线、圆点四处统一映射保持重合。**澄清**：双端 Demo3 数据源码逐值一致——iOS Demo 3 本就是「仅收入」单绿线（`expensePoints: []`），红绿双线在 Demo 1；用户所报 iOS Demo3 红绿两条系段落编号误记，数据零改动。`:components:compileDebugKotlin` BUILD SUCCESSFUL（20s）。
 
+## \[1.7.7] - 2026-09-12（iOS Tag 单测沉淀——11 例覆盖 4 大根因）
+
+### Test
+
+- **iOS Tag 单测沉淀**——补 `TagTests.swift` 11 例覆盖 4 大根因（convenience init didSet 陷阱、layoutSubviews 循环、intrinsicContentSize 椭圆小点、closable closeIcon 尺寸）+ 三形态/四色/三尺寸/运行时 didSet 触发。
+- 核心回归用例 `test_convenienceInit_intrinsicContentSize有文字宽度` 直接断言 `intrinsicContentSize.width > paddingH*2=12`，若 didSet 陷阱复发立即失败。
+- 用 `@testable import` + 外部可观察的 `intrinsicContentSize`/`backgroundColor`/`layer.borderWidth` 间接验证内部 label.text 已赋值（不直接访问 private 属性，因 @testable 不能跨 private）。
+- `xcodebuild test` 全部 11 例真绿（0.205s）。
+
 ## \[1.7.6] - 2026-09-12（iOS Tag 文字不可见第四次修复——根因 convenience init didSet 陷阱）
 
 ### Fixed

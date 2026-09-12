@@ -11725,13 +11725,13 @@ final class ImageViewShowcase: ShowcaseViewController {
 
         addSection(title: "Demo 1 · 基础图片展示") { container in
             let img = UIImageView()
-            img.contentMode = .scaleAspectFill
+            img.contentMode = .scaleAspectFit
             img.clipsToBounds = true
             img.backgroundColor = AppColor.bgPage
-            img.image = UIImage(systemName: "photo.fill")
-            img.tintColor = AppColor.textSecondary.withAlphaComponent(0.5)
+            img.image = UIImage(systemName: "folder.fill")
+            img.tintColor = AppColor.textSecondary.withAlphaComponent(0.3)
             container.addSubview(img)
-            img.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(160) }
+            img.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(160); $0.bottom.equalToSuperview() }
             img.layer.cornerRadius = AppRadius.md
         }
         addInfo("Image 组件已实现（v1.3.3）：支持 fit 三态 / radius 圆角 / 加载失败占位。ImageView 复用 Image 组件。")
@@ -11745,15 +11745,16 @@ final class ImageViewShowcase: ShowcaseViewController {
             row.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg) }
             for (label, radius) in [("radiusSm", AppRadius.sm), ("radiusMd", AppRadius.md), ("full", 999)] {
                 let img = UIImageView()
-                img.contentMode = .scaleAspectFill
+                img.contentMode = .scaleAspectFit
                 img.clipsToBounds = true
                 img.backgroundColor = AppColor.bgPage
-                img.image = UIImage(systemName: "photo.fill")
-                img.tintColor = AppColor.textSecondary.withAlphaComponent(0.5)
+                img.image = UIImage(systemName: "folder.fill")
+                img.tintColor = AppColor.textSecondary.withAlphaComponent(0.3)
                 img.layer.cornerRadius = radius
                 row.addArrangedSubview(img)
                 img.snp.makeConstraints { $0.height.equalTo(80) }
             }
+            row.snp.makeConstraints { $0.bottom.equalToSuperview() }
         }
         addInfo("radiusSm / radiusMd / full（宽/2 圆角）三态。")
 
@@ -11762,10 +11763,10 @@ final class ImageViewShowcase: ShowcaseViewController {
             img.contentMode = .scaleAspectFit
             img.clipsToBounds = true
             img.backgroundColor = AppColor.bgPage
-            img.image = UIImage(systemName: "exclamationmark.triangle.fill")
-            img.tintColor = AppColor.textSecondary.withAlphaComponent(0.5)
+            img.image = UIImage(systemName: "bell.fill")
+            img.tintColor = AppColor.textSecondary.withAlphaComponent(0.3)
             container.addSubview(img)
-            img.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.width.height.equalTo(100) }
+            img.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.width.height.equalTo(100); $0.bottom.equalToSuperview().offset(-AppSpace.md) }
             img.layer.cornerRadius = AppRadius.md
         }
         addInfo("加载失败时显示占位图形（Image 组件状态机已处理）。")
@@ -11776,16 +11777,17 @@ final class ImageViewShowcase: ShowcaseViewController {
             row.spacing = AppSpace.sm
             container.addSubview(row)
             row.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg) }
-            for mode in [UIView.ContentMode.scaleToFill, UIView.ContentMode.scaleAspectFit, UIView.ContentMode.scaleAspectFill] {
+            for (mode, idx) in [(UIView.ContentMode.scaleToFill, 0), (UIView.ContentMode.scaleAspectFit, 1), (UIView.ContentMode.scaleAspectFill, 2)] {
                 let img = UIImageView()
                 img.contentMode = mode
                 img.clipsToBounds = true
                 img.backgroundColor = AppColor.bgPage
-                img.image = UIImage(systemName: "photo.fill")
-                img.tintColor = AppColor.primary
+                img.image = UIImage(systemName: idx == 2 ? "heart.fill" : "heart.fill")
+                img.tintColor = AppColor.primary.withAlphaComponent(0.5)
                 row.addArrangedSubview(img)
                 img.snp.makeConstraints { $0.width.equalTo(80); $0.height.equalTo(80) }
             }
+            row.snp.makeConstraints { $0.bottom.equalToSuperview() }
         }
         addInfo("fill / fit / fill 三种 contentMode 示意。")
     }

@@ -213,6 +213,21 @@ import com.zhiqihuayun.sharedui.components.ResultActionStyle
 import com.zhiqihuayun.sharedui.components.ResultAction
 import com.zhiqihuayun.sharedui.components.ActivityTracker
 import com.zhiqihuayun.sharedui.components.Uploader
+import com.zhiqihuayun.sharedui.components.Tag
+import com.zhiqihuayun.sharedui.components.TagVariant
+import com.zhiqihuayun.sharedui.components.TagColor
+import com.zhiqihuayun.sharedui.components.TagSize
+import com.zhiqihuayun.sharedui.components.Segmented
+import com.zhiqihuayun.sharedui.components.SegmentedItem
+import com.zhiqihuayun.sharedui.components.Table
+import com.zhiqihuayun.sharedui.components.TableColumn
+import com.zhiqihuayun.sharedui.components.TableRow
+import com.zhiqihuayun.sharedui.components.Tour
+import com.zhiqihuayun.sharedui.components.TourStep
+import com.zhiqihuayun.sharedui.components.ImagePreview
+import com.zhiqihuayun.sharedui.components.ImageSource
+import com.zhiqihuayun.sharedui.components.VirtualList
+import com.zhiqihuayun.sharedui.components.VirtualListItem
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

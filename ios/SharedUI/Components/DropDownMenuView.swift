@@ -1,5 +1,46 @@
 import UIKit
 
+// MARK: - ChevronView（自绘等边三角形，双端统一 8pt 尺寸）
+
+/// 自绘等边三角形箭头视图，替代 Unicode ▼ 字符和 Material ArrowDropDown 图标。
+/// 固定 8×8pt 等边三角形，向下=收起、向上=展开，颜色可配置。
+/// 与 Android DropDown/DropDownMenu 的 Icons.Default.ArrowDropDown + size(8.dp) 像素级对齐。
+class ChevronView: UIView {
+    var color: UIColor = .gray {
+        didSet { setNeedsDisplay() }
+    }
+    var isUp: Bool = false {
+        didSet { setNeedsDisplay() }
+    }
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .clear
+        isUserInteractionEnabled = false
+    }
+    required init?(coder: NSCoder) { fatalError() }
+    override func draw(_ rect: CGRect) {
+        guard let ctx = UIGraphicsGetCurrentContext() else { return }
+        ctx.setFillColor(color.cgColor)
+        let w = rect.width
+        let h = rect.height
+        let path = UIBezierPath()
+        if isUp {
+            // 向上三角：顶点在上方中心
+            path.move(to: CGPoint(x: w / 2, y: 0))
+            path.addLine(to: CGPoint(x: 0, y: h))
+            path.addLine(to: CGPoint(x: w, y: h))
+        } else {
+            // 向下三角：顶点在下方中心
+            path.move(to: CGPoint(x: w / 2, y: h))
+            path.addLine(to: CGPoint(x: 0, y: 0))
+            path.addLine(to: CGPoint(x: w, y: 0))
+        }
+        path.close()
+        color.setFill()
+        path.fill()
+    }
+}
+
 // MARK: - DropDownOption
 
 /// DropDown 选项数据模型
@@ -49,7 +90,7 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
     private let triggerButton = UIButton(type: .custom)
     private let titleLabel = UILabel()
     private let valueLabel = UILabel()
-    private let chevronLabel = UILabel()
+    private let chevronView = ChevronView()
     private var panelView: UIView?
     private var tableView: UITableView?
 
@@ -100,12 +141,9 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
         addSubview(valueLabel)
         valueLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        chevronLabel.font = .systemFont(ofSize: 12)
-        chevronLabel.textColor = AppColor.textSecondary.withAlphaComponent(0.5)
-        chevronLabel.text = "▼"
-        chevronLabel.textAlignment = .center
-        addSubview(chevronLabel)
-        chevronLabel.translatesAutoresizingMaskIntoConstraints = false
+        chevronView.color = AppColor.textSecondary.withAlphaComponent(0.5)
+        addSubview(chevronView)
+        chevronView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
             triggerButton.topAnchor.constraint(equalTo: topAnchor),
@@ -117,11 +155,12 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
             titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
             titleLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 80),
 
-            chevronLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -AppSpace.md),
-            chevronLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            chevronLabel.widthAnchor.constraint(equalToConstant: 16),
+            chevronView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -AppSpace.md),
+            chevronView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            chevronView.widthAnchor.constraint(equalToConstant: 8),
+            chevronView.heightAnchor.constraint(equalToConstant: 8),
 
-            valueLabel.trailingAnchor.constraint(equalTo: chevronLabel.leadingAnchor, constant: -AppSpace.xs),
+            valueLabel.trailingAnchor.constraint(equalTo: chevronView.leadingAnchor, constant: -AppSpace.xs),
             valueLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
             valueLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: AppSpace.xs),
         ])
@@ -134,7 +173,7 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
 
     func openPanel(anchor: UIView? = nil) {
         isExpanded = true
-        chevronLabel.text = "▲"
+        chevronView.isUp = true
         let panel = UIView()
         panel.backgroundColor = AppColor.bgCard
         panel.layer.cornerRadius = AppRadius.md
@@ -185,7 +224,7 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
 
     public func closePanel() {
         isExpanded = false
-        chevronLabel.text = "▼"
+        chevronView.isUp = false
         panelView?.removeFromSuperview()
         panelView = nil
         tableView = nil
@@ -305,13 +344,25 @@ public class DropDownMenuView: UIView {
 
         for (i, item) in items.enumerated() {
             let btn = UIButton(type: .system)
-            btn.setTitle(item.title + " ▼", for: .normal)
+            btn.setTitle(item.title, for: .normal)
             btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeMd)
             btn.setTitleColor(AppColor.textPrimary, for: .normal)
             btn.backgroundColor = AppColor.bgPage
             btn.layer.cornerRadius = AppRadius.md
             btn.tag = i
             btn.addTarget(self, action: #selector(columnTapped(_:)), for: .touchUpInside)
+            // 用自定义 chevronView 替代 Unicode ▼ 字符三角，与 DropDownView Demo1 统一尺寸 8pt
+            let chevron = ChevronView()
+            chevron.color = AppColor.textSecondary.withAlphaComponent(0.5)
+            chevron.tag = 999
+            btn.addSubview(chevron)
+            chevron.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                chevron.trailingAnchor.constraint(equalTo: btn.trailingAnchor, constant: -AppSpace.sm),
+                chevron.centerYAnchor.constraint(equalTo: btn.centerYAnchor),
+                chevron.widthAnchor.constraint(equalToConstant: 8),
+                chevron.heightAnchor.constraint(equalToConstant: 8),
+            ])
             barStack.addArrangedSubview(btn)
             buttons.append(btn)
 
@@ -341,7 +392,9 @@ public class DropDownMenuView: UIView {
         } else {
             closeAll()
             dropDowns[idx].openPanel(anchor: buttons[idx])
-            buttons[idx].setTitle(items[idx].title + " ▲", for: .normal)
+            if let chevron = buttons[idx].viewWithTag(999) as? ChevronView {
+                chevron.isUp = true
+            }
             currentIndex = idx
         }
     }
@@ -349,7 +402,9 @@ public class DropDownMenuView: UIView {
     private func closeAll() {
         for (i, dd) in dropDowns.enumerated() {
             dd.closePanel()
-            buttons[i].setTitle(items[i].title + " ▼", for: .normal)
+            if let chevron = buttons[i].viewWithTag(999) as? ChevronView {
+                chevron.isUp = false
+            }
         }
         currentIndex = -1
     }

@@ -1,6 +1,6 @@
 {
-  "version": "1.6.6",
-  "versionKey": "v1.6.6",
+  "version": "1.6.7",
+  "versionKey": "v1.6.7",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.6.6] 2026-09-12 Changed：Android Demo 页面统一容器（DemoPage + DemoSection）+ 4 个无容器 Demo 改造。用户反馈很多 Android Demo 页面没有边距直接贴屏幕边缘、demo 段间无间距、demo 段无最小高度，不方便调试排查。新增两个通用 Composable：① DemoPage=Column(fillMaxSize+bgPage+verticalScroll+padding(lg,md)+spacedBy(md))；② DemoSection=Column(fillMaxWidth+bgCard+clip(md)+padding(md)+defaultMinSize(120dp)+spacedBy(sm))，可选 title/hint 自动排版。改造 4 个完全无容器的 Demo：DropDownMenuDemo/SliderDemo/StepperDemo/ImageViewDemo 全部改用 DemoPage+DemoSection。删除旧的 private DemoSection(title,content) 函数（被新 DemoSection 超集替代，旧调用点签名兼容）。gradle BUILD SUCCESSFUL 0 错误。"
+  "changelog": "[1.6.7] 2026-09-12 Fixed：DropDown #21/22 双端三角大小不一致 + iOS Demo1/Demo2 三角大小不一致。根因=iOS Demo1 DropDownView 用 Unicode ▼ 字符 12pt 字体渲染、iOS Demo2 DropDownMenuView 用 Unicode ▼ 跟标题同字体 AppFont.sizeMd（更大）、Android 用 Material Icons ArrowDropDown 默认 24dp 矢量图标——三处大小都不一样且非等边三角。修复：① iOS 新增 ChevronView（自绘等边三角形 UIBezierPath，8×8pt 固定，isUp 翻转方向）替代所有 Unicode ▼；iOS DropDownView Demo1 + DropDownMenuView Demo2 均改用 ChevronView 统一 8pt；② Android DropDown/DropDownMenu 的 Icon 加 Modifier.size(8.dp) 从 24dp 缩到 8dp。双端三角统一为 8pt 等边三角形。xcodebuild 0 错误 + gradle BUILD SUCCESSFUL 0 错误。"
 }

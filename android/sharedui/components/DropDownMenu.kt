@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -102,7 +103,8 @@ fun DropDown(
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = null,
-                        tint = AppColor.textSecondary.copy(alpha = 0.5f)
+                        tint = AppColor.textSecondary.copy(alpha = 0.5f),
+                        modifier = Modifier.size(8.dp)
                     )
                 }
 
@@ -179,7 +181,8 @@ fun DropDownMenu(
                             Icon(
                                 imageVector = Icons.Default.ArrowDropDown,
                                 contentDescription = null,
-                                tint = AppColor.textSecondary.copy(alpha = 0.5f)
+                                tint = AppColor.textSecondary.copy(alpha = 0.5f),
+                                modifier = Modifier.size(8.dp)
                             )
                         }
                     }

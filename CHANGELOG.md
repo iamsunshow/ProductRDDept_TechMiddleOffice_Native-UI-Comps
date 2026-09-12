@@ -14,6 +14,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。 -->
 
+## \[1.6.7] - 2026-09-12（DropDown #21/22 双端三角大小统一）
+
+### Fixed
+
+- **iOS Demo1 三角太大 + Demo2 三角更大 + 与 Android 不一致**：根因=iOS Demo1 `DropDownView` 用 Unicode `▼` 字符 12pt 字体渲染、iOS Demo2 `DropDownMenuView` 用 Unicode `▼` 跟标题同字体 `AppFont.sizeMd`（更大）、Android 用 Material Icons `ArrowDropDown` 默认 24dp 矢量图标——三处大小都不一样且非等边三角。修复：① iOS 新增 `ChevronView`（自绘等边三角形 `UIBezierPath`，8×8pt 固定，`isUp` 翻转方向）替代所有 Unicode `▼`；`DropDownView` Demo1 + `DropDownMenuView` Demo2 均改用 `ChevronView` 统一 8pt；② Android `DropDown`/`DropDownMenu` 的 `Icon` 加 `Modifier.size(8.dp)` 从 24dp 缩到 8dp。双端三角统一为 8pt 等边三角形。`xcodebuild` 0 错误 + `gradle` BUILD SUCCESSFUL 0 错误。
+
 ## \[1.6.6] - 2026-09-12（Android Demo 页面统一容器 DemoPage + DemoSection）
 
 ### Changed

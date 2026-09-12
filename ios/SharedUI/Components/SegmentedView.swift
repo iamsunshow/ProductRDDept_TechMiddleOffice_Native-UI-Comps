@@ -28,10 +28,19 @@ final class SegmentedView: UIView {
     private var buttons: [UIButton] = []
     private var widthConstraint: Constraint?
 
+    // MARK: - 固有尺寸
+
+    override var intrinsicContentSize: CGSize {
+        let w = trackWidth ?? (UIScreen.main.bounds.width - AppSpace.lg * 2)
+        return CGSize(width: w, height: 32 + AppSpace.sm * 2)
+    }
+
     // MARK: - 初始化
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+
+        setContentHuggingPriority(.required, for: .horizontal)
 
         track.axis = .horizontal
         track.spacing = 0
@@ -60,6 +69,7 @@ final class SegmentedView: UIView {
         } else {
             widthConstraint?.update(offset: UIScreen.main.bounds.width - AppSpace.lg * 2)
         }
+        invalidateIntrinsicContentSize()
     }
 
     // MARK: - 重建

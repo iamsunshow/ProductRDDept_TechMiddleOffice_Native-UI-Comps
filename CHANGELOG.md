@@ -14,6 +14,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.5.3] - 2026-09-12
+
+### Fixed
+
+- **Row Demo 1-3 iOS 色块不可见**：`RowShowcase` Demo 1-3 的 `RowView` 仅用 `top + bottom.equalToSuperview()` 约束填满容器，但容器是 `UIStackView` 中的 `UIView` 无固有高度→高度链断裂→`makeBox` 的 `UIView`（无 intrinsicContentSize）坍缩为 0 高→浅绿色（`primaryMuted`）和深绿色（`primary`）色块不可见，与 Android `DemoColBox` 的 `.height(40.dp)` 不一致。修复：Demo 1-3 的 `RowView` 约束补 `make.height.equalTo(40)`，与 Android `DemoColBox` 40dp 固定高度对齐；Demo 4 不受影响（已用 `height.equalTo(60)`）。
+
 ## \[1.5.2] - 2026-09-12
 
 ### Fixed

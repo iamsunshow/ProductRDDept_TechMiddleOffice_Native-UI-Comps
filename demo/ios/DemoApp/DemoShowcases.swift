@@ -1956,6 +1956,7 @@ final class RowShowcase: ShowcaseViewController {
                 make.top.equalToSuperview().offset(AppSpace.md)
                 make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
                 make.bottom.equalToSuperview()
+                make.height.equalTo(40)
             }
             let colors: [UIColor] = [AppColor.primaryMuted, AppColor.primary, AppColor.primaryMuted]
             let labels = ["span 1", "span 1", "span 1"]
@@ -1977,6 +1978,7 @@ final class RowShowcase: ShowcaseViewController {
                 make.top.equalToSuperview().offset(AppSpace.md)
                 make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
                 make.bottom.equalToSuperview()
+                make.height.equalTo(40)
             }
             let items: [(String, Int, UIColor)] = [
                 ("span 1", 1, AppColor.primaryMuted),
@@ -2001,6 +2003,7 @@ final class RowShowcase: ShowcaseViewController {
                 make.top.equalToSuperview().offset(AppSpace.md)
                 make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
                 make.bottom.equalToSuperview()
+                make.height.equalTo(40)
             }
             let items: [(String, Int)] = [("span 1", 1), ("span 1", 1), ("span 1", 1)]
             row.addCols(items.map { label, span in

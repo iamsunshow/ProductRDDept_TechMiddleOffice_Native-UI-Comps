@@ -14,6 +14,14 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。④ [1.7.5] 两条=LineChart #84 三优化（cc09660，Trae）与 iOS Tag 文字不可见第三次修复（5e2a250，他会话）同号并存——他会话提交窗口与 Trae 文档编辑重叠，条目未互相覆盖、内容均有效，v1.7.5 号双主题共用，不改史。 -->
 
+## \[1.8.6] - 2026-09-13（Android Popup 七项双端一致修复）
+
+### Fixed
+
+- **内容定位失效（Demo1/3/6/7/8 内容跑到左上角）**：根因=container 的 `.align(Alignment.Center/BottomCenter/...)` 写在 `AnimatedVisibility` 内部，不是 mask Box 的直接子节点，`align` 失效→默认 top-start（左上角）。修复=mask 与 content 改**平级兄弟节点**（Overlay 同款已验证模式），用外层 Box 的 `contentAlignment` 按 position 定位；center 宽度改用 `widthIn(min=240, max=屏宽-32)` 与 iOS 约束一致（根治 Demo7 通栏）。
+- **点击蒙层不消失+页面被永久遮住（Demo1/2/3）**：根因=①旧 `animVisible` 只置 true 从不置 false，visible=false 后 WindowPopup（含 mask）永远不卸载；②mask 与 container 嵌套+container 用 `clickable(enabled=false)` 不可靠。修复=用 `MutableTransitionState` 精准控制退出动画结束后卸载 WindowPopup；container 改用 `clickable(onClick={})` 消费点击阻止穿透到 mask；mask 始终挂 `clickable(enabled=closeOnClickOverlay)`。
+- Popup 单测 10/10 全绿（center minWidth 240dp / bottom minHeight 120dp / closeable 按钮 / 蒙版点击语义）；组件库 `compileDebugKotlin` 0 错误；Demo app `assembleDebug` 通过。
+
 ## \[1.8.5] - 2026-09-12（Tag/Tour/ImagePreview/VirtualList 四组件 C1.5 验收收口）
 
 ### Changed

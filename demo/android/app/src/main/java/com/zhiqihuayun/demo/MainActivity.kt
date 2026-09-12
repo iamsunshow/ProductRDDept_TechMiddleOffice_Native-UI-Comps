@@ -8127,7 +8127,7 @@ fun PopupDemo() {
                     .padding(horizontal = 10.dp, vertical = 6.dp)
             ) {
                 Text(
-                    text = "Popup 组件 v1.4.31",
+                    text = "Popup 组件 v1.8.6",
                     color = AppColor.primary,
                     fontSize = AppFont.sizeXs,
                     fontWeight = FontWeight.Medium,

@@ -1,6 +1,6 @@
 {
-  "version": "1.8.5",
-  "versionKey": "v1.8.5",
-  "releaseDate": "2026-09-12",
-  "changelog": "[1.8.5] 2026-09-12 Changed：Tag/Tour/ImagePreview/VirtualList 四组件 C1.5 用户实机验收通过（原话「X：已通过」）收口——api.json 新建四条目（reviewed=true、双端 available/stable，componentCount 77→90）；回归测试台账 #56/#57/#61/#63/#65/#66 六行补验收结论；双端 Demo passed=true（3445d46）与进度表 ✅ 已在位。纯文档收口，组件代码零改动。"
+  "version": "1.8.6",
+  "versionKey": "v1.8.6",
+  "releaseDate": "2026-09-13",
+  "changelog": "[1.8.6] 2026-09-13 Fixed：Android Popup 七项双端一致修复（用户 2026-09-13 反馈）——①内容定位失效（居中/底部/顶部全跑到左上角）根因=container 的 .align() 写在 AnimatedVisibility 内非 mask Box 直接子节点，改用外层 Box contentAlignment 定位+mask/content 平级兄弟节点（Overlay 同款）；②点击蒙层不消失+页面被永久遮住根因=animVisible 只置 true 不置 false 致 WindowPopup 永不卸载，改用 MutableTransitionState 精准控制退出后卸载+container 用 clickable(onClick={}) 消费点击阻止穿透；③Demo3 底部变顶部、④Demo6/8 居中失效、⑤Demo7 通栏均为 #1 同根因。组件库编译 0 错误，Popup 单测 10/10 全绿，Demo app assembleDebug 通过。"
 }

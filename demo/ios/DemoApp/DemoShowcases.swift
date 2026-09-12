@@ -9717,7 +9717,7 @@ final class PopupShowcase: ShowcaseViewController {
         super.viewDidLoad()
         title = "Popup 弹出层"
 
-        addVersionBadge(componentName: "Popup", version: "v1.4.31", builtAt: "2026-09-11")
+        addVersionBadge(componentName: "Popup", version: "v1.8.6", builtAt: "2026-09-13")
 
         addInfo("8 组排查：① 常规弹出层；② 顶部弹出；③ 底部弹出；④ 左侧弹出；⑤ 右侧弹出；⑥ 带关闭图标；⑦ 阻塞关闭；⑧ 圆角。点击下方按钮触发对应 Demo。")
 

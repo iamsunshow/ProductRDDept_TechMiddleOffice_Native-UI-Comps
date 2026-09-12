@@ -1,13 +1,13 @@
 // Popup 弹出层（Android Compose 版，对齐 iOS PopupContainerView.swift / api.json `ui.popup`）。
 //
-// 组件 ID：`ui.popup` ｜ 任务清单 #54 ｜ 操作反馈区第九件 ｜ TMO 组件库 v1.4.4
+// 组件 ID：`ui.popup` ｜ 任务清单 #54 ｜ 操作反馈区第九件 ｜ TMO 组件库 v1.8.6
 //
 // 定位：通用弹出层容器——居中/底部/顶部弹出，带遮罩，承载任意自定义内容，可关闭。
 //
 // 契约 @param（与 api.json 100% 对齐）：
-// - visible: Boolean（*必选*：true=渲染 Dialog + 动画进入；false=退出动画后销毁）
+// - visible: Boolean（*必选*：true=渲染 Popup + 动画进入；false=退出动画后销毁）
 // - content: @Composable（*必选*：弹层内嵌内容，宿主自定义）
-// - position: PopupPosition = PopupPosition.CENTER（center/bottom/top 三向）
+// - position: PopupPosition = PopupPosition.CENTER（center/bottom/top/left/right）
 // - closeable: Boolean = false（是否显示右上角关闭按钮）
 // - closeOnClickOverlay: Boolean = true（点击遮罩是否收起）
 // - radius: Dp = AppRadius.lg（弹层圆角）
@@ -22,6 +22,18 @@
 // - 关闭按钮：24dp 圆形灰底白叉，closeable=true 时显示
 // - 动画：center=淡入+缩放 200ms / bottom=从底部滑入 250ms / top=从顶部滑入
 // - 底部安全区：position=bottom 时 navigationBars bottom padding
+//
+// v1.8.6 修复（用户 2026-09-13 反馈 7 项）：
+// 1. 内容定位失效（居中/底部/顶部全跑到左上角）：根因=container 的 .align(Alignment.xxx)
+//    写在 AnimatedVisibility 内部，不是 mask Box 的直接子节点，align 失效→默认 top-start。
+//    修复=mask 与 content 改平级兄弟节点（Overlay 同款），用外层 Box 的 contentAlignment 定位。
+// 2. 点击蒙层不消失+页面被永久遮住：根因=①animVisible 只置 true 从不置 false，visible=false
+//    后 WindowPopup(含 mask)永远不卸载；②mask 与 container 嵌套+clickable(enabled=false) 不可靠。
+//    修复=用 MutableTransitionState 精准控制退出后卸载；mask/content 平级；container 用
+//    clickable(onClick={}) 消费点击阻止穿透；mask 与 content 同进 AnimatedVisibility 整体退场。
+// 3. Demo3 底部弹出变顶部：同 #1 根因，BottomCenter align 失效。
+// 4. Demo6/8 居中失效：同 #1。
+// 5. Demo7 通栏：同 #1，居中失效+宽度约束未生效。
 //
 // 用法：
 // ```kotlin
@@ -39,15 +51,16 @@
 package com.zhiqihuayun.sharedui.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -55,9 +68,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -71,7 +83,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -80,9 +91,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -119,8 +129,8 @@ internal object PopupTestTags {
 /**
  * 全屏 Popup 位置提供器：让 Popup 内容从窗口 (0,0) 开始，
  * 配合 fillMaxSize() 覆盖整个屏幕。
- * v1.4.9：用 Popup 替代 Dialog，去除 Dialog 系统级 dim 层（~0.6），
- * 只保留我们的 Color.Black.copy(alpha = 0.45f) 蒙版，与 iOS 完全一致。
+ * 用 Popup 替代 Dialog，去除 Dialog 系统级 dim 层（~0.6），
+ * 只保留 Color.Black.copy(alpha = 0.45f) 蒙版，与 iOS 完全一致。
  */
 private object FullScreenPopupPositionProvider : PopupPositionProvider {
     override fun calculatePosition(
@@ -131,6 +141,14 @@ private object FullScreenPopupPositionProvider : PopupPositionProvider {
     ): IntOffset = IntOffset(0, 0)
 }
 
+/** 蒙层透明度常量。 */
+private const val MASK_ALPHA = 0.45f
+
+/** 关闭按钮尺寸与内边距（与 iOS closeButtonSize=24 / closeButtonInset=8 对齐）。 */
+private val CLOSE_BUTTON_SIZE = 24.dp
+private val CLOSE_BUTTON_INSET = AppSpace.sm
+private const val CLOSE_BUTTON_TOP_PAD = 40 // 24 + 8*2
+
 /**
  * 通用弹出层容器。
  *
@@ -140,7 +158,7 @@ private object FullScreenPopupPositionProvider : PopupPositionProvider {
  * @param closeOnClickOverlay 点击遮罩是否收起，默认 true
  * @param radius 弹层圆角，默认 AppRadius.lg
  * @param onClose 收起回调
- * @param modifier 可选布局修饰符
+ * @param modifier 可选布局修饰符（作用于内容槽）
  * @param content 弹层内嵌内容
  */
 @Composable
@@ -154,161 +172,170 @@ fun Popup(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
-    // 弹层动画状态（始终渲染 Popup，由 AnimatedVisibility 控制进入/退出动画）
-    var animVisible by remember { mutableStateOf(visible) }
-    LaunchedEffect(visible) {
-        if (visible) animVisible = true
+    // 用 MutableTransitionState 精准控制生命周期：
+    // visible=true → 立即渲染并播放进入动画；
+    // visible=false → 播放退出动画，动画结束后 currentState 变 false，外层 guard 卸载 WindowPopup。
+    // 彻底解决旧 animVisible 只置 true 不置 false 导致蒙层永久残留、页面无法操作的 bug。
+    val visibilityState = remember { MutableTransitionState(visible) }
+    visibilityState.targetState = visible
+    if (!visibilityState.currentState && !visibilityState.targetState) return
+
+    // 弹层容器在屏幕中的对齐方式（由外层 contentAlignment Box 统一控制，修复 align 失效）。
+    val contentAlignment = when (position) {
+        PopupPosition.CENTER -> Alignment.Center
+        PopupPosition.BOTTOM -> Alignment.BottomCenter
+        PopupPosition.TOP -> Alignment.TopCenter
+        PopupPosition.LEFT -> Alignment.CenterStart
+        PopupPosition.RIGHT -> Alignment.CenterEnd
     }
 
-    if (!visible && !animVisible) return
+    // 进入/退出动画按 position 选择
+    val enterTransition = when (position) {
+        PopupPosition.CENTER -> fadeIn(animationSpec = tween(200)) + scaleIn(initialScale = 0.9f, animationSpec = tween(200))
+        PopupPosition.BOTTOM -> fadeIn(animationSpec = tween(250)) + slideInVertically(initialOffsetY = { it }, animationSpec = tween(250))
+        PopupPosition.TOP -> fadeIn(animationSpec = tween(250)) + slideInVertically(initialOffsetY = { -it }, animationSpec = tween(250))
+        PopupPosition.LEFT -> fadeIn(animationSpec = tween(250)) + slideInHorizontally(initialOffsetX = { -it }, animationSpec = tween(250))
+        PopupPosition.RIGHT -> fadeIn(animationSpec = tween(250)) + slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(250))
+    }
+    val exitTransition = when (position) {
+        PopupPosition.CENTER -> fadeOut(animationSpec = tween(200)) + scaleOut(targetScale = 0.9f, animationSpec = tween(200))
+        PopupPosition.BOTTOM -> fadeOut(animationSpec = tween(250)) + slideOutVertically(targetOffsetY = { it }, animationSpec = tween(250))
+        PopupPosition.TOP -> fadeOut(animationSpec = tween(250)) + slideOutVertically(targetOffsetY = { -it }, animationSpec = tween(250))
+        PopupPosition.LEFT -> fadeOut(animationSpec = tween(250)) + slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(250))
+        PopupPosition.RIGHT -> fadeOut(animationSpec = tween(250)) + slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(250))
+    }
 
-    // v1.4.9：用 Popup 替代 Dialog——Dialog 会添加系统级 dim 层（~0.6），
-    // 叠加在我们的 0.45 黑色蒙版上导致 Android 蒙版明显比 iOS 暗。
-    // Popup 不添加系统 dim，只有我们的 Color.Black.copy(alpha = 0.45f) 蒙版，与 iOS 完全一致。
     WindowPopup(
         popupPositionProvider = FullScreenPopupPositionProvider,
         onDismissRequest = {
-            if (closeOnClickOverlay) {
-                onClose?.invoke()
-            }
+            // 返回键：closeOnClickOverlay=false 时不响应（与点击蒙层行为一致）
+            if (closeOnClickOverlay) onClose?.invoke()
         },
         properties = PopupProperties(
             focusable = true,
             dismissOnBackPress = closeOnClickOverlay,
-            // dismissOnClickOutside=false：由蒙版 clickable 自行处理点击收起
+            // dismissOnClickOutside=false：由平级 mask 的 clickable 自行处理点击收起
             dismissOnClickOutside = false
         )
     ) {
-        // 动画参数：按 position 选择进入/退出过渡
-        val enterTransition = when (position) {
-            PopupPosition.CENTER -> fadeIn(animationSpec = tween(200)) + scaleIn(initialScale = 0.9f, animationSpec = tween(200))
-            PopupPosition.BOTTOM -> fadeIn(animationSpec = tween(250)) + slideInVertically(initialOffsetY = { it }, animationSpec = tween(250))
-            PopupPosition.TOP -> fadeIn(animationSpec = tween(250)) + slideInVertically(initialOffsetY = { -it }, animationSpec = tween(250))
-            PopupPosition.LEFT -> fadeIn(animationSpec = tween(250)) + slideInHorizontally(initialOffsetX = { -it }, animationSpec = tween(250))
-            PopupPosition.RIGHT -> fadeIn(animationSpec = tween(250)) + slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(250))
-        }
-        val exitTransition = when (position) {
-            PopupPosition.CENTER -> fadeOut(animationSpec = tween(200)) + scaleOut(targetScale = 0.9f, animationSpec = tween(200))
-            PopupPosition.BOTTOM -> fadeOut(animationSpec = tween(250)) + slideOutVertically(targetOffsetY = { it }, animationSpec = tween(250))
-            PopupPosition.TOP -> fadeOut(animationSpec = tween(250)) + slideOutVertically(targetOffsetY = { -it }, animationSpec = tween(250))
-            PopupPosition.LEFT -> fadeOut(animationSpec = tween(250)) + slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(250))
-            PopupPosition.RIGHT -> fadeOut(animationSpec = tween(250)) + slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(250))
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.45f))
-                .testTag(PopupTestTags.MASK)
-                .clickable(
-                    enabled = closeOnClickOverlay,
-                    indication = null,
-                    interactionSource = androidx.compose.foundation.interaction.MutableInteractionSource(),
-                    onClick = { onClose?.invoke() }
-                )
+        // mask 与 content 整体进入/退出，避免旧版 mask 残留
+        AnimatedVisibility(
+            visibleState = visibilityState,
+            enter = enterTransition,
+            exit = exitTransition
         ) {
-            // 弹层容器（白底+圆角按 position 变化）——用 AnimatedVisibility 包裹以提供进入/退出动画
-            AnimatedVisibility(
-                visible = visible,
-                enter = enterTransition,
-                exit = exitTransition
-            ) {
-            val shape = when (position) {
-                PopupPosition.CENTER -> RoundedCornerShape(radius)
-                PopupPosition.BOTTOM -> RoundedCornerShape(topStart = radius, topEnd = radius)
-                PopupPosition.TOP -> RoundedCornerShape(bottomStart = radius, bottomEnd = radius)
-                PopupPosition.LEFT -> RoundedCornerShape(topEnd = radius, bottomEnd = radius)
-                PopupPosition.RIGHT -> RoundedCornerShape(topStart = radius, bottomStart = radius)
-            }
-            val containerModifier = when (position) {
-                PopupPosition.CENTER -> Modifier
-                    .align(Alignment.Center)
-                    // 与 iOS PopupContainerView 一致：center 弹层最小宽度 240dp
-                    .defaultMinSize(minWidth = 240.dp)
-                    .clip(shape)
-                    .background(AppColor.bgCard, shape)
-                PopupPosition.BOTTOM -> Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    // v1.4.12：navigationBarsPadding 在 heightIn 之前（更外层），
-                    // 让 heightIn 限制的是 content 高度（不含 padding），
-                    // clip+background 在最后（最内层），只覆盖 content 区域，
-                    // padding 区域透明——弹层贴到安全区底部，可见高度=content 高度，与 iOS 一致
-                    .navigationBarsPadding()
-                    .heightIn(min = 120.dp)
-                    .clip(shape)
-                    .background(AppColor.bgCard, shape)
-                PopupPosition.TOP -> Modifier
-                    .align(Alignment.TopCenter)
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .heightIn(min = 120.dp)
-                    .clip(shape)
-                    .background(AppColor.bgCard, shape)
-                PopupPosition.LEFT -> Modifier
-                    .align(Alignment.CenterStart)
-                    .fillMaxHeight()
-                    .wrapContentWidth()
-                    .widthIn(min = 120.dp)
-                    .clip(shape)
-                    .background(AppColor.bgCard, shape)
-                PopupPosition.RIGHT -> Modifier
-                    .align(Alignment.CenterEnd)
-                    .fillMaxHeight()
-                    .wrapContentWidth()
-                    .widthIn(min = 120.dp)
-                    .clip(shape)
-                    .background(AppColor.bgCard, shape)
-            }
-            Box(
-                modifier = containerModifier
-                    .testTag(PopupTestTags.CONTAINER)
-                    .clickable(
-                        enabled = false,  // 阻止点击穿透到遮罩
-                        indication = null,
-                        interactionSource = androidx.compose.foundation.interaction.MutableInteractionSource(),
-                        onClick = {}
-                    )
-            ) {
-                // v1.4.10 统一 padding 与 iOS PopupContainerView 一致：
-                // - 顶部：closeable=40dp（closeButtonSize24 + inset8*2）, 非 closeable=4dp(AppSpace.sm)
-                // - 左右：16dp(AppSpace.lg)
-                // - 底部：4dp(AppSpace.sm)
-                val topPad = if (closeable) 40.dp else AppSpace.sm
-                Box(modifier = Modifier
-                    .then(modifier)
-                    .padding(
-                        top = topPad,
-                        start = AppSpace.lg,
-                        end = AppSpace.lg,
-                        bottom = AppSpace.sm
-                    )
-                ) {
-                    content()
-                }
-                // 关闭按钮
-                if (closeable) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(AppSpace.sm)
-                            .size(24.dp)
-                            .background(AppColor.gray6, RoundedCornerShape(50))
-                            .clickable { onClose?.invoke() }
-                            .testTag(PopupTestTags.CLOSE_BUTTON),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "关闭",
-                            tint = AppColor.textSecondary,
-                            modifier = Modifier.size(16.dp)
+            // 外层全屏 Box：mask（下层）与 content 定位层（上层）为平级兄弟节点
+            Box(modifier = Modifier.fillMaxSize()) {
+                // ── 平级子节点 1：蒙层（下层，负责遮罩色 + 点击空白关闭）──
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = MASK_ALPHA))
+                        .testTag(PopupTestTags.MASK)
+                        // 始终挂 clickable，enabled 由 closeOnClickOverlay 控制：
+                        // true→可点击收起；false→clickable 禁用（节点仍存在，assertIsNotEnabled 可断言）
+                        .clickable(
+                            enabled = closeOnClickOverlay,
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = { onClose?.invoke() }
                         )
+                )
+
+                // ── 平级子节点 2：内容定位层（上层，负责按 position 定位容器）──
+                // 用 contentAlignment 替代容器自身的 .align()，根治 AnimatedVisibility 内 align 失效。
+                // 本层 fillMaxSize 但无 clickable，点击容器外区域→穿透到下层 mask 触发关闭。
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = contentAlignment
+                ) {
+                    // 容器形状按 position 变化
+                    val shape = when (position) {
+                        PopupPosition.CENTER -> RoundedCornerShape(radius)
+                        PopupPosition.BOTTOM -> RoundedCornerShape(topStart = radius, topEnd = radius)
+                        PopupPosition.TOP -> RoundedCornerShape(bottomStart = radius, bottomEnd = radius)
+                        PopupPosition.LEFT -> RoundedCornerShape(topEnd = radius, bottomEnd = radius)
+                        PopupPosition.RIGHT -> RoundedCornerShape(topStart = radius, bottomStart = radius)
+                    }
+
+                    // 居中模式：宽度=内容，min=240dp，max=屏宽-32dp（与 iOS center 约束一致）
+                    val screenWidthDp = LocalConfiguration.current.screenWidthDp
+                    val maxCenterWidth = with(LocalDensity.current) { (screenWidthDp - AppSpace.lg.value * 2).toDp() }
+
+                    val containerModifier = when (position) {
+                        PopupPosition.CENTER -> Modifier
+                            // 宽度=内容，min=240dp，max=屏宽-32dp（与 iOS center 约束一致）
+                            .widthIn(min = 240.dp, max = maxCenterWidth)
+                        PopupPosition.BOTTOM -> Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            // navigationBarsPadding 在最外层：让 heightIn 限制 content 高度不含 padding，
+                            // 弹层贴到安全区底部（与 iOS safeArea bottom 对齐）
+                            .navigationBarsPadding()
+                            .heightIn(min = 120.dp)
+                        PopupPosition.TOP -> Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .heightIn(min = 120.dp)
+                        PopupPosition.LEFT -> Modifier
+                            .fillMaxHeight()
+                            .wrapContentWidth()
+                            .widthIn(min = 120.dp)
+                        PopupPosition.RIGHT -> Modifier
+                            .fillMaxHeight()
+                            .wrapContentWidth()
+                            .widthIn(min = 120.dp)
+                    }
+
+                    Box(
+                        modifier = containerModifier
+                            .clip(shape)
+                            .background(AppColor.bgCard, shape)
+                            .testTag(PopupTestTags.CONTAINER)
+                            // 消费容器内点击，阻止穿透到下层 mask（旧 clickable(enabled=false) 不可靠）
+                            .clickable(
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() },
+                                onClick = {}
+                            )
+                    ) {
+                        // 内容槽：统一 padding（与 iOS PopupContainerView 一致）
+                        val topPad = if (closeable) CLOSE_BUTTON_TOP_PAD.dp else AppSpace.sm
+                        Box(
+                            modifier = Modifier
+                                .then(modifier)
+                                .padding(
+                                    top = topPad,
+                                    start = AppSpace.lg,
+                                    end = AppSpace.lg,
+                                    bottom = AppSpace.sm
+                                )
+                        ) {
+                            content()
+                        }
+                        // 关闭按钮
+                        if (closeable) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(CLOSE_BUTTON_INSET)
+                                    .size(CLOSE_BUTTON_SIZE)
+                                    .background(AppColor.gray6, RoundedCornerShape(50))
+                                    .clickable { onClose?.invoke() }
+                                    .testTag(PopupTestTags.CLOSE_BUTTON),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "关闭",
+                                    tint = AppColor.textSecondary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }
-            } // AnimatedVisibility
         }
     }
 }

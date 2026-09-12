@@ -78,7 +78,7 @@ fun TrendChartView(
 
             val gridCount = 4
             val density = LocalDensity.current
-            val yAxisWPx = with(density) { 40.dp.toPx() }
+            val yAxisWPx = with(density) { 48.dp.toPx() }
             val xLabelHeightPx = with(density) { 24.dp.toPx() }
             val textSizePx = with(density) { AppFont.sizeXs.toPx() }
             val textPaint = remember(textSizePx) {
@@ -138,7 +138,7 @@ fun TrendChartView(
                             val x = yAxisWPx + if (count > 1) i * stepX else chartW / 2
                             val y = chartH * (1 - (pt.amount / maxVal).toFloat())
                             drawCircle(color = AppColor.expense, radius = 5f, center = Offset(x, y))
-                            drawCircle(color = AppColor.bgCard, radius = 2f, center = Offset(x, y))
+                            drawCircle(color = androidx.compose.ui.graphics.Color.White, radius = 2f, center = Offset(x, y))
                         }
                     }
                 }
@@ -159,7 +159,7 @@ fun TrendChartView(
                             val x = yAxisWPx + if (count > 1) i * stepX else chartW / 2
                             val y = chartH * (1 - (pt.amount / maxVal).toFloat())
                             drawCircle(color = AppColor.primary, radius = 5f, center = Offset(x, y))
-                            drawCircle(color = AppColor.bgCard, radius = 2f, center = Offset(x, y))
+                            drawCircle(color = androidx.compose.ui.graphics.Color.White, radius = 2f, center = Offset(x, y))
                         }
                     }
                 }

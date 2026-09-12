@@ -5504,7 +5504,9 @@
           "区间",
           "monthRange(2026, 7)"
         ]
-      ]
+      ],
+      "reviewed": true,
+      "note": "2026-09-12 C1.5 用户 Demo 实机验收通过（iOS/Android，任务清单 #89 foundation.calendar-tools，用户逐件报验收通过）"
     },
     {
       "id": "foundation.system-bars",
@@ -9056,6 +9058,357 @@
       "note": "步骤条 Steps（信息展示区组件 #75）：展示多步流程进度=数据驱动 items(title+desc+icon) + current 受控/自管理混合 + direction 横竖向 + 已完成对勾/当前高亮/未开始置灰三态 + 连线主色/灰色。2026-09-11 门禁 A AI 代评通过（design-spec/steps-design-spec.html + 评审记录/review-steps-A.md，P1–P4 全选最优）+ 门禁 B 双端实现入库（StepsView.swift=UIKit UIView+SnapKit / Steps.kt=Compose）+ iOS StepsShowcase/Android StepsDemo 4 段 1:1。验证版本 v1.4.30；统一待 C1.5 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版。",
       "subcategory": "display",
       "tier": "information-display",
+      "reviewed": true
+    },
+    {
+      "id": "ui.row",
+      "name": "行布局 Row",
+      "category": "ui",
+      "summary": "简单弹性分栏容器——Row 行容器 + Col 分栏子项，子项按任意整数 span 比例分配行宽（如 1:2:1=总 span 4），不绑定 12 栅格；justify 水平分布（Start/Center/End/SpaceBetween/SpaceAround）、align 垂直对齐（Top/Center/Bottom/Stretch）、gutter 子项间距",
+      "capabilities": [
+        "行布局",
+        "Row",
+        "分栏",
+        "Col",
+        "span 比例",
+        "justify",
+        "gutter",
+        "basic.row",
+        "ui.row"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "RowView.swift：UIView 子类，SnapKit 依 span 比例分栏 + justify/align/gutter 参数与 Compose 同构"
+        },
+        "android": {
+          "state": "available",
+          "note": "Row.kt：Compose Row 封装（Arrangement/Alignment 映射）+ RowScope.Col(weight=span)"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/RowView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Row.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [],
+      "visual_tokens": [
+        "color.primary",
+        "color.textPrimary",
+        "color.textSecondary",
+        "color.border",
+        "color.bgCard"
+      ],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "行布局 Row 分栏 Col span 比例 justify gutter basic.row ui.row",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "Row",
+        "行布局 Row"
+      ],
+      "props": [
+        [
+          "justify",
+          "RowJustify",
+          "否，默认 Start",
+          "水平分布：Start/Center/End/SpaceBetween/SpaceAround"
+        ],
+        [
+          "align",
+          "RowAlign",
+          "否，默认 Top",
+          "垂直对齐：Top/Center/Bottom/Stretch"
+        ],
+        [
+          "gutter",
+          "Dp",
+          "否，默认 0.dp",
+          "子项间距"
+        ],
+        [
+          "content",
+          "@Composable RowScope.() -> Unit",
+          "是",
+          "行内容，须用 Col 分栏"
+        ],
+        [
+          "Col.span",
+          "Int",
+          "是（Col 参数）",
+          "分栏比例，>=1，行宽按 span/总span 比例分配"
+        ]
+      ],
+      "events": [],
+      "demos": [
+        [
+          "比例分栏",
+          "D1：Row 内 Col(span) 1:2:1 比例分栏"
+        ],
+        [
+          "对齐方式",
+          "D2：align Top/Center/Bottom 对照"
+        ],
+        [
+          "分布方式",
+          "D3：justify SpaceBetween/SpaceAround 等 5 种对照"
+        ],
+        [
+          "间距",
+          "D4：gutter 子项间距"
+        ]
+      ],
+      "note": "行布局 Row（任务清单 #13，2026-09-12 双端实现入库当日 C1.5 用户 Demo 实机验收通过 iOS/Android）。与 Layout（12 栅格 span/12 固定）划界：Row 用任意整数 span 比例分配、不绑定 12 栅格。",
+      "subcategory": "layout",
+      "tier": "layout",
+      "reviewed": true
+    },
+    {
+      "id": "ui.table",
+      "name": "表格 Table",
+      "category": "ui",
+      "summary": "数据表格组件——columns 列定义（title/width/align）+ data 行数据（cells 字符串列表）驱动渲染；striped 斑马纹、stickyHeader 表头视觉强调、cellPadding 单元格内边距；数据超宽横向滚动（iOS UIScrollView/Android horizontalScroll）",
+      "capabilities": [
+        "表格",
+        "Table",
+        "斑马纹",
+        "表头",
+        "列宽",
+        "横向滚动",
+        "basic.table",
+        "ui.table"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "TableView.swift：UIKit UIStackView 行列布局+横向 UIScrollView，外框 border 无内格线（对齐 Android 色块风格）"
+        },
+        "android": {
+          "state": "available",
+          "note": "Table.kt：Compose Column+Row+horizontalScroll，RoundedCornerShape(AppRadius.lg) 外框+bgCard 底"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/TableView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Table.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [],
+      "visual_tokens": [
+        "color.primary",
+        "color.textPrimary",
+        "color.textSecondary",
+        "color.border",
+        "color.bgCard"
+      ],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "表格 Table 斑马纹 表头 列宽 横向滚动 basic.table ui.table",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "Table",
+        "表格 Table"
+      ],
+      "props": [
+        [
+          "columns",
+          "List<TableColumn>",
+          "是",
+          "列定义：title 列标题/width 列宽（null=均分）/align 对齐"
+        ],
+        [
+          "data",
+          "List<TableRow>",
+          "是",
+          "行数据：cells 字符串列表"
+        ],
+        [
+          "striped",
+          "Boolean",
+          "否，默认 false",
+          "斑马纹"
+        ],
+        [
+          "stickyHeader",
+          "Boolean",
+          "否，默认 false",
+          "表头视觉强调（一期不做滚动吸顶）"
+        ],
+        [
+          "cellPadding",
+          "Dp",
+          "否，默认 AppSpace.sm",
+          "单元格内边距"
+        ]
+      ],
+      "events": [],
+      "demos": [
+        [
+          "基础表格",
+          "D1：3 列 4 行基础渲染"
+        ],
+        [
+          "斑马纹",
+          "D2：striped=true 隔行着色"
+        ],
+        [
+          "自定义列宽",
+          "D3：width+align 自定义"
+        ],
+        [
+          "表头样式",
+          "D4：stickyHeader 表头吸顶视觉"
+        ]
+      ],
+      "note": "表格 Table（任务清单 #77，2026-09-11 信息展示区六组件批次入库；2026-09-12 C1.5 修复 iOS 去内格线对齐 Android 色块风格；当日 C1.5 用户 Demo 实机验收通过 iOS/Android）。",
+      "subcategory": "display",
+      "tier": "display",
+      "reviewed": true
+    },
+    {
+      "id": "ui.stepper",
+      "name": "步进器 Stepper",
+      "category": "ui",
+      "summary": "数值增减步进器——[−] 数值 [+] 三段布局，range 范围+step 步长约束，value 半受控（外部回显、点按经 onValueChange 回调）；enabled 禁用整壳 40% 灰",
+      "capabilities": [
+        "步进器",
+        "Stepper",
+        "数值增减",
+        "步长",
+        "范围约束",
+        "basic.stepper",
+        "ui.stepper"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "StepperView.swift：UIView [−] UIButton + 数值 UILabel + [+] UIButton 三段布局，范围/步长钳制"
+        },
+        "android": {
+          "state": "available",
+          "note": "Stepper.kt：Compose Row [−] Box + 数值 Box + [+] Box，coerceIn 钳制+step 取整"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/StepperView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Stepper.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [],
+      "visual_tokens": [
+        "color.primary",
+        "color.textPrimary",
+        "color.textSecondary",
+        "color.border",
+        "color.bgCard"
+      ],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "步进器 Stepper 数值增减 步长 范围约束 basic.stepper ui.stepper",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "Stepper",
+        "步进器 Stepper"
+      ],
+      "props": [
+        [
+          "value",
+          "Float",
+          "是",
+          "当前值（半受控：外部回显，点按经回调更新）"
+        ],
+        [
+          "range",
+          "ClosedFloatingPointRange<Float>",
+          "否，默认 0f..100f",
+          "取值范围（越界钳制）"
+        ],
+        [
+          "step",
+          "Float",
+          "否，默认 1f",
+          "单次步长"
+        ],
+        [
+          "enabled",
+          "Boolean",
+          "否，默认 true",
+          "禁用整壳 40% 灰不可点"
+        ]
+      ],
+      "events": [
+        [
+          "onValueChange",
+          "(Float) -> Unit?",
+          "点 [−]/[+] 后回调新值（已钳制范围与步长）；null=纯展示"
+        ]
+      ],
+      "demos": [
+        [
+          "基础步进",
+          "D1：默认 0..100 步长 1"
+        ],
+        [
+          "范围钳制",
+          "D2：range 边界 [−]/[+] 置灰"
+        ],
+        [
+          "自定义步长",
+          "D3：step=0.5 小数步进"
+        ],
+        [
+          "禁用态",
+          "D4：enabled=false 锁定"
+        ]
+      ],
+      "note": "步进器 Stepper（任务清单 #46，2026-09-12 双端实现入库当日 C1.5 用户 Demo 实机验收通过 iOS/Android）。与 Pagination（总页数跳页）/InputNumber（键盘输入+格式化）划界：Stepper 纯点按增减。",
+      "subcategory": "form",
+      "tier": "form",
       "reviewed": true
     }
   ],

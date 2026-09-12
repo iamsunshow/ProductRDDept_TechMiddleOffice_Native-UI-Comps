@@ -1915,7 +1915,7 @@ private fun CardDemo() {
 @Composable
 private fun LineChartDemo() {
     Text(
-        text = "LineChart 组件 v1.6.5",
+        text = "LineChart 组件 v1.7.5",
         color = AppColor.primary,
         fontSize = AppFont.sizeXs,
         fontWeight = FontWeight.Medium,

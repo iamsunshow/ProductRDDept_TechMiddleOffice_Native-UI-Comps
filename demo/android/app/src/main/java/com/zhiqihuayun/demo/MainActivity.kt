@@ -302,7 +302,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Indicator 指示器", reviewed = true, demo = { IndicatorDemo() }, passed = true),
         DemoComponent("Menu 菜单", reviewed = true, demo = { MenuDemo() }, passed = true),
         DemoComponent("NavBar 头部导航", reviewed = true, demo = { NavBarDemo() }, passed = true),
-        DemoComponent("Pagination 分页", reviewed = true, demo = { PaginationDemo() }),
+        DemoComponent("Pagination 分页", reviewed = true, passed = true, demo = { PaginationDemo() }),
         DemoComponent("SideBar 侧边导航", reviewed = true, demo = { SideBarDemo() }, passed = true),
         DemoComponent("SideNavBar 侧边导航栏"),
         DemoComponent("Tabbar 标签栏", reviewed = true, demo = { TabbarDemo() }, passed = true),

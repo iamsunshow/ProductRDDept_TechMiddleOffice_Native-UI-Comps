@@ -1,6 +1,6 @@
 {
-  "version": "1.6.9",
-  "versionKey": "v1.6.9",
+  "version": "1.7.0",
+  "versionKey": "v1.7.0",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.6.9] 2026-09-12 Changed：PickerView #34 + Slider #45 用户 C1.5 实机验收通过，状态 📋→✅。双端 Demo 代码 passed=true 同步：Android MainActivity.kt PickerViewDemo/SliderDemo（+StepperDemo 补 passed=true）；iOS DemoShowcases.swift ui.picker-view/ui.slider/ui.stepper passed: true。台账 #34/#45 状态更新 ✅ + 验收记录。xcodebuild + gradle 双端 0 错误。"
+  "changelog": "[1.7.0] 2026-09-12 Changed：Pagination #71 用户 C1.5 实机验收通过，台账补验收记录原话。双端 Demo 代码 passed=true 同步：Android MainActivity.kt PaginationDemo 加 passed=true；iOS DemoShowcases.swift ui.pagination 加 passed: true。xcodebuild + gradle 双端 0 错误。"
 }

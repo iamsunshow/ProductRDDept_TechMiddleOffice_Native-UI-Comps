@@ -1,5 +1,12 @@
 import UIKit
 
+// MARK: - 滚动关闭弹层通知（DropDown 弹层在页面滚动时自动消失，与 Android 同步）
+
+extension Notification.Name {
+    /// Demo 页面 scrollView 开始滚动时广播此通知，DropDown 弹层监听后自动 closePanel
+    static let scrollViewDidScrollNotification = Notification.Name("scrollViewDidScrollNotification")
+}
+
 // MARK: - ChevronView（自绘等边三角形，双端统一 8pt 尺寸）
 
 /// 自绘等边三角形箭头视图，替代 Unicode ▼ 字符和 Material ArrowDropDown 图标。
@@ -174,6 +181,8 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
     func openPanel(anchor: UIView? = nil) {
         isExpanded = true
         chevronView.isUp = true
+        // 监听页面滚动——滚动时自动关闭弹层（与 Android 行为同步）
+        NotificationCenter.default.addObserver(self, selector: #selector(closeOnScroll), name: .scrollViewDidScrollNotification, object: nil)
         let panel = UIView()
         panel.backgroundColor = AppColor.bgCard
         panel.layer.cornerRadius = AppRadius.md
@@ -225,9 +234,14 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
     public func closePanel() {
         isExpanded = false
         chevronView.isUp = false
+        NotificationCenter.default.removeObserver(self, name: .scrollViewDidScrollNotification, object: nil)
         panelView?.removeFromSuperview()
         panelView = nil
         tableView = nil
+    }
+
+    @objc private func closeOnScroll() {
+        closePanel()
     }
 
     private func syncDisplay() {

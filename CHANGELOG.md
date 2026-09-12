@@ -14,6 +14,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。 -->
 
+## \[1.6.8] - 2026-09-12（DropDown #21/22 iOS 弹层滚动时不消失）
+
+### Fixed
+
+- **iOS 弹层在页面滚动时悬停不消失（与 Android 不同步）**：根因=iOS `DropDownView` 弹层是 `addSubview` 到 window/keyView 的浮层，不跟随 `scrollView` 滚动，页面滚动时弹层悬停在原屏幕位置。修复：① 新增 `Notification.Name.scrollViewDidScrollNotification` 全局通知；② `ShowcaseViewController` 基类 `viewDidLoad` 给 `scrollView.panGestureRecognizer` 加 `target-action`，手势触发时广播通知（不用 `UIScrollViewDelegate` 避免与 `SideBarShowcase` 子类的 `delegate` 冲突）；③ `DropDownView` `openPanel` 时注册监听、`closePanel` 时移除监听，收到通知自动 `closePanel`。`DropDownMenuView` 的子 `DropDownView` 同样受益（`closeAll` 调 `closePanel` 移除监听）。`xcodebuild` 0 错误。
+
 ## \[1.6.7] - 2026-09-12（DropDown #21/22 双端三角大小统一）
 
 ### Fixed

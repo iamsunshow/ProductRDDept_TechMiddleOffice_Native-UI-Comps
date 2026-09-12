@@ -1,6 +1,6 @@
 {
-  "version": "1.6.7",
-  "versionKey": "v1.6.7",
+  "version": "1.6.8",
+  "versionKey": "v1.6.8",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.6.7] 2026-09-12 Fixed：DropDown #21/22 双端三角大小不一致 + iOS Demo1/Demo2 三角大小不一致。根因=iOS Demo1 DropDownView 用 Unicode ▼ 字符 12pt 字体渲染、iOS Demo2 DropDownMenuView 用 Unicode ▼ 跟标题同字体 AppFont.sizeMd（更大）、Android 用 Material Icons ArrowDropDown 默认 24dp 矢量图标——三处大小都不一样且非等边三角。修复：① iOS 新增 ChevronView（自绘等边三角形 UIBezierPath，8×8pt 固定，isUp 翻转方向）替代所有 Unicode ▼；iOS DropDownView Demo1 + DropDownMenuView Demo2 均改用 ChevronView 统一 8pt；② Android DropDown/DropDownMenu 的 Icon 加 Modifier.size(8.dp) 从 24dp 缩到 8dp。双端三角统一为 8pt 等边三角形。xcodebuild 0 错误 + gradle BUILD SUCCESSFUL 0 错误。"
+  "changelog": "[1.6.8] 2026-09-12 Fixed：DropDown #21/22 iOS 弹层在页面滚动时悬停不消失（与 Android 不同步）。根因=iOS DropDownView 弹层是 addSubview 到 window/keyView 的浮层，不跟随 scrollView 滚动，页面滚动时弹层悬停在原屏幕位置。修复：① 新增 Notification.Name.scrollViewDidScrollNotification 全局通知；② ShowcaseViewController 基类 viewDidLoad 给 scrollView.panGestureRecognizer 加 target-action，手势触发时广播通知（不用 UIScrollViewDelegate 避免与 SideBarShowcase 子类的 delegate 冲突）；③ DropDownView openPanel 时注册监听、closePanel 时移除监听，收到通知自动 closePanel。DropDownMenuView 的子 DropDownView 同样受益（closeAll 调 closePanel 移除监听）。xcodebuild 0 错误。"
 }

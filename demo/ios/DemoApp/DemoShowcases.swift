@@ -243,6 +243,10 @@ class ShowcaseViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = AppColor.bgPage
         scrollView.alwaysBounceVertical = true
+        // 页面滚动时广播通知——DropDown 弹层监听后自动关闭（与 Android 同步）
+        // 用 panGestureRecognizer 的 state 变化而非 UIScrollViewDelegate，避免与子类（如 SideBarShowcase）的 delegate 冲突
+        let pan = scrollView.panGestureRecognizer
+        pan.addTarget(self, action: #selector(onPageScroll))
         contentStack.axis = .vertical
         contentStack.spacing = AppSpace.lg
         contentStack.alignment = .fill
@@ -259,6 +263,11 @@ class ShowcaseViewController: UIViewController {
             make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
             make.width.equalTo(scrollView).offset(-AppSpace.lg * 2)
         }
+    }
+
+    @objc private func onPageScroll() {
+        // 页面滚动时广播通知——DropDown 弹层监听后自动 closePanel（与 Android 同步）
+        NotificationCenter.default.post(name: .scrollViewDidScrollNotification, object: nil)
     }
 
     func addSection(title: String, _ block: (UIView) -> Void) {

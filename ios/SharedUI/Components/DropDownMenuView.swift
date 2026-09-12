@@ -91,18 +91,21 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
         titleLabel.textColor = AppColor.textSecondary
         titleLabel.text = title
         addSubview(titleLabel)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         valueLabel.font = .systemFont(ofSize: AppFont.sizeMd)
         valueLabel.textColor = AppColor.textPrimary
         valueLabel.textAlignment = .right
         valueLabel.lineBreakMode = .byTruncatingTail
         addSubview(valueLabel)
+        valueLabel.translatesAutoresizingMaskIntoConstraints = false
 
         chevronLabel.font = .systemFont(ofSize: 12)
         chevronLabel.textColor = AppColor.textSecondary.withAlphaComponent(0.5)
         chevronLabel.text = "▼"
         chevronLabel.textAlignment = .center
         addSubview(chevronLabel)
+        chevronLabel.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
             triggerButton.topAnchor.constraint(equalTo: topAnchor),

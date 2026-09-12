@@ -14,6 +14,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。 -->
 
+## \[1.6.4] - 2026-09-12（DropDown #21 iOS 触发区域文字不可见）
+
+### Fixed
+
+- **DropDown #21 iOS Demo1/4 触发区域文字不可见**：根因=`DropDownView.buildUI()` 中 `triggerButton` 设置了 `translatesAutoresizingMaskIntoConstraints = false`，但 `titleLabel`/`valueLabel`/`chevronLabel` 未设置——导致 `NSLayoutConstraint.activate` 中涉及这三个 Label 的约束不生效（UIKit 从 autoresizing mask 自动生成约束覆盖手动约束），Label 宽度为 0 文字不可见；`triggerButton` 约束正常所以点击区域可响应。修复：`titleLabel`/`valueLabel`/`chevronLabel` 各补 `translatesAutoresizingMaskIntoConstraints = false`。`xcodebuild` BUILD SUCCEEDED 0 错误。
+
 ## \[1.6.3] - 2026-09-12（ImageView #44 双端图片不一致修复）
 
 ### Fixed

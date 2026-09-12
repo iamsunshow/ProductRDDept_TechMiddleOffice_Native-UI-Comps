@@ -14,6 +14,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]。各条内容独立、均已验证。 -->
 
+## \[1.5.8] - 2026-09-12（Slider #45）
+
+### Fixed
+
+- **Slider #45 iOS 滑块无法拖动**：根因=`SliderView` 继承 `UIControl` 用 `beginTracking/continueTracking/endTracking` 处理拖拽——这套机制依赖 UIKit touch 事件传递链（touchesBegan→touchesMoved→touchesEnded），而父 `UIScrollView` 默认 `canCancelContentTouches=true`，当用户在 Slider 上按下并拖动时，ScrollView 识别到手势后会调用 `touchesCancelled` 取消子视图的 touch tracking，导致 Slider 的 `continueTracking` 永远收不到 move 事件——Slider 完全无法拖动。修复：弃用 UIControl tracking 机制，改用 `UIPanGestureRecognizer`（拖拽）+ `UITapGestureRecognizer`（点击轨道跳转）——手势识别器由系统手势引擎统一调度，优先级高于 touch tracking，不会被 ScrollView 取消；同时实现 `UIGestureRecognizerDelegate.gestureRecognizerShouldRecognizeSimultaneouslyWith` 返回 `true`，让 Slider 的水平 pan 与父 ScrollView 的纵向 pan 并存（用户在 Slider 上水平拖=滑块移动、在 Slider 外垂直拖=页面滚动）。pan 算法改用 translation 增量计算（`began` 时记录起始 ratio、`changed` 时按平移增量更新 ratio），比旧版绝对坐标更稳定，不受 bounds 宽度抖动影响。xcodebuild BUILD SUCCEEDED 0 错误。
+
 ## \[1.5.7] - 2026-09-12（Pagination #71）
 
 ### Fixed

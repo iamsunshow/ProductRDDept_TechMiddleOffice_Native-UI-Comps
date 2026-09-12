@@ -1956,6 +1956,7 @@ final class RowShowcase: ShowcaseViewController {
             row.snp.makeConstraints { make in
                 make.top.equalToSuperview().offset(AppSpace.md)
                 make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                make.bottom.equalToSuperview()
             }
             let colors: [UIColor] = [AppColor.primaryMuted, AppColor.primary, AppColor.primaryMuted]
             let labels = ["span 1", "span 1", "span 1"]
@@ -1976,6 +1977,7 @@ final class RowShowcase: ShowcaseViewController {
             row.snp.makeConstraints { make in
                 make.top.equalToSuperview().offset(AppSpace.md)
                 make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                make.bottom.equalToSuperview()
             }
             let items: [(String, Int, UIColor)] = [
                 ("span 1", 1, AppColor.primaryMuted),
@@ -1999,6 +2001,7 @@ final class RowShowcase: ShowcaseViewController {
             row.snp.makeConstraints { make in
                 make.top.equalToSuperview().offset(AppSpace.md)
                 make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                make.bottom.equalToSuperview()
             }
             let items: [(String, Int)] = [("span 1", 1), ("span 1", 1), ("span 1", 1)]
             row.addCols(items.map { label, span in
@@ -2013,11 +2016,16 @@ final class RowShowcase: ShowcaseViewController {
 
         // ── Demo 4：垂直对齐对照 ──
         addSection(title: "Demo 4 · 垂直对齐（top / center / bottom）") { container in
+            var prevBottom: ConstraintItem? = nil
             for (label, align) in [("top", RowAlign.top), ("center", RowAlign.center), ("bottom", RowAlign.bottom)] {
                 let row = RowView(align: align, gutter: AppSpace.sm)
                 container.addSubview(row)
                 row.snp.makeConstraints { make in
-                    make.top.equalToSuperview().offset(AppSpace.md)
+                    if let prev = prevBottom {
+                        make.top.equalTo(prev).offset(AppSpace.md)
+                    } else {
+                        make.top.equalToSuperview().offset(AppSpace.md)
+                    }
                     make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
                     make.height.equalTo(60)
                 }
@@ -2041,6 +2049,11 @@ final class RowShowcase: ShowcaseViewController {
                 tag.textColor = AppColor.textSecondary
                 container.addSubview(tag)
                 tag.snp.makeConstraints { $0.top.equalTo(row.snp.bottom).offset(AppSpace.xs); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+                prevBottom = tag.snp.bottom
+            }
+            // 最后一个 tag 的 bottom 锚定容器底部，撑开容器高度
+            if let last = prevBottom {
+                container.snp.makeConstraints { $0.bottom.equalTo(last) }
             }
         }
         addInfo("RowView(align:) 控制子项垂直对齐：top 顶部 / center 居中 / bottom 底部。")

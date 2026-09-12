@@ -93,10 +93,15 @@ final class TagView: UIView {
         layer.cornerRadius = AppRadius.sm
         clipsToBounds = true
 
+        // === 诊断色（排查后删除）===
+        // 红色=TagView 本体；蓝色=contentStack；黄色=label；紫色=closeIcon
+        self.backgroundColor = .red.withAlphaComponent(0.8)
+
         // 内部用 UIStackView 水平排列 label + closeIcon，与 Android Compose Row 同构
         contentStack.axis = .horizontal
         contentStack.alignment = .center
         contentStack.spacing = 2
+        contentStack.backgroundColor = .blue.withAlphaComponent(0.5)
         addSubview(contentStack)
         contentStack.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(tagSize.paddingH)
@@ -105,12 +110,16 @@ final class TagView: UIView {
         }
 
         label.textAlignment = .center
+        label.backgroundColor = .yellow
+        label.numberOfLines = 1
+        label.lineBreakMode = .byClipping
         label.setContentHuggingPriority(.required, for: .horizontal)
         label.setContentCompressionResistancePriority(.required, for: .horizontal)
         contentStack.addArrangedSubview(label)
 
         closeIcon.contentMode = .scaleAspectFit
         closeIcon.image = UIImage(systemName: "xmark")
+        closeIcon.backgroundColor = .purple
         closeIcon.isUserInteractionEnabled = true
         closeIcon.setContentHuggingPriority(.required, for: .horizontal)
         closeIcon.setContentCompressionResistancePriority(.required, for: .horizontal)

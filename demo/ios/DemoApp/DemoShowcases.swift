@@ -11523,7 +11523,7 @@ final class VirtualListShowcase: ShowcaseViewController {
             list.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview()
                 make.height.equalTo(300)
-                make.top.bottom.equalToSuperview()
+                make.centerY.equalToSuperview()
             }
         }
         addInfo("排查点：100 条数据仅渲染可见区域，快速滚动流畅。")
@@ -11538,7 +11538,7 @@ final class VirtualListShowcase: ShowcaseViewController {
             list.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview()
                 make.height.equalTo(300)
-                make.top.bottom.equalToSuperview()
+                make.centerY.equalToSuperview()
             }
         }
         addInfo("排查点：每项有主标题+副标题，行高 64pt。")
@@ -11552,7 +11552,7 @@ final class VirtualListShowcase: ShowcaseViewController {
             list.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview()
                 make.height.equalTo(250)
-                make.top.bottom.equalToSuperview()
+                make.centerY.equalToSuperview()
             }
         }
         addInfo("排查点：无分隔线。")
@@ -11565,7 +11565,7 @@ final class VirtualListShowcase: ShowcaseViewController {
             list.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview()
                 make.height.equalTo(200)
-                make.top.bottom.equalToSuperview()
+                make.centerY.equalToSuperview()
             }
         }
         addInfo("排查点：居中显示「列表为空，下拉刷新试试」。")

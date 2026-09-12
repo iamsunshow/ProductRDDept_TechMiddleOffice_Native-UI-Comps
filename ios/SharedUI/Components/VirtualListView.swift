@@ -51,6 +51,7 @@ final class VirtualListView: UIView {
         }
 
         // 表格
+        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
@@ -68,6 +69,13 @@ final class VirtualListView: UIView {
         emptyLabel.text = emptyText
         emptyLabel.isHidden = !items.isEmpty
         tableView.isHidden = items.isEmpty
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        if window != nil && !items.isEmpty {
+            tableView.reloadData()
+        }
     }
 }
 
@@ -89,6 +97,7 @@ extension VirtualListView: UITableViewDataSource {
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
 
         let titleLabel = UILabel()
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = item.title
         titleLabel.textColor = AppColor.textPrimary
         titleLabel.font = .systemFont(ofSize: AppFont.sizeMd, weight: .medium)
@@ -97,6 +106,7 @@ extension VirtualListView: UITableViewDataSource {
 
         if let subtitle = item.subtitle {
             let subtitleLabel = UILabel()
+            subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
             subtitleLabel.text = subtitle
             subtitleLabel.textColor = AppColor.textSecondary
             subtitleLabel.font = .systemFont(ofSize: AppFont.sizeSm)

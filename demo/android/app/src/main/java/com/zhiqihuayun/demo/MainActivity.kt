@@ -9578,7 +9578,7 @@ private fun VirtualListDemo() {
         Text("D2 双行列表（带副标题）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
         val d2Items = remember { (1..50).map { VirtualListItem(title = "订单 #$it", subtitle = "2026-09-${(it % 28 + 1).toString().padStart(2, '0')}  ¥${it * 10}.00") } }
         Box(modifier = Modifier.fillMaxWidth().height(300.dp)) {
-            VirtualList(items = d2Items)
+            VirtualList(items = d2Items, itemHeight = 64.dp)
         }
         Text("排查点：每项有主标题+副标题，行高 64dp，分隔线可见。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 

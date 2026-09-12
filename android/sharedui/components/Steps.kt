@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -75,6 +76,13 @@ private enum class StepState { Finished, Active, Inactive }
 
 /** 步骤圆点尺寸。 */
 private val CircleSize = 24.dp
+
+/**
+ * 竖向相邻圆点的间距（圆底→下一圆顶）。
+ * 原实现=连线 40dp + 行外 Spacer 16dp=56dp，但 Spacer 在连线之外导致线与下一圆断开；
+ * 现间距全部并入连线高度（台账 #55）。
+ */
+private val VerticalStepGap = CircleSize + AppSpace.md + AppSpace.md
 
 /**
  * 步骤条：展示多步流程进度。
@@ -116,6 +124,8 @@ fun Steps(
                     index = index,
                     state = state,
                     isLast = index == items.lastIndex,
+                    // 左半段（上一圆心→本圆心）属于连线 index-1→index：index-1 < current 即已完成
+                    prevConnectorActive = index > 0 && index - 1 < effectiveCurrent,
                     onClick = { handleClick(index) },
                     modifier = Modifier.weight(1f),
                 )
@@ -151,6 +161,7 @@ private fun HorizontalStep(
     index: Int,
     state: StepState,
     isLast: Boolean,
+    prevConnectorActive: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -159,16 +170,34 @@ private fun HorizontalStep(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // 圆点 + 横向连线
+        // 圆点 + 横向连线。
+        // 连线几何对齐设计规格 .steps-h .line{left:50%;right:-50%}：每个等宽 cell 内
+        // 用「左半段（cell 左缘→本圆心）+ 右半段（本圆心→cell 右缘）」与相邻 cell 拼接，
+        // 形成圆心→圆心贯穿线；圆片不透明、后绘制，盖住圆心处线头（台账 #55）。
+        // 旧实现仅有右半段且到 cell 右缘为止，与下一圆心空半列=视觉断开。
         Box(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("steps-hcell-$index"),
             contentAlignment = Alignment.Center,
         ) {
-            // 连线（圆点右侧到容器右端）
+            // 左半段：属于连线 index-1→index，首步不画（线不从屏左伸出）
+            if (index > 0) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .testTag("steps-hline-left-$index")
+                        .fillMaxWidth(0.5f)
+                        .height(1.dp)
+                        .background(if (prevConnectorActive) AppColor.primary else AppColor.gray6)
+                )
+            }
+            // 右半段：属于连线 index→index+1，末步不画
             if (!isLast) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
+                        .testTag("steps-hline-right-$index")
                         .fillMaxWidth(0.5f)
                         .height(1.dp)
                         .background(if (state == StepState.Finished) AppColor.primary else AppColor.gray6)
@@ -208,16 +237,20 @@ private fun VerticalStep(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top,
     ) {
-        // 圆点 + 竖向连线（Column 结构：圆点在上，连线从圆点底部开始向下延伸）
+        // 圆点 + 竖向连线。对齐设计规格 .steps-v .line{top:24px;bottom:0}：
+        // 连线从圆底一直延伸到下一圆顶（间距 VerticalStepGap 全部并入线高，
+        // 不再用行外 Spacer——旧实现 Spacer 在线外造成 16dp 断点，台账 #55）。
         Column(
+            modifier = Modifier.testTag("steps-vcell-$index"),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             StepCircle(item, index, state, clickable, onClick)
             if (!isLast) {
                 Box(
                     modifier = Modifier
+                        .testTag("steps-vline-$index")
                         .width(1.dp)
-                        .height(CircleSize + AppSpace.md)
+                        .height(VerticalStepGap)
                         .background(if (state == StepState.Finished) AppColor.primary else AppColor.gray6)
                 )
             }
@@ -239,7 +272,7 @@ private fun VerticalStep(
             }
         }
     }
-    if (!isLast) Spacer(Modifier.height(AppSpace.md))
+    // 竖向行距已包含在 steps-vline 高度内，此处不再加行外 Spacer（否则连线断开）。
 }
 
 @Composable
@@ -276,6 +309,7 @@ private fun StepCircle(
     }
 
     val circleModifier = Modifier
+        .testTag("steps-circle-$index")
         .size(CircleSize)
         .clip(CircleShape)
         .background(bgColor)

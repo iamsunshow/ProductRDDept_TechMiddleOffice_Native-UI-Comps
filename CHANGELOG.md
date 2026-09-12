@@ -12,15 +12,15 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
-<!-- 版本号说明（2026-09-12）：[1.5.4] 同日出现两条=Slider（commit 890ec0b，14:00）与 Pagination（commit 4e553f7，14:03）两个会话并发提交撞号，内容各自独立、均已验证，不改史；后续版本从 1.5.5 起顺延。 -->
+<!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]。各条内容独立、均已验证。 -->
 
-## \[1.5.5] - 2026-09-12
+## \[1.5.6] - 2026-09-12（Steps #75）
 
 ### Fixed
 
 - **Steps #75 双端连线与步骤节点断开**：设计规格 CSS 原型 `.steps-h .line{left:50%;right:-50%}` 明确连线应**圆心→圆心贯穿**（圆片不透明、层级在线之上盖住线头）。两端旧实现都只把线画到等宽 cell 的边界，与下一圆心空半列；Android 竖向还在连线之外另加 16dp 行外 Spacer 造成竖线断口。Android `Steps.kt`：横向每个 cell 补「左半段（cell 左缘→本圆心）」与相邻 cell 的右半段无缝拼接，左半段颜色随连线 index-1 的完成态（`index-1 < current` 主色）；竖向 56dp 行距全部并入连线高度、删除行外 Spacer；圆/线补 testTag。iOS `StepsView.swift`：横线 `leading=本圆心`，`rebuild()` 全部 cell 建完后跨 cell 约束 `trailing=下一圆点 centerX`（不能用 multiplier 乘自身 centerX，cell 原点非零时会被一起放大），line 先于圆点 `addSubview` 置于圆下层；竖向 fillEqually 本就连到下一圆顶，无需改。新增 `StepsTest` 3 例 Robolectric 真绿：横向 4 圆+左右半段各 3 根（首无左/末无右）、三条连线圆心→圆心无缝拼接且垂直居中、竖向竖线圆底→下一圆顶零间隙。
 
-## \[1.5.5] - 2026-09-12
+## \[1.5.5] - 2026-09-12（DropDown，commit ecb4285）
 
 ### Fixed
 

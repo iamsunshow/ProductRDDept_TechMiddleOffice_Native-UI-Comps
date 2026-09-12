@@ -1,6 +1,6 @@
 {
-  "version": "1.5.5",
-  "versionKey": "v1.5.5",
+  "version": "1.5.6",
+  "versionKey": "v1.5.6",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.5.5] 2026-09-12 Fixed：DropDown/DropDownMenu iOS Demo 不可见+按钮无法点击——Demo 1/2/3 容器缺 bottom 约束致高度 0；openPanel panel 从 self 改挂 window 避免 hitTest 裁切；DropDownMenuView columnTapped 传 bar button 作 anchor 使面板定位到按钮下方。"
+  "changelog": "[1.5.6] 2026-09-12 Fixed：Steps #75 双端连线与节点断开修复——设计规格 .steps-h .line{left:50%;right:-50%} 要求连线圆心→圆心贯穿（圆片盖住线头）：Android 横向补左半段（cell 左缘→本圆心）与相邻 cell 右半段拼接、竖向 56dp 间距全部并入连线高度并删行外 Spacer；iOS 横线 leading 改本圆心、rebuild 后跨 cell 约束 trailing 到下一圆心、line 先于圆点 addSubview 置于圆下层。新增 StepsTest 3 例真绿（台账 #55）。注：原拟 1.5.5 号被并发提交 ecb4285（DropDown）占用且草稿被卷入，Steps 顺延 1.5.6（撞号说明见 CHANGELOG 页首注释）。"
 }

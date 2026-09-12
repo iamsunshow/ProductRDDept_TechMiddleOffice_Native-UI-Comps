@@ -132,12 +132,29 @@ final class StepsView: UIView {
             containerStack.addArrangedSubview(step.container)
             stepViews.append((circle: step.circle, content: step.content, title: step.title, line: step.line, tap: step.tap))
         }
+
+        // 横向：每根线的 trailing 跨 cell 约束到「下一圆点中心」，形成圆心→圆心贯穿线
+        // （与 Android 左半段+右半段拼接等价；台账 #55）。
+        if direction == .horizontal {
+            for index in stepViews.indices.dropLast() {
+                stepViews[index].line.snp.makeConstraints { make in
+                    make.trailing.equalTo(stepViews[index + 1].circle.snp.centerX)
+                }
+            }
+        }
+
         applyState()
     }
 
     /// 构造单个步骤视图。
     private func makeStep(index: Int, item: StepsItem) -> (container: UIView, circle: UIView, content: UILabel, title: UILabel, line: UIView, tap: UIView) {
         let container = UIView()
+
+        // 连线（非末项）。必须先于圆点 addSubview（插到最底层）：
+        // 横向线头起自圆心，圆片不透明要盖住线头；下一 cell 的圆点是更晚加入 stack 的
+        // 兄弟视图，天然压在本 cell 延伸出去的线段之上（台账 #55）。
+        let line = UIView()
+        container.addSubview(line)
 
         // 圆点
         let circle = UIView()
@@ -177,10 +194,6 @@ final class StepsView: UIView {
         }
         container.addSubview(textStack)
 
-        // 连线（非末项）
-        let line = UIView()
-        container.addSubview(line)
-
         // 点击区域（覆盖圆点附近，仅已完成步骤可点）
         let tap = UIView()
         tap.tag = index
@@ -189,7 +202,7 @@ final class StepsView: UIView {
         container.addSubview(tap)
 
         if direction == .horizontal {
-            // 横向：圆点顶部居中，文字在下方，连线从圆右到容器右。
+            // 横向：圆点顶部居中，文字在下方。
             circle.snp.makeConstraints { make in
                 make.top.equalToSuperview()
                 make.centerX.equalToSuperview()
@@ -203,10 +216,14 @@ final class StepsView: UIView {
                 make.leading.trailing.equalToSuperview().inset(AppSpace.xs)
                 make.bottom.lessThanOrEqualToSuperview()
             }
+            // 连线对齐设计规格 .steps-h .line{left:50%;right:-50%}：
+            // 从本圆心延伸到「下一 cell 的圆心」（trailing 在 rebuild() 全部 cell 建完后
+            // 跨 cell 约束到下一圆点 centerX——不能用 multiplier 乘自身 centerX，cell 原点
+            // 非零时会把原点一起放大）。line 已先于圆点 addSubview，线头被圆片盖住。
+            // 旧约束 leading=圆右缘/trailing=容器右缘只到 cell 边界，与下一圆心空半列=断开（台账 #55）。
             line.snp.makeConstraints { make in
                 make.centerY.equalTo(circle)
-                make.leading.equalTo(circle.snp.trailing)
-                make.trailing.equalToSuperview()
+                make.leading.equalTo(circle.snp.centerX)
                 make.height.equalTo(1)
             }
             tap.snp.makeConstraints { make in

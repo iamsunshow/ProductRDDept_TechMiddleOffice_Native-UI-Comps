@@ -46,6 +46,9 @@
 		636E8C175ABF21B6AE0573AB /* TabbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E68BFD488162143861BA49FE /* TabbarView.swift */; };
 		644AAE29B25E0B72CE1E9B4A /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0952D53D0A3C8E3BAB69163 /* LoadingView.swift */; };
 		6753220B8C6D7CFE662C0BFC /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E836CB28AC03E3ED99EEF45 /* PickerView.swift */; };
+		B2C3D4E5F6A7B8C9D0E1F2A3 /* DropDownMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* DropDownMenuView.swift */; };
+		D4E5F6A7B8C9D0E1F2A3B4C5 /* SliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D4E5F6A7B8C9D0E1F2A3B4 /* SliderView.swift */; };
+		F6A7B8C9D0E1F2A3B4C5D6E7 /* StepperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F6A7B8C9D0E1F2A3B4C5D6 /* StepperView.swift */; };
 		6F17CFC7CC8433CD6DC9BA68 /* DragListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA686F3A3798F3380CAF7217 /* DragListView.swift */; };
 		77784848AE80919C6DF2812A /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = A1937672A8F1834D8E28B01B /* Alamofire */; };
 		7867E75E0807F965C4EFBFFE /* Divider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FED4353597E9B842647F56A /* Divider.swift */; };
@@ -157,6 +160,9 @@
 		8BE7157E8358BD83641702AD /* Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Layout.swift; sourceTree = "<group>"; };
 		8C54D7F8239BF55B2F043010 /* SnapKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SnapKit; path = ../../ios/Vendor/SnapKit; sourceTree = SOURCE_ROOT; };
 		8E836CB28AC03E3ED99EEF45 /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* DropDownMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownMenuView.swift; sourceTree = "<group>"; };
+		C3D4E5F6A7B8C9D0E1F2A3B4 /* SliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderView.swift; sourceTree = "<group>"; };
+		E5F6A7B8C9D0E1F2A3B4C5D6 /* StepperView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepperView.swift; sourceTree = "<group>"; };
 		8F17F2603BDDFC72B15C7406 /* TabsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabsView.swift; sourceTree = "<group>"; };
 		8F3D282267864AB86708A7FC /* NavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavBar.swift; sourceTree = "<group>"; };
 		8FED4353597E9B842647F56A /* Divider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Divider.swift; sourceTree = "<group>"; };
@@ -261,6 +267,7 @@
 				17B2FFC21FC4162A986616D7 /* DialogView.swift */,
 				8FED4353597E9B842647F56A /* Divider.swift */,
 				DA686F3A3798F3380CAF7217 /* DragListView.swift */,
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* DropDownMenuView.swift */,
 				BA4601A45E257F163B431219 /* ElevatorView.swift */,
 				A2EC0A0BD82939162495E85B /* EllipsisView.swift */,
 				F295938F4E6BAC2624AD41C9 /* EmptyStateView.swift */,
@@ -304,8 +311,10 @@
 				7A9FDF5F402CF5BDAC481F0A /* SideBarView.swift */,
 				5CF31B70A12CD4631183B369 /* SignatureView.swift */,
 				0AACCD6F063388FAC4DB1EB2 /* SkeletonView.swift */,
+				C3D4E5F6A7B8C9D0E1F2A3B4 /* SliderView.swift */,
 				DF29FDC740652956F7064440 /* Space.swift */,
 				B5DC7ACAE7B12A6723E77209 /* StepsView.swift */,
+				E5F6A7B8C9D0E1F2A3B4C5D6 /* StepperView.swift */,
 				56144D3FE8D7F55AA21E1D9D /* StickyView.swift */,
 				BD534E7B115B6495F8904031 /* SummaryCardView.swift */,
 				DBBA1DA11E0A802D4B242862 /* SwipeView.swift */,
@@ -574,6 +583,7 @@
 				9C1714171038C5343544C3A5 /* DialogView.swift in Sources */,
 				7867E75E0807F965C4EFBFFE /* Divider.swift in Sources */,
 				6F17CFC7CC8433CD6DC9BA68 /* DragListView.swift in Sources */,
+				B2C3D4E5F6A7B8C9D0E1F2A3 /* DropDownMenuView.swift in Sources */,
 				E30F8E4043BEB9FD4FCF4CEE /* ElevatorView.swift in Sources */,
 				4AB1D4256BF87DFC98A1CC29 /* EllipsisView.swift in Sources */,
 				D2295DD7E8703BA4CC6B7CEE /* EmptyStateView.swift in Sources */,
@@ -620,9 +630,11 @@
 				F29A612F1F36D150FCB070BC /* SideBarView.swift in Sources */,
 				9C7D3CAF77F36BDF9C450798 /* SignatureView.swift in Sources */,
 				03700320400B13350FF1C9AD /* SkeletonView.swift in Sources */,
+				D4E5F6A7B8C9D0E1F2A3B4C5 /* SliderView.swift in Sources */,
 				B28005CBA5D50DC53574C6A8 /* Space.swift in Sources */,
 				EACD9C4AB942B3B95BF92906 /* StatusBarNavigationController.swift in Sources */,
 				2681477D30EB1D23B4949C5A /* StepsView.swift in Sources */,
+				F6A7B8C9D0E1F2A3B4C5D6E7 /* StepperView.swift in Sources */,
 				79C43BC8AB52D09DA37CCEA6 /* StickyView.swift in Sources */,
 				13BCCC89E28C0FC6B2308C6C /* SummaryCardView.swift in Sources */,
 				33884E092E074F53897AB209 /* SwipeView.swift in Sources */,

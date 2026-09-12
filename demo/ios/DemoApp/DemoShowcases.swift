@@ -50,8 +50,8 @@ final class DemoListViewController: UITableViewController {
         ]),
         ("导航组件", [
             DemoComponent(id: "ui.back-top", name: "BackTop 返回顶部", reviewed: true, create: { BackTopShowcase() }, passed: true),
-            DemoComponent(id: "ui.dropdown", name: "DropDown 下拉菜单", reviewed: false, create: nil),
-            DemoComponent(id: "ui.dropdown-menu", name: "DropDownMenu 下拉菜单项", reviewed: false, create: nil),
+            DemoComponent(id: "ui.dropdown", name: "DropDown 下拉菜单", reviewed: true, create: { DropDownMenuShowcase() }),
+            DemoComponent(id: "ui.dropdown-menu", name: "DropDownMenu 下拉菜单项", reviewed: true, create: { DropDownMenuShowcase() }),
             DemoComponent(id: "ui.elevator", name: "Elevator 电梯楼层", reviewed: true, create: { ElevatorShowcase() }, passed: true),
             DemoComponent(id: "ui.fixed-nav", name: "FixedNav 悬浮导航", reviewed: true, create: { FixedNavShowcase() }, passed: true),
             DemoComponent(id: "ui.hover-button", name: "HoverButton 悬浮按钮", reviewed: true, create: { HoverButtonShowcase() }, passed: true),
@@ -71,21 +71,21 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.checkbox", name: "Checkbox 复选", reviewed: true, create: { CheckboxShowcase() }, passed: true),
             DemoComponent(id: "ui.date-picker", name: "DatePicker 日期选择", reviewed: true, create: { DatePickerShowcase() }, passed: true),
             DemoComponent(id: "ui.form", name: "Form 表单", reviewed: true, create: { FormShowcase() }, passed: true),
-            DemoComponent(id: "ui.image-view", name: "ImageView 图片视图", reviewed: false, create: nil),
+            DemoComponent(id: "ui.image-view", name: "ImageView 图片视图", reviewed: true, create: { ImageViewShowcase() }),
             DemoComponent(id: "ui.input", name: "Input 输入框", reviewed: true, create: { InputShowcase() }, passed: true),
             DemoComponent(id: "ui.input-number", name: "InputNumber 数字输入", reviewed: true, create: { InputNumberShowcase() }, passed: true),
             DemoComponent(id: "ui.keyboard", name: "Keyboard 键盘", reviewed: false, create: nil),
             DemoComponent(id: "ui.number-keyboard", name: "NumberKeyboard 数字键盘", reviewed: true, create: { NumberKeyboardShowcase() }, passed: true),
             DemoComponent(id: "ui.picker", name: "Picker 选择器", reviewed: true, create: { PickerShowcase() }, passed: true),
-            DemoComponent(id: "ui.picker-view", name: "PickerView 多列选择器", reviewed: false, create: nil),
+            DemoComponent(id: "ui.picker-view", name: "PickerView 多列选择器", reviewed: true, create: { PickerViewShowcase() }),
             DemoComponent(id: "ui.radio", name: "Radio 单选", reviewed: true, create: { RadioShowcase() }, passed: true),
             DemoComponent(id: "ui.range", name: "Range 区间选择", reviewed: true, create: { RangeShowcase() }, passed: true),
             DemoComponent(id: "ui.rate", name: "Rate 评分", reviewed: true, create: { RateShowcase() }, passed: true),
             DemoComponent(id: "ui.search-bar", name: "SearchBar 搜索栏", reviewed: true, create: { SearchBarShowcase() }, passed: true),
             DemoComponent(id: "ui.short-password", name: "ShortPassword 短密码", reviewed: true, create: { ShortPasswordShowcase() }, passed: true),
             DemoComponent(id: "ui.signature", name: "Signature 签名", reviewed: true, create: { SignatureShowcase() }, passed: true),
-            DemoComponent(id: "ui.slider", name: "Slider 滑块", reviewed: false, create: nil),
-            DemoComponent(id: "ui.stepper", name: "Stepper 步进器", reviewed: false, create: nil),
+            DemoComponent(id: "ui.slider", name: "Slider 滑块", reviewed: true, create: { SliderShowcase() }),
+            DemoComponent(id: "ui.stepper", name: "Stepper 步进器", reviewed: true, create: { StepperShowcase() }),
             DemoComponent(id: "ui.switch", name: "Switch 开关", reviewed: true, create: { SwitchShowcase() }, passed: true),
             DemoComponent(id: "ui.textarea", name: "TextArea 文本域", reviewed: true, create: { TextAreaShowcase() }, passed: true),
             DemoComponent(id: "ui.uploader", name: "Uploader 上传", reviewed: true, create: { UploaderShowcase() }, passed: true),
@@ -6943,7 +6943,8 @@ final class PickerShowcase: ShowcaseViewController {
                 title: "付款方式",
                 onChange: { [weak self] v in
                     current = v
-                    self?.setD1Message("确定 → \(self?.label(of: self!.payOptions, value: v) ?? v)（value 受控同步）")
+                    self?.feedbackLabel1?.text = "确定 → \(self?.label(of: self!.payOptions, value: v) ?? v)（value 受控同步）"
+                self?.feedbackLabel1?.textColor = AppColor.primary
                 }
             )
             picker.backgroundColor = AppColor.bgCard
@@ -6961,7 +6962,8 @@ final class PickerShowcase: ShowcaseViewController {
                 title: "选择账本",
                 onChange: { [weak self] v in
                     current = v
-                    self?.setD2Message("确定 → \(self?.label(of: self!.ledgers, value: v) ?? v)")
+                    self?.feedbackLabel2?.text = "确定 → \(self?.label(of: self!.ledgers, value: v) ?? v)"
+                self?.feedbackLabel2?.textColor = AppColor.primary
                 }
             )
             picker.backgroundColor = AppColor.bgCard
@@ -11423,6 +11425,288 @@ final class VirtualListShowcase: ShowcaseViewController {
             }
         }
         addInfo("排查点：居中显示「列表为空，下拉刷新试试」。")
+    }
+}
+
+// MARK: - DropDownMenuShowcase
+
+final class DropDownMenuShowcase: ShowcaseViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "DropDown / DropDownMenu", version: "v1.0", builtAt: "2026-09-12")
+
+        addSection(title: "Demo 1 · DropDown 基础下拉") { container in
+            let opts = [DropDownOption(value: "asc", text: "默认排序"), DropDownOption(value: "price_asc", text: "价格从低到高"), DropDownOption(value: "price_desc", text: "价格从高到低"), DropDownOption(value: "sales", text: "销量优先")]
+            let dd = DropDownView(title: "排序方式", options: opts, value: "asc")
+            container.addSubview(dd)
+            dd.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg) }
+        }
+        addInfo("点击触发行展开浮层面板；选中项 ✓ 标记 + primary 高亮；点选项即收起。")
+
+        addSection(title: "Demo 2 · DropDownMenu 多列容器") { container in
+            let items = [
+                DropDownMenuItem(title: "排序", options: [DropDownOption(value: "default", text: "默认"), DropDownOption(value: "sales", text: "销量"), DropDownOption(value: "price", text: "价格")], value: "default"),
+                DropDownMenuItem(title: "筛选", options: [DropDownOption(value: "all", text: "全部"), DropDownOption(value: "new", text: "新品"), DropDownOption(value: "hot", text: "热门")], value: "all")
+            ]
+            let menu = DropDownMenuView(items: items)
+            container.addSubview(menu)
+            menu.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.md) }
+        }
+        addInfo("水平等分按钮栏 + 展开浮层；同时只展开一列，切换时自动关闭前一列。")
+
+        addSection(title: "Demo 3 · 禁用态") { container in
+            let opts = [DropDownOption(value: "a", text: "选项 A"), DropDownOption(value: "b", text: "选项 B")]
+            let dd = DropDownView(title: "禁用下拉", options: opts, value: "a", disabled: true)
+            container.addSubview(dd)
+            dd.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg) }
+        }
+        addInfo("disabled=true：整体 40% 灰不可点。")
+
+        addSection(title: "Demo 4 · 受控外部驱动") { container in
+            let opts = [DropDownOption(value: "a", text: "选项 A"), DropDownOption(value: "b", text: "选项 B"), DropDownOption(value: "c", text: "选项 C")]
+            let dd = DropDownView(title: "受控下拉", options: opts, value: "a")
+            container.addSubview(dd)
+            dd.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.width.equalTo(200) }
+            let btn = UIButton(type: .system)
+            btn.setTitle("外部切到 C", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs)
+            btn.addAction(UIAction { _ in dd.value = "c" }, for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { $0.top.equalTo(dd.snp.bottom).offset(AppSpace.sm); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+        }
+        addInfo("外部赋值 value 仅同步显示（不触发 onChange）。")
+    }
+}
+
+// MARK: - SliderShowcase
+
+final class SliderShowcase: ShowcaseViewController {
+    private var feedbackLabel1: UILabel?
+    private var feedbackLabel2: UILabel?
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Slider", version: "v1.0", builtAt: "2026-09-12")
+
+        addSection(title: "Demo 1 · 基础滑块（连续 0~100）") { container in
+            let slider = SliderView(value: 30, min: 0, max: 100) { [weak self] v in
+                self?.feedbackLabel1?.text = "onChange → \(Int(v))"
+                self?.feedbackLabel1?.textColor = AppColor.primary
+            }
+            container.addSubview(slider)
+            slider.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(44) }
+        }
+        feedbackLabel1 = addDynamicInfo("拖拽/点击轨道移动 thumb；激活段 primary 填充。")
+
+        addSection(title: "Demo 2 · 分档滑块（step=20）") { container in
+            let slider = SliderView(value: 40, min: 0, max: 100, step: 20) { [weak self] v in
+                self?.feedbackLabel2?.text = "onChange → \(Int(v))（吸附 0/20/40/60/80/100）"
+                self?.feedbackLabel2?.textColor = AppColor.primary
+            }
+            container.addSubview(slider)
+            slider.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(44) }
+        }
+        feedbackLabel2 = addDynamicInfo("step=20：拖拽释放吸附最近档位。")
+
+        addSection(title: "Demo 3 · 禁用态") { container in
+            let slider = SliderView(value: 60, min: 0, max: 100, disabled: true)
+            container.addSubview(slider)
+            slider.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(44) }
+        }
+        addInfo("disabled=true：整体 40% 灰不可拖。")
+
+        addSection(title: "Demo 4 · 受控外部驱动") { container in
+            let slider = SliderView(value: 50, min: 0, max: 100)
+            container.addSubview(slider)
+            slider.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(44) }
+            let btn = UIButton(type: .system)
+            btn.setTitle("外部设值 → 80", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs)
+            btn.addAction(UIAction { _ in slider.value = 80 }, for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { $0.top.equalTo(slider.snp.bottom).offset(AppSpace.sm); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+        }
+        addInfo("外部赋值 value 仅同步 thumb 位置（不触发 onChange）。")
+    }
+}
+
+// MARK: - StepperShowcase
+
+final class StepperShowcase: ShowcaseViewController {
+    private var feedbackLabel1: UILabel?
+    private var feedbackLabel2: UILabel?
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "Stepper", version: "v1.0", builtAt: "2026-09-12")
+
+        addSection(title: "Demo 1 · 基础步进器（0~10 step=1）") { container in
+            let stepper = StepperView(value: 3, min: 0, max: 10, step: 1) { [weak self] v in
+                self?.feedbackLabel1?.text = "onChange → \(Int(v))"
+                self?.feedbackLabel1?.textColor = AppColor.primary
+            }
+            container.addSubview(stepper)
+            stepper.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+        }
+        feedbackLabel1 = addDynamicInfo("[−] / [+] 按钮步进；到达 min/max 时对应按钮灰显。")
+
+        addSection(title: "Demo 2 · 小数步进（step=0.5）") { container in
+            let stepper = StepperView(value: 1.0, min: 0, max: 5, step: 0.5) { [weak self] v in
+                self?.feedbackLabel2?.text = "onChange → \(v)"
+                self?.feedbackLabel2?.textColor = AppColor.primary
+            }
+            container.addSubview(stepper)
+            stepper.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+        }
+        feedbackLabel2 = addDynamicInfo("step=0.5：显示一位小数。")
+
+        addSection(title: "Demo 3 · 禁用态") { container in
+            let stepper = StepperView(value: 5, min: 0, max: 10, disabled: true)
+            container.addSubview(stepper)
+            stepper.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+        }
+        addInfo("disabled=true：整体 40% 灰不可点。")
+
+        addSection(title: "Demo 4 · 受控外部驱动") { container in
+            let stepper = StepperView(value: 5, min: 0, max: 20, step: 1)
+            container.addSubview(stepper)
+            stepper.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+            let btn = UIButton(type: .system)
+            btn.setTitle("外部设值 → 15", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs)
+            btn.addAction(UIAction { _ in stepper.value = 15 }, for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { $0.top.equalTo(stepper.snp.bottom).offset(AppSpace.sm); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+        }
+        addInfo("外部赋值 value 仅同步显示（不触发 onChange）。")
+    }
+}
+
+// MARK: - ImageViewShowcase
+
+final class ImageViewShowcase: ShowcaseViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "ImageView", version: "v1.0", builtAt: "2026-09-12")
+
+        addSection(title: "Demo 1 · 基础图片展示") { container in
+            let img = UIImageView()
+            img.contentMode = .scaleAspectFill
+            img.clipsToBounds = true
+            img.backgroundColor = AppColor.bgPage
+            img.image = UIImage(systemName: "photo.fill")
+            img.tintColor = AppColor.textSecondary.withAlphaComponent(0.5)
+            container.addSubview(img)
+            img.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(160) }
+            img.layer.cornerRadius = AppRadius.md
+        }
+        addInfo("Image 组件已实现（v1.3.3）：支持 fit 三态 / radius 圆角 / 加载失败占位。ImageView 复用 Image 组件。")
+
+        addSection(title: "Demo 2 · 圆角变体") { container in
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.spacing = AppSpace.md
+            row.distribution = .fillEqually
+            container.addSubview(row)
+            row.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg) }
+            for (label, radius) in [("radiusSm", AppRadius.sm), ("radiusMd", AppRadius.md), ("full", 999)] {
+                let img = UIImageView()
+                img.contentMode = .scaleAspectFill
+                img.clipsToBounds = true
+                img.backgroundColor = AppColor.bgPage
+                img.image = UIImage(systemName: "photo.fill")
+                img.tintColor = AppColor.textSecondary.withAlphaComponent(0.5)
+                img.layer.cornerRadius = radius
+                row.addArrangedSubview(img)
+                img.snp.makeConstraints { $0.height.equalTo(80) }
+            }
+        }
+        addInfo("radiusSm / radiusMd / full（宽/2 圆角）三态。")
+
+        addSection(title: "Demo 3 · 加载失败占位") { container in
+            let img = UIImageView()
+            img.contentMode = .scaleAspectFit
+            img.clipsToBounds = true
+            img.backgroundColor = AppColor.bgPage
+            img.image = UIImage(systemName: "exclamationmark.triangle.fill")
+            img.tintColor = AppColor.textSecondary.withAlphaComponent(0.5)
+            container.addSubview(img)
+            img.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.width.height.equalTo(100) }
+            img.layer.cornerRadius = AppRadius.md
+        }
+        addInfo("加载失败时显示占位图形（Image 组件状态机已处理）。")
+
+        addSection(title: "Demo 4 · fit 模式") { container in
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.spacing = AppSpace.sm
+            container.addSubview(row)
+            row.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg) }
+            for mode in [UIView.ContentMode.scaleToFill, UIView.ContentMode.scaleAspectFit, UIView.ContentMode.scaleAspectFill] {
+                let img = UIImageView()
+                img.contentMode = mode
+                img.clipsToBounds = true
+                img.backgroundColor = AppColor.bgPage
+                img.image = UIImage(systemName: "photo.fill")
+                img.tintColor = AppColor.primary
+                row.addArrangedSubview(img)
+                img.snp.makeConstraints { $0.width.equalTo(80); $0.height.equalTo(80) }
+            }
+        }
+        addInfo("fill / fit / fill 三种 contentMode 示意。")
+    }
+}
+
+// MARK: - PickerViewShowcase
+
+final class PickerViewShowcase: ShowcaseViewController {
+    private let provinces: [PickerOption] = [
+        PickerOption(value: "bj", text: "北京市"), PickerOption(value: "sh", text: "上海市"),
+        PickerOption(value: "gd", text: "广东省"), PickerOption(value: "zj", text: "浙江省"),
+        PickerOption(value: "js", text: "江苏省"), PickerOption(value: "sc", text: "四川省")
+    ]
+    private let cities: [PickerOption] = [
+        PickerOption(value: "cd", text: "成都市"), PickerOption(value: "mianyang", text: "绵阳市"),
+        PickerOption(value: "deyang", text: "德阳市"), PickerOption(value: "leshan", text: "乐山市")
+    ]
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addVersionBadge(componentName: "PickerView", version: "v1.0", builtAt: "2026-09-12")
+
+        addSection(title: "Demo 1 · 单列基础") { container in
+            let picker = PickerView(options: self.provinces, value: "gd", title: "选择省份")
+            picker.backgroundColor = AppColor.bgCard
+            self.pinFullWidth(picker, in: container)
+        }
+        addInfo("单列滚轮选择器内容块=工具栏 44 + 滚轮 220；确定提交 / 取消滚回 value。")
+
+        addSection(title: "Demo 2 · 选项禁用") { container in
+            let opts = self.provinces + [PickerOption(value: "tw", text: "台湾省（暂不可选）", disabled: true)]
+            let picker = PickerView(options: opts, value: "bj", title: "选择省份")
+            picker.backgroundColor = AppColor.bgCard
+            self.pinFullWidth(picker, in: container)
+        }
+        addInfo("disabled 选项灰显且滚掠不可停靠（自动吸附最近可用行）。")
+
+        addSection(title: "Demo 3 · 禁用态") { container in
+            let picker = PickerView(options: self.provinces, value: "sh", disabled: true, title: "选择省份")
+            picker.backgroundColor = AppColor.bgCard
+            self.pinFullWidth(picker, in: container)
+        }
+        addInfo("disabled=true：整体 40% 灰 + 滚轮/工具栏不可交互。")
+
+        addSection(title: "Demo 4 · 受控外部驱动") { container in
+            let picker = PickerView(options: self.cities, value: "cd", title: "选择城市")
+            picker.backgroundColor = AppColor.bgCard
+            self.pinFullWidth(picker, in: container)
+            picker.snp.makeConstraints { $0.bottom.equalToSuperview().offset(-AppSpace.md) }
+            let btn = UIButton(type: .system)
+            btn.setTitle("外部切到乐山", for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs)
+            btn.addAction(UIAction { _ in picker.value = "leshan" }, for: .touchUpInside)
+            container.addSubview(btn)
+            btn.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+        }
+        addInfo("外部赋值 value 仅同步滚轮位置（不触发 onChange）。")
     }
 }
 

@@ -1,0 +1,223 @@
+package com.zhiqihuayun.sharedui.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import com.zhiqihuayun.foundation.design.AppColor
+import com.zhiqihuayun.foundation.design.AppFont
+import com.zhiqihuayun.foundation.design.AppRadius
+import com.zhiqihuayun.foundation.design.AppSpace
+
+// MARK: - Data models
+
+/// DropDown 选项数据
+data class DropDownOption(val value: String, val text: String)
+
+/// DropDownMenu 菜单项数据
+data class DropDownMenuItem(
+    val title: String,
+    val options: List<DropDownOption>,
+    var value: String = ""
+)
+
+// MARK: - DropDown
+
+/**
+ * DropDown 下拉菜单（导航组件 · ui.dropdown）：单列下拉选择器。
+ *
+ * 视觉：触发行高 44 灰底圆角，右侧 chevron 指示；点击展开 Material3 DropdownMenu；
+ * 选中项 primary 高亮；点选项即收起。
+ * 语义：value 受控选中值；onValueChange 选中回调；disabled 整体 40% 灰不可点。
+ */
+@Composable
+fun DropDown(
+    title: String = "请选择",
+    options: List<DropDownOption>,
+    value: String = "",
+    onValueChange: ((String) -> Unit)? = null,
+    disabled: Boolean = false,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val selectedText = options.firstOrNull { it.value == value }?.text ?: title
+
+    Box(modifier = modifier.testTag("dropdown-root")) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(44.dp)
+                .alpha(if (disabled) 0.4f else 1f)
+                .clip(RoundedCornerShape(AppRadius.md))
+                .background(AppColor.bgPage)
+                .clickable(enabled = !disabled) { expanded = !expanded }
+                .padding(horizontal = AppSpace.md),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = title,
+                fontSize = AppFont.sizeSm,
+                color = AppColor.textSecondary,
+                maxLines = 1
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = selectedText,
+                    fontSize = AppFont.sizeMd,
+                    color = if (options.any { it.value == value }) AppColor.textPrimary else AppColor.textSecondary.copy(alpha = 0.5f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.width(120.dp)
+                )
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = null,
+                    tint = AppColor.textSecondary.copy(alpha = 0.5f)
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.background(AppColor.bgCard)
+        ) {
+            options.forEach { opt ->
+                val selected = opt.value == value
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = opt.text,
+                            color = if (selected) AppColor.primary else AppColor.textPrimary,
+                            fontSize = AppFont.sizeMd
+                        )
+                    },
+                    onClick = {
+                        onValueChange?.invoke(opt.value)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+// MARK: - DropDownMenu
+
+/**
+ * DropDownMenu 下拉菜单容器（导航组件 · ui.dropdown-menu）：管理多个下拉列。
+ *
+ * 视觉：水平等分按钮栏 + 展开浮层；同时只展开一列。
+ * 语义：items 数据源；onValueChange(index, value) 选中回调。
+ */
+@Composable
+fun DropDownMenu(
+    items: List<DropDownMenuItem>,
+    onValueChange: ((Int, String) -> Unit)? = null,
+    modifier: Modifier = Modifier
+) {
+    var expandedIndex by remember { mutableStateOf(-1) }
+
+    Column(modifier = modifier.testTag("dropdown-menu-root")) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(AppSpace.xs)
+        ) {
+            items.forEachIndexed { index, item ->
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(44.dp)
+                        .clip(RoundedCornerShape(AppRadius.md))
+                        .background(AppColor.bgPage)
+                        .clickable {
+                            expandedIndex = if (expandedIndex == index) -1 else index
+                        }
+                        .padding(horizontal = AppSpace.sm),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = item.title,
+                            fontSize = AppFont.sizeMd,
+                            color = AppColor.textPrimary,
+                            maxLines = 1
+                        )
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = null,
+                            tint = AppColor.textSecondary.copy(alpha = 0.5f)
+                        )
+                    }
+                }
+            }
+        }
+
+        // 展开面板区
+        Box(modifier = Modifier.fillMaxWidth()) {
+            items.forEachIndexed { index, item ->
+                if (expandedIndex == index) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(AppRadius.md))
+                            .background(AppColor.bgCard)
+                            .padding(vertical = AppSpace.xs)
+                    ) {
+                        item.options.forEach { opt ->
+                            val selected = opt.value == item.value
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        onValueChange?.invoke(index, opt.value)
+                                        expandedIndex = -1
+                                    }
+                                    .padding(horizontal = AppSpace.md, vertical = AppSpace.sm),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = opt.text,
+                                    fontSize = AppFont.sizeMd,
+                                    color = if (selected) AppColor.primary else AppColor.textPrimary,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                if (selected) {
+                                    Text("✓", color = AppColor.primary, fontSize = AppFont.sizeMd)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

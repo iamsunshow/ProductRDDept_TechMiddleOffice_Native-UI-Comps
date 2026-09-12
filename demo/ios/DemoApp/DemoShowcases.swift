@@ -138,7 +138,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.virtual-list", name: "VirtualList 虚拟列表", reviewed: true, create: { VirtualListShowcase() }),
         ]),
         ("图表组件", [
-            DemoComponent(id: "ui.line-chart", name: "LineChart 折线图", reviewed: true, create: { LineChartShowcase() }),
+            DemoComponent(id: "ui.line-chart", name: "LineChart 折线图", reviewed: true, create: { LineChartShowcase() }, passed: true),
         ]),
         ("特色组件", [
             DemoComponent(id: "ui.quick-enter", name: "QuickEnter 快捷入口", reviewed: false, create: nil),

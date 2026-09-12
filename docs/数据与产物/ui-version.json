@@ -1,6 +1,6 @@
 {
-  "version": "1.7.5",
-  "versionKey": "v1.7.5",
+  "version": "1.7.6",
+  "versionKey": "v1.7.6",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.7.5] 2026-09-12 Fixed：iOS Tag 文字不可见第三次修复——根因=layoutSubviews() 中调用 snp.updateConstraints 导致布局循环，label 宽度被压成 0。重写 TagView 用内部 UIStackView（contentStack）水平排列 label+closeIcon（与 Android Compose Row 同构），删除 layoutSubviews() override，closeIcon 改 SnapKit width/height 约束，label 补 .required hugging+compression resistance 防挤压。xcodebuild 0 错误。"
+  "changelog": "[1.7.6] 2026-09-12 Changed：LineChart #84 C1.5 用户实机验收通过（v1.7.5 复验，原话「LineChart：已通过」）——双端 Demo 列表 passed=true 同步：Android MainActivity.kt「图表组件」分组 LineChart 项 + iOS DemoShowcases.swift 图表组件 section ui.line-chart；进度表 ui.line-chart 行、台账 #59 收口补验收原话。组件层零改动。"
 }

@@ -382,7 +382,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("VirtualList 虚拟列表", reviewed = true, demo = { VirtualListDemo() }),
     ),
     "图表组件" to listOf(
-        DemoComponent("LineChart 折线图", reviewed = true, demo = { LineChartDemo() }),
+        DemoComponent("LineChart 折线图", reviewed = true, passed = true, demo = { LineChartDemo() }),
     ),
     "特色组件" to listOf(
         DemoComponent("QuickEnter 快捷入口"),

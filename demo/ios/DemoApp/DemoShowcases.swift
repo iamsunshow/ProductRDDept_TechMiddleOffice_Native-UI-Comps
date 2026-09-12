@@ -11629,7 +11629,7 @@ final class SliderShowcase: ShowcaseViewController {
                 self?.feedbackLabel1?.textColor = AppColor.primary
             }
             container.addSubview(slider)
-            slider.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(44) }
+            slider.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(44); $0.bottom.equalToSuperview() }
         }
         feedbackLabel1 = addDynamicInfo("拖拽/点击轨道移动 thumb；激活段 primary 填充。")
 
@@ -11639,14 +11639,14 @@ final class SliderShowcase: ShowcaseViewController {
                 self?.feedbackLabel2?.textColor = AppColor.primary
             }
             container.addSubview(slider)
-            slider.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(44) }
+            slider.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(44); $0.bottom.equalToSuperview() }
         }
         feedbackLabel2 = addDynamicInfo("step=20：拖拽释放吸附最近档位。")
 
         addSection(title: "Demo 3 · 禁用态") { container in
             let slider = SliderView(value: 60, min: 0, max: 100, disabled: true)
             container.addSubview(slider)
-            slider.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(44) }
+            slider.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(44); $0.bottom.equalToSuperview() }
         }
         addInfo("disabled=true：整体 40% 灰不可拖。")
 
@@ -11659,7 +11659,7 @@ final class SliderShowcase: ShowcaseViewController {
             btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs)
             btn.addAction(UIAction { _ in slider.value = 80 }, for: .touchUpInside)
             container.addSubview(btn)
-            btn.snp.makeConstraints { $0.top.equalTo(slider.snp.bottom).offset(AppSpace.sm); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+            btn.snp.makeConstraints { $0.top.equalTo(slider.snp.bottom).offset(AppSpace.sm); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.bottom.equalToSuperview().offset(-AppSpace.md) }
         }
         addInfo("外部赋值 value 仅同步 thumb 位置（不触发 onChange）。")
     }

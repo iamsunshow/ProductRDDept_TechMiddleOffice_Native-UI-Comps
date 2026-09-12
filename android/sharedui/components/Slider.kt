@@ -130,7 +130,7 @@ fun Slider(
                 .offset {
                     IntOffset(
                         x = (thumbOffsetPx - halfThumb).toInt(),
-                        y = with(density) { ((SliderComponentHeight - SliderThumbSize) / 2).toPx() }.toInt()
+                        y = 0
                     )
                 }
                 .shadow(4.dp, CircleShape)

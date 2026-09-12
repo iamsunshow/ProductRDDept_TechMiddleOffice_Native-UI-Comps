@@ -129,7 +129,7 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
         isExpanded ? closePanel() : openPanel()
     }
 
-    func openPanel() {
+    func openPanel(anchor: UIView? = nil) {
         isExpanded = true
         chevronLabel.text = "▲"
         let panel = UIView()
@@ -139,16 +139,10 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
         panel.layer.shadowOpacity = 0.12
         panel.layer.shadowRadius = 8
         panel.layer.shadowOffset = CGSize(width: 0, height: 4)
-        addSubview(panel)
-        panel.translatesAutoresizingMaskIntoConstraints = false
+        panel.clipsToBounds = true
+
         let rows = min(options.count, 6)
         let height = CGFloat(rows) * Metrics.panelRowHeight
-        NSLayoutConstraint.activate([
-            panel.topAnchor.constraint(equalTo: triggerButton.bottomAnchor, constant: 4),
-            panel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            panel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            panel.heightAnchor.constraint(equalToConstant: height),
-        ])
 
         let tv = UITableView(frame: .zero, style: .plain)
         tv.dataSource = self
@@ -165,9 +159,25 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
             tv.trailingAnchor.constraint(equalTo: panel.trailingAnchor),
             tv.bottomAnchor.constraint(equalTo: panel.bottomAnchor),
         ])
+
+        let anchorView = anchor ?? triggerButton
+        let hostView: UIView
+        if let window = anchorView.window {
+            hostView = window
+        } else {
+            hostView = self
+        }
+        hostView.addSubview(panel)
+        panel.translatesAutoresizingMaskIntoConstraints = false
+        let anchorFrame = anchorView.convert(anchorView.bounds, to: hostView)
+        NSLayoutConstraint.activate([
+            panel.topAnchor.constraint(equalTo: hostView.topAnchor, constant: anchorFrame.maxY + 4),
+            panel.leadingAnchor.constraint(equalTo: hostView.leadingAnchor, constant: anchorFrame.minX),
+            panel.widthAnchor.constraint(equalToConstant: anchorFrame.width),
+            panel.heightAnchor.constraint(equalToConstant: height),
+        ])
         panelView = panel
         tableView = tv
-        superview?.bringSubviewToFront(self)
     }
 
     public func closePanel() {
@@ -327,8 +337,7 @@ public class DropDownMenuView: UIView {
             closeAll()
         } else {
             closeAll()
-            dropDowns[idx].isHidden = false
-            dropDowns[idx].openPanel()
+            dropDowns[idx].openPanel(anchor: buttons[idx])
             buttons[idx].setTitle(items[idx].title + " ▲", for: .normal)
             currentIndex = idx
         }
@@ -337,7 +346,6 @@ public class DropDownMenuView: UIView {
     private func closeAll() {
         for (i, dd) in dropDowns.enumerated() {
             dd.closePanel()
-            dd.isHidden = true
             buttons[i].setTitle(items[i].title + " ▼", for: .normal)
         }
         currentIndex = -1

@@ -18,7 +18,7 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ### Fixed
 
-- **Row Demo 1-3 iOS 色块不可见**：`RowShowcase` Demo 1-3 的 `RowView` 仅用 `top + bottom.equalToSuperview()` 约束填满容器，但容器是 `UIStackView` 中的 `UIView` 无固有高度→高度链断裂→`makeBox` 的 `UIView`（无 intrinsicContentSize）坍缩为 0 高→浅绿色（`primaryMuted`）和深绿色（`primary`）色块不可见，与 Android `DemoColBox` 的 `.height(40.dp)` 不一致。修复：Demo 1-3 的 `RowView` 约束补 `make.height.equalTo(40)`，与 Android `DemoColBox` 40dp 固定高度对齐；Demo 4 不受影响（已用 `height.equalTo(60)`）。
+- **Row Demo 1-3 iOS 色块不可见**：`RowShowcase` Demo 1-3 的 `RowView` 仅用 `top + bottom.equalToSuperview()` 约束填满容器，但容器是 `UIStackView` 中的 `UIView` 无固有高度→高度链断裂→`makeBox` 的 `UIView`（无 intrinsicContentSize）坍缩为 0 高→浅绿色（`primaryMuted`）和深绿色（`primary`）色块不可见，与 Android `DemoColBox` 的 `.height(40.dp)` 不一致。修复：Demo 1-3 的 `RowView` 约束补 `make.height.equalTo(40)`，与 Android `DemoColBox` 40dp 固定高度对齐；Demo 4 不受影响（已用 `height.equalTo(60)`）。补充（工作区遗留改动随提交）：外层 RowView 定高后内层 `makeBox` 色块经 ColView 传递仍可能坍缩，Demo 1-3 内层色块约束追加 `$0.height.equalTo(40)` 双保险。
 
 ## \[1.5.2] - 2026-09-12
 

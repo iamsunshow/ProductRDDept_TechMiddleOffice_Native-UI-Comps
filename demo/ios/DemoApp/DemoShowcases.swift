@@ -1964,7 +1964,7 @@ final class RowShowcase: ShowcaseViewController {
                 let col = ColView(span: 1)
                 let box = self.makeBox(text: label, bg: color)
                 col.addSubview(box)
-                box.snp.makeConstraints { $0.edges.equalToSuperview() }
+                box.snp.makeConstraints { $0.edges.equalToSuperview(); $0.height.equalTo(40) }
                 return col
             })
         }
@@ -1989,7 +1989,7 @@ final class RowShowcase: ShowcaseViewController {
                 let col = ColView(span: span)
                 let box = self.makeBox(text: label, bg: color)
                 col.addSubview(box)
-                box.snp.makeConstraints { $0.edges.equalToSuperview() }
+                box.snp.makeConstraints { $0.edges.equalToSuperview(); $0.height.equalTo(40) }
                 return col
             })
         }
@@ -2010,7 +2010,7 @@ final class RowShowcase: ShowcaseViewController {
                 let col = ColView(span: span)
                 let box = self.makeBox(text: label, bg: AppColor.primaryMuted)
                 col.addSubview(box)
-                box.snp.makeConstraints { $0.edges.equalToSuperview() }
+                box.snp.makeConstraints { $0.edges.equalToSuperview(); $0.height.equalTo(40) }
                 return col
             })
         }

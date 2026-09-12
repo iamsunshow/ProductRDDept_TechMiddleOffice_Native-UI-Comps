@@ -125,6 +125,13 @@ final class PaginationView: UIView {
             make.top.bottom.trailing.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.sm, left: 0, bottom: AppSpace.sm, right: AppSpace.sm))
             make.leading.equalTo(contentRow.snp.trailing).offset(AppSpace.xs)
         }
+
+        // 显式高度 = 导航按钮尺寸 + 上下间距。
+        // UIScrollView 无 intrinsicContentSize，UIStackView 无法从内部约束推断高度，
+        // 必须显式指定以避免高度为 0 导致内容被 clipsToBounds 裁切。
+        snp.makeConstraints { make in
+            make.height.equalTo(AppSpace.lg + AppSpace.sm * 2)
+        }
     }
 
     // MARK: - 总页数
@@ -156,20 +163,20 @@ final class PaginationView: UIView {
         prev.snp.makeConstraints { make in make.center.equalToSuperview() }
 
         // UIScrollView 内部约束规则：
-        // - top.bottom.equalToSuperview() → 定义内容高度（= 按钮高度）
-        // - leading → 第一个元素的 leading 锚定到内容区左边缘
-        // - trailing → 最后一个元素的 trailing 锚定到内容区右边缘（定义内容宽度，启用滚动）
-        // - 不用 centerY（引用框架中心 → 循环依赖）
-        // - 不用 contentSize（与 Auto Layout 冲突）
+        // - 所有内部约束必须使用 contentLayoutGuide（内容坐标系），
+        //   不可混用 frame（contentRow.snp.leading/trailing），否则约束冲突。
+        // - top.bottom → contentLayoutGuide → 定义内容高度
+        // - leading/trailing → contentLayoutGuide → 定义内容宽度
+        let clg = contentRow.contentLayoutGuide
         let gap = CGFloat(AppSpace.xs)
 
         if mode == .simple {
             let label = makeSimpleLabel(current: page, total: pages)
             contentRow.addSubview(label)
             label.snp.makeConstraints { make in
-                make.top.bottom.equalToSuperview()
-                make.leading.equalTo(contentRow.snp.leading)
-                make.trailing.equalTo(contentRow.snp.trailing)
+                make.top.bottom.equalTo(clg)
+                make.leading.equalTo(clg.snp.leading)
+                make.trailing.equalTo(clg.snp.trailing)
             }
         } else {
             let buttons = Self.computeButtons(current: page, total: pages, itemSize: itemSize)
@@ -184,18 +191,18 @@ final class PaginationView: UIView {
                 }
                 contentRow.addSubview(subview)
                 subview.snp.makeConstraints { make in
-                    make.top.bottom.equalToSuperview()
+                    make.top.bottom.equalTo(clg)
                     if let p = previousView {
                         make.leading.equalTo(p.snp.trailing).offset(gap)
                     } else {
-                        make.leading.equalTo(contentRow.snp.leading)
+                        make.leading.equalTo(clg.snp.leading)
                     }
                 }
                 previousView = subview
             }
             // 尾部约束：定义内容宽度，启用滚动。
             previousView?.snp.makeConstraints { make in
-                make.trailing.equalTo(contentRow.snp.trailing)
+                make.trailing.equalTo(clg.snp.trailing)
             }
         }
 

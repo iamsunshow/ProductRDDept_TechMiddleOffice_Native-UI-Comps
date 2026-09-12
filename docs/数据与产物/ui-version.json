@@ -1,6 +1,6 @@
 {
-  "version": "1.8.0",
-  "versionKey": "v1.8.0",
+  "version": "1.8.1",
+  "versionKey": "v1.8.1",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.8.0] 2026-09-12 Fixed：DropDown #64 六项视觉/交互统一——① iOS 单列面板锚点从整行改右侧「选中值+箭头」区域（与 Android 一样从值文字下方弹出）；② iOS tv.separatorStyle=.none+cell selectionStyle=.none 去选项横线；③ Android D1 选中项补 ✓（双端统一=绿字+对勾）；④ 双端 D2 列按钮底色统一黑 4% 叠加（bgPage F9FAFB 过浅 iOS 侧显白）；⑤ Android DropDown 新增 innerValue 内部选中态（remember(value)），D4 无 onValueChange 时点选即时更新、外部赋值同步；⑥ iOS titleLabel hugging required+valueLabel leading 改 ≥，值文字恒居箭头左侧（对齐 Android 居右）。注：v1.7.9 被并发会话 ImagePreview crash 修复（9ecb1b1）占用，本批顺延 v1.8.0。"
+  "changelog": "[1.8.1] 2026-09-12 Fixed：iOS VirtualList #65——Demo1-4 列表不显示数据（只看到 D4 空态文案「列表为空，下拉刷新试试」），看不到 D1-D4 标题/列表内容。根因：4 个 Demo 的 list 约束用 leading/trailing+centerY+height——centerY.equalToSuperview() 不撑开 container 在 UIStackView 中的高度（UIView 无 intrinsicContentSize），container 高度=0 → VirtualListView bounds=0 → tableView 不显示；仅 D4 的 emptyLabel 用 center.equalToSuperview() 在 bounds=0 时仍显示在原点附近。修复：4 个 Demo 改用 edges+height（对齐 EmptyShowcase 写法），list 填满 container + 固定高度撑开 container=300/300/250/200。"
 }

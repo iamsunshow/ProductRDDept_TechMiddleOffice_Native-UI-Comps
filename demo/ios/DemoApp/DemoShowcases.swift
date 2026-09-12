@@ -11537,7 +11537,7 @@ final class VirtualListShowcase: ShowcaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "VirtualList 虚拟列表"
-        addVersionBadge(componentName: "VirtualList", version: "v1.4.32", builtAt: "2026-09-11")
+        addVersionBadge(componentName: "VirtualList", version: "v1.4.35", builtAt: "2026-09-12")
 
         // D1 基础列表
         addSection(title: "D1 基础列表（100 条）") { container in
@@ -11545,9 +11545,8 @@ final class VirtualListShowcase: ShowcaseViewController {
             list.items = (1...100).map { VirtualListItem(title: "项目 #\($0)") }
             container.addSubview(list)
             list.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview()
+                make.edges.equalToSuperview()
                 make.height.equalTo(300)
-                make.centerY.equalToSuperview()
             }
         }
         addInfo("排查点：100 条数据仅渲染可见区域，快速滚动流畅。")
@@ -11560,9 +11559,8 @@ final class VirtualListShowcase: ShowcaseViewController {
             }
             container.addSubview(list)
             list.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview()
+                make.edges.equalToSuperview()
                 make.height.equalTo(300)
-                make.centerY.equalToSuperview()
             }
         }
         addInfo("排查点：每项有主标题+副标题，行高 64pt。")
@@ -11574,9 +11572,8 @@ final class VirtualListShowcase: ShowcaseViewController {
             list.showSeparator = false
             container.addSubview(list)
             list.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview()
+                make.edges.equalToSuperview()
                 make.height.equalTo(250)
-                make.centerY.equalToSuperview()
             }
         }
         addInfo("排查点：无分隔线。")
@@ -11587,9 +11584,8 @@ final class VirtualListShowcase: ShowcaseViewController {
             list.emptyText = "列表为空，下拉刷新试试"
             container.addSubview(list)
             list.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview()
+                make.edges.equalToSuperview()
                 make.height.equalTo(200)
-                make.centerY.equalToSuperview()
             }
         }
         addInfo("排查点：居中显示「列表为空，下拉刷新试试」。")

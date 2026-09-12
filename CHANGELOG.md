@@ -21,6 +21,16 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 - **iOS Tour Demo1-4 点击下一步无反应/无法关闭**：4 个 Demo 均缺 `tour.onChange = { tour.current = $0 }` 回调，导致 `nextTapped()` 调用 `onChange?(current + 1)` 时 `current` 不更新、`updateContent()` 不触发，按钮文字与步骤指示停滞；Demo2（`showSkip=false`）尤为明显——只能走"下一步→完成"路径，但 `isLast` 永远为 `false`，"完成"按钮永不出现，引导层无法关闭。4 个 Demo 统一补 `onChange` 回调，步骤切换与完成/关闭恢复正常。
 - **iOS Tour 按钮文字紧贴边缘**：`nextButton`/`prevButton`/`skipButton` 三按钮均未设 `contentEdgeInsets`，文字紧贴按钮边缘（Android Tour `TourButton` 用 `.padding(horizontal = AppSpace.md=12, vertical = AppSpace.sm=8)`）。iOS 三按钮统一加 `contentEdgeInsets = (top: sm=8, left: md=12, bottom: sm=8, right: md=12)` 对齐 Android；同时去掉 `nextButton`/`prevButton` 固定 `height.equalTo(36)` 约束，让按钮按 insets + 文字自适应撑开，与 Android `Box+padding` 行为同构。
 
+## \[1.7.8] - 2026-09-12（DropDown #17 交互统一）
+
+### Fixed
+
+- **iOS Demo1 面板错位**：openPanel 旧实现 window 为 nil 时把面板挂到 `self`（44pt 触发行内部），面板错位「跑到页面前面」——改为只挂 window（未上屏不弹）+ `bringSubviewToFront`。
+- **双端文字-箭头间距恒定 4**：Android 触发行 `width(120.dp)` 固定宽（短文本留大片空白、长文本紧贴）→ `widthIn(max=120.dp)` + `spacedBy(4.dp)`；iOS valueLabel 间隙 8→4；iOS D2 列按钮箭头从钉在按钮 trailing 改为紧跟 title 右缘+4（旧间隙随列宽/文字长变化=「时大时小」）。
+- **iOS D2 面板截断**：v1.7.7 误把多列面板宽也收窄为内容自适应（≈81pt<列宽）→文字截断；新增 `PanelWidthMode`（contentAdaptive/matchAnchor），D2 传 matchAnchor=列按钮宽，D1/D3/D4 保持内容自适应。
+- **iOS 点空白关闭**：openPanel 时在 window 异步添加 `UITapGestureRecognizer`（cancelsTouchesInView=false，delegate 过滤面板内触摸），点击面板外空白自动关闭，对齐 Android DropdownMenu。
+- **Android D2 悬空化**：手写 Column 面板（撑开内容区域）→ Material3 `DropdownMenu` 悬浮层（不撑开内容、点外自动关、面板从列按钮下弹出），对齐 iOS 交互（用户指定以 iOS 为准）。
+
 ## \[1.7.7] - 2026-09-12（DropDown #17）
 
 ### Fixed

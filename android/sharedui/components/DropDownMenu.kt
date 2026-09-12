@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.Canvas
 import androidx.compose.material3.DropdownMenu
@@ -91,14 +92,15 @@ fun DropDown(
             // 右侧区域：选中值 + chevron + DropdownMenu
             // DropdownMenu 放在此处，面板从选中值文字下方弹出（而非标题）
             Box {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                // 文字与箭头固定 4dp 间距（台账 #60：时大时小根因=旧 width(120.dp) 固定宽，短文本留大片空白）
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
                         text = selectedText,
                         fontSize = AppFont.sizeMd,
                         color = if (options.any { it.value == value }) AppColor.textPrimary else AppColor.textSecondary.copy(alpha = 0.5f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.width(120.dp)
+                        modifier = Modifier.widthIn(max = 120.dp)
                     )
                     ChevronDown(color = AppColor.textSecondary.copy(alpha = 0.5f))
                 }
@@ -152,9 +154,10 @@ fun DropDownMenu(
             horizontalArrangement = Arrangement.spacedBy(AppSpace.xs)
         ) {
             items.forEachIndexed { index, item ->
-                // 每个按钮+面板包裹在独立 Column 中，面板跟随对应按钮而非全宽左对齐
-                Column(modifier = Modifier.weight(1f)) {
-                    Box(
+                // 每列按钮+悬浮面板包在独立 Box：面板用 DropdownMenu 悬空弹出（不撑开内容区域，
+                // 对齐 iOS 交互=用户 2026-09-12 指定），且自带点击面板外自动关闭。
+                Box(modifier = Modifier.weight(1f)) {
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(44.dp)
@@ -164,9 +167,11 @@ fun DropDownMenu(
                                 expandedIndex = if (expandedIndex == index) -1 else index
                             }
                             .padding(horizontal = AppSpace.sm),
-                        contentAlignment = Alignment.Center
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        // 文字与箭头固定 4dp 间距（同 D1，台账 #60）
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(
                                 text = item.title,
                                 fontSize = AppFont.sizeMd,
@@ -177,39 +182,35 @@ fun DropDownMenu(
                         }
                     }
 
-                    // 展开面板：仅在 expandedIndex == index 时显示，宽度跟随本列
-                    if (expandedIndex == index) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(AppRadius.md))
-                                .background(AppColor.bgCard)
-                                .padding(vertical = AppSpace.xs)
-                        ) {
-                            item.options.forEach { opt ->
-                                val selected = opt.value == item.value
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            onValueChange?.invoke(index, opt.value)
-                                            expandedIndex = -1
+                    DropdownMenu(
+                        expanded = expandedIndex == index,
+                        onDismissRequest = { expandedIndex = -1 },
+                        modifier = Modifier.background(AppColor.bgCard)
+                    ) {
+                        item.options.forEach { opt ->
+                            val selected = opt.value == item.value
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = opt.text,
+                                            fontSize = AppFont.sizeMd,
+                                            color = if (selected) AppColor.primary else AppColor.textPrimary
+                                        )
+                                        if (selected) {
+                                            Text("✓", color = AppColor.primary, fontSize = AppFont.sizeMd)
                                         }
-                                        .padding(horizontal = AppSpace.md, vertical = AppSpace.sm),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text(
-                                        text = opt.text,
-                                        fontSize = AppFont.sizeMd,
-                                        color = if (selected) AppColor.primary else AppColor.textPrimary,
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                    if (selected) {
-                                        Text("✓", color = AppColor.primary, fontSize = AppFont.sizeMd)
                                     }
+                                },
+                                onClick = {
+                                    onValueChange?.invoke(index, opt.value)
+                                    expandedIndex = -1
                                 }
-                            }
+                            )
                         }
                     }
                 }

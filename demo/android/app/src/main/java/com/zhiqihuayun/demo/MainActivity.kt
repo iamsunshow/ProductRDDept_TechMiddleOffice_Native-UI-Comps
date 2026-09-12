@@ -9686,7 +9686,7 @@ private fun VirtualListDemo() {
 @Composable
 fun DropDownMenuDemo() {
     DemoPage {
-        Text("DropDown / DropDownMenu 下拉菜单 v1.7.7", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
+        Text("DropDown / DropDownMenu 下拉菜单 v1.7.8", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
 
         DemoSection(title = "D1 基础下拉", hint = "点击触发行展开浮层；选中项 ✓ 标记 + primary 高亮。") {
             var d1Value by remember { mutableStateOf("asc") }

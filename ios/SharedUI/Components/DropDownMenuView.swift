@@ -100,6 +100,11 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
     private let chevronView = ChevronView()
     private var panelView: UIView?
     private var tableView: UITableView?
+    private var outsideTapRecognizer: UITapGestureRecognizer?
+    private var outsideTapHost: UIView?
+
+    /// 面板宽度模式：contentAdaptive=内容自适应（单列，对齐 Android）；matchAnchor=锚点宽（多列列宽）
+    enum PanelWidthMode { case contentAdaptive, matchAnchor }
 
     public init(
         title: String = "请选择",
@@ -167,7 +172,8 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
             chevronView.widthAnchor.constraint(equalToConstant: 8),
             chevronView.heightAnchor.constraint(equalToConstant: 8),
 
-            valueLabel.trailingAnchor.constraint(equalTo: chevronView.leadingAnchor, constant: -AppSpace.xs),
+            // 文字与箭头固定 4pt 间距（对齐 Android spacedBy(4.dp)；旧 8pt 偏大且随文本观感不一）
+            valueLabel.trailingAnchor.constraint(equalTo: chevronView.leadingAnchor, constant: -4),
             valueLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
             valueLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: AppSpace.xs),
         ])
@@ -178,7 +184,7 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
         isExpanded ? closePanel() : openPanel()
     }
 
-    func openPanel(anchor: UIView? = nil) {
+    func openPanel(anchor: UIView? = nil, widthMode: PanelWidthMode = .contentAdaptive) {
         isExpanded = true
         chevronView.isUp = true
         // 监听页面滚动——滚动时自动关闭弹层（与 Android 行为同步）
@@ -212,20 +218,23 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
         ])
 
         let anchorView = anchor ?? triggerButton
-        let hostView: UIView
-        if let window = anchorView.window {
-            hostView = window
-        } else {
-            hostView = self
-        }
+        // 防错位：面板只挂 window（旧实现 window 为 nil 时挂 self=44pt 触发行内部，面板会错位「跑到
+        // 页面前面」，用户 2026-09-12 反馈 Demo1）；未上屏时不弹。
+        guard let hostView = anchorView.window else { return }
         hostView.addSubview(panel)
+        hostView.bringSubviewToFront(panel)
         panel.translatesAutoresizingMaskIntoConstraints = false
         let anchorFrame = anchorView.convert(anchorView.bounds, to: hostView)
-        // 面板宽度以 Android 为准（DropdownMenu 内容自适应）：最长选项文本宽 + 左右内边距余量，上限=触发按钮宽。
-        // 旧实现=anchorFrame.width，而单列触发按钮为通栏 → 面板通栏，与 Android 不一致（用户 2026-09-12 反馈）。
+        // 面板宽度模式：单列（D1/D3/D4）= 内容自适应（对齐 Android DropdownMenu）；多列（D2）= 列按钮宽
+        // （matchAnchor，对齐 Android 列宽面板；v1.7.7 误将 D2 也收窄致文字截断）。
         let textFont = UIFont.systemFont(ofSize: AppFont.sizeMd)
         let maxOptionWidth = options.map { ($0.text as NSString).size(withAttributes: [.font: textFont]).width }.max() ?? 0
-        let panelWidth = min(anchorFrame.width, maxOptionWidth + AppSpace.md * 2 + 15)
+        let panelWidth: CGFloat
+        if widthMode == .matchAnchor {
+            panelWidth = anchorFrame.width
+        } else {
+            panelWidth = min(anchorFrame.width, maxOptionWidth + AppSpace.md * 2 + 15)
+        }
         NSLayoutConstraint.activate([
             panel.topAnchor.constraint(equalTo: hostView.topAnchor, constant: anchorFrame.maxY + 4),
             panel.leadingAnchor.constraint(equalTo: hostView.leadingAnchor, constant: anchorFrame.minX),
@@ -234,12 +243,36 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
         ])
         panelView = panel
         tableView = tv
+
+        // 点击面板外空白区域自动关闭（对齐 Android DropdownMenu；异步添加避免吞掉本次触发点击）
+        let tap = UITapGestureRecognizer(target: self, action: #selector(outsideTapped(_:)))
+        tap.cancelsTouchesInView = false
+        tap.delegate = self
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, self.panelView === panel else { return }
+            hostView.addGestureRecognizer(tap)
+        }
+        outsideTapRecognizer = tap
+        outsideTapHost = hostView
+    }
+
+    @objc private func outsideTapped(_ tap: UITapGestureRecognizer) {
+        guard let panel = panelView else { return }
+        let loc = tap.location(in: panel)
+        if !panel.point(inside: loc, with: nil) {
+            closePanel()
+        }
     }
 
     public func closePanel() {
         isExpanded = false
         chevronView.isUp = false
         NotificationCenter.default.removeObserver(self, name: .scrollViewDidScrollNotification, object: nil)
+        if let tap = outsideTapRecognizer {
+            outsideTapHost?.removeGestureRecognizer(tap)
+        }
+        outsideTapRecognizer = nil
+        outsideTapHost = nil
         panelView?.removeFromSuperview()
         panelView = nil
         tableView = nil
@@ -376,8 +409,10 @@ public class DropDownMenuView: UIView {
             chevron.tag = 999
             btn.addSubview(chevron)
             chevron.translatesAutoresizingMaskIntoConstraints = false
+            // 文字与箭头固定 4pt 间距：箭头紧跟 title 右缘（旧钉在按钮 trailing，间隙随列宽/文字长变化，
+            // 用户 2026-09-12 反馈「时大时小」）
             NSLayoutConstraint.activate([
-                chevron.trailingAnchor.constraint(equalTo: btn.trailingAnchor, constant: -AppSpace.sm),
+                chevron.leadingAnchor.constraint(equalTo: btn.titleLabel!.trailingAnchor, constant: 4),
                 chevron.centerYAnchor.constraint(equalTo: btn.centerYAnchor),
                 chevron.widthAnchor.constraint(equalToConstant: 8),
                 chevron.heightAnchor.constraint(equalToConstant: 8),
@@ -410,7 +445,7 @@ public class DropDownMenuView: UIView {
             closeAll()
         } else {
             closeAll()
-            dropDowns[idx].openPanel(anchor: buttons[idx])
+            dropDowns[idx].openPanel(anchor: buttons[idx], widthMode: .matchAnchor)
             if let chevron = buttons[idx].viewWithTag(999) as? ChevronView {
                 chevron.isUp = true
             }
@@ -426,5 +461,14 @@ public class DropDownMenuView: UIView {
             }
         }
         currentIndex = -1
+    }
+}
+
+// MARK: - DropDownView 手势代理：面板外空白触摸才触发关闭（面板内选项点击不受影响）
+extension DropDownView: UIGestureRecognizerDelegate {
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        guard let panel = panelView else { return false }
+        let loc = touch.location(in: panel)
+        return !panel.point(inside: loc, with: nil)
     }
 }

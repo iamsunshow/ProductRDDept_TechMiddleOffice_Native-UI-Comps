@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -81,7 +82,7 @@ fun Table(
                 .background(if (stickyHeader) AppColor.bgPage else AppColor.bgCard)
                 .height(IntrinsicSize.Min),
         ) {
-            columns.forEach { col ->
+            for (col in columns) {
                 CellBox(
                     text = col.title,
                     width = col.width,
@@ -103,7 +104,8 @@ fun Table(
                     .background(bgColor)
                     .height(IntrinsicSize.Min),
             ) {
-                columns.forEachIndexed { colIndex, col ->
+                for (colIndex in columns.indices) {
+                    val col = columns[colIndex]
                     val text = row.cells.getOrElse(colIndex) { "" }
                     CellBox(
                         text = text,
@@ -119,9 +121,9 @@ fun Table(
     }
 }
 
-/** 单元格。 */
+/** 表头单元格（RowScope 扩展，可用 weight）。 */
 @Composable
-private fun CellBox(
+private fun RowScope.CellBox(
     text: String,
     width: Dp?,
     align: TextAlign,

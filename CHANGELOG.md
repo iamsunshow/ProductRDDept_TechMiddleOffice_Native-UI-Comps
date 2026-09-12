@@ -26,6 +26,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 - **LineChart #84 Android 双端视觉对齐三优化**（用户实机复验 v1.6.5 后反馈）。① **内边距**：组件根 Box 补 `padding(top/bottom=AppSpace.sm, start/end=AppSpace.md)`，对齐 iOS `chartView` 的 `edges.inset`（TrendChartView.swift L48-51），数据不再紧贴图表边缘。② **网格横线可见**：旧 `strokeWidth=0.5f` 为裸 px（2.625 密度真机≈0.19dp 亚像素，抗锯齿后不可见——台账 #58「禁止裸 px」禁令的又一案例），改 `0.5.dp→px` 对齐 iOS 默认网格 0.5pt 语义，4+1 条横线恢复可见。③ **y 域留白**：新增 `yFor()` 对齐 DGCharts 默认 `spaceTop/spaceBottom=0.1`（`axisMinimum=0`+自动上限），数据最高点上方与 0 值下方各留 10% 空隙；网格线、Y 轴标签、折线、圆点四处统一映射保持重合。**澄清**：双端 Demo3 数据源码逐值一致——iOS Demo 3 本就是「仅收入」单绿线（`expensePoints: []`），红绿双线在 Demo 1；用户所报 iOS Demo3 红绿两条系段落编号误记，数据零改动。`:components:compileDebugKotlin` BUILD SUCCESSFUL（20s）。
 
+## \[1.7.6] - 2026-09-12（iOS Tag 文字不可见第四次修复——根因 convenience init didSet 陷阱）
+
+### Fixed
+
+- **iOS Tag 文字不可见第四次修复**——颜色编码法排查确认 TagView 本体渲染但 label 宽度为 0。根因=**Swift 陷阱：convenience init 内对 stored property 赋值不触发 didSet**，`self.text = text` 不触发 `didSet { updateAppearance() }`，label.text 永远是 init 中的空字符串 ""，`intrinsicContentSize` 返回 `paddingH*2=12`（无文字宽度），TagView 渲染为 12×20 椭圆小点。修复=convenience init 末尾手动调用 `updateAppearance()`（与 Carousel UIPageControl 同类陷阱，memory 已记录）。同时移除诊断色。`xcodebuild` 0 错误。
+
 ## \[1.7.5] - 2026-09-12（iOS Tag 文字不可见第三次修复）
 
 ### Fixed

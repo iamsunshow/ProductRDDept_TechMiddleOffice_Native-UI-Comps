@@ -2,5 +2,5 @@
   "version": "1.7.6",
   "versionKey": "v1.7.6",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.7.6] 2026-09-12 Changed：LineChart #84 C1.5 用户实机验收通过（v1.7.5 复验，原话「LineChart：已通过」）——双端 Demo 列表 passed=true 同步：Android MainActivity.kt「图表组件」分组 LineChart 项 + iOS DemoShowcases.swift 图表组件 section ui.line-chart；进度表 ui.line-chart 行、台账 #59 收口补验收原话。组件层零改动。"
+  "changelog": "[1.7.6] 2026-09-12 Fixed：iOS Tag 文字不可见第四次修复——根因=Swift 陷阱：convenience init 内对 stored property 赋值不触发 didSet，self.text=text 不触发 didSet { updateAppearance() }，label.text 永远是空字符串，intrinsicContentSize 返回 paddingH*2=12 无文字宽度，TagView 渲染为 12×20 椭圆小点。修复=convenience init 末尾手动调用 updateAppearance()。同时移除诊断色。xcodebuild 0 错误。"
 }

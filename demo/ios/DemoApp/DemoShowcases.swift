@@ -11063,7 +11063,6 @@ final class TagShowcase: ShowcaseViewController {
             let row = UIStackView()
             row.axis = .horizontal
             row.spacing = AppSpace.sm
-            row.backgroundColor = .green.withAlphaComponent(0.3) // 诊断色：绿色=row 容器
             container.addSubview(row)
             row.snp.makeConstraints { make in
                 make.leading.equalToSuperview().offset(AppSpace.lg)

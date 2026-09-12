@@ -14,7 +14,13 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。 -->
 
-## \[1.6.4] - 2026-09-12（DropDown #21 iOS 触发区域文字不可见）
+## \[1.6.5] - 2026-09-12（LineChart #83）
+
+### Fixed
+
+- **LineChart #83 Android 纵坐标项与 X 轴第一项挤在一起、数据节点实心小圆（预期空心圆）**：两个根因。① **坐标映射不同**——iOS DGCharts 设置 `axisMinimum = -0.5 / axisMaximum = count - 0.5`，x 域共 count 个单位，首末数据点距图表左右缘各内缩半个步长，首标签不顶 Y 轴；Android 直接 `i * stepX`（stepX=chartW/(count-1)）从图表左缘起画，X 轴首标签 CENTER 在左缘点、左半字伸入 Y 轴标签列与 Y 轴数字挤在一起。② **单位错误**——Android 圆点半径 `5f`/白点 `2f` 为裸 px（2.625 密度真机≈1.9dp/0.76dp），线宽 `4f`≈1.5dp；iOS 基准是 `circleRadius=3pt + circleHoleRadius=1.5pt + circleHoleColor=.white + lineWidth=2pt`（`TrendChartView.swift` makeLineSet），白洞占比 50% 半径视觉为空心圆，Android 白点占比 40% 且整体过小视觉即实心圆。修复（`TrendChartView.kt`）：三处 x 映射统一为 `xFor(i) = yAxisW + (i+0.5)/count * chartW` 内缩域；圆点改 dp→px（彩圆 3dp + 白洞 1.5dp 白色）；线宽 2dp；台账 #58 注释说明。**禁令新增**：图表类 Canvas 组件数据点/圆/线尺寸一律 dp→px、禁止裸 px；坐标域必须与 iOS 同构（含 -0.5 内缩）。iOS 为基准零改动。`:components:compileDebugKotlin` BUILD SUCCESSFUL；`:app` 编译验证被并发会话 DemoPage/DemoSection 重构半成品（ColumnScope unresolved）阻塞，待其完成后复验。
+
+## \[1.6.4] - 2026-09-12（DropDown #21）
 
 ### Fixed
 

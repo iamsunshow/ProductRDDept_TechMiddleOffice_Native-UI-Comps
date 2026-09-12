@@ -81,6 +81,11 @@ fun TrendChartView(
             val yAxisWPx = with(density) { 48.dp.toPx() }
             val xLabelHeightPx = with(density) { 24.dp.toPx() }
             val textSizePx = with(density) { AppFont.sizeXs.toPx() }
+            // 台账 #58：数据点/圆尺寸/线宽一律 dp→px，禁止裸 px（此前 r5f/2f 在真机≈1.9dp/0.76dp，实心小圆）。
+            val pointR = with(density) { 3.dp.toPx() }      // 对齐 iOS circleRadius = 3
+            val holeR = with(density) { 1.5.dp.toPx() }     // 对齐 iOS circleHoleRadius = 1.5（白洞）
+            val lineWidthPx = with(density) { 2.dp.toPx() } // 对齐 iOS lineWidth = 2
+            val holeColor = androidx.compose.ui.graphics.Color.White // 对齐 iOS circleHoleColor = .white
             val textPaint = remember(textSizePx) {
                 android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
                     color = AppColor.textSecondary.toArgb()
@@ -88,11 +93,15 @@ fun TrendChartView(
                 }
             }
 
+            // 台账 #58：x 域对齐 iOS（axisMinimum=-0.5, axisMaximum=count-0.5）——
+            // 首末数据点距图表左右缘各内缩半个步长，X 轴首标签左半字不再伸入 Y 轴标签列。
+
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val canvasW = size.width
                 val canvasH = size.height
-                val chartW = canvasW - yAxisWPx
                 val chartH = canvasH - xLabelHeightPx  // 绘图区域高度（不含 X 轴标签区）
+                fun xFor(index: Int): Float =
+                    yAxisWPx + (index + 0.5f) / count * (canvasW - yAxisWPx)
                 val metrics = textPaint.fontMetrics
                 val ascent = metrics.ascent
                 val descent = metrics.descent
@@ -124,42 +133,40 @@ fun TrendChartView(
 
                 // ── 支出折线（红）──
                 if (expensePoints.isNotEmpty()) {
-                    val stepX = if (count > 1) chartW / (count - 1) else 0f
                     val path = Path()
                     expensePoints.forEachIndexed { i, pt ->
-                        val x = yAxisWPx + if (count > 1) i * stepX else chartW / 2
+                        val x = xFor(i)
                         val y = chartH * (1 - (pt.amount / maxVal).toFloat())
                         if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
                     }
-                    drawPath(path = path, color = AppColor.expense, style = Stroke(width = 4f))
-                    // 圆点（外圈彩色+内圈背景色=空心圆，与 iOS 一致）
+                    drawPath(path = path, color = AppColor.expense, style = Stroke(width = lineWidthPx))
+                    // 空心圆（彩圆填充+白色洞，对齐 iOS circleRadius 3 + hole 1.5/.white）
                     if (count <= 14) {
                         expensePoints.forEachIndexed { i, pt ->
-                            val x = yAxisWPx + if (count > 1) i * stepX else chartW / 2
+                            val x = xFor(i)
                             val y = chartH * (1 - (pt.amount / maxVal).toFloat())
-                            drawCircle(color = AppColor.expense, radius = 5f, center = Offset(x, y))
-                            drawCircle(color = androidx.compose.ui.graphics.Color.White, radius = 2f, center = Offset(x, y))
+                            drawCircle(color = AppColor.expense, radius = pointR, center = Offset(x, y))
+                            drawCircle(color = holeColor, radius = holeR, center = Offset(x, y))
                         }
                     }
                 }
 
                 // ── 收入折线（绿）──
                 if (incomePoints.isNotEmpty()) {
-                    val stepX = if (count > 1) chartW / (count - 1) else 0f
                     val path = Path()
                     incomePoints.forEachIndexed { i, pt ->
-                        val x = yAxisWPx + if (count > 1) i * stepX else chartW / 2
+                        val x = xFor(i)
                         val y = chartH * (1 - (pt.amount / maxVal).toFloat())
                         if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
                     }
-                    drawPath(path = path, color = AppColor.primary, style = Stroke(width = 4f))
-                    // 圆点
+                    drawPath(path = path, color = AppColor.primary, style = Stroke(width = lineWidthPx))
+                    // 空心圆
                     if (count <= 14) {
                         incomePoints.forEachIndexed { i, pt ->
-                            val x = yAxisWPx + if (count > 1) i * stepX else chartW / 2
+                            val x = xFor(i)
                             val y = chartH * (1 - (pt.amount / maxVal).toFloat())
-                            drawCircle(color = AppColor.primary, radius = 5f, center = Offset(x, y))
-                            drawCircle(color = androidx.compose.ui.graphics.Color.White, radius = 2f, center = Offset(x, y))
+                            drawCircle(color = AppColor.primary, radius = pointR, center = Offset(x, y))
+                            drawCircle(color = holeColor, radius = holeR, center = Offset(x, y))
                         }
                     }
                 }
@@ -172,8 +179,7 @@ fun TrendChartView(
                     // 均匀映射 displayCount 个标签到 count 个数据点的索引
                     val dataIdx = if (displayCount == 1) 0
                                   else i * (count - 1) / (displayCount - 1)
-                    val x = if (count > 1) yAxisWPx + dataIdx * (chartW / (count - 1))
-                            else yAxisWPx + chartW / 2
+                    val x = xFor(dataIdx)
                     val labelCenterY = chartH + xLabelHeightPx / 2f
                     val textY = labelCenterY - (ascent + descent) / 2f + descent
                     drawIntoCanvas { canvas ->

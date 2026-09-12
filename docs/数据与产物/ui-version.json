@@ -1,6 +1,6 @@
 {
-  "version": "1.7.2",
-  "versionKey": "v1.7.2",
+  "version": "1.7.3",
+  "versionKey": "v1.7.3",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.7.2] 2026-09-12 Changed：Android RowDemo 改用 DemoPage+DemoSection 包装——页面边距+段间间距+最小高度120dp+卡片底色。DemoPage 加可选 title 参数渲染顶部组件标题。assembleDebug 0 错误。"
+  "changelog": "[1.7.3] 2026-09-12 Fixed：iOS DropDown 弹层在页面返回后残留组件列表页——ShowcaseViewController 基类补 viewWillDisappear 广播 scrollViewDidScrollNotification，复用已有 DropDownView 监听机制自动 closePanel。xcodebuild 0 错误。"
 }

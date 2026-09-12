@@ -270,6 +270,13 @@ class ShowcaseViewController: UIViewController {
         NotificationCenter.default.post(name: .scrollViewDidScrollNotification, object: nil)
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // 页面返回时广播通知——DropDown 弹层挂载在 window 上，返回组件列表页后弹层会残留，
+        // 广播滚动通知触发所有展开中的 DropDownView 自动 closePanel（与 Android 同步）
+        NotificationCenter.default.post(name: .scrollViewDidScrollNotification, object: nil)
+    }
+
     func addSection(title: String, _ block: (UIView) -> Void) {
         let titleLabel = UILabel()
         titleLabel.text = title

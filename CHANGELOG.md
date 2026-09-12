@@ -14,6 +14,17 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]。各条内容独立、均已验证。 -->
 
+## \[1.6.0] - 2026-09-12（ImageView #44）
+
+### Fixed
+
+- **ImageView #44 双端 Demo 不一致对齐**：用户实机反馈 iOS ImageView 与 Android 不一致。逐段对比发现 4 处差异，以 Android 为基准对齐 iOS：
+  1. **D2 圆角变体**：iOS UIStackView `distribution=.fillEqually` + `height=80`（无宽度约束→矩形）→ 改为 `.fill` + `width.height=80`（正方形），对齐 Android `Modifier.size(80.dp)`
+  2. **D3 加载失败占位**：iOS UIImageView 直接 100×100 图标撑满容器 → 改为容器 UIView(100×100) + 内部 UIImageView `inset(20)`，对齐 Android `Box.size(100.dp)` + `Image.fillMaxSize().padding(20.dp)`
+  3. **D4 fit 模式**：iOS 缺内边距 + 缺圆角 → 改为容器 UIView(80×80) + `cornerRadius=sm` + 内部 UIImageView `inset(8)`，对齐 Android `Box.size(80.dp).clip(RoundedCornerShape(sm))` + `Image.padding(8.dp)`
+  4. **Android D4 contentScale bug**：注释写"fill / fit / cover"但代码第三个写 `ContentScale.FillBounds`（=fill，非 cover）→ 改为 `ContentScale.Crop`（=cover），双端统一 fill/fit/cover 三种不同模式
+- `imageEdgeInsets` 在 iOS 16+ SDK 已移除，D3/D4 改用容器 UIView + 内部 UIImageView `edges.inset()` 约束方案实现等价内边距效果。iOS xcodebuild + Android assembleDebug BUILD SUCCEEDED 0 错误。
+
 ## \[1.5.9] - 2026-09-12（Tag #78）
 
 ### Fixed

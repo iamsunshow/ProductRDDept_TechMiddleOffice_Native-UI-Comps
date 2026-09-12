@@ -11750,7 +11750,7 @@ final class ImageViewShowcase: ShowcaseViewController {
             let row = UIStackView()
             row.axis = .horizontal
             row.spacing = AppSpace.md
-            row.distribution = .fillEqually
+            row.distribution = .fill
             container.addSubview(row)
             row.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg) }
             for (label, radius) in [("radiusSm", AppRadius.sm), ("radiusMd", AppRadius.md), ("full", 999)] {
@@ -11762,22 +11762,25 @@ final class ImageViewShowcase: ShowcaseViewController {
                 img.tintColor = AppColor.textSecondary.withAlphaComponent(0.3)
                 img.layer.cornerRadius = radius
                 row.addArrangedSubview(img)
-                img.snp.makeConstraints { $0.height.equalTo(80) }
+                img.snp.makeConstraints { $0.width.height.equalTo(80) }
             }
             row.snp.makeConstraints { $0.bottom.equalToSuperview() }
         }
         addInfo("radiusSm / radiusMd / full（宽/2 圆角）三态。")
 
         addSection(title: "Demo 3 · 加载失败占位") { container in
+            let box = UIView()
+            box.backgroundColor = AppColor.bgPage
+            box.layer.cornerRadius = AppRadius.md
+            box.clipsToBounds = true
+            container.addSubview(box)
+            box.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.width.height.equalTo(100); $0.bottom.equalToSuperview().offset(-AppSpace.md) }
             let img = UIImageView()
             img.contentMode = .scaleAspectFit
-            img.clipsToBounds = true
-            img.backgroundColor = AppColor.bgPage
             img.image = UIImage(systemName: "bell.fill")
             img.tintColor = AppColor.textSecondary.withAlphaComponent(0.3)
-            container.addSubview(img)
-            img.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.width.height.equalTo(100); $0.bottom.equalToSuperview().offset(-AppSpace.md) }
-            img.layer.cornerRadius = AppRadius.md
+            box.addSubview(img)
+            img.snp.makeConstraints { $0.edges.equalToSuperview().inset(20) }
         }
         addInfo("加载失败时显示占位图形（Image 组件状态机已处理）。")
 
@@ -11787,19 +11790,23 @@ final class ImageViewShowcase: ShowcaseViewController {
             row.spacing = AppSpace.sm
             container.addSubview(row)
             row.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg) }
-            for (mode, idx) in [(UIView.ContentMode.scaleToFill, 0), (UIView.ContentMode.scaleAspectFit, 1), (UIView.ContentMode.scaleAspectFill, 2)] {
+            for mode in [UIView.ContentMode.scaleToFill, .scaleAspectFit, .scaleAspectFill] {
+                let box = UIView()
+                box.backgroundColor = AppColor.bgPage
+                box.layer.cornerRadius = AppRadius.sm
+                box.clipsToBounds = true
+                row.addArrangedSubview(box)
+                box.snp.makeConstraints { $0.width.height.equalTo(80) }
                 let img = UIImageView()
                 img.contentMode = mode
-                img.clipsToBounds = true
-                img.backgroundColor = AppColor.bgPage
-                img.image = UIImage(systemName: idx == 2 ? "heart.fill" : "heart.fill")
+                img.image = UIImage(systemName: "heart.fill")
                 img.tintColor = AppColor.primary.withAlphaComponent(0.5)
-                row.addArrangedSubview(img)
-                img.snp.makeConstraints { $0.width.equalTo(80); $0.height.equalTo(80) }
+                box.addSubview(img)
+                img.snp.makeConstraints { $0.edges.equalToSuperview().inset(8) }
             }
             row.snp.makeConstraints { $0.bottom.equalToSuperview() }
         }
-        addInfo("fill / fit / fill 三种 contentMode 示意。")
+        addInfo("fill / fit / cover 三种 contentMode 示意。")
     }
 }
 

@@ -14,6 +14,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]。各条内容独立、均已验证。 -->
 
+## \[1.6.1] - 2026-09-12（DropDown #22）
+
+### Fixed
+
+- **DropDown #22 iOS Demo1/3/4 内容不可见（高度坍缩）**：根因=`DropDownView` 约束用 `top.bottom.equalToSuperview()`（等式约束优先级 1000），定义 DropDownView 高度 = container 高度 - md，但 container 高度又依赖 DropDownView 高度（循环依赖），`intrinsicContentSize.height=44`（优先级 250）被等式约束架空导致高度坍缩为 0。Demo2 `DropDownMenuView` 能显示是因为内部 `barStack` 的 `UIButton(system+title)` 有 `intrinsicContentSize` 能打破循环。修复：Demo1/2/3/4 约束加显式 `height(DropDownView.Metrics.triggerHeight=44)`，用 1000 优先级显式高度打破循环依赖。xcodebuild BUILD SUCCEEDED 0 错误。
+
 ## \[1.6.0] - 2026-09-12（ImageView #44）
 
 ### Fixed

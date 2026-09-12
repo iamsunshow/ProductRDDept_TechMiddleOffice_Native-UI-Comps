@@ -555,16 +555,25 @@ private fun ComponentRow(comp: DemoComponent, onClick: () -> Unit) {
  * 用法：DemoPage { DemoSection(title="D1 ...") { ... } DemoSection(title="D2 ...") { ... } }
  */
 @Composable
-fun DemoPage(content: @Composable ColumnScope.() -> Unit) {
+fun DemoPage(title: String? = null, content: @Composable ColumnScope.() -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(AppColor.bgPage)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
-        verticalArrangement = Arrangement.spacedBy(AppSpace.md),
-        content = content
-    )
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        if (title != null) {
+            Text(
+                text = title,
+                color = AppColor.primary,
+                fontSize = AppFont.sizeXs,
+                fontWeight = FontWeight.Medium
+            )
+        }
+        content()
+    }
 }
 
 /**
@@ -1623,70 +1632,67 @@ private fun DemoPill(title: String) {
 
 @Composable
 private fun RowDemo() {
-    Text("Row 行布局 v1.0", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
-
-    Text("D1 等分三栏（span 1:1:1）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    SharedRow(gutter = 0.dp) {
-        Col(span = 1) { DemoColBox("span 1", AppColor.primaryMuted, AppColor.textPrimary) }
-        Col(span = 1) { DemoColBox("span 1", AppColor.primary, AppColor.textInverse) }
-        Col(span = 1) { DemoColBox("span 1", AppColor.primaryMuted, AppColor.textPrimary) }
-    }
-    Text("Col(span = 1) × 3，totalSpan=3，每栏占 1/3。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
-
-    Text("D2 不等分（span 1:2:1）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    SharedRow(gutter = 0.dp) {
-        Col(span = 1) { DemoColBox("span 1", AppColor.primaryMuted, AppColor.textPrimary) }
-        Col(span = 2) { DemoColBox("span 2", AppColor.primary, AppColor.textInverse) }
-        Col(span = 1) { DemoColBox("span 1", AppColor.primaryMuted, AppColor.textPrimary) }
-    }
-    Text("Col(span = 1/2/1)，totalSpan=4，中间栏占 2/4=50%。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
-
-    Text("D3 gutter 间距（AppSpace.md）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    SharedRow(gutter = AppSpace.md) {
-        Col(span = 1) { DemoColBox("span 1", AppColor.primaryMuted, AppColor.textPrimary) }
-        Col(span = 1) { DemoColBox("span 1", AppColor.primaryMuted, AppColor.textPrimary) }
-        Col(span = 1) { DemoColBox("span 1", AppColor.primaryMuted, AppColor.textPrimary) }
-    }
-    Text("gutter = AppSpace.md（12dp），子项间有 12dp 间距，首尾无 padding。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
-
-    Text("D4 垂直对齐（top / center / bottom）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    listOf(
-        "top" to RowAlign.Top,
-        "center" to RowAlign.Center,
-        "bottom" to RowAlign.Bottom
-    ).forEach { (label, align) ->
-        SharedRow(align = align, gutter = AppSpace.sm, modifier = Modifier.height(60.dp)) {
-            Col(span = 1) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                        .background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("高", fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
-                }
-            }
-            Col(span = 1) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(28.dp)
-                        .background(AppColor.primary, RoundedCornerShape(AppRadius.sm)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("矮", fontSize = AppFont.sizeSm, color = AppColor.textInverse)
-                }
+    DemoPage(title = "Row 行布局 v1.0") {
+        DemoSection(title = "D1 等分三栏（span 1:1:1）", hint = "Col(span = 1) × 3，totalSpan=3，每栏占 1/3。") {
+            SharedRow(gutter = 0.dp) {
+                Col(span = 1) { DemoColBox("span 1", AppColor.primaryMuted, AppColor.textPrimary) }
+                Col(span = 1) { DemoColBox("span 1", AppColor.primary, AppColor.textInverse) }
+                Col(span = 1) { DemoColBox("span 1", AppColor.primaryMuted, AppColor.textPrimary) }
             }
         }
-        Text(
-            text = "align: $label",
-            fontSize = AppFont.sizeXs,
-            color = AppColor.textSecondary,
-            modifier = Modifier.padding(top = AppSpace.xs, bottom = AppSpace.md)
-        )
+        DemoSection(title = "D2 不等分（span 1:2:1）", hint = "Col(span = 1/2/1)，totalSpan=4，中间栏占 2/4=50%。") {
+            SharedRow(gutter = 0.dp) {
+                Col(span = 1) { DemoColBox("span 1", AppColor.primaryMuted, AppColor.textPrimary) }
+                Col(span = 2) { DemoColBox("span 2", AppColor.primary, AppColor.textInverse) }
+                Col(span = 1) { DemoColBox("span 1", AppColor.primaryMuted, AppColor.textPrimary) }
+            }
+        }
+        DemoSection(title = "D3 gutter 间距（AppSpace.md）", hint = "gutter = AppSpace.md（12dp），子项间有 12dp 间距，首尾无 padding。") {
+            SharedRow(gutter = AppSpace.md) {
+                Col(span = 1) { DemoColBox("span 1", AppColor.primaryMuted, AppColor.textPrimary) }
+                Col(span = 1) { DemoColBox("span 1", AppColor.primaryMuted, AppColor.textPrimary) }
+                Col(span = 1) { DemoColBox("span 1", AppColor.primaryMuted, AppColor.textPrimary) }
+            }
+        }
+        DemoSection(title = "D4 垂直对齐（top / center / bottom）", hint = "Row(align=) 控制子项垂直对齐：top 顶部 / center 居中 / bottom 底部。") {
+            listOf(
+                "top" to RowAlign.Top,
+                "center" to RowAlign.Center,
+                "bottom" to RowAlign.Bottom
+            ).forEach { (label, align) ->
+                SharedRow(align = align, gutter = AppSpace.sm, modifier = Modifier.height(60.dp)) {
+                    Col(span = 1) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("高", fontSize = AppFont.sizeSm, color = AppColor.textPrimary)
+                        }
+                    }
+                    Col(span = 1) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(28.dp)
+                                .background(AppColor.primary, RoundedCornerShape(AppRadius.sm)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("矮", fontSize = AppFont.sizeSm, color = AppColor.textInverse)
+                        }
+                    }
+                }
+                Text(
+                    text = "align: $label",
+                    fontSize = AppFont.sizeXs,
+                    color = AppColor.textSecondary,
+                    modifier = Modifier.padding(top = AppSpace.xs)
+                )
+            }
+        }
     }
-    Text("Row(align=) 控制子项垂直对齐：top 顶部 / center 居中 / bottom 底部。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 }
 
 @Composable

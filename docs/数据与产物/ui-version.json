@@ -1,6 +1,6 @@
 {
-  "version": "1.7.1",
-  "versionKey": "v1.7.1",
+  "version": "1.7.2",
+  "versionKey": "v1.7.2",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.7.1] 2026-09-12 Changed：Row #13 用户 C1.5 实机验收通过，台账补验收记录原话。双端 Demo 代码 passed=true 同步：Android MainActivity.kt RowDemo 加 passed=true；iOS DemoShowcases.swift ui.row 加 passed: true。xcodebuild + gradle 双端 0 错误。"
+  "changelog": "[1.7.2] 2026-09-12 Changed：Android RowDemo 改用 DemoPage+DemoSection 包装——页面边距+段间间距+最小高度120dp+卡片底色。DemoPage 加可选 title 参数渲染顶部组件标题。assembleDebug 0 错误。"
 }

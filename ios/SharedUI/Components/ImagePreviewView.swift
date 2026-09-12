@@ -98,6 +98,8 @@ final class ImagePreviewView: UIView {
             // 一期占位：色块 + 序号
             let page = UIView()
             page.backgroundColor = UIColor(red: 0.12, green: 0.16, blue: 0.22, alpha: 1)
+            // 必须先入树再建约束——page.width==self.width 需共同祖先（self=ImagePreviewView）
+            contentStack.addArrangedSubview(page)
             page.snp.makeConstraints { make in make.width.equalTo(self) }
 
             let numLabel = UILabel()
@@ -108,14 +110,12 @@ final class ImagePreviewView: UIView {
             page.addSubview(numLabel)
             numLabel.snp.makeConstraints { make in make.center.equalToSuperview() }
 
-            contentStack.addArrangedSubview(page)
-
             // 圆点
             let dot = UIView()
             dot.layer.cornerRadius = 3
             dot.backgroundColor = UIColor.white.withAlphaComponent(0.4)
-            dot.snp.makeConstraints { make in make.size.equalTo(6) }
             indicatorStack.addArrangedSubview(dot)
+            dot.snp.makeConstraints { make in make.size.equalTo(6) }
             dots.append(dot)
         }
 

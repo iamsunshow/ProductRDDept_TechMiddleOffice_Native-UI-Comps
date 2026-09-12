@@ -11411,7 +11411,7 @@ final class ImagePreviewShowcase: ShowcaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "ImagePreview 图片预览"
-        addVersionBadge(componentName: "ImagePreview", version: "v1.4.32", builtAt: "2026-09-11")
+        addVersionBadge(componentName: "ImagePreview", version: "v1.4.34", builtAt: "2026-09-12")
 
         // D1 基础预览
         addSection(title: "D1 基础预览（3 张）") { container in
@@ -11489,42 +11489,43 @@ final class ImagePreviewShowcase: ShowcaseViewController {
     @objc private func openPreview1() {
         guard let window = view.window else { return }
         let preview = ImagePreviewView()
-        preview.images = [ImageSource(url: "1"), ImageSource(url: "2"), ImageSource(url: "3")]
         preview.visible = true
         window.addSubview(preview)
         preview.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        // 先入树+布局，再设 images——避免 rebuild 时 bounds=0 致 scrollTo 偏移错
+        preview.images = [ImageSource(url: "1"), ImageSource(url: "2"), ImageSource(url: "3")]
         preview.onDismiss = { preview.removeFromSuperview() }
     }
 
     @objc private func openPreview2() {
         guard let window = view.window else { return }
         let preview = ImagePreviewView()
-        preview.images = (1...5).map { ImageSource(url: "\($0)") }
-        preview.initialIndex = 2
         preview.visible = true
         window.addSubview(preview)
         preview.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        preview.images = (1...5).map { ImageSource(url: "\($0)") }
+        preview.initialIndex = 2
         preview.onDismiss = { preview.removeFromSuperview() }
     }
 
     @objc private func openPreview3() {
         guard let window = view.window else { return }
         let preview = ImagePreviewView()
-        preview.images = [ImageSource(url: "1"), ImageSource(url: "2")]
         preview.visible = true
         preview.showIndicator = false
         window.addSubview(preview)
         preview.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        preview.images = [ImageSource(url: "1"), ImageSource(url: "2")]
         preview.onDismiss = { preview.removeFromSuperview() }
     }
 
     @objc private func openPreview4() {
         guard let window = view.window else { return }
         let preview = ImagePreviewView()
-        preview.images = [ImageSource(url: "1")]
         preview.visible = true
         window.addSubview(preview)
         preview.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        preview.images = [ImageSource(url: "1")]
         preview.onDismiss = { preview.removeFromSuperview() }
     }
 }

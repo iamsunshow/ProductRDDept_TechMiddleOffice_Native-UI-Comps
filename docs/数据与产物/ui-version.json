@@ -1,6 +1,6 @@
 {
-  "version": "1.7.8",
-  "versionKey": "v1.7.8",
+  "version": "1.7.9",
+  "versionKey": "v1.7.9",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.7.8] 2026-09-12 Fixed：DropDown #17 五项交互统一——① iOS 面板只挂 window+bringSubviewToFront（防 Demo1 错位）；② 双端文字-箭头固定 4 间距（Android width(120)→widthIn(max)+spacedBy(4)、iOS 8→4、D2 列按钮箭头紧跟 title）；③ iOS D2 面板宽改 matchAnchor=列宽（v1.7.7 误收窄致截断）；④ iOS 新增点面板外空白关闭手势（对齐 Android）；⑤ Android D2 面板 DropdownMenu 悬空化（不撑开内容区域，对齐 iOS=用户指定）。"
+  "changelog": "[1.7.9] 2026-09-12 Fixed：iOS ImagePreview #62——Demo1-4 点击即 crash（Unable to activate constraint... no common ancestor）。根因：rebuild() 中 page（新建 UIView）在 addArrangedSubview 之前就 page.width==self.width 建约束，page 未入树与 self（ImagePreviewView）无共同祖先。修复：先 contentStack.addArrangedSubview(page) 再 page.snp.makeConstraints；dot 同理先 add 再建 size 约束；Demo 4 个 preview 调用顺序调整：先 window.addSubview+建约束再设 images，避免 rebuild 时 bounds=0 致 scrollTo 偏移错。"
 }

@@ -11,11 +11,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -25,7 +26,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -120,13 +124,28 @@ fun Tag(
             color = textColor,
             fontSize = size.fontSize,
             fontWeight = FontWeight.Medium,
+            modifier = Modifier.testTag("tag-text"),
+            // 小高度标签视觉居中（台账 #56）：默认行高（≈字号×1.2+）大于字号，
+            // 行盒虽被 Row 垂直居中、字形仍按 baseline 落位致视觉中线偏移，与几何居中的
+            // Close 矢量图标错位。lineHeight 收紧到字号 + Center/Trim.Both 让字形居中；
+            // Compose 1.7（BOM 2024.12.01）includeFontPadding 已默认 false，无需再设。
+            style = TextStyle(
+                lineHeight = size.fontSize,
+                lineHeightStyle = LineHeightStyle(
+                    alignment = LineHeightStyle.Alignment.Center,
+                    trim = LineHeightStyle.Trim.Both,
+                ),
+            ),
         )
         if (closable) {
+            // 文字与关闭叉间隙 2dp，对齐 iOS TagView intrinsicContentSize 中 iconSize+2。
+            Spacer(Modifier.width(2.dp))
             Icon(
                 imageVector = Icons.Filled.Close,
                 contentDescription = "关闭",
                 tint = textColor,
                 modifier = Modifier
+                    .testTag("tag-close")
                     .size(size.iconSize)
                     .clickable { onClose?.invoke() },
             )

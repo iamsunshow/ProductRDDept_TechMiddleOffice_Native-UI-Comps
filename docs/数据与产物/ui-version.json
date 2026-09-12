@@ -1,6 +1,6 @@
 {
-  "version": "1.5.8",
-  "versionKey": "v1.5.8",
+  "version": "1.5.9",
+  "versionKey": "v1.5.9",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.5.8] 2026-09-12 Fixed：Slider #45 iOS 滑块无法拖动——根因=UIControl.beginTracking/continueTracking/endTracking 依赖 touch 事件传递链，而父 UIScrollView 默认 canCancelContentTouches=true，识别到拖拽手势后调用 touchesCancelled 取消子视图 touch tracking，导致 Slider 在 Demo 页（嵌入 ShowcaseViewController 的 UIScrollView）内不可拖动。修复：弃用 UIControl tracking 机制，改用 UIPanGestureRecognizer（拖拽）+ UITapGestureRecognizer（点击轨道跳转），手势识别器优先级高于 touch tracking、不会被 ScrollView 取消；实现 UIGestureRecognizerDelegate.gestureRecognizerShouldRecognizeSimultaneouslyWith 返回 true，让 Slider 水平 pan 与 ScrollView 纵向 pan 共存。pan 改用 translation 增量计算（记录起始 ratio + 平移增量），比旧版绝对坐标更稳定。xcodebuild BUILD SUCCEEDED 0 错误。"
+  "changelog": "[1.5.9] 2026-09-12 Fixed：Tag #78 Android D2/D4 文字（及 D4 关闭叉）未垂直居中。根因=固定小高度标签（sm 20dp/md 24dp/lg 28dp）内 Text 默认行高（≈字号×1.2+）大于字号，Text 行盒虽被 Row CenterVertically 居中，字形仍按 baseline 落位导致视觉中线偏移；Close 是矢量图标严格几何居中，故 D4 文字与叉不同轴，D2 纯文字同样视觉偏中。修复=Text 收 lineHeight=fontSize 并设 LineHeightStyle(alignment=Center, trim=Trim.Both) 让字形在行盒内几何居中；closable 时文字与叉补 2dp 间隙（对齐 iOS TagView intrinsicContentSize 的 iconSize+2）；补 tag-text/tag-close testTag；Demo D1/D2 外层 Row 补 verticalAlignment=CenterVertically。新增 TagTest 4 例 Robolectric 真绿（三尺寸文字中心Y=标签中心+高度、文字与叉同轴+2dp 间隙+叉尺寸、点叉触发 onClose、非 closeable 无叉）。:app:assembleDebug BUILD SUCCESSFUL 0 错误（排查中确认 884 个连锁 Unresolved 为复合构建陈旧缓存，--rerun-tasks 全量后消失，非代码问题）。iOS TagView 本就 centerY/几何居中无需改。"
 }

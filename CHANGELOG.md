@@ -14,6 +14,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]。各条内容独立、均已验证。 -->
 
+## \[1.5.9] - 2026-09-12（Tag #78）
+
+### Fixed
+
+- **Tag #78 Android D2/D4 文字（及 D4 关闭叉）没有垂直居中**：根因=固定小高度标签（sm 20dp / md 24dp / lg 28dp，字号 11/12/14sp）内 `Text` 默认行高（≈字号×1.2+）大于字号——`Text` 行盒虽被外层 `Row` 的 `CenterVertically` 几何居中，字形仍按 baseline 在行盒内落位，视觉中线偏离标签几何中心；`Close` 矢量图标本身严格几何居中，故 D4 表现为文字与关闭叉不同轴，D2 纯文字标签同样视觉偏中（同根因对 D1/D3 同样生效，本次一并修复）。修复：① `Text` 收 `lineHeight = fontSize` 并设 `LineHeightStyle(alignment = Center, trim = Trim.Both)`，字形在行盒内几何居中（Compose BOM 2024.12.01 / UI 1.7 下 `includeFontPadding` 已默认 false，无需再设；对齐 iOS `UILabel` centerY 的视觉效果）；② closable 时文字与叉补 `Spacer(2dp)`，对齐 iOS `TagView.intrinsicContentSize` 中 `iconSize + 2` 的 2pt 间隙；③ 补 `tag-text` / `tag-close` 两个 testTag；④ Demo D1/D2 外层 `Row` 补 `verticalAlignment = CenterVertically`（与 D3 一致），徽标 v1.4.32→v1.5.9。新增 `TagTest` 4 例 Robolectric 真绿（三尺寸文字中心 Y=标签中心且高度 20/24/28dp、文字与关闭叉同轴且间隙 2dp 且叉 12dp、点叉触发一次 onClose、非 closable 无叉）。`:app:assembleDebug` BUILD SUCCESSFUL 0 错误（排查期出现的 884 个连锁 Unresolved reference 经定位为多会话并发下复合构建陈旧缓存，`--rerun-tasks` 全量重编后消失，非本次代码问题）。iOS `TagView` 本就是 label centerY + 关闭叉 `(h-iconW)/2` 几何居中，无需改动。
+
 ## \[1.5.8] - 2026-09-12（Slider #45）
 
 ### Fixed

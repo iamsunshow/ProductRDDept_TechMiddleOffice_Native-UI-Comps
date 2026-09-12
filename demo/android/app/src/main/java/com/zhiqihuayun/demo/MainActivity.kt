@@ -9235,12 +9235,12 @@ private fun TagDemo() {
             .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {
-        Text("Tag 组件 v1.4.32", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium,
+        Text("Tag 组件 v1.5.9", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium,
             modifier = Modifier.fillMaxWidth().background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm)).padding(horizontal = 10.dp, vertical = 6.dp))
 
         // D1 三种形态
         Text("D1 三种形态（filled / outline / light）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
             Tag(text = " filled ", variant = TagVariant.FILLED)
             Tag(text = "outline", variant = TagVariant.OUTLINE)
             Tag(text = " light ", variant = TagVariant.LIGHT)
@@ -9249,7 +9249,7 @@ private fun TagDemo() {
 
         // D2 四种主题色
         Text("D2 四种主题色", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
             Tag(text = "primary", color = TagColor.PRIMARY)
             Tag(text = "success", color = TagColor.SUCCESS)
             Tag(text = "warning", color = TagColor.WARNING)
@@ -9737,7 +9737,7 @@ fun ImageViewDemo() {
 
     Text("D4 fit 模式", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
     Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
-        for (scale in listOf(ContentScale.FillBounds, ContentScale.Fit, ContentScale.FillBounds)) {
+        for (scale in listOf(ContentScale.FillBounds, ContentScale.Fit, ContentScale.Crop)) {
             Box(modifier = Modifier.size(80.dp).clip(RoundedCornerShape(AppRadius.sm)).background(AppColor.bgPage)) {
                 Image(painter = rememberVectorPainter(Icons.Default.Favorite), contentDescription = null, modifier = Modifier.fillMaxSize().padding(8.dp), contentScale = scale, alpha = 0.5f)
             }

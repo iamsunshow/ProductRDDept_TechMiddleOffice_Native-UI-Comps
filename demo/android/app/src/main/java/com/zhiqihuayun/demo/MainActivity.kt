@@ -104,6 +104,7 @@ import com.zhiqihuayun.sharedui.components.DatePickerSheet
 import com.zhiqihuayun.sharedui.components.AppButton
 import com.zhiqihuayun.sharedui.components.AppButtonStyle
 import com.zhiqihuayun.sharedui.components.AppIcon
+import com.zhiqihuayun.sharedui.components.DefaultErrorPlaceholder
 import com.zhiqihuayun.sharedui.components.AppIconName
 import com.zhiqihuayun.sharedui.components.AppTheme
 import com.zhiqihuayun.sharedui.components.Cell
@@ -1778,6 +1779,8 @@ private fun CardDemo() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            // 修复（台账 #57）：4 组卡片 Demo 总高超一屏，宿主详情页不带滚动，需自带 verticalScroll。
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {
@@ -9561,10 +9564,14 @@ private fun VirtualListDemo() {
         modifier = Modifier
             .fillMaxSize()
             .background(AppColor.bgPage)
+            // 修复（台账 #57）：宿主详情页为不带滚动的 Column，D1-D4 四个列表块（300+300+250+200dp）
+            // 总高远超一屏，页面无 verticalScroll 时只能滚第一个列表、下方 Demo 不可达。
+            // 内层定高 Box 内的 LazyColumn 与外层滚动为 Compose 官方支持模式（nested scroll 自动衔接）。
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = AppSpace.xl, vertical = AppSpace.md),
         verticalArrangement = Arrangement.spacedBy(AppSpace.lg)
     ) {
-        Text("VirtualList 组件 v1.4.32", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium,
+        Text("VirtualList 组件 v1.6.2", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium,
             modifier = Modifier.fillMaxWidth().background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm)).padding(horizontal = 10.dp, vertical = 6.dp))
 
         Text("D1 基础列表（100 条）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
@@ -9711,39 +9718,57 @@ fun StepperDemo() {
 
 @Composable
 fun ImageViewDemo() {
-    Text("ImageView 图片视图 v1.0", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
+    // 修复（台账 #57）：D1-D4 图片块（160+80+100+80dp）+ 排查点文字总高超一屏，宿主详情页
+    // 不带滚动且本 Demo 原为顶层散排无容器——包一层可滚 Column（保留原有内容不动）。
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+    val density = LocalDensity.current.density
+    val sampleBmp = makeDemoBitmap(density = density)
+    Text("ImageView 图片视图 v1.6.2", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
 
+    // Demo 1 · 基础图片展示：全宽 160 高 + radiusMd 圆角 + Crop（裁切铺满）
+    // 双端统一用 makeDemoBitmap（上蓝下橙+太阳圆），不用 Material Icons（图标库渲染不同导致不一致）
     Text("D1 基础图片展示", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
     Box(modifier = Modifier.fillMaxWidth().height(160.dp).clip(RoundedCornerShape(AppRadius.md)).background(AppColor.bgPage)) {
-        Image(painter = rememberVectorPainter(Icons.Default.Folder), contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Fit, alpha = 0.3f)
+        Image(bitmap = sampleBmp, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
     }
-    Text("Image 组件已实现（v1.3.3）：支持 fit 三态 / radius 圆角 / 加载失败占位。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+    Text("样例图=320×200 上蓝下橙+白色太阳圆（8:5），Crop 等比裁切铺满容器。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 
+    // Demo 2 · 圆角变体：三个 80×80 正方形，radiusSm/radiusMd/full（圆形=宽/2=40dp）
+    // 双端统一用 makeDemoBitmap，不用图标库
     Text("D2 圆角变体", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
     Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.md)) {
-        for (r in listOf(AppRadius.sm, AppRadius.md, 999.dp)) {
+        for (r in listOf(AppRadius.sm, AppRadius.md, 40.dp)) {
             Box(modifier = Modifier.size(80.dp).clip(RoundedCornerShape(r)).background(AppColor.bgPage)) {
-                Image(painter = rememberVectorPainter(Icons.Default.Folder), contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Fit, alpha = 0.3f)
+                Image(bitmap = sampleBmp, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
             }
         }
     }
-    Text("radiusSm / radiusMd / full 三态。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+    Text("radiusSm / radiusMd / full（=宽/2=40dp 即圆形）三态，均为 80×80 正方形。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 
+    // Demo 3 · 加载失败占位：100×100 容器 + 自绘破图图形（与 iOS makeErrorPlaceholder 同数学定义）
+    // 双端统一用破图自绘图形，不用 Material Icons
     Text("D3 加载失败占位", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
     Box(modifier = Modifier.size(100.dp).clip(RoundedCornerShape(AppRadius.md)).background(AppColor.bgPage)) {
-        Image(painter = rememberVectorPainter(Icons.Default.Notifications), contentDescription = null, modifier = Modifier.fillMaxSize().padding(20.dp), contentScale = ContentScale.Fit, alpha = 0.3f)
+        DefaultErrorPlaceholder(modifier = Modifier.fillMaxSize())
     }
-    Text("加载失败时显示占位图形。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+    Text("加载失败时显示自绘破图图形（外框+太阳+山形折线）+「加载失败」文案。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 
+    // Demo 4 · fit 模式：三个 80×80 正方形，FillBounds/Fit/Crop 三种 contentScale
+    // 双端统一用 makeDemoBitmap，不用图标库
     Text("D4 fit 模式", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
     Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
         for (scale in listOf(ContentScale.FillBounds, ContentScale.Fit, ContentScale.Crop)) {
             Box(modifier = Modifier.size(80.dp).clip(RoundedCornerShape(AppRadius.sm)).background(AppColor.bgPage)) {
-                Image(painter = rememberVectorPainter(Icons.Default.Favorite), contentDescription = null, modifier = Modifier.fillMaxSize().padding(8.dp), contentScale = scale, alpha = 0.5f)
+                Image(bitmap = sampleBmp, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = scale)
             }
         }
     }
-    Text("fill / fit / cover 三种 contentScale 示意。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+    Text("fill=拉伸铺满 / fit=等比留白 / cover=等比裁切，三个 80×80 大小一致。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+    }
 }
 
 // MARK: - PickerViewDemo

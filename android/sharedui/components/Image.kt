@@ -309,9 +309,9 @@ private fun DefaultLoadingPlaceholder() {
 
 /** 失败占位：bgCard 底 + 破图图形（Canvas 画框/太阳/山形，gray.25）+「加载失败」（textSecondary/sizeSm）。 */
 @Composable
-private fun DefaultErrorPlaceholder() {
+fun DefaultErrorPlaceholder(modifier: Modifier = Modifier) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(AppColor.bgCard)
             .testTag("image-error"),

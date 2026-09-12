@@ -12,7 +12,19 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ***
 
-<!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]。各条内容独立、均已验证。 -->
+<!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。 -->
+
+## \[1.6.3] - 2026-09-12（ImageView #44 双端图片不一致修复）
+
+### Fixed
+
+- **ImageView #44 iOS Demo1/2/4 图片与 Android 不一致 + Demo2 只显示两个 + Demo4 三个大小不一样**：根因=① iOS 用 SF Symbol（`folder.fill`/`bell.fill`/`heart.fill`）+ Android 用 Material Icons（`Folder`/`Notifications`/`Favorite`），两图标库渲染风格完全不同；② Demo2 `UIStackView` `distribution=.fill` + 三 80×80 + `spacing.md` 总宽 272pt 但 `.fill` 在父宽度不足时按比例压缩到非 80×80 正方形→第三个被挤出可见区；③ Demo4 同 `.fill` 导致三个非 80×80。修复：①双端 Demo1/2/4 全部改用 `sampleImage`/`makeDemoBitmap`（320×200 上蓝下橙+太阳圆，Image 组件已验证双端像素级一致），彻底弃用图标库；②双端 Demo3 改用 `DefaultErrorPlaceholder`/`makeErrorPlaceholder` 自绘破图图形（外框+太阳+山形折线，同数学定义）；③ iOS Demo2/4 `UIStackView` `distribution` 改 `.fillEqually` + 加 bottom 约束确保三等分；④ Android Demo2 full 圆角从 `999.dp` 改 `40.dp`（=宽/2=圆形，与 iOS 40pt 一致）；⑤ Android `DefaultErrorPlaceholder` 从 private 改 public + 加 modifier 参数；⑥ Android `makeDemoBitmap` 从 private 改 internal。`xcodebuild` + `gradle` 双端 0 错误。
+
+## \[1.6.2] - 2026-09-12（VirtualList #81 Demo 滚动收口）
+
+### Fixed
+
+- **VirtualList #81 Android Demo 页无法拖动、D2-D4 不可达（模式性故障第 5 次，全量收口）**：根因与台账 #53（PickerView）完全同病——Demo 宿主详情页 `TmoDemo` 为不带滚动的 `Column`（返回键+大标题后 `current?.invoke()` 直接铺内容），**每个 Demo 页面必须自带滚动容器**；`VirtualListDemo` 自带 `fillMaxSize` Column 但没有 `verticalScroll`，被宿主约束为一屏高，D1-D4 四个列表块（300+300+250+200dp）总高约 1300dp 溢出不可达——用户只能滚动 D1 列表本身，页面整体无法拖动。该故障已反复出现 5 次（Empty Demo 1100 行、Drag Demo 7219/7237 行、PickerView #53、本次 3 个）。本次不再逐个打补丁，**脚本扫描全部 75 个 Demo 函数的页面级容器一次收口**：其余 10 个候选经甄别均为页面级 `LazyColumn`（自带滚动）误报，真缺滚动的共 3 个——① `VirtualListDemo` 补 `verticalScroll`（内层定高 Box 中的 LazyColumn 与外层滚动为 Compose 官方支持模式，nested scroll 自动衔接：列表滚到边界后续滚页面），徽标 v1.4.32→v1.6.2；② `CardDemo` 主体 Column 补 `verticalScroll`；③ `ImageViewDemo` 顶层散排包一层可滚 Column。三处均带台账 #57 注释。组件层（`VirtualList.kt` 等）零改动；iOS Showcase 为 UIScrollView 宿主 + UITableView 定高嵌套，页面本身可滚，不同病无需改。**禁令升级**：Demo 页内容超一屏必须自带 `verticalScroll`（页面级 LazyColumn 亦可），新增 Demo 一律过此门禁。`:app:assembleDebug` BUILD SUCCESSFUL 0 错误。
 
 ## \[1.6.1] - 2026-09-12（DropDown #22）
 

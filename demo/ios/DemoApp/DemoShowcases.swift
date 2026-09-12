@@ -1360,7 +1360,8 @@ final class ImageShowcase: ShowcaseViewController {
     }
 
     /// 生成 320×200 样例图：上蓝下橙 + 白色太阳圆（与 Android makeDemoBitmap 视觉一致）。
-    private static func makeSampleImage() -> UIImage {
+    /// ImageViewShowcase 复用此方法，确保双端 Demo 图片内容完全一致。
+    static func makeSampleImage() -> UIImage {
         let width: CGFloat = 320
         let height: CGFloat = 200
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: width, height: height))
@@ -11729,45 +11730,51 @@ final class StepperShowcase: ShowcaseViewController {
 // MARK: - ImageViewShowcase
 
 final class ImageViewShowcase: ShowcaseViewController {
+    /// 样例图：320×200 上蓝下橙+白色太阳圆，与 Android makeDemoBitmap 视觉完全一致。
+    private lazy var sampleImage: UIImage = ImageShowcase.makeSampleImage()
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        addVersionBadge(componentName: "ImageView", version: "v1.0", builtAt: "2026-09-12")
+        addVersionBadge(componentName: "ImageView", version: "v1.6.2", builtAt: "2026-09-12")
 
+        // Demo 1 · 基础图片展示：全宽 160 高 + radiusMd 圆角 + scaleAspectFill（裁切铺满）
+        // 双端统一用 sampleImage（上蓝下橙+太阳圆），不用 SF Symbol/Material Icons（图标库渲染不同导致不一致）
         addSection(title: "Demo 1 · 基础图片展示") { container in
             let img = UIImageView()
-            img.contentMode = .scaleAspectFit
+            img.contentMode = .scaleAspectFill
             img.clipsToBounds = true
             img.backgroundColor = AppColor.bgPage
-            img.image = UIImage(systemName: "folder.fill")
-            img.tintColor = AppColor.textSecondary.withAlphaComponent(0.3)
+            img.image = self.sampleImage
             container.addSubview(img)
             img.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(160); $0.bottom.equalToSuperview() }
             img.layer.cornerRadius = AppRadius.md
         }
-        addInfo("Image 组件已实现（v1.3.3）：支持 fit 三态 / radius 圆角 / 加载失败占位。ImageView 复用 Image 组件。")
+        addInfo("样例图=320×200 上蓝下橙+白色太阳圆（8:5），scaleAspectFill 等比裁切铺满容器。")
 
+        // Demo 2 · 圆角变体：三个 80×80 正方形，radiusSm/radiusMd/full（圆形=宽/2=40）
+        // 双端统一用 sampleImage，不用图标库
         addSection(title: "Demo 2 · 圆角变体") { container in
             let row = UIStackView()
             row.axis = .horizontal
             row.spacing = AppSpace.md
-            row.distribution = .fill
+            row.distribution = .fillEqually
             container.addSubview(row)
-            row.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg) }
-            for (label, radius) in [("radiusSm", AppRadius.sm), ("radiusMd", AppRadius.md), ("full", 999)] {
+            row.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.bottom.equalToSuperview() }
+            for (label, radius) in [("radiusSm", AppRadius.sm), ("radiusMd", AppRadius.md), ("full", 40)] {
                 let img = UIImageView()
-                img.contentMode = .scaleAspectFit
+                img.contentMode = .scaleAspectFill
                 img.clipsToBounds = true
                 img.backgroundColor = AppColor.bgPage
-                img.image = UIImage(systemName: "folder.fill")
-                img.tintColor = AppColor.textSecondary.withAlphaComponent(0.3)
+                img.image = self.sampleImage
                 img.layer.cornerRadius = radius
                 row.addArrangedSubview(img)
                 img.snp.makeConstraints { $0.width.height.equalTo(80) }
             }
-            row.snp.makeConstraints { $0.bottom.equalToSuperview() }
         }
-        addInfo("radiusSm / radiusMd / full（宽/2 圆角）三态。")
+        addInfo("radiusSm / radiusMd / full（=宽/2=40 即圆形）三态，均为 80×80 正方形。")
 
+        // Demo 3 · 加载失败占位：100×100 容器 + 自绘破图图形（与 Android DefaultErrorPlaceholder 同数学定义）
+        // 双端统一用破图自绘图形，不用 SF Symbol/Material Icons
         addSection(title: "Demo 3 · 加载失败占位") { container in
             let box = UIView()
             box.backgroundColor = AppColor.bgPage
@@ -11775,22 +11782,23 @@ final class ImageViewShowcase: ShowcaseViewController {
             box.clipsToBounds = true
             container.addSubview(box)
             box.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.width.height.equalTo(100); $0.bottom.equalToSuperview().offset(-AppSpace.md) }
-            let img = UIImageView()
-            img.contentMode = .scaleAspectFit
-            img.image = UIImage(systemName: "bell.fill")
-            img.tintColor = AppColor.textSecondary.withAlphaComponent(0.3)
-            box.addSubview(img)
-            img.snp.makeConstraints { $0.edges.equalToSuperview().inset(20) }
+            let placeholder = Image.makeErrorPlaceholder()
+            box.addSubview(placeholder)
+            placeholder.snp.makeConstraints { $0.edges.equalToSuperview() }
         }
-        addInfo("加载失败时显示占位图形（Image 组件状态机已处理）。")
+        addInfo("加载失败时显示自绘破图图形（外框+太阳+山形折线）+「加载失败」文案。")
 
+        // Demo 4 · fit 模式：三个 80×80 正方形，fill/fit/cover 三种 contentMode
+        // 双端统一用 sampleImage，不用图标库
         addSection(title: "Demo 4 · fit 模式") { container in
             let row = UIStackView()
             row.axis = .horizontal
             row.spacing = AppSpace.sm
+            row.distribution = .fillEqually
             container.addSubview(row)
-            row.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg) }
-            for mode in [UIView.ContentMode.scaleToFill, .scaleAspectFit, .scaleAspectFill] {
+            row.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.bottom.equalToSuperview() }
+            let modes: [(UIView.ContentMode, String)] = [(.scaleToFill, "fill"), (.scaleAspectFit, "fit"), (.scaleAspectFill, "cover")]
+            for (mode, label) in modes {
                 let box = UIView()
                 box.backgroundColor = AppColor.bgPage
                 box.layer.cornerRadius = AppRadius.sm
@@ -11799,14 +11807,12 @@ final class ImageViewShowcase: ShowcaseViewController {
                 box.snp.makeConstraints { $0.width.height.equalTo(80) }
                 let img = UIImageView()
                 img.contentMode = mode
-                img.image = UIImage(systemName: "heart.fill")
-                img.tintColor = AppColor.primary.withAlphaComponent(0.5)
+                img.image = self.sampleImage
                 box.addSubview(img)
-                img.snp.makeConstraints { $0.edges.equalToSuperview().inset(8) }
+                img.snp.makeConstraints { $0.edges.equalToSuperview() }
             }
-            row.snp.makeConstraints { $0.bottom.equalToSuperview() }
         }
-        addInfo("fill / fit / cover 三种 contentMode 示意。")
+        addInfo("fill=拉伸铺满 / fit=等比留白 / cover=等比裁切，三个 80×80 大小一致。")
     }
 }
 

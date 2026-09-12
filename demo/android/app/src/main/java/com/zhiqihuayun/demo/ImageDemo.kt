@@ -51,7 +51,7 @@ import com.zhiqihuayun.sharedui.components.Image
  *  默认 320×200 dp 逻辑尺寸 → density=3 时 960×600 px，与 iOS 3x 屏幕下"原图 320pt×200pt（实像素 960×600）→ 容器 120pt×90pt（实像素 360×270）" 的比率完全一致。
  *  v1.3.3 Bug1 / Demo2 末 2 卡（none/scale-down）双端尺寸&太阳位置对齐修复。
  */
-private fun makeDemoBitmap(logicalWidthDp: Int = 320, logicalHeightDp: Int = 200, density: Float): ImageBitmap {
+internal fun makeDemoBitmap(logicalWidthDp: Int = 320, logicalHeightDp: Int = 200, density: Float): ImageBitmap {
     val w = (logicalWidthDp * density).toInt()
     val h = (logicalHeightDp * density).toInt()
     val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)

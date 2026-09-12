@@ -1,6 +1,6 @@
 {
-  "version": "1.6.1",
-  "versionKey": "v1.6.1",
+  "version": "1.6.3",
+  "versionKey": "v1.6.3",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.6.1] 2026-09-12 Fixed：DropDown #22 iOS Demo1/3/4 内容不可见——高度坍缩。根因=DropDownView 约束用 top.bottom.equalToSuperview()（等式约束优先级1000），定义 DropDownView 高度=container 高度-md，但 container 高度又依赖 DropDownView 高度（循环依赖），intrinsicContentSize.height=44（优先级250）被等式约束架空导致高度坍缩为0。Demo2 DropDownMenuView 能显示是因为内部 barStack 的 UIButton(system+title) 有 intrinsicContentSize 能打破循环。修复：Demo1/2/3/4 约束加显式 height(triggerHeight=44)，用 1000 优先级显式高度打破循环依赖。xcodebuild BUILD SUCCEEDED 0 错误。"
+  "changelog": "[1.6.3] 2026-09-12 Fixed：ImageView #44 iOS Demo1/2/4 图片与 Android 不一致 + Demo2 只显示两个 + Demo4 三个大小不一样。根因=iOS 用 SF Symbol（folder.fill/bell.fill/heart.fill）+ Android 用 Material Icons（Folder/Notifications/Favorite），两图标库渲染风格完全不同；Demo2 UIStackView distribution=.fill + 三 80×80 + spacing.md 总宽 272pt 但 .fill 在父宽度不足时按比例压缩到非 80×80 正方形→第三个被挤出可见区；Demo4 同 .fill 导致三个非 80×80。修复：①双端 Demo1/2/4 全部改用 sampleImage/makeDemoBitmap（320×200 上蓝下橙+太阳圆，Image 组件已验证双端像素级一致），彻底弃用图标库；②双端 Demo3 改用 DefaultErrorPlaceholder/makeErrorPlaceholder 自绘破图图形（外框+太阳+山形折线，同数学定义）；③iOS Demo2/4 UIStackView distribution 改 .fillEqually + 加 bottom 约束确保三等分；④Android Demo2 full 圆角从 999.dp 改 40.dp（=宽/2=圆形，与 iOS 40pt 一致）；⑤Android DefaultErrorPlaceholder 从 private 改 public + 加 modifier 参数；⑥Android makeDemoBitmap 从 private 改 internal。xcodebuild + gradle 双端 0 错误。"
 }

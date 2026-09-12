@@ -113,7 +113,7 @@ fun Tag(
             .background(bgColor, shape)
             .padding(horizontal = size.paddingH),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        horizontalArrangement = Arrangement.Center,
     ) {
         Text(
             text = text,

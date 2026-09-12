@@ -84,6 +84,8 @@ final class TagView: UIView {
 
     private let label = UILabel()
     private let closeIcon = UIImageView()
+    private var labelLeading: Constraint?
+    private var labelTrailing: Constraint?
 
     // MARK: - 初始化
 
@@ -94,6 +96,11 @@ final class TagView: UIView {
 
         label.textAlignment = .center
         addSubview(label)
+        label.snp.makeConstraints { make in
+            self.labelLeading = make.leading.equalToSuperview().offset(tagSize.paddingH).constraint
+            self.labelTrailing = make.trailing.equalToSuperview().offset(-tagSize.paddingH).constraint
+            make.centerY.equalToSuperview()
+        }
 
         closeIcon.contentMode = .scaleAspectFit
         closeIcon.image = UIImage(systemName: "xmark")
@@ -129,10 +136,14 @@ final class TagView: UIView {
         if closable {
             closeIcon.isHidden = false
             closeIcon.frame = CGRect(x: iconX, y: iconY, width: iconW, height: iconW)
-            label.frame = CGRect(x: tagSize.paddingH, y: 0, width: iconX - tagSize.paddingH - 2, height: bounds.height)
+            label.snp.updateConstraints { make in
+                make.trailing.equalToSuperview().offset(-(iconX - 2))
+            }
         } else {
             closeIcon.isHidden = true
-            label.frame = CGRect(x: tagSize.paddingH, y: 0, width: bounds.width - tagSize.paddingH * 2, height: bounds.height)
+            label.snp.updateConstraints { make in
+                make.trailing.equalToSuperview().offset(-tagSize.paddingH)
+            }
         }
     }
 
@@ -149,7 +160,8 @@ final class TagView: UIView {
         let c = tagColor.color
         label.text = text
         label.font = .systemFont(ofSize: tagSize.fontSize, weight: .medium)
-        label.sizeToFit()
+        labelLeading?.update(offset: tagSize.paddingH)
+        labelTrailing?.update(offset: -tagSize.paddingH)
 
         switch variant {
         case .filled:

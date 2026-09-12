@@ -14,6 +14,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。④ [1.7.5] 两条=LineChart #84 三优化（cc09660，Trae）与 iOS Tag 文字不可见第三次修复（5e2a250，他会话）同号并存——他会话提交窗口与 Trae 文档编辑重叠，条目未互相覆盖、内容均有效，v1.7.5 号双主题共用，不改史。 -->
 
+## \[1.8.2] - 2026-09-12（iOS VirtualList #66）
+
+### Fixed
+
+- **iOS VirtualList Demo1-4 可见但列表仍无数据**（v1.8.1 修复约束后的残留问题）：`items` 的 `didSet` 只调了 `tableView.reloadData()`，**没调 `updateEmpty()`**——`setup()` 时 `items=[]` → `updateEmpty()` 设 `tableView.isHidden=true`；Demo 设 items 后 didSet 只 reloadData 不更新 hidden 状态，tableView 仍被隐藏。修复：`items.didSet` 补 `updateEmpty()` 调用。
+
 ## \[1.8.1] - 2026-09-12（iOS VirtualList #65）
 
 ### Fixed

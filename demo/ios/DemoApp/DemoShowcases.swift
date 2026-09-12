@@ -11537,7 +11537,7 @@ final class VirtualListShowcase: ShowcaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "VirtualList 虚拟列表"
-        addVersionBadge(componentName: "VirtualList", version: "v1.4.35", builtAt: "2026-09-12")
+        addVersionBadge(componentName: "VirtualList", version: "v1.4.36", builtAt: "2026-09-12")
 
         // D1 基础列表
         addSection(title: "D1 基础列表（100 条）") { container in

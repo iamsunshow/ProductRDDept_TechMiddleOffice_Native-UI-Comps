@@ -16,7 +16,7 @@ struct VirtualListItem {
 final class VirtualListView: UIView {
     // MARK: - 配置
 
-    var items: [VirtualListItem] = [] { didSet { tableView.reloadData() } }
+    var items: [VirtualListItem] = [] { didSet { tableView.reloadData(); updateEmpty() } }
     var onItemClick: ((Int) -> Void)?
     var showSeparator: Bool = true { didSet { tableView.separatorStyle = showSeparator ? .singleLine : .none } }
     var emptyText: String = "暂无数据" { didSet { updateEmpty() } }

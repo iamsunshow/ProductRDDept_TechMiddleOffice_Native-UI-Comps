@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-09-05T20:00:00+08:00",
-  "componentCount": 77,
+  "updatedAt": "2026-09-12T23:30:00+08:00",
+  "componentCount": 90,
   "components": [
     {
       "id": "ui.empty",
@@ -9409,6 +9409,506 @@
       "note": "步进器 Stepper（任务清单 #46，2026-09-12 双端实现入库当日 C1.5 用户 Demo 实机验收通过 iOS/Android）。与 Pagination（总页数跳页）/InputNumber（键盘输入+格式化）划界：Stepper 纯点按增减。",
       "subcategory": "form",
       "tier": "form",
+      "reviewed": true
+    },
+    {
+      "id": "ui.tag",
+      "name": "标签 Tag",
+      "category": "ui",
+      "subcategory": "display",
+      "summary": "标签——三形态（filled 实心/outline 描边/light 浅底）×四色×三尺寸（sm/md/lg 20/24/28dp），可选 closable 关闭叉；文字几何居中（lineHeight=字号+Center/Trim）",
+      "capabilities": [
+        "标签",
+        "Tag",
+        "标记",
+        "分类标签",
+        "可关闭标签",
+        "三形态",
+        "四色",
+        "basic.tag",
+        "ui.tag"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "TagView.swift：UIKit UIStackView 内容栈+三形态四色三尺寸+关闭叉，convenience init(text,variant,color,size,closable)"
+        },
+        "android": {
+          "state": "available",
+          "note": "Tag.kt：Compose 胶囊 Row+Canvas 关闭叉，lineHeight=fontSize+LineHeightStyle(Center,Trim.Both) 几何居中"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/TagView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Tag.kt"
+      },
+      "deps": [],
+      "variants": [
+        "filled",
+        "outline",
+        "light"
+      ],
+      "anti_goals": [],
+      "visual_tokens": [
+        "color.primary",
+        "color.success",
+        "color.warning",
+        "color.danger",
+        "color.textPrimary",
+        "color.bgCard",
+        "radius.sm"
+      ],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "标签 Tag 标记 分类标签 可关闭 三形态 四色 basic.tag ui.tag",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "Tag",
+        "标签 Tag"
+      ],
+      "props": [
+        [
+          "text",
+          "String",
+          "是",
+          "标签文字"
+        ],
+        [
+          "color",
+          "TagColor",
+          "否，默认 primary",
+          "四色（primary/success/warning/danger）"
+        ],
+        [
+          "variant",
+          "TagVariant",
+          "否，默认 filled",
+          "三形态：filled 实心/outline 描边/light 浅底"
+        ],
+        [
+          "size",
+          "TagSize",
+          "否，默认 sm",
+          "三尺寸：sm/md/lg（20/24/28dp，字号 11/12/14）"
+        ],
+        [
+          "closable",
+          "Boolean",
+          "否，默认 false",
+          "是否显示右侧关闭叉"
+        ]
+      ],
+      "events": [
+        [
+          "onClose",
+          "(() -> Unit)?",
+          "点击关闭叉回调；null=不可关闭纯展示"
+        ]
+      ],
+      "demos": [
+        [
+          "三形态",
+          "D1：filled/outline/light"
+        ],
+        [
+          "四色",
+          "D2：primary/success/warning/danger"
+        ],
+        [
+          "三尺寸",
+          "D3：sm/md/lg"
+        ],
+        [
+          "可关闭",
+          "D4：closable+onClose"
+        ]
+      ],
+      "note": "任务清单 #78，2026-09-11 双端实现入库；C1.5 经 v1.5.9（文字几何居中）/v1.7.5-v1.7.7（iOS 布局循环+didSet 陷阱+11 例单测）修复；2026-09-12 C1.5 用户双端 Demo 实机验收通过（原话「Tag：已通过」）。",
+      "reviewed": true
+    },
+    {
+      "id": "ui.tour",
+      "name": "引导 Tour",
+      "category": "ui",
+      "subcategory": "feedback",
+      "summary": "新手引导——全屏半透明遮罩+中央卡片（标题+描述）+上一步/下一步/跳过，steps 数据驱动、current 半受控（onChange 回写），末步显示完成",
+      "capabilities": [
+        "引导",
+        "Tour",
+        "新手引导",
+        "遮罩引导",
+        "步骤引导",
+        "操作指引",
+        "basic.tour",
+        "ui.tour"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "TourView.swift：UIView 遮罩+中央卡片+三按钮（contentEdgeInsets sm/md），steps/current/showSkip 属性 didSet 刷新，onChange/onFinish 回调"
+        },
+        "android": {
+          "state": "available",
+          "note": "Tour.kt：Compose Box 全屏遮罩+Column 卡片+TourButton（padding md/sm），visible 受控"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/TourView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/Tour.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [],
+      "visual_tokens": [
+        "color.textPrimary",
+        "color.textSecondary",
+        "color.primary",
+        "color.bgCard",
+        "space.md",
+        "space.sm"
+      ],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "引导 Tour 新手引导 遮罩 步骤 操作指引 basic.tour ui.tour",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "Tour",
+        "引导 Tour",
+        "新手引导"
+      ],
+      "props": [
+        [
+          "steps",
+          "List<TourStep>",
+          "是",
+          "步骤列表（TourStep=title+description）"
+        ],
+        [
+          "current",
+          "Int",
+          "是",
+          "当前步骤索引（半受控，onChange 后外部回写）"
+        ],
+        [
+          "visible",
+          "Boolean",
+          "是（Android）",
+          "是否显示遮罩（iOS 以 addSubview/removeFromSuperview 控制）"
+        ],
+        [
+          "showSkip",
+          "Boolean",
+          "否，默认 true",
+          "是否显示跳过按钮（false 时仅能走完全程关闭）"
+        ],
+        [
+          "maskColor",
+          "Color",
+          "否，默认黑 70%",
+          "遮罩颜色（Android）"
+        ]
+      ],
+      "events": [
+        [
+          "onChange",
+          "(Int) -> Unit",
+          "步骤切换回调（上一步/下一步），外部须回写 current"
+        ],
+        [
+          "onFinish",
+          "() -> Unit",
+          "完成（末步）或跳过回调"
+        ]
+      ],
+      "demos": [
+        [
+          "基础引导",
+          "D1：3 步全流程"
+        ],
+        [
+          "隐藏跳过",
+          "D2：showSkip=false"
+        ],
+        [
+          "单步",
+          "D3：仅 1 步直接完成"
+        ],
+        [
+          "自定义遮罩",
+          "D4：maskColor 自定义"
+        ]
+      ],
+      "note": "任务清单 #79，2026-09-11 双端实现入库；C1.5 v1.7.8（台账 #61）修复 iOS Demo 缺 onChange 回写链致下一步无反应/Demo2 无法关闭+按钮贴边；2026-09-12 C1.5 用户双端 Demo 实机验收通过（原话「Tour：已通过」）。",
+      "reviewed": true
+    },
+    {
+      "id": "ui.image-preview",
+      "name": "图片预览 ImagePreview",
+      "category": "ui",
+      "subcategory": "display",
+      "summary": "全屏图片预览——横滑分页（UIPageViewController/HorizontalPager）+圆点页码指示器，initialIndex 指定初始页，showIndicator 可隐，点背景关闭",
+      "capabilities": [
+        "图片预览",
+        "ImagePreview",
+        "大图查看",
+        "图片缩放",
+        "轮播预览",
+        "分页",
+        "basic.image-preview",
+        "ui.image-preview"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "ImagePreviewView.swift：UIScrollView+UIPageViewController 横滑+圆点指示器，images/initialIndex/showIndicator 属性 didSet，先入树再建约束"
+        },
+        "android": {
+          "state": "available",
+          "note": "ImagePreview.kt：Compose HorizontalPager+rememberPagerState+圆点指示器，visible 受控，onPageChange 随页回调"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/ImagePreviewView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/ImagePreview.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [],
+      "visual_tokens": [
+        "color.bgMask",
+        "color.textInverse",
+        "space.md"
+      ],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "图片预览 ImagePreview 大图查看 横滑 分页 圆点指示器 basic.image-preview ui.image-preview",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "ImagePreview",
+        "图片预览 ImagePreview"
+      ],
+      "props": [
+        [
+          "images",
+          "List<ImageSource>",
+          "是",
+          "图片列表（ImageSource.url）"
+        ],
+        [
+          "initialIndex",
+          "Int",
+          "否，默认 0",
+          "初始展示页索引"
+        ],
+        [
+          "visible",
+          "Boolean",
+          "是",
+          "是否显示（受控，iOS=isHidden）"
+        ],
+        [
+          "showIndicator",
+          "Boolean",
+          "否，默认 true",
+          "是否显示底部圆点页码指示器"
+        ]
+      ],
+      "events": [
+        [
+          "onDismiss",
+          "() -> Unit",
+          "关闭预览回调（点背景/关闭）"
+        ],
+        [
+          "onPageChange",
+          "((Int) -> Unit)?",
+          "横滑翻页回调当前索引"
+        ]
+      ],
+      "demos": [
+        [
+          "基础预览",
+          "D1：3 张图"
+        ],
+        [
+          "指定初始页",
+          "D2：initialIndex 指定"
+        ],
+        [
+          "隐藏指示器",
+          "D3：showIndicator=false"
+        ],
+        [
+          "单图",
+          "D4：仅 1 张无圆点"
+        ]
+      ],
+      "note": "任务清单 #68，2026-09-11 双端实现入库；C1.5 v1.7.9（台账 #63）修复 iOS 未入树先建跨层级约束致点击即 crash；2026-09-12 C1.5 用户双端 Demo 实机验收通过（原话「ImagePreview：已通过」）。",
+      "reviewed": true
+    },
+    {
+      "id": "ui.virtual-list",
+      "name": "虚拟列表 VirtualList",
+      "category": "ui",
+      "subcategory": "display",
+      "summary": "高性能虚拟列表——cell 复用（UITableView/LazyColumn），固定 itemHeight，支持双行副标题/分隔线/头部插槽/空态文案，超长列表流畅滚动",
+      "capabilities": [
+        "虚拟列表",
+        "VirtualList",
+        "长列表",
+        "懒加载",
+        "cell复用",
+        "列表",
+        "高性能列表",
+        "basic.virtual-list",
+        "ui.virtual-list"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "VirtualListView.swift：UITableView cell 复用，items didSet 调 reloadData+updateEmpty（hidden 联动），定高 edges 布局"
+        },
+        "android": {
+          "state": "available",
+          "note": "VirtualList.kt：Compose LazyColumn itemsIndexed，itemHeight 定高，空态居中文案"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": "暂未支持"
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/VirtualListView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/VirtualList.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [],
+      "visual_tokens": [
+        "color.textPrimary",
+        "color.textSecondary",
+        "color.bgPage",
+        "color.bgCard",
+        "color.border"
+      ],
+      "apis": "",
+      "visual_refs": [],
+      "status": "stable",
+      "search_text": "虚拟列表 VirtualList 长列表 懒加载 cell复用 定高 空态 basic.virtual-list ui.virtual-list",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "VirtualList",
+        "虚拟列表 VirtualList"
+      ],
+      "props": [
+        [
+          "items",
+          "List<VirtualListItem>",
+          "是",
+          "数据列表（VirtualListItem=title+subtitle?）"
+        ],
+        [
+          "itemHeight",
+          "Dp?",
+          "否，默认 56dp",
+          "每项固定高度（null=自适应）；iOS 按 Demo 固定高度"
+        ],
+        [
+          "showSeparator",
+          "Boolean",
+          "否，默认 true",
+          "是否显示行分隔线"
+        ],
+        [
+          "header",
+          "@Composable () -> Unit?",
+          "否",
+          "列表头部插槽（Android）"
+        ],
+        [
+          "emptyText",
+          "String",
+          "否，默认「暂无数据」",
+          "空数据居中提示文案"
+        ]
+      ],
+      "events": [
+        [
+          "onItemClick",
+          "((Int) -> Unit)?",
+          "点击某行回调索引；null=不可点"
+        ]
+      ],
+      "demos": [
+        [
+          "基础列表",
+          "D1：100 条单行"
+        ],
+        [
+          "双行副标题",
+          "D2：title+subtitle（64dp 行高）"
+        ],
+        [
+          "无分隔线",
+          "D3：showSeparator=false"
+        ],
+        [
+          "空态",
+          "D4：items=[] 显示空文案"
+        ]
+      ],
+      "note": "任务清单 #81，2026-09-11 双端实现入库；C1.5 经 v1.6.2（#57 Demo 页 verticalScroll 收口）/v1.8.1（#65 iOS centerY 不撑开 arrangedSubview 高度）/v1.8.2（#66 items.didSet 不刷 hidden+VirtualListTests 4 例）修复；2026-09-12 C1.5 用户双端 Demo 实机验收通过（原话「VirtualList：已通过」）。",
       "reviewed": true
     }
   ],

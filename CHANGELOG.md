@@ -14,6 +14,20 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。④ [1.7.5] 两条=LineChart #84 三优化（cc09660，Trae）与 iOS Tag 文字不可见第三次修复（5e2a250，他会话）同号并存——他会话提交窗口与 Trae 文档编辑重叠，条目未互相覆盖、内容均有效，v1.7.5 号双主题共用，不改史。 -->
 
+## \[1.8.5] - 2026-09-12（Tag/Tour/ImagePreview/VirtualList 四组件 C1.5 验收收口）
+
+### Changed
+
+- **四组件验收收口（纯文档，组件代码零改动）**：用户 2026-09-12 双端实机验收通过（原话「Tag：已通过」「Tour：已通过」「ImagePreview：已通过」「VirtualList：已通过」）。① api.json 新建 ui.tag/ui.tour/ui.image-preview/ui.virtual-list 四条目（reviewed=true、双端 state=available+status=stable、props/events/source_refs/note 全量登记），componentCount 77→90；② 回归测试台账 #56（Tag）/#57、#65、#66（VirtualList）/#61（Tour）/#63（ImagePreview）六行补验收结论；③ 双端 Demo 列表 passed=true 已由 3445d46 提前入库，进度表四行 ✅ 已在位。注：本条目无组件代码改动，升版仅为统一登记文档收口批次（先例=LineChart 验收批次 v1.7.6）。
+
+## \[1.8.4] - 2026-09-12（DropDown #68 三项双端一致）
+
+### Fixed
+
+- **Android D2 菜单尺寸**：DropdownMenu 宽度原为内容自适应（窄于列按钮），改用 `BoxWithConstraints` 取列宽 `maxWidth` 并 `width(columnWidth)`，面板与 iOS `matchAnchor` 一样=列按钮宽。
+- **Android D4「外部切到 C」按钮**：Material3 `Button`（实心胶囊、默认整行观感）改 `TextButton`（纯文字链接、wrap 宽度紧挨下拉左下方），对齐 iOS `UIButton(type: .system)`；iOS 侧 D4 值居右、按钮紧挨在 v1.8.0 已修复（本次 iPhone 14 Pro 模拟器实证）。
+- **D1/D4 浅灰背景观感不一（根因修复）**：iOS 组件灰药丸（bgPage）与 Demo section 容器同色被吞没显白——`addSection` 新增 `containerColor` 参数（默认 bgPage，其余组件零影响），DropDown 四段传 bgCard 白容器形成反差；同时撤销 #64 对 D2 列按钮的 black 4% 临时改色，双端回归设计 token bgPage（白卡上即浅灰药丸，与 Android 一致）。
+
 ## \[1.8.3] - 2026-09-12（Android Swipe #67）
 
 ### Fixed
@@ -44,14 +58,6 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 - **iOS Tour Demo1-4 点击下一步无反应/无法关闭**：4 个 Demo 均缺 `tour.onChange = { tour.current = $0 }` 回调，导致 `nextTapped()` 调用 `onChange?(current + 1)` 时 `current` 不更新、`updateContent()` 不触发，按钮文字与步骤指示停滞；Demo2（`showSkip=false`）尤为明显——只能走"下一步→完成"路径，但 `isLast` 永远为 `false`，"完成"按钮永不出现，引导层无法关闭。4 个 Demo 统一补 `onChange` 回调，步骤切换与完成/关闭恢复正常。
 - **iOS Tour 按钮文字紧贴边缘**：`nextButton`/`prevButton`/`skipButton` 三按钮均未设 `contentEdgeInsets`，文字紧贴按钮边缘（Android Tour `TourButton` 用 `.padding(horizontal = AppSpace.md=12, vertical = AppSpace.sm=8)`）。iOS 三按钮统一加 `contentEdgeInsets = (top: sm=8, left: md=12, bottom: sm=8, right: md=12)` 对齐 Android；同时去掉 `nextButton`/`prevButton` 固定 `height.equalTo(36)` 约束，让按钮按 insets + 文字自适应撑开，与 Android `Box+padding` 行为同构。
-
-## \[1.8.4] - 2026-09-12（DropDown #68 三项双端一致）
-
-### Fixed
-
-- **Android D2 菜单尺寸**：DropdownMenu 宽度原为内容自适应（窄于列按钮），改用 `BoxWithConstraints` 取列宽 `maxWidth` 并 `width(columnWidth)`，面板与 iOS `matchAnchor` 一样=列按钮宽。
-- **Android D4「外部切到 C」按钮**：Material3 `Button`（实心胶囊、默认整行观感）改 `TextButton`（纯文字链接、wrap 宽度紧挨下拉左下方），对齐 iOS `UIButton(type: .system)`；iOS 侧 D4 值居右、按钮紧挨在 v1.8.0 已修复（本次 iPhone 14 Pro 模拟器实证）。
-- **D1/D4 浅灰背景观感不一（根因修复）**：iOS 组件灰药丸（bgPage）与 Demo section 容器同色被吞没显白——`addSection` 新增 `containerColor` 参数（默认 bgPage，其余组件零影响），DropDown 四段传 bgCard 白容器形成反差；同时撤销 #64 对 D2 列按钮的 black 4% 临时改色，双端回归设计 token bgPage（白卡上即浅灰药丸，与 Android 一致）。
 
 ## \[1.8.0] - 2026-09-12（DropDown #64 六项视觉/交互统一）
 

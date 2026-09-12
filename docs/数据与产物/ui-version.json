@@ -1,6 +1,6 @@
 {
-  "version": "1.8.4",
-  "versionKey": "v1.8.4",
+  "version": "1.8.5",
+  "versionKey": "v1.8.5",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.8.4] 2026-09-12 Fixed：DropDown #68 三项双端一致——① Android D2 面板宽=列宽（BoxWithConstraints maxWidth→DropdownMenu width(columnWidth)，对齐 iOS matchAnchor）；② Android D4「外部切到 C」由 Material3 实心 Button 改 TextButton 纯文字链接、紧挨下拉左下方，对齐 iOS UIButton.system（iOS D4 值居右/按钮紧挨在 v1.8.0 已修复，经模拟器实证）；③ D1/D4 灰药丸可见性根因修复=iOS addSection 加 containerColor 参数（默认 bgPage 不影响其他组件），DropDown 四段传 bgCard 白容器；D2 列按钮底色双端回归设计 token bgPage（#64 临时 black4% 撤销）。"
+  "changelog": "[1.8.5] 2026-09-12 Changed：Tag/Tour/ImagePreview/VirtualList 四组件 C1.5 用户实机验收通过（原话「X：已通过」）收口——api.json 新建四条目（reviewed=true、双端 available/stable，componentCount 77→90）；回归测试台账 #56/#57/#61/#63/#65/#66 六行补验收结论；双端 Demo passed=true（3445d46）与进度表 ✅ 已在位。纯文档收口，组件代码零改动。"
 }

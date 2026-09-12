@@ -73,6 +73,7 @@ final class TourView: UIView {
         skipButton.setTitle("跳过", for: .normal)
         skipButton.setTitleColor(AppColor.gray25, for: .normal)
         skipButton.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
+        skipButton.contentEdgeInsets = .init(top: AppSpace.sm, left: AppSpace.md, bottom: AppSpace.sm, right: AppSpace.md)
         skipButton.addTarget(self, action: #selector(skipTapped), for: .touchUpInside)
         card.addSubview(skipButton)
 
@@ -82,6 +83,7 @@ final class TourView: UIView {
         prevButton.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .medium)
         prevButton.backgroundColor = AppColor.bgPage
         prevButton.layer.cornerRadius = AppRadius.sm
+        prevButton.contentEdgeInsets = .init(top: AppSpace.sm, left: AppSpace.md, bottom: AppSpace.sm, right: AppSpace.md)
         prevButton.addTarget(self, action: #selector(prevTapped), for: .touchUpInside)
         card.addSubview(prevButton)
 
@@ -90,6 +92,7 @@ final class TourView: UIView {
         nextButton.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .medium)
         nextButton.backgroundColor = AppColor.primary
         nextButton.layer.cornerRadius = AppRadius.sm
+        nextButton.contentEdgeInsets = .init(top: AppSpace.sm, left: AppSpace.md, bottom: AppSpace.sm, right: AppSpace.md)
         nextButton.addTarget(self, action: #selector(nextTapped), for: .touchUpInside)
         card.addSubview(nextButton)
 
@@ -117,13 +120,11 @@ final class TourView: UIView {
             make.trailing.equalToSuperview().offset(-AppSpace.lg)
             make.top.equalTo(descLabel.snp.bottom).offset(AppSpace.lg)
             make.bottom.equalToSuperview().offset(-AppSpace.lg)
-            make.height.equalTo(36)
         }
         prevButton.snp.makeConstraints { make in
             make.trailing.equalTo(nextButton.snp.leading).offset(-AppSpace.sm)
             make.top.equalTo(nextButton)
             make.bottom.equalTo(nextButton)
-            make.height.equalTo(36)
         }
     }
 

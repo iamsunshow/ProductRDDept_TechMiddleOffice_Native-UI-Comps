@@ -11279,7 +11279,7 @@ final class TourShowcase: ShowcaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Tour 引导"
-        addVersionBadge(componentName: "Tour", version: "v1.4.32", builtAt: "2026-09-11")
+        addVersionBadge(componentName: "Tour", version: "v1.4.33", builtAt: "2026-09-12")
 
         // D1 基础引导
         addSection(title: "D1 基础引导（3 步）") { container in
@@ -11364,6 +11364,7 @@ final class TourShowcase: ShowcaseViewController {
         view.addSubview(tour)
         tour.snp.makeConstraints { make in make.edges.equalToSuperview() }
         view.bringSubviewToFront(tour)
+        tour.onChange = { tour.current = $0 }
         tour.onFinish = { tour.removeFromSuperview() }
     }
 
@@ -11377,6 +11378,7 @@ final class TourShowcase: ShowcaseViewController {
         view.addSubview(tour)
         tour.snp.makeConstraints { make in make.edges.equalToSuperview() }
         view.bringSubviewToFront(tour)
+        tour.onChange = { tour.current = $0 }
         tour.onFinish = { tour.removeFromSuperview() }
     }
 
@@ -11386,6 +11388,7 @@ final class TourShowcase: ShowcaseViewController {
         view.addSubview(tour)
         tour.snp.makeConstraints { make in make.edges.equalToSuperview() }
         view.bringSubviewToFront(tour)
+        tour.onChange = { tour.current = $0 }
         tour.onFinish = { tour.removeFromSuperview() }
     }
 
@@ -11396,6 +11399,7 @@ final class TourShowcase: ShowcaseViewController {
         view.addSubview(tour)
         tour.snp.makeConstraints { make in make.edges.equalToSuperview() }
         view.bringSubviewToFront(tour)
+        tour.onChange = { tour.current = $0 }
         tour.onFinish = { tour.removeFromSuperview() }
     }
 }

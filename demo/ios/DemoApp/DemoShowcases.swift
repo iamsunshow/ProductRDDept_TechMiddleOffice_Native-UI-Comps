@@ -11680,7 +11680,7 @@ final class StepperShowcase: ShowcaseViewController {
                 self?.feedbackLabel1?.textColor = AppColor.primary
             }
             container.addSubview(stepper)
-            stepper.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+            stepper.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.height.equalTo(StepperView.Metrics.componentHeight); $0.bottom.equalToSuperview() }
         }
         feedbackLabel1 = addDynamicInfo("[−] / [+] 按钮步进；到达 min/max 时对应按钮灰显。")
 
@@ -11690,27 +11690,27 @@ final class StepperShowcase: ShowcaseViewController {
                 self?.feedbackLabel2?.textColor = AppColor.primary
             }
             container.addSubview(stepper)
-            stepper.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+            stepper.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.height.equalTo(StepperView.Metrics.componentHeight); $0.bottom.equalToSuperview() }
         }
         feedbackLabel2 = addDynamicInfo("step=0.5：显示一位小数。")
 
         addSection(title: "Demo 3 · 禁用态") { container in
             let stepper = StepperView(value: 5, min: 0, max: 10, disabled: true)
             container.addSubview(stepper)
-            stepper.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+            stepper.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.height.equalTo(StepperView.Metrics.componentHeight); $0.bottom.equalToSuperview() }
         }
         addInfo("disabled=true：整体 40% 灰不可点。")
 
         addSection(title: "Demo 4 · 受控外部驱动") { container in
             let stepper = StepperView(value: 5, min: 0, max: 20, step: 1)
             container.addSubview(stepper)
-            stepper.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+            stepper.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.height.equalTo(StepperView.Metrics.componentHeight) }
             let btn = UIButton(type: .system)
             btn.setTitle("外部设值 → 15", for: .normal)
             btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs)
             btn.addAction(UIAction { _ in stepper.value = 15 }, for: .touchUpInside)
             container.addSubview(btn)
-            btn.snp.makeConstraints { $0.top.equalTo(stepper.snp.bottom).offset(AppSpace.sm); $0.leading.equalToSuperview().offset(AppSpace.lg) }
+            btn.snp.makeConstraints { $0.top.equalTo(stepper.snp.bottom).offset(AppSpace.sm); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.bottom.equalToSuperview().offset(-AppSpace.md) }
         }
         addInfo("外部赋值 value 仅同步显示（不触发 onChange）。")
     }

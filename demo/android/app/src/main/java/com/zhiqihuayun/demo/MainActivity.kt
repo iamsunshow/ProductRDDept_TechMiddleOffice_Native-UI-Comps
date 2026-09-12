@@ -9670,24 +9670,32 @@ fun StepperDemo() {
     Text("D1 基础步进器（0~10 step=1）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
     var d1Value by remember { mutableStateOf(3f) }
     var d1Msg by remember { mutableStateOf<String?>(null) }
-    Stepper(value = d1Value, range = 0f..10f, step = 1f, onValueChange = { d1Value = it; d1Msg = "onChange → ${it.toInt()}" })
+    Box(modifier = Modifier.fillMaxWidth().padding(vertical = AppSpace.sm)) {
+        Stepper(value = d1Value, range = 0f..10f, step = 1f, onValueChange = { d1Value = it; d1Msg = "onChange → ${it.toInt()}" })
+    }
     d1Msg?.let { Text(it, color = AppColor.primary, fontSize = AppFont.sizeXs) }
     Text("[−] / [+] 按钮步进；到达 min/max 时对应按钮灰显。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 
     Text("D2 小数步进（step=0.5）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
     var d2Value by remember { mutableStateOf(1f) }
     var d2Msg by remember { mutableStateOf<String?>(null) }
-    Stepper(value = d2Value, range = 0f..5f, step = 0.5f, onValueChange = { d2Value = it; d2Msg = "onChange → $it" })
+    Box(modifier = Modifier.fillMaxWidth().padding(vertical = AppSpace.sm)) {
+        Stepper(value = d2Value, range = 0f..5f, step = 0.5f, onValueChange = { d2Value = it; d2Msg = "onChange → $it" })
+    }
     d2Msg?.let { Text(it, color = AppColor.primary, fontSize = AppFont.sizeXs) }
     Text("step=0.5：显示一位小数。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 
     Text("D3 禁用态", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    Stepper(value = 5f, range = 0f..10f, enabled = false)
+    Box(modifier = Modifier.fillMaxWidth().padding(vertical = AppSpace.sm)) {
+        Stepper(value = 5f, range = 0f..10f, enabled = false)
+    }
     Text("enabled=false：整体 40% 灰不可点。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 
     Text("D4 受控外部驱动", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
     var d4Value by remember { mutableStateOf(5f) }
-    Stepper(value = d4Value, range = 0f..20f, step = 1f)
+    Box(modifier = Modifier.fillMaxWidth().padding(vertical = AppSpace.sm)) {
+        Stepper(value = d4Value, range = 0f..20f, step = 1f)
+    }
     Button(onClick = { d4Value = 15f }) { Text("外部设值 → 15", fontSize = AppFont.sizeXs) }
     Text("外部赋值 value 仅同步显示（不触发 onChange）。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 }

@@ -73,7 +73,7 @@ fun StepsDemo() {
                 .padding(horizontal = 10.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "Steps 组件 v1.4.30",
+                text = "Steps 组件 v1.5.6",
                 color = AppColor.primary,
                 fontSize = AppFont.sizeXs,
                 fontWeight = FontWeight.Medium,

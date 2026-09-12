@@ -11342,8 +11342,9 @@ final class TourShowcase: ShowcaseViewController {
             TourStep(title: "个人中心", description: "在这里管理您的个人信息和设置。"),
             TourStep(title: "开始探索", description: "一切就绪，开始使用吧！"),
         ]
-        view.window?.rootViewController?.view.addSubview(tour)
+        view.addSubview(tour)
         tour.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        view.bringSubviewToFront(tour)
         tour.onFinish = { tour.removeFromSuperview() }
     }
 
@@ -11354,16 +11355,18 @@ final class TourShowcase: ShowcaseViewController {
             TourStep(title: "步骤二", description: "不可跳过"),
         ]
         tour.showSkip = false
-        view.window?.rootViewController?.view.addSubview(tour)
+        view.addSubview(tour)
         tour.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        view.bringSubviewToFront(tour)
         tour.onFinish = { tour.removeFromSuperview() }
     }
 
     @objc private func startTour3() {
         let tour = TourView()
         tour.steps = [TourStep(title: "唯一一步", description: "这是一个只有单步的引导。")]
-        view.window?.rootViewController?.view.addSubview(tour)
+        view.addSubview(tour)
         tour.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        view.bringSubviewToFront(tour)
         tour.onFinish = { tour.removeFromSuperview() }
     }
 
@@ -11371,8 +11374,9 @@ final class TourShowcase: ShowcaseViewController {
         let tour = TourView()
         tour.steps = [TourStep(title: "半透明蓝", description: "遮罩颜色改为蓝色 50% 透明")]
         tour.maskColor = UIColor.blue.withAlphaComponent(0.5)
-        view.window?.rootViewController?.view.addSubview(tour)
+        view.addSubview(tour)
         tour.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        view.bringSubviewToFront(tour)
         tour.onFinish = { tour.removeFromSuperview() }
     }
 }

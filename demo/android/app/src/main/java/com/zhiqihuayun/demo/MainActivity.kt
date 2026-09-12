@@ -9415,6 +9415,15 @@ private fun TableDemo() {
 
 @Composable
 private fun TourDemo() {
+    // 状态提升到根 Box 层，确保 Tour 全屏覆盖
+    var d1Visible by remember { mutableStateOf(false) }
+    var d1Current by remember { mutableStateOf(0) }
+    var d2Visible by remember { mutableStateOf(false) }
+    var d2Current by remember { mutableStateOf(0) }
+    var d3Visible by remember { mutableStateOf(false) }
+    var d4Visible by remember { mutableStateOf(false) }
+    var d4Current by remember { mutableStateOf(0) }
+
     Box(modifier = Modifier.fillMaxSize().background(AppColor.bgPage)) {
         Column(
             modifier = Modifier
@@ -9427,62 +9436,57 @@ private fun TourDemo() {
                 modifier = Modifier.fillMaxWidth().background(AppColor.primaryMuted, RoundedCornerShape(AppRadius.sm)).padding(horizontal = 10.dp, vertical = 6.dp))
 
             Text("D1 基础引导（3 步）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-            var d1Visible by remember { mutableStateOf(false) }
-            var d1Current by remember { mutableStateOf(0) }
             AppButton(text = if (d1Visible) "引导中..." else "开始引导", style = AppButtonStyle.Primary, onClick = { d1Visible = true; d1Current = 0 })
-            Tour(
-                steps = listOf(
-                    TourStep("欢迎使用", "这是第一步，介绍应用的核心功能。"),
-                    TourStep("个人中心", "在这里管理您的个人信息和设置。"),
-                    TourStep("开始探索", "一切就绪，开始使用吧！"),
-                ),
-                current = d1Current,
-                visible = d1Visible,
-                onChange = { d1Current = it },
-                onFinish = { d1Visible = false },
-            )
             Text("排查点：点击按钮弹出全屏遮罩+中央卡片，支持上一步/下一步/跳过/完成。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 
             Text("D2 隐藏跳过按钮", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-            var d2Visible by remember { mutableStateOf(false) }
-            var d2Current by remember { mutableStateOf(0) }
             AppButton(text = if (d2Visible) "引导中..." else "开始引导（无跳过）", style = AppButtonStyle.Primary, onClick = { d2Visible = true; d2Current = 0 })
-            Tour(
-                steps = listOf(TourStep("步骤一", "必须完成的引导"), TourStep("步骤二", "不可跳过")),
-                current = d2Current,
-                visible = d2Visible,
-                onChange = { d2Current = it },
-                onFinish = { d2Visible = false },
-                showSkip = false,
-            )
             Text("排查点：无「跳过」按钮，只能逐步点完。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 
             Text("D3 单步引导", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-            var d3Visible by remember { mutableStateOf(false) }
             AppButton(text = if (d3Visible) "引导中..." else "单步引导", style = AppButtonStyle.Primary, onClick = { d3Visible = true })
-            Tour(
-                steps = listOf(TourStep("唯一一步", "这是一个只有单步的引导。")),
-                current = 0,
-                visible = d3Visible,
-                onChange = {},
-                onFinish = { d3Visible = false },
-            )
             Text("排查点：只有「完成」按钮，无「上一步」。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 
             Text("D4 自定义遮罩颜色", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-            var d4Visible by remember { mutableStateOf(false) }
-            var d4Current by remember { mutableStateOf(0) }
             AppButton(text = if (d4Visible) "引导中..." else "自定义遮罩", style = AppButtonStyle.Primary, onClick = { d4Visible = true; d4Current = 0 })
-            Tour(
-                steps = listOf(TourStep("半透明蓝", "遮罩颜色改为蓝色 50% 透明")),
-                current = d4Current,
-                visible = d4Visible,
-                onChange = { d4Current = it },
-                onFinish = { d4Visible = false },
-                maskColor = Color(0x800000FF),
-            )
             Text("排查点：遮罩为蓝色半透明，非默认黑色。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
         }
+
+        // Tour 在根 Box 层，fillMaxSize 覆盖全屏
+        Tour(
+            steps = listOf(
+                TourStep("欢迎使用", "这是第一步，介绍应用的核心功能。"),
+                TourStep("个人中心", "在这里管理您的个人信息和设置。"),
+                TourStep("开始探索", "一切就绪，开始使用吧！"),
+            ),
+            current = d1Current,
+            visible = d1Visible,
+            onChange = { d1Current = it },
+            onFinish = { d1Visible = false },
+        )
+        Tour(
+            steps = listOf(TourStep("步骤一", "必须完成的引导"), TourStep("步骤二", "不可跳过")),
+            current = d2Current,
+            visible = d2Visible,
+            onChange = { d2Current = it },
+            onFinish = { d2Visible = false },
+            showSkip = false,
+        )
+        Tour(
+            steps = listOf(TourStep("唯一一步", "这是一个只有单步的引导。")),
+            current = 0,
+            visible = d3Visible,
+            onChange = {},
+            onFinish = { d3Visible = false },
+        )
+        Tour(
+            steps = listOf(TourStep("半透明蓝", "遮罩颜色改为蓝色 50% 透明")),
+            current = d4Current,
+            visible = d4Visible,
+            onChange = { d4Current = it },
+            onFinish = { d4Visible = false },
+            maskColor = Color(0x800000FF),
+        )
     }
 }
 

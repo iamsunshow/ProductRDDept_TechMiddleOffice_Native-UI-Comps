@@ -69,24 +69,11 @@ final class TableView: UIView {
         )
         container.addArrangedSubview(headerRow)
 
-        // 分隔线
-        let sep = UIView()
-        sep.backgroundColor = AppColor.border
-        sep.snp.makeConstraints { make in make.height.equalTo(0.5) }
-        container.addArrangedSubview(sep)
-
         // 数据行
         for (index, row) in data.enumerated() {
             let bgColor: UIColor = (striped && index % 2 == 1) ? AppColor.bgPage : AppColor.bgCard
             let dataRow = makeRow(cells: row.cells, isHeader: false, bgColor: bgColor)
             container.addArrangedSubview(dataRow)
-
-            if index < data.count - 1 {
-                let rowSep = UIView()
-                rowSep.backgroundColor = AppColor.border
-                rowSep.snp.makeConstraints { make in make.height.equalTo(0.5) }
-                container.addArrangedSubview(rowSep)
-            }
         }
     }
 
@@ -117,14 +104,6 @@ final class TableView: UIView {
             }
 
             stack.addArrangedSubview(label)
-
-            // 列分隔线
-            if index < columns.count - 1 {
-                let colSep = UIView()
-                colSep.backgroundColor = AppColor.border
-                colSep.snp.makeConstraints { make in make.width.equalTo(0.5) }
-                stack.addArrangedSubview(colSep)
-            }
         }
         return stack
     }

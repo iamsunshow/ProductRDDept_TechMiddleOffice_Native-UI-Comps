@@ -1,6 +1,6 @@
 {
-  "version": "1.7.3",
-  "versionKey": "v1.7.3",
+  "version": "1.7.4",
+  "versionKey": "v1.7.4",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.7.3] 2026-09-12 Fixed：iOS DropDown 弹层在页面返回后残留组件列表页——ShowcaseViewController 基类补 viewWillDisappear 广播 scrollViewDidScrollNotification，复用已有 DropDownView 监听机制自动 closePanel。xcodebuild 0 错误。"
+  "changelog": "[1.7.4] 2026-09-12 Changed：5 件组件 C1.5 用户实机验收通过——ImageView #44 📋→✅、Steps #75 📋→✅、Segmented #74/Table #77/Calendar日历工具 #89 补验收原话。双端 Demo 代码 passed=true 同步：Android MainActivity.kt 5 个组件 + iOS DemoShowcases.swift 5 个组件。xcodebuild + gradle 双端 0 错误。"
 }

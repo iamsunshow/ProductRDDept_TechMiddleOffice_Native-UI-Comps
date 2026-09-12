@@ -124,7 +124,7 @@ final class StepsView: UIView {
         stepViews = []
 
         containerStack.axis = (direction == .horizontal) ? .horizontal : .vertical
-        containerStack.distribution = (direction == .horizontal) ? .fillEqually : .fill
+        containerStack.distribution = .fillEqually
         containerStack.spacing = 0
 
         for (index, item) in items.enumerated() {

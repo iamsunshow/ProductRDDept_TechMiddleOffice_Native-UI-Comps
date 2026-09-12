@@ -208,15 +208,16 @@ private fun VerticalStep(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top,
     ) {
-        // 圆点 + 竖向连线
-        Box {
+        // 圆点 + 竖向连线（Column 结构：圆点在上，连线从圆点底部开始向下延伸）
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             StepCircle(item, index, state, clickable, onClick)
             if (!isLast) {
                 Box(
                     modifier = Modifier
-                        .align(Alignment.BottomCenter)
                         .width(1.dp)
-                        .height(40.dp)
+                        .height(CircleSize + AppSpace.md)
                         .background(if (state == StepState.Finished) AppColor.primary else AppColor.gray6)
                 )
             }

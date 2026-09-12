@@ -423,7 +423,7 @@
       ],
       "platforms": {
         "ios": {
-          "state": "partial",
+          "state": "available",
           "note": "多处以独立 SwitchView 实现，宜收敛"
         },
         "android": {
@@ -507,7 +507,8 @@
           "<Segmented options={[\"周\",\"月\",\"年\"]} />"
         ]
       ],
-      "subcategory": "navigation"
+      "subcategory": "navigation",
+      "reviewed": true
     },
     {
       "id": "ui.cell",

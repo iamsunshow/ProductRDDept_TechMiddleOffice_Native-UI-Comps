@@ -8697,7 +8697,7 @@ final class CollapseShowcase: ShowcaseViewController {
     }
 }
 
-// MARK: - Pagination Showcase（Pagination 分页 Demo 页，导航区 #71，验证组件库 v1.4.30）
+// MARK: - Pagination Showcase（Pagination 分页 Demo 页，导航区 #71，验证组件库 v1.5.7）
 // D1 基础分页（5 页全显无省略号·multi）/ D2 简洁模式（mode=simple「1/5」文本）/
 // D3 显示省略号（10 页·itemSize=5·首尾+省略号折叠）/ D4 自定义页码按钮数量（itemSize=3·3 按钮窗口+省略号）
 final class PaginationShowcase: ShowcaseViewController {
@@ -8706,7 +8706,7 @@ final class PaginationShowcase: ShowcaseViewController {
         super.viewDidLoad()
         title = "Pagination 分页"
 
-        addVersionBadge(componentName: "Pagination", version: "v1.4.30", builtAt: "2026-09-11 00:00:00")
+        addVersionBadge(componentName: "Pagination", version: "v1.5.7", builtAt: "2026-09-12 00:00:00")
 
         // D1 基础分页：total=50/pageSize=10 → 5 页全显无省略号（currentValue=0 内部自管理）
         addSection(title: "D1 基础分页（5 页全显无省略号）") { container in

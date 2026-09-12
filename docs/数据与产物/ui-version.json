@@ -1,6 +1,6 @@
 {
-  "version": "1.5.6",
-  "versionKey": "v1.5.6",
+  "version": "1.5.7",
+  "versionKey": "v1.5.7",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.5.6] 2026-09-12 Fixed：Steps #75 双端连线与节点断开修复——设计规格 .steps-h .line{left:50%;right:-50%} 要求连线圆心→圆心贯穿（圆片盖住线头）：Android 横向补左半段（cell 左缘→本圆心）与相邻 cell 右半段拼接、竖向 56dp 间距全部并入连线高度并删行外 Spacer；iOS 横线 leading 改本圆心、rebuild 后跨 cell 约束 trailing 到下一圆心、line 先于圆点 addSubview 置于圆下层。新增 StepsTest 3 例真绿（台账 #55）。注：原拟 1.5.5 号被并发提交 ecb4285（DropDown）占用且草稿被卷入，Steps 顺延 1.5.6（撞号说明见 CHANGELOG 页首注释）。"
+  "changelog": "[1.5.7] 2026-09-12 Fixed：Pagination #71 iOS 分页数字不可见+居右——经 4 次修复（c8c6d19/944a8de/639a0f2/4e553f7）仍失败，根因=三段式布局（prevContainer 外层左 / contentRow(UIScrollView) 中 / nextContainer 外层右）+ contentLayoutGuide 约束模型不可靠，按钮 top.bottom.equalTo(clg) 在布局传递时被解析为 0 高度导致 clipsToBounds 裁切所有内容。修复：弃用三段式，改为与 Android Row+horizontalScroll 完全对齐的单行方案——所有元素（prev+页码按钮+next）在同一个 UIStackView 水平排列，外层 UIScrollView 支持横向滚动；UIStackView top/bottom→frameLayoutGuide（垂直固定不参与 contentSize）、leading/trailing→contentLayoutGuide（水平定义 contentSize.width 超出时滚动）、height=AppSpace.lg（固定按钮高度）。xcodebuild BUILD SUCCEEDED 0 错误。"
 }

@@ -83,14 +83,11 @@ final class PaginationView: UIView {
         currentValue > 0 ? currentValue : internalPage
     }
 
-    /// 上一页容器。
-    private let prevContainer = UIView()
+    /// 横向滚动容器（页码超出时可滑动，对齐 Android Row + horizontalScroll）。
+    private let scrollView = UIScrollView()
 
-    /// 下一页容器。
-    private let nextContainer = UIView()
-
-    /// 页码内容区（UIScrollView，页码超出时可横向滚动）。
-    private let contentRow = UIScrollView()
+    /// 单行水平排布所有按钮（prev + 页码按钮 + next），对齐 Android Row。
+    private let stackView = UIStackView()
 
     // MARK: - 初始化
 
@@ -109,28 +106,31 @@ final class PaginationView: UIView {
         layer.cornerRadius = AppRadius.lg
         clipsToBounds = true
 
-        // 直接约束布局：prev 居左 → contentRow 居中区域 → next 居右，多余空间留在右侧（与 Android Row 对齐）。
-        addSubview(prevContainer)
-        addSubview(contentRow)
-        addSubview(nextContainer)
+        // 布局模型（与 Android Row + horizontalScroll 完全对齐）：
+        // 所有元素（上一页 + 页码按钮 + 下一页）在同一个 UIStackView 水平排列，
+        // 外层 UIScrollView 支持横向滚动（页码超出屏幕时可滑动）。
+        // 之前三段式布局（prev 外层左 / contentRow 中 / next 外层右）+ contentLayoutGuide
+        // 约束模型不可靠，经 4 次修复仍导致分页数字不可见——改为单行方案彻底解决。
+        addSubview(scrollView)
+        scrollView.addSubview(stackView)
 
-        prevContainer.snp.makeConstraints { make in
-            make.leading.top.bottom.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.sm, left: AppSpace.sm, bottom: AppSpace.sm, right: 0))
-            make.width.equalTo(AppSpace.lg)
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.sm, left: AppSpace.sm, bottom: AppSpace.sm, right: AppSpace.sm))
         }
-        contentRow.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.sm, left: 0, bottom: AppSpace.sm, right: 0))
-            make.leading.equalTo(prevContainer.snp.trailing).offset(AppSpace.xs)
-            make.trailing.equalTo(nextContainer.snp.leading).offset(-AppSpace.xs)
+        // UIStackView 约束关键：
+        // - top/bottom → frameLayoutGuide（垂直方向固定到可见区域，不参与 contentSize 计算）
+        // - leading/trailing → contentLayoutGuide（水平方向定义 contentSize.width，超出时滚动）
+        // - height → AppSpace.lg（固定按钮高度，垂直不滚动）
+        stackView.snp.makeConstraints { make in
+            make.top.bottom.equalTo(scrollView.frameLayoutGuide)
+            make.leading.trailing.equalTo(scrollView.contentLayoutGuide)
+            make.height.equalTo(AppSpace.lg)
         }
-        nextContainer.snp.makeConstraints { make in
-            make.top.bottom.trailing.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.sm, left: 0, bottom: AppSpace.sm, right: AppSpace.sm))
-            make.width.equalTo(AppSpace.lg)
-        }
+        stackView.axis = .horizontal
+        stackView.spacing = AppSpace.xs
+        stackView.alignment = .center
 
         // 显式高度 = 导航按钮尺寸 + 上下间距。
-        // UIScrollView 无 intrinsicContentSize，UIStackView 无法从内部约束推断高度，
-        // 必须显式指定以避免高度为 0 导致内容被 clipsToBounds 裁切。
         snp.makeConstraints { make in
             make.height.equalTo(AppSpace.lg + AppSpace.sm * 2)
         }
@@ -146,12 +146,13 @@ final class PaginationView: UIView {
 
     // MARK: - 重建布局
 
-    /// 全量重建：清空容器并按当前状态重新生成按钮。
+    /// 全量重建：清空 stackView 并按当前状态重新生成所有按钮（prev + 页码 + next）。
     private func rebuild() {
-        // 清空容器内子视图（容器本身保留，约束不变）。
-        contentRow.subviews.forEach { $0.removeFromSuperview() }
-        prevContainer.subviews.forEach { $0.removeFromSuperview() }
-        nextContainer.subviews.forEach { $0.removeFromSuperview() }
+        // 清空 stackView 内所有 arrangedSubview。
+        stackView.arrangedSubviews.forEach {
+            stackView.removeArrangedSubview($0)
+            $0.removeFromSuperview()
+        }
 
         let pages = totalPages
         guard pages > 0 else { return }
@@ -159,30 +160,17 @@ final class PaginationView: UIView {
         // 当前页 clamp 到 [1, pages]。
         let page = min(max(effectivePage, 1), pages)
 
-        // 上一页按钮：page<=1 时禁用（prevContainer 是普通 UIView，用 Auto Layout）。
+        // 上一页按钮：page<=1 时禁用。
         let prev = makeNavButton(isPrev: true, disabled: page <= 1)
-        prevContainer.addSubview(prev)
-        prev.snp.makeConstraints { make in make.center.equalToSuperview() }
-
-        // UIScrollView 内部约束规则：
-        // - 所有内部约束必须使用 contentLayoutGuide（内容坐标系），
-        //   不可混用 frame（contentRow.snp.leading/trailing），否则约束冲突。
-        // - top.bottom → contentLayoutGuide → 定义内容高度
-        // - leading/trailing → contentLayoutGuide → 定义内容宽度
-        let clg = contentRow.contentLayoutGuide
-        let gap = CGFloat(AppSpace.xs)
+        stackView.addArrangedSubview(prev)
 
         if mode == .simple {
+            // 简洁模式：x/y 文本。
             let label = makeSimpleLabel(current: page, total: pages)
-            contentRow.addSubview(label)
-            label.snp.makeConstraints { make in
-                make.top.bottom.equalTo(clg)
-                make.leading.equalTo(clg.snp.leading)
-                make.trailing.equalTo(clg.snp.trailing)
-            }
+            stackView.addArrangedSubview(label)
         } else {
+            // 按钮模式：页码按钮 + 省略号折叠。
             let buttons = Self.computeButtons(current: page, total: pages, itemSize: itemSize)
-            var previousView: UIView?
             for button in buttons {
                 let subview: UIView
                 switch button {
@@ -191,27 +179,13 @@ final class PaginationView: UIView {
                 case .ellipsis:
                     subview = makeEllipsis()
                 }
-                contentRow.addSubview(subview)
-                subview.snp.makeConstraints { make in
-                    make.top.bottom.equalTo(clg)
-                    if let p = previousView {
-                        make.leading.equalTo(p.snp.trailing).offset(gap)
-                    } else {
-                        make.leading.equalTo(clg.snp.leading)
-                    }
-                }
-                previousView = subview
-            }
-            // 尾部约束：定义内容宽度，启用滚动。
-            previousView?.snp.makeConstraints { make in
-                make.trailing.equalTo(clg.snp.trailing)
+                stackView.addArrangedSubview(subview)
             }
         }
 
         // 下一页按钮：page>=pages 时禁用。
         let next = makeNavButton(isPrev: false, disabled: page >= pages)
-        nextContainer.addSubview(next)
-        next.snp.makeConstraints { make in make.center.equalToSuperview() }
+        stackView.addArrangedSubview(next)
     }
 
     /// 状态变化后重建（受控/内部切换均走此处）。

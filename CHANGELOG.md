@@ -14,6 +14,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]。各条内容独立、均已验证。 -->
 
+## \[1.5.7] - 2026-09-12（Pagination #71）
+
+### Fixed
+
+- **Pagination #71 iOS 分页数字不可见 + 居右（第 5 次修复=彻底重写）**：经前 4 次修复（c8c6d19/944a8de/639a0f2/4e553f7）均未解决，根因=三段式布局（prevContainer 外层左 / contentRow(UIScrollView) 中 / nextContainer 外层右）+ contentLayoutGuide 约束模型本身不可靠——按钮 `top.bottom.equalTo(clg)` + 自身 `width.height.equalTo(AppSpace.lg)` 在布局传递时被解析为 0 高度，`clipsToBounds=true` 裁切所有页码按钮内容；contentRow 宽度异常时 prev(左)+next(右) 中间空白表现为"居右"。修复：弃用三段式布局，改为与 Android `Row + horizontalScroll` 完全对齐的**单行方案**——所有元素（prev 按钮 + 页码按钮 + next 按钮）在同一个 `UIStackView`（horizontal, spacing=AppSpace.xs, alignment=.center）水平排列、垂直居中；外层 `UIScrollView` 支持横向滚动（页码超出屏幕时可滑动）。约束关键：`stackView.top.bottom → scrollView.frameLayoutGuide`（垂直固定到可见区域、不参与 contentSize 计算）、`stackView.leading.trailing → scrollView.contentLayoutGuide`（水平定义 contentSize.width、超出时滚动）、`stackView.height = AppSpace.lg`（固定按钮高度、垂直不滚动）。xcodebuild BUILD SUCCEEDED 0 错误。
+
 ## \[1.5.6] - 2026-09-12（Steps #75）
 
 ### Fixed

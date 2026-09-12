@@ -11582,7 +11582,7 @@ final class DropDownMenuShowcase: ShowcaseViewController {
             let opts = [DropDownOption(value: "asc", text: "默认排序"), DropDownOption(value: "price_asc", text: "价格从低到高"), DropDownOption(value: "price_desc", text: "价格从高到低"), DropDownOption(value: "sales", text: "销量优先")]
             let dd = DropDownView(title: "排序方式", options: opts, value: "asc")
             container.addSubview(dd)
-            dd.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.bottom.equalToSuperview() }
+            dd.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg) }
         }
         addInfo("点击触发行展开浮层面板；选中项 ✓ 标记 + primary 高亮；点选项即收起。")
 
@@ -11593,7 +11593,7 @@ final class DropDownMenuShowcase: ShowcaseViewController {
             ]
             let menu = DropDownMenuView(items: items)
             container.addSubview(menu)
-            menu.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.md); $0.bottom.equalToSuperview() }
+            menu.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.md) }
         }
         addInfo("水平等分按钮栏 + 展开浮層；同时只展开一列，切换时自动关闭前一列。")
 
@@ -11601,7 +11601,7 @@ final class DropDownMenuShowcase: ShowcaseViewController {
             let opts = [DropDownOption(value: "a", text: "选项 A"), DropDownOption(value: "b", text: "选项 B")]
             let dd = DropDownView(title: "禁用下拉", options: opts, value: "a", disabled: true)
             container.addSubview(dd)
-            dd.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.bottom.equalToSuperview() }
+            dd.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg) }
         }
         addInfo("disabled=true：整体 40% 灰不可点。")
 

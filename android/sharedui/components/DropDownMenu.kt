@@ -87,43 +87,46 @@ fun DropDown(
                 color = AppColor.textSecondary,
                 maxLines = 1
             )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = selectedText,
-                    fontSize = AppFont.sizeMd,
-                    color = if (options.any { it.value == value }) AppColor.textPrimary else AppColor.textSecondary.copy(alpha = 0.5f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.width(120.dp)
-                )
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = null,
-                    tint = AppColor.textSecondary.copy(alpha = 0.5f)
-                )
-            }
-
-            // DropdownMenu 放在 Row 内部，跟随触发器位置而非屏幕最左
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier.background(AppColor.bgCard)
-            ) {
-                options.forEach { opt ->
-                    val selected = opt.value == value
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = opt.text,
-                                color = if (selected) AppColor.primary else AppColor.textPrimary,
-                                fontSize = AppFont.sizeMd
-                            )
-                        },
-                        onClick = {
-                            onValueChange?.invoke(opt.value)
-                            expanded = false
-                        }
+            // 右侧区域：选中值 + chevron + DropdownMenu
+            // DropdownMenu 放在此处，面板从选中值文字下方弹出（而非标题）
+            Box {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = selectedText,
+                        fontSize = AppFont.sizeMd,
+                        color = if (options.any { it.value == value }) AppColor.textPrimary else AppColor.textSecondary.copy(alpha = 0.5f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.width(120.dp)
                     )
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null,
+                        tint = AppColor.textSecondary.copy(alpha = 0.5f)
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.background(AppColor.bgCard)
+                ) {
+                    options.forEach { opt ->
+                        val selected = opt.value == value
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = opt.text,
+                                    color = if (selected) AppColor.primary else AppColor.textPrimary,
+                                    fontSize = AppFont.sizeMd
+                                )
+                            },
+                            onClick = {
+                                onValueChange?.invoke(opt.value)
+                                expanded = false
+                            }
+                        )
+                    }
                 }
             }
         }

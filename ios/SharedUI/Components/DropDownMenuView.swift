@@ -328,6 +328,7 @@ public class DropDownMenuView: UIView {
         } else {
             closeAll()
             dropDowns[idx].isHidden = false
+            dropDowns[idx].openPanel()
             buttons[idx].setTitle(items[idx].title + " ▲", for: .normal)
             currentIndex = idx
         }

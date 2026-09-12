@@ -102,28 +102,29 @@ fun DropDown(
                     tint = AppColor.textSecondary.copy(alpha = 0.5f)
                 )
             }
-        }
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.background(AppColor.bgCard)
-        ) {
-            options.forEach { opt ->
-                val selected = opt.value == value
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = opt.text,
-                            color = if (selected) AppColor.primary else AppColor.textPrimary,
-                            fontSize = AppFont.sizeMd
-                        )
-                    },
-                    onClick = {
-                        onValueChange?.invoke(opt.value)
-                        expanded = false
-                    }
-                )
+            // DropdownMenu 放在 Row 内部，跟随触发器位置而非屏幕最左
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.background(AppColor.bgCard)
+            ) {
+                options.forEach { opt ->
+                    val selected = opt.value == value
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = opt.text,
+                                color = if (selected) AppColor.primary else AppColor.textPrimary,
+                                fontSize = AppFont.sizeMd
+                            )
+                        },
+                        onClick = {
+                            onValueChange?.invoke(opt.value)
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
     }
@@ -151,67 +152,66 @@ fun DropDownMenu(
             horizontalArrangement = Arrangement.spacedBy(AppSpace.xs)
         ) {
             items.forEachIndexed { index, item ->
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(44.dp)
-                        .clip(RoundedCornerShape(AppRadius.md))
-                        .background(AppColor.bgPage)
-                        .clickable {
-                            expandedIndex = if (expandedIndex == index) -1 else index
-                        }
-                        .padding(horizontal = AppSpace.sm),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = item.title,
-                            fontSize = AppFont.sizeMd,
-                            color = AppColor.textPrimary,
-                            maxLines = 1
-                        )
-                        Icon(
-                            imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = null,
-                            tint = AppColor.textSecondary.copy(alpha = 0.5f)
-                        )
-                    }
-                }
-            }
-        }
-
-        // 展开面板区
-        Box(modifier = Modifier.fillMaxWidth()) {
-            items.forEachIndexed { index, item ->
-                if (expandedIndex == index) {
-                    Column(
+                // 每个按钮+面板包裹在独立 Column 中，面板跟随对应按钮而非全宽左对齐
+                Column(modifier = Modifier.weight(1f)) {
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .height(44.dp)
                             .clip(RoundedCornerShape(AppRadius.md))
-                            .background(AppColor.bgCard)
-                            .padding(vertical = AppSpace.xs)
+                            .background(AppColor.bgPage)
+                            .clickable {
+                                expandedIndex = if (expandedIndex == index) -1 else index
+                            }
+                            .padding(horizontal = AppSpace.sm),
+                        contentAlignment = Alignment.Center
                     ) {
-                        item.options.forEach { opt ->
-                            val selected = opt.value == item.value
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        onValueChange?.invoke(index, opt.value)
-                                        expandedIndex = -1
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = item.title,
+                                fontSize = AppFont.sizeMd,
+                                color = AppColor.textPrimary,
+                                maxLines = 1
+                            )
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = null,
+                                tint = AppColor.textSecondary.copy(alpha = 0.5f)
+                            )
+                        }
+                    }
+
+                    // 展开面板：仅在 expandedIndex == index 时显示，宽度跟随本列
+                    if (expandedIndex == index) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(AppRadius.md))
+                                .background(AppColor.bgCard)
+                                .padding(vertical = AppSpace.xs)
+                        ) {
+                            item.options.forEach { opt ->
+                                val selected = opt.value == item.value
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            onValueChange?.invoke(index, opt.value)
+                                            expandedIndex = -1
+                                        }
+                                        .padding(horizontal = AppSpace.md, vertical = AppSpace.sm),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = opt.text,
+                                        fontSize = AppFont.sizeMd,
+                                        color = if (selected) AppColor.primary else AppColor.textPrimary,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    if (selected) {
+                                        Text("✓", color = AppColor.primary, fontSize = AppFont.sizeMd)
                                     }
-                                    .padding(horizontal = AppSpace.md, vertical = AppSpace.sm),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    text = opt.text,
-                                    fontSize = AppFont.sizeMd,
-                                    color = if (selected) AppColor.primary else AppColor.textPrimary,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                if (selected) {
-                                    Text("✓", color = AppColor.primary, fontSize = AppFont.sizeMd)
                                 }
                             }
                         }

@@ -148,7 +148,6 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.time-select", name: "TimeSelect 配送时间", reviewed: false, create: nil),
             DemoComponent(id: "ui.trend-arrow", name: "TrendArrow 趋势箭头", reviewed: false, create: nil),
             DemoComponent(id: "ui.water-mark", name: "WaterMark 水印", reviewed: false, create: nil),
-            DemoComponent(id: "ui.calendar-tools", name: "Calendar 日历工具", reviewed: true, create: { CalendarShowcase() }, planned: true),
             DemoComponent(id: "ui.system-bars", name: "SystemBars 系统栏", reviewed: false, create: nil, planned: true),
             DemoComponent(id: "ui.design-tokens", name: "DesignTokens 设计令牌", reviewed: false, create: nil, planned: true),
         ]),

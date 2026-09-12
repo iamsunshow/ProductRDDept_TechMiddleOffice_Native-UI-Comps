@@ -390,7 +390,6 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("TimeSelect 配送时间"),
         DemoComponent("TrendArrow 趋势箭头"),
         DemoComponent("WaterMark 水印"),
-        DemoComponent("Calendar 日历工具", planned = true),
         DemoComponent("SystemBars 系统栏", planned = true),
         DemoComponent("DesignTokens 设计令牌", planned = true),
     ),

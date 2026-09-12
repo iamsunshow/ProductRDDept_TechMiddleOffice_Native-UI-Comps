@@ -1,6 +1,6 @@
 {
-  "version": "1.7.4",
-  "versionKey": "v1.7.4",
+  "version": "1.7.5",
+  "versionKey": "v1.7.5",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.7.4] 2026-09-12 Changed：5 件组件 C1.5 用户实机验收通过——ImageView #44 📋→✅、Steps #75 📋→✅、Segmented #74/Table #77/Calendar日历工具 #89 补验收原话。双端 Demo 代码 passed=true 同步：Android MainActivity.kt 5 个组件 + iOS DemoShowcases.swift 5 个组件。xcodebuild + gradle 双端 0 错误。"
+  "changelog": "[1.7.5] 2026-09-12 Fixed：iOS Tag 文字不可见第三次修复——根因=layoutSubviews() 中调用 snp.updateConstraints 导致布局循环，label 宽度被压成 0。重写 TagView 用内部 UIStackView（contentStack）水平排列 label+closeIcon（与 Android Compose Row 同构），删除 layoutSubviews() override，closeIcon 改 SnapKit width/height 约束，label 补 .required hugging+compression resistance 防挤压。xcodebuild 0 错误。"
 }

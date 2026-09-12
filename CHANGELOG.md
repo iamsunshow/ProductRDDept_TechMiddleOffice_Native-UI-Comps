@@ -14,6 +14,18 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。 -->
 
+## \[1.7.5] - 2026-09-12（LineChart #84）
+
+### Changed
+
+- **LineChart #84 Android 双端视觉对齐三优化**（用户实机复验 v1.6.5 后反馈）。① **内边距**：组件根 Box 补 `padding(top/bottom=AppSpace.sm, start/end=AppSpace.md)`，对齐 iOS `chartView` 的 `edges.inset`（TrendChartView.swift L48-51），数据不再紧贴图表边缘。② **网格横线可见**：旧 `strokeWidth=0.5f` 为裸 px（2.625 密度真机≈0.19dp 亚像素，抗锯齿后不可见——台账 #58「禁止裸 px」禁令的又一案例），改 `0.5.dp→px` 对齐 iOS 默认网格 0.5pt 语义，4+1 条横线恢复可见。③ **y 域留白**：新增 `yFor()` 对齐 DGCharts 默认 `spaceTop/spaceBottom=0.1`（`axisMinimum=0`+自动上限），数据最高点上方与 0 值下方各留 10% 空隙；网格线、Y 轴标签、折线、圆点四处统一映射保持重合。**澄清**：双端 Demo3 数据源码逐值一致——iOS Demo 3 本就是「仅收入」单绿线（`expensePoints: []`），红绿双线在 Demo 1；用户所报 iOS Demo3 红绿两条系段落编号误记，数据零改动。`:components:compileDebugKotlin` BUILD SUCCESSFUL（20s）。
+
+## \[1.7.5] - 2026-09-12（iOS Tag 文字不可见第三次修复）
+
+### Fixed
+
+- **iOS Tag 文字完全看不到（第三次修复）**——根因=`layoutSubviews()` 中调用 `snp.updateConstraints` 每次布局都触发约束更新→布局循环→label 宽度被压成 0。重写 TagView 用内部 `UIStackView`（contentStack）水平排列 label+closeIcon（与 Android Compose Row 同构），删除 `layoutSubviews()` override，closeIcon 改 SnapKit `width/height` 约束，label 补 `.required` hugging+compression resistance 防挤压。`xcodebuild` 0 错误。
+
 ## \[1.7.4] - 2026-09-12（ImageView/Segmented/Steps/Table/Calendar 五件 C1.5 验收通过）
 
 ### Changed

@@ -84,8 +84,7 @@ final class TagView: UIView {
 
     private let label = UILabel()
     private let closeIcon = UIImageView()
-    private var labelLeading: Constraint?
-    private var labelTrailing: Constraint?
+    private let contentStack = UIStackView()
 
     // MARK: - 初始化
 
@@ -94,20 +93,30 @@ final class TagView: UIView {
         layer.cornerRadius = AppRadius.sm
         clipsToBounds = true
 
-        label.textAlignment = .center
-        addSubview(label)
-        label.snp.makeConstraints { make in
-            self.labelLeading = make.leading.equalToSuperview().offset(tagSize.paddingH).constraint
-            self.labelTrailing = make.trailing.equalToSuperview().offset(-tagSize.paddingH).constraint
-            make.centerY.equalToSuperview()
+        // 内部用 UIStackView 水平排列 label + closeIcon，与 Android Compose Row 同构
+        contentStack.axis = .horizontal
+        contentStack.alignment = .center
+        contentStack.spacing = 2
+        addSubview(contentStack)
+        contentStack.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(tagSize.paddingH)
+            make.trailing.equalToSuperview().offset(-tagSize.paddingH)
+            make.top.bottom.equalToSuperview()
         }
+
+        label.textAlignment = .center
+        label.setContentHuggingPriority(.required, for: .horizontal)
+        label.setContentCompressionResistancePriority(.required, for: .horizontal)
+        contentStack.addArrangedSubview(label)
 
         closeIcon.contentMode = .scaleAspectFit
         closeIcon.image = UIImage(systemName: "xmark")
         closeIcon.isUserInteractionEnabled = true
+        closeIcon.setContentHuggingPriority(.required, for: .horizontal)
+        closeIcon.setContentCompressionResistancePriority(.required, for: .horizontal)
         let tap = UITapGestureRecognizer(target: self, action: #selector(closeTapped))
         closeIcon.addGestureRecognizer(tap)
-        addSubview(closeIcon)
+        contentStack.addArrangedSubview(closeIcon)
 
         updateAppearance()
     }
@@ -125,27 +134,7 @@ final class TagView: UIView {
         self.closable = closable
     }
 
-    // MARK: - 布局
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        let iconW = tagSize.iconSize
-        let iconX = bounds.width - tagSize.paddingH - iconW
-        let iconY = (bounds.height - iconW) / 2
-
-        if closable {
-            closeIcon.isHidden = false
-            closeIcon.frame = CGRect(x: iconX, y: iconY, width: iconW, height: iconW)
-            label.snp.updateConstraints { make in
-                make.trailing.equalToSuperview().offset(-(iconX - 2))
-            }
-        } else {
-            closeIcon.isHidden = true
-            label.snp.updateConstraints { make in
-                make.trailing.equalToSuperview().offset(-tagSize.paddingH)
-            }
-        }
-    }
+    // MARK: - intrinsicContentSize
 
     override var intrinsicContentSize: CGSize {
         let labelW = label.intrinsicContentSize.width
@@ -160,8 +149,18 @@ final class TagView: UIView {
         let c = tagColor.color
         label.text = text
         label.font = .systemFont(ofSize: tagSize.fontSize, weight: .medium)
-        labelLeading?.update(offset: tagSize.paddingH)
-        labelTrailing?.update(offset: -tagSize.paddingH)
+
+        // closeIcon 尺寸约束（用 Snashot 约束而非 frame，避免 layoutSubviews 循环）
+        closeIcon.snp.remakeConstraints { make in
+            make.width.height.equalTo(tagSize.iconSize)
+        }
+        closeIcon.isHidden = !closable
+
+        // contentStack 内边距随尺寸调整
+        contentStack.snp.updateConstraints { make in
+            make.leading.equalToSuperview().offset(tagSize.paddingH)
+            make.trailing.equalToSuperview().offset(-tagSize.paddingH)
+        }
 
         switch variant {
         case .filled:

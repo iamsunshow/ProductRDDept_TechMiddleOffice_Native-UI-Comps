@@ -129,7 +129,7 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
         isExpanded ? closePanel() : openPanel()
     }
 
-    private func openPanel() {
+    func openPanel() {
         isExpanded = true
         chevronLabel.text = "▲"
         let panel = UIView()

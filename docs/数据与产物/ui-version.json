@@ -1,6 +1,6 @@
 {
-  "version": "1.5.0",
-  "versionKey": "v1.5.0",
-  "releaseDate": "2026-09-11",
-  "changelog": "[1.5.0] 2026-09-11 信息展示区六组件批量发版：Tag #78 + Segmented #74 + Table #77 + Tour #79 + ImagePreview #68 + VirtualList #81。门禁 A 评审通过（review-batch-info-display-B.md AI 代评全 A）+双端实现入库+Demo 4 段 1:1。版本 1.4.31 → 1.5.0。"
+  "version": "1.5.1",
+  "versionKey": "v1.5.1",
+  "releaseDate": "2026-09-12",
+  "changelog": "[1.5.1] 2026-09-12 Fixed：DropDownMenu #22 iOS 编译错误修复——DropDownMenuView.columnTapped 调用 DropDownView.openPanel() 编译报 'openPanel' is inaccessible due to 'private' protection level（当日 C1.5 修复 Demo2 点击无反应时补调用但漏改访问级别），openPanel 由 private 改为 internal，与 closePanel(public) 同为容器可调用。"
 }

@@ -14,6 +14,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.5.1] - 2026-09-12
+
+### Fixed
+
+- **DropDownMenu #22 iOS 编译错误修复**：`DropDownMenuView.columnTapped`（DropDownMenuView.swift:331）调用 `DropDownView.openPanel()` 编译报错 `'openPanel' is inaccessible due to 'private' protection level`。根因：2026-09-12 C1.5 修复「Demo2 点击菜单无反应」时在 columnTapped 补了 `openPanel()` 调用，但 `openPanel()` 仍声明为 `private`，跨类不可见。修复：`openPanel()` 由 `private` 改为 internal（同模块可调用），与已公开的 `closePanel()` 配套，供 `DropDownMenuView` 容器统一管理展开/收起。
+
 ## \[1.4.31] - 2026-09-11
 
 信息展示区三组件合并发版（Price 价格 #72 + Progress 进度条 #73 + Steps 步骤条 #75，MINOR）。

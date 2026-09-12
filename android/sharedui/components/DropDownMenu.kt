@@ -12,11 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.foundation.Canvas
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,6 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -100,12 +100,7 @@ fun DropDown(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.width(120.dp)
                     )
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = null,
-                        tint = AppColor.textSecondary.copy(alpha = 0.5f),
-                        modifier = Modifier.size(8.dp)
-                    )
+                    ChevronDown(color = AppColor.textSecondary.copy(alpha = 0.5f))
                 }
 
                 DropdownMenu(
@@ -178,12 +173,7 @@ fun DropDownMenu(
                                 color = AppColor.textPrimary,
                                 maxLines = 1
                             )
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = null,
-                                tint = AppColor.textSecondary.copy(alpha = 0.5f),
-                                modifier = Modifier.size(8.dp)
-                            )
+                            ChevronDown(color = AppColor.textSecondary.copy(alpha = 0.5f))
                         }
                     }
 
@@ -225,5 +215,27 @@ fun DropDownMenu(
                 }
             }
         }
+    }
+}
+
+// MARK: - ChevronDown
+
+/**
+ * 下拉三角箭头（自绘 8×8dp 实心等腰三角，顶点向下）。
+ *
+ * 对齐 iOS ChevronView（8×8pt 自绘，DropDownMenuView.swift L14-48）。
+ * v1.6.7 曾统一为 Icons.Default.ArrowDropDown + size(8.dp)——图标 24dp 视口整体缩到 8dp 后
+ * 三角形实际仅约 2.7dp，真机几乎不可见（用户反馈 D1-D4「三角箭头没有了」），改自绘所见即所得。
+ */
+@Composable
+private fun ChevronDown(color: Color, modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier.size(8.dp)) {
+        val path = Path().apply {
+            moveTo(0f, 0f)
+            lineTo(size.width, 0f)
+            lineTo(size.width / 2f, size.height)
+            close()
+        }
+        drawPath(path = path, color = color)
     }
 }

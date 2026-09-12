@@ -221,10 +221,15 @@ public class DropDownView: UIView, UITableViewDelegate, UITableViewDataSource {
         hostView.addSubview(panel)
         panel.translatesAutoresizingMaskIntoConstraints = false
         let anchorFrame = anchorView.convert(anchorView.bounds, to: hostView)
+        // 面板宽度以 Android 为准（DropdownMenu 内容自适应）：最长选项文本宽 + 左右内边距余量，上限=触发按钮宽。
+        // 旧实现=anchorFrame.width，而单列触发按钮为通栏 → 面板通栏，与 Android 不一致（用户 2026-09-12 反馈）。
+        let textFont = UIFont.systemFont(ofSize: AppFont.sizeMd)
+        let maxOptionWidth = options.map { ($0.text as NSString).size(withAttributes: [.font: textFont]).width }.max() ?? 0
+        let panelWidth = min(anchorFrame.width, maxOptionWidth + AppSpace.md * 2 + 15)
         NSLayoutConstraint.activate([
             panel.topAnchor.constraint(equalTo: hostView.topAnchor, constant: anchorFrame.maxY + 4),
             panel.leadingAnchor.constraint(equalTo: hostView.leadingAnchor, constant: anchorFrame.minX),
-            panel.widthAnchor.constraint(equalToConstant: anchorFrame.width),
+            panel.widthAnchor.constraint(equalToConstant: panelWidth),
             panel.heightAnchor.constraint(equalToConstant: height),
         ])
         panelView = panel

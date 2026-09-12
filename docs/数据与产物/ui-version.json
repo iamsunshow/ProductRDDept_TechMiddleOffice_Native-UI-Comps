@@ -1,6 +1,6 @@
 {
-  "version": "1.7.7",
-  "versionKey": "v1.7.7",
+  "version": "1.7.8",
+  "versionKey": "v1.7.8",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.7.7] 2026-09-12 Test：iOS Tag 单测沉淀——11 例覆盖 4 大根因（convenience init didSet 陷阱、layoutSubviews 循环、intrinsicContentSize 椭圆小点、closable closeIcon 尺寸）+ 三形态/四色/三尺寸/运行时 didSet。核心回归用例 test_convenienceInit_intrinsicContentSize有文字宽度 直接断言 intrinsicContentSize.width > paddingH*2，若 didSet 陷阱复发立即失败。用 @testable import + 外部可观察的 intrinsicContentSize/backgroundColor/layer.borderWidth 间接验证内部 label.text 已赋值。xcodebuild test 全部 11 例真绿（0.205s）。"
+  "changelog": "[1.7.8] 2026-09-12 Fixed：iOS Tour #58 两修复——① Demo1-4 缺 onChange 回调导致点击下一步 current 不更新、无法切步/关闭（Demo2 尤为明显，showSkip=false 时只能走下一步→完成路径，但 onChange 缺失使 isLast 永远 false，完成按钮永不出现），4 个 Demo 统一补 tour.onChange = { tour.current = $0 }；② 下一步/上一步/跳过三按钮未设 contentEdgeInsets，文字紧贴按钮边缘（Android Tour 用 padding(horizontal=md=12, vertical=sm=8)），iOS 三按钮统一加 (top=sm=8, left=md=12, bottom=sm=8, right=md=12) 对齐 Android，同时去掉 nextButton/prevButton 固定 height=36 让按钮按 insets 自撑开。"
 }

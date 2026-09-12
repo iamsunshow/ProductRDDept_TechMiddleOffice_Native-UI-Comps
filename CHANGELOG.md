@@ -14,6 +14,20 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。④ [1.7.5] 两条=LineChart #84 三优化（cc09660，Trae）与 iOS Tag 文字不可见第三次修复（5e2a250，他会话）同号并存——他会话提交窗口与 Trae 文档编辑重叠，条目未互相覆盖、内容均有效，v1.7.5 号双主题共用，不改史。 -->
 
+## \[1.7.8] - 2026-09-12（iOS Tour #58）
+
+### Fixed
+
+- **iOS Tour Demo1-4 点击下一步无反应/无法关闭**：4 个 Demo 均缺 `tour.onChange = { tour.current = $0 }` 回调，导致 `nextTapped()` 调用 `onChange?(current + 1)` 时 `current` 不更新、`updateContent()` 不触发，按钮文字与步骤指示停滞；Demo2（`showSkip=false`）尤为明显——只能走"下一步→完成"路径，但 `isLast` 永远为 `false`，"完成"按钮永不出现，引导层无法关闭。4 个 Demo 统一补 `onChange` 回调，步骤切换与完成/关闭恢复正常。
+- **iOS Tour 按钮文字紧贴边缘**：`nextButton`/`prevButton`/`skipButton` 三按钮均未设 `contentEdgeInsets`，文字紧贴按钮边缘（Android Tour `TourButton` 用 `.padding(horizontal = AppSpace.md=12, vertical = AppSpace.sm=8)`）。iOS 三按钮统一加 `contentEdgeInsets = (top: sm=8, left: md=12, bottom: sm=8, right: md=12)` 对齐 Android；同时去掉 `nextButton`/`prevButton` 固定 `height.equalTo(36)` 约束，让按钮按 insets + 文字自适应撑开，与 Android `Box+padding` 行为同构。
+
+## \[1.7.7] - 2026-09-12（DropDown #17）
+
+### Fixed
+
+- **Android 三角箭头恢复可见（D1-D4 全部）**：v1.6.7「双端三角统一」把 Android 箭头改成 `Icons.Default.ArrowDropDown + size(8.dp)`——但 Material 图标 24dp 视口内三角形仅占约 1/3，整体缩到 8dp 后三角实际≈2.7dp，真机几乎不可见（用户实机反馈「箭头没有了，之前有」；iOS 8pt 为 ChevronView 自绘整体图形，语义不等同）。修复：Android 新增自绘 `ChevronDown` Composable（Canvas 8×8dp 实心等腰三角、顶点向下、颜色/透明度与原一致），DropDown 触发行与 DropDownMenu 列按钮两处替换，与 iOS ChevronView 像素级同构；删除 ArrowDropDown/Icon 无用 import。
+- **iOS 单列面板宽度以 Android 为准**：旧 `panel.width = anchorFrame.width`，而单列触发按钮通栏 → 面板通栏；Android 语义为 DropdownMenu 内容自适应（最长选项文本+内边距）。修复：面板宽改为 `min(按钮宽, 最长选项文本宽(sizeMd 字体实测) + AppSpace.md*2 + 15)`，多列（D2）面板随列按钮锚点本就与 Android 一致、未动。
+
 ## \[1.7.6] - 2026-09-12（LineChart #84 验收收口）
 
 ### Changed

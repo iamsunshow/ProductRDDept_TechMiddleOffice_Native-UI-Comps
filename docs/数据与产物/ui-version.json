@@ -1,6 +1,6 @@
 {
-  "version": "1.5.3",
-  "versionKey": "v1.5.3",
+  "version": "1.5.4",
+  "versionKey": "v1.5.4",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.5.3] 2026-09-12 Fixed：Row Demo 1-3 iOS 色块不可见修复——RowView 仅用 top+bottom 约束填满容器，但容器在 UIStackView 中无固有高度→高度链断裂→box 坍缩为 0 高→浅绿/深绿色块不可见；补 height.equalTo(40) 与 Android DemoColBox 40dp 对齐。"
+  "changelog": "[1.5.4] 2026-09-12 Fixed：Slider #45 Android thumb 圆形位于横线上方、未与轨道垂直居中——根因轨道/激活段用 Alignment.CenterStart（44dp 容器内已垂直居中）后又叠加 offset(y=(44-4)/2=20dp)，轨道被二次下移到 y=40 贴底（中心42dp），thumb 中心 22dp 跑到轨道上方 20dp；删除两处多余 y offset，三层同轴居中（对齐 iOS trackY=20/thumbY=10 中心同为22）。回归台账 #54 建档，SliderTest 7 例真绿（三档三层中心Y+尺寸同轴+点击两端/分档吸附）。"
 }

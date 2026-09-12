@@ -96,11 +96,13 @@ fun Slider(
                 }
             }
     ) {
-        // 轨道（灰底）
+        // 轨道（灰底）——CenterStart 已垂直居中（中心=44/2=22dp，与 thumb 同轴），
+        // 禁止再叠加 y offset：旧实现 CenterStart + offset(y=(44-4)/2=20dp) 把轨道
+        // 二次下移到 y=40 贴底，thumb 中心在 22 → 圆跑到横线上方（台账 #54）。
         Box(
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .offset(y = (SliderComponentHeight - SliderTrackHeight) / 2)
+                .testTag("slider-track")
                 .fillMaxWidth()
                 .height(SliderTrackHeight)
                 .clip(RoundedCornerShape(50))
@@ -111,10 +113,8 @@ fun Slider(
         Box(
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .offset(
-                    x = with(density) { halfThumb.toDp() },
-                    y = (SliderComponentHeight - SliderTrackHeight) / 2
-                )
+                .testTag("slider-active")
+                .offset(x = with(density) { halfThumb.toDp() })
                 .size(
                     width = with(density) { (ratio * effectiveWidth).toDp() },
                     height = SliderTrackHeight
@@ -123,10 +123,11 @@ fun Slider(
                 .background(AppColor.primary)
         )
 
-        // Thumb（白色圆 + 阴影）
+        // Thumb（白色圆 + 阴影）——CenterStart 垂直居中，offset 仅给 x
         Box(
             modifier = Modifier
                 .align(Alignment.CenterStart)
+                .testTag("slider-thumb")
                 .offset {
                     IntOffset(
                         x = (thumbOffsetPx - halfThumb).toInt(),

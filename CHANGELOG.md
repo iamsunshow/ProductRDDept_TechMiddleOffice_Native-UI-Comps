@@ -14,6 +14,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.5.4] - 2026-09-12
+
+### Fixed
+
+- **Slider #45 Android thumb 圆形位于横线上方（未与轨道垂直居中）**：`Slider.kt` 灰轨道与 primary 激活段均以 `Alignment.CenterStart` 对齐——在 44dp 高容器内已垂直居中（中心 22dp）——却又叠加 `offset(y = (44-4)/2 = 20dp)`，轨道被二次下移到 y=40 贴底（中心 42dp）；thumb 仅 CenterStart 无 y 偏移（中心 22dp），于是圆形跑到横线上方 20dp。修复：删除轨道/激活段两处多余 y 偏移，三层（thumb/灰轨道/激活段）共用 CenterStart 同轴居中，与 iOS `SliderView`（trackY=20、thumbY=10，中心同为 22pt）一致；同时为三层补 `slider-track/slider-active/slider-thumb` testTag。回归台账 #54 建档，新增 `SliderTest` 7 例 Robolectric 真绿：value 0/50/100 三档三层中心 Y=容器中心、轨道 4dp/thumb 24dp 同轴、点击轨道两端回调 0/100、steps=3 分档点击吸附 50。
+
 ## \[1.5.3] - 2026-09-12
 
 ### Fixed

@@ -9750,28 +9750,39 @@ fun ImageViewDemo() {
 
 @Composable
 fun PickerViewDemo() {
-    Text("PickerView 多列选择器 v1.0", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
+    // 修复：宿主详情页 TmoDemo 为不带滚动的 Column，4 个完整 Picker（各 264dp）总高远超一屏，
+    // 页面无法拖动、D3/D4 不可达——Demo 页必须自带 verticalScroll（内层定高滚轮与外层同滚
+    // 在 PickerDemo 已由用户 C1.5 验收验证可行）。
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.xl)
+            .padding(top = AppSpace.lg, bottom = AppSpace.xl)
+    ) {
+        Text("PickerView 多列选择器 v1.0", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
 
-    Text("D1 单列基础", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    val provinces = listOf(PickerOption("bj", "北京市"), PickerOption("sh", "上海市"), PickerOption("gd", "广东省"), PickerOption("zj", "浙江省"))
-    var d1Value by remember { mutableStateOf("gd") }
-    Picker(options = provinces, value = d1Value, title = "选择省份", onChange = { d1Value = it })
-    Text("单列滚轮选择器内容块=工具栏 44 + 滚轮 220；确定提交 / 取消滚回 value。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        Text("D1 单列基础", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = AppSpace.sm))
+        val provinces = listOf(PickerOption("bj", "北京市"), PickerOption("sh", "上海市"), PickerOption("gd", "广东省"), PickerOption("zj", "浙江省"))
+        var d1Value by remember { mutableStateOf("gd") }
+        Picker(options = provinces, value = d1Value, title = "选择省份", onChange = { d1Value = it })
+        Text("单列滚轮选择器内容块=工具栏 44 + 滚轮 220；确定提交 / 取消滚回 value。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs, modifier = Modifier.padding(bottom = AppSpace.sm))
 
-    Text("D2 选项禁用", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    val opts = provinces + PickerOption("tw", "台湾省（暂不可选）", disabled = true)
-    var d2Value by remember { mutableStateOf("bj") }
-    Picker(options = opts, value = d2Value, title = "选择省份", onChange = { d2Value = it })
-    Text("disabled 选项灰显且滚掠不可停靠。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        Text("D2 选项禁用", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = AppSpace.sm))
+        val opts = provinces + PickerOption("tw", "台湾省（暂不可选）", disabled = true)
+        var d2Value by remember { mutableStateOf("bj") }
+        Picker(options = opts, value = d2Value, title = "选择省份", onChange = { d2Value = it })
+        Text("disabled 选项灰显且滚掠不可停靠。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs, modifier = Modifier.padding(bottom = AppSpace.sm))
 
-    Text("D3 禁用态", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    Picker(options = provinces, value = "sh", title = "选择省份", disabled = true, onChange = {})
-    Text("enabled=false：整体 40% 灰 + 不可交互。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        Text("D3 禁用态", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = AppSpace.sm))
+        Picker(options = provinces, value = "sh", title = "选择省份", disabled = true, onChange = {})
+        Text("enabled=false：整体 40% 灰 + 不可交互。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs, modifier = Modifier.padding(bottom = AppSpace.sm))
 
-    Text("D4 受控外部驱动", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    val cities = listOf(PickerOption("cd", "成都市"), PickerOption("my", "绵阳市"), PickerOption("dy", "德阳市"), PickerOption("ls", "乐山市"))
-    var d4Value by remember { mutableStateOf("cd") }
-    Picker(options = cities, value = d4Value, title = "选择城市", onChange = { d4Value = it })
-    Button(onClick = { d4Value = "ls" }) { Text("外部切到乐山", fontSize = AppFont.sizeXs) }
-    Text("外部赋值 value 仅同步滚轮位置（不触发 onChange）。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        Text("D4 受控外部驱动", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = AppSpace.sm))
+        val cities = listOf(PickerOption("cd", "成都市"), PickerOption("my", "绵阳市"), PickerOption("dy", "德阳市"), PickerOption("ls", "乐山市"))
+        var d4Value by remember { mutableStateOf("cd") }
+        Picker(options = cities, value = d4Value, title = "选择城市", onChange = { d4Value = it })
+        Button(onClick = { d4Value = "ls" }) { Text("外部切到乐山", fontSize = AppFont.sizeXs) }
+        Text("外部赋值 value 仅同步滚轮位置（不触发 onChange）。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+    }
 }

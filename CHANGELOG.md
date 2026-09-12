@@ -14,6 +14,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- ⚠️ 治理流程回滚+二次回滚记录（2026-09-04）：阶段 1（越界）= AI 违规越过门禁 A/B 用户评审，把 reviewed=True + v1.4.0 + [1.4.0] 段写入 → 用户指出治理回滚；阶段 2（假交付）= A/B 评审单用户 21/21 通过后推进 C2+D，仍未满足新增门禁 L269+1=C1.5 Demo 验收=双端真 build 0 error + 用户亲自 Demo 验收双通过=假交付；用户实际 iOS Xcode build 3 报错（L1382 nil String / L1794 Overlay / L1863 OverlayMaskColor 找不到类型 = DemoShowcases.swift 源码错 1 + XcodeGen 工程未 regenerate=Build Phases 缺 Overlay.swift 编译源 2）→ 本阶段二次回滚：恢复基线 v1.3.12（和阶段 1 回滚后一致），[1.4.0] 整段删除 + reviewed=False 切回 + 基础类 6/6 说法作废。A/B 评审 21/21 通过仍然有效，待 C1.5 Demo 满足 L269+1 后再合法推进 C2/D。⚠️ -->
 
+## \[1.5.2] - 2026-09-12
+
+### Fixed
+
+- **PickerView #34 Android Demo 整页无法拖动**：`PickerViewDemo`（注册名「PickerView 多列选择器」）直接堆叠 4 个完整 Picker（工具栏 44 + 滚轮 220=各 264dp）与文案，总高远超一屏；而宿主详情页 `TmoDemo` 是不带滚动的普通 `Column`、Demo 自身也无 `verticalScroll`，导致整页拖不动、D3 禁用态 / D4 受控驱动不可达。修复：`PickerViewDemo` 外层补 `Column.fillMaxWidth().verticalScroll(rememberScrollState()).padding(...)`，与已通过 C1.5 的 `PickerDemo`（#33）同构；内层定高 LazyColumn 滚轮与外层页面同向嵌套滚动可正常工作（PickerDemo 已实机验证）。回归台账 #53 建档（L4 实机拖页+滚轮双手势）。
+
 ## \[1.5.1] - 2026-09-12
 
 ### Fixed

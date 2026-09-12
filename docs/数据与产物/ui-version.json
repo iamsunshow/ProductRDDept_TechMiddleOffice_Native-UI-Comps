@@ -1,6 +1,6 @@
 {
-  "version": "1.5.1",
-  "versionKey": "v1.5.1",
+  "version": "1.5.2",
+  "versionKey": "v1.5.2",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.5.1] 2026-09-12 Fixed：DropDownMenu #22 iOS 编译错误修复——DropDownMenuView.columnTapped 调用 DropDownView.openPanel() 编译报 'openPanel' is inaccessible due to 'private' protection level（当日 C1.5 修复 Demo2 点击无反应时补调用但漏改访问级别），openPanel 由 private 改为 internal，与 closePanel(public) 同为容器可调用。"
+  "changelog": "[1.5.2] 2026-09-12 Fixed：PickerView #34 Android Demo 整页无法拖动修复——PickerViewDemo 堆叠 4 个完整 Picker（各 264dp）总高远超一屏，而宿主详情页 TmoDemo 与 Demo 自身均无 verticalScroll，导致页面拖不动、D3/D4 不可达；给 PickerViewDemo 补 verticalScroll+padding 外层（与已验收的 PickerDemo 同构），回归台账 #53 建档。"
 }

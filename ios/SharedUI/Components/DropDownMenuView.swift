@@ -427,8 +427,9 @@ public class DropDownMenuView: UIView {
             btn.setTitle(item.title, for: .normal)
             btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeMd)
             btn.setTitleColor(AppColor.textPrimary, for: .normal)
-            // 双端统一 D2 列按钮底色=黑 4% 叠加（bgPage=F9FAFB 过浅，白卡上肉眼不可见=用户反馈「纯白」；台账 #63）
-            btn.backgroundColor = UIColor.black.withAlphaComponent(0.04)
+            // 底色回归设计 token bgPage（#64 曾临时改 black 4%；根因是 Demo 容器同色吞没，
+            // 已在 Demo 层改白容器解决，台账 #65）
+            btn.backgroundColor = AppColor.bgPage
             btn.layer.cornerRadius = AppRadius.md
             btn.tag = i
             btn.addTarget(self, action: #selector(columnTapped(_:)), for: .touchUpInside)

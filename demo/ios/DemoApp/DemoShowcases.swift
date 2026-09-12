@@ -11598,7 +11598,7 @@ final class VirtualListShowcase: ShowcaseViewController {
 final class DropDownMenuShowcase: ShowcaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        addVersionBadge(componentName: "DropDown / DropDownMenu", version: "v1.8.0", builtAt: "2026-09-12")
+        addVersionBadge(componentName: "DropDown / DropDownMenu", version: "v1.8.4", builtAt: "2026-09-12")
 
         addSection(title: "Demo 1 · DropDown 基础下拉", containerColor: AppColor.bgCard) { container in
             let opts = [DropDownOption(value: "asc", text: "默认排序"), DropDownOption(value: "price_asc", text: "价格从低到高"), DropDownOption(value: "price_desc", text: "价格从高到低"), DropDownOption(value: "sales", text: "销量优先")]

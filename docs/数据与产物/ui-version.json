@@ -1,6 +1,6 @@
 {
-  "version": "1.8.3",
-  "versionKey": "v1.8.3",
+  "version": "1.8.4",
+  "versionKey": "v1.8.4",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.8.3] 2026-09-12 Fixed：Android Swipe #67——① 没滑动前最右侧就有红色区域漏出来（iOS 滑动后才出现）；② 滑动后什么也没有显示（iOS 滑动后会出现绿色标记、红色删除等矩形块）。根因：Swipe.kt 操作按钮的修饰符链 .matchParentSize().width(80.dp) 中，matchParentSize 将 minWidth 钉为父宽（如 360dp），width(80.dp) 被钳到 minWidth=全宽（80 < 360 → 钳到 360），按钮变全宽而非 80dp。修复：width(80.dp) 改为 requiredWidth(80.dp)——requiredWidth 忽略 incoming constraints 强制 80dp，不被 matchParentSize 的 minWidth 钳制。"
+  "changelog": "[1.8.4] 2026-09-12 Fixed：DropDown #68 三项双端一致——① Android D2 面板宽=列宽（BoxWithConstraints maxWidth→DropdownMenu width(columnWidth)，对齐 iOS matchAnchor）；② Android D4「外部切到 C」由 Material3 实心 Button 改 TextButton 纯文字链接、紧挨下拉左下方，对齐 iOS UIButton.system（iOS D4 值居右/按钮紧挨在 v1.8.0 已修复，经模拟器实证）；③ D1/D4 灰药丸可见性根因修复=iOS addSection 加 containerColor 参数（默认 bgPage 不影响其他组件），DropDown 四段传 bgCard 白容器；D2 列按钮底色双端回归设计 token bgPage（#64 临时 black4% 撤销）。"
 }

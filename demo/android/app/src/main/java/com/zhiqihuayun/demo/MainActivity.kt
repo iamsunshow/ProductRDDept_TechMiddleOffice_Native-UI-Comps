@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.size
@@ -9686,7 +9687,7 @@ private fun VirtualListDemo() {
 @Composable
 fun DropDownMenuDemo() {
     DemoPage {
-        Text("DropDown / DropDownMenu 下拉菜单 v1.8.0", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
+        Text("DropDown / DropDownMenu 下拉菜单 v1.8.4", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
 
         DemoSection(title = "D1 基础下拉", hint = "点击触发行展开浮层；选中项 ✓ 标记 + primary 高亮。") {
             var d1Value by remember { mutableStateOf("asc") }
@@ -9719,7 +9720,8 @@ fun DropDownMenuDemo() {
         DemoSection(title = "D4 受控外部驱动", hint = "外部赋值 value 仅同步显示（不触发 onChange）。") {
             var d4Value by remember { mutableStateOf("a") }
             DropDown(title = "受控下拉", options = listOf(DropDownOption("a", "选项 A"), DropDownOption("b", "选项 B"), DropDownOption("c", "选项 C")), value = d4Value)
-            Button(onClick = { d4Value = "c" }) { Text("外部切到 C", fontSize = AppFont.sizeXs) }
+            // 对齐 iOS UIButton(type:.system)=纯文字链接、紧挨下拉左下方（台账 #65；旧 Material3 Button 为实心胶囊观感不一）
+            TextButton(onClick = { d4Value = "c" }, contentPadding = PaddingValues(horizontal = AppSpace.xs)) { Text("外部切到 C", fontSize = AppFont.sizeXs, color = AppColor.primary) }
         }
     }
 }

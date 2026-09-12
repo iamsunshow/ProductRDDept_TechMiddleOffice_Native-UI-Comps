@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -168,17 +169,18 @@ fun DropDownMenu(
             horizontalArrangement = Arrangement.spacedBy(AppSpace.xs)
         ) {
             items.forEachIndexed { index, item ->
-                // 每列按钮+悬浮面板包在独立 Box：面板用 DropdownMenu 悬空弹出（不撑开内容区域，
+                // 每列按钮+悬浮面板包在独立 BoxWithConstraints：面板用 DropdownMenu 悬空弹出（不撑开内容区域，
                 // 对齐 iOS 交互=用户 2026-09-12 指定），且自带点击面板外自动关闭。
-                Box(modifier = Modifier.weight(1f)) {
+                BoxWithConstraints(modifier = Modifier.weight(1f)) {
+                    // 面板宽=本列宽（对齐 iOS PanelWidthMode.matchAnchor，台账 #65）
+                    val columnWidth = maxWidth
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(44.dp)
                             .clip(RoundedCornerShape(AppRadius.md))
-                            // 双端统一 D2 列按钮底色=黑 4% 叠加（bgPage=F9FAFB 过浅，白卡上 iOS 侧肉眼不可见，
-                            // 台账 #63）；alpha 黑双端数学一致
-                            .background(Color.Black.copy(alpha = 0.04f))
+                            // 底色=设计 token bgPage（白卡容器上呈浅灰药丸，双端一致；曾临时 black4%，#65 回归）
+                            .background(AppColor.bgPage)
                             .clickable {
                                 expandedIndex = if (expandedIndex == index) -1 else index
                             }
@@ -201,7 +203,9 @@ fun DropDownMenu(
                     DropdownMenu(
                         expanded = expandedIndex == index,
                         onDismissRequest = { expandedIndex = -1 },
-                        modifier = Modifier.background(AppColor.bgCard)
+                        modifier = Modifier
+                            .width(columnWidth)
+                            .background(AppColor.bgCard)
                     ) {
                         item.options.forEach { opt ->
                             val selected = opt.value == item.value

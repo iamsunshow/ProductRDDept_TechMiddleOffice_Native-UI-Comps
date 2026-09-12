@@ -98,6 +98,14 @@
 		F082C3133DE10640D955D202 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F9AA827593BC17B2833943FC /* LaunchScreen.storyboard */; };
 		F29A612F1F36D150FCB070BC /* SideBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9FDF5F402CF5BDAC481F0A /* SideBarView.swift */; };
 		F3C4A6B858E50E41D981C443 /* CalendarFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C347F4A3C46B5E1B8CAB1D /* CalendarFormatter.swift */; };
+		B8C9D0E1F20314253647B8C9 /* TagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7B8C9D0E1F203142536A7B8 /* TagView.swift */; };
+		D0E1F203142536475869D0E1 /* SegmentedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D0E1F2031425364758C9D0 /* SegmentedView.swift */; };
+		A1B2C3D4E5F60718293A4B5C /* TableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F60718293A4B5C6D /* TableView.swift */; };
+		E1F2A3B4C5D6E7F8091A2B3C /* ImagePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D2E3F40516273849E1F2A3 /* ImagePreviewView.swift */; };
+		F2A3B4C5D6E7F8A9B0C1D2E3 /* TourView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3F4A5B6C7D8E9F0A1B2C3 /* TourView.swift */; };
+		A3B4C5D6E7F8A9B0C1D2E3F4 /* VirtualListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F4A5B6C7D8E9F0A1B2C3D4 /* VirtualListView.swift */; };
+		B4C5D6E7F8A9B0C1D2E3F4A5 /* MediaListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A5B6C7D8E9F0A1B2C3D4E5 /* MediaListCell.swift */; };
+		C5D6E7F8A9B0C1D2E3F4A5B6 /* ProgressListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B6C7D8E9F0A1B2C3D4E5F6 /* ProgressListCell.swift */; };
 		FE345D88FFD69080961CBDBF /* InputNumberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 117395B0073B2B6D351E469F /* InputNumberView.swift */; };
 /* End PBXBuildFile section */
 
@@ -194,6 +202,14 @@
 		F69D2D179C8D3E75403C835E /* PaginationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaginationView.swift; sourceTree = "<group>"; };
 		F6C5E445E3E164FA0C35BBFE /* HoverButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverButton.swift; sourceTree = "<group>"; };
 		F8415379828FC7A89E3EDED4 /* Image.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Image.swift; sourceTree = "<group>"; };
+		A7B8C9D0E1F203142536A7B8 /* TagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagView.swift; sourceTree = "<group>"; };
+		C9D0E1F2031425364758C9D0 /* SegmentedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedView.swift; sourceTree = "<group>"; };
+		B2C3D4E5F60718293A4B5C6D /* TableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableView.swift; sourceTree = "<group>"; };
+		C1D2E3F40516273849E1F2A3 /* ImagePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePreviewView.swift; sourceTree = "<group>"; };
+		D2E3F4A5B6C7D8E9F0A1B2C3 /* TourView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourView.swift; sourceTree = "<group>"; };
+		E3F4A5B6C7D8E9F0A1B2C3D4 /* VirtualListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualListView.swift; sourceTree = "<group>"; };
+		F4A5B6C7D8E9F0A1B2C3D4E5 /* MediaListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaListCell.swift; sourceTree = "<group>"; };
+		A5B6C7D8E9F0A1B2C3D4E5F6 /* ProgressListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressListCell.swift; sourceTree = "<group>"; };
 		F9AA827593BC17B2833943FC /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -302,6 +318,14 @@
 				5BF493588F1DB45E1F6C5F3B /* UploaderView.swift */,
 				7EDD760398DE0D5C4A9C5997 /* WebContentViewController.swift */,
 				5C72A9BFFF678CD83092A62D /* ZodiacAvatarView.swift */,
+				A7B8C9D0E1F203142536A7B8 /* TagView.swift */,
+				C9D0E1F2031425364758C9D0 /* SegmentedView.swift */,
+				B2C3D4E5F60718293A4B5C6D /* TableView.swift */,
+				C1D2E3F40516273849E1F2A3 /* ImagePreviewView.swift */,
+				D2E3F4A5B6C7D8E9F0A1B2C3 /* TourView.swift */,
+				E3F4A5B6C7D8E9F0A1B2C3D4 /* VirtualListView.swift */,
+				F4A5B6C7D8E9F0A1B2C3D4E5 /* MediaListCell.swift */,
+				A5B6C7D8E9F0A1B2C3D4E5F6 /* ProgressListCell.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -611,6 +635,14 @@
 				AC2C98EEB95830917DE4B2CA /* UploaderView.swift in Sources */,
 				5C6F236DD1355D59DB9EBF78 /* WebContentViewController.swift in Sources */,
 				5A56CCEB59E3697DAE2F2DC0 /* ZodiacAvatarView.swift in Sources */,
+				B8C9D0E1F20314253647B8C9 /* TagView.swift in Sources */,
+				D0E1F203142536475869D0E1 /* SegmentedView.swift in Sources */,
+				A1B2C3D4E5F60718293A4B5C /* TableView.swift in Sources */,
+				E1F2A3B4C5D6E7F8091A2B3C /* ImagePreviewView.swift in Sources */,
+				F2A3B4C5D6E7F8A9B0C1D2E3 /* TourView.swift in Sources */,
+				A3B4C5D6E7F8A9B0C1D2E3F4 /* VirtualListView.swift in Sources */,
+				B4C5D6E7F8A9B0C1D2E3F4A5 /* MediaListCell.swift in Sources */,
+				C5D6E7F8A9B0C1D2E3F4A5B6 /* ProgressListCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

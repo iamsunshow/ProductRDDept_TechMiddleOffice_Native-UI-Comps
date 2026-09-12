@@ -20,12 +20,12 @@ final class TourView: UIView {
     var current: Int = 0 { didSet { updateContent() } }
     var onChange: ((Int) -> Void)?
     var onFinish: (() -> Void)?
-    var maskColor: UIColor = UIColor.black.withAlphaComponent(0.7) { didSet { maskView.backgroundColor = maskColor } }
+    var maskColor: UIColor = UIColor.black.withAlphaComponent(0.7) { didSet { overlayView.backgroundColor = maskColor } }
     var showSkip: Bool = true { didSet { updateContent() } }
 
     // MARK: - 子视图
 
-    private let maskView = UIView()
+    private let overlayView = UIView()
     private let card = UIView()
     private let stepLabel = UILabel()
     private let titleLabel = UILabel()
@@ -39,9 +39,9 @@ final class TourView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        maskView.backgroundColor = maskColor
-        addSubview(maskView)
-        maskView.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        overlayView.backgroundColor = maskColor
+        addSubview(overlayView)
+        overlayView.snp.makeConstraints { make in make.edges.equalToSuperview() }
 
         card.backgroundColor = AppColor.bgCard
         card.layer.cornerRadius = AppRadius.lg

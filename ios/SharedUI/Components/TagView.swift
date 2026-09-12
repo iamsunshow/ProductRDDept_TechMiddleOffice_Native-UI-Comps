@@ -108,6 +108,16 @@ final class TagView: UIView {
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("TagView does not support NSCoder") }
 
+    /// 便捷初始化。
+    convenience init(text: String, variant: TagVariant = .filled, color: TagColor = .primary, size: TagSize = .sm, closable: Bool = false) {
+        self.init(frame: .zero)
+        self.text = text
+        self.variant = variant
+        self.tagColor = color
+        self.tagSize = size
+        self.closable = closable
+    }
+
     // MARK: - 布局
 
     override func layoutSubviews() {

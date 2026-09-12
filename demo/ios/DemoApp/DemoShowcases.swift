@@ -120,7 +120,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.ellipsis", name: "Ellipsis 文本省略", reviewed: true, create: { EllipsisShowcase() }, passed: true),
             DemoComponent(id: "ui.empty", name: "Empty 空状态", reviewed: true, create: { EmptyShowcase() }, passed: true),
             DemoComponent(id: "ui.image", name: "Image 图片", reviewed: true, create: { ImageShowcase() }, passed: true),
-            DemoComponent(id: "ui.image-preview", name: "ImagePreview 图片预览", reviewed: true, create: { ImagePreviewShowcase() }),
+            DemoComponent(id: "ui.image-preview", name: "ImagePreview 图片预览", reviewed: true, create: { ImagePreviewShowcase() }, passed: true),
             DemoComponent(id: "ui.list", name: "List 分组列表", reviewed: true, create: { ListShowcase() }, passed: true),
             DemoComponent(id: "ui.loading", name: "Loading 加载中", reviewed: true, create: { LoadingShowcase() }, passed: true),
             DemoComponent(id: "ui.lottie", name: "Lottie 动画", reviewed: true, create: { LottieShowcase() }, passed: true),
@@ -132,10 +132,10 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.skeleton", name: "Skeleton 骨架屏", reviewed: true, create: { SkeletonShowcase() }, passed: true),
             DemoComponent(id: "ui.steps", name: "Steps 步骤条", reviewed: true, create: { StepsShowcase() }, passed: true),
             DemoComponent(id: "ui.table", name: "Table 表格", reviewed: true, create: { TableShowcase() }, passed: true),
-            DemoComponent(id: "ui.tag", name: "Tag 标签", reviewed: true, create: { TagShowcase() }),
-            DemoComponent(id: "ui.tour", name: "Tour 引导", reviewed: true, create: { TourShowcase() }),
+            DemoComponent(id: "ui.tag", name: "Tag 标签", reviewed: true, create: { TagShowcase() }, passed: true),
+            DemoComponent(id: "ui.tour", name: "Tour 引导", reviewed: true, create: { TourShowcase() }, passed: true),
             DemoComponent(id: "ui.video", name: "Video 视频播放器", reviewed: false, create: nil),
-            DemoComponent(id: "ui.virtual-list", name: "VirtualList 虚拟列表", reviewed: true, create: { VirtualListShowcase() }),
+            DemoComponent(id: "ui.virtual-list", name: "VirtualList 虚拟列表", reviewed: true, create: { VirtualListShowcase() }, passed: true),
         ]),
         ("图表组件", [
             DemoComponent(id: "ui.line-chart", name: "LineChart 折线图", reviewed: true, create: { LineChartShowcase() }, passed: true),
@@ -277,7 +277,7 @@ class ShowcaseViewController: UIViewController {
         NotificationCenter.default.post(name: .scrollViewDidScrollNotification, object: nil)
     }
 
-    func addSection(title: String, _ block: (UIView) -> Void) {
+    func addSection(title: String, containerColor: UIColor = AppColor.bgPage, _ block: (UIView) -> Void) {
         let titleLabel = UILabel()
         titleLabel.text = title
         titleLabel.font = .systemFont(ofSize: AppFont.sizeMd, weight: .semibold)
@@ -285,8 +285,9 @@ class ShowcaseViewController: UIViewController {
         contentStack.addArrangedSubview(titleLabel)
 
         let container = UIView()
-        // 与 Android demo 平铺 bgPage 一致：去掉圆角卡片外框/边框，直接平铺在页面背景上。
-        container.backgroundColor = AppColor.bgPage
+        // 默认平铺 bgPage 与页面背景一致；组件 Demo 若自身触发壳也是 bgPage（如 DropDown 灰药丸），
+        // 需传 bgCard 白容器形成反差（对齐 Android DemoSection=bgCard 白卡，台账 #65）。
+        container.backgroundColor = containerColor
         container.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         contentStack.addArrangedSubview(container)
 
@@ -11599,7 +11600,7 @@ final class DropDownMenuShowcase: ShowcaseViewController {
         super.viewDidLoad()
         addVersionBadge(componentName: "DropDown / DropDownMenu", version: "v1.8.0", builtAt: "2026-09-12")
 
-        addSection(title: "Demo 1 · DropDown 基础下拉") { container in
+        addSection(title: "Demo 1 · DropDown 基础下拉", containerColor: AppColor.bgCard) { container in
             let opts = [DropDownOption(value: "asc", text: "默认排序"), DropDownOption(value: "price_asc", text: "价格从低到高"), DropDownOption(value: "price_desc", text: "价格从高到低"), DropDownOption(value: "sales", text: "销量优先")]
             let dd = DropDownView(title: "排序方式", options: opts, value: "asc")
             container.addSubview(dd)
@@ -11607,7 +11608,7 @@ final class DropDownMenuShowcase: ShowcaseViewController {
         }
         addInfo("点击触发行展开浮层面板；选中项 ✓ 标记 + primary 高亮；点选项即收起。")
 
-        addSection(title: "Demo 2 · DropDownMenu 多列容器") { container in
+        addSection(title: "Demo 2 · DropDownMenu 多列容器", containerColor: AppColor.bgCard) { container in
             let items = [
                 DropDownMenuItem(title: "排序", options: [DropDownOption(value: "default", text: "默认"), DropDownOption(value: "sales", text: "销量"), DropDownOption(value: "price", text: "价格")], value: "default"),
                 DropDownMenuItem(title: "筛选", options: [DropDownOption(value: "all", text: "全部"), DropDownOption(value: "new", text: "新品"), DropDownOption(value: "hot", text: "热门")], value: "all")
@@ -11618,7 +11619,7 @@ final class DropDownMenuShowcase: ShowcaseViewController {
         }
         addInfo("水平等分按钮栏 + 展开浮層；同时只展开一列，切换时自动关闭前一列。")
 
-        addSection(title: "Demo 3 · 禁用态") { container in
+        addSection(title: "Demo 3 · 禁用态", containerColor: AppColor.bgCard) { container in
             let opts = [DropDownOption(value: "a", text: "选项 A"), DropDownOption(value: "b", text: "选项 B")]
             let dd = DropDownView(title: "禁用下拉", options: opts, value: "a", disabled: true)
             container.addSubview(dd)
@@ -11626,7 +11627,7 @@ final class DropDownMenuShowcase: ShowcaseViewController {
         }
         addInfo("disabled=true：整体 40% 灰不可点。")
 
-        addSection(title: "Demo 4 · 受控外部驱动") { container in
+        addSection(title: "Demo 4 · 受控外部驱动", containerColor: AppColor.bgCard) { container in
             let opts = [DropDownOption(value: "a", text: "选项 A"), DropDownOption(value: "b", text: "选项 B"), DropDownOption(value: "c", text: "选项 C")]
             let dd = DropDownView(title: "受控下拉", options: opts, value: "a")
             container.addSubview(dd)
@@ -11890,4 +11891,3 @@ final class PickerViewShowcase: ShowcaseViewController {
         addInfo("外部赋值 value 仅同步滚轮位置（不触发 onChange）。")
     }
 }
-

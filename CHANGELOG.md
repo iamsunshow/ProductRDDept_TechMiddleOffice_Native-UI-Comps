@@ -14,6 +14,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。 -->
 
+## \[1.6.6] - 2026-09-12（Android Demo 页面统一容器 DemoPage + DemoSection）
+
+### Changed
+
+- **Android Demo 页面统一容器**：用户反馈很多 Android Demo 页面没有边距直接贴屏幕边缘、demo 段间无间距、demo 段无最小高度，不方便调试排查。新增两个通用 Composable：① `DemoPage`=`Column(fillMaxSize+bgPage+verticalScroll+padding(lg,md)+spacedBy(md))`；② `DemoSection`=`Column(fillMaxWidth+bgCard+clip(md)+padding(md)+defaultMinSize(120dp)+spacedBy(sm))`，可选 `title`/`hint` 自动排版。改造 4 个完全无容器的 Demo：`DropDownMenuDemo`/`SliderDemo`/`StepperDemo`/`ImageViewDemo` 全部改用 `DemoPage`+`DemoSection`。删除旧的 `private fun DemoSection(title, content)` 函数（被新 `DemoSection` 超集替代，旧调用点签名兼容——`OverlayDemo`/`DividerDemo`/`CalendarDemo`/`DatePickerDemo` 等 6 处 `DemoSection(title="...")` 调用无需修改）。`gradle` BUILD SUCCESSFUL 0 错误。
+
 ## \[1.6.5] - 2026-09-12（LineChart #83）
 
 ### Fixed

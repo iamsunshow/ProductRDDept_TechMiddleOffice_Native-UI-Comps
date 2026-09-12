@@ -105,6 +105,7 @@ import com.zhiqihuayun.sharedui.components.AppButton
 import com.zhiqihuayun.sharedui.components.AppButtonStyle
 import com.zhiqihuayun.sharedui.components.AppIcon
 import com.zhiqihuayun.sharedui.components.DefaultErrorPlaceholder
+import androidx.compose.foundation.layout.ColumnScope
 import com.zhiqihuayun.sharedui.components.AppIconName
 import com.zhiqihuayun.sharedui.components.AppTheme
 import com.zhiqihuayun.sharedui.components.Cell
@@ -534,6 +535,80 @@ private fun ComponentRow(comp: DemoComponent, onClick: () -> Unit) {
                 text = statusText,
                 color = statusColor,
                 fontSize = AppFont.sizeSm
+            )
+        }
+    }
+}
+
+// ===== 通用 Demo 容器（DemoPage + DemoSection）=====
+// 2026-09-12 用户要求统一：所有 Android Demo 页面须有页面边距、demo 段间间距、demo 段最小高度，
+// 方便调试和排查。DemoPage 提供滚动+水平边距+段间间距；DemoSection 提供卡片+内边距+最小高度。
+
+/**
+ * DemoPage：Android Demo 页面通用滚动容器。
+ *
+ * 统一提供：① 页面水平边距 AppSpace.lg + 垂直边距 AppSpace.md；
+ * ② verticalScroll 滚动支持（Demo 内容超一屏可滚）；
+ * ③ Arrangement.spacedBy(AppSpace.md) 段间间距；
+ * ④ AppColor.bgPage 背景。
+ *
+ * 用法：DemoPage { DemoSection(title="D1 ...") { ... } DemoSection(title="D2 ...") { ... } }
+ */
+@Composable
+fun DemoPage(content: @Composable ColumnScope.() -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColor.bgPage)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md),
+        content = content
+    )
+}
+
+/**
+ * DemoSection：Demo 段落通用卡片容器。
+ *
+ * 统一提供：① AppColor.bgCard 卡片底色 + AppRadius.md 圆角；
+ * ② 内边距 AppSpace.md；③ defaultMinSize(minHeight=120.dp) 最小高度防坍缩；
+ * ④ 可选 title 标题 + 可选 hint 说明文字自动排版。
+ *
+ * 用法：
+ *   DemoSection(title = "D1 基础下拉", hint = "点击触发行展开") { DropDown(...) }
+ *   DemoSection(title = "D2 圆角变体") { Box { ... } }  // 无 hint
+ *   DemoSection { ... }  // 无 title 无 hint，仅卡片容器
+ */
+@Composable
+fun DemoSection(
+    title: String? = null,
+    hint: String? = null,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(AppRadius.md))
+            .background(AppColor.bgCard)
+            .padding(AppSpace.md)
+            .defaultMinSize(minHeight = 120.dp),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.sm)
+    ) {
+        if (title != null) {
+            Text(
+                text = title,
+                color = AppColor.textPrimary,
+                fontSize = AppFont.sizeMd,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        content()
+        if (hint != null) {
+            Text(
+                text = hint,
+                color = AppColor.textSecondary,
+                fontSize = AppFont.sizeXs
             )
         }
     }
@@ -1834,7 +1909,7 @@ private fun CardDemo() {
 @Composable
 private fun LineChartDemo() {
     Text(
-        text = "LineChart 组件 v1.0",
+        text = "LineChart 组件 v1.6.5",
         color = AppColor.primary,
         fontSize = AppFont.sizeXs,
         fontWeight = FontWeight.Medium,
@@ -2154,13 +2229,10 @@ private fun OverlayDemo() {
     }
 }
 
-@Composable
-private fun DemoSection(title: String, content: @Composable () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
-        Text(title, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
-        content()
-    }
-}
+// 旧的 DemoSection 已被上方通用 DemoSection（line 583）替代——
+// 新版提供 hint + modifier + ColumnScope content + 卡片底色 + 最小高度，
+// 是旧版的超集。旧调用点（OverlayDemo/DividerDemo/CalendarDemo/DatePickerDemo 等）
+// 的 DemoSection(title="...") { ... } 调用签名兼容新版（hint/modifier 有默认值）。
 
 @Composable
 private fun BottomSheetRow(title: String, onClick: () -> Unit) {
@@ -9607,167 +9679,151 @@ private fun VirtualListDemo() {
 
 @Composable
 fun DropDownMenuDemo() {
-    Text("DropDown / DropDownMenu 下拉菜单 v1.0", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
+    DemoPage {
+        Text("DropDown / DropDownMenu 下拉菜单 v1.0", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
 
-    Text("D1 基础下拉", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    var d1Value by remember { mutableStateOf("asc") }
-    var d1Msg by remember { mutableStateOf<String?>(null) }
-    DropDown(
-        title = "排序方式",
-        options = listOf(DropDownOption("asc", "默认排序"), DropDownOption("price_asc", "价格从低到高"), DropDownOption("price_desc", "价格从高到低"), DropDownOption("sales", "销量优先")),
-        value = d1Value,
-        onValueChange = { d1Value = it; d1Msg = "onChange → $it" }
-    )
-    d1Msg?.let { Text(it, color = AppColor.primary, fontSize = AppFont.sizeXs) }
-    Text("点击触发行展开浮层；选中项 ✓ 标记 + primary 高亮。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        DemoSection(title = "D1 基础下拉", hint = "点击触发行展开浮层；选中项 ✓ 标记 + primary 高亮。") {
+            var d1Value by remember { mutableStateOf("asc") }
+            var d1Msg by remember { mutableStateOf<String?>(null) }
+            DropDown(
+                title = "排序方式",
+                options = listOf(DropDownOption("asc", "默认排序"), DropDownOption("price_asc", "价格从低到高"), DropDownOption("price_desc", "价格从高到低"), DropDownOption("sales", "销量优先")),
+                value = d1Value,
+                onValueChange = { d1Value = it; d1Msg = "onChange → $it" }
+            )
+            d1Msg?.let { Text(it, color = AppColor.primary, fontSize = AppFont.sizeXs) }
+        }
 
-    Text("D2 多列容器", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    var d2Sort by remember { mutableStateOf("default") }
-    var d2Filter by remember { mutableStateOf("all") }
-    DropDownMenu(
-        items = listOf(
-            DropDownMenuItem("排序", listOf(DropDownOption("default", "默认"), DropDownOption("sales", "销量"), DropDownOption("price", "价格")), d2Sort),
-            DropDownMenuItem("筛选", listOf(DropDownOption("all", "全部"), DropDownOption("new", "新品"), DropDownOption("hot", "热门")), d2Filter)
-        ),
-        onValueChange = { idx, v -> if (idx == 0) d2Sort = v else d2Filter = v }
-    )
-    Text("水平等分按钮栏 + 展开浮层；同时只展开一列。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        DemoSection(title = "D2 多列容器", hint = "水平等分按钮栏 + 展开浮层；同时只展开一列。") {
+            var d2Sort by remember { mutableStateOf("default") }
+            var d2Filter by remember { mutableStateOf("all") }
+            DropDownMenu(
+                items = listOf(
+                    DropDownMenuItem("排序", listOf(DropDownOption("default", "默认"), DropDownOption("sales", "销量"), DropDownOption("price", "价格")), d2Sort),
+                    DropDownMenuItem("筛选", listOf(DropDownOption("all", "全部"), DropDownOption("new", "新品"), DropDownOption("hot", "热门")), d2Filter)
+                ),
+                onValueChange = { idx, v -> if (idx == 0) d2Sort = v else d2Filter = v }
+            )
+        }
 
-    Text("D3 禁用态", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    DropDown(title = "禁用下拉", options = listOf(DropDownOption("a", "选项 A")), value = "a", disabled = true)
-    Text("disabled=true：整体 40% 灰不可点。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        DemoSection(title = "D3 禁用态", hint = "disabled=true：整体 40% 灰不可点。") {
+            DropDown(title = "禁用下拉", options = listOf(DropDownOption("a", "选项 A")), value = "a", disabled = true)
+        }
 
-    Text("D4 受控外部驱动", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    var d4Value by remember { mutableStateOf("a") }
-    DropDown(title = "受控下拉", options = listOf(DropDownOption("a", "选项 A"), DropDownOption("b", "选项 B"), DropDownOption("c", "选项 C")), value = d4Value)
-    Button(onClick = { d4Value = "c" }) { Text("外部切到 C", fontSize = AppFont.sizeXs) }
-    Text("外部赋值 value 仅同步显示（不触发 onChange）。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        DemoSection(title = "D4 受控外部驱动", hint = "外部赋值 value 仅同步显示（不触发 onChange）。") {
+            var d4Value by remember { mutableStateOf("a") }
+            DropDown(title = "受控下拉", options = listOf(DropDownOption("a", "选项 A"), DropDownOption("b", "选项 B"), DropDownOption("c", "选项 C")), value = d4Value)
+            Button(onClick = { d4Value = "c" }) { Text("外部切到 C", fontSize = AppFont.sizeXs) }
+        }
+    }
 }
 
 // MARK: - SliderDemo
 
 @Composable
 fun SliderDemo() {
-    Text("Slider 滑块组件 v1.0", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
+    DemoPage {
+        Text("Slider 滑块组件 v1.0", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
 
-    Text("D1 基础滑块（连续 0~100）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    var d1Value by remember { mutableStateOf(30f) }
-    var d1Msg by remember { mutableStateOf<String?>(null) }
-    Slider(value = d1Value, valueRange = 0f..100f, onValueChange = { d1Value = it; d1Msg = "onChange → ${it.toInt()}" })
-    d1Msg?.let { Text(it, color = AppColor.primary, fontSize = AppFont.sizeXs) }
-    Text("拖拽/点击轨道移动 thumb；激活段 primary 填充。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        DemoSection(title = "D1 基础滑块（连续 0~100）", hint = "拖拽/点击轨道移动 thumb；激活段 primary 填充。") {
+            var d1Value by remember { mutableStateOf(30f) }
+            var d1Msg by remember { mutableStateOf<String?>(null) }
+            Slider(value = d1Value, valueRange = 0f..100f, onValueChange = { d1Value = it; d1Msg = "onChange → ${it.toInt()}" })
+            d1Msg?.let { Text(it, color = AppColor.primary, fontSize = AppFont.sizeXs) }
+        }
 
-    Text("D2 分档滑块（step=4 档）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    var d2Value by remember { mutableStateOf(40f) }
-    var d2Msg by remember { mutableStateOf<String?>(null) }
-    Slider(value = d2Value, valueRange = 0f..100f, steps = 4, onValueChange = { d2Value = it; d2Msg = "onChange → ${it.toInt()}（吸附 0/20/40/60/80/100）" })
-    d2Msg?.let { Text(it, color = AppColor.primary, fontSize = AppFont.sizeXs) }
-    Text("steps=4：拖拽释放吸附最近档位。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        DemoSection(title = "D2 分档滑块（step=4 档）", hint = "steps=4：拖拽释放吸附最近档位。") {
+            var d2Value by remember { mutableStateOf(40f) }
+            var d2Msg by remember { mutableStateOf<String?>(null) }
+            Slider(value = d2Value, valueRange = 0f..100f, steps = 4, onValueChange = { d2Value = it; d2Msg = "onChange → ${it.toInt()}（吸附 0/20/40/60/80/100）" })
+            d2Msg?.let { Text(it, color = AppColor.primary, fontSize = AppFont.sizeXs) }
+        }
 
-    Text("D3 禁用态", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    Slider(value = 60f, valueRange = 0f..100f, enabled = false)
-    Text("enabled=false：整体 40% 灰不可拖。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        DemoSection(title = "D3 禁用态", hint = "enabled=false：整体 40% 灰不可拖。") {
+            Slider(value = 60f, valueRange = 0f..100f, enabled = false)
+        }
 
-    Text("D4 受控外部驱动", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    var d4Value by remember { mutableStateOf(50f) }
-    Slider(value = d4Value, valueRange = 0f..100f)
-    Button(onClick = { d4Value = 80f }) { Text("外部设值 → 80", fontSize = AppFont.sizeXs) }
-    Text("外部赋值 value 仅同步 thumb 位置（不触发 onChange）。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        DemoSection(title = "D4 受控外部驱动", hint = "外部赋值 value 仅同步 thumb 位置（不触发 onChange）。") {
+            var d4Value by remember { mutableStateOf(50f) }
+            Slider(value = d4Value, valueRange = 0f..100f)
+            Button(onClick = { d4Value = 80f }) { Text("外部设值 → 80", fontSize = AppFont.sizeXs) }
+        }
+    }
 }
 
 // MARK: - StepperDemo
 
 @Composable
 fun StepperDemo() {
-    Text("Stepper 步进器组件 v1.0", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
+    DemoPage {
+        Text("Stepper 步进器组件 v1.0", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
 
-    Text("D1 基础步进器（0~10 step=1）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    var d1Value by remember { mutableStateOf(3f) }
-    var d1Msg by remember { mutableStateOf<String?>(null) }
-    Box(modifier = Modifier.fillMaxWidth().padding(vertical = AppSpace.sm)) {
-        Stepper(value = d1Value, range = 0f..10f, step = 1f, onValueChange = { d1Value = it; d1Msg = "onChange → ${it.toInt()}" })
-    }
-    d1Msg?.let { Text(it, color = AppColor.primary, fontSize = AppFont.sizeXs) }
-    Text("[−] / [+] 按钮步进；到达 min/max 时对应按钮灰显。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        DemoSection(title = "D1 基础步进器（0~10 step=1）", hint = "[−] / [+] 按钮步进；到达 min/max 时对应按钮灰显。") {
+            var d1Value by remember { mutableStateOf(3f) }
+            var d1Msg by remember { mutableStateOf<String?>(null) }
+            Stepper(value = d1Value, range = 0f..10f, step = 1f, onValueChange = { d1Value = it; d1Msg = "onChange → ${it.toInt()}" })
+            d1Msg?.let { Text(it, color = AppColor.primary, fontSize = AppFont.sizeXs) }
+        }
 
-    Text("D2 小数步进（step=0.5）", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    var d2Value by remember { mutableStateOf(1f) }
-    var d2Msg by remember { mutableStateOf<String?>(null) }
-    Box(modifier = Modifier.fillMaxWidth().padding(vertical = AppSpace.sm)) {
-        Stepper(value = d2Value, range = 0f..5f, step = 0.5f, onValueChange = { d2Value = it; d2Msg = "onChange → $it" })
-    }
-    d2Msg?.let { Text(it, color = AppColor.primary, fontSize = AppFont.sizeXs) }
-    Text("step=0.5：显示一位小数。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        DemoSection(title = "D2 小数步进（step=0.5）", hint = "step=0.5：显示一位小数。") {
+            var d2Value by remember { mutableStateOf(1f) }
+            var d2Msg by remember { mutableStateOf<String?>(null) }
+            Stepper(value = d2Value, range = 0f..5f, step = 0.5f, onValueChange = { d2Value = it; d2Msg = "onChange → $it" })
+            d2Msg?.let { Text(it, color = AppColor.primary, fontSize = AppFont.sizeXs) }
+        }
 
-    Text("D3 禁用态", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    Box(modifier = Modifier.fillMaxWidth().padding(vertical = AppSpace.sm)) {
-        Stepper(value = 5f, range = 0f..10f, enabled = false)
-    }
-    Text("enabled=false：整体 40% 灰不可点。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+        DemoSection(title = "D3 禁用态", hint = "enabled=false：整体 40% 灰不可点。") {
+            Stepper(value = 5f, range = 0f..10f, enabled = false)
+        }
 
-    Text("D4 受控外部驱动", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    var d4Value by remember { mutableStateOf(5f) }
-    Box(modifier = Modifier.fillMaxWidth().padding(vertical = AppSpace.sm)) {
-        Stepper(value = d4Value, range = 0f..20f, step = 1f)
+        DemoSection(title = "D4 受控外部驱动", hint = "外部赋值 value 仅同步显示（不触发 onChange）。") {
+            var d4Value by remember { mutableStateOf(5f) }
+            Stepper(value = d4Value, range = 0f..20f, step = 1f)
+            Button(onClick = { d4Value = 15f }) { Text("外部设值 → 15", fontSize = AppFont.sizeXs) }
+        }
     }
-    Button(onClick = { d4Value = 15f }) { Text("外部设值 → 15", fontSize = AppFont.sizeXs) }
-    Text("外部赋值 value 仅同步显示（不触发 onChange）。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 }
 
 // MARK: - ImageViewDemo
 
 @Composable
 fun ImageViewDemo() {
-    // 修复（台账 #57）：D1-D4 图片块（160+80+100+80dp）+ 排查点文字总高超一屏，宿主详情页
-    // 不带滚动且本 Demo 原为顶层散排无容器——包一层可滚 Column（保留原有内容不动）。
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
     val density = LocalDensity.current.density
     val sampleBmp = makeDemoBitmap(density = density)
-    Text("ImageView 图片视图 v1.6.2", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
+    DemoPage {
+        Text("ImageView 图片视图 v1.6.2", color = AppColor.primary, fontSize = AppFont.sizeXs, fontWeight = FontWeight.Medium)
 
-    // Demo 1 · 基础图片展示：全宽 160 高 + radiusMd 圆角 + Crop（裁切铺满）
-    // 双端统一用 makeDemoBitmap（上蓝下橙+太阳圆），不用 Material Icons（图标库渲染不同导致不一致）
-    Text("D1 基础图片展示", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    Box(modifier = Modifier.fillMaxWidth().height(160.dp).clip(RoundedCornerShape(AppRadius.md)).background(AppColor.bgPage)) {
-        Image(bitmap = sampleBmp, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-    }
-    Text("样例图=320×200 上蓝下橙+白色太阳圆（8:5），Crop 等比裁切铺满容器。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
-
-    // Demo 2 · 圆角变体：三个 80×80 正方形，radiusSm/radiusMd/full（圆形=宽/2=40dp）
-    // 双端统一用 makeDemoBitmap，不用图标库
-    Text("D2 圆角变体", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.md)) {
-        for (r in listOf(AppRadius.sm, AppRadius.md, 40.dp)) {
-            Box(modifier = Modifier.size(80.dp).clip(RoundedCornerShape(r)).background(AppColor.bgPage)) {
+        DemoSection(title = "D1 基础图片展示", hint = "样例图=320×200 上蓝下橙+白色太阳圆（8:5），Crop 等比裁切铺满容器。") {
+            Box(modifier = Modifier.fillMaxWidth().height(160.dp).clip(RoundedCornerShape(AppRadius.md)).background(AppColor.bgPage)) {
                 Image(bitmap = sampleBmp, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
             }
         }
-    }
-    Text("radiusSm / radiusMd / full（=宽/2=40dp 即圆形）三态，均为 80×80 正方形。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
 
-    // Demo 3 · 加载失败占位：100×100 容器 + 自绘破图图形（与 iOS makeErrorPlaceholder 同数学定义）
-    // 双端统一用破图自绘图形，不用 Material Icons
-    Text("D3 加载失败占位", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    Box(modifier = Modifier.size(100.dp).clip(RoundedCornerShape(AppRadius.md)).background(AppColor.bgPage)) {
-        DefaultErrorPlaceholder(modifier = Modifier.fillMaxSize())
-    }
-    Text("加载失败时显示自绘破图图形（外框+太阳+山形折线）+「加载失败」文案。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
-
-    // Demo 4 · fit 模式：三个 80×80 正方形，FillBounds/Fit/Crop 三种 contentScale
-    // 双端统一用 makeDemoBitmap，不用图标库
-    Text("D4 fit 模式", color = AppColor.textPrimary, fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold)
-    Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
-        for (scale in listOf(ContentScale.FillBounds, ContentScale.Fit, ContentScale.Crop)) {
-            Box(modifier = Modifier.size(80.dp).clip(RoundedCornerShape(AppRadius.sm)).background(AppColor.bgPage)) {
-                Image(bitmap = sampleBmp, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = scale)
+        DemoSection(title = "D2 圆角变体", hint = "radiusSm / radiusMd / full（=宽/2=40dp 即圆形）三态，均为 80×80 正方形。") {
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.md)) {
+                for (r in listOf(AppRadius.sm, AppRadius.md, 40.dp)) {
+                    Box(modifier = Modifier.size(80.dp).clip(RoundedCornerShape(r)).background(AppColor.bgPage)) {
+                        Image(bitmap = sampleBmp, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                    }
+                }
             }
         }
-    }
-    Text("fill=拉伸铺满 / fit=等比留白 / cover=等比裁切，三个 80×80 大小一致。", color = AppColor.textSecondary, fontSize = AppFont.sizeXs)
+
+        DemoSection(title = "D3 加载失败占位", hint = "加载失败时显示自绘破图图形（外框+太阳+山形折线）+「加载失败」文案。") {
+            Box(modifier = Modifier.size(100.dp).clip(RoundedCornerShape(AppRadius.md)).background(AppColor.bgPage)) {
+                DefaultErrorPlaceholder(modifier = Modifier.fillMaxSize())
+            }
+        }
+
+        DemoSection(title = "D4 fit 模式", hint = "fill=拉伸铺满 / fit=等比留白 / cover=等比裁切，三个 80×80 大小一致。") {
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+                for (scale in listOf(ContentScale.FillBounds, ContentScale.Fit, ContentScale.Crop)) {
+                    Box(modifier = Modifier.size(80.dp).clip(RoundedCornerShape(AppRadius.sm)).background(AppColor.bgPage)) {
+                        Image(bitmap = sampleBmp, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = scale)
+                    }
+                }
+            }
+        }
     }
 }
 

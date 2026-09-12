@@ -1,6 +1,6 @@
 {
-  "version": "1.6.5",
-  "versionKey": "v1.6.5",
+  "version": "1.6.6",
+  "versionKey": "v1.6.6",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.6.5] 2026-09-12 Fixed：LineChart #83 Android 纵坐标与 X 轴首项挤在一起、数据节点为实心小圆。两个根因：① 坐标映射不同——iOS DGCharts 把 x 域设为 [-0.5, count-0.5]，首末数据点距图表左右缘各内缩半个步长，首标签不会顶到 Y 轴；Android 直接从图表左缘起画（i*stepX），X 轴首标签左半字伸入 Y 轴标签列。② 单位错误——Android 圆点半径 5f/白点 2f 是裸 px（真机≈1.9dp/0.76dp），线宽 4px≈1.5dp，比 iOS（circleRadius=3pt、hole=1.5pt、lineWidth=2pt）又小又实，白点占比小视觉即实心圆。修复：x 映射改 (i+0.5)/count 内缩域（折线/圆点/X 标签三处统一 xFor()）；圆点改 dp 单位=彩圆 3dp+白洞 1.5dp（对齐 iOS circleHoleColor=.white）；线宽 2dp。组件层改动，iOS 为基准未动。新增禁令（台账 #58）：图表类 Canvas 数据点/圆/线尺寸一律 dp→px 禁止裸 px；坐标域必须与 iOS 同构（含 -0.5 内缩）。:components:compileDebugKotlin BUILD SUCCESSFUL；:app 编译验证被并发会话 DemoPage 重构半成品阻塞，待其完成后复验。"
+  "changelog": "[1.6.6] 2026-09-12 Changed：Android Demo 页面统一容器（DemoPage + DemoSection）+ 4 个无容器 Demo 改造。用户反馈很多 Android Demo 页面没有边距直接贴屏幕边缘、demo 段间无间距、demo 段无最小高度，不方便调试排查。新增两个通用 Composable：① DemoPage=Column(fillMaxSize+bgPage+verticalScroll+padding(lg,md)+spacedBy(md))；② DemoSection=Column(fillMaxWidth+bgCard+clip(md)+padding(md)+defaultMinSize(120dp)+spacedBy(sm))，可选 title/hint 自动排版。改造 4 个完全无容器的 Demo：DropDownMenuDemo/SliderDemo/StepperDemo/ImageViewDemo 全部改用 DemoPage+DemoSection。删除旧的 private DemoSection(title,content) 函数（被新 DemoSection 超集替代，旧调用点签名兼容）。gradle BUILD SUCCESSFUL 0 错误。"
 }

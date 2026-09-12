@@ -14,6 +14,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。 -->
 
+## \[1.6.9] - 2026-09-12（PickerView #34 + Slider #45 C1.5 验收通过）
+
+### Changed
+
+- **PickerView #34 + Slider #45 用户 C1.5 实机验收通过**，状态 📋→✅。双端 Demo 代码 `passed=true` 同步：Android `MainActivity.kt` `PickerViewDemo`/`SliderDemo`（+`StepperDemo` 补 `passed=true`）；iOS `DemoShowcases.swift` `ui.picker-view`/`ui.slider`/`ui.stepper` `passed: true`。台账 #34/#45 状态更新 ✅ + 验收记录。`xcodebuild` + `gradle` 双端 0 错误。
+
 ## \[1.6.8] - 2026-09-12（DropDown #21/22 iOS 弹层滚动时不消失）
 
 ### Fixed

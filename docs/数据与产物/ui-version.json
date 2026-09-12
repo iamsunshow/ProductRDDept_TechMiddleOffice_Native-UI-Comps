@@ -1,6 +1,6 @@
 {
-  "version": "1.6.8",
-  "versionKey": "v1.6.8",
+  "version": "1.6.9",
+  "versionKey": "v1.6.9",
   "releaseDate": "2026-09-12",
-  "changelog": "[1.6.8] 2026-09-12 Fixed：DropDown #21/22 iOS 弹层在页面滚动时悬停不消失（与 Android 不同步）。根因=iOS DropDownView 弹层是 addSubview 到 window/keyView 的浮层，不跟随 scrollView 滚动，页面滚动时弹层悬停在原屏幕位置。修复：① 新增 Notification.Name.scrollViewDidScrollNotification 全局通知；② ShowcaseViewController 基类 viewDidLoad 给 scrollView.panGestureRecognizer 加 target-action，手势触发时广播通知（不用 UIScrollViewDelegate 避免与 SideBarShowcase 子类的 delegate 冲突）；③ DropDownView openPanel 时注册监听、closePanel 时移除监听，收到通知自动 closePanel。DropDownMenuView 的子 DropDownView 同样受益（closeAll 调 closePanel 移除监听）。xcodebuild 0 错误。"
+  "changelog": "[1.6.9] 2026-09-12 Changed：PickerView #34 + Slider #45 用户 C1.5 实机验收通过，状态 📋→✅。双端 Demo 代码 passed=true 同步：Android MainActivity.kt PickerViewDemo/SliderDemo（+StepperDemo 补 passed=true）；iOS DemoShowcases.swift ui.picker-view/ui.slider/ui.stepper passed: true。台账 #34/#45 状态更新 ✅ + 验收记录。xcodebuild + gradle 双端 0 错误。"
 }

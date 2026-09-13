@@ -1,6 +1,6 @@
 {
-  "version": "1.9.15",
-  "versionKey": "v1.9.15",
+  "version": "1.9.16",
+  "versionKey": "v1.9.16",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.15] 2026-09-13 Fixed：Overlay Demo6 三项双端一致修复——①title 居中：Android Text 加 textAlign=Center+fillMaxWidth 对齐 iOS。②desc 居中+文案对齐：Android Text 加 textAlign=Center，文案\"只能通过下方按钮关闭\"改\"只能通过下方「提交」按钮关闭\"对齐 iOS。③form 去掉 title 行：Android 去掉 Text(\"姓名\")+Text(\"备注\") 两行 title，直接 input（对齐 iOS makeFormField 无 title）；按钮 AppButton 改 Surface+Text 对齐 iOS makeDialogButton。Android assembleDebug BUILD SUCCESSFUL。"
+  "changelog": "[1.9.16] 2026-09-13 Fixed：Overlay iOS 圆角仍不显示修复——v1.9.12 已改 clipsToBounds=r>0 但用户反馈\"iOS 还是直角\"。根因=layoutSubviews 未重新应用圆角，contentContainer frame 变化后 cornerRadius/clipsToBounds 可能被系统重置。修复=layoutSubviews 中调用 applyRadius() 确保每次布局后圆角正确应用；applyRadius 中 r>0 且 backgroundColor==nil 时设默认白色背景防止背景透明导致圆角不可见。iOS xcodebuild BUILD SUCCEEDED。"
 }

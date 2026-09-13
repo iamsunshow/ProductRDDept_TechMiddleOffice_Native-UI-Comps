@@ -14,6 +14,13 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。④ [1.7.5] 两条=LineChart #84 三优化（cc09660，Trae）与 iOS Tag 文字不可见第三次修复（5e2a250，他会话）同号并存——他会话提交窗口与 Trae 文档编辑重叠，条目未互相覆盖、内容均有效，v1.7.5 号双主题共用，不改史。 -->
 
+## \[1.9.16] - 2026-09-13（Overlay iOS 圆角仍不显示修复）
+
+### Fixed
+
+- **iOS 圆角仍不显示**：v1.9.12 已改 `clipsToBounds=r>0` 但用户反馈"iOS 还是直角"。根因=`layoutSubviews` 未重新应用圆角，`contentContainer` frame 变化后 `cornerRadius`/`clipsToBounds` 可能被系统重置。修复=`layoutSubviews` 中调用 `applyRadius()` 确保每次布局后圆角正确应用；`applyRadius` 中 `r>0` 且 `backgroundColor==nil` 时设默认白色背景防止背景透明导致圆角不可见。
+- 验证：iOS `xcodebuild` BUILD SUCCEEDED。
+
 ## \[1.9.15] - 2026-09-13（Overlay Demo6 三项双端一致修复）
 
 ### Fixed

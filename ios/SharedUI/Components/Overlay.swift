@@ -342,6 +342,11 @@ final class Overlay: UIView {
         // 防止内容溢出到圆角外导致视觉上看像直角（用户反馈"iOS 是直角"）。
         // v1.9.10 已用 greaterThanOrEqualToConstant 防止测量偏小，开启裁剪不会裁掉内容。
         contentContainer.clipsToBounds = r > 0
+        // v1.9.16：圆角时确保 contentContainer 有白色背景，防止背景透明导致圆角不可见
+        // （contentBuilder 闭包中可能未设置 backgroundColor，圆角区域透出底层遮罩看起来像直角）
+        if r > 0 && contentContainer.backgroundColor == nil {
+            contentContainer.backgroundColor = .white
+        }
     }
 
     // MARK: 手势：mask 点击 / 按压态反馈
@@ -405,9 +410,9 @@ final class Overlay: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         maskBackgroundView.frame = bounds
-        // v1.9.2：去掉 CAShapeLayer mask——cornerRadius 已实现圆角背景，
-        // mask 会额外裁剪内容（measureContentSize 偏小时内容被裁掉看不到）。
-        // clipsToBounds=false + cornerRadius = 圆角背景 + 内容溢出可见（与 Android 一致）。
+        // v1.9.16：每次布局后重新应用圆角，防止 contentContainer frame 变化后
+        // cornerRadius/clipsToBounds 被系统重置导致圆角不显示（用户反馈"iOS 还是直角"）。
+        applyRadius()
     }
 
     /// 测量内容尺寸：v1.9.1 改用 systemLayoutSizeFitting 首选（Apple 推荐自适应测量）。

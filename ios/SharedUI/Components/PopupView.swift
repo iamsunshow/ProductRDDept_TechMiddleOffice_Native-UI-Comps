@@ -74,6 +74,9 @@ public final class PopupContainerView: UIView {
     private let containerStack = UIView()
     private let closeButton = UIButton(type: .custom)
     private var contentConstraints: [Constraint] = []
+    /// v1.9.24：容器高度等式（NSLayoutConstraint 不能进 contentConstraints=SnapKit Constraint 数组，
+    /// 单独持有以便替换内容时释放）
+    private var containerHeightConstraint: NSLayoutConstraint?
 
     // MARK: - 常量
 
@@ -191,6 +194,8 @@ public final class PopupContainerView: UIView {
     private func replaceContent() {
         contentConstraints.forEach { $0.deactivate() }
         contentConstraints = []
+        containerHeightConstraint?.isActive = false
+        containerHeightConstraint = nil
         content?.removeFromSuperview()
         guard let content = content else { return }
         content.translatesAutoresizingMaskIntoConstraints = false
@@ -234,7 +239,7 @@ public final class PopupContainerView: UIView {
         )
         containerHeightEq.priority = .defaultHigh
         containerHeightEq.isActive = true
-        contentConstraints.append(containerHeightEq)
+        containerHeightConstraint = containerHeightEq
         // 关闭按钮置顶
         containerStack.bringSubviewToFront(closeButton)
     }

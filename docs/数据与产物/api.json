@@ -1051,11 +1051,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": ""
+          "note": "PullRefreshView.swift：UIRefreshControl 只保留下拉手势+阈值触发能力（v1.9.28 起 tintColor=.clear 隐藏系统菊花），视觉由自绘私有 RefreshIndicatorView 承担=圆环 22×22 + 文案（sizeSm / textSecondary，与圆环间距 6，垂直居中）；KVO contentOffset 驱动露出高度（下拉距离，刷新中至少 hold 48pt）与下拉进度，刷新中=270° 缺口环绕圆心 0.8s/圈线性旋转（strokeEnd=0.75 + transform.rotation.z）；threshold=56pt（进度环满圈）。两轮修复：v1.9.7 title 空串不显示文案；v1.9.28 弃用系统菊花与 attributedTitle（原形状/字号与 Android 不一致，用户反馈双端 loading icon 不一致）。"
         },
         "android": {
           "state": "available",
-          "note": ""
+          "note": "PullToRefresh.kt：NestedScrollConnection 顶开模式（onPreScroll 主动拦截下拉消费、阻尼 0.5、maxPull=threshold×1.6、graphicsLayer translationY 推内容顶开）+ 自绘 RefreshRingIndicator（drawArc 圆环 22dp/stroke 2dp/textSecondary；下拉中=进度环 drawArc(-90°, progress×360°) / 刷新中=270° 缺口环绕圆心 0.8s/圈线性旋转）+ 文案 Text(sizeSm/textSecondary，progress>0.15 或刷新中显示)；threshold=56dp / hold=48dp；canPull 为 Android 特有参数（iOS 由 UIRefreshControl 自动处理）。v1.9.28 由 8 圆点菊花 IOSActivityIndicator 改为圆环，与 iOS 自绘指示器 1:1 同构。"
         },
         "harmony": {
           "state": "unavailable",

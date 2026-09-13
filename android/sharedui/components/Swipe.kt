@@ -57,11 +57,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.geometry.Offset
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -120,9 +125,27 @@ fun SwipeItem(
         label = "swipe-offset"
     )
 
+    // v1.9.8：nestedScroll 拦截——水平拖拽时优先消费，防止外层 LazyColumn 垂直滚动抢占手势。
+    // 用户反馈 D1/D2 左滑无操作栏：根因=LazyColumn 的 verticalScroll 抢占了水平拖拽事件，
+    // detectHorizontalDragGestures 收不到 DOWN 事件。加 nestedScroll 在 onPreScroll 阶段
+    // 消费水平分量（available.x != 0），让垂直分量透传给 LazyColumn。
+    val horizontalScrollConnection = remember(disabled) {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (disabled) return Offset.Zero
+                // 水平分量消费（非零时），垂直分量透传
+                return if (available.x != 0f) Offset(available.x, 0f) else Offset.Zero
+            }
+        }
+    }
+
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
+            // v1.9.8：clipToBounds 裁剪底层操作按钮到容器边界内，
+            // 防止操作按钮超出容器边界导致红色漏出（对齐 iOS SwipeItem clipsToBounds=true）。
+            .clipToBounds()
+            .nestedScroll(horizontalScrollConnection)
             // 不硬编码高度——由 content slot 撑高（与 iOS contentView autoresizingMask 一致）
             .pointerInput(disabled) {
                 if (disabled) return@pointerInput

@@ -2135,7 +2135,8 @@ private fun OverlayDemo() {
         }
 
         // Demo 4：背后内容可以滚动的遮罩层（clickThrough=true）
-        // v1.9.2：加 navigationBarsPadding 防止按钮被系统导航栏遮挡
+        // v1.9.10：去掉 navigationBarsPadding（edge-to-edge 已启用 v1.9.6），
+        // 让 Column wrapContentHeight 自适应内容高度，防止按钮被截断。
         Overlay(
             visible = d4Visible,
             clickThrough = true,
@@ -2152,7 +2153,6 @@ private fun OverlayDemo() {
             ) {
                 Column(
                     modifier = Modifier
-                        .navigationBarsPadding()
                         .padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {

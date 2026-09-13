@@ -14,6 +14,16 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。④ [1.7.5] 两条=LineChart #84 三优化（cc09660，Trae）与 iOS Tag 文字不可见第三次修复（5e2a250，他会话）同号并存——他会话提交窗口与 Trae 文档编辑重叠，条目未互相覆盖、内容均有效，v1.7.5 号双主题共用，不改史。 -->
 
+## \[1.9.10] - 2026-09-13（Overlay 四项双端一致修复）
+
+### Fixed
+
+- **Demo4 Android 弹层高度太低按钮被截断**：Android D4 去掉 `navigationBarsPadding`（edge-to-edge 已启用 v1.9.6），让 `Column wrapContentHeight` 自适应内容高度，防止按钮被截断。
+- **Demo4 iOS 按钮上面文字被遮挡**：iOS D4 `stack.alignment` `.center` → `.fill` 让 title/sub 填满宽度（对齐 Android Column 默认），修复 `closeBtn` 撑满宽度时 stack 整体高度计算异常导致 title 被裁剪。
+- **Demo5 iOS 按钮主题与 Android 不一致**：iOS D5 `cancel`/`confirm` 加 `snp.height=40` 对齐 Android `AppButton` 默认高度，修复双端按钮主题不一致导致按钮大小不一样。
+- **Demo5 iOS form 无 title**：`Overlay.swift updateContentConstraints` `heightAnchor.constraint(equalToConstant:)` 改用 `greaterThanOrEqualToConstant:` 防止 `systemLayoutSizeFitting` 测量偏小导致 `contentContainer` 高度被钉小、title 在容器外负 Y 看不到。
+- 验证：iOS `xcodebuild` BUILD SUCCEEDED + Android `assembleDebug` BUILD SUCCESSFUL。
+
 ## \[1.9.9] - 2026-09-13（Drag 两项双端一致修复）
 
 ### Fixed

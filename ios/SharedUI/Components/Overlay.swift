@@ -575,8 +575,13 @@ final class Overlay: UIView {
         let oy = contentOffset.y
 
         // 尺寸约束 = 实测内容尺寸
+        // v1.9.10：width 钉死（用户指定宽度），height 用 greaterThanOrEqualTo 防止测量偏小导致内容被裁剪。
+        // 旧逻辑 heightAnchor.constraint(equalToConstant:) 钉死高度，systemLayoutSizeFitting
+        // 对 stack.edges=container + fillEqually 等布局测量偏小时，contentContainer 高度被钉小，
+        // clipsToBounds=false 也只是溢出可见但位置错误（title 在容器外负 Y 看不到）。
+        // greaterThanOrEqualTo 让 contentContainer 高度至少=测量值，内容更多时自动撑高。
         ccWidthCon = contentContainer.widthAnchor.constraint(equalToConstant: size.width)
-        ccHeightCon = contentContainer.heightAnchor.constraint(equalToConstant: size.height)
+        ccHeightCon = contentContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: size.height)
 
         // 位置约束 = 9 点锚 + offset
         // leading = (overlay.width - content.width) * ax + ox

@@ -2693,7 +2693,9 @@ final class OverlayShowcase: ShowcaseViewController {
             let sub = UILabel(); sub.text = "遮罩不拦截事件，底层列表仍可滚动/点击。"; sub.font = .systemFont(ofSize: 13); sub.textColor = AppColor.textSecondary; sub.numberOfLines = 0
             let closeBtn = self.buildDemoButton(title: "关闭遮罩") { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo4] 手动关闭" }
             closeBtn.snp.makeConstraints { make in make.height.equalTo(40) }
-            let stack = UIStackView(arrangedSubviews: [handle, title, sub, closeBtn]); stack.axis = .vertical; stack.spacing = 12; stack.alignment = .center
+            // v1.9.10：stack.alignment 改 .fill 让 title/sub 填满宽度（对齐 Android Column 默认），
+            // 修复 stack.alignment=.center 时 closeBtn 撑满宽度导致 stack 整体高度计算异常、title 被裁剪。
+            let stack = UIStackView(arrangedSubviews: [handle, title, sub, closeBtn]); stack.axis = .vertical; stack.spacing = 12; stack.alignment = .fill
             stack.isLayoutMarginsRelativeArrangement = true; stack.layoutMargins = .init(top: 6, left: 16, bottom: 24, right: 16)
             container.addSubview(stack); stack.snp.makeConstraints { make in make.edges.equalToSuperview() }
         }
@@ -2711,7 +2713,11 @@ final class OverlayShowcase: ShowcaseViewController {
             let title = UILabel(); title.text = "有内容的遮罩"; title.font = .boldSystemFont(ofSize: 16); title.textAlignment = .center
             let desc = UILabel(); desc.text = "这是一个包含自定义卡片内容的遮罩层。遮罩内可以放置任意自定义内容。"; desc.font = .systemFont(ofSize: 13); desc.textColor = AppColor.textSecondary; desc.numberOfLines = 0; desc.textAlignment = .center
             let cancel = self.makeDialogButton(title: "取消", primary: false) { [weak overlay] in overlay?.visible = false }
+            cancel.snp.makeConstraints { make in make.height.equalTo(40) }
             let confirm = self.makeDialogButton(title: "确定", primary: true) { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo5] 确定 → 关闭" }
+            confirm.snp.makeConstraints { make in make.height.equalTo(40) }
+            // v1.9.10：cancel/confirm 加 height=40 对齐 Android AppButton 默认高度，
+            // 修复双端按钮主题不一致导致按钮大小不一样。
             let btnStack = UIStackView(arrangedSubviews: [cancel, confirm]); btnStack.axis = .horizontal; btnStack.spacing = 8; btnStack.distribution = .fillEqually
             let stack = UIStackView(arrangedSubviews: [title, desc, btnStack]); stack.axis = .vertical; stack.spacing = 14; stack.alignment = .fill
             stack.isLayoutMarginsRelativeArrangement = true; stack.layoutMargins = .init(top: 24, left: 20, bottom: 24, right: 20)

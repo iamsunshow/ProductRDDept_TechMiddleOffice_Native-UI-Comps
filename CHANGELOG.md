@@ -2,6 +2,17 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.9.30] - 2026-09-13（Swipe Android 左滑按钮不显示根治）
+
+### Fixed
+
+- **Swipe Android 左滑后操作按钮不显示**（iOS 正常 Android 异常）。用户实测左滑主内容左移（手势正常）但右侧删除按钮不渲染。修复 = `Swipe.kt` 左右操作按钮 modifier 由 `matchParentSize+requiredWidth` 改为 `fillMaxHeight+requiredWidth`：`matchParentSize` 在 `BoxWithConstraints`（父宽为约束非实宽）下测出错误宽度/位置导致按钮不渲染；`fillMaxHeight` 只撑高度不碰宽度约束，宽度唯一由 `requiredWidth(80.dp)` 决定。
+- **移除旧 nestedScroll 拦截死代码**：Compose 嵌套滚动分发方向为「可滚动后代 → 祖先」，LazyColumn 是 SwipeItem 的祖先，SwipeItem 上的 `NestedScrollConnection` 收不到事件，从未生效；且 scroll 消费与 pointer 手势（`detectHorizontalDragGestures`）是两条独立管线。同步清理 3 个死 import。
+
+### 验证
+
+- 待用户 Android Studio 编译复验：D1 **向左拖**应露出红色「删除」按钮（80dp×撑高），tap 触发「已删除」Toast + 自动收起。
+
 ## [1.9.29] - 2026-09-13（PullToRefresh 用户验收通过状态同步）
 
 ### Changed

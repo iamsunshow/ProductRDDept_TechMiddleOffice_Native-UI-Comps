@@ -2,7 +2,7 @@
 //  Swipe.kt
 //  SharedUI
 //
-//  组件 ID：`ui.swipe` ｜ 任务清单 #58 ｜ 操作反馈区第十四件 ｜ TMO 组件库 v1.4.14
+//  组件 ID：`ui.swipe` ｜ 任务清单 #58 ｜ 操作反馈区第十四件 ｜ TMO 组件库 v1.9.30
 //
 //  定位：列表项横向滑动露出操作按钮——左右双向滑动露操作，松手自动回弹或展开。
 //
@@ -122,7 +122,7 @@ fun SwipeItem(
         label = "swipe-offset"
     )
 
-    // v1.9.9：移除 v1.9.8 的 nestedScroll 拦截——该修复是死代码：Compose 嵌套滚动
+    // v1.9.30：移除旧 nestedScroll 拦截——该修复是死代码：Compose 嵌套滚动
     // 分发方向为「可滚动后代 → 祖先」，LazyColumn 是 SwipeItem 的祖先，其滚动事件
     // 不经过列表项内 SwipeItem 上的 NestedScrollConnection，此连接从未收到过事件。
     // 且消费 scroll 事件与 pointer 手势（detectHorizontalDragGestures）是两条独立管线，
@@ -171,7 +171,7 @@ fun SwipeItem(
 
         // 底层左操作（右滑露出，左对齐绝对定位）
         // fillMaxHeight 只撑高度；requiredWidth(80.dp) 独占决定宽度——
-        // v1.9.9 修复：原 matchParentSize+requiredWidth 组合在 BoxWithConstraints（父宽为
+        // v1.9.30 修复：原 matchParentSize+requiredWidth 组合在 BoxWithConstraints（父宽为
         // 约束非实宽）下测出错误宽度/位置，左滑后右侧按钮不显示（iOS 正常 Android 异常的
         // 根因）。fillMaxHeight 不碰宽度约束，宽度路径唯一由 requiredWidth 决定，无歧义。
         leftActions.forEachIndexed { i, action ->

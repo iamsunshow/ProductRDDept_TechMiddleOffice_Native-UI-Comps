@@ -320,7 +320,10 @@ final class Overlay: UIView {
         addSubview(maskBackgroundView)
 
         contentContainer.translatesAutoresizingMaskIntoConstraints = false
-        contentContainer.clipsToBounds = true
+        // v1.9.1：默认不裁剪——旧 clipsToBounds=true 叠加 measureContentSize 测量偏小
+        // 导致 contentContainer 被强制设成偏小尺寸，内容超出部分被裁剪（用户反馈
+        // "Demo1 标题被遮挡""Demo6 看不到内容"根因）。圆角时由 applyRadius 动态开启裁剪。
+        contentContainer.clipsToBounds = false
         addSubview(contentContainer)
 
         applyRadius()
@@ -335,6 +338,9 @@ final class Overlay: UIView {
         contentContainer.layer.cornerRadius = r
         contentContainer.layer.cornerCurve = .continuous
         contentContainer.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        // v1.9.1：有圆角才裁剪（保证圆角效果），无圆角不裁剪（内容溢出仍可见，
+        // 防御 measureContentSize 测量偏小导致内容被裁剪）
+        contentContainer.clipsToBounds = r > 0
         // 圆角 mask 在 layoutSubviews 中更新（此时 bounds 已确定）
     }
 
@@ -408,33 +414,50 @@ final class Overlay: UIView {
         }
     }
 
-    /// 测量内容尺寸：递归计算 stack view 自然尺寸（绕过 sizeThatFits + fillEqually 陷阱）。
+    /// 测量内容尺寸：v1.9.1 改用 systemLayoutSizeFitting 首选（Apple 推荐自适应测量）。
+    ///
+    /// 旧逻辑（measureStackView 递归 + sizeThatFits + edge padding 检测）对各种布局方式
+    /// 适配不全：Demo1 的 stack.edges 到 container、Demo5/6 的 container.top/bottom 依赖 stack
+    /// 等布局，测量结果偏小，叠加 clipsToBounds=true 导致 contentContainer 被强制设成偏小尺寸，
+    /// 内容超出部分被裁剪（用户反馈"标题被遮挡""看不到内容"）。
+    ///
+    /// systemLayoutSizeFitting 让 Auto Layout 系统根据 contentContainer 内所有约束自动计算
+    /// 自适应尺寸，能准确处理 stack intrinsicContentSize、container 依赖 stack 等各种布局。
     private func measureContentSize() -> CGSize {
-        // ① 优先：如果 contentContainer 包含 UIStackView，递归计算自然尺寸
+        let targetW = resolveTargetWidth()
+
+        // ① 首选：systemLayoutSizeFitting（Apple 推荐，准确处理 Auto Layout 约束）
+        let fitSize = contentContainer.systemLayoutSizeFitting(
+            CGSize(width: targetW, height: UIView.layoutFittingCompressedSize.height),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+        if fitSize.width > 0 && fitSize.height > 0 && fitSize.height < 2000 {
+            return CGSize(width: targetW, height: fitSize.height)
+        }
+
+        // ② 兜底：递归计算 stack view 自然尺寸（旧逻辑，处理无 Auto Layout 约束的内容）
         for sub in contentContainer.subviews {
             if let stack = sub as? UIStackView {
                 let stackSize = measureStackView(stack, maxWidth: resolveStackViewWidth(stack))
                 if stackSize.width > 0 && stackSize.height > 0 {
                     let padding = resolveContainerPadding()
-                    let containerW = resolveTargetWidth()
-                    return CGSize(width: containerW, height: stackSize.height + padding)
+                    return CGSize(width: targetW, height: stackSize.height + padding)
                 }
             }
         }
 
-        // ② 非 StackView 内容：用 sizeThatFits 读取自然尺寸 + 检测 edge 约束 padding
+        // ③ 兜底：sizeThatFits（非 stack 内容）
         if let firstSub = contentContainer.subviews.first {
-            let containerW = resolveTargetWidth()
-            let subSize = firstSub.sizeThatFits(CGSize(width: containerW, height: 2000))
+            let subSize = firstSub.sizeThatFits(CGSize(width: targetW, height: 2000))
             if subSize.width > 0 && subSize.height > 0 && subSize.height < 1000 {
                 let padH = resolveEdgeConstraintPadding(vertical: true)
-                let padW = resolveEdgeConstraintPadding(vertical: false)
-                return CGSize(width: containerW, height: subSize.height + padH)
+                return CGSize(width: targetW, height: subSize.height + padH)
             }
         }
 
-        // ③ 最终兜底
-        return CGSize(width: resolveTargetWidth(), height: 100)
+        // ④ 最终兜底
+        return CGSize(width: targetW, height: 100)
     }
 
     /// 检测 contentContainer 对子视图的 edge 约束 padding。

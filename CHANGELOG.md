@@ -14,6 +14,15 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。④ [1.7.5] 两条=LineChart #84 三优化（cc09660，Trae）与 iOS Tag 文字不可见第三次修复（5e2a250，他会话）同号并存——他会话提交窗口与 Trae 文档编辑重叠，条目未互相覆盖、内容均有效，v1.7.5 号双主题共用，不改史。 -->
 
+## \[1.9.1] - 2026-09-13（iOS Overlay 三项双端一致修复）
+
+### Fixed
+
+- **Demo1 标题被遮挡（Android 正常）**：根因=`measureContentSize` 旧逻辑（`measureStackView` 递归 + `sizeThatFits` + edge padding 检测）对 `stack.edges` 到 container 等布局测量偏小，叠加 `clipsToBounds=true` 导致 `contentContainer` 被强制设成偏小尺寸、内容超出部分被裁剪。修复=① `measureContentSize` 改用 `systemLayoutSizeFitting`（Apple 推荐自适应测量）首选，能准确处理 stack intrinsicContentSize、container 依赖 stack 等各种 Auto Layout 约束；旧逻辑作为兜底。② `contentContainer.clipsToBounds` 默认改 `false`（仅圆角时由 `applyRadius` 动态开启裁剪），防御测量偏小导致内容裁剪。
+- **Demo4 内容不一致（iOS 只有关闭遮罩，Android 是 title+文案+关闭遮罩）**：根因=iOS Demo4 `handleWrap` 对 `handle` 重复 `snp.makeConstraints` 是 bug（第一次调用时 `handle.superview=nil` 约束挂到自身、第二次覆盖，布局异常导致 title/sub 被遮挡只露 closeBtn）。修复=去掉 `handleWrap`，`handle` 直接作为 stack arrangedSubview，`stack.alignment = .center` 让 handle 40×4 居中不占满宽度，对齐 Android Demo4 的 `Spacer(4dp×40dp).align(CenterHorizontally)`。
+- **大部分弹窗内容被遮挡（Demo6 看不到内容）**：同问题1根因（测量偏小 + clipsToBounds=true），修复同上（`systemLayoutSizeFitting` 首选 + `clipsToBounds` 默认 false）。
+- 验证：iOS `xcodebuild` BUILD SUCCEEDED（iPhone 14 模拟器）。
+
 ## \[1.9.0] - 2026-09-13（Android Drag 三项双端视觉对齐修复）
 
 ### Fixed

@@ -1,6 +1,6 @@
 {
-  "version": "1.9.0",
-  "versionKey": "v1.9.0",
+  "version": "1.9.1",
+  "versionKey": "v1.9.1",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.0] 2026-09-13 Fixed：Android Drag 三项双端视觉对齐修复（用户 2026-09-13 反馈）——①拖拽手柄 icon 仍不一致根因=Icons.Default.DragIndicator 旋转 90° 仅三条水平两点线、无两端圆点，与 iOS 系统 reorder control（每条线两端有圆点呈哑铃状）视觉仍有差异，新增 DragHandle 自绘 Canvas 三条水平线+两端圆点精确还原 iOS 系统 reorder control；②Cell 默认阴影太弱（用户反馈只有拖动时才有）根因=旧 .shadow(2dp, RectangleShape) 视觉不明显，改用 graphicsLayer.shadowElevation=4f 对齐 iOS willDisplay shadowOpacity 0.15/radius 8，非拖拽态持续显示 cell-level 阴影；③拖动时 cell 变模糊根因=DragOpacity 0.6 + 拖动态额外 shadowElevation=8f 叠加导致渲染模糊，DragOpacity 0.6→0.9 对齐 iOS 文档头注释 opacity 0.9，去掉拖动态额外 shadowElevation=8f 仅靠默认阴影+降透明度表达拖动态。组件库编译 0 错误，Demo app assembleDebug 通过。"
+  "changelog": "[1.9.1] 2026-09-13 Fixed：iOS Overlay 三项双端一致修复（用户 2026-09-13 反馈）——①Demo1 标题被遮挡根因=measureContentSize 旧逻辑对 stack.edges 到 container 等布局测量偏小，叠加 clipsToBounds=true 导致 contentContainer 被强制设成偏小尺寸内容被裁剪，改用 systemLayoutSizeFitting（Apple 推荐自适应测量）首选能准确处理各种 Auto Layout 约束；②Demo4 内容不一致根因=iOS Demo4 handleWrap 对 handle 重复 snp.makeConstraints 是 bug（第一次 handle.superview=nil 约束挂到自身、第二次覆盖，布局异常导致 title/sub 被遮挡只露 closeBtn），去掉 handleWrap 改用 stack.alignment=.center 让 handle 40×4 居中对齐 Android；③大部分弹窗内容被遮挡（Demo6 看不到内容）同①根因，clipsToBounds 默认改 false（仅圆角时才裁剪）+systemLayoutSizeFitting 首选测量。iOS xcodebuild BUILD SUCCEEDED。"
 }

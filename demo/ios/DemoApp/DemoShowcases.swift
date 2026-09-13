@@ -2678,6 +2678,10 @@ final class OverlayShowcase: ShowcaseViewController {
     }
 
     // Demo 4：背后内容可以滚动的遮罩层（clickThrough=true）
+    // v1.9.1：去掉 handleWrap（旧代码对 handle 重复 snp.makeConstraints 是 bug，
+    // 第一次调用时 handle.superview=nil 约束挂到自身、第二次覆盖，布局异常）。
+    // 改用 stack.alignment=.center 让 handle 40×4 居中不占满宽度，对齐 Android
+    // Demo4 的 Spacer(4dp×40dp).align(CenterHorizontally)。
     private func showDemo4() {
         var overlay: Overlay? = nil
         overlay = makeOverlay(closeOnMaskClick: false, clickThrough: true, position: .bottom, radius: .lg, tag: "Demo4") { container in
@@ -2685,13 +2689,11 @@ final class OverlayShowcase: ShowcaseViewController {
             container.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width).isActive = true
             let handle = UIView(); handle.backgroundColor = UIColor(red: 0xE5/255, green: 0xE7/255, blue: 0xEB/255, alpha: 1); handle.layer.cornerRadius = 2
             handle.snp.makeConstraints { make in make.width.equalTo(40); make.height.equalTo(4) }
-            let handleWrap = UIView(); handleWrap.addSubview(handle)
-            handle.snp.makeConstraints { make in make.centerX.equalToSuperview(); make.top.equalToSuperview().offset(10); make.bottom.equalToSuperview().offset(-6) }
             let title = UILabel(); title.text = "穿透遮罩（clickThrough）"; title.font = .boldSystemFont(ofSize: 16)
             let sub = UILabel(); sub.text = "遮罩不拦截事件，底层列表仍可滚动/点击。"; sub.font = .systemFont(ofSize: 13); sub.textColor = AppColor.textSecondary; sub.numberOfLines = 0
             let closeBtn = self.buildDemoButton(title: "关闭遮罩") { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo4] 手动关闭" }
             closeBtn.snp.makeConstraints { make in make.height.equalTo(40) }
-            let stack = UIStackView(arrangedSubviews: [handleWrap, title, sub, closeBtn]); stack.axis = .vertical; stack.spacing = 12
+            let stack = UIStackView(arrangedSubviews: [handle, title, sub, closeBtn]); stack.axis = .vertical; stack.spacing = 12; stack.alignment = .center
             stack.isLayoutMarginsRelativeArrangement = true; stack.layoutMargins = .init(top: 6, left: 16, bottom: 24, right: 16)
             container.addSubview(stack); stack.snp.makeConstraints { make in make.edges.equalToSuperview() }
         }

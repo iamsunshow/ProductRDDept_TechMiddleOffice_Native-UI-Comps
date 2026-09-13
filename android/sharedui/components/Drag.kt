@@ -3,6 +3,7 @@ package com.zhiqihuayun.sharedui.components
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -16,9 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DragIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -27,9 +25,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
@@ -41,15 +38,17 @@ import com.zhiqihuayun.foundation.design.AppFont
 import com.zhiqihuayun.foundation.design.AppSpace
 
 // 拖拽态视觉常量（与设计规格 drag-design-spec.html §4 对齐 + iOS 对齐 2026-09-08）：
-// - 阴影 elevation 8dp
+// - 默认 cell 阴影 elevation 4dp（对齐 iOS willDisplay shadowOpacity 0.15/radius 8）
+// - 拖拽态不额外加阴影（避免与默认阴影叠加导致渲染模糊）
 // - 缩放 1.02
-// - 透明度 0.6（与 iOS 一致，被拖动对象有可见透明度）
+// - 透明度 0.9（v1.9.0 由 0.6 调升，与 iOS DragListView 文档头注释 opacity 0.9 一致；
+//   旧 0.6 + 拖动态 shadowElevation=8f 叠加导致 cell 视觉模糊，用户反馈"整个 cell 变模糊"）
 // - 落位动画 0.25s easeOut
 // - 拖拽时 translationY 跟随手指（与 iOS 标准 reorder 一致）
 // - swap 阈值=itemHeight/2，swap 后 dragOffset 减 itemHeight（保持手指相对位置）
 // - item 位置交换动画 0.3s easeOut（对齐 iOS 标准 reorder 丝滑时长，旧默认 spring 过快）
 private const val DragScale = 1.02f
-private const val DragOpacity = 0.6f
+private const val DragOpacity = 0.9f
 private const val DropAnimMs = 250
 private const val ItemPlaceAnimMs = 300
 
@@ -247,11 +246,6 @@ fun <T> Drag(
                     // （旧默认 spring 过冲快、视觉跳变；用户反馈 Android 互换动画过快）
                     .animateItemPlacement(animationSpec = tween(ItemPlaceAnimMs, easing = EaseOut))
                     .fillMaxWidth()
-                    // cell 默认阴影：对齐 iOS DragListView.willDisplay
-                    // （shadowOpacity 0.15 / offset 4 / radius 8 → 矩形轮廓 2dp 近似视觉一致）。
-                    // 非拖拽态持续显示 cell-level 阴影，拖拽态由 graphicsLayer.shadowElevation=8f
-                    // 接管并增强，与设计规格 §4 一致。
-                    .shadow(elevation = 2.dp, shape = RectangleShape, clip = false)
                     .background(AppColor.bgCard)
                     // 被拖动项置顶：zIndex=1f 让它在 LazyColumn 中渲染在其他项之上，
                     // 不被相邻项遮挡（与 iOS 标准 reorder 一致）
@@ -260,14 +254,15 @@ fun <T> Drag(
                         if (size.height > 0) itemHeight = size.height.toFloat()
                     }
                     .graphicsLayer {
+                        // cell 默认阴影 4dp（对齐 iOS willDisplay shadowOpacity 0.15/radius 8）
+                        // v1.9.0：拖动态不再额外 shadowElevation=8f，避免与默认阴影叠加导致
+                        // 视觉模糊（用户反馈"整个 cell 变模糊"根因=0.6 alpha + 8f shadow 叠加）
+                        this.shadowElevation = 4f
                         this.scaleX = scale
                         this.scaleY = scale
                         this.alpha = alpha
                         // 被拖动项跟随手指平滑移动（与 iOS 标准 reorder 一致）
                         this.translationY = if (isDragging) dragOffset else 0f
-                        if (isDragging) {
-                            this.shadowElevation = 8f
-                        }
                     }
                     // handle=true：整行不挂拖拽手势（仅手柄响应）；否则整行长按拖拽。
                     .then(if (enabled && !handle) dragModifier else Modifier),
@@ -286,20 +281,76 @@ fun <T> Drag(
                             // 手柄承载拖拽手势：handle 模式下仅手柄可触发，整行不响应。
                             .then(dragModifier),
                     ) {
-                        // 手柄 icon：iOS 系统 reorder control = 三条水平线，每条线两端各一个圆点。
-                        // Material Icons.DragIndicator 是两条垂直三点线，旋转 90° 后正好是
-                        // 三条水平两点线，与 iOS 系统 reorder 控件视觉一致。
-                        Icon(
-                            imageVector = Icons.Default.DragIndicator,
-                            contentDescription = "拖拽手柄",
-                            tint = AppColor.textSecondary,
-                            modifier = Modifier
-                                .size(20.dp)
-                                .rotate(90f),
+                        // 手柄 icon：v1.9.0 由 Icons.Default.DragIndicator 旋转 90° 改为自绘 DragHandle。
+                        // 用户反复反馈"Android 与 iOS 不是一个 icon"——
+                        // iOS 系统 reorder control = 三条水平线，每条线两端各一个圆点（两端略粗）。
+                        // 自绘 Canvas 三条水平线+两端圆点，与 iOS 系统 reorder control 完全一致。
+                        DragHandle(
+                            color = AppColor.textSecondary,
+                            modifier = Modifier.size(20.dp),
                         )
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * iOS 风格拖拽手柄（v1.9.0 新增，对齐 iOS UITableView 系统 reorder control）。
+ *
+ * 视觉=三条水平线，每条线两端各一个圆点（两端略粗），与 iOS 系统 reorder control 完全一致。
+ *
+ * 与 Material `Icons.Default.DragIndicator`（旋转 90° 后为三条水平两点线）的差异：
+ * - Material：仅三条水平线，无两端圆点
+ * - iOS 系统：每条线两端有圆点（视觉上两端略粗，呈"哑铃"状）
+ *
+ * 用 Canvas 自绘以精确还原 iOS 系统 reorder control 视觉。
+ *
+ * @param color 手柄颜色，默认 [AppColor.textSecondary]
+ * @param modifier 布局修饰符，建议传 size(20.dp)
+ */
+@Composable
+private fun DragHandle(
+    color: Color = AppColor.textSecondary,
+    modifier: Modifier = Modifier,
+) {
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        val lineCount = 3
+        // 三条水平线纵向均布，间距≈0.25×高度，每条线长度≈0.6×宽度
+        val lineLength = w * 0.6f
+        val lineStartX = (w - lineLength) / 2f
+        val lineEndX = lineStartX + lineLength
+        // 线粗≈0.08×高度（20dp → 1.6dp）
+        val strokeWidth = h * 0.08f
+        // 圆点半径≈0.1×高度（20dp → 2dp）
+        val dotRadius = h * 0.1f
+        // 三条线纵向中心：0.3h / 0.5h / 0.7h
+        val lineYs = listOf(h * 0.3f, h * 0.5f, h * 0.7f)
+
+        for (i in 0 until lineCount) {
+            val y = lineYs[i]
+            // 水平线（两端各留出圆点位置）
+            drawLine(
+                color = color,
+                start = Offset(lineStartX + dotRadius, y),
+                end = Offset(lineEndX - dotRadius, y),
+                strokeWidth = strokeWidth,
+            )
+            // 左端圆点
+            drawCircle(
+                color = color,
+                radius = dotRadius,
+                center = Offset(lineStartX + dotRadius, y),
+            )
+            // 右端圆点
+            drawCircle(
+                color = color,
+                radius = dotRadius,
+                center = Offset(lineEndX - dotRadius, y),
+            )
         }
     }
 }

@@ -1,6 +1,6 @@
 {
-  "version": "1.8.9",
-  "versionKey": "v1.8.9",
+  "version": "1.9.0",
+  "versionKey": "v1.9.0",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.8.9] 2026-09-13 Fixed：DropDown 三项双端一致修复（用户 2026-09-13 反馈）——①Demo4 受控下拉按钮非左对齐根因=iOS UIButton 标题默认居中，设 contentHorizontalAlignment=.left 对齐 Android TextButton；②Demo1/2/3 白色容器未包裹说明文案根因=iOS addInfo 把文案加到 contentStack（容器外），改用 UIStackView 把 组件+说明文案 纵向包进 addSection 的 bgCard 容器内，对齐 Android DemoSection hint 包在 bgCard 内；③选中对勾 icon 不一致根因=Android 用 Text(\"✓\") 系统字体对勾 vs iOS 系统 accessoryType=.checkmark，Android 改用 Icons.Default.Check 图标（16dp tint=primary）与 iOS 系统 checkmark 形状最接近。Android compileDebugKotlin 0 错误+assembleDebug 通过，iOS xcodebuild BUILD SUCCEEDED。"
+  "changelog": "[1.9.0] 2026-09-13 Fixed：Android Drag 三项双端视觉对齐修复（用户 2026-09-13 反馈）——①拖拽手柄 icon 仍不一致根因=Icons.Default.DragIndicator 旋转 90° 仅三条水平两点线、无两端圆点，与 iOS 系统 reorder control（每条线两端有圆点呈哑铃状）视觉仍有差异，新增 DragHandle 自绘 Canvas 三条水平线+两端圆点精确还原 iOS 系统 reorder control；②Cell 默认阴影太弱（用户反馈只有拖动时才有）根因=旧 .shadow(2dp, RectangleShape) 视觉不明显，改用 graphicsLayer.shadowElevation=4f 对齐 iOS willDisplay shadowOpacity 0.15/radius 8，非拖拽态持续显示 cell-level 阴影；③拖动时 cell 变模糊根因=DragOpacity 0.6 + 拖动态额外 shadowElevation=8f 叠加导致渲染模糊，DragOpacity 0.6→0.9 对齐 iOS 文档头注释 opacity 0.9，去掉拖动态额外 shadowElevation=8f 仅靠默认阴影+降透明度表达拖动态。组件库编译 0 错误，Demo app assembleDebug 通过。"
 }

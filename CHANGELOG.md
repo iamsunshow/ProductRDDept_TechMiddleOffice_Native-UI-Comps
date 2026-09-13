@@ -14,6 +14,15 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。④ [1.7.5] 两条=LineChart #84 三优化（cc09660，Trae）与 iOS Tag 文字不可见第三次修复（5e2a250，他会话）同号并存——他会话提交窗口与 Trae 文档编辑重叠，条目未互相覆盖、内容均有效，v1.7.5 号双主题共用，不改史。 -->
 
+## \[1.9.0] - 2026-09-13（Android Drag 三项双端视觉对齐修复）
+
+### Fixed
+
+- **拖拽手柄 icon 仍不一致（Android Material DragIndicator 旋转 90° vs iOS 系统 reorder control）**：根因=`Icons.Default.DragIndicator` 旋转 90° 后仅三条水平两点线、无两端圆点，与 iOS 系统 reorder control（每条线两端有圆点呈哑铃状）视觉仍有差异。新增 `DragHandle` 自绘 `Canvas` 三条水平线+两端圆点（线长 0.6×宽、线粗 0.08×高、圆点半径 0.1×高），精确还原 iOS 系统 reorder control。
+- **Cell 默认阴影太弱（用户反馈只有拖动时才有）**：根因=旧 `.shadow(2.dp, RectangleShape, clip=false)` 视觉不明显（2dp 太弱）。改用 `graphicsLayer.shadowElevation=4f`（对齐 iOS `willDisplay` shadowOpacity 0.15/radius 8），非拖拽态持续显示 cell-level 阴影，与 iOS 一致。
+- **拖动时 cell 变模糊（用户反馈"整个 cell 变模糊"，iOS 仅降透明度）**：根因=`DragOpacity=0.6f` + 拖动态额外 `shadowElevation=8f` 叠加导致渲染模糊。修复=① `DragOpacity` 0.6→0.9 对齐 iOS 文档头注释 opacity 0.9；② 去掉拖动态额外 `shadowElevation=8f`，仅靠默认阴影+降透明度表达拖动态（与 iOS 一致）。
+- 验证：组件库 `compileDebugKotlin` 0 错误；Demo app `assembleDebug` 通过。
+
 ## \[1.8.9] - 2026-09-13（DropDown 三项双端一致修复）
 
 ### Fixed

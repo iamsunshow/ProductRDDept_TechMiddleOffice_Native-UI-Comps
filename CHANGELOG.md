@@ -2,6 +2,17 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.9.29] - 2026-09-13（PullToRefresh 用户验收通过状态同步）
+
+### Changed
+
+- **用户验收通过状态同步**：用户原话「PullToRefresh：已通过」，双端 Demo `passed=true` 已同步：
+  - iOS `demo/ios/DemoApp/DemoShowcases.swift` 第 104 行 `ui.refresh`：`pending: true` → `passed: true`（列表页红「待完善」→ 绿「已通过」）。
+  - Android `demo/android/app/src/main/java/com/zhiqihuayun/demo/MainActivity.kt` 第 355 行「PullToRefresh 下拉刷新」：`pending = true` → `passed = true`。
+  - `docs/组件进度.md`：§3.5 行 55 阶段 `📋 ⚠️重点修复` → `✅`、「重点修复」标记解除、补 C1.5 验收结论（含验证版本 v1.9.28）；§4 顶插 2026-09-13 复验闭环行并把当日修复行改「已复验通过」；§1 完整度行补验收记录。
+  - `docs/数据与产物/api.json`：`ui.refresh` 双端 note 补验收记录（原话 + `passed=true` + 验证版本 v1.9.28）。
+- 说明：本条目**无组件代码改动**（组件代码 = v1.9.28 三项修复，已随 v1.9.28 入库），升版仅为统一登记验收状态收口批次（先例：Overlay v1.9.21 / LineChart v1.7.6）。
+
 ## [1.9.28] - 2026-09-13（PullToRefresh 双端 loading icon / Demo4 统一）
 
 ### Fixed

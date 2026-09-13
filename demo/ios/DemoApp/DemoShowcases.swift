@@ -36,7 +36,7 @@ final class DemoListViewController: UITableViewController {
         ("基础组件", [
             DemoComponent(id: "ui.button", name: "Button 按钮", reviewed: true, create: { ButtonShowcase() }, passed: true),
             DemoComponent(id: "ui.icon", name: "Icon 图标", reviewed: true, create: { IconShowcase() }, passed: true),
-            DemoComponent(id: "ui.overlay", name: "Overlay 遮罩层", reviewed: true, create: { OverlayShowcase() }, pending: true),
+            DemoComponent(id: "ui.overlay", name: "Overlay 遮罩层", reviewed: true, create: { OverlayShowcase() }, passed: true),
             DemoComponent(id: "ui.popup", name: "Popup 弹出层", reviewed: true, create: { PopupShowcase() }, pending: true),
         ]),
         ("布局组件", [

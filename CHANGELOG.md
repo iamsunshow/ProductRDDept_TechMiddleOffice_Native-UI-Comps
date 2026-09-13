@@ -14,6 +14,24 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。④ [1.7.5] 两条=LineChart #84 三优化（cc09660，Trae）与 iOS Tag 文字不可见第三次修复（5e2a250，他会话）同号并存——他会话提交窗口与 Trae 文档编辑重叠，条目未互相覆盖、内容均有效，v1.7.5 号双主题共用，不改史。 -->
 
+## [1.9.24] - 2026-09-13（Popup 弹层窗口未全屏致内容偏移）
+
+### Fixed
+
+- **双端弹层「底部一大片区域」+「文案不居中」的共同根因=弹层窗口没铺满屏幕**（用户 2026-09-13 反馈）。
+  - Android 根因：Compose `Popup` 走独立的 `PopupLayout` 窗口，其 `fitInsetsTypes` 默认避让状态栏/导航栏 → 窗口 frame 仅 `[0,144][1439,3036]`（屏幕 1440×3120），顶部少 144px、底部少 84px；组件按窗口坐标系布局，于是「底部露出一整片非卡片区」且居中文字整体下移 144px。
+    修复：`Popup.kt` 新增 0 尺寸探针 View，attach 后反查 `PopupLayout` 的 rootView 并改窗口参数——`fitInsetsTypes=0`（API 30+）/ `FLAG_LAYOUT_NO_LIMITS`（API 29-）/ `layoutInDisplayCutoutMode=SHORT_EDGES`（API 28+，刘海屏必需，缺此项顶部仍被下推 144px），`updateViewLayout` 后按 root 幂等去重、不重复改。
+  - iOS 根因：`bottom` 卡片 `bottom=safeAreaLayoutGuide.bottom`，卡片停在安全区上方、屏幕最底露出非卡片区域；内容槽 `bottom=superview.bottom` 与卡片实际底不一致 → 文案偏低。
+    修复：`PopupView.swift` 卡片改 `bottom=superview.bottom`（背景与圆角覆盖 home indicator 区），内容槽改 `bottom=safeAreaLayoutGuide.bottom`（文案仍避开 home indicator），并补容器高度等式（`defaultHigh`）消除高度欠定。
+  - 实机验证（Android Pixel 7 Pro 模拟器）：弹层窗口 `frame=[0,0][1439,3119]` 与屏幕 1:1；Demo3 卡片白色区域 2615~3120（高 144dp、贴到屏幕底），文案像素中心 2868 ↔ 卡片中心 2867.5 = 垂直居中；Demo2 顶部弹层同一机制生效。iOS 侧为编译级改动，交互居中待实机复验。
+
+## [1.9.23] - 2026-09-13（Popup 居中弹层内容槽垂直居中）
+
+### Fixed
+
+- Popup 居中弹层内容槽水平+垂直居中（Android `contentAlignment` 由 `TopCenter` 改 `Alignment.Center`；iOS content 由 top/bottom 双等式改 centerY + 上下不等式），修复 TOP/BOTTOM 容器被 `heightIn` 撑高后内容槽贴顶（Demo2/Demo3 文字偏上、距顶 24dp/距底 71.7dp）与 iOS 垂直居中不一致的问题；`closeable` 顶部 40dp 关闭按钮避让语义不变。
+- 编译验证：Android `assembleDebug` BUILD SUCCESSFUL + iOS `BUILD SUCCEEDED`。
+
 ## [1.9.22] - 2026-09-13（Popup 居中弹层文案截断）
 
 ### Fixed

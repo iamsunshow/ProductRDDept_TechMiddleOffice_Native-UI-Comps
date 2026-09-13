@@ -146,9 +146,13 @@ public final class PopupContainerView: UIView {
                 make.leading.greaterThanOrEqualToSuperview().offset(AppSpace.lg)
                 make.trailing.lessThanOrEqualToSuperview().offset(-AppSpace.lg)
             case .bottom:
+                // v1.9.24：卡片贴屏幕底（背景/圆角覆盖 home indicator 安全区）。
+                // 旧实现 bottom=safeAreaLayoutGuide.bottom 会让卡片停在安全区上方，
+                // 屏幕最底露出一条非卡片区域（用户 2026-09-13 反馈「底部一大片区域」的根因）。
+                // 最小高度仍保证「安全区之上至少 120pt」（与 Android 120dp + navigationBars inset 对齐）。
                 make.leading.trailing.equalToSuperview()
-                make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
-                make.height.greaterThanOrEqualTo(120)
+                make.bottom.equalToSuperview()
+                make.top.lessThanOrEqualTo(self.safeAreaLayoutGuide.snp.bottom).offset(-120)
             case .top:
                 make.leading.trailing.equalToSuperview()
                 make.top.equalTo(self.safeAreaLayoutGuide.snp.top)
@@ -193,6 +197,7 @@ public final class PopupContainerView: UIView {
         containerStack.addSubview(content)
         // 与 Android 一致：closeable 时顶部留出关闭按钮空间，否则顶部 padding=AppSpace.sm
         let topInset = closeable ? Layout.closeButtonSize + Layout.closeButtonInset * 2 : AppSpace.sm
+        let isBottom = position == .bottom
         content.snp.prepareConstraints { make in
             make.leading.equalToSuperview().offset(AppSpace.lg)
             make.trailing.equalToSuperview().offset(-AppSpace.lg)
@@ -205,13 +210,31 @@ public final class PopupContainerView: UIView {
             make.centerY.equalToSuperview().offset((topInset - AppSpace.sm) / 2)
             // 高度链 + 关闭按钮避让：content 需自带高度（与 Android wrapContent 语义一致）；
             // 两条不等式反向推出 容器高 >= content 高 + topInset + AppSpace.sm，
-            // 再配合 updateLayout() 的 height.greaterThanOrEqualTo(120) 得到 max(120, 内容所需高)。
+            // 再配合 updateLayout() 的最小高度约束得到 max(120 + 安全区, 内容所需高)。
             make.top.greaterThanOrEqualToSuperview().offset(topInset)
-            make.bottom.lessThanOrEqualToSuperview().offset(-AppSpace.sm)
+            if isBottom {
+                // v1.9.24：bottom 卡片已贴屏幕底，内容仍须避开 home indicator——
+                // 底部边界相对 safeArea（而不是容器），卡片背景照旧覆盖安全区。
+                make.bottom.lessThanOrEqualTo(self.safeAreaLayoutGuide.snp.bottom).offset(-AppSpace.sm)
+            } else {
+                make.bottom.lessThanOrEqualToSuperview().offset(-AppSpace.sm)
+            }
         }.forEach { c in
             c.activate()
             contentConstraints.append(c)
         }
+
+        // v1.9.24：容器高度等式（内容撑开，优先级 high 可被最小高度下限打破）。
+        // 旧实现只有不等式下界 → 高度欠定，Auto Layout 可能解出任一满足值（卡片忽高忽低）；
+        // 等式 + centerY 等式自洽：H = content 高 + topInset + AppSpace.sm 时，
+        // content 中心恰好落在容器中心 + (topInset - AppSpace.sm)/2。
+        let containerHeightEq = containerStack.heightAnchor.constraint(
+            equalTo: content.heightAnchor,
+            constant: topInset + AppSpace.sm
+        )
+        containerHeightEq.priority = .defaultHigh
+        containerHeightEq.isActive = true
+        contentConstraints.append(containerHeightEq)
         // 关闭按钮置顶
         containerStack.bringSubviewToFront(closeButton)
     }

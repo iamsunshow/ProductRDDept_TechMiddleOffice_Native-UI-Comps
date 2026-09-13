@@ -50,6 +50,10 @@
 
 package com.zhiqihuayun.sharedui.components
 
+import android.content.Context
+import android.os.Build
+import android.view.View
+import android.view.WindowManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
@@ -68,10 +72,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -83,6 +90,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -92,6 +100,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -101,13 +110,14 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Popup as WindowPopup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
+import java.util.WeakHashMap
 import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppRadius
 import com.zhiqihuayun.foundation.design.AppSpace
-import androidx.compose.foundation.layout.navigationBarsPadding
 
 /** 弹出位置（与 api.json PopupPosition 对齐）。 */
 enum class PopupPosition {
@@ -149,6 +159,89 @@ private val CLOSE_BUTTON_INSET = AppSpace.sm
 private const val CLOSE_BUTTON_TOP_PAD = 40 // 24 + 8*2
 
 /**
+ * 弹层最小高度（双端统一，与 iOS PopupView.swift 的 120pt 对齐）：
+ * - bottom：120dp + 底部安全区（navigationBars inset）——卡片贴屏幕底后，内容区仍不小于 120dp；
+ * - top：120dp。
+ */
+private val POPUP_MIN_HEIGHT = 120.dp
+
+/** 已处理过的弹层窗口 rootView（幂等标记，避免重复挂监听 / 反复触发窗口 layout）。 */
+private val popupPatchedWindows = WeakHashMap<View, Boolean>()
+
+/**
+ * 让 Popup 的独立窗口覆盖全屏（含状态栏 / 导航栏），与 iOS keyWindow 全屏语义 1:1。
+ *
+ * 背景（2026-09-13 用户实测反馈「Android 文案没有垂直居中、位置偏低」的根因）：
+ * Compose Popup 走独立窗口（Ty=APPLICATION_SUB_PANEL），窗口 LayoutParams 默认避让系统栏。
+ * Pixel 7 Pro（API 36）实测：窗口 frame=[0,144][1439,3036]，而 Compose 内容按窗口请求尺寸
+ * （1439x3119=全屏）布局 → 弹层内容整体被系统下推 144px（状态栏高）、卡片底部再被裁 84px
+ * （导航栏高），表现为「卡片矮一截 + 文案偏下 + 底部露非卡片区」。
+ * 而 iOS 是 keyWindow.addSubview(frame = window.bounds)，天然全屏——双端语义在这里分叉。
+ *
+ * 修法：把弹层窗口的系统栏避让关掉（API 30+ 用 fitInsetsTypes=0；更低版本退化 FLAG_LAYOUT_NO_LIMITS），
+ * 窗口 frame 即与 display frame 对齐，Compose 布局坐标系重新等于屏幕坐标系。
+ * 取 Popup 窗口 rootView 的方式：Popup 内容属于 subcomposition，LocalView 仍指向宿主
+ * ComposeView（拿不到弹层窗口），故用 0 尺寸探针 View 在 attach 后反查 rootView。
+ */
+private fun applyPopupWindowFullScreen(root: View) {
+    val lp = root.layoutParams as? WindowManager.LayoutParams
+    val wm = root.context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
+    if (lp == null || wm == null) return
+    var changed = false
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        // fitInsetsTypes = 0：窗口不避让任何系统栏（状态栏 / 导航栏 / 刘海）
+        if (lp.fitInsetsTypes != 0) {
+            lp.fitInsetsTypes = 0
+            changed = true
+        }
+    } else {
+        @Suppress("DEPRECATION")
+        if (lp.flags and WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS == 0) {
+            lp.flags = lp.flags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+            changed = true
+        }
+    }
+    // 刘海屏：cutout 默认模式（DEFAULT）下窗口顶部不得进入挖孔区，
+    // Pixel 7 Pro 实测因此仍被下推 144px（statusBars 高）→ 允许扩展到短边才真正贴到屏幕顶
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+        lp.layoutInDisplayCutoutMode !=
+        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+    ) {
+        lp.layoutInDisplayCutoutMode =
+            WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        changed = true
+    }
+    if (changed) {
+        runCatching { wm.updateViewLayout(root, lp) }
+    }
+}
+
+/** 0 尺寸探针：attach 到 Popup 窗口后，把该窗口改成全屏（幂等，仅首次生效）。 */
+@Composable
+private fun PopupFullScreenWindowEffect() {
+    AndroidView(
+        factory = { ctx ->
+            View(ctx).apply {
+                addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+                    override fun onViewAttachedToWindow(v: View) {
+                        // 等 Compose 首帧 layout 完成后再改窗口参数，避免被其自身的 updateViewLayout 覆盖
+                        v.post {
+                            val root = v.rootView
+                            if (popupPatchedWindows.put(root, true) == null) {
+                                applyPopupWindowFullScreen(root)
+                            }
+                        }
+                    }
+
+                    override fun onViewDetachedFromWindow(v: View) = Unit
+                })
+            }
+        },
+        modifier = Modifier.size(0.dp)
+    )
+}
+
+/**
  * 通用弹出层容器。
  *
  * @param visible 是否展示（受控）
@@ -178,6 +271,12 @@ fun Popup(
     val visibilityState = remember { MutableTransitionState(visible) }
     visibilityState.targetState = visible
     if (!visibilityState.currentState && !visibilityState.targetState) return
+
+    // 底部安全区（navigationBars inset）。
+    // v1.9.24：BOTTOM 不再用 navigationBarsPadding() 收缩容器——收缩会让卡片白底/圆角停在导航栏上方，
+    // 屏幕最底露出一条非卡片区域（用户 2026-09-13 反馈「底部区域/文案偏低」的根因）。
+    // 改为：卡片贴屏幕底，把安全区高度并进"最小高度"，内容槽在整张卡片内居中（与 iOS 语义 1:1）。
+    val navBottomInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     // 弹层容器在屏幕中的对齐方式（由外层 contentAlignment Box 统一控制，修复 align 失效）。
     val contentAlignment = when (position) {
@@ -217,6 +316,8 @@ fun Popup(
             dismissOnClickOutside = false
         )
     ) {
+        // v1.9.24：把弹层独立窗口改成全屏（不避让系统栏），否则内容会被系统下推状态栏高度（见函数注释）
+        PopupFullScreenWindowEffect()
         // mask 与 content 整体进入/退出，避免旧版 mask 残留
         AnimatedVisibility(
             visibleState = visibilityState,
@@ -273,14 +374,14 @@ fun Popup(
                         PopupPosition.BOTTOM -> Modifier
                             .fillMaxWidth()
                             .wrapContentHeight()
-                            // navigationBarsPadding 在最外层：让 heightIn 限制 content 高度不含 padding，
-                            // 弹层贴到安全区底部（与 iOS safeArea bottom 对齐）
-                            .navigationBarsPadding()
-                            .heightIn(min = 160.dp)
+                            // 卡片贴屏幕底（背景/圆角覆盖安全区），安全区并进最小高度：
+                            // min = 120dp(与 iOS 一致) + navigationBars inset。
+                            // 不用 navigationBarsPadding 收缩容器，否则卡片底停在导航栏上方露白条。
+                            .heightIn(min = POPUP_MIN_HEIGHT + navBottomInset)
                         PopupPosition.TOP -> Modifier
                             .fillMaxWidth()
                             .wrapContentHeight()
-                            .heightIn(min = 120.dp)
+                            .heightIn(min = POPUP_MIN_HEIGHT)
                         PopupPosition.LEFT -> Modifier
                             .fillMaxHeight()
                             .wrapContentWidth()

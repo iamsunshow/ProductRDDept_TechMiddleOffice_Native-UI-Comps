@@ -1,6 +1,6 @@
 {
-  "version": "1.9.21",
-  "versionKey": "v1.9.21",
+  "version": "1.9.22",
+  "versionKey": "v1.9.22",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.21] 2026-09-13 Fixed：Overlay 用户验收通过状态同步。用户原话「Overlay：已通过」，双端 Demo passed=true 已同步（iOS DemoShowcases.swift + Android MainActivity.kt），组件进度.md 第 6 行状态从「📋⚠️重点修复」改为「✅」，备注更新为 v1.9.16~v1.9.20 共 5 版本修复 8 项双端一致+回归测试 4 例（OverlayTest 14/14 全绿）。双端 BUILD SUCCEEDED。"
+  "changelog": "[1.9.22] 2026-09-13 Fixed：Popup 居中弹层宽度算错致文案被截断（Android「常规弹出层内容/大圆角弹出层（24pt）」已完整）。[1.9.21] 2026-09-13 Fixed：Overlay 用户验收通过状态同步。用户原话「Overlay：已通过」，双端 Demo passed=true 已同步（iOS DemoShowcases.swift + Android MainActivity.kt），组件进度.md 第 6 行状态从「📋⚠️重点修复」改为「✅」，备注更新为 v1.9.16~v1.9.20 共 5 版本修复 8 项双端一致+回归测试 4 例（OverlayTest 14/14 全绿）。双端 BUILD SUCCEEDED。"
 }

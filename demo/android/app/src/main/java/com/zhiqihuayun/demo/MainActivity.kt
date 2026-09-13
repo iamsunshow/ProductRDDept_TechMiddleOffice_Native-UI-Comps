@@ -8266,7 +8266,7 @@ fun PopupDemo() {
             }
         }
         item {
-            Text("closeable=true：右上角显示关闭按钮（24dp 圆形灰底白叉）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+            Text("closeable=true：右上角显示关闭按钮（24pt 圆形灰底白叉）。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
         }
 
         // ── Demo 7：阻塞关闭的 ──
@@ -8286,14 +8286,14 @@ fun PopupDemo() {
             }
         }
         item {
-            Text("radius=24dp：自定义大圆角，四角统一。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
+            Text("radius=24pt：自定义大圆角，四角统一。", fontSize = AppFont.sizeXs, color = AppColor.textSecondary)
         }
     }
 
     // Demo 1：常规弹出层
-    // v1.9.11：文案对齐 iOS"常规弹出层内容"；用 widthIn(min=240) 替代 defaultMinSize(minWidth=208)
-    // 防止文案被截断（用户反馈"常规内容"——实际 208dp 太窄只显示部分）；
-    // wrapContentWidth + Box contentAlignment=Center 实现水平垂直居中。
+    // v1.9.22：内容最小宽度 = 240（弹层 min）- 16*2（内容槽内边距）= 208dp，配合组件 widthIn(min=240)
+    // 得到与 iOS 完全一致的 240dp 弹层；v1.9.11 的 widthIn(min=240)+padding(16) 会把弹层撑到 272dp
+    // （宽于 iOS 240dp）且未治住截断——真正根因是组件 maxCenterWidth 单位换算错误，已在 Popup.kt 修复。
     Popup(
         visible = visibleBasic,
         position = PopupPosition.CENTER,
@@ -8301,9 +8301,7 @@ fun PopupDemo() {
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .widthIn(min = 240.dp)
-                .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg)
+            modifier = Modifier.widthIn(min = 208.dp)
         ) {
             Text(
                 "常规弹出层内容",
@@ -8418,8 +8416,8 @@ fun PopupDemo() {
     }
 
     // Demo 7：阻塞关闭的（closeOnClickOverlay=false）
-    // v1.9.11：widthIn(min=280) 替代 defaultMinSize(minWidth=208) 防止文案折行
-    // （用户反馈"弹出层太窄导致文案折行"）
+    // v1.9.22：同 Demo1，去掉 280dp 撑宽 + 16dp 内边距，内容最小宽度 208dp（弹层 240dp 与 iOS 一致）；
+    // 说明文案折行由内容槽 208dp 自然换行，与 iOS 一致。
     Popup(
         visible = visibleBlocking,
         position = PopupPosition.CENTER,
@@ -8429,9 +8427,7 @@ fun PopupDemo() {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(AppSpace.md),
-            modifier = Modifier
-                .widthIn(min = 280.dp)
-                .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg)
+            modifier = Modifier.widthIn(min = 208.dp)
         ) {
             Text(
                 "阻塞关闭的弹出层",
@@ -8452,8 +8448,7 @@ fun PopupDemo() {
     }
 
     // Demo 8：圆角的（radius=24dp）
-    // v1.9.11：文案对齐 iOS"大圆角弹出层（24pt）"——Android 用 24dp 对齐 iOS 24pt（视觉等价）；
-    // 用 widthIn(min=240) 防止文案被截断（用户反馈"大圆角弹"——实际 208dp 太窄只显示部分）
+    // v1.9.22：同 Demo1，内容最小宽度改回 208dp（弹层 240dp 与 iOS 一致），截断根因已在组件修复。
     Popup(
         visible = visibleRadius,
         position = PopupPosition.CENTER,
@@ -8462,9 +8457,7 @@ fun PopupDemo() {
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .widthIn(min = 240.dp)
-                .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg)
+            modifier = Modifier.widthIn(min = 208.dp)
         ) {
             Text(
                 "大圆角弹出层（24pt）",

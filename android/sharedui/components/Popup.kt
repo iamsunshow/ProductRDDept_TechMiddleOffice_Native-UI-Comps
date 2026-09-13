@@ -92,7 +92,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -259,8 +258,13 @@ fun Popup(
                     }
 
                     // 居中模式：宽度=内容，min=240dp，max=屏宽-32dp（与 iOS center 约束一致）
+                    // v1.9.22 修复（用户 2026-09-13 反馈“Demo1 双端文案不一致”）：
+                    // screenWidthDp 本身已是 dp，旧实现又走了一遍 LocalDensity.toDp()（把 379dp 当成 379px
+                    // 再除以 density），Pixel 7 Pro（density≈2.625）上 max 只剩 ~133dp < min 240dp，
+                    // max 反压 min → 弹层被压到 ~133dp 宽 → 内容被截断（Android 弹层显示“大圆/常规”，
+                    // iOS 显示完整“大圆角弹出层（24pt）/常规弹出层内容”）。直接用 .dp 即可。
                     val screenWidthDp = LocalConfiguration.current.screenWidthDp
-                    val maxCenterWidth = with(LocalDensity.current) { (screenWidthDp - AppSpace.lg.value * 2).toDp() }
+                    val maxCenterWidth = (screenWidthDp - AppSpace.lg.value * 2).dp
 
                     val containerModifier = when (position) {
                         PopupPosition.CENTER -> Modifier
@@ -288,6 +292,9 @@ fun Popup(
                     }
 
                     Box(
+                        // v1.9.22：内容水平居中。iOS PopupContainerView 的内容区左右各 16dp 且文案居中，
+                        // Android 容器默认 TopStart 会把窄内容（如 Demo1 文案）贴左显示，双端不一致。
+                        contentAlignment = Alignment.TopCenter,
                         modifier = containerModifier
                             .clip(shape)
                             .background(AppColor.bgCard, shape)

@@ -338,10 +338,10 @@ final class Overlay: UIView {
         contentContainer.layer.cornerRadius = r
         contentContainer.layer.cornerCurve = .continuous
         contentContainer.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-        // v1.9.2：永久不裁剪内容——clipsToBounds=true + CAShapeLayer mask 双重裁剪
-        // 导致 measureContentSize 测量偏小时内容被裁掉（用户反馈"文字看不到""title 被遮挡"）。
-        // 改用 cornerRadius 圆角背景，内容溢出仍可见（与 Android Modifier.background(shape) 一致）。
-        contentContainer.clipsToBounds = false
+        // v1.9.12：圆角时开启 clipsToBounds 裁剪内容到圆角区域内，
+        // 防止内容溢出到圆角外导致视觉上看像直角（用户反馈"iOS 是直角"）。
+        // v1.9.10 已用 greaterThanOrEqualToConstant 防止测量偏小，开启裁剪不会裁掉内容。
+        contentContainer.clipsToBounds = r > 0
     }
 
     // MARK: 手势：mask 点击 / 按压态反馈

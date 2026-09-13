@@ -14,6 +14,13 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。④ [1.7.5] 两条=LineChart #84 三优化（cc09660，Trae）与 iOS Tag 文字不可见第三次修复（5e2a250，他会话）同号并存——他会话提交窗口与 Trae 文档编辑重叠，条目未互相覆盖、内容均有效，v1.7.5 号双主题共用，不改史。 -->
 
+## \[1.9.12] - 2026-09-13（Overlay 圆角修复）
+
+### Fixed
+
+- **Demo1234 弹层 iOS 显示直角**：根因=v1.9.2 改 `clipsToBounds=false` 防止测量偏小内容被裁掉，但内容用 `stack.edges=container` 紧贴容器边界，内容溢出到圆角外可见，遮挡了圆角背景，视觉上看像直角。修复=`applyRadius` 中 `r>0` 时开启 `clipsToBounds=true` 裁剪内容到圆角区域内（v1.9.10 已用 `greaterThanOrEqualToConstant` 防止测量偏小，开启裁剪不会裁掉内容）。
+- 验证：iOS `xcodebuild` BUILD SUCCEEDED。
+
 ## \[1.9.11] - 2026-09-13（Popup 六项双端一致修复）
 
 ### Fixed

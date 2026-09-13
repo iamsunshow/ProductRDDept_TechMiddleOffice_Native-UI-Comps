@@ -1,6 +1,6 @@
 {
-  "version": "1.9.11",
-  "versionKey": "v1.9.11",
+  "version": "1.9.12",
+  "versionKey": "v1.9.12",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.11] 2026-09-13 Fixed：Popup 六项双端一致修复（用户 2026-09-13 反馈）——①D1/D6/D8 文案被截断：Android Text 用 defaultMinSize(minWidth=208.dp) 太窄导致文案只显示部分（用户反馈\"常规内容\"/\"带关闭图\"/\"大圆角弹\"），改用 Box+widthIn(min=240.dp)+padding(lg) 包裹 Text，文案完整显示。②D2/D3 弹层文案没有水平和垂直居中：Text 外加 Box(contentAlignment=Center)+padding(lg) 实现水平垂直居中。③D4 状态栏覆盖：Popup.kt WindowPopup 默认 decorFitsSystemWindows=true 不覆盖状态栏，v1.9.6 已在 Activity 启用 edge-to-edge 但 Popup 独立 window 不跟随——此项为 Compose Popup 已知限制，后续用 Dialog 替代 WindowPopup 解决。④D7 弹出层太窄文案折行：widthIn(min=280.dp)+padding(lg) 替代 defaultMinSize(minWidth=208.dp)，防止文案折行。⑤D8 文案对齐 iOS：Android\"大圆角弹出层（24dp）\"改用\"大圆角弹出层（24pt）\"对齐 iOS（视觉等价）。Android assembleDebug BUILD SUCCESSFUL。"
+  "changelog": "[1.9.12] 2026-09-13 Fixed：Overlay 圆角修复（用户 2026-09-13 反馈）——Demo1234 弹层 iOS 显示直角，Android 显示圆角。根因=v1.9.2 改 clipsToBounds=false 防止测量偏小内容被裁掉，但内容用 stack.edges=container 紧贴容器边界，内容溢出到圆角外可见，遮挡了圆角背景，视觉上看像直角。修复=applyRadius 中 r>0 时开启 clipsToBounds=true 裁剪内容到圆角区域内（v1.9.10 已用 greaterThanOrEqualToConstant 防止测量偏小，开启裁剪不会裁掉内容）。iOS xcodebuild BUILD SUCCEEDED。"
 }

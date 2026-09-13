@@ -1,6 +1,6 @@
 {
-  "version": "1.9.12",
-  "versionKey": "v1.9.12",
+  "version": "1.9.13",
+  "versionKey": "v1.9.13",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.12] 2026-09-13 Fixed：Overlay 圆角修复（用户 2026-09-13 反馈）——Demo1234 弹层 iOS 显示直角，Android 显示圆角。根因=v1.9.2 改 clipsToBounds=false 防止测量偏小内容被裁掉，但内容用 stack.edges=container 紧贴容器边界，内容溢出到圆角外可见，遮挡了圆角背景，视觉上看像直角。修复=applyRadius 中 r>0 时开启 clipsToBounds=true 裁剪内容到圆角区域内（v1.9.10 已用 greaterThanOrEqualToConstant 防止测量偏小，开启裁剪不会裁掉内容）。iOS xcodebuild BUILD SUCCEEDED。"
+  "changelog": "[1.9.13] 2026-09-13 Fixed：Overlay Demo4 Android 按钮被遮挡修复——v1.9.10 错误去掉 navigationBarsPadding 追求弹层高度一致，但 iOS 底部有 20px 安全区空白 Android 没有，导致按钮被系统导航栏遮挡。加回 navigationBarsPadding 让 Android 底部有安全区空白（对齐 iOS）。Android assembleDebug BUILD SUCCESSFUL。"
 }

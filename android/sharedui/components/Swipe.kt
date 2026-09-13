@@ -2,7 +2,7 @@
 //  Swipe.kt
 //  SharedUI
 //
-//  组件 ID：`ui.swipe` ｜ 任务清单 #58 ｜ 操作反馈区第十四件 ｜ TMO 组件库 v1.9.30
+//  组件 ID：`ui.swipe` ｜ 任务清单 #58 ｜ 操作反馈区第十四件 ｜ TMO 组件库 v1.9.31
 //
 //  定位：列表项横向滑动露出操作按钮——左右双向滑动露操作，松手自动回弹或展开。
 //
@@ -122,7 +122,7 @@ fun SwipeItem(
         label = "swipe-offset"
     )
 
-    // v1.9.30：移除旧 nestedScroll 拦截——该修复是死代码：Compose 嵌套滚动
+    // v1.9.31：移除旧 nestedScroll（与顺序修复同批） 拦截——该修复是死代码：Compose 嵌套滚动
     // 分发方向为「可滚动后代 → 祖先」，LazyColumn 是 SwipeItem 的祖先，其滚动事件
     // 不经过列表项内 SwipeItem 上的 NestedScrollConnection，此连接从未收到过事件。
     // 且消费 scroll 事件与 pointer 手势（detectHorizontalDragGestures）是两条独立管线，
@@ -170,16 +170,17 @@ fun SwipeItem(
         val containerWidthPx = with(density) { maxWidth.toPx() }
 
         // 底层左操作（右滑露出，左对齐绝对定位）
-        // fillMaxHeight 只撑高度；requiredWidth(80.dp) 独占决定宽度——
-        // v1.9.30 修复：原 matchParentSize+requiredWidth 组合在 BoxWithConstraints（父宽为
-        // 约束非实宽）下测出错误宽度/位置，左滑后右侧按钮不显示（iOS 正常 Android 异常的
-        // 根因）。fillMaxHeight 不碰宽度约束，宽度路径唯一由 requiredWidth 决定，无歧义。
+        // matchParentSize（BoxScope）撑满父尺寸且不影响父测量（对齐 iOS btn.frame 高度=
+        // bounds.height）；requiredWidth(80.dp) 无视约束强制 80dp 宽。
+        // v1.9.31：v1.9.30 曾改 fillMaxHeight——在 LazyColumn 子项（父高为松约束 0..视口高）
+        // 下会把按钮撑到视口高，回退 matchParentSize。按钮不可见的真正根因是内容层
+        // background/offset 顺序（见下方 v1.9.31 修复），与按钮布局无关。
         leftActions.forEachIndexed { i, action ->
             val leftOffset = i * actionWidthPx
             Box(
                 modifier = Modifier
                     .offset { IntOffset(leftOffset.roundToInt(), 0) }
-                    .fillMaxHeight()
+                    .matchParentSize()
                     .requiredWidth(80.dp)
                     .background(action.color.color)
                     .pointerInput(action) {
@@ -200,7 +201,7 @@ fun SwipeItem(
             Box(
                 modifier = Modifier
                     .offset { IntOffset(rightOffset.roundToInt(), 0) }
-                    .fillMaxHeight()
+                    .matchParentSize()
                     .requiredWidth(80.dp)
                     .background(action.color.color)
                     .pointerInput(action) {
@@ -217,12 +218,16 @@ fun SwipeItem(
 
         // 顶层主内容（整体 offset 移动，加白色背景遮挡底层操作按钮，初始 offsetX=0 时覆盖操作区）
         // 与 iOS makeRow.backgroundColor=.white 一致
+        // v1.9.31 真正根因修复：offset 必须在 background 【之前】——Compose 中 offset 只移动
+        // 它链上后置的内容，前置的 background 画在原位坐标。background 在 offset 之前时白底
+        // 永不移动、永远盖住底层红色按钮（文字移动但按钮不可见的确定性根因，iOS UIView
+        // frame 移动整个视图含背景故正常）。顺序对调后白底+内容整体随 displayX 移动。
         val displayX = if (isAnimating) animatedX else offsetX
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
                 .offset { IntOffset(displayX.roundToInt(), 0) }
+                .background(Color.White)
         ) {
             content()
         }

@@ -2,6 +2,17 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.9.31] - 2026-09-13（Swipe 左滑按钮不显示真正根因修复）
+
+### Fixed
+
+- **Swipe Android 左滑红色删除按钮永不显示（真正根因）**：内容层 Box 修饰符顺序错误——`background(Color.White)` 在 `offset` 之前。Compose 中 `offset` 只移动链上后置内容，前置的 `background` 画在原位坐标 → 白底永不移动、永远盖住底层红色按钮。症状=文字向左移动消失但按钮永不出现（用户两次实测确认）；iOS `contentView.frame` 移动整个 UIView 含 backgroundColor 故正常。修复 = `offset` 挪到 `background` 之前，白底+内容整体随 displayX 移动。
+- **回退 v1.9.30 的按钮 fillMaxHeight** → 恢复 `matchParentSize`：LazyColumn 子项父高为松约束（0..视口高），fillMaxHeight 会把按钮撑到视口高。v1.9.30 对根因（按钮布局）的判断有误，真正根因是本条修饰符顺序。
+
+### 验证
+
+- Android `compileDebugKotlin` 编译通过；实机视觉验证待用户复验（D1 向左拖应露出红色「删除」）。
+
 ## [1.9.30] - 2026-09-13（Swipe Android 左滑按钮不显示根治）
 
 ### Fixed
@@ -12,6 +23,19 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 ### 验证
 
 - 待用户 Android Studio 编译复验：D1 **向左拖**应露出红色「删除」按钮（80dp×撑高），tap 触发「已删除」Toast + 自动收起。
+
+## [1.9.31] - 2026-09-13（Swipe 左滑按钮不显示真正根因修复）
+
+### Fixed
+
+- **Swipe Android 左滑红色删除按钮永不显示（真正根因）**：内容层 Box 修饰符顺序错误——`background(Color.White)` 在 `offset` 之前。Compose 中 `offset` 只移动链上后置内容，前置的 `background` 画在原位坐标 → 白底永不移动、永远盖住底层红色按钮。症状=文字向左移动消失但按钮永不出现（用户两次实测确认）；iOS `contentView.frame` 移动整个 UIView 含 backgroundColor 故正常。修复 = `offset` 挪到 `background` 之前，白底+内容整体随 displayX 移动。
+- **回退 v1.9.30 的按钮 fillMaxHeight** → 恢复 `matchParentSize`：LazyColumn 子项父高为松约束（0..视口高），fillMaxHeight 会把按钮撑到视口高。v1.9.30 对根因（按钮布局）的判断有误，真正根因是本条修饰符顺序。
+
+### 验证
+
+- Android `compileDebugKotlin` 编译通过；实机视觉验证待用户复验（D1 向左拖应露出红色「删除」）。
+
+## [1.9.30] - 2026-09-13（Drag Android 对齐 iOS）
 
 ## [1.9.29] - 2026-09-13（PullToRefresh 用户验收通过状态同步）
 

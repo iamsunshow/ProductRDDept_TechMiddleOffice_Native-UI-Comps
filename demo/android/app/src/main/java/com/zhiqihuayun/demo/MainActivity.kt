@@ -7498,41 +7498,50 @@ private data class DragItem(
     val title: String,
 )
 
-/** Drag Demo 单行内容（红色删除 icon + emoji + 标题）。 */
+/** Drag Demo 单行内容（红色删除 icon + emoji + 标题 + 底部 hairline）。 */
 @Composable
 private fun DragRow(item: DragItem) {
     // 视觉对齐 iOS UITableView isEditing 模式：
     // - 左侧红色圆形删除按钮（systemRed 圆形 + 白色"−"减号）
     // - emoji + 标题紧跟其后
-    // - 去掉 1px 分隔线（cell shadow 已由 Drag 组件渲染，对齐 iOS willDisplay，分隔线视觉冗余）
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .padding(horizontal = AppSpace.lg),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
+    // - 底部 hairline 0.5dp（v1.9.30 补回，对齐 iOS makeItemView 的 divider=AppColor.border
+    //   1pt 全宽细线；实测 iOS 每条 cell 底边确有此线，与 cell 阴影带共同构成"底部阴影"观感）
+    Column(modifier = Modifier.fillMaxWidth().height(56.dp)) {
+        Row(
             modifier = Modifier
-                .size(24.dp)
-                .clip(CircleShape)
-                .background(AppColor.error)
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(horizontal = AppSpace.lg),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .background(AppColor.error)
+            ) {
+                Text(
+                    text = "−",
+                    color = Color.White,
+                    fontSize = AppFont.sizeLg,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+            Spacer(modifier = Modifier.width(AppSpace.md))
+            Text(text = item.emoji, fontSize = AppFont.sizeXl)
+            Spacer(modifier = Modifier.width(AppSpace.md))
             Text(
-                text = "−",
-                color = Color.White,
-                fontSize = AppFont.sizeLg,
-                fontWeight = FontWeight.Bold,
+                text = item.title,
+                fontSize = AppFont.sizeMd,
+                color = AppColor.textPrimary,
             )
         }
-        Spacer(modifier = Modifier.width(AppSpace.md))
-        Text(text = item.emoji, fontSize = AppFont.sizeXl)
-        Spacer(modifier = Modifier.width(AppSpace.md))
-        Text(
-            text = item.title,
-            fontSize = AppFont.sizeMd,
-            color = AppColor.textPrimary,
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(0.5.dp)
+                .background(AppColor.border)
         )
     }
 }

@@ -1,7 +1,9 @@
 package com.zhiqihuayun.sharedui.components
 
 import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -26,9 +28,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
@@ -39,20 +44,33 @@ import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppFont
 import com.zhiqihuayun.foundation.design.AppSpace
 
-// 拖拽态视觉常量（与设计规格 drag-design-spec.html §4 对齐 + iOS 对齐 2026-09-08）：
-// - 默认 cell 阴影 elevation 4dp（对齐 iOS willDisplay shadowOpacity 0.15/radius 8）
-// - 拖拽态不额外加阴影（避免与默认阴影叠加导致渲染模糊）
+// 拖拽态视觉常量（与设计规格 drag-design-spec.html §4 对齐 + iOS 对齐 2026-09-13）：
+// - 每条 cell 底部阴影=自绘顶部渐变带（对齐 iOS DragListView willDisplay：
+//   layer.shadow 黑 opacity 0.15 / offset(0,4) / radius 8；实测 iOS 相邻 cell 分界处
+//   最深处 (229,229,229)≈alpha 0.10、向下渐隐约 22pt 到纯白）
+//   ★ v1.9.30：旧实现 Modifier.shadow(2.dp) 阴影被后绘制的相邻 item 完全覆盖（LazyColumn
+//     中 item 无间隙、后绘制者在上），Android 上等于没有底部阴影（用户 2026-09-13 反馈
+//     "iOS 每条 Cell 底部都有阴影，Android 没有"）。渐变带画在 item 自身 bounds 内，
+//     不会被相邻 item 覆盖，与 iOS 视觉 1:1。
 // - 缩放 1.02
-// - 透明度 0.9（v1.9.0 由 0.6 调升，与 iOS DragListView 文档头注释 opacity 0.9 一致；
-//   旧 0.6 + 拖动态 shadowElevation=8f 叠加导致 cell 视觉模糊，用户反馈"整个 cell 变模糊"）
-// - 落位动画 0.25s easeOut
+// - 透明度 0.75（v1.9.30 由 0.9 回调，对齐 iOS 拖动项半透明观感；v1.9.0 曾 0.6→0.9 因当时
+//   叠加 graphicsLayer.shadowElevation 致"整个 cell 变模糊"，现阴影已改自绘渐变带不再叠加模糊）
+// - 落位动画 0.25s easeOut（拖动结束 translationY 平滑回落到槽位，对齐 iOS 落位 0.25s）
 // - 拖拽时 translationY 跟随手指（与 iOS 标准 reorder 一致）
 // - swap 阈值=itemHeight/2，swap 后 dragOffset 减 itemHeight（保持手指相对位置）
-// - item 位置交换动画 0.3s easeOut（对齐 iOS 标准 reorder 丝滑时长，旧默认 spring 过快）
+// - item 位置交换动画 0.35s FastOutSlowIn（v1.9.30：300→350 + EaseOut→FastOutSlowIn，
+//   用户反馈 Android 互换动画"过快、不够丝滑"；对齐 iOS 标准 reorder 的平滑感）
+// - 被拖动项自身禁用 placement 动画（tween(0)）：其槽位在 swap 时瞬移 itemHeight，
+//   若同时跑 300ms placement 动画会与 graphicsLayer.translationY 抵消产生"回跳再追赶"
+//   的顿挫感（用户反馈"不算丝滑"的根因之一）
 private const val DragScale = 1.02f
-private const val DragOpacity = 0.9f
+private const val DragOpacity = 0.75f
 private const val DropAnimMs = 250
-private const val ItemPlaceAnimMs = 300
+private const val ItemPlaceAnimMs = 350
+
+/// 底部阴影渐变带高度（dp）与最深处不透明度：对齐 iOS willDisplay 实测值（≈22pt / alpha 0.10）。
+private val CellShadowHeight = 22.dp
+private const val CellShadowAlpha = 0.10f
 
 /**
  * Drag 拖拽排序（操作反馈区 · ui.drag · #47）：通用列表拖拽排序组件。
@@ -109,7 +127,7 @@ fun <T> Drag(
         itemsIndexed(
             items = internalItems,
             key = { _, item -> key(item) }
-        ) { _, item ->
+        ) { index, item ->
             val itemKey = key(item)
             val isDragging = draggingKey == itemKey
             val scale by animateFloatAsState(
@@ -122,6 +140,16 @@ fun <T> Drag(
                 animationSpec = tween(DropAnimMs),
                 label = "dragAlpha",
             )
+            // v1.9.30：落位动画——拖动结束 translationY 从残留偏移平滑回落到槽位（0.25s easeOut），
+            // 对齐 iOS 松手后 cell 归位动画；拖拽中 snap 即时跟手（不引入额外延迟）。
+            val animatedDragOffset by animateFloatAsState(
+                targetValue = if (isDragging) dragOffset else 0f,
+                animationSpec = if (isDragging) snap() else tween(DropAnimMs, easing = EaseOut),
+                label = "dragTranslation",
+            )
+            // v1.9.30：底部阴影——每条 cell 顶部画向下渐隐的阴影带（模拟上方 cell 投下的阴影），
+            // 首条不画（对齐 iOS：首条 cell 上方无阴影、末条下方无阴影）。
+            val hasTopShadow = index > 0
 
             // 根因修复（v1.4.6）：pointerInput 以 itemKey 为键，而非 index。
             // v1.4.2 曾把 key 从 Unit 改成 index 以修 index 过期，却引入更严重的缺陷：
@@ -244,16 +272,52 @@ fun <T> Drag(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    // item 位置交换动画：300ms easeOut，对齐 iOS 标准 reorder 丝滑时长
-                    // （旧默认 spring 过冲快、视觉跳变；用户反馈 Android 互换动画过快）
-                    .animateItemPlacement(animationSpec = tween(ItemPlaceAnimMs, easing = EaseOut))
+                    // item 位置交换动画（v1.9.30：300ms EaseOut → 350ms FastOutSlowIn，
+                    // 对齐 iOS 标准 reorder 的平滑感；用户反馈 Android 互换动画"过快、不够丝滑"）。
+                    // ★ 被拖动项自身用 tween(0) 瞬时让位：其槽位在 swap 时瞬移 itemHeight，
+                    //   若同时跑 placement 动画会与 graphicsLayer.translationY 相互抵消，
+                    //   产生"先回跳再追赶"的顿挫（用户反馈不够丝滑的根因之一）。
+                    .animateItemPlacement(
+                        animationSpec = if (isDragging) {
+                            tween(0)
+                        } else {
+                            tween(ItemPlaceAnimMs, easing = FastOutSlowInEasing)
+                        }
+                    )
                     .fillMaxWidth()
                     // v1.9.9：默认阴影用 Modifier.shadow 替代 graphicsLayer.shadowElevation，
                     // Modifier.shadow 视觉更柔和（接近 iOS layer.shadow），不会像 graphicsLayer
                     // 在 LazyColumn 紧密排列下渲染成方形边框（用户反馈"四周都是横线"）。
-                    // 拖动态 shadow=8dp 增强层次感，非拖动态 shadow=2dp 轻微底部阴影。
-                    .shadow(if (isDragging) 8.dp else 2.dp, RectangleShape, clip = false)
+                    // v1.9.30：非拖动态不再用 shadow——2dp 阴影会被后绘制的相邻 item 完全覆盖
+                    // （LazyColumn 中 item 无间隙），Android 上等于没有底部阴影；底部阴影改由
+                    // 下方 drawWithContent 在 item 自身 bounds 内绘制阴影带（见 hasTopShadow）。
+                    // 拖动态保留 8dp：配合 zIndex=1f 置顶渲染，形成"提起"层次（对齐 iOS reorder）。
+                    .shadow(
+                        elevation = if (isDragging) 8.dp else 0.dp,
+                        shape = RectangleShape,
+                        clip = false,
+                    )
                     .background(AppColor.bgCard)
+                    // v1.9.30：底部阴影（自绘，画在 item 自身 bounds 内 → 不会被相邻 item 覆盖）
+                    // = 顶部 CellShadowHeight 高度内由 CellShadowAlpha 线性渐隐到透明，
+                    //   对齐 iOS willDisplay layer.shadow 的视觉（相邻 cell 分界处最深、向下渐隐）。
+                    .drawWithContent {
+                        drawContent()
+                        if (hasTopShadow) {
+                            val bandHeight = CellShadowHeight.toPx()
+                            drawRect(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Black.copy(alpha = CellShadowAlpha),
+                                        Color.Transparent,
+                                    ),
+                                    startY = 0f,
+                                    endY = bandHeight,
+                                ),
+                                size = Size(size.width, bandHeight),
+                            )
+                        }
+                    }
                     // 被拖动项置顶：zIndex=1f 让它在 LazyColumn 中渲染在其他项之上，
                     // 不被相邻项遮挡（与 iOS 标准 reorder 一致）
                     .zIndex(if (isDragging) 1f else 0f)
@@ -265,8 +329,8 @@ fun <T> Drag(
                         this.scaleX = scale
                         this.scaleY = scale
                         this.alpha = alpha
-                        // 被拖动项跟随手指平滑移动（与 iOS 标准 reorder 一致）
-                        this.translationY = if (isDragging) dragOffset else 0f
+                        // 被拖动项跟随手指平滑移动；松手后 animatedDragOffset 平滑回落到 0（对齐 iOS）
+                        this.translationY = animatedDragOffset
                     }
                     // handle=true：整行不挂拖拽手势（仅手柄响应）；否则整行长按拖拽。
                     .then(if (enabled && !handle) dragModifier else Modifier),

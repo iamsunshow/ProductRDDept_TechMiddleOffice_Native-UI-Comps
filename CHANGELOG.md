@@ -14,6 +14,18 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。④ [1.7.5] 两条=LineChart #84 三优化（cc09660，Trae）与 iOS Tag 文字不可见第三次修复（5e2a250，他会话）同号并存——他会话提交窗口与 Trae 文档编辑重叠，条目未互相覆盖、内容均有效，v1.7.5 号双主题共用，不改史。 -->
 
+## \[1.9.20] - 2026-09-13（Overlay 回归测试补建 4 例 L1 防复发）
+
+### Test
+
+- **台账 #69-#72 L1 自动化补建**：OverlayTest 新增 4 例回归用例（含原 10 例共 14/14 全绿），复现 Demo 场景用 boundsInRoot 几何断言防复发：
+  - `#69` Demo1-3 副标题 fillMaxWidth 不再被 CenterHorizontally 居中收窄 → 副标题宽度>容器 70% 几何校验。
+  - `#70` Demo4 底部 padding 64dp 按钮不被遮挡 → 按钮底部距 Surface 底部>50dp 几何校验。
+  - `#71` Demo4 title fillMaxWidth 居中不再内容宽度收窄 → title 宽度>容器 70% 几何校验。
+  - `#72` Demo5 描述 lineHeight 20sp 生效 → 多行高度>35px 校验（防默认行高双端不一致复发）。
+- 不可自动化的 5 项（iOS 圆角/textAlignment 运行时失效/UIStackView alignment 覆盖约束）= L4 实机回归清单兜底，已登记台账。
+- 验证：`./gradlew :components:testDebugUnitTest --tests OverlayTest` 14/14 全绿。
+
 ## \[1.9.19] - 2026-09-13（Overlay Demo4 iOS 手柄通栏修复）
 
 ### Fixed

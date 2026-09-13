@@ -1,6 +1,6 @@
 {
-  "version": "1.9.19",
-  "versionKey": "v1.9.19",
+  "version": "1.9.20",
+  "versionKey": "v1.9.20",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.19] 2026-09-13 Fixed：Overlay Demo4 iOS 手柄通栏修复。iOS Demo4 handle 直接作为 stack arrangedSubview，stack.alignment=.fill 覆盖 handle width=40 约束导致通栏（Android Spacer 40dp 居中正常）。修复=用 handleWrap(UIView) 包裹 handle，handleWrap fill 宽度、handle 在 handleWrap 内 centerX 居中保持 40×4，双端手柄均为 40dp 居中。iOS xcodebuild BUILD SUCCEEDED。"
+  "changelog": "[1.9.20] 2026-09-13 Test：Overlay 回归测试补建 4 例（台账 #69-#72 L1 防复发）。①#69 Demo1-3 副标题 fillMaxWidth 几何校验防 Column horizontalAlignment=CenterHorizontally 居中收窄复发；②#70 Demo4 底部 padding 64dp 按钮距 Surface 底部>50dp 几何校验防 padding 不足复发；③#71 Demo4 title fillMaxWidth 几何校验防缺 fillMaxWidth 收窄复发；④#72 Demo5 描述多行高度>35px 校验 lineHeight=20sp 生效防默认行高不一致复发。OverlayTest 14/14 全绿（含原 10 例+新 4 例）。"
 }

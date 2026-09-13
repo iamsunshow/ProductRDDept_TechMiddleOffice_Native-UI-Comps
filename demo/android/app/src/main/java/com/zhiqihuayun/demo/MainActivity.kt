@@ -8706,19 +8706,22 @@ fun PullToRefreshDemo() {
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(AppSpace.sm)
                 ) {
-                    Button(onClick = {
-                        if (d4Refreshing) {
-                            d4Refreshing = false
-                        } else {
-                            d4Refreshing = true
-                            CoroutineScope(Dispatchers.Main).launch {
-                                delay(1500)
+                    // v1.9.28：触发按钮统一为中台 AppButton（原 Material3 Button 为 Material 紫，
+                    // 与 iOS 纯文字系统按钮两端都不一致，用户 2026-09-13 反馈；双端同用设计系统主按钮）
+                    AppButton(
+                        text = if (d4Refreshing) "停止刷新" else "触发刷新",
+                        onClick = {
+                            if (d4Refreshing) {
                                 d4Refreshing = false
+                            } else {
+                                d4Refreshing = true
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    delay(1500)
+                                    d4Refreshing = false
+                                }
                             }
                         }
-                    }) {
-                        Text(if (d4Refreshing) "停止刷新" else "触发刷新")
-                    }
+                    )
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -8729,6 +8732,8 @@ fun PullToRefreshDemo() {
                         PullToRefresh(
                             refreshing = d4Refreshing,
                             onRefresh = {},
+                            // v1.9.28：D4 不显示文案（对齐 iOS D4 title=""，外部驱动场景不叠文案）
+                            title = "",
                             canPull = { d4ListState.isAtTop() }
                         ) {
                             LazyColumn(

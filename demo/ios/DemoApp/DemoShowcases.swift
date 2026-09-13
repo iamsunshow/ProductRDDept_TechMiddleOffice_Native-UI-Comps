@@ -9998,6 +9998,7 @@ final class PullRefreshShowcase: ShowcaseViewController {
 
     private var d4Pull: PullRefreshView?
     private var d4TableView: UITableView?
+    private var d4Button: AppButton?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -10083,17 +10084,22 @@ final class PullRefreshShowcase: ShowcaseViewController {
             // v1.9.7：D4 设 title="" 不显示文案（对齐 Android D4 无文案）
             pull.title = ""
             self.d4Pull = pull
-            let btn = UIButton(type: .system)
-            btn.setTitle("触发刷新", for: .normal)
-            btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
+            // v1.9.28：触发按钮统一为中台 AppButton.primary（原系统 UIButton 为纯文字，
+            // 与 Android 紫色实心按钮不一致，用户 2026-09-13 反馈；双端同用设计系统主按钮）
+            let btn = AppButton.primary("触发刷新")
             btn.addTarget(self, action: #selector(d4Trigger), for: .touchUpInside)
+            self.d4Button = btn
             let stack = UIStackView(arrangedSubviews: [btn, pull])
             stack.axis = .vertical
             stack.spacing = AppSpace.sm
             container.addSubview(stack)
             stack.snp.makeConstraints { make in
                 make.edges.equalToSuperview().inset(AppSpace.sm)
-                make.height.equalTo(220)
+                // 48（按钮）+ 8（间距）+ 180（列表）
+                make.height.equalTo(236)
+            }
+            btn.snp.makeConstraints { make in
+                make.height.equalTo(AppButton.standardHeight)
             }
             pull.snp.makeConstraints { make in
                 make.height.equalTo(180)
@@ -10121,10 +10127,13 @@ final class PullRefreshShowcase: ShowcaseViewController {
         guard let pull = d4Pull else { return }
         if pull.refreshing {
             pull.refreshing = false
+            d4Button?.setAppTitle("触发刷新")
         } else {
             pull.refreshing = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            d4Button?.setAppTitle("停止刷新")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
                 pull.refreshing = false
+                self?.d4Button?.setAppTitle("触发刷新")
             }
         }
     }

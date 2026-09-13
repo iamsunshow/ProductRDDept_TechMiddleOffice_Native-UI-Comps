@@ -2,6 +2,13 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.9.27] - 2026-09-13（iOS Popup TOP 弹层覆盖状态栏）
+
+### Fixed
+
+- [1.9.27] 2026-09-13 Fixed：iOS Popup TOP 卡片贴屏幕顶覆盖状态栏（原锚 safeArea 停在 59pt，用户反馈 Demo2 顶部透明区域）。修复=top 锚 superview。
+
+
 格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/)：
 
 ```markdown

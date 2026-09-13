@@ -157,8 +157,14 @@ public final class PopupContainerView: UIView {
                 make.bottom.equalToSuperview()
                 make.top.lessThanOrEqualTo(self.safeAreaLayoutGuide.snp.bottom).offset(-120)
             case .top:
+                // v1.9.27：卡片贴屏幕顶（= 弹层窗口顶，覆盖状态栏区域），与 Android 1:1。
+                // 旧实现 top=safeAreaLayoutGuide.top → 卡片停在状态栏下方（iPhone 14 Pro 实测 y=59pt），
+                // 屏幕顶部露出 59pt 半透明遮罩带，用户 2026-09-13 反馈「顶部有一大片透明区域，
+                // 应该是没有覆盖到状态栏」（Android Popup.kt TOP 容器在贴顶全屏 Box 内 TopCenter 对齐，
+                // 卡片自 y=0 起、含 120dp 最小高度，状态栏区域被白底+底两角圆角覆盖）。
+                // 内容槽语义不变（upstream 侧仍是 topInset/居中/最小高度），故文案位置与 Android 一致。
                 make.leading.trailing.equalToSuperview()
-                make.top.equalTo(self.safeAreaLayoutGuide.snp.top)
+                make.top.equalToSuperview()
                 make.height.greaterThanOrEqualTo(120)
             case .left:
                 make.top.bottom.leading.equalToSuperview()

@@ -14,6 +14,15 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。④ [1.7.5] 两条=LineChart #84 三优化（cc09660，Trae）与 iOS Tag 文字不可见第三次修复（5e2a250，他会话）同号并存——他会话提交窗口与 Trae 文档编辑重叠，条目未互相覆盖、内容均有效，v1.7.5 号双主题共用，不改史。 -->
 
+## [1.9.26] - 2026-09-13（iOS Popup Demo7 按钮通栏）
+
+### Fixed
+
+- **iOS Popup Demo7 弹层内按钮非通栏**（用户 2026-09-13 反馈「弹出框内部的按钮不是通栏的，需要改成通栏的」）。
+  - 根因：`PopupShowcase.makeBlockingContent()` 的 `UIStackView.alignment = .center`，按钮按自身 intrinsic 宽度（仅文案宽）居中，不铺满内容槽。
+  - 修复：`alignment = .fill` → 按钮宽度 = 弹层内容槽宽（弹层 240pt − `AppSpace.lg`×2 = 208pt），与 Android `PopupDemo` Demo7（`Column` + 库内 `AppButton` 默认 `fillMaxWidth` 通栏）一致；标题/说明两份 UILabel 本身 `textAlignment = .center`，撑宽后视觉不变。
+  - 范围：iOS demo 单文件（`demo/ios/DemoApp/DemoShowcases.swift`），组件代码与 API 未变。
+
 ## [1.9.25] - 2026-09-13（iOS PopupView 编译错误）
 
 ### Fixed

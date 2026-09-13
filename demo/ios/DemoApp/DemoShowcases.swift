@@ -9876,7 +9876,12 @@ final class PopupShowcase: ShowcaseViewController {
         let stack = UIStackView()
         stack.axis = .vertical
         stack.spacing = 12
-        stack.alignment = .center
+        // v1.9.26：对齐 Android PopupDemo Demo7——那边内容列 horizontalAlignment=CenterHorizontally，
+        // 但库内 AppButton 默认 fillMaxWidth（通栏），故「我知道了」按钮左右铺满弹层内容槽。
+        // iOS 原用 .center → 按钮只有文案宽（不构成通栏，用户 2026-09-13 反馈）。
+        // 改 .fill 后按钮宽 = 内容槽宽（弹层宽 − AppSpace.lg×2，本内容实测 245.3pt / 左右内距各 16pt）。
+        // 标题/说明两份 UILabel 本身 textAlignment=.center，被撑宽后视觉不变。
+        stack.alignment = .fill
 
         let title = UILabel()
         title.text = "阻塞关闭的弹出层"

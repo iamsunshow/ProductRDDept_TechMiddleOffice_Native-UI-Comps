@@ -1,6 +1,6 @@
 {
-  "version": "1.9.22",
-  "versionKey": "v1.9.22",
+  "version": "1.9.23",
+  "versionKey": "v1.9.23",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.22] 2026-09-13 Fixed：Popup 居中弹层宽度算错致文案被截断（Android「常规弹出层内容/大圆角弹出层（24pt）」已完整）。[1.9.21] 2026-09-13 Fixed：Overlay 用户验收通过状态同步。用户原话「Overlay：已通过」，双端 Demo passed=true 已同步（iOS DemoShowcases.swift + Android MainActivity.kt），组件进度.md 第 6 行状态从「📋⚠️重点修复」改为「✅」，备注更新为 v1.9.16~v1.9.20 共 5 版本修复 8 项双端一致+回归测试 4 例（OverlayTest 14/14 全绿）。双端 BUILD SUCCEEDED。"
+  "changelog": "[1.9.23] 2026-09-13 Fixed：Popup 居中弹层内容槽水平+垂直居中（Android contentAlignment 由 TopCenter 改 Alignment.Center、iOS content 由 top/bottom 双等式改 centerY + 上下不等式），修复 TOP/BOTTOM 容器被 heightIn 撑高后内容槽贴顶（Demo2/Demo3 文字偏上、距顶 24dp/距底 71.7dp）与 iOS 垂直居中不一致；closeable 顶部 40dp 关闭按钮避让语义不变。双端编译验证：Android assembleDebug + iOS BUILD SUCCEEDED。[1.9.22] 2026-09-13 Fixed：Popup 居中弹层宽度算错致文案被截断（Android「常规弹出层内容/大圆角弹出层（24pt）」已完整）。[1.9.21] 2026-09-13 Fixed：Overlay 用户验收通过状态同步。用户原话「Overlay：已通过」，双端 Demo passed=true 已同步（iOS DemoShowcases.swift + Android MainActivity.kt），组件进度.md 第 6 行状态从「📋⚠️重点修复」改为「✅」，备注更新为 v1.9.16~v1.9.20 共 5 版本修复 8 项双端一致+回归测试 4 例（OverlayTest 14/14 全绿）。双端 BUILD SUCCEEDED。"
 }

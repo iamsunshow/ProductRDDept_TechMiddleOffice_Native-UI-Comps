@@ -194,11 +194,20 @@ public final class PopupContainerView: UIView {
         // 与 Android 一致：closeable 时顶部留出关闭按钮空间，否则顶部 padding=AppSpace.sm
         let topInset = closeable ? Layout.closeButtonSize + Layout.closeButtonInset * 2 : AppSpace.sm
         content.snp.prepareConstraints { make in
-            make.top.equalToSuperview().offset(topInset)
             make.leading.equalToSuperview().offset(AppSpace.lg)
             make.trailing.equalToSuperview().offset(-AppSpace.lg)
-            // 与 Android 一致：底部 padding=AppSpace.sm（4pt），不再用 AppSpace.lg
-            make.bottom.equalToSuperview().offset(-AppSpace.sm)
+            // v1.9.23：内容垂直居中（对齐 Android Popup.kt 容器 contentAlignment = Alignment.Center）。
+            // 内容槽 = topInset(上) + content + AppSpace.sm(下)，槽整体在容器内对中，等价于
+            // 「content 中心 = 容器中心 + (topInset - AppSpace.sm) / 2」：
+            // 非 closeable（topInset=8）→ 偏移 0 = 正居中；closeable（topInset=40）→ 下移 16pt 避让关闭按钮。
+            // 旧实现 top/bottom 双等式把内容拉伸填满内区：单 label 靠 UILabel 自身居中看着是居中，
+            // 多元素（UIStackView）则贴顶 → 与 Android 及 iOS 自身不同段不一致。
+            make.centerY.equalToSuperview().offset((topInset - AppSpace.sm) / 2)
+            // 高度链 + 关闭按钮避让：content 需自带高度（与 Android wrapContent 语义一致）；
+            // 两条不等式反向推出 容器高 >= content 高 + topInset + AppSpace.sm，
+            // 再配合 updateLayout() 的 height.greaterThanOrEqualTo(120) 得到 max(120, 内容所需高)。
+            make.top.greaterThanOrEqualToSuperview().offset(topInset)
+            make.bottom.lessThanOrEqualToSuperview().offset(-AppSpace.sm)
         }.forEach { c in
             c.activate()
             contentConstraints.append(c)

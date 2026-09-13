@@ -292,9 +292,13 @@ fun Popup(
                     }
 
                     Box(
-                        // v1.9.22：内容水平居中。iOS PopupContainerView 的内容区左右各 16dp 且文案居中，
-                        // Android 容器默认 TopStart 会把窄内容（如 Demo1 文案）贴左显示，双端不一致。
-                        contentAlignment = Alignment.TopCenter,
+                        // v1.9.23：内容槽在容器内水平+垂直居中（v1.9.22 的 TopCenter 只解决水平居中）。
+                        // 根因：TOP/BOTTOM 有 heightIn(min)、LEFT/RIGHT 有 fillMaxHeight，容器被撑高后
+                        // 旧 TopCenter 让内容槽贴顶 → Demo2/Demo3 文字偏上（实测距顶 24dp / 距底 71.7dp），
+                        // 而 iOS 内容在容器内垂直居中 → 双端不一致。
+                        // 居中对象是"含上下 padding 的内容槽"，故 closeable 顶部 40dp 关闭按钮避让语义不变，
+                        // 只是整槽沿容器竖向对中；CENTER 位置容器高=内容高，居中前后无差异。
+                        contentAlignment = Alignment.Center,
                         modifier = containerModifier
                             .clip(shape)
                             .background(AppColor.bgCard, shape)

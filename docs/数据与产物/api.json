@@ -7785,11 +7785,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": "PopupView.swift：final class PopupContainerView UIView；keyWindow addSubview+frame 按 position 定位（center=居中/bottom=贴底/top=贴顶）；遮罩 UIView+UITapGestureRecognizer closeOnClickOverlay；closeable 关闭按钮 UIButton 24×24 圆形灰底白叉；UIView.animate center=0.2s 淡入缩放/bottom+top=0.25s 滑入 easeOut；safeArea bottom padding"
+          "note": "PopupView.swift：final class PopupContainerView UIView；keyWindow addSubview+frame 按 position 定位（center=居中/bottom=贴底/top=贴顶）；遮罩 UIView+UITapGestureRecognizer closeOnClickOverlay；closeable 关闭按钮 UIButton 24×24 圆形灰底白叉；UIView.animate center=0.2s 淡入缩放/bottom+top=0.25s 滑入 easeOut；卡片 bottom 贴 superview、内容槽 bottom 贴 safeAreaLayoutGuide（v1.9.24）；TOP 卡片 top 锚 superview 贴屏幕顶覆盖状态栏（v1.9.27）。2026-09-13 用户双端 Demo 实机验收通过（原话「Popup：已通过」），双端 demo passed=true，验证版本 v1.9.27。"
         },
         "android": {
           "state": "available",
-          "note": "Popup.kt：@Composable fun Popup(visible, content, position, closeable, closeOnClickOverlay, radius, onClose)；androidx.compose.ui.window.Dialog+Alignment 定位（center=Center/bottom=Bottom/top=Top）；scrim Box Modifier.clickable closeOnClickOverlay；closeable Icon(Icons.Default.Close)+clickable；animateFloatAsState center=200ms 淡入缩放/bottom+top=250ms 滑入；WindowInsets.navigationBars"
+          "note": "Popup.kt：@Composable fun Popup(visible, content, position, closeable, closeOnClickOverlay, radius, onClose)；androidx.compose.ui.window.Dialog+Alignment 定位（center=Center/bottom=Bottom/top=Top）；scrim Box Modifier.clickable closeOnClickOverlay；closeable Icon(Icons.Default.Close)+clickable；animateFloatAsState center=200ms 淡入缩放/bottom+top=250ms 滑入；PopupLayout 窗口 fitInsetsTypes 探针修正为全屏铺满（v1.9.24）；contentAlignment=Center 内容槽居中（v1.9.23）。2026-09-13 用户双端 Demo 实机验收通过（原话「Popup：已通过」），双端 demo passed=true，验证版本 v1.9.27。"
         },
         "harmony": {
           "state": "unavailable",

@@ -288,7 +288,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Button 按钮", reviewed = true, demo = { ButtonDemo() }, passed = true),
         DemoComponent("Icon 图标", reviewed = true, demo = { IconDemo() }, passed = true),
         DemoComponent("Overlay 遮罩层", reviewed = true, demo = { OverlayDemo() }, passed = true),
-        DemoComponent("Popup 弹出层", reviewed = true, demo = { PopupDemo() }, pending = true),
+        DemoComponent("Popup 弹出层", reviewed = true, demo = { PopupDemo() }, passed = true),
     ),
     "布局组件" to listOf(
         DemoComponent("Divider 分割线", reviewed = true, demo = { DividerDemo() }, passed = true),

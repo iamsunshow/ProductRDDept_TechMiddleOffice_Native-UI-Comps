@@ -14,6 +14,15 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。④ [1.7.5] 两条=LineChart #84 三优化（cc09660，Trae）与 iOS Tag 文字不可见第三次修复（5e2a250，他会话）同号并存——他会话提交窗口与 Trae 文档编辑重叠，条目未互相覆盖、内容均有效，v1.7.5 号双主题共用，不改史。 -->
 
+## \[1.8.9] - 2026-09-13（DropDown 三项双端一致修复）
+
+### Fixed
+
+- **Demo4 受控下拉按钮非左对齐（iOS 居中 vs Android 左对齐）**：根因=iOS `UIButton` 标题默认居中（`contentHorizontalAlignment = .center`），Android `TextButton` 内容默认左对齐。修复=iOS Demo4 按钮设 `contentHorizontalAlignment = .left`，与 Android `TextButton` 一致。
+- **Demo1/2/3 白色容器未包裹说明文案（iOS 文案在容器外 vs Android hint 在 bgCard 内）**：根因=iOS `addInfo` 把说明文案作为独立子视图加到 `contentStack`（白色容器外），Android `DemoSection` 把 `hint` 文案放在 `bgCard` 白色 Column 内部。修复=iOS DropDownMenuShowcase Demo1/2/3 改用 `UIStackView` 纵向包「组件 + 说明文案 UILabel」放进 `addSection` 的 `bgCard` 容器内，stackView edges 到 container（top+md / leading+trailing / bottom-md），组件固定高度、文案自适应多行。
+- **选中对勾 icon 不一致（Android Text("✓") 字体对勾 vs iOS accessoryType=.checkmark 系统对勾）**：根因=Android 用 `Text("✓")` 系统字体渲染对勾，字形因平台/字体不同与 iOS 系统 `checkmark` 视觉不一致。修复=Android DropDown + DropDownMenu 两处选中态对勾改用 `Icons.Default.Check` 图标（`tint = AppColor.primary`，`size = 16.dp`），Material Check 图标与 iOS 系统 checkmark 形状最接近。
+- 验证：Android `compileDebugKotlin` 0 错误 + `assembleDebug` 通过；iOS `xcodebuild` BUILD SUCCEEDED。
+
 ## \[1.8.8] - 2026-09-13（Android PullToRefresh 两项双端一致修复）
 
 ### Fixed

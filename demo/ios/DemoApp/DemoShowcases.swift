@@ -11600,13 +11600,24 @@ final class DropDownMenuShowcase: ShowcaseViewController {
         super.viewDidLoad()
         addVersionBadge(componentName: "DropDown / DropDownMenu", version: "v1.8.4", builtAt: "2026-09-12")
 
+        // 修复 v1.8.9：说明文案放进白色容器内部底部（对齐 Android DemoSection 把 hint 包在 bgCard 内），
+        // 旧 addInfo 把文案加到 contentStack（容器外）导致白色卡片只包裹组件、文案露在外面。
+        // 用 UIStackView 纵向包 组件 + 说明文案，stackView edges 到 container，组件固定高度、文案自适应。
         addSection(title: "Demo 1 · DropDown 基础下拉", containerColor: AppColor.bgCard) { container in
             let opts = [DropDownOption(value: "asc", text: "默认排序"), DropDownOption(value: "price_asc", text: "价格从低到高"), DropDownOption(value: "price_desc", text: "价格从高到低"), DropDownOption(value: "sales", text: "销量优先")]
             let dd = DropDownView(title: "排序方式", options: opts, value: "asc")
-            container.addSubview(dd)
-            dd.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(DropDownView.Metrics.triggerHeight); $0.bottom.equalToSuperview() }
+            let info = UILabel()
+            info.text = "点击触发行展开浮层面板；选中项 ✓ 标记 + primary 高亮；点选项即收起。"
+            info.font = .systemFont(ofSize: AppFont.sizeXs)
+            info.textColor = AppColor.textSecondary
+            info.numberOfLines = 0
+            let stack = UIStackView(arrangedSubviews: [dd, info])
+            stack.axis = .vertical
+            stack.spacing = AppSpace.sm
+            container.addSubview(stack)
+            dd.snp.makeConstraints { $0.height.equalTo(DropDownView.Metrics.triggerHeight) }
+            stack.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.bottom.equalToSuperview().offset(-AppSpace.md) }
         }
-        addInfo("点击触发行展开浮层面板；选中项 ✓ 标记 + primary 高亮；点选项即收起。")
 
         addSection(title: "Demo 2 · DropDownMenu 多列容器", containerColor: AppColor.bgCard) { container in
             let items = [
@@ -11614,32 +11625,59 @@ final class DropDownMenuShowcase: ShowcaseViewController {
                 DropDownMenuItem(title: "筛选", options: [DropDownOption(value: "all", text: "全部"), DropDownOption(value: "new", text: "新品"), DropDownOption(value: "hot", text: "热门")], value: "all")
             ]
             let menu = DropDownMenuView(items: items)
-            container.addSubview(menu)
-            menu.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.md); $0.height.equalTo(DropDownView.Metrics.triggerHeight); $0.bottom.equalToSuperview() }
+            let info = UILabel()
+            info.text = "水平等分按钮栏 + 展开浮層；同时只展开一列，切换时自动关闭前一列。"
+            info.font = .systemFont(ofSize: AppFont.sizeXs)
+            info.textColor = AppColor.textSecondary
+            info.numberOfLines = 0
+            let stack = UIStackView(arrangedSubviews: [menu, info])
+            stack.axis = .vertical
+            stack.spacing = AppSpace.sm
+            container.addSubview(stack)
+            menu.snp.makeConstraints { $0.height.equalTo(DropDownView.Metrics.triggerHeight) }
+            stack.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.md); $0.bottom.equalToSuperview().offset(-AppSpace.md) }
         }
-        addInfo("水平等分按钮栏 + 展开浮層；同时只展开一列，切换时自动关闭前一列。")
 
         addSection(title: "Demo 3 · 禁用态", containerColor: AppColor.bgCard) { container in
             let opts = [DropDownOption(value: "a", text: "选项 A"), DropDownOption(value: "b", text: "选项 B")]
             let dd = DropDownView(title: "禁用下拉", options: opts, value: "a", disabled: true)
-            container.addSubview(dd)
-            dd.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.height.equalTo(DropDownView.Metrics.triggerHeight); $0.bottom.equalToSuperview() }
+            let info = UILabel()
+            info.text = "disabled=true：整体 40% 灰不可点。"
+            info.font = .systemFont(ofSize: AppFont.sizeXs)
+            info.textColor = AppColor.textSecondary
+            info.numberOfLines = 0
+            let stack = UIStackView(arrangedSubviews: [dd, info])
+            stack.axis = .vertical
+            stack.spacing = AppSpace.sm
+            container.addSubview(stack)
+            dd.snp.makeConstraints { $0.height.equalTo(DropDownView.Metrics.triggerHeight) }
+            stack.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.bottom.equalToSuperview().offset(-AppSpace.md) }
         }
-        addInfo("disabled=true：整体 40% 灰不可点。")
 
+        // 修复 v1.8.9：Demo4 按钮左对齐——UIButton 标题默认居中，设 contentHorizontalAlignment=.left
+        // 与 Android TextButton（内容默认左对齐）一致。
         addSection(title: "Demo 4 · 受控外部驱动", containerColor: AppColor.bgCard) { container in
             let opts = [DropDownOption(value: "a", text: "选项 A"), DropDownOption(value: "b", text: "选项 B"), DropDownOption(value: "c", text: "选项 C")]
             let dd = DropDownView(title: "受控下拉", options: opts, value: "a")
-            container.addSubview(dd)
-            dd.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.width.equalTo(200); $0.height.equalTo(DropDownView.Metrics.triggerHeight) }
             let btn = UIButton(type: .system)
             btn.setTitle("外部切到 C", for: .normal)
             btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXs)
+            btn.contentHorizontalAlignment = .left  // 左对齐，对齐 Android TextButton
             btn.addAction(UIAction { _ in dd.value = "c" }, for: .touchUpInside)
-            container.addSubview(btn)
-            btn.snp.makeConstraints { $0.top.equalTo(dd.snp.bottom).offset(AppSpace.sm); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.bottom.equalToSuperview().offset(-AppSpace.md) }
+            let info = UILabel()
+            info.text = "外部赋值 value 仅同步显示（不触发 onChange）。"
+            info.font = .systemFont(ofSize: AppFont.sizeXs)
+            info.textColor = AppColor.textSecondary
+            info.numberOfLines = 0
+            let stack = UIStackView(arrangedSubviews: [dd, btn, info])
+            stack.axis = .vertical
+            stack.spacing = AppSpace.sm
+            stack.alignment = .leading
+            container.addSubview(stack)
+            dd.snp.makeConstraints { $0.height.equalTo(DropDownView.Metrics.triggerHeight) }
+            dd.snp.makeConstraints { $0.width.equalTo(200) }
+            stack.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.bottom.equalToSuperview().offset(-AppSpace.md) }
         }
-        addInfo("外部赋值 value 仅同步显示（不触发 onChange）。")
     }
 }
 

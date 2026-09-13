@@ -15,8 +15,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.Canvas
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -118,7 +121,9 @@ fun DropDown(
                         val selected = opt.value == innerValue
                         DropdownMenuItem(
                             text = {
-                                // 双端统一：选中项=绿字 + 右侧 ✓ 对勾（对齐 iOS cell.textLabel primary + checkmark）
+                                // 双端统一：选中项=绿字 + 右侧 Check 对勾图标（对齐 iOS cell.textLabel primary + accessoryType=.checkmark）
+                                // v1.8.9 由 Text("✓") 改为 Icons.Default.Check：系统字体 ✓ 渲染因平台字形不同与 iOS checkmark 视觉不一致，
+                                // Material Check 图标与 iOS 系统 checkmark 形状最接近。
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,
@@ -130,7 +135,12 @@ fun DropDown(
                                         fontSize = AppFont.sizeMd
                                     )
                                     if (selected) {
-                                        Text("✓", color = AppColor.primary, fontSize = AppFont.sizeMd)
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            tint = AppColor.primary,
+                                            modifier = Modifier.size(16.dp)
+                                        )
                                     }
                                 }
                             },
@@ -222,7 +232,12 @@ fun DropDownMenu(
                                             color = if (selected) AppColor.primary else AppColor.textPrimary
                                         )
                                         if (selected) {
-                                            Text("✓", color = AppColor.primary, fontSize = AppFont.sizeMd)
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = null,
+                                                tint = AppColor.primary,
+                                                modifier = Modifier.size(16.dp)
+                                            )
                                         }
                                     }
                                 },

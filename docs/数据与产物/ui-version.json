@@ -1,6 +1,6 @@
 {
-  "version": "1.8.8",
-  "versionKey": "v1.8.8",
+  "version": "1.8.9",
+  "versionKey": "v1.8.9",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.8.8] 2026-09-13 Fixed：Android PullToRefresh 两项双端一致修复（用户 2026-09-13 反馈）——①下拉刷新图标不一致根因=Android 用 CircularProgressIndicator（圆环）vs iOS UIRefreshControl（系统菊花），新增 IOSActivityIndicator 自绘菊花式指示器（8 花瓣绕圆心均布、递进透明度、1s/圈线性旋转），下拉中=静态菊花按 progress 渐入、刷新中=旋转菊花，与 iOS UIRefreshControl 视觉对齐；②除 D4 外其他列表难触发根因=onPreScroll 阻尼 0.7 下拉不跟手需拉更远才达阈值，阻尼 0.7→0.5 下拉距离与露出空白 1:2 主观轻拉即触发，与 iOS UIRefreshControl 顺畅度对齐。组件库编译 0 错误，Demo app assembleDebug 通过。"
+  "changelog": "[1.8.9] 2026-09-13 Fixed：DropDown 三项双端一致修复（用户 2026-09-13 反馈）——①Demo4 受控下拉按钮非左对齐根因=iOS UIButton 标题默认居中，设 contentHorizontalAlignment=.left 对齐 Android TextButton；②Demo1/2/3 白色容器未包裹说明文案根因=iOS addInfo 把文案加到 contentStack（容器外），改用 UIStackView 把 组件+说明文案 纵向包进 addSection 的 bgCard 容器内，对齐 Android DemoSection hint 包在 bgCard 内；③选中对勾 icon 不一致根因=Android 用 Text(\"✓\") 系统字体对勾 vs iOS 系统 accessoryType=.checkmark，Android 改用 Icons.Default.Check 图标（16dp tint=primary）与 iOS 系统 checkmark 形状最接近。Android compileDebugKotlin 0 错误+assembleDebug 通过，iOS xcodebuild BUILD SUCCEEDED。"
 }

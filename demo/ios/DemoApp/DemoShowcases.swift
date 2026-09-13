@@ -2711,7 +2711,10 @@ final class OverlayShowcase: ShowcaseViewController {
         overlay = makeOverlay(position: .center, radius: .lg, tag: "Demo5") { container in
             container.backgroundColor = .white; container.widthAnchor.constraint(equalToConstant: 280).isActive = true
             let title = UILabel(); title.text = "有内容的遮罩"; title.font = .boldSystemFont(ofSize: 16); title.textAlignment = .center
-            let desc = UILabel(); desc.text = "这是一个包含自定义卡片内容的遮罩层。遮罩内可以放置任意自定义内容。"; desc.font = .systemFont(ofSize: 13); desc.textColor = AppColor.textSecondary; desc.numberOfLines = 0; desc.textAlignment = .left
+            let desc = UILabel()
+            let para = NSMutableParagraphStyle(); para.alignment = .left; para.lineSpacing = 4
+            desc.attributedText = NSAttributedString(string: "这是一个包含自定义卡片内容的遮罩层。遮罩内可以放置任意自定义内容。", attributes: [.font: UIFont.systemFont(ofSize: 13), .foregroundColor: AppColor.textSecondary, .paragraphStyle: para])
+            desc.numberOfLines = 0
             let cancel = self.makeDialogButton(title: "取消", primary: false) { [weak overlay] in overlay?.visible = false }
             cancel.snp.makeConstraints { make in make.height.equalTo(40) }
             let confirm = self.makeDialogButton(title: "确定", primary: true) { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo5] 确定 → 关闭" }

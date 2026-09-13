@@ -1,6 +1,6 @@
 {
-  "version": "1.9.17",
-  "versionKey": "v1.9.17",
+  "version": "1.9.18",
+  "versionKey": "v1.9.18",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.17] 2026-09-13 Fixed：Overlay 双端内容对齐+Demo4 按钮遮挡根治。①iOS Demo1-3/5/6 副标题/描述已改 .left（v1.9.16 前已改但未提交），本次补 Demo4 title 加 .center/sub 加 .left 显式对齐；②Android Demo1-3 副标题加 fillMaxWidth+TextAlign.Start 左对齐（之前因 Column horizontalAlignment=CenterHorizontally 导致副标题也居中）；③Android Demo4 底部 padding 48dp→64dp（用户多次反馈 48dp 仍遮挡，部分机型 nav bar>48dp），Demo4 title 加 TextAlign.Center+fillMaxWidth。双端 BUILD SUCCESSFUL。"
+  "changelog": "[1.9.18] 2026-09-13 Fixed：Overlay Demo5 描述文案居左+行高标准化。①iOS Demo5 描述改用 NSAttributedString+NSMutableParagraphStyle(alignment=.left, lineSpacing=4) 强制左对齐+统一行高（之前 textAlignment=.left 在 Overlay 布局中未生效，用户反馈仍居中）；②Android Demo5 描述加 lineHeight=20.sp 统一行高。双端行高均≈20pt（iOS font.lineHeight≈16+lineSpacing4=20 / Android 20.sp），视觉一致。双端 BUILD SUCCESSFUL。"
 }

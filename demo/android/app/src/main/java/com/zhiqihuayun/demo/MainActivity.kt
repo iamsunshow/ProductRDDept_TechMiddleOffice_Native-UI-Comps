@@ -2198,6 +2198,7 @@ private fun OverlayDemo() {
                     Text(
                         "这是一个包含自定义卡片内容的遮罩层。遮罩内可以放置任意自定义内容。",
                         fontSize = AppFont.sizeSm,
+                        lineHeight = 20.sp,
                         color = AppColor.textSecondary
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

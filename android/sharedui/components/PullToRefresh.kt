@@ -3,8 +3,8 @@
 // 组件 ID：`ui.refresh` ｜ 任务清单 #55 ｜ 操作反馈区第十一件 ｜ TMO 组件库 v1.4.13
 //
 // 定位：列表/可滚动内容下拉触发刷新的容器组件——用户在内容顶部下拉，顶开内容露出刷新指示器
-// （菊花+文案），松手达到阈值触发 onRefresh 回调，业务完成后将 refreshing 设为 false 收起指示器。
-// 采用 iOS 风格（非浮层顶开内容），与 iOS UIRefreshControl 视觉对齐。
+// （圆环+文案），松手达到阈值触发 onRefresh 回调，业务完成后将 refreshing 设为 false 收起指示器。
+// 采用 iOS 风格（非浮层顶开内容），与 iOS PullRefreshView 视觉 1:1 对齐。
 //
 // 契约 @param（与 api.json 100% 对齐）：
 // - refreshing: Boolean（*必选*：true=显示刷新指示器（旋转中），false=收起）
@@ -16,11 +16,13 @@
 // Android 特有参数（diff-api 登记，iOS 由 UIRefreshControl 自动处理）：
 // - canPull: () -> Boolean = { true }（内容是否在顶部，宿主传入如 { listState.isAtTop() }）
 //
-// 设计规格（design-spec/refresh-design-spec.html）：
+// 设计规格（docs/数据与产物/design-spec/refresh-design-spec.html）：
 // - 触发阈值 threshold = 56dp，maxPull = threshold × 1.6，hold = 48dp
-// - 指示器：菊花式（8 花瓣绕圆心旋转，递进透明度），22×22，color=textSecondary
-//   - 下拉中=静态菊花（不旋转，progress = pull / threshold 控制透明度）
-//   - 刷新中=旋转菊花（与 iOS UIRefreshControl 视觉一致）
+// - 指示器：圆环，22×22，strokeWidth = 2，color = textSecondary
+//   - 下拉中=进度环（弧长 = pull / threshold × 360°，起点 12 点方向，圆头线帽，不旋转）
+//   - 刷新中=270° 缺口圆环绕圆心旋转（0.8s/圈线性）
+//   - v1.9.28：由「8 圆点菊花」改为圆环，与 iOS 自绘 RefreshIndicatorView 1:1 同构
+//     （原 8 圆点与 iOS UIRefreshControl 系统菊花形状不同，双端视觉不一致）
 // - 文案：textSecondary + sizeSm（14），下拉距离 > 15% 阈值时显示
 // - 收起动画：tween 220ms
 // - 阻尼系数：0.5（v1.8.8 由 0.7 调降，用户反馈 D1/D2/D3 难触发，0.7 阻尼下拉不跟手）
@@ -72,9 +74,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -86,9 +90,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Canvas
 import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppFont
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlinx.coroutines.launch
 
 /**
@@ -231,15 +232,14 @@ fun PullToRefresh(
                 ) {
                     val progress = (displayedPull / thresholdPx).coerceIn(0f, 1f)
                     if (refreshing || progress >= 1f) {
-                        // 刷新中=旋转菊花（与 iOS UIRefreshControl 系统菊花视觉一致）
-                        IOSActivityIndicator(
-                            color = AppColor.textSecondary,
+                        // 刷新中=270° 缺口圆环绕圆心旋转（与 iOS RefreshIndicatorView 同参数）
+                        RefreshRingIndicator(
+                            progress = null,
                             modifier = Modifier.size(22.dp)
                         )
                     } else if (progress > 0.05f) {
-                        // 下拉中=静态菊花（不旋转，progress 控制整体透明度）
-                        IOSActivityIndicator(
-                            color = AppColor.textSecondary,
+                        // 下拉中=进度环（弧长随下拉进度增长，不旋转）
+                        RefreshRingIndicator(
                             progress = progress,
                             modifier = Modifier.size(22.dp)
                         )
@@ -267,71 +267,60 @@ fun LazyListState.isAtTop(): Boolean =
     firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
 
 /**
- * iOS 风格菊花式活动指示器（v1.8.8 新增，对齐 iOS UIRefreshControl 系统 UIActivityIndicator）。
+ * 刷新指示器圆环（v1.9.28 新增，与 iOS [RefreshIndicatorView] 1:1 同构）。
  *
- * 8 花瓣绕圆心均匀分布（每 45°），每花瓣按索引递进透明度（菊花式"追光"效果），
- * 刷新中整体绕圆心 1s/圈线性无限旋转。
+ * 22×22、strokeWidth 2、color = textSecondary（对齐 refresh-design-spec「指示器圆圈」）：
+ * - [progress] 0..1：下拉中=进度环（弧长 = progress × 360°，起点 12 点方向，圆头线帽，不旋转）
+ * - [progress] = null：刷新中=270° 缺口圆环绕圆心旋转（0.8s/圈线性）
  *
- * 与 [androidx.compose.material3.CircularProgressIndicator]（圆环）视觉差异：
- * - 圆环=连续描边圆，进度=弧长
- * - 菊花=8 离散花瓣，进度=花瓣透明度
- *
- * @param color 花瓣颜色，默认 [AppColor.textSecondary]
- * @param progress 0..1，下拉中静态菊花整体透明度；null=刷新中旋转菊花（默认 null）
+ * @param progress 0..1 下拉进度；null=刷新中（旋转态）
+ * @param color 圆环颜色，默认 [AppColor.textSecondary]
  * @param modifier 布局修饰符，建议传 size(22.dp)
  */
 @Composable
-fun IOSActivityIndicator(
+fun RefreshRingIndicator(
+    progress: Float?,
     color: Color = AppColor.textSecondary,
-    progress: Float? = null,
     modifier: Modifier = Modifier,
 ) {
-    // 刷新中（progress=null）整体绕圆心旋转，1s/圈线性无限循环
+    // 刷新中（progress=null）整体绕圆心旋转，0.8s/圈线性无限循环
     val rotation: Float = if (progress == null) {
-        val transition = rememberInfiniteTransition(label = "ios-activity-rotation")
+        val transition = rememberInfiniteTransition(label = "refresh-ring-rotation")
         transition.animateFloat(
             initialValue = 0f,
             targetValue = 360f,
             animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 1000, easing = LinearEasing),
+                animation = tween(durationMillis = 800, easing = LinearEasing),
                 repeatMode = RepeatMode.Restart,
             ),
-            label = "ios-activity-angle",
+            label = "refresh-ring-angle",
         ).value
     } else {
-        // 静态菊花：恒 0° 不旋转
+        // 下拉进度环：恒 0° 不旋转
         0f
     }
 
-    val petalCount = 8
-    val alphaStep = 1f / petalCount
-    // 整体透明度：下拉中按 progress 渐入，刷新中恒 1
-    val overallAlpha = progress ?: 1f
+    // 弧长比例：刷新中=270° 缺口环（0.75），下拉中=progress
+    val sweepRatio = progress?.coerceIn(0f, 1f) ?: 0.75f
 
-    Canvas(
-        modifier = modifier.graphicsLayer { this.alpha = overallAlpha }
-    ) {
-        val centerX = size.width / 2f
-        val centerY = size.height / 2f
-        // 花瓣=圆点：半径≈0.065×尺寸（22dp → 半径 1.43dp，直径 2.86dp）
-        val petalRadius = size.minDimension * 0.065f
-        // 花瓣圆心距整体中心≈0.27×尺寸（让花瓣远端贴近外圈）
-        val orbitRadius = size.minDimension * 0.27f
-
-        rotate(degrees = rotation, pivot = Offset(centerX, centerY)) {
-            for (i in 0 until petalCount) {
-                val angleDeg = i * (360f / petalCount)
-                val angleRad = (angleDeg * PI / 180f).toFloat()
-                val petalCenterX = centerX + orbitRadius * cos(angleRad)
-                val petalCenterY = centerY + orbitRadius * sin(angleRad)
-                // 花瓣按索引递进透明度（菊花式"追光"效果）
-                val petalAlpha = (i + 1) * alphaStep
-                drawCircle(
-                    color = color.copy(alpha = petalAlpha),
-                    radius = petalRadius,
-                    center = Offset(petalCenterX, petalCenterY),
-                )
-            }
+    Canvas(modifier = modifier) {
+        // strokeWidth = 2dp @ 22dp
+        val stroke = size.minDimension * (2f / 22f)
+        // 内缩半个线宽，避免描边被 Canvas 边界裁切
+        val inset = stroke / 2f
+        rotate(degrees = rotation, pivot = Offset(size.width / 2f, size.height / 2f)) {
+            drawArc(
+                color = color,
+                startAngle = -90f,
+                sweepAngle = sweepRatio * 360f,
+                useCenter = false,
+                topLeft = Offset(inset, inset),
+                size = androidx.compose.ui.geometry.Size(
+                    size.width - stroke,
+                    size.height - stroke,
+                ),
+                style = Stroke(width = stroke, cap = StrokeCap.Round),
+            )
         }
     }
 }

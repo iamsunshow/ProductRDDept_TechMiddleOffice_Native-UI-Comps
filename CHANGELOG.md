@@ -2,6 +2,21 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.9.28] - 2026-09-13（PullToRefresh 双端 loading icon / Demo4 统一）
+
+### Fixed
+
+- **PullToRefresh 双端 loading icon 不一致**（用户 2026-09-13 反馈「Android 和 iOS 的 loading icon 还是不一致，需要一致」）。
+  - 根因：iOS 用 `UIRefreshControl` 系统菊花（8 段圆头线条），Android 用自绘 `IOSActivityIndicator`（8 圆点菊花，v1.8.8 立项时想"模拟系统菊花"），两者形状天然不同；文案字号也双端不同（iOS `attributedTitle` sizeXs/12 ↔ Android `Text` sizeSm/14）。
+  - 修复：双端改为**自绘圆环**（对齐 refresh-design-spec「指示器圆圈 22×22 / strokeWidth 2 / textSecondary」）。
+    - iOS `PullRefreshView.swift`：新增私有 `RefreshIndicatorView`（圆环 + 文案，垂直居中），`refreshControl.tintColor = .clear` 隐藏系统菊花，KVO `contentOffset` 驱动露出高度（`max(pulled, refreshing ? 48 : 0)`）与下拉进度，文案改自绘 `UILabel`（sizeSm）。
+    - Android `PullToRefresh.kt`：`IOSActivityIndicator`（8 圆点）→ `RefreshRingIndicator`（`drawArc` 圆环）。
+  - 双端逐参数同构：下拉中=进度环（iOS `strokeEnd = progress` ↔ Android `drawArc(-90°, progress × 360°)`，圆头线帽，起点 12 点方向）；刷新中=270° 缺口圆环绕圆心旋转 0.8s/圈线性（iOS `strokeEnd = 0.75` + `transform.rotation.z` ↔ Android `sweepAngle = 0.75 × 360` + `rotate(degrees)`）；`threshold = 56` / `hold = 48` 相同。
+- **PullToRefresh Demo4 触发控件双端不一致**（iOS 系统 `UIButton` 纯文字 ↔ Android `Material3 Button` 紫色实心按钮）。
+  - 修复：双端统一为设计系统主按钮 `AppButton.primary`（Android `AppButton(text, onClick)`），高度 48，文案随状态在「触发刷新 / 停止刷新」间切换，1.5s 后自动复位。
+- **PullToRefresh Demo4 刷新文案双端不一致**（Android 显示默认文案「下拉刷新数据」+ 圆环，iOS 只有圆环）。
+  - 修复：Android Demo4 补 `title = ""`，与 iOS `pull.title = ""` 1:1（外部驱动刷新场景不叠文案，文案演示由 D1/D2 承担）。
+
 ## [1.9.27] - 2026-09-13（iOS Popup TOP 弹层覆盖状态栏）
 
 ### Fixed

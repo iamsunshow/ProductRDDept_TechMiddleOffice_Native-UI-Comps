@@ -80,3 +80,4 @@ www/package-lock.json
 # IDE
 .idea/
 .vscode/
+ios/build/

@@ -2,6 +2,17 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.9.32] - 2026-09-13（Drag 拖动项整块跟随手指修复）
+
+### Fixed
+
+- **Drag Android 拖动时「只有图标/文字在动、Cell 主体（白色背景）待在原地」**：用户 2026-09-13 反馈「iOS 在拖动时被拖动项是整体被拖动的、背景就是白色背景；但 Android 拖动时被拖动项感觉更像是图标、文字在移动，Cell 主体待在原地没动」。根因=`Row` 修饰符链把 `graphicsLayer { scale/alpha/translationY }` 放在**最末（最内层）**——Compose 修饰符「左侧为外层、右侧为内层」，链末的 graphicsLayer 只变换了 Row 的子内容（图标/文字/手柄），其外层的 `background(bgCard)`、`shadow`、`drawWithContent`（阴影带）留在槽位不动，仅 swap 时随 `animateItemPlacement` 跳格 → 视觉上「内容跟手、白底不动」。与 Swipe v1.9.31 `background/offset` 顺序问题同源。修复=`graphicsLayer` 上移至 `fillMaxWidth()` 之后、`shadow/background/drawWithContent` 之前，使拖拽态缩放/透明/位移作用于**整个 cell**（背景 + 阴影 + 阴影带 + 内容）。
+- **拖动项透明度 0.75 → 1.0**：对齐 iOS 拖动 cell 的实心白色整块（半透明会让白色底与列表白底叠加，进一步弱化「整块在动」的观感）。拖拽态阴影沿用 `elevation 8dp`，对齐规格 elevation8 与 iOS 拖动项「底部阴影加深 + 顶部出现阴影」的提起层次。
+
+### 验证
+
+- Android `:components:compileDebugKotlin` + Demo `:app:compileDebugKotlin` 编译通过（0 error）；实机视觉/交互待用户复验（D1/D2 拖动应见整块白色 cell 跟随手指、松手平滑落位）。
+
 ## [1.9.31] - 2026-09-13（Swipe 左滑按钮不显示真正根因修复）
 
 ### Fixed
@@ -24,18 +35,14 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 - 待用户 Android Studio 编译复验：D1 **向左拖**应露出红色「删除」按钮（80dp×撑高），tap 触发「已删除」Toast + 自动收起。
 
-## [1.9.31] - 2026-09-13（Swipe 左滑按钮不显示真正根因修复）
-
-### Fixed
-
-- **Swipe Android 左滑红色删除按钮永不显示（真正根因）**：内容层 Box 修饰符顺序错误——`background(Color.White)` 在 `offset` 之前。Compose 中 `offset` 只移动链上后置内容，前置的 `background` 画在原位坐标 → 白底永不移动、永远盖住底层红色按钮。症状=文字向左移动消失但按钮永不出现（用户两次实测确认）；iOS `contentView.frame` 移动整个 UIView 含 backgroundColor 故正常。修复 = `offset` 挪到 `background` 之前，白底+内容整体随 displayX 移动。
-- **回退 v1.9.30 的按钮 fillMaxHeight** → 恢复 `matchParentSize`：LazyColumn 子项父高为松约束（0..视口高），fillMaxHeight 会把按钮撑到视口高。v1.9.30 对根因（按钮布局）的判断有误，真正根因是本条修饰符顺序。
-
-### 验证
-
-- Android `compileDebugKotlin` 编译通过；实机视觉验证待用户复验（D1 向左拖应露出红色「删除」）。
-
 ## [1.9.30] - 2026-09-13（Drag Android 对齐 iOS）
+
+### Changed
+
+- **非拖动态 Cell 底部阴影改为自绘渐变带**：旧 `Modifier.shadow(2.dp)` 会被后绘制的相邻 item 完全覆盖（LazyColumn item 无间隙、后绘制者在上），Android 上等于没有底部阴影（用户反馈「iOS 每条 Cell 底部都有阴影，Android 没有」）。改为在 item 自身 bounds 顶部绘制 22dp / alpha 0.10 向下渐隐的阴影带（对齐 iOS `willDisplay` layer.shadow 实测），不会被相邻 item 覆盖。
+- **拖拽态落位动画 0.25s easeOut**：拖动结束 `translationY` 由残留偏移平滑回落槽位；拖拽中 `snap()` 即时跟手。
+- **item 互换动画 300ms EaseOut → 350ms FastOutSlowIn**：对齐 iOS 标准 reorder 的平滑感（用户反馈「过快、不够丝滑」）；被拖动项自身用 `tween(0)` 瞬时让位，避免与 `translationY` 抵消产生「回跳再追赶」顿挫。
+- **拖动透明度 0.9 → 0.75**：当时对齐「iOS 拖动项半透明观感」，v1.9.32 已按用户反馈回改为不透明 1.0。
 
 ## [1.9.29] - 2026-09-13（PullToRefresh 用户验收通过状态同步）
 

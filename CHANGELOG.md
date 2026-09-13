@@ -14,6 +14,15 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。④ [1.7.5] 两条=LineChart #84 三优化（cc09660，Trae）与 iOS Tag 文字不可见第三次修复（5e2a250，他会话）同号并存——他会话提交窗口与 Trae 文档编辑重叠，条目未互相覆盖、内容均有效，v1.7.5 号双主题共用，不改史。 -->
 
+## \[1.9.6] - 2026-09-13（Popup Demo 六项双端一致修复）
+
+### Fixed
+
+- **Demo1/6/7/8 文字折行**：Android `Text` 默认 `maxLines=Int.MAX_VALUE` 会折行，iOS `UILabel` 默认 `numberOfLines=1` 不折行。Android Demo1/6/7/8 的 `Text` 加 `maxLines=1` 对齐 iOS。
+- **Demo3 底部弹层高度太低**：`Popup.kt` BOTTOM position `heightIn(min=120.dp)` → `heightIn(min=160.dp)`，对齐 iOS 实际渲染高度（120 + padding 累加后视觉偏低）。
+- **Demo4/5 弹层不覆盖状态栏**：Android `WindowPopup` 默认在状态栏下方，iOS `keyWindow` 覆盖状态栏。`MainActivity.onCreate` 加 `WindowCompat.setDecorFitsSystemWindows(window, false)` 启用 edge-to-edge 让 Popup window 覆盖状态栏。
+- 验证：Android `assembleDebug` BUILD SUCCESSFUL。
+
 ## \[1.9.5] - 2026-09-13（Overlay Demo4/5/6 三项双端一致修复）
 
 ### Fixed

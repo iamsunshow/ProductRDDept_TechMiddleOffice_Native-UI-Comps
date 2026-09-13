@@ -87,6 +87,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.drawToBitmap
+import androidx.core.view.WindowCompat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -247,6 +248,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ActivityTracker.currentActivity = this
+        // v1.9.6：启用 edge-to-edge 让 WindowPopup 覆盖状态栏（与 iOS keyWindow 一致），
+        // 修复 Popup Demo4/D5 弹层不包括状态栏的问题
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             MaterialTheme {
                 TmoDemo()
@@ -8248,6 +8252,7 @@ fun PopupDemo() {
             fontSize = AppFont.sizeMd,
             color = AppColor.textPrimary,
             textAlign = TextAlign.Center,
+            maxLines = 1,
             modifier = Modifier.defaultMinSize(minWidth = 208.dp)
         )
     }
@@ -8324,6 +8329,7 @@ fun PopupDemo() {
             fontSize = AppFont.sizeMd,
             color = AppColor.textPrimary,
             textAlign = TextAlign.Center,
+            maxLines = 1,
             modifier = Modifier.defaultMinSize(minWidth = 208.dp)
         )
     }
@@ -8345,7 +8351,8 @@ fun PopupDemo() {
                 fontSize = AppFont.sizeMd,
                 fontWeight = FontWeight.Bold,
                 color = AppColor.textPrimary,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                maxLines = 1
             )
             Text(
                 "点击遮罩不会关闭，只能通过下方按钮关闭。",
@@ -8369,6 +8376,7 @@ fun PopupDemo() {
             fontSize = AppFont.sizeMd,
             color = AppColor.textPrimary,
             textAlign = TextAlign.Center,
+            maxLines = 1,
             modifier = Modifier.defaultMinSize(minWidth = 208.dp)
         )
     }

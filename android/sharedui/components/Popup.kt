@@ -272,7 +272,7 @@ fun Popup(
                             // navigationBarsPadding 在最外层：让 heightIn 限制 content 高度不含 padding，
                             // 弹层贴到安全区底部（与 iOS safeArea bottom 对齐）
                             .navigationBarsPadding()
-                            .heightIn(min = 120.dp)
+                            .heightIn(min = 160.dp)
                         PopupPosition.TOP -> Modifier
                             .fillMaxWidth()
                             .wrapContentHeight()

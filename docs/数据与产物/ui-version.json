@@ -1,6 +1,6 @@
 {
-  "version": "1.9.2",
-  "versionKey": "v1.9.2",
+  "version": "1.9.3",
+  "versionKey": "v1.9.3",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.2] 2026-09-13 Fixed：iOS DropDown Demo4 灰色触发容器不通栏（用户 2026-09-13 反馈）——根因=Demo4 旧 dd.snp.makeConstraints width=200 固定宽度，灰色触发容器（bgPage 底色）只占 200pt 不通栏，与 Android DropDown 默认 fillMaxWidth 通栏不一致；修复=去掉 dd width=200 固定宽度，stack.alignment=.fill 让 dd 填满 stack 宽度，stack leading+trailing 到 container 边缘实现通栏，btn 用 setContentHuggingPriority=.required 防止被 .fill 拉伸满宽（保持左对齐紧贴内容宽度对齐 Android TextButton）。iOS xcodebuild BUILD SUCCEEDED。"
+  "changelog": "[1.9.3] 2026-09-13 Docs：DropDown / DropDownMenu 双端实机验收通过状态同步（用户 2026-09-13 原话「DropDown：已通过 / DropDownMenu：已通过」）——双端 Demo 组件列表 passed=true（iOS DemoShowcases.swift 两行+Android MainActivity.kt 两行），组件进度.md 行 21/22 状态 📋→✅ 并追加 C1.5 修复8/9（v1.8.9 对勾 icon 统一+白色容器包裹文案 / v1.9.2 Demo4 通栏）+ 验收原话记录。Android assembleDebug + iOS xcodebuild BUILD SUCCEEDED。"
 }

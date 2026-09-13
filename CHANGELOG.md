@@ -14,6 +14,13 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。④ [1.7.5] 两条=LineChart #84 三优化（cc09660，Trae）与 iOS Tag 文字不可见第三次修复（5e2a250，他会话）同号并存——他会话提交窗口与 Trae 文档编辑重叠，条目未互相覆盖、内容均有效，v1.7.5 号双主题共用，不改史。 -->
 
+## \[1.9.3] - 2026-09-13（DropDown / DropDownMenu 双端实机验收通过状态同步）
+
+### Docs
+
+- **DropDown / DropDownMenu 双端实机验收通过**：用户 2026-09-13 原话「DropDown：已通过 / DropDownMenu：已通过」。同步更新：①双端 Demo 组件列表 `passed = true`（iOS `DemoShowcases.swift` 两行 + Android `MainActivity.kt` 两行）；②`组件进度.md` 行 21/22 状态 📋→✅，并追加 C1.5 修复8/9 记录（v1.8.9 对勾 icon 统一+白色容器包裹文案 / v1.9.2 Demo4 通栏）+ 验收原话。
+- 验证：Android `assembleDebug` + iOS `xcodebuild` BUILD SUCCEEDED。
+
 ## \[1.9.2] - 2026-09-13（iOS DropDown Demo4 灰色触发容器通栏修复）
 
 ### Fixed

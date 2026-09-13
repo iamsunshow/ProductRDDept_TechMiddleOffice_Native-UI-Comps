@@ -50,8 +50,8 @@ final class DemoListViewController: UITableViewController {
         ]),
         ("导航组件", [
             DemoComponent(id: "ui.back-top", name: "BackTop 返回顶部", reviewed: true, create: { BackTopShowcase() }, passed: true),
-            DemoComponent(id: "ui.dropdown", name: "DropDown 下拉菜单", reviewed: true, create: { DropDownMenuShowcase() }),
-            DemoComponent(id: "ui.dropdown-menu", name: "DropDownMenu 下拉菜单项", reviewed: true, create: { DropDownMenuShowcase() }),
+            DemoComponent(id: "ui.dropdown", name: "DropDown 下拉菜单", reviewed: true, create: { DropDownMenuShowcase() }, passed: true),
+            DemoComponent(id: "ui.dropdown-menu", name: "DropDownMenu 下拉菜单项", reviewed: true, create: { DropDownMenuShowcase() }, passed: true),
             DemoComponent(id: "ui.elevator", name: "Elevator 电梯楼层", reviewed: true, create: { ElevatorShowcase() }, passed: true),
             DemoComponent(id: "ui.fixed-nav", name: "FixedNav 悬浮导航", reviewed: true, create: { FixedNavShowcase() }, passed: true),
             DemoComponent(id: "ui.hover-button", name: "HoverButton 悬浮按钮", reviewed: true, create: { HoverButtonShowcase() }, passed: true),

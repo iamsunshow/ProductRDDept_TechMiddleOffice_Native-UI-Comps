@@ -295,8 +295,8 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
     ),
     "导航组件" to listOf(
         DemoComponent("BackTop 返回顶部", reviewed = true, demo = { BackTopDemo() }, passed = true),
-        DemoComponent("DropDown 下拉菜单", reviewed = true, demo = { DropDownMenuDemo() }),
-        DemoComponent("DropDownMenu 下拉菜单项", reviewed = true, demo = { DropDownMenuDemo() }),
+        DemoComponent("DropDown 下拉菜单", reviewed = true, demo = { DropDownMenuDemo() }, passed = true),
+        DemoComponent("DropDownMenu 下拉菜单项", reviewed = true, demo = { DropDownMenuDemo() }, passed = true),
         DemoComponent("Elevator 电梯楼层", reviewed = true, demo = { ElevatorDemo() }, passed = true),
         DemoComponent("FixedNav 悬浮导航", reviewed = true, demo = { FixedNavDemo() }, passed = true),
         DemoComponent("HoverButton 悬浮按钮", reviewed = true, demo = { HoverButtonDemo() }, passed = true),

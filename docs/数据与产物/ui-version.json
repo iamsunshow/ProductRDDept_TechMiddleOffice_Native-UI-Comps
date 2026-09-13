@@ -1,6 +1,6 @@
 {
-  "version": "1.9.16",
-  "versionKey": "v1.9.16",
+  "version": "1.9.17",
+  "versionKey": "v1.9.17",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.16] 2026-09-13 Fixed：Overlay iOS 圆角仍不显示修复——v1.9.12 已改 clipsToBounds=r>0 但用户反馈\"iOS 还是直角\"。根因=layoutSubviews 未重新应用圆角，contentContainer frame 变化后 cornerRadius/clipsToBounds 可能被系统重置。修复=layoutSubviews 中调用 applyRadius() 确保每次布局后圆角正确应用；applyRadius 中 r>0 且 backgroundColor==nil 时设默认白色背景防止背景透明导致圆角不可见。iOS xcodebuild BUILD SUCCEEDED。"
+  "changelog": "[1.9.17] 2026-09-13 Fixed：Overlay 双端内容对齐+Demo4 按钮遮挡根治。①iOS Demo1-3/5/6 副标题/描述已改 .left（v1.9.16 前已改但未提交），本次补 Demo4 title 加 .center/sub 加 .left 显式对齐；②Android Demo1-3 副标题加 fillMaxWidth+TextAlign.Start 左对齐（之前因 Column horizontalAlignment=CenterHorizontally 导致副标题也居中）；③Android Demo4 底部 padding 48dp→64dp（用户多次反馈 48dp 仍遮挡，部分机型 nav bar>48dp），Demo4 title 加 TextAlign.Center+fillMaxWidth。双端 BUILD SUCCESSFUL。"
 }

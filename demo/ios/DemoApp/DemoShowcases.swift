@@ -2641,7 +2641,7 @@ final class OverlayShowcase: ShowcaseViewController {
             container.backgroundColor = .white
             container.widthAnchor.constraint(equalToConstant: 240).isActive = true
             let title = UILabel(); title.text = "常规遮罩层"; title.font = .boldSystemFont(ofSize: 16); title.textAlignment = .center
-            let sub = UILabel(); sub.text = "点击遮罩空白区关闭"; sub.font = .systemFont(ofSize: 13); sub.textColor = AppColor.textSecondary; sub.textAlignment = .center; sub.numberOfLines = 0
+            let sub = UILabel(); sub.text = "点击遮罩空白区关闭"; sub.font = .systemFont(ofSize: 13); sub.textColor = AppColor.textSecondary; sub.textAlignment = .left; sub.numberOfLines = 0
             let stack = UIStackView(arrangedSubviews: [title, sub]); stack.axis = .vertical; stack.spacing = 8; stack.alignment = .fill
             stack.isLayoutMarginsRelativeArrangement = true; stack.layoutMargins = .init(top: 24, left: 24, bottom: 24, right: 24)
             container.addSubview(stack); stack.snp.makeConstraints { make in make.edges.equalToSuperview() }
@@ -2655,7 +2655,7 @@ final class OverlayShowcase: ShowcaseViewController {
         overlay = makeOverlay(maskColor: .custom(UIColor(red: 0, green: 0, blue: 0, alpha: 0.2)), position: .center, radius: .lg, tag: "Demo2") { container in
             container.backgroundColor = .white; container.widthAnchor.constraint(equalToConstant: 240).isActive = true
             let title = UILabel(); title.text = "低透明度遮罩"; title.font = .boldSystemFont(ofSize: 16); title.textAlignment = .center
-            let sub = UILabel(); sub.text = "rgba(0,0,0,0.2)"; sub.font = .systemFont(ofSize: 13); sub.textColor = AppColor.textSecondary; sub.textAlignment = .center
+            let sub = UILabel(); sub.text = "rgba(0,0,0,0.2)"; sub.font = .systemFont(ofSize: 13); sub.textColor = AppColor.textSecondary; sub.textAlignment = .left
             let stack = UIStackView(arrangedSubviews: [title, sub]); stack.axis = .vertical; stack.spacing = 8; stack.alignment = .fill
             stack.isLayoutMarginsRelativeArrangement = true; stack.layoutMargins = .init(top: 24, left: 24, bottom: 24, right: 24)
             container.addSubview(stack); stack.snp.makeConstraints { make in make.edges.equalToSuperview() }
@@ -2669,7 +2669,7 @@ final class OverlayShowcase: ShowcaseViewController {
         overlay = makeOverlay(position: .center, radius: .lg, animation: true, tag: "Demo3") { container in
             container.backgroundColor = .white; container.widthAnchor.constraint(equalToConstant: 240).isActive = true
             let title = UILabel(); title.text = "有动画的遮罩"; title.font = .boldSystemFont(ofSize: 16); title.textAlignment = .center
-            let sub = UILabel(); sub.text = "fade-in 200ms / fade-out 180ms"; sub.font = .systemFont(ofSize: 13); sub.textColor = AppColor.textSecondary; sub.textAlignment = .center
+            let sub = UILabel(); sub.text = "fade-in 200ms / fade-out 180ms"; sub.font = .systemFont(ofSize: 13); sub.textColor = AppColor.textSecondary; sub.textAlignment = .left
             let stack = UIStackView(arrangedSubviews: [title, sub]); stack.axis = .vertical; stack.spacing = 8; stack.alignment = .fill
             stack.isLayoutMarginsRelativeArrangement = true; stack.layoutMargins = .init(top: 24, left: 24, bottom: 24, right: 24)
             container.addSubview(stack); stack.snp.makeConstraints { make in make.edges.equalToSuperview() }
@@ -2689,8 +2689,8 @@ final class OverlayShowcase: ShowcaseViewController {
             container.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width).isActive = true
             let handle = UIView(); handle.backgroundColor = UIColor(red: 0xE5/255, green: 0xE7/255, blue: 0xEB/255, alpha: 1); handle.layer.cornerRadius = 2
             handle.snp.makeConstraints { make in make.width.equalTo(40); make.height.equalTo(4) }
-            let title = UILabel(); title.text = "穿透遮罩（clickThrough）"; title.font = .boldSystemFont(ofSize: 16)
-            let sub = UILabel(); sub.text = "遮罩不拦截事件，底层列表仍可滚动/点击。"; sub.font = .systemFont(ofSize: 13); sub.textColor = AppColor.textSecondary; sub.numberOfLines = 0
+            let title = UILabel(); title.text = "穿透遮罩（clickThrough）"; title.font = .boldSystemFont(ofSize: 16); title.textAlignment = .center
+            let sub = UILabel(); sub.text = "遮罩不拦截事件，底层列表仍可滚动/点击。"; sub.font = .systemFont(ofSize: 13); sub.textColor = AppColor.textSecondary; sub.numberOfLines = 0; sub.textAlignment = .left
             let closeBtn = self.buildDemoButton(title: "关闭遮罩") { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo4] 手动关闭" }
             closeBtn.snp.makeConstraints { make in make.height.equalTo(40) }
             // v1.9.10：stack.alignment 改 .fill 让 title/sub 填满宽度（对齐 Android Column 默认），
@@ -2711,7 +2711,7 @@ final class OverlayShowcase: ShowcaseViewController {
         overlay = makeOverlay(position: .center, radius: .lg, tag: "Demo5") { container in
             container.backgroundColor = .white; container.widthAnchor.constraint(equalToConstant: 280).isActive = true
             let title = UILabel(); title.text = "有内容的遮罩"; title.font = .boldSystemFont(ofSize: 16); title.textAlignment = .center
-            let desc = UILabel(); desc.text = "这是一个包含自定义卡片内容的遮罩层。遮罩内可以放置任意自定义内容。"; desc.font = .systemFont(ofSize: 13); desc.textColor = AppColor.textSecondary; desc.numberOfLines = 0; desc.textAlignment = .center
+            let desc = UILabel(); desc.text = "这是一个包含自定义卡片内容的遮罩层。遮罩内可以放置任意自定义内容。"; desc.font = .systemFont(ofSize: 13); desc.textColor = AppColor.textSecondary; desc.numberOfLines = 0; desc.textAlignment = .left
             let cancel = self.makeDialogButton(title: "取消", primary: false) { [weak overlay] in overlay?.visible = false }
             cancel.snp.makeConstraints { make in make.height.equalTo(40) }
             let confirm = self.makeDialogButton(title: "确定", primary: true) { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo5] 确定 → 关闭" }
@@ -2734,7 +2734,7 @@ final class OverlayShowcase: ShowcaseViewController {
         overlay = makeOverlay(closeOnMaskClick: false, position: .center, radius: .lg, tag: "Demo6") { container in
             container.backgroundColor = .white; container.widthAnchor.constraint(equalToConstant: 280).isActive = true
             let title = UILabel(); title.text = "不可关闭的遮罩"; title.font = .boldSystemFont(ofSize: 16); title.textAlignment = .center
-            let desc = UILabel(); desc.text = "点击遮罩/返回键均不关闭。只能通过下方「提交」按钮关闭。"; desc.font = .systemFont(ofSize: 13); desc.textColor = AppColor.textSecondary; desc.numberOfLines = 0; desc.textAlignment = .center
+            let desc = UILabel(); desc.text = "点击遮罩/返回键均不关闭。只能通过下方「提交」按钮关闭。"; desc.font = .systemFont(ofSize: 13); desc.textColor = AppColor.textSecondary; desc.numberOfLines = 0; desc.textAlignment = .left
             let nameField = self.makeFormField(placeholder: "请输入姓名")
             let noteField = self.makeFormField(placeholder: "请输入备注", multiline: true)
             let submit = self.makeDialogButton(title: "提交", primary: true) { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo6] 提交 → 手动关闭" }

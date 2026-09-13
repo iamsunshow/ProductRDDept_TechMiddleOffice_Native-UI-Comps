@@ -2100,7 +2100,7 @@ private fun OverlayDemo() {
             Surface(color = Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.width(240.dp)) {
                 Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("常规遮罩层", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
-                    Text("点击遮罩空白区关闭", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                    Text("点击遮罩空白区关闭", fontSize = AppFont.sizeSm, color = AppColor.textSecondary, textAlign = TextAlign.Start, modifier = Modifier.fillMaxWidth())
                 }
             }
         }
@@ -2115,7 +2115,7 @@ private fun OverlayDemo() {
             Surface(color = Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.width(240.dp)) {
                 Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("低透明度遮罩", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
-                    Text("rgba(0,0,0,0.2)", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                    Text("rgba(0,0,0,0.2)", fontSize = AppFont.sizeSm, color = AppColor.textSecondary, textAlign = TextAlign.Start, modifier = Modifier.fillMaxWidth())
                 }
             }
         }
@@ -2130,14 +2130,14 @@ private fun OverlayDemo() {
             Surface(color = Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.width(240.dp)) {
                 Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("有动画的遮罩", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
-                    Text("fade-in 200ms / fade-out 180ms", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                    Text("fade-in 200ms / fade-out 180ms", fontSize = AppFont.sizeSm, color = AppColor.textSecondary, textAlign = TextAlign.Start, modifier = Modifier.fillMaxWidth())
                 }
             }
         }
 
         // Demo 4：背后内容可以滚动的遮罩层（clickThrough=true）
-        // v1.9.13：加回 navigationBarsPadding，Android 底部有安全区空白（对齐 iOS 底部 20px 空白），
-        // 防止按钮被系统导航栏遮挡（用户反馈"高度太低按钮被遮挡""iOS 底部有 20px 空白 Android 没有"）。
+        // v1.9.18：用户反馈 48dp 仍不够（部分机型 nav bar > 48dp 导致按钮被遮挡），
+        // 增至 64dp 保留更充裕的底部安全距离。
         Overlay(
             visible = d4Visible,
             clickThrough = true,
@@ -2154,8 +2154,7 @@ private fun OverlayDemo() {
             ) {
                 Column(
                     modifier = Modifier
-                        .navigationBarsPadding()
-                        .padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 24.dp),
+                        .padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 64.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Spacer(
@@ -2165,7 +2164,7 @@ private fun OverlayDemo() {
                             .background(Color(0xFFE5E7EB), RoundedCornerShape(2.dp))
                             .align(Alignment.CenterHorizontally)
                     )
-                    Text("穿透遮罩（clickThrough）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
+                    Text("穿透遮罩（clickThrough）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                     Text("遮罩不拦截事件，底层列表仍可滚动/点击。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
                     AppButton(
                         text = "关闭遮罩",
@@ -2258,8 +2257,7 @@ private fun OverlayDemo() {
                     Text(
                         "点击遮罩/返回键均不关闭。只能通过下方「提交」按钮关闭。",
                         fontSize = AppFont.sizeSm,
-                        color = AppColor.textSecondary,
-                        textAlign = TextAlign.Center
+                        color = AppColor.textSecondary
                     )
                     // v1.9.15：form 去掉 title 行对齐 iOS makeFormField（直接 input 无 title）
                     Box(

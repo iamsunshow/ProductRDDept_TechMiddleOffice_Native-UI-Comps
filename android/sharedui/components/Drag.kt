@@ -1,7 +1,10 @@
 package com.zhiqihuayun.sharedui.components
 
+import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
@@ -9,11 +12,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DragIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -22,6 +27,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
@@ -39,9 +47,11 @@ import com.zhiqihuayun.foundation.design.AppSpace
 // - 落位动画 0.25s easeOut
 // - 拖拽时 translationY 跟随手指（与 iOS 标准 reorder 一致）
 // - swap 阈值=itemHeight/2，swap 后 dragOffset 减 itemHeight（保持手指相对位置）
+// - item 位置交换动画 0.3s easeOut（对齐 iOS 标准 reorder 丝滑时长，旧默认 spring 过快）
 private const val DragScale = 1.02f
 private const val DragOpacity = 0.6f
 private const val DropAnimMs = 250
+private const val ItemPlaceAnimMs = 300
 
 /**
  * Drag 拖拽排序（操作反馈区 · ui.drag · #47）：通用列表拖拽排序组件。
@@ -68,7 +78,7 @@ private const val DropAnimMs = 250
  * @param handle 是否仅手柄可拖，默认 false
  * @param modifier 修饰符（建议传固定高度，让 LazyColumn 在此高度内自管滚动）
  */
-@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun <T> Drag(
     items: List<T>,
@@ -233,8 +243,16 @@ fun <T> Drag(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .animateItemPlacement()
+                    // item 位置交换动画：300ms easeOut，对齐 iOS 标准 reorder 丝滑时长
+                    // （旧默认 spring 过冲快、视觉跳变；用户反馈 Android 互换动画过快）
+                    .animateItemPlacement(animationSpec = tween(ItemPlaceAnimMs, easing = EaseOut))
                     .fillMaxWidth()
+                    // cell 默认阴影：对齐 iOS DragListView.willDisplay
+                    // （shadowOpacity 0.15 / offset 4 / radius 8 → 矩形轮廓 2dp 近似视觉一致）。
+                    // 非拖拽态持续显示 cell-level 阴影，拖拽态由 graphicsLayer.shadowElevation=8f
+                    // 接管并增强，与设计规格 §4 一致。
+                    .shadow(elevation = 2.dp, shape = RectangleShape, clip = false)
+                    .background(AppColor.bgCard)
                     // 被拖动项置顶：zIndex=1f 让它在 LazyColumn 中渲染在其他项之上，
                     // 不被相邻项遮挡（与 iOS 标准 reorder 一致）
                     .zIndex(if (isDragging) 1f else 0f)
@@ -265,13 +283,19 @@ fun <T> Drag(
                         modifier = Modifier
                             .padding(horizontal = AppSpace.sm, vertical = AppSpace.sm)
                             .width(24.dp)
-                            // 手柄承载拖拽手势：handle 模式下仅 ≡ 手柄可触发，整行不响应。
+                            // 手柄承载拖拽手势：handle 模式下仅手柄可触发，整行不响应。
                             .then(dragModifier),
                     ) {
-                        Text(
-                            text = "≡",
-                            fontSize = AppFont.sizeLg,
-                            color = AppColor.textSecondary,
+                        // 手柄 icon：iOS 系统 reorder control = 三条水平线，每条线两端各一个圆点。
+                        // Material Icons.DragIndicator 是两条垂直三点线，旋转 90° 后正好是
+                        // 三条水平两点线，与 iOS 系统 reorder 控件视觉一致。
+                        Icon(
+                            imageVector = Icons.Default.DragIndicator,
+                            contentDescription = "拖拽手柄",
+                            tint = AppColor.textSecondary,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .rotate(90f),
                         )
                     }
                 }

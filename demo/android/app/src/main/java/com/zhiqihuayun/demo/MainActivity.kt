@@ -7441,34 +7441,41 @@ private data class DragItem(
     val title: String,
 )
 
-/** Drag Demo 单行内容（emoji + 标题 + 1px 分隔线）。 */
+/** Drag Demo 单行内容（红色删除 icon + emoji + 标题）。 */
 @Composable
 private fun DragRow(item: DragItem) {
-    Column(
+    // 视觉对齐 iOS UITableView isEditing 模式：
+    // - 左侧红色圆形删除按钮（systemRed 圆形 + 白色"−"减号）
+    // - emoji + 标题紧跟其后
+    // - 去掉 1px 分隔线（cell shadow 已由 Drag 组件渲染，对齐 iOS willDisplay，分隔线视觉冗余）
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColor.bgCard)
+            .height(56.dp)
+            .padding(horizontal = AppSpace.lg),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
+        Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .padding(horizontal = AppSpace.lg),
-            verticalAlignment = Alignment.CenterVertically
+                .size(24.dp)
+                .clip(CircleShape)
+                .background(AppColor.error)
         ) {
-            Text(text = item.emoji, fontSize = AppFont.sizeXl)
-            Spacer(modifier = Modifier.width(AppSpace.md))
             Text(
-                text = item.title,
-                fontSize = AppFont.sizeMd,
-                color = AppColor.textPrimary,
+                text = "−",
+                color = Color.White,
+                fontSize = AppFont.sizeLg,
+                fontWeight = FontWeight.Bold,
             )
         }
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(AppColor.border)
+        Spacer(modifier = Modifier.width(AppSpace.md))
+        Text(text = item.emoji, fontSize = AppFont.sizeXl)
+        Spacer(modifier = Modifier.width(AppSpace.md))
+        Text(
+            text = item.title,
+            fontSize = AppFont.sizeMd,
+            color = AppColor.textPrimary,
         )
     }
 }

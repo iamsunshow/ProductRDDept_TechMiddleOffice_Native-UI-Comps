@@ -14,6 +14,16 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 <!-- 版本号说明（2026-09-12 并发撞号记录，不改史）：① [1.5.4] 两条=Slider（890ec0b，14:00）与 Pagination（4e553f7，14:03）；② [1.5.5] DropDown（ecb4285，14:23）提交时把工作区中 Steps 修复的 CHANGELOG 草稿一并卷入且占用了 Steps 拟用的 1.5.5 号——Steps 代码/测试不受影响、条目顺延改号为 [1.5.6]；③ [1.5.8] Slider（d420032）、[1.5.9] Tag（929401e）、[1.6.0] ImageView（32d8f43）、[1.6.1] DropDown（7d49a65）为同日多会话并发顺延，[1.6.2] VirtualList Demo 滚动收口（原拟 1.6.1 被 7d49a65 占用顺延）。各条内容独立、均已验证。④ [1.7.5] 两条=LineChart #84 三优化（cc09660，Trae）与 iOS Tag 文字不可见第三次修复（5e2a250，他会话）同号并存——他会话提交窗口与 Trae 文档编辑重叠，条目未互相覆盖、内容均有效，v1.7.5 号双主题共用，不改史。 -->
 
+## \[1.8.7] - 2026-09-13（Android Drag 四项双端视觉对齐修复）
+
+### Fixed
+
+- **每个 Cell 缺阴影（只有 1px 横线，iOS 全有阴影）**：根因=`Drag.kt` 仅拖拽态 `graphicsLayer.shadowElevation=8f`，非拖拽态无 cell-level 阴影；对齐 `ios/DragListView.swift` 的 `willDisplay`（shadowOpacity 0.15 / offset 4 / radius 8），给每个 Row 加 `Modifier.shadow(2.dp, RectangleShape, clip=false)` 默认矩形轮廓阴影；DragRow 去掉 1px 分隔线（cell shadow 已替代视觉、避免冗余）。
+- **拖拽手柄 icon 不一致（Android 旧用「≡」文本，iOS 用系统 reorder 控件）**：改用 `Icons.Default.DragIndicator` 旋转 90°（旋转后两条垂直三点线→三条水平两点线，与 iOS 系统 reorder 控件视觉一致）。
+- **Cell 缺红色圆形删除 icon（iOS isEditing 模式系统减号按钮，Android 缺失）**：Demo `DragRow` 最左侧加 `Box+CircleShape+AppColor.error` 24dp 圆形+白色「−」减号，对齐 iOS UITableView isEditing 模式系统标准控件。
+- **拖拽 swap 动画过快（iOS 丝滑顺畅，Android 跳变）**：根因=`animateItemPlacement` 默认 spring 过冲快；改用 `tween(300ms, EaseOut)` 对齐 iOS 标准 reorder 落位动画时长。
+- 组件库 `compileDebugKotlin` 0 错误；Demo app `assembleDebug` 通过（仅 `animateItemPlacement` deprecation warning，与本次改动无关）。
+
 ## \[1.8.6] - 2026-09-13（Android Popup 七项双端一致修复）
 
 ### Fixed

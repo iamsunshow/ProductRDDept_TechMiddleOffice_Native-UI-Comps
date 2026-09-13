@@ -1,6 +1,6 @@
 {
-  "version": "1.8.6",
-  "versionKey": "v1.8.6",
+  "version": "1.8.7",
+  "versionKey": "v1.8.7",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.8.6] 2026-09-13 Fixed：Android Popup 七项双端一致修复（用户 2026-09-13 反馈）——①内容定位失效（居中/底部/顶部全跑到左上角）根因=container 的 .align() 写在 AnimatedVisibility 内非 mask Box 直接子节点，改用外层 Box contentAlignment 定位+mask/content 平级兄弟节点（Overlay 同款）；②点击蒙层不消失+页面被永久遮住根因=animVisible 只置 true 不置 false 致 WindowPopup 永不卸载，改用 MutableTransitionState 精准控制退出后卸载+container 用 clickable(onClick={}) 消费点击阻止穿透；③Demo3 底部变顶部、④Demo6/8 居中失效、⑤Demo7 通栏均为 #1 同根因。组件库编译 0 错误，Popup 单测 10/10 全绿，Demo app assembleDebug 通过。"
+  "changelog": "[1.8.7] 2026-09-13 Fixed：Android Drag 四项双端视觉对齐修复（用户 2026-09-13 反馈）——①每个 Cell 缺阴影（只有 1px 横线）根因=Drag.kt 仅拖拽态 shadowElevation=8f、非拖拽态无阴影，对齐 iOS DragListView.willDisplay（shadowOpacity 0.15/offset 4/radius 8）给每个 Row 加 Modifier.shadow 2dp 矩形轮廓默认阴影；②拖拽手柄 icon 不一致（旧用「≡」文本）改用 Icons.Default.DragIndicator 旋转 90°（与 iOS 系统 reorder 控件视觉一致）；③Cell 缺红色圆形删除 icon（iOS isEditing 模式系统减号按钮）Demo DragRow 加 Box+CircleShape+AppColor.error 24dp 圆形+白色「−」减号、去掉 1px 分隔线（cell shadow 已替代视觉）；④拖拽 swap 动画过快根因=默认 spring 过冲跳变，改用 tween(300ms, EaseOut) 对齐 iOS 标准 reorder 丝滑时长。组件库编译 0 错误，Demo app assembleDebug 通过。"
 }

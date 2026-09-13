@@ -59,9 +59,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -125,27 +122,18 @@ fun SwipeItem(
         label = "swipe-offset"
     )
 
-    // v1.9.8：nestedScroll 拦截——水平拖拽时优先消费，防止外层 LazyColumn 垂直滚动抢占手势。
-    // 用户反馈 D1/D2 左滑无操作栏：根因=LazyColumn 的 verticalScroll 抢占了水平拖拽事件，
-    // detectHorizontalDragGestures 收不到 DOWN 事件。加 nestedScroll 在 onPreScroll 阶段
-    // 消费水平分量（available.x != 0），让垂直分量透传给 LazyColumn。
-    val horizontalScrollConnection = remember(disabled) {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                if (disabled) return Offset.Zero
-                // 水平分量消费（非零时），垂直分量透传
-                return if (available.x != 0f) Offset(available.x, 0f) else Offset.Zero
-            }
-        }
-    }
-
+    // v1.9.9：移除 v1.9.8 的 nestedScroll 拦截——该修复是死代码：Compose 嵌套滚动
+    // 分发方向为「可滚动后代 → 祖先」，LazyColumn 是 SwipeItem 的祖先，其滚动事件
+    // 不经过列表项内 SwipeItem 上的 NestedScrollConnection，此连接从未收到过事件。
+    // 且消费 scroll 事件与 pointer 手势（detectHorizontalDragGestures）是两条独立管线，
+    // 前者无法为后者解围。手势实测正常（主内容可拖动），此前"LazyColumn 抢手势"判断有误，
+    // 真实根因是按钮布局（见下方 fillMaxHeight 修复）。
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
-            // v1.9.8：clipToBounds 裁剪底层操作按钮到容器边界内，
+            // clipToBounds 裁剪底层操作按钮到容器边界内，
             // 防止操作按钮超出容器边界导致红色漏出（对齐 iOS SwipeItem clipsToBounds=true）。
             .clipToBounds()
-            .nestedScroll(horizontalScrollConnection)
             // 不硬编码高度——由 content slot 撑高（与 iOS contentView autoresizingMask 一致）
             .pointerInput(disabled) {
                 if (disabled) return@pointerInput
@@ -182,16 +170,16 @@ fun SwipeItem(
         val containerWidthPx = with(density) { maxWidth.toPx() }
 
         // 底层左操作（右滑露出，左对齐绝对定位）
-        // matchParentSize 撑高度；requiredWidth(80.dp) 强制 80dp 宽度——
-        // 必须用 requiredWidth 而非 width：matchParentSize 将 minWidth 钉为父宽，
-        // width(80.dp) 被钳到 minWidth=全宽（80 < 360 → 钳到 360），按钮变全宽
-        // → 右侧漏红 + 滑动后看不到独立按钮块（台账 #67 根因）
+        // fillMaxHeight 只撑高度；requiredWidth(80.dp) 独占决定宽度——
+        // v1.9.9 修复：原 matchParentSize+requiredWidth 组合在 BoxWithConstraints（父宽为
+        // 约束非实宽）下测出错误宽度/位置，左滑后右侧按钮不显示（iOS 正常 Android 异常的
+        // 根因）。fillMaxHeight 不碰宽度约束，宽度路径唯一由 requiredWidth 决定，无歧义。
         leftActions.forEachIndexed { i, action ->
             val leftOffset = i * actionWidthPx
             Box(
                 modifier = Modifier
                     .offset { IntOffset(leftOffset.roundToInt(), 0) }
-                    .matchParentSize()
+                    .fillMaxHeight()
                     .requiredWidth(80.dp)
                     .background(action.color.color)
                     .pointerInput(action) {
@@ -212,7 +200,7 @@ fun SwipeItem(
             Box(
                 modifier = Modifier
                     .offset { IntOffset(rightOffset.roundToInt(), 0) }
-                    .matchParentSize()
+                    .fillMaxHeight()
                     .requiredWidth(80.dp)
                     .background(action.color.color)
                     .pointerInput(action) {

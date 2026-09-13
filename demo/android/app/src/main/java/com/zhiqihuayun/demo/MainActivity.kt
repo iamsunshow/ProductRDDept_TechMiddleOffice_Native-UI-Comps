@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -8242,52 +8243,78 @@ fun PopupDemo() {
     }
 
     // Demo 1：常规弹出层
+    // v1.9.11：文案对齐 iOS"常规弹出层内容"；用 widthIn(min=240) 替代 defaultMinSize(minWidth=208)
+    // 防止文案被截断（用户反馈"常规内容"——实际 208dp 太窄只显示部分）；
+    // wrapContentWidth + Box contentAlignment=Center 实现水平垂直居中。
     Popup(
         visible = visibleBasic,
         position = PopupPosition.CENTER,
         onClose = { visibleBasic = false }
     ) {
-        Text(
-            "常规弹出层内容",
-            fontSize = AppFont.sizeMd,
-            color = AppColor.textPrimary,
-            textAlign = TextAlign.Center,
-            maxLines = 1,
-            modifier = Modifier.defaultMinSize(minWidth = 208.dp)
-        )
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .widthIn(min = 240.dp)
+                .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg)
+        ) {
+            Text(
+                "常规弹出层内容",
+                fontSize = AppFont.sizeMd,
+                color = AppColor.textPrimary,
+                textAlign = TextAlign.Center,
+                maxLines = 1
+            )
+        }
     }
 
     // Demo 2：顶部弹出的
+    // v1.9.11：Box contentAlignment=Center 实现水平垂直居中（用户反馈 D2/D3 没有居中）
     Popup(
         visible = visibleTop,
         position = PopupPosition.TOP,
         onClose = { visibleTop = false }
     ) {
-        Text(
-            "顶部弹出层内容",
-            fontSize = AppFont.sizeMd,
-            color = AppColor.textPrimary,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.defaultMinSize(minWidth = 208.dp)
-        )
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .widthIn(min = 240.dp)
+                .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg)
+        ) {
+            Text(
+                "顶部弹出层内容",
+                fontSize = AppFont.sizeMd,
+                color = AppColor.textPrimary,
+                textAlign = TextAlign.Center,
+                maxLines = 1
+            )
+        }
     }
 
     // Demo 3：底部弹出的
+    // v1.9.11：Box contentAlignment=Center 实现水平垂直居中（用户反馈 D2/D3 没有居中）
     Popup(
         visible = visibleBottom,
         position = PopupPosition.BOTTOM,
         onClose = { visibleBottom = false }
     ) {
-        Text(
-            "底部弹出层内容",
-            fontSize = AppFont.sizeMd,
-            color = AppColor.textPrimary,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.defaultMinSize(minWidth = 208.dp)
-        )
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .widthIn(min = 240.dp)
+                .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg)
+        ) {
+            Text(
+                "底部弹出层内容",
+                fontSize = AppFont.sizeMd,
+                color = AppColor.textPrimary,
+                textAlign = TextAlign.Center,
+                maxLines = 1
+            )
+        }
     }
 
     // Demo 4：左侧弹出的
+    // v1.9.11：Popup.kt 已在 v1.9.6 启用 edge-to-edge 覆盖状态栏，D4 左侧弹层应覆盖状态栏
     Popup(
         visible = visibleLeft,
         position = PopupPosition.LEFT,
@@ -8318,23 +8345,33 @@ fun PopupDemo() {
     }
 
     // Demo 6：带关闭图标的
+    // v1.9.11：文案对齐 iOS"带关闭图标的弹出层"；用 widthIn(min=240) 防止文案被截断
+    // （用户反馈"带关闭图"——实际 208dp 太窄只显示部分）
     Popup(
         visible = visibleCloseable,
         position = PopupPosition.CENTER,
         closeable = true,
         onClose = { visibleCloseable = false }
     ) {
-        Text(
-            "带关闭图标的弹出层",
-            fontSize = AppFont.sizeMd,
-            color = AppColor.textPrimary,
-            textAlign = TextAlign.Center,
-            maxLines = 1,
-            modifier = Modifier.defaultMinSize(minWidth = 208.dp)
-        )
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .widthIn(min = 240.dp)
+                .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg)
+        ) {
+            Text(
+                "带关闭图标的弹出层",
+                fontSize = AppFont.sizeMd,
+                color = AppColor.textPrimary,
+                textAlign = TextAlign.Center,
+                maxLines = 1
+            )
+        }
     }
 
     // Demo 7：阻塞关闭的（closeOnClickOverlay=false）
+    // v1.9.11：widthIn(min=280) 替代 defaultMinSize(minWidth=208) 防止文案折行
+    // （用户反馈"弹出层太窄导致文案折行"）
     Popup(
         visible = visibleBlocking,
         position = PopupPosition.CENTER,
@@ -8344,7 +8381,9 @@ fun PopupDemo() {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(AppSpace.md),
-            modifier = Modifier.defaultMinSize(minWidth = 208.dp)
+            modifier = Modifier
+                .widthIn(min = 280.dp)
+                .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg)
         ) {
             Text(
                 "阻塞关闭的弹出层",
@@ -8365,20 +8404,28 @@ fun PopupDemo() {
     }
 
     // Demo 8：圆角的（radius=24dp）
+    // v1.9.11：文案对齐 iOS"大圆角弹出层（24pt）"——Android 用 24dp 对齐 iOS 24pt（视觉等价）；
+    // 用 widthIn(min=240) 防止文案被截断（用户反馈"大圆角弹"——实际 208dp 太窄只显示部分）
     Popup(
         visible = visibleRadius,
         position = PopupPosition.CENTER,
         radius = 24.dp,
         onClose = { visibleRadius = false }
     ) {
-        Text(
-            "大圆角弹出层（24dp）",
-            fontSize = AppFont.sizeMd,
-            color = AppColor.textPrimary,
-            textAlign = TextAlign.Center,
-            maxLines = 1,
-            modifier = Modifier.defaultMinSize(minWidth = 208.dp)
-        )
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .widthIn(min = 240.dp)
+                .padding(horizontal = AppSpace.lg, vertical = AppSpace.lg)
+        ) {
+            Text(
+                "大圆角弹出层（24pt）",
+                fontSize = AppFont.sizeMd,
+                color = AppColor.textPrimary,
+                textAlign = TextAlign.Center,
+                maxLines = 1
+            )
+        }
     }
 }
 

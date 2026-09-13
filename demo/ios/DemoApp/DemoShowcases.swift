@@ -11658,6 +11658,8 @@ final class DropDownMenuShowcase: ShowcaseViewController {
 
         // 修复 v1.8.9：Demo4 按钮左对齐——UIButton 标题默认居中，设 contentHorizontalAlignment=.left
         // 与 Android TextButton（内容默认左对齐）一致。
+        // 修复 v1.9.2：Demo4 dd 通栏——旧 dd.width=200 固定宽度，灰色触发容器不通栏，
+        // 改为 leading+trailing 到 container 边缘，与 Android DropDown 默认 fillMaxWidth 通栏一致。
         addSection(title: "Demo 4 · 受控外部驱动", containerColor: AppColor.bgCard) { container in
             let opts = [DropDownOption(value: "a", text: "选项 A"), DropDownOption(value: "b", text: "选项 B"), DropDownOption(value: "c", text: "选项 C")]
             let dd = DropDownView(title: "受控下拉", options: opts, value: "a")
@@ -11674,11 +11676,13 @@ final class DropDownMenuShowcase: ShowcaseViewController {
             let stack = UIStackView(arrangedSubviews: [dd, btn, info])
             stack.axis = .vertical
             stack.spacing = AppSpace.sm
-            stack.alignment = .leading
+            stack.alignment = .fill  // dd 通栏（fill 宽度）；btn 用 hugging 防拉伸
             container.addSubview(stack)
             dd.snp.makeConstraints { $0.height.equalTo(DropDownView.Metrics.triggerHeight) }
-            dd.snp.makeConstraints { $0.width.equalTo(200) }
-            stack.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.bottom.equalToSuperview().offset(-AppSpace.md) }
+            // btn 防止被 stack.alignment=.fill 拉伸满宽（保持左对齐紧贴内容宽度，对齐 Android TextButton）
+            btn.setContentHuggingPriority(.required, for: .horizontal)
+            btn.setContentCompressionResistancePriority(.required, for: .horizontal)
+            stack.snp.makeConstraints { $0.top.equalToSuperview().offset(AppSpace.md); $0.leading.trailing.equalToSuperview().inset(AppSpace.lg); $0.bottom.equalToSuperview().offset(-AppSpace.md) }
         }
     }
 }

@@ -1,6 +1,6 @@
 {
-  "version": "1.9.1",
-  "versionKey": "v1.9.1",
+  "version": "1.9.2",
+  "versionKey": "v1.9.2",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.1] 2026-09-13 Fixed：iOS Overlay 三项双端一致修复（用户 2026-09-13 反馈）——①Demo1 标题被遮挡根因=measureContentSize 旧逻辑对 stack.edges 到 container 等布局测量偏小，叠加 clipsToBounds=true 导致 contentContainer 被强制设成偏小尺寸内容被裁剪，改用 systemLayoutSizeFitting（Apple 推荐自适应测量）首选能准确处理各种 Auto Layout 约束；②Demo4 内容不一致根因=iOS Demo4 handleWrap 对 handle 重复 snp.makeConstraints 是 bug（第一次 handle.superview=nil 约束挂到自身、第二次覆盖，布局异常导致 title/sub 被遮挡只露 closeBtn），去掉 handleWrap 改用 stack.alignment=.center 让 handle 40×4 居中对齐 Android；③大部分弹窗内容被遮挡（Demo6 看不到内容）同①根因，clipsToBounds 默认改 false（仅圆角时才裁剪）+systemLayoutSizeFitting 首选测量。iOS xcodebuild BUILD SUCCEEDED。"
+  "changelog": "[1.9.2] 2026-09-13 Fixed：iOS DropDown Demo4 灰色触发容器不通栏（用户 2026-09-13 反馈）——根因=Demo4 旧 dd.snp.makeConstraints width=200 固定宽度，灰色触发容器（bgPage 底色）只占 200pt 不通栏，与 Android DropDown 默认 fillMaxWidth 通栏不一致；修复=去掉 dd width=200 固定宽度，stack.alignment=.fill 让 dd 填满 stack 宽度，stack leading+trailing 到 container 边缘实现通栏，btn 用 setContentHuggingPriority=.required 防止被 .fill 拉伸满宽（保持左对齐紧贴内容宽度对齐 Android TextButton）。iOS xcodebuild BUILD SUCCEEDED。"
 }

@@ -1,6 +1,6 @@
 {
-  "version": "1.8.7",
-  "versionKey": "v1.8.7",
+  "version": "1.8.8",
+  "versionKey": "v1.8.8",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.8.7] 2026-09-13 Fixed：Android Drag 四项双端视觉对齐修复（用户 2026-09-13 反馈）——①每个 Cell 缺阴影（只有 1px 横线）根因=Drag.kt 仅拖拽态 shadowElevation=8f、非拖拽态无阴影，对齐 iOS DragListView.willDisplay（shadowOpacity 0.15/offset 4/radius 8）给每个 Row 加 Modifier.shadow 2dp 矩形轮廓默认阴影；②拖拽手柄 icon 不一致（旧用「≡」文本）改用 Icons.Default.DragIndicator 旋转 90°（与 iOS 系统 reorder 控件视觉一致）；③Cell 缺红色圆形删除 icon（iOS isEditing 模式系统减号按钮）Demo DragRow 加 Box+CircleShape+AppColor.error 24dp 圆形+白色「−」减号、去掉 1px 分隔线（cell shadow 已替代视觉）；④拖拽 swap 动画过快根因=默认 spring 过冲跳变，改用 tween(300ms, EaseOut) 对齐 iOS 标准 reorder 丝滑时长。组件库编译 0 错误，Demo app assembleDebug 通过。"
+  "changelog": "[1.8.8] 2026-09-13 Fixed：Android PullToRefresh 两项双端一致修复（用户 2026-09-13 反馈）——①下拉刷新图标不一致根因=Android 用 CircularProgressIndicator（圆环）vs iOS UIRefreshControl（系统菊花），新增 IOSActivityIndicator 自绘菊花式指示器（8 花瓣绕圆心均布、递进透明度、1s/圈线性旋转），下拉中=静态菊花按 progress 渐入、刷新中=旋转菊花，与 iOS UIRefreshControl 视觉对齐；②除 D4 外其他列表难触发根因=onPreScroll 阻尼 0.7 下拉不跟手需拉更远才达阈值，阻尼 0.7→0.5 下拉距离与露出空白 1:2 主观轻拉即触发，与 iOS UIRefreshControl 顺畅度对齐。组件库编译 0 错误，Demo app assembleDebug 通过。"
 }

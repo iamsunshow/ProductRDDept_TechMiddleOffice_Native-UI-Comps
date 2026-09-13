@@ -27,7 +27,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
@@ -246,6 +248,11 @@ fun <T> Drag(
                     // （旧默认 spring 过冲快、视觉跳变；用户反馈 Android 互换动画过快）
                     .animateItemPlacement(animationSpec = tween(ItemPlaceAnimMs, easing = EaseOut))
                     .fillMaxWidth()
+                    // v1.9.9：默认阴影用 Modifier.shadow 替代 graphicsLayer.shadowElevation，
+                    // Modifier.shadow 视觉更柔和（接近 iOS layer.shadow），不会像 graphicsLayer
+                    // 在 LazyColumn 紧密排列下渲染成方形边框（用户反馈"四周都是横线"）。
+                    // 拖动态 shadow=8dp 增强层次感，非拖动态 shadow=2dp 轻微底部阴影。
+                    .shadow(if (isDragging) 8.dp else 2.dp, RectangleShape, clip = false)
                     .background(AppColor.bgCard)
                     // 被拖动项置顶：zIndex=1f 让它在 LazyColumn 中渲染在其他项之上，
                     // 不被相邻项遮挡（与 iOS 标准 reorder 一致）
@@ -254,10 +261,7 @@ fun <T> Drag(
                         if (size.height > 0) itemHeight = size.height.toFloat()
                     }
                     .graphicsLayer {
-                        // cell 默认阴影 4dp（对齐 iOS willDisplay shadowOpacity 0.15/radius 8）
-                        // v1.9.0：拖动态不再额外 shadowElevation=8f，避免与默认阴影叠加导致
-                        // 视觉模糊（用户反馈"整个 cell 变模糊"根因=0.6 alpha + 8f shadow 叠加）
-                        this.shadowElevation = 4f
+                        // v1.9.9：去掉 shadowElevation（改用 Modifier.shadow），只保留 scale/alpha/translation
                         this.scaleX = scale
                         this.scaleY = scale
                         this.alpha = alpha
@@ -297,15 +301,12 @@ fun <T> Drag(
 }
 
 /**
- * iOS 风格拖拽手柄（v1.9.0 新增，对齐 iOS UITableView 系统 reorder control）。
+ * iOS 风格拖拽手柄（v1.9.9 修正，对齐 iOS UITableView 系统 reorder control）。
  *
- * 视觉=三条水平线，每条线两端各一个圆点（两端略粗），与 iOS 系统 reorder control 完全一致。
+ * 视觉=三条等粗水平线（≡），无两端圆点。
  *
- * 与 Material `Icons.Default.DragIndicator`（旋转 90° 后为三条水平两点线）的差异：
- * - Material：仅三条水平线，无两端圆点
- * - iOS 系统：每条线两端有圆点（视觉上两端略粗，呈"哑铃"状）
- *
- * 用 Canvas 自绘以精确还原 iOS 系统 reorder control 视觉。
+ * v1.9.9 修正：v1.9.0 误以为 iOS 系统 reorder control 有两端圆点（哑铃状），
+ * 实际 iOS 系统 reorder control 就是三条等粗水平线。去掉两端圆点，与 iOS 完全一致。
  *
  * @param color 手柄颜色，默认 [AppColor.textSecondary]
  * @param modifier 布局修饰符，建议传 size(20.dp)
@@ -319,37 +320,23 @@ private fun DragHandle(
         val w = size.width
         val h = size.height
         val lineCount = 3
-        // 三条水平线纵向均布，间距≈0.25×高度，每条线长度≈0.6×宽度
-        val lineLength = w * 0.6f
+        // 三条水平线纵向均布，每条线长度≈0.5×宽度
+        val lineLength = w * 0.5f
         val lineStartX = (w - lineLength) / 2f
         val lineEndX = lineStartX + lineLength
         // 线粗≈0.08×高度（20dp → 1.6dp）
         val strokeWidth = h * 0.08f
-        // 圆点半径≈0.1×高度（20dp → 2dp）
-        val dotRadius = h * 0.1f
         // 三条线纵向中心：0.3h / 0.5h / 0.7h
         val lineYs = listOf(h * 0.3f, h * 0.5f, h * 0.7f)
 
         for (i in 0 until lineCount) {
             val y = lineYs[i]
-            // 水平线（两端各留出圆点位置）
+            // 三条等粗水平线（无两端圆点，对齐 iOS 系统 reorder control）
             drawLine(
                 color = color,
-                start = Offset(lineStartX + dotRadius, y),
-                end = Offset(lineEndX - dotRadius, y),
+                start = Offset(lineStartX, y),
+                end = Offset(lineEndX, y),
                 strokeWidth = strokeWidth,
-            )
-            // 左端圆点
-            drawCircle(
-                color = color,
-                radius = dotRadius,
-                center = Offset(lineStartX + dotRadius, y),
-            )
-            // 右端圆点
-            drawCircle(
-                color = color,
-                radius = dotRadius,
-                center = Offset(lineEndX - dotRadius, y),
             )
         }
     }

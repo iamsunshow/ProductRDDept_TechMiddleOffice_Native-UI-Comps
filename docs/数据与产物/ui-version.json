@@ -1,6 +1,6 @@
 {
-  "version": "1.9.8",
-  "versionKey": "v1.9.8",
+  "version": "1.9.9",
+  "versionKey": "v1.9.9",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.8] 2026-09-13 Fixed：Swipe 两项双端一致修复（用户 2026-09-13 反馈）——①Demo4 右侧红色区块：SwipeItem BoxWithConstraints 加 clipToBounds() 裁剪底层操作按钮到容器边界内，防止操作按钮超出容器边界导致红色漏出（对齐 iOS SwipeItem clipsToBounds=true）。②Demo1/2 左滑无操作栏：SwipeItem 加 nestedScroll(NestedScrollConnection) 在 onPreScroll 阶段消费水平分量（available.x != 0），防止外层 LazyColumn 垂直滚动抢占水平拖拽手势，detectHorizontalDragGestures 正常收到 DOWN 事件。Android assembleDebug BUILD SUCCESSFUL。"
+  "changelog": "[1.9.9] 2026-09-13 Fixed：Drag 两项双端一致修复（用户 2026-09-13 反馈）——①拖拽手柄 icon 不一致：v1.9.0 误以为 iOS 系统 reorder control 有两端圆点（哑铃状），实际 iOS 系统 reorder control 就是三条等粗水平线（≡），去掉两端圆点，与 iOS 完全一致。②cell 四周横线：graphicsLayer.shadowElevation=4f 在 LazyColumn 紧密排列下渲染成方形边框（用户反馈\"四周都是横线\"），改用 Modifier.shadow(2.dp, RectangleShape, clip=false) 柔和阴影（视觉更接近 iOS layer.shadow），拖动态 shadow=8dp 增强层次感，非拖动态 shadow=2dp 轻微底部阴影。Android assembleDebug BUILD SUCCESSFUL。"
 }

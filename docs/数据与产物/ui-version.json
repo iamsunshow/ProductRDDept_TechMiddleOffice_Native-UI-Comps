@@ -1,6 +1,6 @@
 {
-  "version": "1.9.14",
-  "versionKey": "v1.9.14",
+  "version": "1.9.15",
+  "versionKey": "v1.9.15",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.14] 2026-09-13 Fixed：Overlay Demo5 三项双端一致修复——①title 居中：Android Text 加 textAlign=Center+fillMaxWidth 对齐 iOS textAlignment=.center。②content 文案：Android\"任意 Composable 内容\"改\"任意自定义内容\"对齐 iOS。③按钮主题/尺寸：Android 用 AppButton(Secondary/Primary) 改为 Surface+Text 自定义样式（cornerRadius 10/font 14 medium/height 40/bg=#E5E7EB+#111827 或 AppColor.primary+white），与 iOS makeDialogButton 完全一致。Android assembleDebug BUILD SUCCESSFUL。"
+  "changelog": "[1.9.15] 2026-09-13 Fixed：Overlay Demo6 三项双端一致修复——①title 居中：Android Text 加 textAlign=Center+fillMaxWidth 对齐 iOS。②desc 居中+文案对齐：Android Text 加 textAlign=Center，文案\"只能通过下方按钮关闭\"改\"只能通过下方「提交」按钮关闭\"对齐 iOS。③form 去掉 title 行：Android 去掉 Text(\"姓名\")+Text(\"备注\") 两行 title，直接 input（对齐 iOS makeFormField 无 title）；按钮 AppButton 改 Surface+Text 对齐 iOS makeDialogButton。Android assembleDebug BUILD SUCCESSFUL。"
 }

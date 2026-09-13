@@ -2234,6 +2234,9 @@ private fun OverlayDemo() {
         }
 
         // Demo 6：有内容且不可关闭的遮罩层
+        // v1.9.15：title 居中+desc 居中对齐 iOS；desc 文案对齐 iOS"「提交」按钮关闭"；
+        // form 去掉 title 行对齐 iOS makeFormField（直接 input 无 title）；
+        // 按钮改 Surface+Text 对齐 iOS makeDialogButton。
         Overlay(
             visible = d6Visible,
             closeOnMaskClick = false,
@@ -2244,16 +2247,27 @@ private fun OverlayDemo() {
         ) {
             Surface(color = Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.width(280.dp)) {
                 Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("不可关闭的遮罩", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
-                    Text("点击遮罩/返回键均不关闭。只能通过下方按钮关闭。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
-                    Text("姓名", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                    Text(
+                        "不可关闭的遮罩",
+                        fontSize = AppFont.sizeMd,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF111827),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text(
+                        "点击遮罩/返回键均不关闭。只能通过下方「提交」按钮关闭。",
+                        fontSize = AppFont.sizeSm,
+                        color = AppColor.textSecondary,
+                        textAlign = TextAlign.Center
+                    )
+                    // v1.9.15：form 去掉 title 行对齐 iOS makeFormField（直接 input 无 title）
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(Color(0xFFF3F4F6), RoundedCornerShape(6.dp))
                             .padding(12.dp)
                     ) { Text("请输入姓名", fontSize = AppFont.sizeSm, color = AppColor.gray25) }
-                    Text("备注", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -2261,12 +2275,19 @@ private fun OverlayDemo() {
                             .background(Color(0xFFF3F4F6), RoundedCornerShape(6.dp))
                             .padding(12.dp)
                     ) { Text("请输入备注", fontSize = AppFont.sizeSm, color = AppColor.gray25) }
-                    AppButton(
-                        text = "提交",
-                        style = AppButtonStyle.Primary,
-                        onClick = { d6Visible = false; feedback = "[Demo6] 提交 → 手动关闭" },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    // v1.9.15：按钮改 Surface+Text 对齐 iOS makeDialogButton
+                    Surface(
+                        color = AppColor.primary,
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(40.dp)
+                            .clickable { d6Visible = false; feedback = "[Demo6] 提交 → 手动关闭" }
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text("提交", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.White)
+                        }
+                    }
                 }
             }
         }

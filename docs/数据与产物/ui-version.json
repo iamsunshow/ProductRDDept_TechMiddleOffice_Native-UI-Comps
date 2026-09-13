@@ -1,6 +1,6 @@
 {
-  "version": "1.9.3",
-  "versionKey": "v1.9.3",
+  "version": "1.9.4",
+  "versionKey": "v1.9.4",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.3] 2026-09-13 Docs：DropDown / DropDownMenu 双端实机验收通过状态同步（用户 2026-09-13 原话「DropDown：已通过 / DropDownMenu：已通过」）——双端 Demo 组件列表 passed=true（iOS DemoShowcases.swift 两行+Android MainActivity.kt 两行），组件进度.md 行 21/22 状态 📋→✅ 并追加 C1.5 修复8/9（v1.8.9 对勾 icon 统一+白色容器包裹文案 / v1.9.2 Demo4 通栏）+ 验收原话记录。Android assembleDebug + iOS xcodebuild BUILD SUCCEEDED。"
+  "changelog": "[1.9.4] 2026-09-13 Docs：标记 Overlay/Popup/Drag/PullToRefresh/Swipe 五组件为重点修复（用户 2026-09-13 原话「Overlay/Popup/Drag/PullToRefresh/Swipe 标记为重点修复」）——组件进度.md 行 6/47/54/55/58 状态列追加 ⚠️重点修复 标记，备注列追加 C1.5 已修复记录（Overlay v1.9.1 三项/Drag v1.8.7+v1.9.0 四项/Popup v1.8.6 七项/PullToRefresh v1.8.8 两项）+ 用户标记原话。"
 }

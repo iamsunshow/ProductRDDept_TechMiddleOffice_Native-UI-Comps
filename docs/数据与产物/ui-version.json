@@ -1,6 +1,6 @@
 {
-  "version": "1.9.18",
-  "versionKey": "v1.9.18",
+  "version": "1.9.19",
+  "versionKey": "v1.9.19",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.18] 2026-09-13 Fixed：Overlay Demo5 描述文案居左+行高标准化。①iOS Demo5 描述改用 NSAttributedString+NSMutableParagraphStyle(alignment=.left, lineSpacing=4) 强制左对齐+统一行高（之前 textAlignment=.left 在 Overlay 布局中未生效，用户反馈仍居中）；②Android Demo5 描述加 lineHeight=20.sp 统一行高。双端行高均≈20pt（iOS font.lineHeight≈16+lineSpacing4=20 / Android 20.sp），视觉一致。双端 BUILD SUCCESSFUL。"
+  "changelog": "[1.9.19] 2026-09-13 Fixed：Overlay Demo4 iOS 手柄通栏修复。iOS Demo4 handle 直接作为 stack arrangedSubview，stack.alignment=.fill 覆盖 handle width=40 约束导致通栏（Android Spacer 40dp 居中正常）。修复=用 handleWrap(UIView) 包裹 handle，handleWrap fill 宽度、handle 在 handleWrap 内 centerX 居中保持 40×4，双端手柄均为 40dp 居中。iOS xcodebuild BUILD SUCCEEDED。"
 }

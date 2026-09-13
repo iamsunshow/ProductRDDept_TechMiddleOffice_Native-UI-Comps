@@ -2689,13 +2689,16 @@ final class OverlayShowcase: ShowcaseViewController {
             container.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width).isActive = true
             let handle = UIView(); handle.backgroundColor = UIColor(red: 0xE5/255, green: 0xE7/255, blue: 0xEB/255, alpha: 1); handle.layer.cornerRadius = 2
             handle.snp.makeConstraints { make in make.width.equalTo(40); make.height.equalTo(4) }
+            // v1.9.19：handleWrap 包裹 handle，fill 宽度让 handle 在其中居中（对齐 Android Spacer.align(CenterHorizontally)）。
+            // 旧代码 handle 直接作为 stack arrangedSubview，stack.alignment=.fill 覆盖 handle width=40 约束导致通栏。
+            let handleWrap = UIView(); handleWrap.addSubview(handle); handle.snp.makeConstraints { make in make.centerX.equalToSuperview(); make.top.equalToSuperview(); make.bottom.equalToSuperview() }
             let title = UILabel(); title.text = "穿透遮罩（clickThrough）"; title.font = .boldSystemFont(ofSize: 16); title.textAlignment = .center
             let sub = UILabel(); sub.text = "遮罩不拦截事件，底层列表仍可滚动/点击。"; sub.font = .systemFont(ofSize: 13); sub.textColor = AppColor.textSecondary; sub.numberOfLines = 0; sub.textAlignment = .left
             let closeBtn = self.buildDemoButton(title: "关闭遮罩") { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo4] 手动关闭" }
             closeBtn.snp.makeConstraints { make in make.height.equalTo(40) }
             // v1.9.10：stack.alignment 改 .fill 让 title/sub 填满宽度（对齐 Android Column 默认），
             // 修复 stack.alignment=.center 时 closeBtn 撑满宽度导致 stack 整体高度计算异常、title 被裁剪。
-            let stack = UIStackView(arrangedSubviews: [handle, title, sub, closeBtn]); stack.axis = .vertical; stack.spacing = 12; stack.alignment = .fill
+            let stack = UIStackView(arrangedSubviews: [handleWrap, title, sub, closeBtn]); stack.axis = .vertical; stack.spacing = 12; stack.alignment = .fill
             stack.isLayoutMarginsRelativeArrangement = true; stack.layoutMargins = .init(top: 6, left: 16, bottom: 24, right: 16)
             container.addSubview(stack); stack.snp.makeConstraints { make in make.edges.equalToSuperview() }
         }

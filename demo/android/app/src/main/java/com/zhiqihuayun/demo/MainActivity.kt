@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.safeDrawing
@@ -2130,6 +2131,7 @@ private fun OverlayDemo() {
         }
 
         // Demo 4：背后内容可以滚动的遮罩层（clickThrough=true）
+        // v1.9.2：加 navigationBarsPadding 防止按钮被系统导航栏遮挡
         Overlay(
             visible = d4Visible,
             clickThrough = true,
@@ -2145,7 +2147,9 @@ private fun OverlayDemo() {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 24.dp),
+                    modifier = Modifier
+                        .navigationBarsPadding()
+                        .padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Spacer(

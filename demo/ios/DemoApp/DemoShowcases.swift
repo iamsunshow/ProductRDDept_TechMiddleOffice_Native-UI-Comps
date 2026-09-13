@@ -2701,36 +2701,41 @@ final class OverlayShowcase: ShowcaseViewController {
     }
 
     // Demo 5：有内容的遮罩层
+    // v1.9.2：修复循环依赖——旧代码 container.top=stack.top-20 + stack.center=container.center
+    // 造成 Auto Layout 循环依赖，systemLayoutSizeFitting 返回异常值，内容跑到错误位置。
+    // 改用 stack.edges=container（与 Demo1 一致），container.width=280 约束宽度。
     private func showDemo5() {
         var overlay: Overlay? = nil
         overlay = makeOverlay(position: .center, radius: .lg, tag: "Demo5") { container in
             container.backgroundColor = .white; container.widthAnchor.constraint(equalToConstant: 280).isActive = true
-            let title = UILabel(); title.text = "有内容的遮罩"; title.font = .boldSystemFont(ofSize: 16)
-            let desc = UILabel(); desc.text = "这是一个包含自定义卡片内容的遮罩层。遮罩内可以放置任意自定义内容。"; desc.font = .systemFont(ofSize: 13); desc.textColor = AppColor.textSecondary; desc.numberOfLines = 0
+            let title = UILabel(); title.text = "有内容的遮罩"; title.font = .boldSystemFont(ofSize: 16); title.textAlignment = .center
+            let desc = UILabel(); desc.text = "这是一个包含自定义卡片内容的遮罩层。遮罩内可以放置任意自定义内容。"; desc.font = .systemFont(ofSize: 13); desc.textColor = AppColor.textSecondary; desc.numberOfLines = 0; desc.textAlignment = .center
             let cancel = self.makeDialogButton(title: "取消", primary: false) { [weak overlay] in overlay?.visible = false }
             let confirm = self.makeDialogButton(title: "确定", primary: true) { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo5] 确定 → 关闭" }
             let btnStack = UIStackView(arrangedSubviews: [cancel, confirm]); btnStack.axis = .horizontal; btnStack.spacing = 8; btnStack.distribution = .fillEqually
-            let stack = UIStackView(arrangedSubviews: [title, desc, btnStack]); stack.axis = .vertical; stack.spacing = 14
-            container.addSubview(stack); stack.snp.makeConstraints { make in make.center.equalToSuperview(); make.width.equalTo(240) }
-            container.snp.makeConstraints { make in make.width.equalTo(280); make.top.equalTo(stack).offset(-20); make.bottom.equalTo(stack).offset(20) }
+            let stack = UIStackView(arrangedSubviews: [title, desc, btnStack]); stack.axis = .vertical; stack.spacing = 14; stack.alignment = .fill
+            stack.isLayoutMarginsRelativeArrangement = true; stack.layoutMargins = .init(top: 24, left: 20, bottom: 24, right: 20)
+            container.addSubview(stack); stack.snp.makeConstraints { make in make.edges.equalToSuperview() }
         }
         feedbackLabel.text = "[Demo5] 有内容的遮罩已打开"; overlay?.visible = true
     }
 
     // Demo 6：有内容且不可关闭的遮罩层
+    // v1.9.2：修复循环依赖——同 Demo5，去掉 container.top=stack / container.bottom=stack 循环约束，
+    // 改用 stack.edges=container。修复 title 被裁剪看不到的问题。
     private func showDemo6() {
         var overlay: Overlay? = nil
         overlay = makeOverlay(closeOnMaskClick: false, position: .center, radius: .lg, tag: "Demo6") { container in
             container.backgroundColor = .white; container.widthAnchor.constraint(equalToConstant: 280).isActive = true
-            let title = UILabel(); title.text = "不可关闭的遮罩"; title.font = .boldSystemFont(ofSize: 16)
-            let desc = UILabel(); desc.text = "点击遮罩/返回键均不关闭。只能通过下方「提交」按钮关闭。"; desc.font = .systemFont(ofSize: 13); desc.textColor = AppColor.textSecondary; desc.numberOfLines = 0
+            let title = UILabel(); title.text = "不可关闭的遮罩"; title.font = .boldSystemFont(ofSize: 16); title.textAlignment = .center
+            let desc = UILabel(); desc.text = "点击遮罩/返回键均不关闭。只能通过下方「提交」按钮关闭。"; desc.font = .systemFont(ofSize: 13); desc.textColor = AppColor.textSecondary; desc.numberOfLines = 0; desc.textAlignment = .center
             let nameField = self.makeFormField(placeholder: "请输入姓名")
             let noteField = self.makeFormField(placeholder: "请输入备注", multiline: true)
             let submit = self.makeDialogButton(title: "提交", primary: true) { [weak overlay, weak self] in overlay?.visible = false; self?.feedbackLabel.text = "[Demo6] 提交 → 手动关闭" }
             submit.snp.makeConstraints { make in make.height.equalTo(40) }
-            let stack = UIStackView(arrangedSubviews: [title, desc, nameField, noteField, submit]); stack.axis = .vertical; stack.spacing = 12
-            container.addSubview(stack); stack.snp.makeConstraints { make in make.center.equalToSuperview(); make.width.equalTo(240) }
-            container.snp.makeConstraints { make in make.width.equalTo(280); make.top.equalTo(stack).offset(-20); make.bottom.equalTo(stack).offset(20) }
+            let stack = UIStackView(arrangedSubviews: [title, desc, nameField, noteField, submit]); stack.axis = .vertical; stack.spacing = 12; stack.alignment = .fill
+            stack.isLayoutMarginsRelativeArrangement = true; stack.layoutMargins = .init(top: 24, left: 20, bottom: 24, right: 20)
+            container.addSubview(stack); stack.snp.makeConstraints { make in make.edges.equalToSuperview() }
         }
         feedbackLabel.text = "[Demo6] 不可关闭遮罩已打开，只能通过「提交」关闭"; overlay?.visible = true
     }

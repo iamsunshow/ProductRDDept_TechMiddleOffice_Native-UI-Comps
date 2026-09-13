@@ -338,10 +338,10 @@ final class Overlay: UIView {
         contentContainer.layer.cornerRadius = r
         contentContainer.layer.cornerCurve = .continuous
         contentContainer.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-        // v1.9.1：有圆角才裁剪（保证圆角效果），无圆角不裁剪（内容溢出仍可见，
-        // 防御 measureContentSize 测量偏小导致内容被裁剪）
-        contentContainer.clipsToBounds = r > 0
-        // 圆角 mask 在 layoutSubviews 中更新（此时 bounds 已确定）
+        // v1.9.2：永久不裁剪内容——clipsToBounds=true + CAShapeLayer mask 双重裁剪
+        // 导致 measureContentSize 测量偏小时内容被裁掉（用户反馈"文字看不到""title 被遮挡"）。
+        // 改用 cornerRadius 圆角背景，内容溢出仍可见（与 Android Modifier.background(shape) 一致）。
+        contentContainer.clipsToBounds = false
     }
 
     // MARK: 手势：mask 点击 / 按压态反馈
@@ -405,13 +405,9 @@ final class Overlay: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         maskBackgroundView.frame = bounds
-        // 更新圆角 mask（contentContainer 尺寸变化时重绘圆角路径）
-        let r = contentRadius.resolvedValue
-        if r > 0, contentContainer.bounds.size != .zero {
-            let mask = CAShapeLayer()
-            mask.path = UIBezierPath(roundedRect: CGRect(origin: .zero, size: contentContainer.bounds.size), cornerRadius: r).cgPath
-            contentContainer.layer.mask = mask
-        }
+        // v1.9.2：去掉 CAShapeLayer mask——cornerRadius 已实现圆角背景，
+        // mask 会额外裁剪内容（measureContentSize 偏小时内容被裁掉看不到）。
+        // clipsToBounds=false + cornerRadius = 圆角背景 + 内容溢出可见（与 Android 一致）。
     }
 
     /// 测量内容尺寸：v1.9.1 改用 systemLayoutSizeFitting 首选（Apple 推荐自适应测量）。

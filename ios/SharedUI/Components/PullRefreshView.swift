@@ -132,6 +132,12 @@ public final class PullRefreshView: UIView {
     // MARK: - Private
 
     private func applyTitle() {
+        // v1.9.7：title 空时不设 attributedTitle（UIRefreshControl 不显示文案），
+        // 对齐 Android PullToRefresh.kt title.isEmpty() 时不显示文案。
+        guard !title.isEmpty else {
+            refreshControl.attributedTitle = nil
+            return
+        }
         refreshControl.attributedTitle = NSAttributedString(
             string: title,
             attributes: [

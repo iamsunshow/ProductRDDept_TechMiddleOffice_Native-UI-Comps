@@ -1,6 +1,6 @@
 {
-  "version": "1.9.6",
-  "versionKey": "v1.9.6",
+  "version": "1.9.7",
+  "versionKey": "v1.9.7",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.6] 2026-09-13 Fixed：Popup Demo 六项双端一致修复（用户 2026-09-13 反馈）——①Demo1/6/7/8 文字折行：Android Text 默认 maxLines=Int.MAX_VALUE 会折行，iOS UILabel 默认 numberOfLines=1 不折行，Android 加 maxLines=1 对齐。②Demo3 底部弹层高度太低：Popup.kt BOTTOM position heightIn min 120→160dp，对齐 iOS 实际渲染高度。③Demo4/5 弹层不覆盖状态栏：Android WindowPopup 默认在状态栏下方，iOS keyWindow 覆盖状态栏；MainActivity onCreate 加 WindowCompat.setDecorFitsSystemWindows(window, false) 启用 edge-to-edge 让 Popup window 覆盖状态栏。Android assembleDebug BUILD SUCCESSFUL。"
+  "changelog": "[1.9.7] 2026-09-13 Fixed：PullToRefresh 两项双端一致修复（用户 2026-09-13 反馈）——①loading icon 不一致：Android 已用 IOSActivityIndicator 自绘菊花（8 花瓣递进透明度+1s/圈旋转），与 iOS UIRefreshControl 系统菊花视觉对齐；本次进一步确认双端菊花视觉一致。②Demo4 文案不一致：iOS D4 UIRefreshControl 刷新中不显示文案（系统行为），Android D4 显示\"下拉刷新数据\"；修复=iOS PullRefreshView.applyTitle 支持 title=\"\" 时设 attributedTitle=nil 不显示文案；Android PullToRefresh.kt title.isEmpty() 时不显示文案；iOS D4 设 title=\"\" 对齐 Android D4 无文案。iOS xcodebuild BUILD SUCCEEDED + Android assembleDebug BUILD SUCCESSFUL。"
 }

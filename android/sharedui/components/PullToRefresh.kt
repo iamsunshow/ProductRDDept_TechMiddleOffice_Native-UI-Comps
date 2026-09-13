@@ -245,13 +245,16 @@ fun PullToRefresh(
                         )
                     }
                     if (progress > 0.15f || refreshing) {
-                        Text(
-                            text = title,
-                            color = AppColor.textSecondary,
-                            fontSize = AppFont.sizeSm,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
+                        // v1.9.7：title 空时不显示文案（对齐 iOS UIRefreshControl.attributedTitle=nil 时不显示文案）
+                        if (title.isNotEmpty()) {
+                            Text(
+                                text = title,
+                                color = AppColor.textSecondary,
+                                fontSize = AppFont.sizeSm,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                        }
                     }
                 }
             }

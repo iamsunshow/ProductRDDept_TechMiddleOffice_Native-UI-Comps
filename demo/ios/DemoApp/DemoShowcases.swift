@@ -10063,6 +10063,8 @@ final class PullRefreshShowcase: ShowcaseViewController {
             tv.separatorStyle = .none
             self.d4TableView = tv
             let pull = PullRefreshView(content: tv)
+            // v1.9.7：D4 设 title="" 不显示文案（对齐 Android D4 无文案）
+            pull.title = ""
             self.d4Pull = pull
             let btn = UIButton(type: .system)
             btn.setTitle("触发刷新", for: .normal)

@@ -1,6 +1,6 @@
 {
-  "version": "1.9.13",
-  "versionKey": "v1.9.13",
+  "version": "1.9.14",
+  "versionKey": "v1.9.14",
   "releaseDate": "2026-09-13",
-  "changelog": "[1.9.13] 2026-09-13 Fixed：Overlay Demo4 Android 按钮被遮挡修复——v1.9.10 错误去掉 navigationBarsPadding 追求弹层高度一致，但 iOS 底部有 20px 安全区空白 Android 没有，导致按钮被系统导航栏遮挡。加回 navigationBarsPadding 让 Android 底部有安全区空白（对齐 iOS）。Android assembleDebug BUILD SUCCESSFUL。"
+  "changelog": "[1.9.14] 2026-09-13 Fixed：Overlay Demo5 三项双端一致修复——①title 居中：Android Text 加 textAlign=Center+fillMaxWidth 对齐 iOS textAlignment=.center。②content 文案：Android\"任意 Composable 内容\"改\"任意自定义内容\"对齐 iOS。③按钮主题/尺寸：Android 用 AppButton(Secondary/Primary) 改为 Surface+Text 自定义样式（cornerRadius 10/font 14 medium/height 40/bg=#E5E7EB+#111827 或 AppColor.primary+white），与 iOS makeDialogButton 完全一致。Android assembleDebug BUILD SUCCESSFUL。"
 }

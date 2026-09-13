@@ -2178,6 +2178,8 @@ private fun OverlayDemo() {
         }
 
         // Demo 5：有内容的遮罩层
+        // v1.9.14：title 居中对齐 iOS；content 文案对齐 iOS"任意自定义内容"；
+        // 按钮改用与 iOS makeDialogButton 完全一致的自定义样式（cornerRadius 10/font 14 medium/height 40）。
         Overlay(
             visible = d5Visible,
             contentRadius = "lg",
@@ -2186,21 +2188,46 @@ private fun OverlayDemo() {
         ) {
             Surface(color = Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.width(280.dp)) {
                 Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    Text("有内容的遮罩", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = Color(0xFF111827))
-                    Text("这是一个包含自定义卡片内容的遮罩层。遮罩内可以放置任意 Composable 内容。", fontSize = AppFont.sizeSm, color = AppColor.textSecondary)
+                    Text(
+                        "有内容的遮罩",
+                        fontSize = AppFont.sizeMd,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF111827),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text(
+                        "这是一个包含自定义卡片内容的遮罩层。遮罩内可以放置任意自定义内容。",
+                        fontSize = AppFont.sizeSm,
+                        color = AppColor.textSecondary
+                    )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        AppButton(
-                            text = "取消",
-                            style = AppButtonStyle.Secondary,
-                            onClick = { d5Visible = false },
-                            modifier = Modifier.weight(1f)
-                        )
-                        AppButton(
-                            text = "确定",
-                            style = AppButtonStyle.Primary,
-                            onClick = { d5Visible = false; feedback = "[Demo5] 确定 → 关闭" },
-                            modifier = Modifier.weight(1f)
-                        )
+                        // 取消按钮：对齐 iOS makeDialogButton(primary: false)——bg=#E5E7EB, text=#111827
+                        Surface(
+                            color = Color(0xFFE5E7EB),
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(40.dp)
+                                .clickable { d5Visible = false }
+                        ) {
+            Box(contentAlignment = Alignment.Center) {
+                            Text("取消", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF111827))
+            }
+                        }
+                        // 确定按钮：对齐 iOS makeDialogButton(primary: true)——bg=AppColor.primary, text=white
+                        Surface(
+                            color = AppColor.primary,
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(40.dp)
+                                .clickable { d5Visible = false; feedback = "[Demo5] 确定 → 关闭" }
+                        ) {
+            Box(contentAlignment = Alignment.Center) {
+                            Text("确定", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.White)
+            }
+                        }
                     }
                 }
             }

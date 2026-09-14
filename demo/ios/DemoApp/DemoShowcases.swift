@@ -110,7 +110,7 @@ final class DemoListViewController: UITableViewController {
         ]),
         ("信息展示", [
             DemoComponent(id: "ui.animate", name: "Animate 动画", reviewed: false, create: nil),
-            DemoComponent(id: "ui.animating-numbers", name: "AnimatingNumbers 数字动画", reviewed: true, create: { AnimatingNumbersShowcase() }),
+            DemoComponent(id: "ui.animating-numbers", name: "AnimatingNumbers 数字动画", reviewed: false, create: nil),
             DemoComponent(id: "ui.audio", name: "Audio 音频播放器", reviewed: false, create: nil),
             DemoComponent(id: "ui.avatar", name: "Avatar 头像", reviewed: true, create: { AvatarShowcase() }, passed: true),
             DemoComponent(id: "ui.badge", name: "Badge 徽标", reviewed: true, create: { BadgeShowcase() }, passed: true),
@@ -149,16 +149,16 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.time-select", name: "TimeSelect 配送时间", reviewed: false, create: nil),
             DemoComponent(id: "ui.trend-arrow", name: "TrendArrow 趋势箭头", reviewed: false, create: nil),
             DemoComponent(id: "ui.water-mark", name: "WaterMark 水印", reviewed: false, create: nil),
-            DemoComponent(id: "ui.system-bars", name: "SystemBars 系统栏", reviewed: true, create: { SystemBarsShowcase() }),
-            DemoComponent(id: "ui.design-tokens", name: "DesignTokens 设计令牌", reviewed: true, create: { DesignTokensShowcase() }),
+            DemoComponent(id: "ui.system-bars", name: "SystemBars 系统栏", reviewed: true, create: { SystemBarsShowcase() }, passed: true),
+            DemoComponent(id: "ui.design-tokens", name: "DesignTokens 设计令牌", reviewed: true, create: { DesignTokensShowcase() }, passed: true),
         ]),
         ("底层能力 foundation", [
             DemoComponent(id: "foundation.calendar", name: "Calendar 日历工具", reviewed: true, create: { CalendarShowcase() }, passed: true),
             DemoComponent(id: "ui.config-provider", name: "ConfigProvider 全局配置", reviewed: true, create: { ConfigProviderShowcase() }, passed: true),
-            DemoComponent(id: "ui.router", name: "Router 路由", reviewed: true, create: { RouterShowcase() }),
-            DemoComponent(id: "ui.storage", name: "Storage 本地存储", reviewed: true, create: { StorageShowcase() }),
-            DemoComponent(id: "ui.http-client", name: "HTTPClient 网络客户端", reviewed: true, create: { HTTPClientShowcase() }),
-            DemoComponent(id: "ui.money-format", name: "MoneyFormat 金额格式化", reviewed: true, create: { MoneyFormatShowcase() }),
+            DemoComponent(id: "ui.router", name: "Router 路由", reviewed: true, create: { RouterShowcase() }, passed: true),
+            DemoComponent(id: "ui.storage", name: "Storage 本地存储", reviewed: true, create: { StorageShowcase() }, passed: true),
+            DemoComponent(id: "ui.http-client", name: "HTTPClient 网络客户端", reviewed: true, create: { HTTPClientShowcase() }, passed: true),
+            DemoComponent(id: "ui.money-format", name: "MoneyFormat 金额格式化", reviewed: true, create: { MoneyFormatShowcase() }, passed: true),
         ]),
     ]
 

@@ -367,7 +367,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
     ),
     "信息展示" to listOf(
         DemoComponent("Animate 动画"),
-        DemoComponent("AnimatingNumbers 数字动画", reviewed = true, demo = { AnimatingNumbersDemo() }),
+        DemoComponent("AnimatingNumbers 数字动画"),
         DemoComponent("Audio 音频播放器"),
         DemoComponent("Avatar 头像", reviewed = true, demo = { AvatarDemo() }, passed = true),
         DemoComponent("Badge 徽标", reviewed = true, demo = { BadgeDemo() }, passed = true),
@@ -406,16 +406,16 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("TimeSelect 配送时间"),
         DemoComponent("TrendArrow 趋势箭头"),
         DemoComponent("WaterMark 水印"),
-        DemoComponent("SystemBars 系统栏", reviewed = true, demo = { SystemBarsDemo() }),
-        DemoComponent("DesignTokens 设计令牌", reviewed = true, demo = { DesignTokensDemo() }),
+        DemoComponent("SystemBars 系统栏", reviewed = true, passed = true, demo = { SystemBarsDemo() }),
+        DemoComponent("DesignTokens 设计令牌", reviewed = true, passed = true, demo = { DesignTokensDemo() }),
     ),
     "底层能力 foundation" to listOf(
         DemoComponent("Calendar 日历工具", reviewed = true, passed = true, demo = { CalendarDemo() }),
         DemoComponent("ConfigProvider 全局配置", reviewed = true, demo = { ConfigProviderDemo() }, passed = true),
-        DemoComponent("Router 路由", reviewed = true, demo = { RouterDemo() }),
-        DemoComponent("Storage 本地存储", reviewed = true, demo = { StorageDemo() }),
-        DemoComponent("HTTPClient 网络客户端", reviewed = true, demo = { HTTPClientDemo() }),
-        DemoComponent("MoneyFormat 金额格式化", reviewed = true, demo = { MoneyFormatDemo() }),
+        DemoComponent("Router 路由", reviewed = true, passed = true, demo = { RouterDemo() }),
+        DemoComponent("Storage 本地存储", reviewed = true, passed = true, demo = { StorageDemo() }),
+        DemoComponent("HTTPClient 网络客户端", reviewed = true, passed = true, demo = { HTTPClientDemo() }),
+        DemoComponent("MoneyFormat 金额格式化", reviewed = true, passed = true, demo = { MoneyFormatDemo() }),
     ),
 )
 

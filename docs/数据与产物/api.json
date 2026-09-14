@@ -5094,11 +5094,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": "AppTokens.swift（AppColor/AppFont/AppSpace/AppRadius/AppText 五族同名同值）。2026-09-14 门禁 A 通过（review-design-tokens-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段（DesignTokensShowcase，验证版本 v1.9.39）"
+          "note": "AppTokens.swift（AppColor/AppFont/AppSpace/AppRadius/AppText 五族同名同值）。2026-09-14 门禁 A 通过（review-design-tokens-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段（DesignTokensShowcase，验证版本 v1.9.39）；2026-09-14 C1.5 用户双端 Demo 实机验收通过（验证版本 v1.9.39）"
         },
         "android": {
           "state": "available",
-          "note": "AppTokens.kt（与 iOS hex 逐项一致 + 额外 textInverse）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（DesignTokensDemo，验证版本 v1.9.39）"
+          "note": "AppTokens.kt（与 iOS hex 逐项一致 + 额外 textInverse）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（DesignTokensDemo，验证版本 v1.9.39）；2026-09-14 C1.5 用户双端 Demo 实机验收通过（验证版本 v1.9.39）"
         },
         "harmony": {
           "state": "unavailable",
@@ -5171,11 +5171,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": "AppRouter.swift（Tab/Destination 枚举 + RouterDestinationProvider 注入 + 占位兜底，命令式真导航）。2026-09-14 门禁 A 通过（review-router-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段内层状态机回显（RouterShowcase，验证版本 v1.9.39）"
+          "note": "AppRouter.swift（Tab/Destination 枚举 + RouterDestinationProvider 注入 + 占位兜底，命令式真导航）。2026-09-14 门禁 A 通过（review-router-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段内层状态机回显（RouterShowcase，验证版本 v1.9.39）；2026-09-14 C1.5 用户双端 Demo 实机验收通过（验证版本 v1.9.39）"
         },
         "android": {
           "state": "available",
-          "note": "AppRouter.kt + Routes.kt（MainDestination/SecondaryRoutes，声明式映射表）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（RouterDemo，验证版本 v1.9.39）"
+          "note": "AppRouter.kt + Routes.kt（MainDestination/SecondaryRoutes，声明式映射表）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（RouterDemo，验证版本 v1.9.39）；2026-09-14 C1.5 用户双端 Demo 实机验收通过（验证版本 v1.9.39）"
         },
         "harmony": {
           "state": "unavailable",
@@ -5253,11 +5253,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": "AppDatabase.swift（GRDB dbQueue，DatabaseSchemaProvider 注入 + migrator 迁移 + eraseAll 清数据）。2026-09-14 门禁 A 通过（review-storage-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段（StorageShowcase demo_note 表，验证版本 v1.9.39）"
+          "note": "AppDatabase.swift（GRDB dbQueue，DatabaseSchemaProvider 注入 + migrator 迁移 + eraseAll 清数据）。2026-09-14 门禁 A 通过（review-storage-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段（StorageShowcase demo_note 表，验证版本 v1.9.39）；2026-09-14 C1.5 用户双端 Demo 实机验收通过（验证版本 v1.9.39）"
         },
         "android": {
           "state": "available",
-          "note": "AppDatabase.kt（SQLiteOpenHelper 骨架，DatabaseSchemaProvider 注入 + eraseAll；2026-09-14 门禁 B 新增补齐 Android 缺口）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（StorageDemo，验证版本 v1.9.39）"
+          "note": "AppDatabase.kt（SQLiteOpenHelper 骨架，DatabaseSchemaProvider 注入 + eraseAll；2026-09-14 门禁 B 新增补齐 Android 缺口）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（StorageDemo，验证版本 v1.9.39）；2026-09-14 C1.5 用户双端 Demo 实机验收通过（验证版本 v1.9.39）"
         },
         "harmony": {
           "state": "unavailable",
@@ -5322,11 +5322,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": "MockAPIClient.swift（Retrofit 风格 APIEndpoint + MockURLProtocol 本地拦截，无真实网络请求；2026-09-14 门禁 B 补齐双端 Mock 同构）。2026-09-14 门禁 A 通过（review-http-client-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段（HTTPClientShowcase：/health / 环境配置 / not_found / 请求回执，验证版本 v1.9.39）"
+          "note": "MockAPIClient.swift（Retrofit 风格 APIEndpoint + MockURLProtocol 本地拦截，无真实网络请求；2026-09-14 门禁 B 补齐双端 Mock 同构）。2026-09-14 门禁 A 通过（review-http-client-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段（HTTPClientShowcase：/health / 环境配置 / not_found / 请求回执，验证版本 v1.9.39）；2026-09-14 C1.5 用户双端 Demo 实机验收通过（验证版本 v1.9.39）"
         },
         "android": {
           "state": "available",
-          "note": "MockApiClient.kt（Retrofit + OkHttp MockInterceptor 本地拦截返回，与 iOS MockURLProtocol 响应体逐字符一致）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（HTTPClientDemo，验证版本 v1.9.39）"
+          "note": "MockApiClient.kt（Retrofit + OkHttp MockInterceptor 本地拦截返回，与 iOS MockURLProtocol 响应体逐字符一致）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（HTTPClientDemo，验证版本 v1.9.39）；2026-09-14 C1.5 用户双端 Demo 实机验收通过（验证版本 v1.9.39）"
         },
         "harmony": {
           "state": "unavailable",
@@ -5389,11 +5389,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": "Formatters.swift（MoneyFormatter：en_US_POSIX 两位小数无千分位，全局金额展示统一出口）。2026-09-14 门禁 A 通过（review-money-format-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段（MoneyFormatShowcase，验证版本 v1.9.39）"
+          "note": "Formatters.swift（MoneyFormatter：en_US_POSIX 两位小数无千分位，全局金额展示统一出口）。2026-09-14 门禁 A 通过（review-money-format-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段（MoneyFormatShowcase，验证版本 v1.9.39）；2026-09-14 C1.5 用户双端 Demo 实机验收通过（验证版本 v1.9.39）"
         },
         "android": {
           "state": "available",
-          "note": "MoneyFormatter.kt（String.format Locale.US 两位小数无千分位，对齐 iOS 同规则）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（MoneyFormatDemo，验证版本 v1.9.39）"
+          "note": "MoneyFormatter.kt（String.format Locale.US 两位小数无千分位，对齐 iOS 同规则）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（MoneyFormatDemo，验证版本 v1.9.39）；2026-09-14 C1.5 用户双端 Demo 实机验收通过（验证版本 v1.9.39）"
         },
         "harmony": {
           "state": "unavailable",
@@ -5534,11 +5534,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": "SystemBars.swift（2026-09-14 门禁 B 新建：Style 三态枚举 default/immersive/transparent + background(for:) 供页面安全区自绘等价底色 + statusBarStyle(for:)/refresh(on:) preferredStatusBarStyle 显式声明；iOS 系统无状态栏背景色 API，底色由页面自绘=差异表已放行）。2026-09-14 门禁 A 通过（review-system-bars-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段（SystemBarsShowcase，验证版本 v1.9.39）"
+          "note": "SystemBars.swift（2026-09-14 门禁 B 新建：Style 三态枚举 default/immersive/transparent + background(for:) 供页面安全区自绘等价底色 + statusBarStyle(for:)/refresh(on:) preferredStatusBarStyle 显式声明；iOS 系统无状态栏背景色 API，底色由页面自绘=差异表已放行）。2026-09-14 门禁 A 通过（review-system-bars-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段（SystemBarsShowcase，验证版本 v1.9.39）；2026-09-14 C1.5 用户双端 Demo 实机验收通过（验证版本 v1.9.39）"
         },
         "android": {
           "state": "available",
-          "note": "SystemBars.kt（ConfigureSystemBars(statusBarColor) 直接设窗口状态栏底色 + 三态辅助）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（SystemBarsDemo，验证版本 v1.9.39）"
+          "note": "SystemBars.kt（ConfigureSystemBars(statusBarColor) 直接设窗口状态栏底色 + 三态辅助）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（SystemBarsDemo，验证版本 v1.9.39）；2026-09-14 C1.5 用户双端 Demo 实机验收通过（验证版本 v1.9.39）"
         },
         "harmony": {
           "state": "unavailable",
@@ -8814,11 +8814,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": "AnimatingNumbersView.swift：UIView 子类 + 手动 frame 布局；每位数字=UIView 窗口（layer.cornerRadius + masksToBounds）+ 内含竖排 0~9 等宽 UILabel 的 AnimatingDigitColumn，位移由滚动列 transform 驱动；动画=UIViewPropertyAnimator + UICubicTimingParameters(0.4,0,0.2,1)（等价 FastOutSlowIn，起止与 Android 同构），startAnimation(afterDelay:) 实现 delay；value 变化先全体归零（transform=.identity）再重滚（P3-A）；UIFont.monospacedDigitSystemFont 等宽数字防抖动；size medium=sizeLg(18)/窗口高 32、small=sizeSm(14)/24、large=sizeDisplay(32)/48；separatorColor=nil 时跟随 color"
+          "note": "AnimatingNumbersView.swift：UIView 子类 + 手动 frame 布局；每位数字=UIView 窗口（layer.cornerRadius + masksToBounds）+ 内含竖排 0~9 等宽 UILabel 的 AnimatingDigitColumn，位移由滚动列 transform 驱动；动画=UIViewPropertyAnimator + UICubicTimingParameters(0.4,0,0.2,1)（等价 FastOutSlowIn，起止与 Android 同构），startAnimation(afterDelay:) 实现 delay；value 变化先全体归零（transform=.identity）再重滚（P3-A）；UIFont.monospacedDigitSystemFont 等宽数字防抖动；size medium=sizeLg(18)/窗口高 32、small=sizeSm(14)/24、large=sizeDisplay(32)/48；separatorColor=nil 时跟随 color；2026-09-14 用户裁决「AnimatingNumbers：2.0 再开发」→ 推迟到 v2.0 重新开发，现行实现保留库中、demo 注册行转「待开发 v2.0」（蓝色不可点）"
         },
         "android": {
           "state": "available",
-          "note": "AnimatingNumbers.kt：@Composable AnimatingNumbers；每位数字=Box(height + clip(RoundedCornerShape) + background) + 内含竖排 0..9 Text 的 Column，位移由 graphicsLayer lambda 内直读 progress（draw-phase 读取，每帧零重组）；动画=Animatable(0f→1f) + tween(durationMillis, FastOutSlowInEasing)，delay 用协程 delay；FontFeature \"tnum\" 等宽数字；size 同 iOS 映射；separatorColor=Color.Unspecified 时跟随 color；可测性 testTag animating-numbers-root / animating-numbers-digit-N"
+          "note": "AnimatingNumbers.kt：@Composable AnimatingNumbers；每位数字=Box(height + clip(RoundedCornerShape) + background) + 内含竖排 0..9 Text 的 Column，位移由 graphicsLayer lambda 内直读 progress（draw-phase 读取，每帧零重组）；动画=Animatable(0f→1f) + tween(durationMillis, FastOutSlowInEasing)，delay 用协程 delay；FontFeature \"tnum\" 等宽数字；size 同 iOS 映射；separatorColor=Color.Unspecified 时跟随 color；可测性 testTag animating-numbers-root / animating-numbers-digit-N；2026-09-14 用户裁决「AnimatingNumbers：2.0 再开发」→ 推迟到 v2.0 重新开发，现行实现保留库中、demo 注册行转「待开发 v2.0」（蓝色不可点）"
         },
         "harmony": {
           "state": "unavailable",
@@ -8947,7 +8947,7 @@
           "size=\"large\"（32/48）；size=\"small\"（14/24）+ background-color 灰底块 + corner-radius 4"
         ]
       ],
-      "note": "信息展示区组件 #61，双端纯从零实现。2026-09-14 启动门禁 A AI 代评（design-spec/animating-numbers-design-spec.html + 评审记录/review-animating-numbers-A.md，P1–P4 全选最优、A1–A7 全 ✅、0 保留意见）+ 同日门禁 B 双端实现入库（AnimatingNumbersView.swift=UIKit UIView 手动 frame 布局 + UIViewPropertyAnimator 自定义曲线 / AnimatingNumbers.kt=Compose Animatable + graphicsLayer draw-phase 直读）+ Demo 双端 4 段 1:1（iOS AnimatingNumbersShowcase / Android AnimatingNumbersDemo）。与 Price #72（静态金额排版·无动画）/ CountDown #60（时间戳自驱每秒刷新）/ Progress #74·CircleProgress #58（以长度/角度表达比例）/ InputNumber #44（可交互输入）/ Skeleton #53（无真实数值）划界；anti_goals 二期=货币符号/前后缀/小数位格式化、循环播放、字形自定义、滚动结束回调。验证版本 v1.9.37；统一待 C1.5 Demo 实机验收 + C1 单测（B1~B6 断言）+ C2 CR/CI + D 发版。",
+      "note": "信息展示区组件 #61，双端纯从零实现。2026-09-14 启动门禁 A AI 代评（design-spec/animating-numbers-design-spec.html + 评审记录/review-animating-numbers-A.md，P1–P4 全选最优、A1–A7 全 ✅、0 保留意见）+ 同日门禁 B 双端实现入库（AnimatingNumbersView.swift=UIKit UIView 手动 frame 布局 + UIViewPropertyAnimator 自定义曲线 / AnimatingNumbers.kt=Compose Animatable + graphicsLayer draw-phase 直读）+ Demo 双端 4 段 1:1（iOS AnimatingNumbersShowcase / Android AnimatingNumbersDemo）。与 Price #72（静态金额排版·无动画）/ CountDown #60（时间戳自驱每秒刷新）/ Progress #74·CircleProgress #58（以长度/角度表达比例）/ InputNumber #44（可交互输入）/ Skeleton #53（无真实数值）划界；anti_goals 二期=货币符号/前后缀/小数位格式化、循环播放、字形自定义、滚动结束回调。验证版本 v1.9.37；统一待 C1.5 Demo 实机验收 + C1 单测（B1~B6 断言）+ C2 CR/CI + D 发版。；2026-09-14 用户裁决「AnimatingNumbers：2.0 再开发」→ 推迟到 v2.0 重新开发，现行实现保留库中、demo 注册行转「待开发 v2.0」（蓝色不可点）",
       "tier": "core",
       "subcategory": "display",
       "reviewed": true

@@ -2,6 +2,19 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.9.40] - 2026-09-14（foundation 六件 + SystemBars/DesignTokens C1.5 验收收口 + AnimatingNumbers 推迟 v2.0）
+
+### Changed
+
+- **foundation 六件 + SystemBars/DesignTokens C1.5 用户双端 Demo 实机验收通过收编（8 件）**：用户原话「底层能力都已通过」「SystemBars：已通过」「DesignToken：已通过」——demo 双端注册行 8 件 passed=true（iOS `DemoShowcases.swift` / Android `MainActivity.kt`，灰「待完善」→绿「已通过」）；`组件进度.md` §3.8 行 90/91 + §3.9 行 92~95 补验收记录；api.json 六件（system-bars/design-tokens/router/storage/http-client/money-format）双端 note 补 C1.5 验收记录（验证版本 v1.9.39）。无行为变更（行为=v1.9.39）。
+- **AnimatingNumbers（#61）用户裁决推迟 v2.0 再开发**：原话「AnimatingNumbers：2.0再开发」——行状态 🔧→🔭、demo 双端注册行转「待开发 v2.0」（蓝色不可点：Android reviewed=false 无 demo / iOS reviewed=false create=nil，Showcase 代码保留库中）、api.json `ui.animating-numbers` note 补用户裁决；§1 计数同步（已实现 84→83、未实现 9→10）。
+- `组件进度.md` §4 顶插收编行、§1 总览行 25/26/27/28 同步。
+
+### 验证
+
+- api.json / ui-version.json JSON 合法（json.load 复读通过，91 条）；Android `:app:compileDebugKotlin` BUILD SUCCESSFUL + iOS `xcodebuild` Simulator Debug BUILD SUCCEEDED。
+- 遗留：六件 C1 单测未建；C2 CR/CI 与 D 发版未走。
+
 ## [1.9.39] - 2026-09-14（foundation 六件「未评审」补齐批 门禁 A+B + 组件列表分类对齐）
 
 ### Added

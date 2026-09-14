@@ -46,6 +46,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,6 +59,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
@@ -115,6 +117,9 @@ fun SwipeItem(
     var dragStart by remember { mutableFloatStateOf(0f) }
     var targetX by remember { mutableFloatStateOf(0f) }
     var isAnimating by remember { mutableStateOf(false) }
+    // v1.9.38：内容层实测高度（onSizeChanged 回填），按钮 requiredHeight 用它精确撑满——
+    // 根治 matchParentSize/fillMaxHeight 在 LazyColumn 松约束下的测量时序怪癖（半高）。
+    var contentHeightPx by remember { mutableFloatStateOf(0f) }
 
     val animatedX by animateFloatAsState(
         targetValue = targetX,
@@ -178,7 +183,7 @@ fun SwipeItem(
                     .align(Alignment.TopStart)
                     .offset { IntOffset(i * actionWidthPx.roundToInt(), 0) }
                     .requiredWidth(80.dp)
-                    .fillMaxHeight()
+                    .requiredHeight(with(density) { contentHeightPx.toDp() })
                     .background(action.color.color)
                     .pointerInput(action) {
                         detectTapGestures(onTap = {
@@ -203,8 +208,11 @@ fun SwipeItem(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .offset { IntOffset(-i * actionWidthPx.roundToInt(), 0) }
+                    // v1.9.38：requiredHeight(内容层实测高) 精确撑满行高——
+                    // matchParentSize 与 fillMaxHeight 均依赖测量语义（松约束时序怪癖致半高），
+                    // 显式高度传递（onSizeChanged 回填）零歧义，对齐 iOS bounds.height。
                     .requiredWidth(80.dp)
-                    .fillMaxHeight()
+                    .requiredHeight(with(density) { contentHeightPx.toDp() })
                     .background(action.color.color)
                     .pointerInput(action) {
                         detectTapGestures(onTap = {
@@ -230,6 +238,8 @@ fun SwipeItem(
                 .fillMaxWidth()
                 .offset { IntOffset(displayX.roundToInt(), 0) }
                 .background(Color.White)
+                // v1.9.38：实测高度回填（初始帧后立即可用，按钮次帧精确撑满）
+                .onSizeChanged { contentHeightPx = it.height.toFloat() }
         ) {
             content()
         }

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Storage 本地存储 · 设计规格 · TMO 组件库 v1.4.0</title>
+<style>
+:root { --bg:#fff; --bg-page:#f5f5f5; --text:#1a1a1a; --text-2:#888; --border:#e8e8e8; --primary:#16a34a; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:-apple-system,'SF Pro Text',sans-serif; background:var(--bg-page); color:var(--text); line-height:1.6; }
+.container { max-width:880px; margin:0 auto; padding:24px 16px 80px; }
+h1 { font-size:24px; margin-bottom:8px; }
+h2 { font-size:20px; margin:28px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+h3 { font-size:16px; margin:16px 0 8px; }
+p { font-size:14px; margin-bottom:8px; }
+code { background:#f0f0f0; padding:2px 6px; border-radius:4px; font-size:13px; }
+table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; }
+th,td { border:1px solid var(--border); padding:8px 12px; text-align:left; }
+th { background:#fafafa; font-weight:600; }
+.section { background:var(--bg); border-radius:12px; padding:20px; margin:16px 0; border:1px solid var(--border); }
+.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600; }
+.badge-a { background:#e6f7e6; color:#52c41a; }
+.badge-n { background:#fff7e6; color:#fa8c16; }
+pre { background:#f8f8f8; border:1px solid var(--border); border-radius:8px; padding:12px; overflow:auto; font-size:12px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Storage 本地存储</h1>
+<p>组件 ID：<code>foundation.storage</code> ｜ 任务清单 #93 ｜ 底层能力 foundation ｜ TMO 组件库 v1.4.0</p>
+<p>定位：本地优先持久化<strong>骨架</strong>——只管理数据库生命周期（建库 / 迁移 / 清空），<strong>表结构与迁移逻辑由宿主注入</strong>，中台包不依赖任何业务表。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation</h3><p>记账 App 采用本地优先策略：账单、分类、预算等数据先落本地 SQLite，离线可用；注销账号时需一次清空全部业务表。</p>
+<h3>Complication</h3><p>若中台包直接建业务表，会与业务 schema 强耦合（每次加字段都要改中台包），且双端 schema 漂移无法审计。</p>
+<h3>Question</h3><p>需要一个只负责「数据库文件位置 + 迁移执行 + 清空」的骨架，业务 schema 由宿主声明并注入。</p>
+<h3>Answer</h3><p>Storage——iOS 为 <code>AppDatabase</code>（GRDB <code>DatabaseQueue</code> + 宿主注入 <code>DatabaseSchemaProvider</code>）；Android 为 <code>AppDatabase</code>（<code>SQLiteOpenHelper</code> + 宿主注入 <code>AppDatabaseSchema</code>）。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 Storage 划界</th></tr>
+<tr><td>业务表结构 / 迁移</td><td>建表、加字段、数据迁移</td><td>由宿主注入（iOS <code>migrator</code> / Android <code>migrations</code>）；Storage 只负责执行</td></tr>
+<tr><td>ConfigProvider #3 / 宿主偏好存储</td><td>轻量键值配置</td><td>KV 配置（主题、开关）归 <code>UserDefaults</code>/<code>SharedPreferences</code>，<strong>不</strong>走本组件；Storage 只承载结构化数据</td></tr>
+<tr><td>网络缓存层</td><td>请求缓存 / 离线队列</td><td>二期；一期不做</td></tr>
+<tr><td>加密 / 字段级脱敏</td><td>敏感字段加密</td><td>一期不做；由宿主在业务表内自行加密（见敏感信息规范）</td></tr>
+</table>
+
+<h2>3. API 契约</h2>
+<div class="section">
+<h3>iOS（GRDB，已有）</h3>
+<table>
+<tr><th>API</th><th>签名</th><th>说明</th></tr>
+<tr><td>单例</td><td><code>AppDatabase.shared</code></td><td>骨架单例</td></tr>
+<tr><td>schema 注入</td><td><code>static var schemaProvider: DatabaseSchemaProvider?</code></td><td>宿主启动时注入</td></tr>
+<tr><td>建库 + 迁移</td><td><code>func prepare() throws</code></td><td>创建应用支持目录子目录、打开 <code>DatabaseQueue</code>、执行 <code>migrator.migrate()</code></td></tr>
+<tr><td>清空业务表</td><td><code>func eraseAll() throws</code></td><td>按 <code>eraseTableNames</code> 顺序 <code>DELETE FROM</code>（保留表结构，仅删行）</td></tr>
+<tr><td>队列访问</td><td><code>private(set) var dbQueue: DatabaseQueue?</code></td><td>宿主拿队列做业务读写</td></tr>
+<tr><td>schema 协议</td><td><code>protocol DatabaseSchemaProvider { directoryName; fileName; migrator: DatabaseMigrator; eraseTableNames: [String] }</code></td><td>宿主实现</td></tr>
+<tr><td>错误</td><td><code>enum AppDatabaseError { case databaseNotReady, schemaNotConfigured }</code></td><td>未 prepare / 未注入 provider</td></tr>
+</table>
+<h3>Android（SQLite，<span class="badge badge-n">新增·补齐缺口</span>）</h3>
+<table>
+<tr><th>API</th><th>签名</th><th>说明</th></tr>
+<tr><td>单例</td><td><code>object AppDatabase</code></td><td>骨架单例</td></tr>
+<tr><td>schema 注入</td><td><code>fun prepare(context: Context, schema: AppDatabaseSchema)</code></td><td>宿主启动时注入（Android 无全局静态注入惯例，改为显式传参）</td></tr>
+<tr><td>建库 + 迁移</td><td><code>SQLiteOpenHelper.onCreate/onUpgrade</code> 内执行 <code>schema.migrations</code></td><td>迁移为 <code>List&lt;(SQLiteDatabase) -&gt; Unit&gt;</code> 按序执行</td></tr>
+<tr><td>清空业务表</td><td><code>fun eraseAll()</code></td><td>按 <code>eraseTableNames</code> 顺序 <code>DELETE FROM</code>（保留表结构）</td></tr>
+<tr><td>数据库访问</td><td><code>val database: SQLiteDatabase?</code></td><td>宿主拿库做业务读写</td></tr>
+<tr><td>schema 声明</td><td><code>data class AppDatabaseSchema(directoryName, fileName, version, migrations: List&lt;(SQLiteDatabase) -&gt; Unit&gt;, eraseTableNames: [String])</code></td><td>宿主实现</td></tr>
+</table>
+<h3>Events</h3>
+<table><tr><th>事件</th><th>说明</th></tr><tr><td>无</td><td>同步方法调用；调用方负责线程（iOS GRDB 队列自管 / Android 由调用方切 IO）</td></tr></table>
+</div>
+
+<h2>4. 设计规格</h2>
+<table>
+<tr><th>项</th><th>规格</th><th>依据</th></tr>
+<tr><td>零业务依赖</td><td>骨架不 import 任何业务表类型</td><td>中台包可独立编译红线（同 Router）</td></tr>
+<tr><td>存储位置</td><td>iOS 应用支持目录 / 业务子目录；Android <code>context.filesDir</code> / 业务子目录</td><td>不被系统缓存清理（区别于 Caches）</td></tr>
+<tr><td>清空语义</td><td>只 <code>DELETE FROM</code>（删行），不 <code>DROP TABLE</code></td><td>注销后复用同一库结构，免重复迁移</td></tr>
+<tr><td>幂等</td><td><code>prepare</code> 重复调用安全（已有库则直接打开 + 补跑缺失迁移）</td><td>宿主生命周期不确定</td></tr>
+<tr><td>失败策略</td><td>未注入 schema / 未 prepare 即访问 → 明确抛错（iOS）或返回 null（Android）</td><td>暴露误用，不静默降级</td></tr>
+</table>
+
+<h2>5. Demo 排查 4 组</h2>
+<div class="section">
+<pre>D1 建库 + 写入   prepare(schema) → INSERT INTO demo_note(text) VALUES('第一条') → 回显「已写入：第一条」
+D2 读取         SELECT * FROM demo_note → 列出全部记录（行数 + 内容）
+D3 删除单条      DELETE FROM demo_note WHERE id=? → 回显「已删除 id=1，剩余 N 条」
+D4 全部清空      eraseAll() → 回显「已清空，剩余 0 条」</pre>
+<p style="font-size:13px;color:#888">Demo 使用一个内置 <code>demo_note</code> 表（宿主角色的最小 schema 示例），演示「宿主注入 schema → 骨架建库迁移 → 业务读写 → 注销清空」全链路。</p>
+</div>
+
+<h2>6. 决策投票表</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项</th><th>选定</th><th>理由</th></tr>
+<tr><td>P1</td><td>骨架 vs 全量 ORM</td><td>A. 只做生命周期骨架，schema 由宿主注入<br>B. 中台包内置业务表<br>C. 内置通用 ORM 映射层</td><td><span class="badge badge-a">A</span></td><td>零业务依赖、可独立编译；业务表变更不影响中台包</td></tr>
+<tr><td>P2</td><td>Android 缺口处理</td><td>A. 一期补齐最小骨架（原生 <code>SQLiteOpenHelper</code>，零新依赖）<br>B. 引入 Room<br>C. 标 partial 不补</td><td><span class="badge badge-a">A</span></td><td>与 iOS GRDB 骨架语义对齐（都是「文件+迁移+清空」）；Room 引入注解处理器与编译期开销，一期不需要；不补则双端 Demo 无法 1:1</td></tr>
+<tr><td>P3</td><td>schema 注入方式</td><td>A. iOS 全局静态注入 / Android 显式传参<br>B. 双端都全局静态<br>C. 双端都依赖注入框架</td><td><span class="badge badge-a">A</span></td><td>各循平台惯例（iOS 中台常见静态注入；Android 需 <code>Context</code> 无法纯静态）</td></tr>
+<tr><td>P4</td><td>一期范围</td><td>A. 建库/迁移/清空 + Demo 4 段<br>B. 二期=加密存储/网络缓存/离线队列/字段级迁移工具</td><td><span class="badge badge-a">A</span></td><td>一期把「本地优先」的地基做扎实</td></tr>
+</table>
+</div>
+
+<h2>7. 平台差异表</h2>
+<table>
+<tr><th>差异点</th><th>iOS</th><th>Android</th><th>判据</th></tr>
+<tr><td>SQLite 封装</td><td>GRDB（<code>DatabaseQueue</code> + <code>DatabaseMigrator</code>）</td><td>原生 <code>SQLiteOpenHelper</code> + <code>SQLiteDatabase</code></td><td><span class="badge badge-a">表内放行</span>（底层同为 SQLite，行为一致）</td></tr>
+<tr><td>迁移表达</td><td><code>DatabaseMigrator</code>（命名迁移，自动记录已执行版本）</td><td><code>version</code> 整数 + <code>migrations</code> 列表（<code>onUpgrade</code> 内按 old/new 补跑）</td><td><span class="badge badge-a">表内放行</span>（语义一致：按版本补跑缺失迁移）</td></tr>
+<tr><td>接入方式</td><td><code>AppDatabase.schemaProvider = X</code>（全局静态）</td><td><code>AppDatabase.prepare(context, X)</code>（显式传参）</td><td><span class="badge badge-a">表内放行</span>（Android 需 Context，无法纯静态）</td></tr>
+<tr><td>存储目录</td><td><code>applicationSupportDirectory/{dir}</code></td><td><code>context.filesDir/{dir}</code></td><td><span class="badge badge-a">表内放行</span>（同为应用私有持久目录）</td></tr>
+<tr><td>线程模型</td><td>GRDB 队列串行化，无需调用方管理</td><td>调用方自行切 IO 线程</td><td><span class="badge badge-a">表内放行</span>（组件不引入协程作用域，避免主线程阻塞）</td></tr>
+</table>
+
+<h2>8. 反目标</h2>
+<table>
+<tr><th>不做</th><th>原因</th></tr>
+<tr><td>字段级加密 / 密钥管理</td><td>一期不做；宿主按敏感信息规范自处理</td></tr>
+<tr><td>网络缓存 / 离线同步队列</td><td>二期</td></tr>
+<tr><td>ORM 实体映射 / 代码生成</td><td>一期不做（Room/GRDB Record 由宿主选型）</td></tr>
+<tr><td>数据库迁移可视化工具</td><td>非一期交付目标</td></tr>
+</table>
+
+</div>
+</body>
+</html>

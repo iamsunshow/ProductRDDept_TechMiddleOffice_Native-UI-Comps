@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MoneyFormat 金额格式化 · 设计规格 · TMO 组件库 v1.4.0</title>
+<style>
+:root { --bg:#fff; --bg-page:#f5f5f5; --text:#1a1a1a; --text-2:#888; --border:#e8e8e8; --primary:#16a34a; --danger:#dc2626; --radius-lg:14px; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:-apple-system,'SF Pro Text',sans-serif; background:var(--bg-page); color:var(--text); line-height:1.6; }
+.container { max-width:880px; margin:0 auto; padding:24px 16px 80px; }
+h1 { font-size:24px; margin-bottom:8px; }
+h2 { font-size:20px; margin:28px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+h3 { font-size:16px; margin:16px 0 8px; }
+p { font-size:14px; margin-bottom:8px; }
+code { background:#f0f0f0; padding:2px 6px; border-radius:4px; font-size:13px; }
+table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; }
+th,td { border:1px solid var(--border); padding:8px 12px; text-align:left; }
+th { background:#fafafa; font-weight:600; }
+.section { background:var(--bg); border-radius:12px; padding:20px; margin:16px 0; border:1px solid var(--border); }
+.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600; }
+.badge-a { background:#e6f7e6; color:#52c41a; }
+.mono { font-family:'SF Mono',Menlo,monospace; font-size:13px; }
+.row { display:flex; gap:12px; flex-wrap:wrap; }
+.tile { flex:1; min-width:160px; border:1px solid var(--border); border-radius:10px; padding:12px; background:#fff; }
+.tile .k { font-size:12px; color:var(--text-2); }
+.tile .v { font-size:18px; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>MoneyFormat 金额格式化</h1>
+<p>组件 ID：<code>foundation.money-format</code> ｜ 任务清单 #95 ｜ 底层能力 foundation ｜ TMO 组件库 v1.4.0</p>
+<p>定位：统一对外展示的金额格式（两位小数 + 可选人民币符号 + 可选收支正负号），是记账类业务唯一的金额展示出口。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation</h3><p>账单列表、明细页、图表轴标签、预算卡等所有展示金额的位置，都必须保持同一格式（两位小数、无千分位、千分位由业务决定不做）。</p>
+<h3>Complication</h3><p>双端各自用 <code>String.format("%.2f")</code> / <code>NumberFormatter</code> 拼装，易出现「有的地方 38.5 有的地方 38.50」「iOS 有千分位 Android 没有」「四舍五入策略不一致」等展示漂移。</p>
+<h3>Question</h3><p>需要一个纯函数式的金额格式化工具，双端输出逐字符一致，且不承载业务语义（收入/支出由调用方映射）。</p>
+<h3>Answer</h3><p>MoneyFormat——三个静态方法：<code>string</code>（两位小数）/ <code>currency</code>（人民币符号 + 两位小数）/ <code>signed</code>（按收支方向加正负号）；无状态、无 UI、无业务语义。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 MoneyFormat 划界</th></tr>
+<tr><td>DateFormatters（同文件）</td><td>日期展示格式化</td><td>DateFormatters=日期（MM月dd日 等），MoneyFormat=金额；同属 formatter 家族但互不调用</td></tr>
+<tr><td>InputNumber #30</td><td>数字输入控件</td><td>InputNumber=可编辑的数值输入（有 UI、有回调），MoneyFormat=只读展示格式化（纯函数）</td></tr>
+<tr><td>Price #72</td><td>价格展示组件</td><td>Price=带样式的价格文本控件（字号/颜色/符号位置），MoneyFormat=无样式的字符串工具；Price 内部可选用 MoneyFormat 生成主体字符串</td></tr>
+<tr><td>业务金额计算</td><td>加减/汇总/汇率</td><td>MoneyFormat 只格式化已算好的 <code>Double</code>，不做任何计算与单位换算</td></tr>
+</table>
+
+<h2>3. API 契约</h2>
+<div class="section">
+<h3>方法</h3>
+<table>
+<tr><th>方法</th><th>签名（双端同构）</th><th>说明</th></tr>
+<tr><td><code>string</code></td><td>iOS <code>static func string(from amount: Double) -&gt; String</code><br>Android <code>fun string(amount: Double): String</code></td><td>两位小数字符串（无货币符号、无千分位）。例：<code>38.5 → "38.50"</code></td></tr>
+<tr><td><code>currency</code></td><td>iOS <code>static func currency(from amount: Double) -&gt; String</code><br>Android <code>fun currency(amount: Double): String</code></td><td>人民币符号 + 两位小数。例：<code>38.5 → "¥38.50"</code></td></tr>
+<tr><td><code>signed</code></td><td>iOS <code>static func signed(from amount: Double, isIncome: Bool) -&gt; String</code><br>Android <code>fun signed(amount: Double, isIncome: Boolean): String</code></td><td>按收支方向加前缀：收入 <code>+</code>、支出 <code>-</code>，后接两位小数。例：<code>38.5,false → "-38.50"</code></td></tr>
+</table>
+<h3>Events</h3>
+<table>
+<tr><th>事件</th><th>说明</th></tr>
+<tr><td>无</td><td>纯工具类型，无回调、无状态</td></tr>
+</table>
+</div>
+
+<h2>4. 设计规格</h2>
+<table>
+<tr><th>项</th><th>规格</th><th>Token / 依据</th></tr>
+<tr><td>小数位数</td><td>固定 2 位（不足补零，超出四舍五入）</td><td>全局规范：对外展示金额一律两位小数</td></tr>
+<tr><td>千分位</td><td>不分组（无 <code>,</code>）</td><td>对齐现有双端实现（iOS <code>groupingSeparator=""</code>）</td></tr>
+<tr><td>货币符号</td><td>固定 <code>¥</code>，前缀拼接</td><td>CNY 单一币种（多币种=二期）</td></tr>
+<tr><td>正负号</td><td>由 <code>isIncome</code> 映射，业务无关</td><td>收入 <code>+</code> / 支出 <code>-</code></td></tr>
+<tr><td>负数</td><td><code>string(-1118) → "-1118.00"</code>（负号由数值自带，<code>signed</code> 不再叠加）</td><td>边界：调用方传负值时以数值符号为准</td></tr>
+<tr><td>样式</td><td>无（不设置字号/颜色）</td><td>样式由消费方（Price/Text）决定</td></tr>
+</table>
+
+<h2>5. Demo 排查 4 组</h2>
+<div class="section">
+<div class="row">
+<div class="tile"><div class="k">D1 · string(38.5)</div><div class="v mono">38.50</div></div>
+<div class="tile"><div class="k">D2 · currency(38.5)</div><div class="v mono">¥38.50</div></div>
+<div class="tile"><div class="k">D3 · signed(38.5, true)</div><div class="v mono">+38.50</div></div>
+<div class="tile"><div class="k">D4 · 边界 0 / 大数</div><div class="v mono">0.00 · 123456789.99</div></div>
+</div>
+</div>
+<p style="font-size:13px;color:#888">D1 基础两位小数（<code>string</code>）｜ D2 货币符号（<code>currency</code>）｜ D3 收支正负号（<code>signed</code> 收入/支出各一次）｜ D4 边界值（<code>0</code> / 负数 / 大额 / 超两位小数四舍五入 <code>1.005</code>）</p>
+
+<h2>6. 决策投票表</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项</th><th>选定</th><th>理由</th></tr>
+<tr><td>P1</td><td>小数位数</td><td>A. 固定 2 位<br>B. 智能去零（38.5 显示 38.5）<br>C. 可配置</td><td><span class="badge badge-a">A</span></td><td>全局规范要求统一两位小数，避免账目对齐错乱；可配置=二期</td></tr>
+<tr><td>P2</td><td>千分位</td><td>A. 无分组<br>B. 千分位分组<br>C. 可配置</td><td><span class="badge badge-a">A</span></td><td>对齐现有双端实现与产品稿（小狐记账不分组）；分组=二期</td></tr>
+<tr><td>P3</td><td>收支语义</td><td>A. 由 isIncome 参数映射<br>B. 由正负数值自动判断<br>C. 组件内置收入/支出颜色</td><td><span class="badge badge-a">A</span></td><td>组件保持业务无关；颜色/语义由消费方（Cell/Price）决定</td></tr>
+<tr><td>P4</td><td>一期范围</td><td>A. string+currency+signed+demo4段<br>B. 二期=多币种/千分位/单位（万/亿）</td><td><span class="badge badge-a">A</span></td><td>一期覆盖记账类 100% 展示场景</td></tr>
+</table>
+</div>
+
+<h2>7. 平台差异表</h2>
+<table>
+<tr><th>差异点</th><th>iOS（Foundation）</th><th>Android（Kotlin/JVM）</th><th>判据</th></tr>
+<tr><td>格式化实现</td><td><code>NumberFormatter</code>（locale <code>en_US_POSIX</code>，min=max=2，<code>groupingSeparator=""</code>）</td><td><code>String.format(Locale.US, "%.2f", amount)</code></td><td>表内放行（输出逐字符一致：均为两位小数、无千分位、半进位）</td></tr>
+<tr><td>兜底路径</td><td><code>NumberFormatter</code> 失败时回退 <code>String(format:"%.2f")</code></td><td>无（<code>String.format</code> 即主路径）</td><td>表内放行（仅异常兜底，正常输出一致）</td></tr>
+</table>
+<p><strong>差异风险登记（待 C1 单测兜住）</strong>：<code>1.005</code> 这类「第三位为 5」的值，iOS <code>NumberFormatter</code> 默认半偶舍入（<code>1.00</code>）而 Android <code>String.format</code> 半进位（<code>1.01</code>）。一期以「日常金额均为两位以内」为界不强制统一；C1 单测须对 <code>0.005</code>/<code>1.005</code> 双端分别断言并登记 <code>diff-api.json</code>。</p>
+
+<h2>8. 反目标</h2>
+<table>
+<tr><th>不做</th><th>原因</th></tr>
+<tr><td>多币种 / 汇率换算</td><td>一期仅 CNY；汇率是业务计算，非展示格式化</td></tr>
+<tr><td>千分位分组</td><td>产品稿明确不分组</td></tr>
+<tr><td>万 / 亿 单位缩写</td><td>二期；业务展示口径未定</td></tr>
+<tr><td>金额计算（加减/汇总）</td><td>工具只格式化，不做算术</td></tr>
+</table>
+
+</div>
+</body>
+</html>

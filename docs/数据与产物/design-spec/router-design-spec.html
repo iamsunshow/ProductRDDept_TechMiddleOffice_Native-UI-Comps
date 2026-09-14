@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Router 应用路由 · 设计规格 · TMO 组件库 v1.4.0</title>
+<style>
+:root { --bg:#fff; --bg-page:#f5f5f5; --text:#1a1a1a; --text-2:#888; --border:#e8e8e8; --primary:#16a34a; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:-apple-system,'SF Pro Text',sans-serif; background:var(--bg-page); color:var(--text); line-height:1.6; }
+.container { max-width:880px; margin:0 auto; padding:24px 16px 80px; }
+h1 { font-size:24px; margin-bottom:8px; }
+h2 { font-size:20px; margin:28px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+h3 { font-size:16px; margin:16px 0 8px; }
+p { font-size:14px; margin-bottom:8px; }
+code { background:#f0f0f0; padding:2px 6px; border-radius:4px; font-size:13px; }
+table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; }
+th,td { border:1px solid var(--border); padding:8px 12px; text-align:left; }
+th { background:#fafafa; font-weight:600; }
+.section { background:var(--bg); border-radius:12px; padding:20px; margin:16px 0; border:1px solid var(--border); }
+.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600; }
+.badge-a { background:#e6f7e6; color:#52c41a; }
+.mono { font-family:'SF Mono',Menlo,monospace; font-size:12px; }
+pre { background:#f8f8f8; border:1px solid var(--border); border-radius:8px; padding:12px; overflow:auto; font-size:12px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Router 应用路由</h1>
+<p>组件 ID：<code>foundation.router</code> ｜ 任务清单 #92 ｜ 底层能力 foundation ｜ TMO 组件库 v1.4.0</p>
+<p>定位：应用内导航机制的唯一出口——一级 Tab 切换 + 二级及以下 push/pop + 路由表集中声明 + 目标页由宿主注入（中台包不依赖业务控制器）。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation</h3><p>App 有 5 个一级 Tab（明细/图表/记账/发现/我的）与 20+ 个二级页（账单、预算、资产、房贷、汇率、设置、帮助…），任意页面都可能跳向二级页。</p>
+<h3>Complication</h3><p>若各页面直接 new 出目标控制器并 push，中台包里会出现对全部业务页的编译依赖，无法独立编译、无法单测。</p>
+<h3>Question</h3><p>需要一个只管「导航机制」、不知道「页面从哪来」的路由层，且路由标识集中声明、便于审计。</p>
+<h3>Answer</h3><p>Router——集中声明目的地（iOS <code>AppRouter.Destination</code> / Android <code>MainDestination</code>+<code>SecondaryRoutes</code>），目标页构造交由宿主注入（iOS <code>RouterDestinationProvider</code> / Android <code>NavHostController</code> 的 NavGraph）；未注入时回退占位页，保证中台包可独立编译。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 Router 划界</th></tr>
+<tr><td>NavBar #17 / Tabbar #19 / Tabs #20 / SideBar #18</td><td>导航的「视觉与交互」</td><td>这些是 UI 组件，点击后调用 Router 完成跳转；Router 不含任何导航 UI</td></tr>
+<tr><td>BackTop #13 / FixedNav #15</td><td>页内快捷导航视觉</td><td>同上：只触发 Router，不承载路由表</td></tr>
+<tr><td>业务页构造</td><td>具体页面的创建</td><td>由宿主注入（provider / NavGraph），Router 只按标识请求</td></tr>
+<tr><td>Deep Link / URL Scheme</td><td>外部唤起</td><td>二期；一期仅应用内跳转</td></tr>
+</table>
+
+<h2>3. API 契约</h2>
+<div class="section">
+<h3>iOS（<code>enum AppRouter</code>，静态命名空间）</h3>
+<table>
+<tr><th>API</th><th>签名</th><th>说明</th></tr>
+<tr><td>provider</td><td><code>static var provider: RouterDestinationProvider?</code></td><td>宿主启动时注入目标页解析器</td></tr>
+<tr><td>Tab</td><td><code>enum Tab: Int { ledger, charts, bookkeeping, discover, profile }</code></td><td>一级 Tab（与 <code>MainTabBarController</code> 顺序一致）</td></tr>
+<tr><td>Destination</td><td><code>enum Destination { incomeList, expenseList, bill, budget, assetsHome, more, mortgageCalculator, fxConverter, invoiceHelper, couponSaver, recurringRules, myLedgers, familyBill, settings, accountSecurity, help, feedback, about, accountSettings }</code></td><td>可 push 的目标页（18 项）</td></tr>
+<tr><td>selectTab</td><td><code>static func selectTab(_ tab: Tab)</code></td><td>切换根 TabBar 选中项</td></tr>
+<tr><td>open</td><td><code>static func open(_ destination: Destination, from host: UIViewController)</code> + 重载 <code>openIncome(year:month:from:)</code> / <code>openExpense(year:month:from:)</code></td><td>解析目标页并 push（<code>hidesBottomBarWhenPushed=true</code>）</td></tr>
+<tr><td>push</td><td><code>static func push(_ vc: UIViewController, from host: UIViewController)</code></td><td>直接 push 已构造的控制器（恢复导航栏）</td></tr>
+<tr><td>占位兜底</td><td><code>final class NativePlaceholderViewController</code></td><td>未注入 provider 或解析返回 nil 时的占位页</td></tr>
+</table>
+<h3>Android（<code>class AppRouter(navController)</code> + 路由常量）</h3>
+<table>
+<tr><th>API</th><th>签名</th><th>说明</th></tr>
+<tr><td>构造函数</td><td><code>AppRouter(navController: NavHostController)</code></td><td>宿主注入 NavHostController</td></tr>
+<tr><td>MainDestination</td><td><code>enum class MainDestination(val route: String) { Ledger("ledger"), Charts("charts"), Bookkeeping("bookkeeping"), Discover("discover"), Profile("profile") }</code></td><td>一级 Tab（5 项）</td></tr>
+<tr><td>SecondaryRoutes</td><td><code>object SecondaryRoutes</code>（26 条常量 + <code>bookkeepingEdit/copy</code>、<code>transactionDetail</code>、<code>placeholder</code> 构造函数）</td><td>二级及以下路由（<code>PLACEHOLDER</code>、<code>BILL</code>、<code>BUDGET</code>、<code>ASSETS</code>、<code>MORTGAGE</code>、<code>FX</code>、<code>SETTINGS</code>、<code>LOGIN</code>…）</td></tr>
+<tr><td>open</td><td><code>fun open(title: String)</code></td><td>按中文标题映射到路由并 push（含 <code>else → placeholder(title)</code> 兜底）</td></tr>
+<tr><td>push / pop</td><td><code>fun push(route: String)</code> / <code>fun pop()</code></td><td>直接按路由串导航 / 返回</td></tr>
+<tr><td>selectTab</td><td><code>fun selectTab(destination: MainDestination)</code></td><td>切换一级 Tab（<code>popUpTo(start){saveState}</code> + <code>launchSingleTop</code> + <code>restoreState</code>）</td></tr>
+<tr><td>popUpToProfileRoot</td><td><code>fun popUpToProfileRoot()</code></td><td>回「我的」Tab 根页（注销流程用）</td></tr>
+</table>
+<h3>Events</h3>
+<table><tr><th>事件</th><th>说明</th></tr><tr><td>无</td><td>命令式方法调用，无回调</td></tr></table>
+</div>
+
+<h2>4. 设计规格</h2>
+<table>
+<tr><th>项</th><th>规格</th><th>依据</th></tr>
+<tr><td>路由标识</td><td>集中声明，不得在页面内写裸字符串路由</td><td>可审计、防拼写漂移</td></tr>
+<tr><td>一级页</td><td>Tab 切换，保留各 Tab 栈状态（Android <code>saveState/restoreState</code>）</td><td>用户预期：切回 Tab 仍在原位</td></tr>
+<tr><td>二级页</td><td>一律 push，隐藏底栏，系统返回</td><td>iOS <code>hidesBottomBarWhenPushed</code> / Android NavGraph 二级图</td></tr>
+<tr><td>未注入兜底</td><td>iOS 回退 <code>NativePlaceholderViewController</code>；Android <code>else → placeholder(title)</code></td><td>保证中台包独立编译与可运行</td></tr>
+<tr><td>重复点击</td><td>Android <code>launchSingleTop</code>；iOS 由宿主控制</td><td>防栈内重复页</td></tr>
+<tr><td>业务解耦</td><td>Router 不 import 任何业务控制器/Composable</td><td>中台包可独立编译红线</td></tr>
+</table>
+
+<h2>5. Demo 排查 4 组</h2>
+<div class="section">
+<p style="font-size:13px;color:var(--text-2)">D1 · 路由表总览｜ D2 · 一级 Tab 切换｜ D3 · 二级 push/返回｜ D4 · 兜底占位（未注入目标页）</p>
+<pre class="mono">D1 路由表总览
+  一级 Tab（5）  ledger  charts  bookkeeping  discover  profile
+  二级路由（示例）bill  budget  assets  mortgage  fx
+                  settings  account_security  feedback  help  about
+D2 点「预算」→ selectTab / push(BUDGET) → 段内回显「已请求：budget」
+D3 点「房贷计算器」→ open → 段内回显「已 push：mortgage」+「返回」按钮
+D4 点「未登记标题」→ 兜底 → 段内回显「占位页：未登记标题」</pre>
+<p style="font-size:13px;color:#888">Demo 采用<strong>内层路由状态机回显</strong>（不真 push 进 Demo 宿主栈，避免污染组件库 Demo 的导航栈），四段分别演示：集中路由表 / Tab 切换请求 / 二级页 push 请求 / 未登记兜底。</p>
+</div>
+
+<h2>6. 决策投票表</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项</th><th>选定</th><th>理由</th></tr>
+<tr><td>P1</td><td>路由声明方式</td><td>A. 集中声明（枚举/常量对象）<br>B. 页面内裸字符串<br>C. 注解生成</td><td><span class="badge badge-a">A</span></td><td>双端现有实现即集中声明；可审计、防拼写漂移；注解生成=二期</td></tr>
+<tr><td>P2</td><td>目标页来源</td><td>A. 宿主注入（provider / NavGraph）<br>B. 中台包直接构造业务页<br>C. 反射按类名构造</td><td><span class="badge badge-a">A</span></td><td>保证中台包零业务依赖、可独立编译与单测</td></tr>
+<tr><td>P3</td><td>参数传递</td><td>A. 路由参数内嵌（如 <code>transaction_detail/{recordId}</code>）+ 可选年月<br>B. 全局可变参数袋<br>C. 序列化对象透传</td><td><span class="badge badge-a">A</span></td><td>显式、可读；全局参数袋易产生隐式耦合</td></tr>
+<tr><td>P4</td><td>一期范围</td><td>A. Tab 切换 + push/pop + 兜底占位 + Demo 4 段<br>B. 二期=Deep Link / URL Scheme / 路由拦截器 / 转场动画</td><td><span class="badge badge-a">A</span></td><td>一期覆盖应用内 100% 跳转；外部唤起属二期</td></tr>
+</table>
+</div>
+
+<h2>7. 平台差异表</h2>
+<table>
+<tr><th>差异点</th><th>iOS（UIKit）</th><th>Android（Compose Navigation）</th><th>判据</th></tr>
+<tr><td>导航容器</td><td><code>UINavigationController</code> / <code>UITabBarController</code>（宿主持有，Router 静态访问）</td><td><code>NavHostController</code>（构造 AppRouter 时注入）</td><td>表内放行（平台原生导航体系不同）</td></tr>
+<tr><td>目标页解析</td><td>协议注入 <code>RouterDestinationProvider</code>（返回 <code>UIViewController?</code>）</td><td>宿主 NavGraph 注册 Composable（路由串由 Router 提供）</td><td>表内放行（语义一致：Router 只请求、宿主构造）</td></tr>
+<tr><td>路由标识</td><td><code>Destination</code> 枚举（类型安全）</td><td>路由字符串常量（<code>SecondaryRoutes</code>）</td><td>表内放行（Android Navigation 原生为字符串路由）</td></tr>
+<tr><td>Tab 状态保留</td><td>系统 <code>UITabBarController</code> 天然保留各 Tab 栈</td><td>需显式 <code>popUpTo(start){saveState=true}</code> + <code>restoreState=true</code></td><td>表内放行（行为一致，实现不同）</td></tr>
+<tr><td>入口签名</td><td><code>open(Destination, from: host)</code>（需宿主 VC）</td><td><code>open(title: String)</code>（AppRouter 已持有 navController）</td><td>表内放行（iOS 静态命名空间需显式传宿主；Android 实例已绑定）</td></tr>
+</table>
+
+<h2>8. 反目标</h2>
+<table>
+<tr><th>不做</th><th>原因</th></tr>
+<tr><td>Deep Link / URL Scheme / 推送唤起</td><td>二期</td></tr>
+<tr><td>路由拦截器 / 登录守卫</td><td>二期；一期由业务页自判</td></tr>
+<tr><td>转场动画定制</td><td>二期</td></tr>
+<tr><td>路由可视化调试面板</td><td>非一期交付目标</td></tr>
+</table>
+
+</div>
+</body>
+</html>

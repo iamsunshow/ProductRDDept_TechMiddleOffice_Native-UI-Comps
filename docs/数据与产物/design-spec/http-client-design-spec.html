@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>HTTPClient 网络客户端 · 设计规格 · TMO 组件库 v1.4.0</title>
+<style>
+:root { --bg:#fff; --bg-page:#f5f5f5; --text:#1a1a1a; --text-2:#888; --border:#e8e8e8; --primary:#16a34a; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:-apple-system,'SF Pro Text',sans-serif; background:var(--bg-page); color:var(--text); line-height:1.6; }
+.container { max-width:880px; margin:0 auto; padding:24px 16px 80px; }
+h1 { font-size:24px; margin-bottom:8px; }
+h2 { font-size:20px; margin:28px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+h3 { font-size:16px; margin:16px 0 8px; }
+p { font-size:14px; margin-bottom:8px; }
+code { background:#f0f0f0; padding:2px 6px; border-radius:4px; font-size:13px; }
+table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; }
+th,td { border:1px solid var(--border); padding:8px 12px; text-align:left; }
+th { background:#fafafa; font-weight:600; }
+.section { background:var(--bg); border-radius:12px; padding:20px; margin:16px 0; border:1px solid var(--border); }
+.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600; }
+.badge-a { background:#e6f7e6; color:#52c41a; }
+.badge-n { background:#fff7e6; color:#fa8c16; }
+pre { background:#f8f8f8; border:1px solid var(--border); border-radius:8px; padding:12px; overflow:auto; font-size:12px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>HTTPClient 网络客户端</h1>
+<p>组件 ID：<code>foundation.http-client</code> ｜ 任务清单 #94 ｜ 底层能力 foundation ｜ TMO 组件库 v1.4.0</p>
+<p>定位：统一网络层——HTTP 客户端构建 + 环境（基址）配置 + 一期 Mock 通道；只负责「请求与解码」，业务规则放业务层。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation</h3><p>App 一期不接真后端，全部接口走 Mock；二期切换到真实后端仅需改基址。</p>
+<h3>Complication</h3><p>若各页面自行 <code>URLSession</code>/<code>OkHttp</code> 发请求，会出现基址散落、序列化不一致、无法统一加拦截器（鉴权/日志）。</p>
+<h3>Question</h3><p>需要一个集中构建客户端、集中声明环境基址、并提供一期离线 Mock 能力的网络层，且能被宿主替换为真实环境。</p>
+<h3>Answer</h3><p>HTTPClient——iOS <code>APIClientProtocol</code> + <code>MockAPIClient</code>（Alamofire）+ <code>APIEnvironment.current</code> 可注入基址；Android <code>KeepAccountsApi</code>（Retrofit 接口）+ <code>MockApiClient.create()</code>（OkHttp + <code>MockInterceptor</code> 本地返回 JSON）。一期双端 Mock <strong>均可离线成功</strong>。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 HTTPClient 划界</th></tr>
+<tr><td>业务 API 接口</td><td>记账/预算/资产等具体接口</td><td>由宿主扩展 endpoint 与 DTO；中台包仅提供「客户端构建 + 环境 + 通用 Mock」</td></tr>
+<tr><td>鉴权 / Token 刷新</td><td>加 Authorization 头、401 刷新</td><td>二期（在拦截器链中扩展）；一期不做</td></tr>
+<tr><td>DTO 模型</td><td>数据结构</td><td><code>HealthDTO</code> 等通用 DTO 由中台提供；业务 DTO 归宿主</td></tr>
+<tr><td>日志 / 埋点</td><td>请求日志</td><td>二期</td></tr>
+</table>
+
+<h2>3. API 契约</h2>
+<div class="section">
+<h3>iOS（Alamofire，已有 + <span class="badge badge-n">补齐 Mock 通道</span>）</h3>
+<table>
+<tr><th>API</th><th>签名</th><th>说明</th></tr>
+<tr><td>环境</td><td><code>struct APIEnvironment { baseURL: URL; static let mock; static var current }</code></td><td><code>current</code> 默认 mock，宿主启动时覆盖为真实后端</td></tr>
+<tr><td>协议</td><td><code>protocol APIClientProtocol { func getHealth() async throws -&gt; HealthDTO }</code></td><td>便于替换实现与单测</td></tr>
+<tr><td>客户端</td><td><code>final class MockAPIClient: APIClientProtocol { static let shared; init(env:session:) }</code></td><td>Alamofire <code>Session</code> 注入，<code>getHealth()</code> GET <code>/health</code> 解码</td></tr>
+<tr><td>Mock 通道<span class="badge badge-n">新增·补齐缺口</span></td><td><code>MockURLProtocol</code>（<code>URLProtocol</code> 子类 + <code>register()</code> 注入 <code>URLSessionConfiguration</code>）</td><td>本地拦截 <code>/health</code> 返回 <code>{"status":"ok","message":"keep-accounts mock"}</code>；未知路径返回 <code>{"status":"not_found",...}</code>——与 Android <code>MockInterceptor</code> 行为一致</td></tr>
+</table>
+<h3>Android（OkHttp + Retrofit + kotlinx.serialization，已有）</h3>
+<table>
+<tr><th>API</th><th>签名</th><th>说明</th></tr>
+<tr><td>接口</td><td><code>interface KeepAccountsApi { @GET(ApiEndpoint.HEALTH) suspend fun health(): HealthDTO }</code></td><td>Retrofit 接口</td></tr>
+<tr><td>客户端</td><td><code>class MockApiClient(val api: KeepAccountsApi) { companion object { fun create(): MockApiClient } }</code></td><td>构建 OkHttp（挂 <code>MockInterceptor</code>）+ Retrofit（kotlinx 转换器）</td></tr>
+<tr><td>Mock 拦截</td><td><code>private class MockInterceptor(json)</code></td><td>按 <code>encodedPath</code> 匹配：<code>/health</code> 返回 ok JSON；<code>else</code> 返回 <code>not_found</code> JSON；统一 <code>code=200</code></td></tr>
+<tr><td>基址</td><td><code>ApiEndpoint.BASE_URL</code></td><td>常量（宿主可为二期切换改造）</td></tr>
+</table>
+<h3>Events</h3>
+<table><tr><th>事件</th><th>说明</th></tr><tr><td>无</td><td>挂起函数 / async 返回结果与错误</td></tr></table>
+</div>
+
+<h2>4. 设计规格</h2>
+<table>
+<tr><th>项</th><th>规格</th><th>依据</th></tr>
+<tr><td>单一出口</td><td>所有网络请求经统一客户端，禁止页面直接用原始 HTTP 栈</td><td>可统一加拦截器与环境切换</td></tr>
+<tr><td>环境可注入</td><td>基址可被宿主覆盖（iOS <code>APIEnvironment.current</code> / Android 二期改造 <code>BASE_URL</code> 注入）</td><td>一期 Mock、二期真后端零改业务</td></tr>
+<tr><td>Mock 行为对齐</td><td><code>/health</code> → <code>{"status":"ok","message":"keep-accounts mock"}</code>；未知路径 → <code>{"status":"not_found","message":"&lt;path&gt;"}</code>；HTTP 状态码统一 200</td><td>双端逐字符一致（Demo 可对照）</td></tr>
+<tr><td>解码容错</td><td>忽略未知字段（iOS 默认 / Android <code>Json { ignoreUnknownKeys = true }</code>）</td><td>后端加字段不炸端</td></tr>
+<tr><td>线程</td><td>iOS <code>async/await</code>；Android <code>suspend</code> + Retrofit 自带 IO 调度</td><td>不阻塞主线程</td></tr>
+<tr><td>业务解耦</td><td>中台包不含业务接口与业务 DTO</td><td>可独立编译红线</td></tr>
+</table>
+
+<h2>5. Demo 排查 4 组</h2>
+<div class="section">
+<pre>D1 健康检查     请求 GET /health → 显示 {"status":"ok","message":"keep-accounts mock"}
+D2 环境配置     显示 baseURL 与当前环境（mock）；点击「切换环境」切换显示名
+D3 未登记路径   请求 GET /unknown → 显示 {"status":"not_found","message":"unknown"}
+D4 请求回执     显示 HTTP 200 + 耗时 xx ms + 响应体预览</pre>
+<p style="font-size:13px;color:#888">Demo 全部走离线路由：Android 由 <code>MockInterceptor</code> 拦截，iOS 由 <code>MockURLProtocol</code> 拦截（注册到 Demo 会话配置），<strong>双端不产生真实网络请求</strong>，响应体逐字符一致。</p>
+</div>
+
+<h2>6. 决策投票表</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项</th><th>选定</th><th>理由</th></tr>
+<tr><td>P1</td><td>网络栈</td><td>A. 各用平台主流库（iOS Alamofire / Android OkHttp+Retrofit）<br>B. 双端都用 Ktor<br>C. 裸 URLSession / HttpURLConnection</td><td><span class="badge badge-a">A</span></td><td>双端现有实现即此；社区成熟、拦截器生态完善</td></tr>
+<tr><td>P2</td><td>iOS Mock 缺口处理</td><td>A. 新增 <code>MockURLProtocol</code>（本地拦截，行为对齐 Android）<br>B. 依赖真实 mock 域名（不可达）<br>C. 标 partial 不补</td><td><span class="badge badge-a">A</span></td><td>当前 <code>mock.keep-accounts.local</code> 域名不解析，Demo 无法展示成功；补齐后双端离线可演示且响应一致</td></tr>
+<tr><td>P3</td><td>未知路径响应</td><td>A. 200 + <code>not_found</code> JSON（对齐 Android 现状）<br>B. 404 + 空体<br>C. 抛异常</td><td><span class="badge badge-a">A</span></td><td>与 Android <code>MockInterceptor</code> 逐字符一致；Mock 阶段不引入 404 语义分支</td></tr>
+<tr><td>P4</td><td>一期范围</td><td>A. 客户端构建 + 环境 + Mock + Demo 4 段<br>B. 二期=鉴权拦截器/Token 刷新/重试/日志/证书校验</td><td><span class="badge badge-a">A</span></td><td>一期把「可离线、可切换、可解码」地基做好</td></tr>
+</table>
+</div>
+
+<h2>7. 平台差异表</h2>
+<table>
+<tr><th>差异点</th><th>iOS</th><th>Android</th><th>判据</th></tr>
+<tr><td>HTTP 栈</td><td>Alamofire <code>Session</code></td><td>OkHttp + Retrofit</td><td><span class="badge badge-a">表内放行</span>（平台主流，语义一致）</td></tr>
+<tr><td>序列化</td><td><code>Codable</code> + <code>JSONDecoder</code>（<code>serializingDecodable</code>）</td><td>kotlinx.serialization + Retrofit 转换器</td><td><span class="badge badge-a">表内放行</span>（解码结果一致）</td></tr>
+<tr><td>Mock 实现</td><td><code>URLProtocol</code> 拦截（<span class="badge badge-n">本轮新增</span>）</td><td><code>Interceptor</code> 拦截（已有）</td><td><span class="badge badge-a">表内放行</span>（各循平台拦截点；响应体逐字符一致）</td></tr>
+<tr><td>环境配置</td><td><code>APIEnvironment.current</code>（struct，可运行期替换）</td><td><code>ApiEndpoint.BASE_URL</code>（常量，二期改造为可注入）</td><td><span class="badge badge-a">表内放行</span>（一期均指向 Mock）</td></tr>
+<tr><td>并发模型</td><td><code>async/await</code></td><td><code>suspend</code></td><td><span class="badge badge-a">表内放行</span>（同为非阻塞）</td></tr>
+</table>
+
+<h2>8. 反目标</h2>
+<table>
+<tr><th>不做</th><th>原因</th></tr>
+<tr><td>鉴权 / Token 自动刷新</td><td>二期（一期无登录态接口）</td></tr>
+<tr><td>请求重试 / 断线队列</td><td>二期</td></tr>
+<tr><td>请求日志面板 / 抓包页</td><td>非一期目标</td></tr>
+<tr><td>证书固定（Pinning）/ 证书校验策略</td><td>二期</td></tr>
+</table>
+
+</div>
+</body>
+</html>

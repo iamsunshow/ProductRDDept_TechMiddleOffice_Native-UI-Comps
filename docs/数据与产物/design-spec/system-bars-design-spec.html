@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SystemBars 系统栏 · 设计规格 · TMO 组件库 v1.4.0</title>
+<style>
+:root { --bg:#fff; --bg-page:#f5f5f5; --text:#1a1a1a; --text-2:#888; --border:#e8e8e8; --primary:#16a34a; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:-apple-system,'SF Pro Text',sans-serif; background:var(--bg-page); color:var(--text); line-height:1.6; }
+.container { max-width:880px; margin:0 auto; padding:24px 16px 80px; }
+h1 { font-size:24px; margin-bottom:8px; }
+h2 { font-size:20px; margin:28px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+h3 { font-size:16px; margin:16px 0 8px; }
+p { font-size:14px; margin-bottom:8px; }
+code { background:#f0f0f0; padding:2px 6px; border-radius:4px; font-size:13px; }
+table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; }
+th,td { border:1px solid var(--border); padding:8px 12px; text-align:left; }
+th { background:#fafafa; font-weight:600; }
+.section { background:var(--bg); border-radius:12px; padding:20px; margin:16px 0; border:1px solid var(--border); }
+.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600; }
+.badge-a { background:#e6f7e6; color:#52c41a; }
+.badge-n { background:#fff7e6; color:#fa8c16; }
+.phone { width:200px; border:8px solid #1a1a1a; border-radius:24px; overflow:hidden; background:#fff; }
+.bar { height:22px; display:flex; align-items:center; justify-content:space-between; padding:0 10px; font-size:10px; }
+.bar.dark { background:#16A34A; color:#fff; }
+.bar.light { background:#fff; color:#1a1a1a; }
+.body { height:70px; display:flex; align-items:center; justify-content:center; font-size:11px; color:#888; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>SystemBars 系统栏</h1>
+<p>组件 ID：<code>foundation.system-bars</code> ｜ 任务清单 #90 ｜ 底层能力 foundation ｜ TMO 组件库 v1.4.0</p>
+<p>定位：按页面统一配置系统栏（状态栏 / 导航栏）背景色与内容明暗，支撑沉浸式头图页与常规白底页的视觉切换。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation</h3><p>明细页使用品牌绿沉浸式头图，状态栏须为绿底白字（浅色图标）；其余页面为白底深字。</p>
+<h3>Complication</h3><p>Android 可直设 <code>window.statusBarColor</code> 并切换图标明暗；iOS 系统不支持设置状态栏背景色（只能控制内容样式 <code>preferredStatusBarStyle</code>），且 iOS 工程内仅有 <code>StatusBarNavigationController</code>（容器委托）没有独立能力出口——双端能力面不对等。</p>
+<h3>Question</h3><p>需要一个双端语义对齐的系统栏配置能力：<strong>「按页声明状态栏样式」</strong>，随页面进入/离开自动生效，离开无需手工还原。</p>
+<h3>Answer</h3><p>SystemBars——Android 侧为 <code>@Composable ConfigureSystemBars(statusBarColor, navigationBarColor)</code>（颜色 + 依亮度自动判定图标明暗，DisposableEffect 随组合生效）；iOS 侧为 <code>StatusBarNavigationController</code>（容器把样式决策委托栈顶页）+ 新增轻量工具 <code>SystemBars</code>（样式枚举 + 页面应用辅助）。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 SystemBars 划界</th></tr>
+<tr><td>SafeArea #10</td><td>内容避开状态栏/Home 指示条的安全区避让</td><td>SafeArea=「内容不进入系统栏区域」（padding/inset），SystemBars=「系统栏自身外观（底色+图标明暗）」；常配合使用：沉浸页先用 SystemBars 改色，再让头图延伸至安全区</td></tr>
+<tr><td>NavBar #17</td><td>页面顶部导航条（返回/标题/右侧动作）</td><td>NavBar 是页面内自绘的一条 UI，SystemBars 是系统级状态栏；NavBar 不负责状态栏底色</td></tr>
+<tr><td>Sticky #12</td><td>滚动吸顶</td><td>Sticky 只管内容吸附，不改变系统栏外观</td></tr>
+</table>
+
+<h2>3. API 契约</h2>
+<div class="section">
+<h3>Android</h3>
+<table>
+<tr><th>API</th><th>签名</th><th>说明</th></tr>
+<tr><td><code>ConfigureSystemBars</code></td><td><code>@Composable fun ConfigureSystemBars(statusBarColor: Color, navigationBarColor: Color = AppColor.bgCard)</code></td><td>按页设置状态栏/导航栏底色；<code>DisposableEffect</code> 在组合进入时生效；图标明暗由 <code>statusBarColor.luminance() &gt; 0.5f</code> 自动判定</td></tr>
+<tr><td><code>transparentStatusBarColor</code></td><td><code>fun transparentStatusBarColor(): Int</code></td><td>透明状态栏初始值，由各页 <code>ConfigureSystemBars</code> 覆盖</td></tr>
+</table>
+<h3>iOS</h3>
+<table>
+<tr><th>API</th><th>签名</th><th>说明</th></tr>
+<tr><td><code>StatusBarNavigationController</code></td><td><code>final class StatusBarNavigationController: UINavigationController</code></td><td>重写 <code>childForStatusBarStyle</code>/<code>childForStatusBarHidden</code>，将状态栏决策委托给栈顶 VC</td></tr>
+<tr><td><code>SystemBars</code><span class="badge badge-n">新增·补齐缺口</span></td><td><code>enum SystemBars</code> + <code>enum Style { case light, dark }</code> + <code>static func style(for:)</code> + <code>static func apply(_:in:)</code></td><td>轻量工具：把「亮色/深色状态栏」语义映射到 <code>UIStatusBarStyle</code>（<code>.lightContent</code> / <code>.darkContent</code>）并触发 <code>setNeedsStatusBarAppearanceUpdate()</code>，供页面在 <code>preferredStatusBarStyle</code> 中调用</td></tr>
+</table>
+<h3>Events</h3>
+<table><tr><th>事件</th><th>说明</th></tr><tr><td>无</td><td>声明式配置，无回调</td></tr></table>
+</div>
+
+<h2>4. 设计规格</h2>
+<table>
+<tr><th>项</th><th>规格</th><th>依据</th></tr>
+<tr><td>默认态</td><td>白底 + 深色图标（<code>AppColor.bgCard</code>）</td><td>App 常规页基线</td></tr>
+<tr><td>沉浸态</td><td>品牌绿底 + 浅色图标（<code>AppColor.primary</code>）</td><td>明细页头图</td></tr>
+<tr><td>透明态</td><td>透明底 + 深色图标（头图自绘延伸）</td><td>整屏图片头图</td></tr>
+<tr><td>图标明暗判定</td><td>亮背景(luminance&gt;0.5)→深色图标；暗背景→浅色图标</td><td>对比度可读性（WCAG 建议 ≥4.5:1）</td></tr>
+<tr><td>导航栏（Android）</td><td>默认 <code>AppColor.bgCard</code>，图标固定深色</td><td>Android 手势/三键导航条默认浅色底</td></tr>
+<tr><td>导航栏（iOS）</td><td>无对应 API（Home 指示条区域随页面背景）</td><td>系统限制，见 §7 差异表</td></tr>
+<tr><td>生效时机</td><td>页面进入即生效；Android 随组合生命周期；iOS 随 <code>viewWillAppear</code> 后刷新</td><td>避免手工还原导致的跨页串色</td></tr>
+</table>
+
+<h2>5. Demo 排查 4 组</h2>
+<div class="section">
+<div style="display:flex;gap:16px;flex-wrap:wrap">
+<div class="phone"><div class="bar light"><span>9:41</span><span>100%</span></div><div class="body">D1 默认白底深字</div></div>
+<div class="phone"><div class="bar dark"><span>9:41</span><span>100%</span></div><div class="body">D2 绿底白字（沉浸）</div></div>
+<div class="phone"><div class="bar light" style="background:transparent"><span>9:41</span><span>100%</span></div><div class="body">D3 透明底深字</div></div>
+<div class="phone"><div class="bar light"><span>9:41</span><span>100%</span></div><div class="body">D4 切换演示</div></div>
+</div>
+</div>
+<p style="font-size:13px;color:#888">D1 默认态（白底深色图标）｜ D2 沉浸态（绿底浅色图标）｜ D3 透明态（透明底深色图标）｜ D4 联动切换（段内按钮在三种模式间切换，观察状态栏实时变化并回显当前模式）</p>
+
+<h2>6. 决策投票表</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项</th><th>选定</th><th>理由</th></tr>
+<tr><td>P1</td><td>双端能力对齐口径</td><td>A. 对齐到「按页声明状态栏样式（底色+图标明暗）」<br>B. 只对齐图标明暗（放弃底色）<br>C. 只 Android 支持</td><td><span class="badge badge-a">A</span></td><td>业务核心诉求是沉浸式头图的底色；iOS 侧底色由页面在安全区自绘实现等价视觉（见差异表）</td></tr>
+<tr><td>P2</td><td>iOS 缺口处理</td><td>A. 新增轻量工具 <code>SystemBars</code>（样式枚举+应用辅助）补独立出口<br>B. 沿用 <code>StatusBarNavigationController</code> 不改<br>C. iOS 侧不做（标 partial）</td><td><span class="badge badge-a">A</span></td><td>iOS 现有能力仅为导航容器，组件无独立出口；补轻量工具后双端各有明确入口，Demo 才可 1:1（api.json 从 partial 升 available）</td></tr>
+<tr><td>P3</td><td>图标明暗判定</td><td>A. Android 依背景亮度自动判定 + iOS 显式声明<br>B. 双端都显式声明<br>C. 双端都自动</td><td><span class="badge badge-a">A</span></td><td>Android 能读到底色可自动推导（少一处误设）；iOS 本就无法读底色，显式声明是其唯一可行路径</td></tr>
+<tr><td>P4</td><td>一期范围</td><td>A. 底色+图标明暗三态（默认/沉浸/透明）+ Demo 4 段<br>B. 二期=渐变状态栏/状态栏随滚动渐变/深色模式</td><td><span class="badge badge-a">A</span></td><td>一期覆盖记账类全部页面；随滚动渐变属特效，二期</td></tr>
+</table>
+</div>
+
+<h2>7. 平台差异表</h2>
+<table>
+<tr><th>差异点</th><th>iOS（UIKit）</th><th>Android（Compose）</th><th>判据</th></tr>
+<tr><td>状态栏背景色</td><td>不可设置（系统 API 限制）；由页面在安全区自绘色块实现等价视觉</td><td><code>window.statusBarColor = color</code> 直接设置</td><td><span class="badge badge-a">表内放行</span>（视觉等价，实现不同；Demo 双端呈现一致观感）</td></tr>
+<tr><td>图标明暗</td><td><code>preferredStatusBarStyle</code>（<code>.lightContent</code>/<code>.darkContent</code>）显式声明</td><td><code>isAppearanceLightStatusBars</code> 依 <code>luminance() &gt; 0.5</code> 自动判定</td><td><span class="badge badge-a">表内放行</span>（结果一致，决策路径不同）</td></tr>
+<tr><td>导航栏</td><td>无对应 API（Home 指示条区域随页面背景）</td><td><code>window.navigationBarColor</code>（默认 bgCard，图标深色）</td><td><span class="badge badge-a">表内放行</span>（iOS 无实体导航栏底条）</td></tr>
+<tr><td>生效/还原</td><td>页面 <code>preferredStatusBarStyle</code> 随栈顶自动生效（容器委托）</td><td><code>DisposableEffect</code> 随组合进入/离开</td><td><span class="badge badge-a">表内放行</span>（均为声明式，无需手工还原）</td></tr>
+</table>
+
+<h2>8. 反目标</h2>
+<table>
+<tr><th>不做</th><th>原因</th></tr>
+<tr><td>状态栏随滚动渐变</td><td>特效，二期</td></tr>
+<tr><td>渐变 / 图片状态栏底</td><td>由页面自绘，组件只提供纯色/透明</td></tr>
+<tr><td>深色模式联动</td><td>二期（DesignTokens 亦不做深色）</td></tr>
+<tr><td>状态栏显隐控制</td><td>一期保留 <code>childForStatusBarHidden</code> 委托但不做 UI 开关</td></tr>
+</table>
+
+</div>
+</body>
+</html>

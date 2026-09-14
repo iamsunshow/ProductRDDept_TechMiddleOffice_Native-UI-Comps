@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Card 摘要卡片 · 设计规格 · TMO 组件库 v1.4.0</title>
+<style>
+:root { --bg:#fff; --bg-page:#f5f5f5; --text:#1a1a1a; --text-2:#888; --border:#e8e8e8; --primary:#16a34a; --danger:#dc2626; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:-apple-system,'SF Pro Text',sans-serif; background:var(--bg-page); color:var(--text); line-height:1.6; }
+.container { max-width:880px; margin:0 auto; padding:24px 16px 80px; }
+h1 { font-size:24px; margin-bottom:8px; }
+h2 { font-size:20px; margin:28px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+h3 { font-size:16px; margin:16px 0 8px; }
+p { font-size:14px; margin-bottom:8px; }
+code { background:#f0f0f0; padding:2px 6px; border-radius:4px; font-size:13px; }
+table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; }
+th,td { border:1px solid var(--border); padding:8px 12px; text-align:left; }
+th { background:#fafafa; font-weight:600; }
+.section { background:var(--bg); border-radius:12px; padding:20px; margin:16px 0; border:1px solid var(--border); }
+.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600; }
+.badge-a { background:#e6f7e6; color:#52c41a; }
+.card { background:#fff; border:1px solid var(--border); border-radius:14px; padding:16px; margin:10px 0; }
+.card .t { font-size:16px; font-weight:600; display:flex; justify-content:space-between; }
+.card .s { font-size:12px; color:#888; margin-top:6px; }
+.card .v { font-size:22px; font-weight:600; margin-top:10px; display:flex; justify-content:space-between; align-items:baseline; }
+.card .v .acc { font-size:12px; color:#888; font-weight:400; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Card 摘要卡片</h1>
+<p>组件 ID：<code>ui.card</code> ｜ 任务清单 #85 ｜ 展示区（基础卡） ｜ TMO 组件库 v1.4.0</p>
+<p>定位：通用摘要卡片容器——卡片壳 + 标题行（标题 + 右箭头）+ 副标题 + 数值行（主数值 + 右侧辅助文案），整卡可点击；用于资产总览、预算进度、月度结余等「一卡一指标」场景。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation</h3><p>资产页/发现页大量使用「标题 + 说明 + 大号数值 + 辅助对比」的卡片，形态高度一致（如「本月结余 ¥1,280.00 较上月 +12%」）。</p>
+<h3>Complication</h3><p>各页各自拼装会出现圆角/边框/内边距/字号不一致，且数值行与辅助文案的基线对齐方式各异。</p>
+<h3>Question</h3><p>需要一个数据驱动的通用摘要卡片：传入标题/副标题/数值/辅助即可渲染，双端视觉 1:1。</p>
+<h3>Answer</h3><p>Card——iOS <code>SummaryCardView</code>（UIControl + <code>apply(...)</code>）；Android <code>SummaryCardView</code>（Composable，参数驱动）。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 Card 划界</th></tr>
+<tr><td>Cell（列表项）</td><td>列表行（图标+主副标题+右侧值）</td><td>Cell 是<strong>行</strong>（等高、可成组、无大号数值），Card 是<strong>块</strong>（多行纵向、含大号数值区）</td></tr>
+<tr><td>Price #72</td><td>价格文本（字号/颜色/符号）</td><td>Price=数值文本控件；Card 的 value 可传 <code>MoneyFormatter.currency(...)</code> 结果由 Price 渲染（组合关系，非替代）</td></tr>
+<tr><td>Grid #8 / Layout #9</td><td>排布</td><td>排布由 Grid/Layout 负责，Card 只管自身视觉</td></tr>
+<tr><td>业务专用卡（账单卡/资产卡）</td><td>含业务交互的卡片</td><td>业务卡可组合 Card + 自绘内容；Card 不含业务字段</td></tr>
+</table>
+
+<h2>3. API 契约</h2>
+<div class="section">
+<table>
+<tr><th>参数</th><th>iOS（<code>SummaryCardView.apply</code>）</th><th>Android（<code>SummaryCardView(...)</code>）</th></tr>
+<tr><td>标题</td><td><code>title: String</code></td><td><code>title: String</code></td></tr>
+<tr><td>副标题</td><td><code>subtitle: String</code></td><td><code>subtitle: String</code></td></tr>
+<tr><td>主数值</td><td><code>value: String</code></td><td><code>value: String</code></td></tr>
+<tr><td>数值颜色</td><td><code>valueColor: UIColor</code>（默认 <code>AppColor.textPrimary</code>）</td><td><code>valueColor: Color = AppColor.textPrimary</code></td></tr>
+<tr><td>辅助文案</td><td><code>accessory: String?</code>（nil 隐藏）</td><td><code>accessory: String? = null</code></td></tr>
+<tr><td>点击</td><td>UIControl <code>.touchUpInside</code>（宿主 <code>addTarget</code>）</td><td><code>onClick: (() -&gt; Unit)? = null</code>（null 不可点）</td></tr>
+<tr><td>右箭头</td><td>常显（<code>chevron.right</code> 14pt）</td><td>常显（<code>KeyboardArrowRight</code> 14dp）</td></tr>
+</table>
+<h3>Events</h3>
+<table><tr><th>事件</th><th>说明</th></tr><tr><td>整卡点击</td><td>Android <code>onClick</code> / iOS <code>.touchUpInside</code>；<code>onClick=null</code> 时不可点击（Android）</td></tr></table>
+</div>
+
+<h2>4. 设计规格</h2>
+<table>
+<tr><th>项</th><th>规格</th><th>Token</th></tr>
+<tr><td>卡片壳</td><td>底色 + 圆角 + 细边框 + 内边距</td><td><code>bgCard</code> / <code>AppRadius.lg</code> 14 / <code>border</code>（iOS 1/scale pt · Android 0.5dp）/ <code>AppSpace.lg</code> 16</td></tr>
+<tr><td>行间距</td><td>标题行 / 副标题 / 数值行 三行纵向间距 8</td><td><code>AppSpace.sm</code></td></tr>
+<tr><td>标题</td><td>16pt，半粗，主文本色；与右箭头两端对齐</td><td><code>AppFont.sizeMd</code> / <code>textPrimary</code></td></tr>
+<tr><td>副标题</td><td>12pt，次要色，最多 2 行</td><td><code>AppFont.sizeXs</code> / <code>textSecondary</code></td></tr>
+<tr><td>主数值</td><td>22pt，半粗，颜色可覆盖（收入绿 / 支出红）</td><td><code>AppFont.sizeXl</code> / <code>valueColor</code></td></tr>
+<tr><td>辅助文案</td><td>12pt 次要色，与数值基线对齐、右靠</td><td><code>AppFont.sizeXs</code> / <code>textSecondary</code></td></tr>
+<tr><td>右箭头</td><td>14pt，次要色</td><td><code>chevron.right</code> / <code>KeyboardArrowRight</code></td></tr>
+</table>
+
+<h2>5. Demo 排查 4 组</h2>
+<div class="section">
+<div class="card"><div class="t"><span>本月结余</span><span>›</span></div><div class="s">2026年9月</div><div class="v"><span>¥1,280.00</span></div></div>
+<div class="card"><div class="t"><span>本月结余</span><span>›</span></div><div class="s">2026年9月 · 收入 ¥5,200 / 支出 ¥3,920</div><div class="v"><span>¥1,280.00</span><span class="acc">较上月 +12%</span></div></div>
+<div class="card"><div class="t"><span>本月支出</span><span>›</span></div><div class="s">2026年9月</div><div class="v" style="color:#DC2626"><span>¥3,920.00</span></div></div>
+<p style="font-size:13px;color:#888">D1 基础（标题+副标题+数值）｜ D2 带辅助文案（accessory）｜ D3 数值着色（<code>valueColor</code>=expense 红 / income 绿 各一）｜ D4 可点击（<code>onClick</code> 段内回显「点击了：本月结余」）</p>
+</div>
+
+<h2>6. 决策投票表</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项</th><th>选定</th><th>理由</th></tr>
+<tr><td>P1</td><td>数据驱动 vs 内容槽</td><td>A. 数据驱动（title/subtitle/value/accessory）<br>B. 自由内容槽（任意 View）<br>C. 两者都要</td><td><span class="badge badge-a">A</span></td><td>该卡形态固定、业务复用度高；内容槽需求=二期</td></tr>
+<tr><td>P2</td><td>右箭头</td><td>A. 常显<br>B. 可隐藏<br>C. 由能否点击决定</td><td><span class="badge badge-a">A</span></td><td>对齐既有双端实现（常显 14pt）；一期不改契约</td></tr>
+<tr><td>P3</td><td>数值着色</td><td>A. 由调用方传 valueColor<br>B. 组件内置收入/支出语义<br>C. 由正负号自动判断</td><td><span class="badge badge-a">A</span></td><td>组件保持业务无关（同 MoneyFormat P3）</td></tr>
+<tr><td>P4</td><td>一期范围</td><td>A. 基础/辅助文案/数值着色/可点击 + Demo 4 段<br>B. 二期=内容槽/多数值列/角标/骨架屏</td><td><span class="badge badge-a">A</span></td><td>覆盖资产/发现页 100% 摘要卡场景</td></tr>
+</table>
+</div>
+
+<h2>7. 平台差异表</h2>
+<table>
+<tr><th>差异点</th><th>iOS</th><th>Android</th><th>判据</th></tr>
+<tr><td>边框线宽</td><td>1 / <code>UIScreen.main.scale</code> pt（约 0.33pt）</td><td>0.5dp</td><td><span class="badge badge-a">表内放行</span>（库内既有惯例，亚像素差异）</td></tr>
+<tr><td>点击反馈</td><td>UIControl 无内建按压高亮</td><td><code>clickable</code> 默认 ripple</td><td><span class="badge badge-a">表内放行</span>（库内既有惯例）</td></tr>
+<tr><td>基线对齐</td><td><code>stack.alignment = .lastBaseline</code></td><td><code>Alignment.Bottom</code></td><td><span class="badge badge-a">表内放行</span>（视觉等效）</td></tr>
+<tr><td>壳底色</td><td>硬编码 <code>.white</code></td><td><code>AppColor.bgCard</code></td><td><span class="badge badge-n">待整治</span>（iOS 侧应改用 <code>AppColor.bgCard</code>，本轮 Demo 时一并修正以符合 Token 零硬编码）</td></tr>
+</table>
+
+<h2>8. 反目标</h2>
+<table>
+<tr><th>不做</th><th>原因</th></tr>
+<tr><td>自由内容槽</td><td>二期；当前用数据驱动覆盖主流场景</td></tr>
+<tr><td>多数值列 / 迷你图表</td><td>二期；需业务口径</td></tr>
+<tr><td>角标 / 红点</td><td>归 Tabbar/Cell 的角标能力</td></tr>
+<tr><td>骨架屏 / 加载态</td><td>二期</td></tr>
+</table>
+
+</div>
+</body>
+</html>

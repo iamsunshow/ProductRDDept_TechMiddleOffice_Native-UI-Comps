@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>DesignTokens 设计令牌 · 设计规格 · TMO 组件库 v1.4.0</title>
+<style>
+:root { --bg:#fff; --bg-page:#f5f5f5; --text:#1a1a1a; --text-2:#888; --border:#e8e8e8; --primary:#16a34a; --danger:#dc2626; --radius-lg:14px; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:-apple-system,'SF Pro Text',sans-serif; background:var(--bg-page); color:var(--text); line-height:1.6; }
+.container { max-width:880px; margin:0 auto; padding:24px 16px 80px; }
+h1 { font-size:24px; margin-bottom:8px; }
+h2 { font-size:20px; margin:28px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+h3 { font-size:16px; margin:16px 0 8px; }
+p { font-size:14px; margin-bottom:8px; }
+code { background:#f0f0f0; padding:2px 6px; border-radius:4px; font-size:13px; }
+table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; }
+th,td { border:1px solid var(--border); padding:8px 12px; text-align:left; }
+th { background:#fafafa; font-weight:600; }
+.section { background:var(--bg); border-radius:12px; padding:20px; margin:16px 0; border:1px solid var(--border); }
+.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600; }
+.badge-a { background:#e6f7e6; color:#52c41a; }
+.row { display:flex; gap:10px; flex-wrap:wrap; }
+.sw { width:96px; border:1px solid var(--border); border-radius:8px; overflow:hidden; background:#fff; }
+.sw .c { height:44px; }
+.sw .n { font-size:11px; padding:4px 6px; color:var(--text-2); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>DesignTokens 设计令牌</h1>
+<p>组件 ID：<code>foundation.design-tokens</code> ｜ 任务清单 #91 ｜ 底层能力 foundation ｜ TMO 组件库 v1.4.0</p>
+<p>定位：全库视觉唯一基准——颜色（AppColor）/ 字号（AppFont）/ 间距（AppSpace）/ 圆角（AppRadius）/ 文本排版（AppText）五组编译期常量，所有组件的视觉取值必须来源于此（Token 零硬编码红线）。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation</h3><p>双端 95+ 组件共享同一套视觉语言（主色 #16A34A、字号阶梯 12–32、间距 4–24、圆角 6/10/14、行高倍率 1.8），设计稿与代码必须一一对应。</p>
+<h3>Complication</h3><p>若各组件自行写死色值 / 字号 / 间距，视觉语言将快速漂移（同名不同值、双端不一致），且无法全局审计。</p>
+<h3>Question</h3><p>需要一份可被双端同时引用的令牌基准，值来自唯一数据源，且能被组件、Demo、验收三者共同校验。</p>
+<h3>Answer</h3><p>DesignTokens——双端同构的五组常量（AppColor / AppFont / AppSpace / AppRadius / AppText），数值与 <code>docs/design/tokens.json</code> 对齐；iOS 为 <code>enum</code> 静态常量，Android 为 <code>object</code> 常量并提供 Material3 主题桥接。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 DesignTokens 划界</th></tr>
+<tr><td>ConfigProvider #3</td><td>运行期主题作用域栈（可覆盖令牌并向下继承）</td><td>ConfigProvider=运行期「覆盖与继承」机制，DesignTokens=编译期「默认值基准」；ConfigProvider 的默认解析结果即 DesignTokens</td></tr>
+<tr><td>各 UI 组件</td><td>渲染与交互</td><td>组件只「消费」令牌，不得自带色值/字号字面量（违反=门禁 A/C2 打回）</td></tr>
+<tr><td>docs/design/tokens.json</td><td>设计侧数据源</td><td>json=设计侧事实源，DesignTokens=代码侧镜像；二者数值必须一致（不一致=设计对齐缺陷）</td></tr>
+</table>
+
+<h2>3. API 契约</h2>
+<div class="section">
+<h3>令牌组</h3>
+<table>
+<tr><th>组</th><th>iOS</th><th>Android</th><th>内容</th></tr>
+<tr><td>AppColor</td><td><code>enum AppColor</code>（静态 <code>UIColor</code>）</td><td><code>object AppColor</code>（<code>Color</code>）</td><td>primary / primaryPressed / primaryMuted / income / expense / warning / textPrimary / textSecondary / textInverse / border / bgPage / bgCard / gray4 / gray6 / gray10 / gray15 / gray25 / buttonDisabled</td></tr>
+<tr><td>AppFont</td><td><code>enum AppFont</code>（<code>CGFloat</code>，pt）</td><td><code>object AppFont</code>（<code>TextUnit</code>，sp）</td><td>sizeXs 12 / sizeSm 14 / sizeMd 16 / sizeLg 18 / sizeXl 22 / sizeDisplay 32</td></tr>
+<tr><td>AppSpace</td><td><code>enum AppSpace</code>（<code>CGFloat</code>）</td><td><code>object AppSpace</code>（<code>Dp</code>）</td><td>xs 4 / sm 8 / md 12 / lg 16 / xl 24 / cellVertical 16</td></tr>
+<tr><td>AppRadius</td><td><code>enum AppRadius</code>（<code>CGFloat</code>）</td><td><code>object AppRadius</code>（<code>Dp</code>）</td><td>sm 6 / md 10 / lg 14</td></tr>
+<tr><td>AppText</td><td><code>enum AppText</code>（行高/段距/属性辅助）+ <code>UILabel</code> 扩展</td><td><code>object AppText</code>（行高/排版辅助）</td><td>lineSpacing 8 / paragraphSpacing 12 / lineHeightMultiple 1.8 / cellTitleLineHeight 24 / cellSubtitleLineHeight 18</td></tr>
+</table>
+<h3>辅助</h3>
+<table>
+<tr><th>辅助 API</th><th>iOS</th><th>Android</th></tr>
+<tr><td>十六进制构造</td><td><code>UIColor(hex: UInt32, alpha:)</code></td><td>直接 <code>Color(0xFFRRGGBB)</code></td></tr>
+<tr><td>文本样式辅助</td><td><code>AppText.attributes(fontSize:color:alignment:)</code> / <code>UILabel.setContentText</code> / <code>UILabel.setLineHeight</code></td><td><code>AppText.contentStyle(fontSize, color)</code> / <code>AppText.lineHeight(fontSize)</code></td></tr>
+<tr><td>主题桥接</td><td>无（UIKit 无主题体系）</td><td><code>KeepAccountsTheme { }</code>（Material3 lightColorScheme+Typography 映射）</td></tr>
+</table>
+<h3>Events</h3>
+<table><tr><th>事件</th><th>说明</th></tr><tr><td>无</td><td>纯常量集合，无回调</td></tr></table>
+</div>
+
+<h2>4. 设计规格</h2>
+<table>
+<tr><th>项</th><th>规格</th><th>对齐依据</th></tr>
+<tr><td>数据源</td><td><code>docs/design/tokens.json</code></td><td>代码与设计稿同源，禁止单侧修改</td></tr>
+<tr><td>色彩体系</td><td>品牌绿主色 + 语义色（income 绿 / expense 红 / warning 橙）+ 中性灰阶（gray4–gray25）</td><td>#16A34A / #DC2626 / #F59E0B / #F5F5F5–#8C8C8C</td></tr>
+<tr><td>字号阶梯</td><td>6 档，12/14/16/18/22/32</td><td>iOS pt / Android sp 同值</td></tr>
+<tr><td>间距阶梯</td><td>5 档，4/8/12/16/24（另有 cellVertical 16 = 列表行上下内边距）</td><td>iOS pt / Android dp 同值</td></tr>
+<tr><td>圆角阶梯</td><td>3 档，6/10/14</td><td>sm 小控件 / md 卡片段 / lg 卡片</td></tr>
+<tr><td>文本排版</td><td>行高倍率 1.8；cell 主标题 24 / 副标题 18</td><td>设计稿「32 号字 cell」：48px@2x=24、36px@2x=18</td></tr>
+<tr><td>硬编码红线</td><td>组件不得直接写 <code>0xFF...</code> / <code>UIColor(hex:)</code> / 字号字面量</td><td>Token 零硬编码（门禁 A A2 项）</td></tr>
+</table>
+
+<h2>5. Demo 排查 4 组</h2>
+<div class="section">
+<p style="font-size:13px;color:var(--text-2)">D1 · 色板全谱（18 枚色块 + hex 值）</p>
+<div class="row">
+<div class="sw"><div class="c" style="background:#16A34A"></div><div class="n">primary</div></div>
+<div class="sw"><div class="c" style="background:#15803D"></div><div class="n">primaryPressed</div></div>
+<div class="sw"><div class="c" style="background:#DCFCE7"></div><div class="n">primaryMuted</div></div>
+<div class="sw"><div class="c" style="background:#DC2626"></div><div class="n">expense</div></div>
+<div class="sw"><div class="c" style="background:#F59E0B"></div><div class="n">warning</div></div>
+<div class="sw"><div class="c" style="background:#111827"></div><div class="n">textPrimary</div></div>
+</div>
+</div>
+<p style="font-size:13px;color:#888">D1 色板全谱（AppColor 18 项色块 + 名称 + hex）｜ D2 字号阶梯（AppFont 6 档实际渲染同名文本）｜ D3 间距 + 圆角（AppSpace 5 档可视化条 + AppRadius 3 档圆角方块）｜ D4 文本排版（AppText 行高倍率 1.8 多行示例 + cell 主/副标题行高对照）</p>
+
+<h2>6. 决策投票表</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项</th><th>选定</th><th>理由</th></tr>
+<tr><td>P1</td><td>令牌数据源</td><td>A. 以 docs/design/tokens.json 为唯一源，双端代码镜像<br>B. 三处各自维护<br>C. 代码为源反推设计稿</td><td><span class="badge badge-a">A</span></td><td>设计侧是上游；双端镜像保证一致，可审计</td></tr>
+<tr><td>P2</td><td>运行期换肤</td><td>A. 一期不做（只读常量）<br>B. 内置主题切换 API<br>C. 深色模式一并支持</td><td><span class="badge badge-a">A</span></td><td>运行期覆盖机制归 ConfigProvider #3（作用域栈）；DesignTokens 只做默认基准；深色模式=二期</td></tr>
+<tr><td>P3</td><td>命名风格</td><td>A. 语义命名（primary/income/expense）<br>B. 色值命名（green500/red600）<br>C. 设计稿编号命名（brand-1）</td><td><span class="badge badge-a">A</span></td><td>语义命名可换值不改名，利于换肤与可读性</td></tr>
+<tr><td>P4</td><td>一期范围</td><td>A. 色/字/间距/圆角/文本五组展示 + Demo 4 段<br>B. 二期=运行期令牌校验/令牌编辑器</td><td><span class="badge badge-a">A</span></td><td>一期把「基准可查、可对照」做扎实</td></tr>
+</table>
+</div>
+
+<h2>7. 平台差异表</h2>
+<table>
+<tr><th>差异点</th><th>iOS（UIKit）</th><th>Android（Compose）</th><th>判据</th></tr>
+<tr><td>单位类型</td><td>字号 <code>CGFloat</code>(pt) / 间距 <code>CGFloat</code>(pt)</td><td>字号 <code>TextUnit</code>(sp) / 间距 <code>Dp</code></td><td>表内放行（数值同值，单位体系为平台原生）</td></tr>
+<tr><td>颜色构造</td><td><code>UIColor(hex:)</code> 扩展</td><td><code>Color(0xFF...)</code> 直接构造</td><td>表内放行（输出色值一致）</td></tr>
+<tr><td>主题桥接</td><td>无（UIKit 无 Material 主题体系）</td><td><code>KeepAccountsTheme</code>（Material3 映射）</td><td>表内放行（Android 侧额外适配 Compose 组件生态；iOS 通过令牌直取）</td></tr>
+<tr><td>文本样式 API</td><td><code>NSAttributedString</code> + <code>UILabel</code> 扩展</td><td><code>TextStyle</code> 辅助函数</td><td>表内放行（排版参数同值）</td></tr>
+</table>
+
+<h2>8. 反目标</h2>
+<table>
+<tr><th>不做</th><th>原因</th></tr>
+<tr><td>运行期换肤 / 主题切换</td><td>归 ConfigProvider #3 的作用域栈机制</td></tr>
+<tr><td>深色模式令牌集</td><td>二期；产品暂无深色需求</td></tr>
+<tr><td>令牌在线编辑器</td><td>非组件库职责</td></tr>
+<tr><td>图标 / 插图资源</td><td>归 ui.icon #2 与素材库</td></tr>
+</table>
+
+</div>
+</body>
+</html>

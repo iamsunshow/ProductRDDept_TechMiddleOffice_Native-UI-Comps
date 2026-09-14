@@ -406,16 +406,16 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("TimeSelect 配送时间"),
         DemoComponent("TrendArrow 趋势箭头"),
         DemoComponent("WaterMark 水印"),
-        DemoComponent("SystemBars 系统栏", planned = true),
-        DemoComponent("DesignTokens 设计令牌", planned = true),
+        DemoComponent("SystemBars 系统栏", reviewed = true, demo = { SystemBarsDemo() }),
+        DemoComponent("DesignTokens 设计令牌", reviewed = true, demo = { DesignTokensDemo() }),
     ),
     "底层能力 foundation" to listOf(
         DemoComponent("Calendar 日历工具", reviewed = true, passed = true, demo = { CalendarDemo() }),
         DemoComponent("ConfigProvider 全局配置", reviewed = true, demo = { ConfigProviderDemo() }, passed = true),
-        DemoComponent("Router 路由", planned = true),
-        DemoComponent("Storage 本地存储", planned = true),
-        DemoComponent("HTTPClient 网络客户端", planned = true),
-        DemoComponent("MoneyFormat 金额格式化", planned = true),
+        DemoComponent("Router 路由", reviewed = true, demo = { RouterDemo() }),
+        DemoComponent("Storage 本地存储", reviewed = true, demo = { StorageDemo() }),
+        DemoComponent("HTTPClient 网络客户端", reviewed = true, demo = { HTTPClientDemo() }),
+        DemoComponent("MoneyFormat 金额格式化", reviewed = true, demo = { MoneyFormatDemo() }),
     ),
 )
 

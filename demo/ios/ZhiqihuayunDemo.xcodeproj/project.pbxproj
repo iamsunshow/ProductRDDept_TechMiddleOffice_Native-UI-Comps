@@ -25,6 +25,9 @@
 		22FF1D0AF3CDF525669996F2 /* Charts in Frameworks */ = {isa = PBXBuildFile; productRef = A1BB258859A836B00224FD3E /* Charts */; };
 		2681477D30EB1D23B4949C5A /* StepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DC7ACAE7B12A6723E77209 /* StepsView.swift */; };
 		26D678FF4AF7978AB4487A7B /* ResultPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53CD3589B7EA064A483C98DB /* ResultPageView.swift */; };
+		5A91100000000000000000A2 /* SystemBars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A91100000000000000000A1 /* SystemBars.swift */; };
+		5A91200000000000000000A2 /* MockURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A91200000000000000000A1 /* MockURLProtocol.swift */; };
+		5A91300000000000000000A2 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A91300000000000000000A1 /* AppRouter.swift */; };
 		286F72795C5D0F38B4ADEDCD /* MockAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F34F3AD98F674E7DA1E575E8 /* MockAPIClient.swift */; };
 		2AE7010DEAB2D58E00E89317 /* BackTopButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538FFA7C6388387E57FC73DC /* BackTopButton.swift */; };
 		2DBC2739FEC773B4182DE481 /* FixedNavView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC9266A5D4C33CE081B49CC /* FixedNavView.swift */; };
@@ -132,6 +135,9 @@
 		24C4336791BDD8FE289677BA /* OptionPickerSheetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionPickerSheetViewController.swift; sourceTree = "<group>"; };
 		25465F7307A8D784A68E80C1 /* DemoMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoMocks.swift; sourceTree = "<group>"; };
 		264FB34C55EAF5D933C02801 /* AppDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDatabase.swift; sourceTree = "<group>"; };
+		5A91100000000000000000A1 /* SystemBars.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemBars.swift; sourceTree = "<group>"; };
+		5A91200000000000000000A1 /* MockURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockURLProtocol.swift; sourceTree = "<group>"; };
+		5A91300000000000000000A1 /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
 		268D1A9BB755DD08B8224FB5 /* CalendarCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCardView.swift; sourceTree = "<group>"; };
 		2DD5DECD3942D729EE38A2A0 /* ShortPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortPasswordView.swift; sourceTree = "<group>"; };
 		33FB3617F81B8AB2E32FAAB0 /* CarouselView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarouselView.swift; sourceTree = "<group>"; };
@@ -375,6 +381,7 @@
 			isa = PBXGroup;
 			children = (
 				EB34D2F889141B606A089B40 /* StatusBarNavigationController.swift */,
+				5A91100000000000000000A1 /* SystemBars.swift */,
 			);
 			path = SystemBars;
 			sourceTree = "<group>";
@@ -384,11 +391,20 @@
 			children = (
 				834C098E24BDFBC0CFE14093 /* Design */,
 				B1F798C679097C5590FF377A /* Network */,
+				5A91400000000000000000A3 /* Routing */,
 				AE62E497757637A3596B5817 /* Storage */,
 				57BF1637B8C733ACB9E6B377 /* SystemBars */,
 				E12A96421A4F3714E33DAB55 /* Util */,
 			);
 			path = Foundation;
+			sourceTree = "<group>";
+		};
+		5A91400000000000000000A3 /* Routing */ = {
+			isa = PBXGroup;
+			children = (
+				5A91300000000000000000A1 /* AppRouter.swift */,
+			);
+			path = Routing;
 			sourceTree = "<group>";
 		};
 		6FC4ABB157A25B61EF88C5CE /* SharedUI */ = {
@@ -457,6 +473,7 @@
 			isa = PBXGroup;
 			children = (
 				F34F3AD98F674E7DA1E575E8 /* MockAPIClient.swift */,
+				5A91200000000000000000A1 /* MockURLProtocol.swift */,
 				3B8ADC9EE123D2C7CC745C42 /* DTO */,
 				FFCCCD1324DF9190845047C3 /* Endpoints */,
 			);
@@ -613,6 +630,9 @@
 				4D662F8AB681C77A5CBC9C4D /* LottieView.swift in Sources */,
 				EF068466B6695C2412B5926D /* MenuView.swift in Sources */,
 				286F72795C5D0F38B4ADEDCD /* MockAPIClient.swift in Sources */,
+				5A91200000000000000000A2 /* MockURLProtocol.swift in Sources */,
+				5A91100000000000000000A2 /* SystemBars.swift in Sources */,
+				5A91300000000000000000A2 /* AppRouter.swift in Sources */,
 				5FCD3AEEF0DF02926A7F4B94 /* NavBar.swift in Sources */,
 				C97E63FD8535774B5097D43A /* NoticeBarView.swift in Sources */,
 				3ED09330F0A7C3EC492E536B /* NotifyView.swift in Sources */,

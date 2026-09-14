@@ -42,7 +42,7 @@ targets:
           - Package.swift
           - Package.resolved
           - Tests
-          - Foundation/Routing
+          # 2026-09-14 门禁 B 起纳入 Foundation/Routing（RouterShowcase 需 AppRouter，依赖已齐）
           - SharedUI/Components/MediaListCell.swift
           - SharedUI/Components/ProgressListCell.swift
     dependencies:

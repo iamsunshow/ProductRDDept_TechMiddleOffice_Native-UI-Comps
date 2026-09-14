@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import GRDB
 
 // MARK: - Demo 组件索引
 // 数据源：docs/组件进度.md 任务清单（7 大类，95 组件）。
@@ -148,16 +149,16 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.time-select", name: "TimeSelect 配送时间", reviewed: false, create: nil),
             DemoComponent(id: "ui.trend-arrow", name: "TrendArrow 趋势箭头", reviewed: false, create: nil),
             DemoComponent(id: "ui.water-mark", name: "WaterMark 水印", reviewed: false, create: nil),
-            DemoComponent(id: "ui.system-bars", name: "SystemBars 系统栏", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.design-tokens", name: "DesignTokens 设计令牌", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.system-bars", name: "SystemBars 系统栏", reviewed: true, create: { SystemBarsShowcase() }),
+            DemoComponent(id: "ui.design-tokens", name: "DesignTokens 设计令牌", reviewed: true, create: { DesignTokensShowcase() }),
         ]),
         ("底层能力 foundation", [
             DemoComponent(id: "foundation.calendar", name: "Calendar 日历工具", reviewed: true, create: { CalendarShowcase() }, passed: true),
             DemoComponent(id: "ui.config-provider", name: "ConfigProvider 全局配置", reviewed: true, create: { ConfigProviderShowcase() }, passed: true),
-            DemoComponent(id: "ui.router", name: "Router 路由", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.storage", name: "Storage 本地存储", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.http-client", name: "HTTPClient 网络客户端", reviewed: false, create: nil, planned: true),
-            DemoComponent(id: "ui.money-format", name: "MoneyFormat 金额格式化", reviewed: false, create: nil, planned: true),
+            DemoComponent(id: "ui.router", name: "Router 路由", reviewed: true, create: { RouterShowcase() }),
+            DemoComponent(id: "ui.storage", name: "Storage 本地存储", reviewed: true, create: { StorageShowcase() }),
+            DemoComponent(id: "ui.http-client", name: "HTTPClient 网络客户端", reviewed: true, create: { HTTPClientShowcase() }),
+            DemoComponent(id: "ui.money-format", name: "MoneyFormat 金额格式化", reviewed: true, create: { MoneyFormatShowcase() }),
         ]),
     ]
 
@@ -12086,5 +12087,883 @@ final class PickerViewShowcase: ShowcaseViewController {
             btn.snp.makeConstraints { $0.top.equalTo(picker.snp.bottom).offset(AppSpace.md); $0.leading.equalToSuperview().offset(AppSpace.lg); $0.bottom.equalToSuperview().offset(-AppSpace.md) }
         }
         addInfo("外部赋值 value 仅同步滚轮位置（不触发 onChange）。")
+    }
+}
+
+// MARK: - SystemBars 系统栏（底层能力 foundation #90，对齐 Android SystemBarsDemo）
+
+/// SystemBars 组件 Demo 页（4 组排查：默认态 / 沉浸态 / 透明态 / 三态联动切换）。
+/// 组件实现：ios/Foundation/SystemBars/SystemBars.swift ｜ 契约：api.json `ui.system-bars` ｜ 版本 v1.9.39。
+final class SystemBarsShowcase: ShowcaseViewController {
+
+    private var currentStyle: SystemBars.Style = .default
+    /// 顶部安全区等价色带（iOS 系统不提供状态栏背景色 API，沉浸底色由页面自绘，差异表放行）。
+    private let band = UIView()
+    private var modeLabel: UILabel?
+
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        SystemBars.statusBarStyle(for: currentStyle)
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "SystemBars 系统栏"
+        addVersionBadge(componentName: "SystemBars", version: "v1.9.39", builtAt: "2026-09-14")
+
+        view.insertSubview(band, belowSubview: scrollView)
+        band.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.top)
+        }
+        band.backgroundColor = SystemBars.background(for: currentStyle)
+
+        addSection(title: "Demo 1 · 默认态（白底深字）") { [weak self] container in
+            guard let self else { return }
+            self.pin(self.makeAction("应用默认态") { self.apply(.default) }, in: container)
+            self.pinStatic(self.makeDesc("状态栏底色 bgCard（白），图标深色。\nSystemBars.statusBarStyle(.default) + background = bgCard。"), in: container, after: container.subviews.first)
+        }
+        addInfo("默认态 = 列表/表单页标准外观。")
+
+        addSection(title: "Demo 2 · 沉浸态（绿底白字）") { [weak self] container in
+            guard let self else { return }
+            self.pin(self.makeAction("应用沉浸态") { self.apply(.immersive) }, in: container)
+            self.pinStatic(self.makeDesc("状态栏底色 primary（品牌绿），图标浅色（lightContent）。\n明细页/成果页沉浸头部；底色由页面安全区色带自绘（iOS 无状态栏背景色 API）。"), in: container, after: container.subviews.first)
+        }
+        addInfo("沉浸态观察屏幕顶部色带变绿 + 时间电量图标变白。")
+
+        addSection(title: "Demo 3 · 透明态（透明底深字）") { [weak self] container in
+            guard let self else { return }
+            self.pin(self.makeAction("应用透明态") { self.apply(.transparent) }, in: container)
+            self.pinStatic(self.makeDesc("状态栏底色透明，内容延伸到状态栏下方，图标深色。"), in: container, after: container.subviews.first)
+        }
+        addInfo("透明态用于全屏图文/封面页。")
+
+        addSection(title: "Demo 4 · 三态联动切换") { [weak self] container in
+            guard let self else { return }
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.spacing = AppSpace.xs
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(AppSpace.sm)
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+            }
+            for style in SystemBars.Style.allCases {
+                row.addArrangedSubview(self.makeAction(style.rawValue, color: AppColor.gray10) { self.apply(style) })
+            }
+            let label = UILabel()
+            label.numberOfLines = 0
+            label.font = .systemFont(ofSize: AppFont.sizeSm)
+            label.textColor = AppColor.textPrimary
+            label.text = "当前模式: \(currentStyle.rawValue)\n（切换后观察屏幕顶部状态栏实时变化）"
+            container.addSubview(label)
+            label.snp.makeConstraints { make in
+                make.top.equalTo(row.snp.bottom).offset(AppSpace.md)
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.trailing.equalToSuperview().offset(-AppSpace.lg)
+                make.bottom.equalToSuperview().offset(-AppSpace.md)
+            }
+            self.modeLabel = label
+        }
+        addInfo("foundation.system-bars = 按页声明系统栏外观（底色 + 图标明暗），全局样式由宿主启动时设置。")
+    }
+
+    private func apply(_ style: SystemBars.Style) {
+        currentStyle = style
+        band.backgroundColor = SystemBars.background(for: style)
+        SystemBars.refresh(on: self)
+        modeLabel?.text = "当前模式: \(style.rawValue)\n（切换后观察屏幕顶部状态栏实时变化）"
+    }
+
+    private func makeAction(_ title: String, color: UIColor = AppColor.primary, handler: @escaping () -> Void) -> UIButton {
+        let btn = UIButton(type: .system)
+        btn.setTitle(title, for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
+        btn.backgroundColor = color
+        btn.setTitleColor(.white, for: .normal)
+        btn.layer.cornerRadius = 8
+        btn.contentEdgeInsets = UIEdgeInsets(top: 6, left: 12, bottom: 6, right: 12)
+        btn.addAction(UIAction { _ in handler() }, for: .touchUpInside)
+        btn.snp.makeConstraints { $0.height.equalTo(36) }
+        return btn
+    }
+
+    private func makeDesc(_ text: String) -> UILabel {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: AppFont.sizeSm)
+        label.textColor = AppColor.textPrimary
+        label.text = text
+        return label
+    }
+
+    private func pin(_ button: UIButton, in container: UIView) {
+        container.addSubview(button)
+        button.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(AppSpace.sm)
+            make.leading.equalToSuperview().offset(AppSpace.lg)
+        }
+    }
+
+    private func pinStatic(_ label: UILabel, in container: UIView, after previous: UIView?) {
+        container.addSubview(label)
+        label.snp.makeConstraints { make in
+            if let previous {
+                make.top.equalTo(previous.snp.bottom).offset(AppSpace.md)
+            } else {
+                make.top.equalToSuperview().offset(AppSpace.sm)
+            }
+            make.leading.equalToSuperview().offset(AppSpace.lg)
+            make.trailing.equalToSuperview().offset(-AppSpace.lg)
+            make.bottom.equalToSuperview().offset(-AppSpace.md)
+        }
+    }
+}
+
+// MARK: - DesignTokens 设计令牌（底层能力 foundation #91，对齐 Android DesignTokensDemo）
+
+/// DesignTokens 组件 Demo 页（4 组排查：色板全谱 / 字号阶梯 / 间距+圆角 / 文本排版）。
+/// 组件实现：ios/Foundation/Design/AppTokens.swift ｜ 契约：api.json `ui.design-tokens` ｜ 版本 v1.9.39。
+final class DesignTokensShowcase: ShowcaseViewController {
+
+    private struct TokenEntry {
+        let name: String
+        let hex: String
+        let color: UIColor
+    }
+
+    /// 色板全谱（iOS AppColor 19 项；Android 另有 textInverse，差异表已放行）。
+    private let tokenList: [TokenEntry] = [
+        TokenEntry(name: "primary", hex: "#16A34A", color: AppColor.primary),
+        TokenEntry(name: "primaryPressed", hex: "#15803D", color: AppColor.primaryPressed),
+        TokenEntry(name: "primaryMuted", hex: "#DCFCE7", color: AppColor.primaryMuted),
+        TokenEntry(name: "income", hex: "#16A34A", color: AppColor.income),
+        TokenEntry(name: "expense", hex: "#DC2626", color: AppColor.expense),
+        TokenEntry(name: "warning", hex: "#F59E0B", color: AppColor.warning),
+        TokenEntry(name: "textPrimary", hex: "#111827", color: AppColor.textPrimary),
+        TokenEntry(name: "textSecondary", hex: "#6B7280", color: AppColor.textSecondary),
+        TokenEntry(name: "border", hex: "#E5E7EB", color: AppColor.border),
+        TokenEntry(name: "bgPage", hex: "#F9FAFB", color: AppColor.bgPage),
+        TokenEntry(name: "bgCard", hex: "#FFFFFF", color: AppColor.bgCard),
+        TokenEntry(name: "success", hex: "#16A34A", color: AppColor.success),
+        TokenEntry(name: "error", hex: "#DC2626", color: AppColor.error),
+        TokenEntry(name: "gray4", hex: "#F5F5F5", color: AppColor.gray4),
+        TokenEntry(name: "gray6", hex: "#E5E5E5", color: AppColor.gray6),
+        TokenEntry(name: "gray10", hex: "#D9D9D9", color: AppColor.gray10),
+        TokenEntry(name: "gray15", hex: "#BFBFBF", color: AppColor.gray15),
+        TokenEntry(name: "gray25", hex: "#8C8C8C", color: AppColor.gray25),
+        TokenEntry(name: "buttonDisabled", hex: "#9CA3AF", color: AppColor.buttonDisabled)
+    ]
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "DesignTokens 设计令牌"
+        addVersionBadge(componentName: "DesignTokens", version: "v1.9.39", builtAt: "2026-09-14")
+
+        addSection(title: "Demo 1 · 色板全谱（AppColor \(tokenList.count) 项）") { container in
+            let stack = UIStackView()
+            stack.axis = .vertical
+            stack.spacing = AppSpace.sm
+            container.addSubview(stack)
+            stack.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.md, left: AppSpace.lg, bottom: AppSpace.md, right: AppSpace.lg))
+            }
+            for token in self.tokenList {
+                let row = UIStackView()
+                row.axis = .horizontal
+                row.spacing = AppSpace.md
+                row.alignment = .center
+
+                let swatch = UIView()
+                swatch.backgroundColor = token.color
+                swatch.layer.cornerRadius = 4
+                swatch.layer.borderWidth = 0.5
+                swatch.layer.borderColor = AppColor.border.cgColor
+                swatch.snp.makeConstraints { make in
+                    make.size.equalTo(CGSize(width: 24, height: 24))
+                }
+
+                let nameLabel = UILabel()
+                nameLabel.text = token.name
+                nameLabel.font = .systemFont(ofSize: AppFont.sizeSm)
+                nameLabel.textColor = AppColor.textPrimary
+
+                let hexLabel = UILabel()
+                hexLabel.text = token.hex
+                hexLabel.font = .systemFont(ofSize: AppFont.sizeSm)
+                hexLabel.textColor = AppColor.textSecondary
+                hexLabel.textAlignment = .right
+                hexLabel.setContentHuggingPriority(.required, for: .horizontal)
+
+                row.addArrangedSubview(swatch)
+                row.addArrangedSubview(nameLabel)
+                row.addArrangedSubview(hexLabel)
+                stack.addArrangedSubview(row)
+            }
+        }
+        addInfo("双端同名同值（hex 逐项一致）；Android 额外含 textInverse。")
+
+        addSection(title: "Demo 2 · 字号阶梯（AppFont 6 档）") { container in
+            let stack = UIStackView()
+            stack.axis = .vertical
+            stack.spacing = AppSpace.xs
+            container.addSubview(stack)
+            stack.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.md, left: AppSpace.lg, bottom: AppSpace.md, right: AppSpace.lg))
+            }
+            let ladder: [(String, CGFloat)] = [
+                ("sizeXs", AppFont.sizeXs), ("sizeSm", AppFont.sizeSm), ("sizeMd", AppFont.sizeMd),
+                ("sizeLg", AppFont.sizeLg), ("sizeXl", AppFont.sizeXl), ("sizeDisplay", AppFont.sizeDisplay)
+            ]
+            for (name, size) in ladder {
+                let label = UILabel()
+                label.text = "Aa \(name) \(Int(size))pt"
+                label.font = .systemFont(ofSize: size)
+                label.textColor = AppColor.textPrimary
+                stack.addArrangedSubview(label)
+            }
+        }
+
+        addSection(title: "Demo 3 · 间距 5 档 + 圆角 3 档") { container in
+            let stack = UIStackView()
+            stack.axis = .vertical
+            stack.spacing = AppSpace.sm
+            container.addSubview(stack)
+            stack.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.md, left: AppSpace.lg, bottom: AppSpace.md, right: AppSpace.lg))
+            }
+            for (name, space) in [("xs", AppSpace.xs), ("sm", AppSpace.sm), ("md", AppSpace.md), ("lg", AppSpace.lg), ("xl", AppSpace.xl)] {
+                let row = UIStackView()
+                row.axis = .horizontal
+                row.spacing = AppSpace.md
+                row.alignment = .center
+
+                let nameLabel = UILabel()
+                nameLabel.text = "AppSpace.\(name)"
+                nameLabel.font = .systemFont(ofSize: AppFont.sizeSm)
+                nameLabel.textColor = AppColor.textPrimary
+
+                let bar = UIView()
+                bar.backgroundColor = AppColor.gray15
+                bar.snp.makeConstraints { make in
+                    make.width.equalTo(space)
+                    make.height.equalTo(16)
+                }
+
+                let valueLabel = UILabel()
+                valueLabel.text = "\(Int(space))pt"
+                valueLabel.font = .systemFont(ofSize: AppFont.sizeSm)
+                valueLabel.textColor = AppColor.textSecondary
+
+                row.addArrangedSubview(nameLabel)
+                row.addArrangedSubview(bar)
+                row.addArrangedSubview(valueLabel)
+                stack.addArrangedSubview(row)
+            }
+            for (name, radius) in [("sm", AppRadius.sm), ("md", AppRadius.md), ("lg", AppRadius.lg)] {
+                let row = UIStackView()
+                row.axis = .horizontal
+                row.spacing = AppSpace.md
+                row.alignment = .center
+
+                let box = UIView()
+                box.backgroundColor = AppColor.gray10
+                box.layer.cornerRadius = radius
+                box.snp.makeConstraints { $0.size.equalTo(CGSize(width: 48, height: 48)) }
+
+                let valueLabel = UILabel()
+                valueLabel.text = "AppRadius.\(name)（\(Int(radius))pt）"
+                valueLabel.font = .systemFont(ofSize: AppFont.sizeSm)
+                valueLabel.textColor = AppColor.textPrimary
+
+                row.addArrangedSubview(box)
+                row.addArrangedSubview(valueLabel)
+                stack.addArrangedSubview(row)
+            }
+        }
+
+        addSection(title: "Demo 4 · 文本排版（多行行高 1.8 / cell 主副标题行高）") { container in
+            let stack = UIStackView()
+            stack.axis = .vertical
+            stack.spacing = AppSpace.sm
+            container.addSubview(stack)
+            stack.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(UIEdgeInsets(top: AppSpace.md, left: AppSpace.lg, bottom: AppSpace.md, right: AppSpace.lg))
+            }
+
+            let paragraph = UILabel()
+            paragraph.numberOfLines = 0
+            paragraph.setContentText("AppText.contentStyle 多行段落：快捷记账，让每一笔收支都清清楚楚。行高为字号 1.8 倍，阅读舒适。")
+            stack.addArrangedSubview(paragraph)
+
+            let title = UILabel()
+            title.text = "主标题（cellTitleLineHeight 24）"
+            title.font = .systemFont(ofSize: AppFont.sizeMd)
+            title.textColor = AppColor.textPrimary
+            title.setLineHeight(AppText.cellTitleLineHeight, fontSize: AppFont.sizeMd)
+            stack.addArrangedSubview(title)
+
+            let subtitle = UILabel()
+            subtitle.text = "副标题（cellSubtitleLineHeight 18）"
+            subtitle.font = .systemFont(ofSize: AppFont.sizeSm)
+            subtitle.textColor = AppColor.textSecondary
+            subtitle.setLineHeight(AppText.cellSubtitleLineHeight, fontSize: AppFont.sizeSm)
+            stack.addArrangedSubview(subtitle)
+        }
+        addInfo("foundation.design-tokens = 视觉语言唯一出口（颜色/字号/间距/圆角/字体层级五族）。")
+    }
+}
+
+// MARK: - Router 路由（底层能力 foundation #92，对齐 Android RouterDemo）
+
+/// Router 组件 Demo 页（4 组排查：路由表总览 / Tab 切换 / push+返回 / 兜底占位）。
+/// 采用内层路由状态机回显，不真 push 进 Demo 宿主栈（避免污染组件库 Demo 导航栈）。
+/// 组件实现：ios/Foundation/Routing/AppRouter.swift ｜ 契约：api.json `ui.router` ｜ 版本 v1.9.39。
+final class RouterShowcase: ShowcaseViewController {
+
+    private var selectedTab: AppRouter.Tab = .ledger
+    private var stack: [String] = []
+    private var tabLabel: UILabel?
+    private var stackLabel: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Router 路由"
+        addVersionBadge(componentName: "Router", version: "v1.9.39", builtAt: "2026-09-14")
+
+        addSection(title: "Demo 1 · 路由表总览") { _ in }
+        addInfo(
+            "一级 Tab（AppRouter.Tab 5）:\nledger · charts · bookkeeping · discover · profile\n\n" +
+            "二级示例（AppRouter.Destination）:\nbill · budget · assetsHome · more · settings · " +
+            "incomeList · expenseList · mortgageCalculator · fxConverter · settings…\n" +
+            "（目标页经 RouterDestinationProvider 注入，未注入时回退 NativePlaceholder 占位页）"
+        )
+
+        addSection(title: "Demo 2 · 一级 Tab 切换请求") { [weak self] container in
+            guard let self else { return }
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.spacing = AppSpace.xs
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(AppSpace.sm)
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+            }
+            for tab in [AppRouter.Tab.ledger, .charts, .bookkeeping, .discover, .profile] {
+                row.addArrangedSubview(self.makeAction(String(describing: tab).lowercased(), color: AppColor.gray10) { [weak self] in
+                    self?.selectedTab = tab
+                    self?.refreshTab()
+                })
+            }
+            let label = UILabel()
+            label.numberOfLines = 0
+            label.font = .systemFont(ofSize: AppFont.sizeSm)
+            label.textColor = AppColor.textPrimary
+            container.addSubview(label)
+            label.snp.makeConstraints { make in
+                make.top.equalTo(row.snp.bottom).offset(AppSpace.md)
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.trailing.equalToSuperview().offset(-AppSpace.lg)
+                make.bottom.equalToSuperview().offset(-AppSpace.md)
+            }
+            self.tabLabel = label
+            self.refreshTab()
+        }
+
+        addSection(title: "Demo 3 · 二级 push 请求 + 返回") { [weak self] container in
+            guard let self else { return }
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.spacing = AppSpace.sm
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(AppSpace.sm)
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+            }
+            row.addArrangedSubview(self.makeAction("push 账单(bill)") { [weak self] in
+                self?.stack.append("bill")
+                self?.refreshStack()
+            })
+            row.addArrangedSubview(self.makeAction("返回 pop", color: AppColor.gray10) { [weak self] in
+                if let self, !self.stack.isEmpty { self.stack.removeLast() }
+                self?.refreshStack()
+            })
+            let label = UILabel()
+            label.numberOfLines = 0
+            label.font = .systemFont(ofSize: AppFont.sizeSm)
+            label.textColor = AppColor.textPrimary
+            container.addSubview(label)
+            label.snp.makeConstraints { make in
+                make.top.equalTo(row.snp.bottom).offset(AppSpace.md)
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.trailing.equalToSuperview().offset(-AppSpace.lg)
+                make.bottom.equalToSuperview().offset(-AppSpace.md)
+            }
+            self.stackLabel = label
+            self.refreshStack()
+        }
+
+        addSection(title: "Demo 4 · 未登记标题兜底占位") { [weak self] container in
+            guard let self else { return }
+            self.pin(self.makeAction("push 未注入目标页（.bill）") { [weak self] in
+                self?.stack.append("placeholder/原生页占位")
+                self?.refreshStack()
+            }, in: container)
+            self.pinStatic(self.makeDesc(
+                "兜底机制: AppRouter.provider 未注入或返回 nil 时\n" +
+                "回退 NativePlaceholderViewController 占位页（编号 + 标题），不崩溃。"
+            ), in: container, after: container.subviews.first)
+        }
+        addInfo("foundation.router = 应用内导航机制唯一出口（Tab 切换 + push/pop + 路由表集中声明 + 目标页宿主注入），不含任何导航 UI。")
+    }
+
+    private func refreshTab() {
+        tabLabel?.text = "当前选中 Tab: \(String(describing: selectedTab).lowercased())\n（宿主 AppRouter.selectTab(tab) → 底部 TabBar selectedIndex）"
+    }
+
+    private func refreshStack() {
+        stackLabel?.text = "导航栈: \(stack.isEmpty ? "（空）" : stack.joined(separator: " → "))\n（push 后 hidesBottomBarWhenPushed，系统自动提供返回）"
+    }
+
+    private func makeAction(_ title: String, color: UIColor = AppColor.primary, handler: @escaping () -> Void) -> UIButton {
+        let btn = UIButton(type: .system)
+        btn.setTitle(title, for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
+        btn.backgroundColor = color
+        btn.setTitleColor(.white, for: .normal)
+        btn.layer.cornerRadius = 8
+        btn.contentEdgeInsets = UIEdgeInsets(top: 6, left: 12, bottom: 6, right: 12)
+        btn.addAction(UIAction { _ in handler() }, for: .touchUpInside)
+        btn.snp.makeConstraints { $0.height.equalTo(36) }
+        return btn
+    }
+
+    private func makeDesc(_ text: String) -> UILabel {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: AppFont.sizeSm)
+        label.textColor = AppColor.textPrimary
+        label.text = text
+        return label
+    }
+
+    private func pin(_ button: UIButton, in container: UIView) {
+        container.addSubview(button)
+        button.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(AppSpace.sm)
+            make.leading.equalToSuperview().offset(AppSpace.lg)
+        }
+    }
+
+    private func pinStatic(_ label: UILabel, in container: UIView, after previous: UIView?) {
+        container.addSubview(label)
+        label.snp.makeConstraints { make in
+            if let previous {
+                make.top.equalTo(previous.snp.bottom).offset(AppSpace.md)
+            } else {
+                make.top.equalToSuperview().offset(AppSpace.sm)
+            }
+            make.leading.equalToSuperview().offset(AppSpace.lg)
+            make.trailing.equalToSuperview().offset(-AppSpace.lg)
+            make.bottom.equalToSuperview().offset(-AppSpace.md)
+        }
+    }
+}
+
+// MARK: - Storage 本地存储（底层能力 foundation #93，对齐 Android StorageDemo）
+
+/// Demo 专用业务表结构（宿主注入示范：中台只管库生命周期，表结构宿主定）。
+private final class DemoNoteSchema: DatabaseSchemaProvider {
+    let directoryName = "DemoStorage"
+    let fileName = "demo_notes.sqlite"
+    let eraseTableNames = ["demo_note"]
+
+    var migrator: DatabaseMigrator = {
+        var migrator = DatabaseMigrator()
+        migrator.registerMigration("v1") { db in
+            try db.execute(sql: """
+                CREATE TABLE demo_note (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    content TEXT NOT NULL,
+                    created_at INTEGER NOT NULL
+                )
+                """)
+        }
+        return migrator
+    }()
+}
+
+/// Storage 组件 Demo 页（4 组排查：建库+写入 / 读取列表 / 删除单条 / eraseAll 清空）。
+/// 组件实现：ios/Foundation/Storage/AppDatabase.swift（GRDB） ｜ 契约：api.json `ui.storage` ｜ 版本 v1.9.39。
+final class StorageShowcase: ShowcaseViewController {
+
+    private var statusLabel: UILabel?
+    private var notesLabel: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Storage 本地存储"
+        addVersionBadge(componentName: "Storage", version: "v1.9.39", builtAt: "2026-09-14")
+
+        // 宿主注入 schema 并建库（GRDB 迁移幂等）
+        AppDatabase.schemaProvider = DemoNoteSchema()
+        try? AppDatabase.shared.prepare()
+
+        addSection(title: "Demo 1 · 建库 + 写入") { [weak self] container in
+            guard let self else { return }
+            self.pin(self.makeAction("prepare 建库 + 插入一条演示笔记") { [weak self] in
+                self?.insertNote()
+            }, in: container)
+            let label = self.makeDesc("（未建库）")
+            self.pinStatic(label, in: container, after: container.subviews.first)
+            self.statusLabel = label
+        }
+
+        addSection(title: "Demo 2 · 读取列表") { [weak self] container in
+            guard let self else { return }
+            self.pin(self.makeAction("读取 demo_note 全部行") { [weak self] in
+                self?.refreshNotes()
+            }, in: container)
+            let label = self.makeDesc("（暂无数据）")
+            self.pinStatic(label, in: container, after: container.subviews.first)
+            self.notesLabel = label
+        }
+
+        addSection(title: "Demo 3 · 删除单条") { [weak self] container in
+            guard let self else { return }
+            self.pin(self.makeAction("删除最新一条（MAX id）", color: AppColor.gray10) { [weak self] in
+                self?.deleteLatest()
+            }, in: container)
+        }
+
+        addSection(title: "Demo 4 · eraseAll 清空") { [weak self] container in
+            guard let self else { return }
+            self.pin(self.makeAction("eraseAll 清空 demo_note", color: AppColor.gray10) { [weak self] in
+                self?.eraseAll()
+            }, in: container)
+        }
+        addInfo("foundation.storage = 数据库生命周期唯一出口（建库/迁移/注销清数据），表结构由宿主 DatabaseSchemaProvider 注入。")
+    }
+
+    private func insertNote() {
+        let content = "演示笔记 \(Int(Date().timeIntervalSince1970 * 1000) % 10000)"
+        do {
+            try AppDatabase.shared.dbQueue?.write { db in
+                try db.execute(
+                    sql: "INSERT INTO demo_note (content, created_at) VALUES (?, ?)",
+                    arguments: [content, Date().timeIntervalSince1970]
+                )
+            }
+            statusLabel?.text = "建库成功（demo_notes.sqlite v1），当前共 \(self.noteCount()) 条"
+        } catch {
+            statusLabel?.text = "写入失败: \(error)"
+        }
+        refreshNotes()
+    }
+
+    private func noteCount() -> Int {
+        guard let queue = AppDatabase.shared.dbQueue else { return 0 }
+        return (try? queue.read { db -> Int in
+            try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM demo_note") ?? 0
+        }) ?? 0
+    }
+
+    private func refreshNotes() {
+        guard let queue = AppDatabase.shared.dbQueue else {
+            notesLabel?.text = "（数据库未就绪）"
+            return
+        }
+        do {
+            let rows = try queue.read { db in
+                try String.fetchAll(db, sql: "SELECT '#' || id || ' ' || content FROM demo_note ORDER BY id")
+            }
+            notesLabel?.text = rows.isEmpty ? "（暂无数据）" : rows.joined(separator: "\n")
+        } catch {
+            notesLabel?.text = "读取失败: \(error)"
+        }
+    }
+
+    private func deleteLatest() {
+        do {
+            let count = noteCount()
+            if count > 0 {
+                try AppDatabase.shared.dbQueue?.write { db in
+                    try db.execute(sql: "DELETE FROM demo_note WHERE id = (SELECT MAX(id) FROM demo_note)")
+                }
+            }
+            statusLabel?.text = count > 0 ? "已删除最新一条（剩 \(count - 1) 条）" : "（暂无可删数据）"
+        } catch {
+            statusLabel?.text = "删除失败: \(error)"
+        }
+        refreshNotes()
+    }
+
+    private func eraseAll() {
+        do {
+            try AppDatabase.shared.eraseAll()
+            statusLabel?.text = "已 eraseAll 清空全部业务表（表结构保留，仅删行）"
+        } catch {
+            statusLabel?.text = "清空失败: \(error)"
+        }
+        refreshNotes()
+    }
+
+    private func makeAction(_ title: String, color: UIColor = AppColor.primary, handler: @escaping () -> Void) -> UIButton {
+        let btn = UIButton(type: .system)
+        btn.setTitle(title, for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
+        btn.backgroundColor = color
+        btn.setTitleColor(.white, for: .normal)
+        btn.layer.cornerRadius = 8
+        btn.contentEdgeInsets = UIEdgeInsets(top: 6, left: 12, bottom: 6, right: 12)
+        btn.addAction(UIAction { _ in handler() }, for: .touchUpInside)
+        btn.snp.makeConstraints { $0.height.equalTo(36) }
+        return btn
+    }
+
+    private func makeDesc(_ text: String) -> UILabel {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: AppFont.sizeSm)
+        label.textColor = AppColor.textPrimary
+        label.text = text
+        return label
+    }
+
+    private func pin(_ button: UIButton, in container: UIView) {
+        container.addSubview(button)
+        button.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(AppSpace.sm)
+            make.leading.equalToSuperview().offset(AppSpace.lg)
+        }
+    }
+
+    private func pinStatic(_ label: UILabel, in container: UIView, after previous: UIView?) {
+        container.addSubview(label)
+        label.snp.makeConstraints { make in
+            if let previous {
+                make.top.equalTo(previous.snp.bottom).offset(AppSpace.md)
+            } else {
+                make.top.equalToSuperview().offset(AppSpace.sm)
+            }
+            make.leading.equalToSuperview().offset(AppSpace.lg)
+            make.trailing.equalToSuperview().offset(-AppSpace.lg)
+            make.bottom.equalToSuperview().offset(-AppSpace.md)
+        }
+    }
+}
+
+// MARK: - HTTPClient 网络客户端（底层能力 foundation #94，对齐 Android HTTPClientDemo）
+
+/// HTTPClient 组件 Demo 页（4 组排查：/health / 环境配置 / not_found / 请求回执）。
+/// 全程 MockURLProtocol 本地拦截，离线可成功（不依赖真后端）。
+/// 组件实现：ios/Foundation/Network/MockAPIClient.swift + MockURLProtocol.swift ｜ 契约：api.json `ui.http-client` ｜ 版本 v1.9.39。
+final class HTTPClientShowcase: ShowcaseViewController {
+
+    private var healthLabel: UILabel?
+    private var envLabel: UILabel?
+    private var notFoundLabel: UILabel?
+    private var receiptLabel: UILabel?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "HTTPClient 网络客户端"
+        addVersionBadge(componentName: "HTTPClient", version: "v1.9.39", builtAt: "2026-09-14")
+
+        addSection(title: "Demo 1 · 健康检查（/health）") { [weak self] container in
+            guard let self else { return }
+            self.pin(self.makeAction("GET /health") { [weak self] in
+                self?.requestHealth()
+            }, in: container)
+            let label = self.makeDesc("（未请求）")
+            self.pinStatic(label, in: container, after: container.subviews.first)
+            self.healthLabel = label
+        }
+
+        addSection(title: "Demo 2 · 环境配置（baseURL + 环境名）") { [weak self] container in
+            guard let self else { return }
+            self.pin(self.makeAction("切换环境（mock ↔ production 示例）", color: AppColor.gray10) { [weak self] in
+                self?.toggleEnv()
+            }, in: container)
+            let label = self.makeDesc("环境: \(self.envName())\nbaseURL = \(APIEnvironment.current.baseURL.absoluteString)")
+            self.pinStatic(label, in: container, after: container.subviews.first)
+            self.envLabel = label
+        }
+
+        addSection(title: "Demo 3 · 未登记路径（not_found）") { [weak self] container in
+            guard let self else { return }
+            self.pin(self.makeAction("GET /unknown_demo_path") { [weak self] in
+                self?.requestNotFound()
+            }, in: container)
+            let label = self.makeDesc("（未请求）")
+            self.pinStatic(label, in: container, after: container.subviews.first)
+            self.notFoundLabel = label
+        }
+
+        addSection(title: "Demo 4 · 请求回执（状态码 + 耗时 + 响应体预览）") { [weak self] container in
+            guard let self else { return }
+            self.pin(self.makeAction("GET /health（原始回执）") { [weak self] in
+                self?.requestReceipt()
+            }, in: container)
+            let label = self.makeDesc("（未请求）")
+            self.pinStatic(label, in: container, after: container.subviews.first)
+            self.receiptLabel = label
+        }
+        addInfo("foundation.http-client = 网络请求层（客户端 + 环境配置 + Mock 拦截骨架），响应体与 Android 逐字符一致。")
+    }
+
+    private func requestHealth() {
+        Task { @MainActor in
+            do {
+                let dto = try await MockAPIClient.shared.getHealth()
+                healthLabel?.text = "status = \(dto.status)\nservice = \(dto.service)"
+            } catch {
+                healthLabel?.text = "请求失败: \(error)"
+            }
+        }
+    }
+
+    private func envName() -> String {
+        APIEnvironment.current.baseURL == APIEnvironment.mock.baseURL ? "mock" : "production（示例）"
+    }
+
+    private func toggleEnv() {
+        APIEnvironment.current = (APIEnvironment.current.baseURL == APIEnvironment.mock.baseURL)
+            ? APIEnvironment(baseURL: URL(string: "https://keepaccounts.example.com")!)
+            : APIEnvironment.mock
+        envLabel?.text = "环境: \(envName())\nbaseURL = \(APIEnvironment.current.baseURL.absoluteString)"
+    }
+
+    private func requestNotFound() {
+        Task { @MainActor in
+            do {
+                let result = try await MockAPIClient.shared.getRaw(path: "unknown_demo_path")
+                notFoundLabel?.text = "HTTP \(result.statusCode)\n\(result.body)"
+            } catch {
+                notFoundLabel?.text = "请求失败: \(error)"
+            }
+        }
+    }
+
+    private func requestReceipt() {
+        Task { @MainActor in
+            let start = Date()
+            do {
+                let result = try await MockAPIClient.shared.getRaw(path: "health")
+                let elapsed = Int(Date().timeIntervalSince(start) * 1000)
+                receiptLabel?.text = "状态码: HTTP \(result.statusCode)\n耗时: \(elapsed)ms（本地拦截）\n响应体预览: \(String(result.body.prefix(80)))"
+            } catch {
+                receiptLabel?.text = "请求失败: \(error)"
+            }
+        }
+    }
+
+    private func makeAction(_ title: String, color: UIColor = AppColor.primary, handler: @escaping () -> Void) -> UIButton {
+        let btn = UIButton(type: .system)
+        btn.setTitle(title, for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
+        btn.backgroundColor = color
+        btn.setTitleColor(.white, for: .normal)
+        btn.layer.cornerRadius = 8
+        btn.contentEdgeInsets = UIEdgeInsets(top: 6, left: 12, bottom: 6, right: 12)
+        btn.addAction(UIAction { _ in handler() }, for: .touchUpInside)
+        btn.snp.makeConstraints { $0.height.equalTo(36) }
+        return btn
+    }
+
+    private func makeDesc(_ text: String) -> UILabel {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: AppFont.sizeSm)
+        label.textColor = AppColor.textPrimary
+        label.text = text
+        return label
+    }
+
+    private func pin(_ button: UIButton, in container: UIView) {
+        container.addSubview(button)
+        button.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(AppSpace.sm)
+            make.leading.equalToSuperview().offset(AppSpace.lg)
+        }
+    }
+
+    private func pinStatic(_ label: UILabel, in container: UIView, after previous: UIView?) {
+        container.addSubview(label)
+        label.snp.makeConstraints { make in
+            if let previous {
+                make.top.equalTo(previous.snp.bottom).offset(AppSpace.md)
+            } else {
+                make.top.equalToSuperview().offset(AppSpace.sm)
+            }
+            make.leading.equalToSuperview().offset(AppSpace.lg)
+            make.trailing.equalToSuperview().offset(-AppSpace.lg)
+            make.bottom.equalToSuperview().offset(-AppSpace.md)
+        }
+    }
+}
+
+// MARK: - MoneyFormat 金额格式化（底层能力 foundation #95，对齐 Android MoneyFormatDemo）
+
+/// MoneyFormat 组件 Demo 页（4 组排查：string / currency / signed / 边界值）。
+/// 断言双端逐字符一致（小写货币符号"¥"）。
+/// 组件实现：ios/Foundation/Util/Formatters.swift ｜ 契约：api.json `ui.money-format` ｜ 版本 v1.9.39。
+final class MoneyFormatShowcase: ShowcaseViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "MoneyFormat 金额格式化"
+        addVersionBadge(componentName: "MoneyFormat", version: "v1.9.39", builtAt: "2026-09-14")
+
+        addSection(title: "Demo 1 · string —— 基础两位小数") { container in
+            self.pinStatic(self.makeDesc(
+                "1121 → \(MoneyFormatter.string(from: 1121.0))\n38.5 → \(MoneyFormatter.string(from: 38.5))"
+            ), in: container, after: nil)
+        }
+
+        addSection(title: "Demo 2 · currency —— 金额前缀 ¥") { container in
+            self.pinStatic(self.makeDesc(
+                "38.5 → \(MoneyFormatter.currency(from: 38.5))\n1121 → \(MoneyFormatter.currency(from: 1121.0))"
+            ), in: container, after: nil)
+        }
+
+        addSection(title: "Demo 3 · signed —— 收支方向") { container in
+            self.pinStatic(self.makeDesc(
+                "收入 38.5 → \(MoneyFormatter.signed(from: 38.5, isIncome: true))\n支出 38.5 → \(MoneyFormatter.signed(from: 38.5, isIncome: false))"
+            ), in: container, after: nil)
+        }
+
+        addSection(title: "Demo 4 · 边界值 —— 0 / 负数 / 大额 / 超两位舍入") { container in
+            self.pinStatic(self.makeDesc(
+                "0 → \(MoneyFormatter.string(from: 0.0))\n" +
+                "-1118 → \(MoneyFormatter.string(from: -1118.0))\n" +
+                "12345678.9 → \(MoneyFormatter.string(from: 12345678.9))\n" +
+                "38.567 → \(MoneyFormatter.string(from: 38.567))（四舍五入）"
+            ), in: container, after: nil)
+        }
+        addInfo("foundation.money-format = 金额字符串格式化唯一出口（string/currency/signed 三形态），最小两位小数、不带千分位。")
+    }
+
+    private func makeDesc(_ text: String) -> UILabel {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: AppFont.sizeMd)
+        label.textColor = AppColor.textPrimary
+        label.text = text
+        return label
+    }
+
+    private func pinStatic(_ label: UILabel, in container: UIView, after previous: UIView?) {
+        container.addSubview(label)
+        label.snp.makeConstraints { make in
+            if let previous {
+                make.top.equalTo(previous.snp.bottom).offset(AppSpace.md)
+            } else {
+                make.top.equalToSuperview().offset(AppSpace.sm)
+            }
+            make.leading.equalToSuperview().offset(AppSpace.lg)
+            make.trailing.equalToSuperview().offset(-AppSpace.lg)
+            make.bottom.equalToSuperview().offset(-AppSpace.md)
+        }
     }
 }

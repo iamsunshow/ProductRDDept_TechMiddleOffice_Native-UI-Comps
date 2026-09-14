@@ -2,6 +2,36 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.9.39] - 2026-09-14（foundation 六件「未评审」补齐批 门禁 A+B + 组件列表分类对齐）
+
+### Added
+
+- **foundation 六件门禁 A + 门禁 B 双端入库**（`foundation.system-bars` / `foundation.design-tokens` / `foundation.router` / `foundation.storage` / `foundation.http-client` / `foundation.money-format`，对应 §3.9 行 90~#95）：
+  - 门禁 A：六份设计规格 `docs/数据与产物/design-spec/*-design-spec.html` + 评审单 `docs/评审记录/review-*-A.md`（P1–P4 全 A、0 保留意见，随 07003de 入库）。
+  - 门禁 B 双端实现：
+    - **SystemBars**：iOS 新建 `ios/Foundation/SystemBars/SystemBars.swift`（Style 三态枚举 default/immersive/transparent + `background(for:)` 供页面安全区自绘等价底色 + `statusBarStyle(for:)`/`refresh(on:)` preferredStatusBarStyle 显式声明；iOS 系统无状态栏背景色 API、底色由页面自绘=差异表已放行）；Android `foundation/design/SystemBars.kt`（ConfigureSystemBars 直接设窗口底色）。
+    - **Storage**：Android 补齐缺口新建 `foundation/storage/AppDatabase.kt`（SQLiteOpenHelper 骨架，DatabaseSchemaProvider 注入 + eraseAll）；iOS `AppDatabase.swift`（GRDB）已有。
+    - **HTTPClient**：iOS 新建 `ios/Foundation/Network/MockURLProtocol.swift`（URLProtocol 本地拦截）+ `MockAPIClient.swift` 对齐改造；Android `MockApiClient.kt` + `HealthDTO.kt` 响应体与 iOS 逐字符一致。
+    - **Router**（AppRouter.swift + AppRouter.kt/Routes.kt）、**DesignTokens**（AppTokens.swift/AppTokens.kt）、**MoneyFormat**（Formatters.swift/MoneyFormatter.kt）已有实现补齐 Demo 展示页与契约回写。
+  - api.json 六件补齐 `reviewed=true` + `subcategory=foundation` + platforms note/source_refs（验证版本 v1.9.39）；demo 双端注册行六件此前 `planned=true` 灰标不可点 → 现 reviewed=true 挂 demo 实体可点（Android `MainActivity.kt` / iOS `DemoShowcases.swift`）。
+  - Demo 双端 4 段 1:1 ×6（SystemBarsShowcase·Demo / DesignTokensShowcase·Demo / RouterShowcase·Demo / StorageShowcase·Demo / HTTPClientShowcase·Demo / MoneyFormatShowcase·Demo），徽标 v1.9.39。
+
+### Changed
+
+- **组件列表分类对齐（用户指令「以代码库的分类为准，调整组件列表的组件状态和组件分类」）**：`docs/组件进度.md` §3 按 demo 双端注册行分组 9 组重排——基础 4（Popup 移入；Cell/Image 移信息展示、ConfigProvider 移 foundation）/ 布局 7 / 导航 14 / 数据录入 24（Calendar 移 foundation）/ 操作反馈 15（CircleProgress 移入；Badge/Empty/Loading/NoticeBar/ResultPage/Skeleton 移信息展示）/ 信息展示 28 / 图表 1（LineChart 拆出）/ 特色 9（SystemBars/DesignTokens 归特色）/ foundation 6；#22/#89 双登记去重（3.4/3.8 留删线锚点、3.9 行 22 为准）+ #22 `foundation.calendar` 📋→✅（2026-09-12 C1.5 已验收+api reviewed=true，状态补收口）。
+
+### 验证
+
+- `docs/数据与产物/api.json` JSON 合法（json.load 复读通过，components 91 条）。
+- 遗留：C1.5 用户 Demo 实机验收待走（六件）；C1 单测 / C2 CR/CI / D 发版未走。
+
+## [1.9.38] - 2026-09-14（Swipe Android 操作按钮半高修复入库）
+
+### Fixed
+
+- **Swipe 左右操作按钮半高（Android）**：`Swipe.kt` 左右操作按钮高度由 `fillMaxHeight` 改 `requiredHeight(内容层实测高)`——内容层（主内容 Box）补 `onSizeChanged` 回填 `contentHeightPx`，左右按钮 `requiredWidth(80dp)` + 显式高度传递，根治 `matchParentSize`/`fillMaxHeight` 在 LazyColumn 子项松约束下的测量时序怪癖（按钮只撑到半高，对齐 iOS `bounds.height` 零歧义）。本修复为并行会话工作区遗留（注释曾误标 v1.9.34、实际未随该版入库），本次收口升 v1.9.38。
+- 同步 Swipe 验收状态闭环：用户原话「Swipe：已通过」；双端 Demo 注册行 passed=true 已于 v1.9.36 同步，api.json ui.swipe reviewed=true+note 已收口。验证：Android `:components:compileDebugKotlin` BUILD SUCCESSFUL + 用户重新编译后实机验收通过。
+
 ## [1.9.37] - 2026-09-14（AnimatingNumbers 数字动画 #61 门禁 A+B 双端实现入库）
 
 ### Added

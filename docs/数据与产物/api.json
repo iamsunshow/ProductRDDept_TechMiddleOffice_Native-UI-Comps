@@ -5094,11 +5094,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": ""
+          "note": "AppTokens.swift（AppColor/AppFont/AppSpace/AppRadius/AppText 五族同名同值）。2026-09-14 门禁 A 通过（review-design-tokens-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段（DesignTokensShowcase，验证版本 v1.9.39）"
         },
         "android": {
           "state": "available",
-          "note": ""
+          "note": "AppTokens.kt（与 iOS hex 逐项一致 + 额外 textInverse）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（DesignTokensDemo，验证版本 v1.9.39）"
         },
         "harmony": {
           "state": "unavailable",
@@ -5125,6 +5125,8 @@
       "apis": "",
       "visual_refs": [],
       "status": "stable",
+      "reviewed": true,
+      "subcategory": "foundation",
       "search_text": "foundation.design-tokens 设计令牌 Design Tokens 色板/字号/间距/圆角等主题变量 foundation Design Tokens Theme tokens 主题 换肤 AppColor AppFont AppSpace Design Tokens Theme 设计令牌 Design Tokens foundation.design-tokens cap.design-tokens cap.design-tokens",
       "embedding_ref": "vector-store/foundation_design-tokens.json",
       "legacy_id": "cap.design-tokens",
@@ -5169,11 +5171,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": ""
+          "note": "AppRouter.swift（Tab/Destination 枚举 + RouterDestinationProvider 注入 + 占位兜底，命令式真导航）。2026-09-14 门禁 A 通过（review-router-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段内层状态机回显（RouterShowcase，验证版本 v1.9.39）"
         },
         "android": {
           "state": "available",
-          "note": ""
+          "note": "AppRouter.kt + Routes.kt（MainDestination/SecondaryRoutes，声明式映射表）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（RouterDemo，验证版本 v1.9.39）"
         },
         "harmony": {
           "state": "unavailable",
@@ -5199,6 +5201,8 @@
       "visual_tokens": [],
       "visual_refs": [],
       "status": "stable",
+      "reviewed": true,
+      "subcategory": "foundation",
       "search_text": "foundation.router 路由 Router 页面/Tab 导航路由 foundation Router Navigator Navigation 路由 导航 push AppRouter Tab Router Navigator Navigation 路由 Router foundation.router cap.router cap.router",
       "embedding_ref": "vector-store/foundation_router.json",
       "legacy_id": "cap.router",
@@ -5249,11 +5253,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": ""
+          "note": "AppDatabase.swift（GRDB dbQueue，DatabaseSchemaProvider 注入 + migrator 迁移 + eraseAll 清数据）。2026-09-14 门禁 A 通过（review-storage-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段（StorageShowcase demo_note 表，验证版本 v1.9.39）"
         },
         "android": {
           "state": "available",
-          "note": ""
+          "note": "AppDatabase.kt（SQLiteOpenHelper 骨架，DatabaseSchemaProvider 注入 + eraseAll；2026-09-14 门禁 B 新增补齐 Android 缺口）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（StorageDemo，验证版本 v1.9.39）"
         },
         "harmony": {
           "state": "unavailable",
@@ -5279,6 +5283,8 @@
       "apis": "",
       "visual_refs": [],
       "status": "stable",
+      "reviewed": true,
+      "subcategory": "foundation",
       "search_text": "foundation.storage 本地存储 Storage 本地数据库封装（SQLite） foundation Storage Database SQLite 本地存储 SQLite GRDB Room 本地优先 Storage Database 本地存储 Storage foundation.storage cap.storage-db cap.storage-db",
       "embedding_ref": "vector-store/foundation_storage.json",
       "legacy_id": "cap.storage-db",
@@ -5316,11 +5322,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": ""
+          "note": "MockAPIClient.swift（Retrofit 风格 APIEndpoint + MockURLProtocol 本地拦截，无真实网络请求；2026-09-14 门禁 B 补齐双端 Mock 同构）。2026-09-14 门禁 A 通过（review-http-client-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段（HTTPClientShowcase：/health / 环境配置 / not_found / 请求回执，验证版本 v1.9.39）"
         },
         "android": {
           "state": "available",
-          "note": ""
+          "note": "MockApiClient.kt（Retrofit + OkHttp MockInterceptor 本地拦截返回，与 iOS MockURLProtocol 响应体逐字符一致）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（HTTPClientDemo，验证版本 v1.9.39）"
         },
         "harmony": {
           "state": "unavailable",
@@ -5361,7 +5367,9 @@
           "请求",
           "http.get('/health')"
         ]
-      ]
+      ],
+      "reviewed": true,
+      "subcategory": "foundation"
     },
     {
       "id": "foundation.money-format",
@@ -5381,11 +5389,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": ""
+          "note": "Formatters.swift（MoneyFormatter：en_US_POSIX 两位小数无千分位，全局金额展示统一出口）。2026-09-14 门禁 A 通过（review-money-format-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段（MoneyFormatShowcase，验证版本 v1.9.39）"
         },
         "android": {
           "state": "available",
-          "note": ""
+          "note": "MoneyFormatter.kt（String.format Locale.US 两位小数无千分位，对齐 iOS 同规则）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（MoneyFormatDemo，验证版本 v1.9.39）"
         },
         "harmony": {
           "state": "unavailable",
@@ -5440,7 +5448,9 @@
           "formatMoney(230.4)"
         ]
       ],
-      "note": "暂为货币工具；完整 i18n 方案后再统一抽象"
+      "note": "暂为货币工具；完整 i18n 方案后再统一抽象",
+      "reviewed": true,
+      "subcategory": "foundation"
     },
     {
       "id": "foundation.calendar",
@@ -5523,12 +5533,12 @@
       ],
       "platforms": {
         "ios": {
-          "state": "partial",
-          "note": "preferredStatusBarStyle"
+          "state": "available",
+          "note": "SystemBars.swift（2026-09-14 门禁 B 新建：Style 三态枚举 default/immersive/transparent + background(for:) 供页面安全区自绘等价底色 + statusBarStyle(for:)/refresh(on:) preferredStatusBarStyle 显式声明；iOS 系统无状态栏背景色 API，底色由页面自绘=差异表已放行）。2026-09-14 门禁 A 通过（review-system-bars-A.md P1–P4 全 A）+ 门禁 B Demo 展示页 4 段（SystemBarsShowcase，验证版本 v1.9.39）"
         },
         "android": {
           "state": "available",
-          "note": ""
+          "note": "SystemBars.kt（ConfigureSystemBars(statusBarColor) 直接设窗口状态栏底色 + 三态辅助）。2026-09-14 门禁 A 通过 + 门禁 B Demo 展示页 4 段（SystemBarsDemo，验证版本 v1.9.39）"
         },
         "harmony": {
           "state": "unavailable",
@@ -5544,7 +5554,8 @@
         }
       },
       "source_refs": {
-        "android": "ProductRDDept/TechMiddleOffice/android/foundation/design/SystemBars.kt"
+        "android": "ProductRDDept/TechMiddleOffice/android/foundation/design/SystemBars.kt",
+        "ios": "ProductRDDept/TechMiddleOffice/ios/Foundation/SystemBars/SystemBars.swift"
       },
       "deps": [],
       "variants": [],
@@ -5574,7 +5585,9 @@
           "状态栏",
           "setSystemBars('light')"
         ]
-      ]
+      ],
+      "reviewed": true,
+      "subcategory": "foundation"
     },
     {
       "id": "ui.checkbox",

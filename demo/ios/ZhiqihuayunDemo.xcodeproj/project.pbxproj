@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA11BB22CC33DD44EE55FF67 /* AnimatingNumbersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF66 /* AnimatingNumbersView.swift */; };
 		03700320400B13350FF1C9AD /* SkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AACCD6F063388FAC4DB1EB2 /* SkeletonView.swift */; };
 		0606875593120BC38493C1E0 /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F3DA45E7694551DEEFA6F5 /* Cell.swift */; };
 		0B22235F8B087F10A8C4A962 /* GroupListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1384B27B30CF0FE17962B66F /* GroupListItem.swift */; };
@@ -115,6 +116,7 @@
 
 /* Begin PBXFileReference section */
 		052B119DCD35264531FB249A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		AA11BB22CC33DD44EE55FF66 /* AnimatingNumbersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatingNumbersView.swift; sourceTree = "<group>"; };
 		06845E8809344B546909BDEA /* HealthDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthDTO.swift; sourceTree = "<group>"; };
 		07584297257CF6637FE40C32 /* ProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressView.swift; sourceTree = "<group>"; };
 		0942F23F7F9B7AF50C6169A8 /* APIEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIEndpoint.swift; sourceTree = "<group>"; };
@@ -252,6 +254,7 @@
 			children = (
 				452574082DBEB5BC4E325F49 /* ActionSheetView.swift */,
 				AF92DF6DC2897ABCD9C46224 /* AddressView.swift */,
+				AA11BB22CC33DD44EE55FF66 /* AnimatingNumbersView.swift */,
 				E36A0907C0CF11E9783D53FB /* AppButton.swift */,
 				6D173EBBE290117990FB6D2B /* AppIcon.swift */,
 				538FFA7C6388387E57FC73DC /* BackTopButton.swift */,
@@ -563,6 +566,7 @@
 				C8E94EEFB76666AB629B02A1 /* APIEndpoint.swift in Sources */,
 				198B5ECCC1B507ABFE82269C /* ActionSheetView.swift in Sources */,
 				AC38EC510D173EB064E94DBF /* AddressView.swift in Sources */,
+				AA11BB22CC33DD44EE55FF67 /* AnimatingNumbersView.swift in Sources */,
 				12A2A02B2B7C1DCC3F8762C4 /* AppButton.swift in Sources */,
 				CF13E2F0EFAAC8CD1247A518 /* AppDatabase.swift in Sources */,
 				A574AF3025E01091510DBD32 /* AppDelegate.swift in Sources */,

@@ -8784,6 +8784,162 @@
       "reviewed": true
     },
     {
+      "id": "ui.animating-numbers",
+      "name": "数字动画 AnimatingNumbers",
+      "category": "ui",
+      "summary": "数值变化时以「逐位滚动」动画展示过渡过程的数字展示件——每位数字是一个竖排 0~9 的定高滚动窗口，value 数值驱动，挂载后等待 delay、在 duration 内从 0 滚到目标字形；length 控制最大展示位数（位数不足时整数部分前按位补 0），thousands 控制千分位分隔符（分隔符静态渲染不参与滚动）；支持 size 尺寸档位（small/medium/large）、color 数字色、separatorColor 分隔符色、backgroundColor/cornerRadius 数位块外观",
+      "capabilities": [
+        "数字动画",
+        "AnimatingNumbers",
+        "数字滚动",
+        "逐位滚动",
+        "数字过渡",
+        "数字动画 AnimatingNumbers",
+        "display.animating-numbers",
+        "ui.animating-numbers"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "AnimatingNumbersView.swift：UIView 子类 + 手动 frame 布局；每位数字=UIView 窗口（layer.cornerRadius + masksToBounds）+ 内含竖排 0~9 等宽 UILabel 的 AnimatingDigitColumn，位移由滚动列 transform 驱动；动画=UIViewPropertyAnimator + UICubicTimingParameters(0.4,0,0.2,1)（等价 FastOutSlowIn，起止与 Android 同构），startAnimation(afterDelay:) 实现 delay；value 变化先全体归零（transform=.identity）再重滚（P3-A）；UIFont.monospacedDigitSystemFont 等宽数字防抖动；size medium=sizeLg(18)/窗口高 32、small=sizeSm(14)/24、large=sizeDisplay(32)/48；separatorColor=nil 时跟随 color"
+        },
+        "android": {
+          "state": "available",
+          "note": "AnimatingNumbers.kt：@Composable AnimatingNumbers；每位数字=Box(height + clip(RoundedCornerShape) + background) + 内含竖排 0..9 Text 的 Column，位移由 graphicsLayer lambda 内直读 progress（draw-phase 读取，每帧零重组）；动画=Animatable(0f→1f) + tween(durationMillis, FastOutSlowInEasing)，delay 用协程 delay；FontFeature \"tnum\" 等宽数字；size 同 iOS 映射；separatorColor=Color.Unspecified 时跟随 color；可测性 testTag animating-numbers-root / animating-numbers-digit-N"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "source_refs": {
+        "ios": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/ios/SharedUI/Components/AnimatingNumbersView.swift",
+        "android": "ProductRDDept/TechMiddleOffice/Native-UI-Comps/android/sharedui/components/AnimatingNumbers.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [
+        "货币符号 / 前后缀 / 小数位格式化=归 Price #72（本件只滚数字，宿主可组合 Price 与 AnimatingNumbers）",
+        "循环播放 / 定时刷新=归 CountDown #60 或宿主（本件值驱动一次性过渡）",
+        "数字字形自定义（字体替换/手写体）=二期",
+        "滚动结束回调=一期不提供（动画视觉件，宿主按 duration 自行计时）"
+      ],
+      "visual_tokens": [
+        "color.textPrimary",
+        "font.sizeSm",
+        "font.sizeLg",
+        "font.sizeDisplay",
+        "space.xs"
+      ],
+      "apis": "value / length / delay / duration / thousands / size / color / separatorColor / backgroundColor / cornerRadius",
+      "visual_refs": [
+        "ProductRDDept/TechMiddleOffice/Native-UI-Comps/docs/数据与产物/design-spec/animating-numbers-design-spec.html"
+      ],
+      "status": "stable",
+      "search_text": "ui.animating-numbers 数字动画 AnimatingNumbers 数字滚动 逐位滚动 数字过渡 display.animating-numbers",
+      "embedding_ref": "",
+      "legacy_id": "",
+      "industry_names": [
+        "AnimatingNumbers",
+        "数字动画",
+        "数字滚动",
+        "AnimatingNumbersView"
+      ],
+      "props": [
+        [
+          "value",
+          "number",
+          "是",
+          "结束值（NaN/Infinity 等非法值 fallback「0」不崩溃）"
+        ],
+        [
+          "length?",
+          "number",
+          "否，默认 0",
+          "最大展示位数（仅计数字位），位数不足时整数部分前按位补 0；0=按实际位数"
+        ],
+        [
+          "delay?",
+          "number（ms）",
+          "否，默认 300",
+          "等待动画执行时间"
+        ],
+        [
+          "duration?",
+          "number（ms）",
+          "否，默认 1000",
+          "动画执行时长"
+        ],
+        [
+          "thousands?",
+          "boolean",
+          "否，默认 false",
+          "是否显示千位分隔符（分隔符静态渲染不滚动）"
+        ],
+        [
+          "size?",
+          "'small'|'medium'|'large'",
+          "否，默认 medium",
+          "字号/窗口高档位：14/24、18/32、32/48"
+        ],
+        [
+          "color?",
+          "color",
+          "否，默认 textPrimary",
+          "数字颜色"
+        ],
+        [
+          "separator-color?",
+          "color",
+          "否，默认同 color",
+          "分隔符（小数点/千分位/负号）颜色"
+        ],
+        [
+          "background-color?",
+          "color",
+          "否，默认透明",
+          "每位数位背景色（非透明时按 corner-radius 圆角）"
+        ],
+        [
+          "corner-radius?",
+          "number",
+          "否，默认 4",
+          "数位背景圆角"
+        ]
+      ],
+      "events": [],
+      "demos": [
+        [
+          "基础用法",
+          "<AnimatingNumbers value={678.94} />"
+        ],
+        [
+          "位数+千分位+自定义色",
+          "<AnimatingNumbers value={1578.94} length={8} thousands color={danger} />"
+        ],
+        [
+          "动态修改数据",
+          "宿主按钮切换 value（1578.94 → 88.80 → 12345.67），每次切换全体从 0 重滚"
+        ],
+        [
+          "尺寸/外观档位",
+          "size=\"large\"（32/48）；size=\"small\"（14/24）+ background-color 灰底块 + corner-radius 4"
+        ]
+      ],
+      "note": "信息展示区组件 #61，双端纯从零实现。2026-09-14 启动门禁 A AI 代评（design-spec/animating-numbers-design-spec.html + 评审记录/review-animating-numbers-A.md，P1–P4 全选最优、A1–A7 全 ✅、0 保留意见）+ 同日门禁 B 双端实现入库（AnimatingNumbersView.swift=UIKit UIView 手动 frame 布局 + UIViewPropertyAnimator 自定义曲线 / AnimatingNumbers.kt=Compose Animatable + graphicsLayer draw-phase 直读）+ Demo 双端 4 段 1:1（iOS AnimatingNumbersShowcase / Android AnimatingNumbersDemo）。与 Price #72（静态金额排版·无动画）/ CountDown #60（时间戳自驱每秒刷新）/ Progress #74·CircleProgress #58（以长度/角度表达比例）/ InputNumber #44（可交互输入）/ Skeleton #53（无真实数值）划界；anti_goals 二期=货币符号/前后缀/小数位格式化、循环播放、字形自定义、滚动结束回调。验证版本 v1.9.37；统一待 C1.5 Demo 实机验收 + C1 单测（B1~B6 断言）+ C2 CR/CI + D 发版。",
+      "tier": "core",
+      "subcategory": "display",
+      "reviewed": true
+    },
+    {
       "id": "ui.price",
       "name": "价格 Price",
       "category": "ui",

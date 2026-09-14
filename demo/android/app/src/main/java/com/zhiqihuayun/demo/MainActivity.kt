@@ -367,7 +367,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
     ),
     "信息展示" to listOf(
         DemoComponent("Animate 动画"),
-        DemoComponent("AnimatingNumbers 数字动画"),
+        DemoComponent("AnimatingNumbers 数字动画", reviewed = true, demo = { AnimatingNumbersDemo() }),
         DemoComponent("Audio 音频播放器"),
         DemoComponent("Avatar 头像", reviewed = true, demo = { AvatarDemo() }, passed = true),
         DemoComponent("Badge 徽标", reviewed = true, demo = { BadgeDemo() }, passed = true),

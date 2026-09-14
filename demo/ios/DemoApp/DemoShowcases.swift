@@ -109,7 +109,7 @@ final class DemoListViewController: UITableViewController {
         ]),
         ("信息展示", [
             DemoComponent(id: "ui.animate", name: "Animate 动画", reviewed: false, create: nil),
-            DemoComponent(id: "ui.animating-numbers", name: "AnimatingNumbers 数字动画", reviewed: false, create: nil),
+            DemoComponent(id: "ui.animating-numbers", name: "AnimatingNumbers 数字动画", reviewed: true, create: { AnimatingNumbersShowcase() }),
             DemoComponent(id: "ui.audio", name: "Audio 音频播放器", reviewed: false, create: nil),
             DemoComponent(id: "ui.avatar", name: "Avatar 头像", reviewed: true, create: { AvatarShowcase() }, passed: true),
             DemoComponent(id: "ui.badge", name: "Badge 徽标", reviewed: true, create: { BadgeShowcase() }, passed: true),
@@ -10783,6 +10783,126 @@ final class LottieShowcase: ShowcaseViewController {
         case "停止": lottie.stop()
         default: break
         }
+    }
+}
+
+// MARK: - AnimatingNumbers Showcase（AnimatingNumbers 数字动画 Demo 页，信息展示区 #61，验证组件库 v1.9.37）
+// D1 基础用法（value=678.94）/
+// D2 位数+千分位+自定义色（1578.94, length=8, thousands, danger）/
+// D3 动态修改数据（宿主按钮切 1578.94 → 88.80 → 12345.67，每次切换全体从 0 重滚）/
+// D4 尺寸/外观档位（large 32/48；small 14/24 + gray6 灰底块 + 圆角 4）
+
+final class AnimatingNumbersShowcase: ShowcaseViewController {
+
+    /// D3 动态修改数据引用。
+    private var d3Numbers: AnimatingNumbersView?
+    /// D3 动态反馈行引用（与 Android 段内 Text 1:1，回写当前 value）。
+    private var d3Feedback: UILabel?
+
+    /// D3 三个候选值（字符串标签与数值双轨：88.80 保留两位小数展示，避免显示成 88.8）。
+    private let d3Values: [(label: String, value: Double)] = [
+        ("1578.94", 1578.94),
+        ("88.80", 88.80),
+        ("12345.67", 12345.67),
+    ]
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "AnimatingNumbers 数字动画"
+
+        addVersionBadge(componentName: "AnimatingNumbers 数字动画", version: "v1.0", builtAt: "2026-09-14 00:00:00")
+
+        // D1 基础用法：value=678.94，挂载后 delay 300ms、1000ms 内从 0 滚到目标
+        addSection(title: "D1 基础用法（value=678.94）") { container in
+            let num = AnimatingNumbersView(value: 678.94)
+            container.addSubview(num)
+            num.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("排查点：挂载后先停留 300ms（delay），再在 1000ms 内各位从 0 滚到目标字形，最终稳定显示「678.94」；小数点静态不滚动。")
+
+        // D2 位数 + 千分位 + 自定义色
+        addSection(title: "D2 位数 + 千分位 + 自定义色") { container in
+            let num = AnimatingNumbersView(value: 1578.94)
+            num.length = 8
+            num.thousands = true
+            num.color = AppColor.error
+            container.addSubview(num)
+            num.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+        }
+        addInfo("排查点：length=8 时整数部分前补 0（目标「001,578.94」），千分位逗号静态渲染不滚动，数字为 danger 红。")
+
+        // D3 动态修改数据：宿主按钮切 value，每次切换全体从 0 重滚
+        addSection(title: "D3 动态修改数据（切换 value 重滚）") { container in
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.spacing = AppSpace.sm
+            row.distribution = .fillEqually
+            container.addSubview(row)
+            row.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(AppSpace.lg)
+                make.top.equalToSuperview()
+            }
+            for (index, item) in d3Values.enumerated() {
+                let button = UIButton(type: .system)
+                button.setTitle(item.label, for: .normal)
+                button.setTitleColor(.white, for: .normal)
+                button.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm, weight: .medium)
+                button.backgroundColor = AppColor.primary
+                button.layer.cornerRadius = AppRadius.sm
+                button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+                button.tag = index
+                button.addTarget(self, action: #selector(changeD3Value(_:)), for: .touchUpInside)
+                row.addArrangedSubview(button)
+            }
+            let num = AnimatingNumbersView(value: 1578.94)
+            num.thousands = true
+            container.addSubview(num)
+            num.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.equalTo(row.snp.bottom).offset(AppSpace.md)
+                make.bottom.equalToSuperview()
+            }
+            self.d3Numbers = num
+        }
+        self.d3Feedback = addDynamicInfo("排查点：点任一按钮切换 value，整串数字先归零、再重新滚到新目标（当前 value=1578.94）。")
+
+        // D4 尺寸/外观档位：large / small + 灰底数位块
+        addSection(title: "D4 尺寸/外观档位（size large / small + 灰底块）") { container in
+            let col = UIStackView()
+            col.axis = .vertical
+            col.spacing = AppSpace.md
+            col.alignment = .leading
+            container.addSubview(col)
+            col.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(AppSpace.lg)
+                make.top.bottom.equalToSuperview().inset(AppSpace.md)
+            }
+            let large = AnimatingNumbersView(value: 299.0)
+            large.size = .large
+            let small = AnimatingNumbersView(value: 99.9)
+            small.size = .small
+            small.backgroundColor2 = AppColor.gray6
+            small.cornerRadius = 4
+            col.addArrangedSubview(large)
+            col.addArrangedSubview(small)
+        }
+        addInfo("排查点：第一行为 large（字号 32 / 窗口高 48）；第二行为 small（字号 14 / 窗口高 24）+ gray6 灰底数位块，圆角 4。")
+    }
+
+    // MARK: - D3 切换 value
+
+    @objc private func changeD3Value(_ sender: UIButton) {
+        guard sender.tag >= 0, sender.tag < d3Values.count else { return }
+        let item = d3Values[sender.tag]
+        // 切 value：组件内部会先全体归零再重滚。
+        d3Numbers?.value = item.value
+        d3Feedback?.text = "排查点：点任一按钮切换 value，整串数字先归零、再重新滚到新目标（当前 value=\(item.label)）。"
     }
 }
 

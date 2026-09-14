@@ -11,7 +11,13 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.animation.core.AnimationState
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.animateDecay
+import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -89,6 +95,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.drawToBitmap
 import androidx.core.view.WindowCompat
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -455,6 +462,40 @@ fun TmoDemo() {
     }
 }
 
+/**
+ * 列表滑动手感：对齐 iOS UIScrollView / UITableView 的松手惯性。
+ *
+ * 背景：iOS 松手后按减速曲线继续滑行（一次快滑常跨数屏）；Compose 默认 fling 走平台
+ * spline 衰减，在长列表上表现接近"松手即停"（模拟器实测一次快滑仅前进约 4 行）。
+ * 做法：改用 exponentialDecay 并把摩擦系数降到 0.5（滑行距离约翻倍），贴近 iOS 手感。
+ * 调参入口：只改 frictionMultiplier（越小滑得越远；0.5 = 约 2 倍，0.35 ≈ 3 倍）。
+ */
+@Composable
+private fun rememberListFlingBehavior(): FlingBehavior {
+    val decay = remember { exponentialDecay<Float>(frictionMultiplier = 0.5f) }
+    return remember(decay) {
+        object : FlingBehavior {
+            override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
+                if (abs(initialVelocity) < 1f) return initialVelocity
+                var lastValue = 0f
+                var reachedEdge = false
+                AnimationState(initialValue = 0f, initialVelocity = initialVelocity)
+                    .animateDecay(decay) {
+                        // block receiver = AnimationScope<Float, AnimationVector1D>；value/velocity 为动画属性
+                        val delta = value - lastValue
+                        lastValue = value
+                        if (!reachedEdge) {
+                            val consumed = scrollBy(delta)
+                            // 内容已到边界（位移未被消费）→ 后续不再滚动，避免空转
+                            if (abs(delta - consumed) > 0.5f) reachedEdge = true
+                        }
+                    }
+                return lastValue
+            }
+        }
+    }
+}
+
 @Composable
 private fun ComponentList(
     listState: androidx.compose.foundation.lazy.LazyListState,
@@ -466,7 +507,10 @@ private fun ComponentList(
             .fillMaxSize()
             .background(AppColor.bgPage)
             .padding(horizontal = AppSpace.md, vertical = AppSpace.md),
-        verticalArrangement = Arrangement.spacedBy(AppSpace.sm)
+        // 行距 sm(8dp)→xs(4dp)：单行占位 56dp→52dp，贴近 iOS UITableView 44pt 的排布密度
+        verticalArrangement = Arrangement.spacedBy(AppSpace.xs),
+        // 滑动手感对齐 iOS（默认 fling 松手即停）
+        flingBehavior = rememberListFlingBehavior()
     ) {
         item {
             Text(

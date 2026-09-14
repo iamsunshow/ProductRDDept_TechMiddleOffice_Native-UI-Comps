@@ -345,7 +345,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("ActionSheet 动作面板", reviewed = true, demo = { ActionSheetDemo() }, passed = true),
         DemoComponent("CircleProgress 环形进度"),
         DemoComponent("Dialog 对话框", reviewed = true, demo = { DialogDemo() }, passed = true),
-        DemoComponent("Drag 拖拽", reviewed = true, demo = { DragDemo() }, pending = true),
+        DemoComponent("Drag 拖拽", reviewed = true, demo = { DragDemo() }, passed = true),
         DemoComponent("InfiniteLoading 滚动加载", reviewed = true, demo = { InfiniteLoadingDemo() }, passed = true),
         DemoComponent("LoadingMore 加载更多"),
         DemoComponent("Masking 遮罩"),

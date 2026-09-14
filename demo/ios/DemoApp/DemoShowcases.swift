@@ -94,7 +94,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.action-sheet", name: "ActionSheet 动作面板", reviewed: true, create: { ActionSheetShowcase() }, passed: true),
             DemoComponent(id: "ui.circle-progress", name: "CircleProgress 环形进度", reviewed: false, create: nil),
             DemoComponent(id: "ui.dialog", name: "Dialog 对话框", reviewed: true, create: { DialogShowcase() }, passed: true),
-            DemoComponent(id: "ui.drag", name: "Drag 拖拽", reviewed: true, create: { DragShowcase() }, pending: true),
+            DemoComponent(id: "ui.drag", name: "Drag 拖拽", reviewed: true, create: { DragShowcase() }, passed: true),
             DemoComponent(id: "ui.infinite-loading", name: "InfiniteLoading 滚动加载", reviewed: true, create: { InfiniteLoadingShowcase() }, passed: true),
             DemoComponent(id: "ui.loading-more", name: "LoadingMore 加载更多", reviewed: false, create: nil),
             DemoComponent(id: "ui.masking", name: "Masking 遮罩", reviewed: false, create: nil),

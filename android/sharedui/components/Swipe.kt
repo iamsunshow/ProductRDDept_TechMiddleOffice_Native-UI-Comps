@@ -169,19 +169,16 @@ fun SwipeItem(
     ) {
         val containerWidthPx = with(density) { maxWidth.toPx() }
 
-        // 底层左操作（右滑露出，左对齐绝对定位）
-        // matchParentSize（BoxScope）撑满父尺寸且不影响父测量（对齐 iOS btn.frame 高度=
-        // bounds.height）；requiredWidth(80.dp) 无视约束强制 80dp 宽。
-        // v1.9.31：v1.9.30 曾改 fillMaxHeight——在 LazyColumn 子项（父高为松约束 0..视口高）
-        // 下会把按钮撑到视口高，回退 matchParentSize。按钮不可见的真正根因是内容层
-        // background/offset 顺序（见下方 v1.9.31 修复），与按钮布局无关。
+        // 底层左操作（右滑露出，左对齐，从左到右排列）
+        // v1.9.32 同右按钮根治：align(TopStart) 天然左对齐 + requiredWidth(80dp) +
+        // fillMaxHeight + offset 只做同排让位（第 i 个右移 i×80dp），对齐 iOS leftX 递增语义。
         leftActions.forEachIndexed { i, action ->
-            val leftOffset = i * actionWidthPx
             Box(
                 modifier = Modifier
-                    .offset { IntOffset(leftOffset.roundToInt(), 0) }
-                    .matchParentSize()
+                    .align(Alignment.TopStart)
+                    .offset { IntOffset(i * actionWidthPx.roundToInt(), 0) }
                     .requiredWidth(80.dp)
+                    .fillMaxHeight()
                     .background(action.color.color)
                     .pointerInput(action) {
                         detectTapGestures(onTap = {
@@ -195,14 +192,19 @@ fun SwipeItem(
             }
         }
 
-        // 底层右操作（左滑露出，右对齐绝对定位，从右到左排列）
+        // 底层右操作（左滑露出，右对齐，从右到左排列）
+        // v1.9.32 根治定位：原 offset{lambda}+matchParentSize+requiredWidth 组合在放置阶段
+        // 把按钮推出屏幕（诊断实测 globalPos.x=1628 > 屏宽1328，按钮宽度也被钳到 280px
+        // 而非 80dp）。改用 align(Alignment.TopEnd) 天然右对齐（BoxScope 标准能力）+
+        // requiredWidth 独占宽度 + offset 只做同排按钮的横向让位（第 i 个左移 i×80dp），
+        // 无测量/放置时序陷阱，对齐 iOS layoutButtons 的 rightX 递减语义。
         actions.forEachIndexed { i, action ->
-            val rightOffset = containerWidthPx - (i + 1) * actionWidthPx
             Box(
                 modifier = Modifier
-                    .offset { IntOffset(rightOffset.roundToInt(), 0) }
-                    .matchParentSize()
+                    .align(Alignment.TopEnd)
+                    .offset { IntOffset(-i * actionWidthPx.roundToInt(), 0) }
                     .requiredWidth(80.dp)
+                    .fillMaxHeight()
                     .background(action.color.color)
                     .pointerInput(action) {
                         detectTapGestures(onTap = {

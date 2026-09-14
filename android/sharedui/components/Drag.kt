@@ -70,14 +70,17 @@ import com.zhiqihuayun.foundation.design.AppSpace
 // - 被拖动项自身禁用 placement 动画（tween(0)）：其槽位在 swap 时瞬移 itemHeight，
 //   若同时跑 300ms placement 动画会与 graphicsLayer.translationY 抵消产生"回跳再追赶"
 //   的顿挫感（用户反馈"不算丝滑"的根因之一）
-private const val DragScale = 1.02f
-private const val DragOpacity = 0.9f
-private const val DropAnimMs = 250
-private const val ItemPlaceAnimMs = 350
+// ★ 以下视觉常量=internal（非 private）：DragTest 需断言这些「用户实机验收通过过的规格值」，
+//   防止后续误改回退（拖拽态透明度 0.75/1.0、swap 动画 300ms、shadow 2dp 等历史回退点）。
+//   仅模块内可见，不进公开 API 契约。
+internal const val DragScale = 1.02f
+internal const val DragOpacity = 0.9f
+internal const val DropAnimMs = 250
+internal const val ItemPlaceAnimMs = 350
 
 /// 底部阴影渐变带高度（dp）与最深处不透明度：对齐 iOS willDisplay 实测值（≈22pt / alpha 0.10）。
-private val CellShadowHeight = 22.dp
-private const val CellShadowAlpha = 0.10f
+internal val CellShadowHeight = 22.dp
+internal const val CellShadowAlpha = 0.10f
 
 /**
  * Drag 拖拽排序（操作反馈区 · ui.drag · #47）：通用列表拖拽排序组件。
@@ -292,6 +295,8 @@ fun <T> Drag(
                         }
                     )
                     .fillMaxWidth()
+                    // 可测性锚点（纯内部语义 tag，无视觉/契约影响=对齐库内 Cell/Switch/Uploader 惯例）
+                    .testTag("drag-item-$itemKey")
                     // ★ v1.9.32 根因修复：拖拽态整体变换（缩放/透明/纵向位移）须置于
                     //   background/shadow/drawWithContent 之前（Compose 左侧=外层）。
                     //   旧实现把 graphicsLayer 放在链末（最内层）→ 只变换了 Row 的子内容，
@@ -358,6 +363,8 @@ fun <T> Drag(
                         modifier = Modifier
                             .padding(horizontal = AppSpace.sm, vertical = AppSpace.sm)
                             .width(24.dp)
+                            // 可测性锚点（纯内部语义 tag，无视觉/契约影响）
+                            .testTag("drag-handle-$itemKey")
                             // 手柄承载拖拽手势：handle 模式下仅手柄可触发，整行不响应。
                             .then(dragModifier),
                     ) {

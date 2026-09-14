@@ -23,6 +23,17 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 - Android `:components:compileDebugKotlin` + Demo `:app:compileDebugKotlin` 编译通过（0 error）；实机视觉/交互待用户复验（D1/D2 拖动应见整块白色 cell 跟随手指、松手平滑落位）。
 
+## [1.9.32] - 2026-09-14（Swipe 左滑按钮可见——模拟器实测验证通过）
+
+### Fixed
+
+- **Swipe Android 左滑红色删除按钮终于可见**。v1.9.31 修内容层 background/offset 顺序后按钮仍不可见，注入 SwipeDiag 诊断日志实测实锤：按钮被推出屏幕（`globalPos.x=1628 > 屏宽 1328`）、按钮宽被钳到 280px 而非 80dp——真凶是 `offset{lambda}+matchParentSize+requiredWidth` 三件套的测量/放置时序陷阱。
+- **按钮定位彻底重写**：`align(Alignment.TopEnd/TopStart)` 天然右/左对齐 + `offset` 只做同排让位（第 i 个移 i×80dp）+ `requiredWidth(80.dp)` 独占宽度 + `fillMaxHeight` 撑高。对齐 iOS `layoutButtons` 语义，无时序陷阱。
+
+### 验证
+
+- adb 模拟器实测：`input swipe` 向左拖 D1 → `screencap` 截图确认红色「删除」按钮（红底白字）显示在行右侧。诊断日志已随重写移除。
+
 ## [1.9.31] - 2026-09-13（Swipe 左滑按钮不显示真正根因修复）
 
 ### Fixed

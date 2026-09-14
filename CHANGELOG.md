@@ -2,6 +2,28 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.9.34] - 2026-09-14（Drag 用户验收通过状态同步 + 回归测试入库）
+
+### Changed
+
+- **用户验收通过状态同步**：用户原话「Drag：已通过」，双端 Demo `passed=true` 已同步：
+  - iOS `demo/ios/DemoApp/DemoShowcases.swift` 第 97 行 `ui.drag`：`pending: true` → `passed: true`（列表页红「待完善」→ 绿「已通过」）。
+  - Android `demo/android/app/src/main/java/com/zhiqihuayun/demo/MainActivity.kt` 第 348 行「Drag 拖拽」：`pending = true` → `passed = true`。
+  - `docs/组件进度.md`：§3.5 行 47 阶段 `📋 ⚠️重点修复` → `✅`、「重点修复」标记解除、补 v1.9.30/v1.9.32/v1.9.33 修复明细与验收结论；§4 顶插 2026-09-14 验收闭环行；§1 已实现/完整度行补验收记录；文件头「最近更新」→ 2026-09-14。
+  - `docs/数据与产物/api.json`：`ui.drag` 双端 note 补验收记录（用户原话 + `passed=true` + 验证版本 v1.9.33）。
+- 说明：本条目**无拖拽行为变更**（组件行为 = v1.9.33，已随 v1.9.33 入库），升版为验收状态收口 + 回归测试入库批次（先例：PullToRefresh v1.9.29）。
+
+### Added
+
+- **Drag 回归测试入库**（`android/components/src/test/java/com/zhiqihuayun/sharedui/components/DragTest.kt`，6 用例真绿）：把用户 2026-09-13~09-14 反复反馈的拖拽问题固化为自动化回归用例——①非 handle 长按拖拽越一项落位 → `onReorder(0,1)` 仅回调一次；②长按拖拽未越 swap 阈值松手 → 不回调；③`enabled=false` 长按拖拽 → 不回调；④`handle=true` 整行长按拖拽 → 不回调（手势只挂手柄）；⑤`handle=true` 手柄拖拽落位 → `onReorder(0,1)`；⑥视觉规格常量锁定（拖拽态透明度 0.9 / 缩放 1.02 / 落位动画 250ms / 换位动画 350ms / 底部阴影带 22dp + alpha 0.10）。
+  - 配套 `Drag.kt`：视觉常量（`DragOpacity`/`DragScale`/`DropAnimMs`/`ItemPlaceAnimMs`/`CellShadowHeight`）由 `private` 改 `internal`（仅供模块内测试断言规格值、防误改回退，不进公开 API 契约）；Row 与手柄补 `testTag("drag-item-*" / "drag-handle-*")` 纯内部语义锚点（无视觉/契约影响，对齐 Cell/Switch/Uploader 惯例）。
+  - `docs/数据与产物/回归测试台账.md`：新增 Drag 族 5 行（#73~#77），L1 落点=DragTest。
+
+### 验证
+
+- `cd android && ./gradlew :components:testDebugUnitTest --tests "*DragTest*"` → BUILD SUCCESSFUL，DragTest 6/6 通过（0 失败）。
+- 全套件 `:components:testDebugUnitTest` → 279 用例 / 15 失败，**15 项全为存量失败**（Address/Cascader/Checkbox/DatePicker/Elevator/Input/Menu/SegmentControl 各 1~6 项，与本批 Drag 改动无关；DatePicker 6 项为 `Compose did not get idle after 60s` 挂起类），已记入回归台账待各自组件批次处理。
+
 ## [1.9.33] - 2026-09-13（Drag 拖拽态透明度对齐 iOS 0.9）
 
 ### Changed

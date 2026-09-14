@@ -7014,11 +7014,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": "DragListView.swift：泛型 DragListView<T: Hashable>: UIView 包装 UITableView（isEditing=enabled 控制是否可拖；标准 reorder 控件≡右侧由 shouldShowReorderControlForRowAt 控制；tableView(_:moveRowAt:to:) 落位回调 onReorder 并同步数据源；handle=false 追加 UILongPressGestureRecognizer 整行按下视觉反馈=gray4；落位动画由系统 moveRow 默认动画近似 0.25s easeOut；willDisplay 给 cell 加 shadow 8dp/opacity 0.15 视觉锚定）"
+          "note": "DragListView.swift：泛型 DragListView<T: Hashable>: UIView 包装 UITableView（isEditing=enabled 控制是否可拖；标准 reorder 控件≡右侧由 shouldShowReorderControlForRowAt 控制；tableView(_:moveRowAt:to:) 落位回调 onReorder 并同步数据源；handle=false 追加 UILongPressGestureRecognizer 整行按下视觉反馈=gray4；落位动画由系统 moveRow 默认动画近似 0.25s easeOut；willDisplay 给 cell 加 shadow 8dp/opacity 0.15 视觉锚定。★2026-09-14 C1.5 用户双端 Demo 实机验收通过收编（用户原话「Drag：已通过」）=demo passed=true（DemoShowcases.swift 第 97 行）；拖拽态视觉锚点=iOS DragListView 文档头注释「elevation 8dp + 缩放 1.02 + 透明度 0.9」，与 Android v1.9.33 同值）」"
         },
         "android": {
           "state": "available",
-          "note": "Drag.kt：声明式 Compose 泛型 @Composable <T> Drag（LazyColumn + itemsIndexed(key) + Modifier.pointerInput detectDragGesturesAfterLongPress；onDrag 累积位移>10f 与上/下项 swap 视觉跟随手指；onDragEnd 落位仅触发一次 onReorder(initial,final)（拖拽中不回调对齐 P3-A）；animateFloatAsState tween(250ms) 驱动 scale 1.02/opacity 0.9 还原；graphicsLayer shadowElevation 8f；handle=true 左侧 24dp ≡ Box 单独挂 pointerInput，handle=false 整行挂 pointerInput；enabled=false 不挂手势=纯列表）"
+          "note": "Drag.kt：声明式 Compose 泛型 @Composable <T> Drag（LazyColumn + itemsIndexed(key) + Modifier.pointerInput detectDragGesturesAfterLongPress；onDrag 累积位移>10f 与上/下项 swap 视觉跟随手指；onDragEnd 落位仅触发一次 onReorder(initial,final)（拖拽中不回调对齐 P3-A）；animateFloatAsState tween(250ms) 驱动 scale 1.02/opacity 0.9 还原；graphicsLayer shadowElevation 8f；handle=true 左侧 24dp ≡ Box 单独挂 pointerInput，handle=false 整行挂 pointerInput；enabled=false 不挂手势=纯列表。★2026-09-14 C1.5 用户双端 Demo 实机验收通过收编（用户原话「Drag：已通过」）=demo passed=true（MainActivity.kt 第 348 行）、验证版本 v1.9.33。★实现事实修正（v1.9.30~v1.9.33 收口）：非拖拽态底部阴影不是 shadowElevation 而是 item 自身 bounds 内自绘 22dp/alpha 0.10 向下渐隐阴影带（Modifier.shadow(2dp) 被后绘制相邻 item 完全覆盖=等于无阴影）；拖拽态 graphicsLayer（缩放/透明度/位移）置于 shadow/background/drawWithContent 之前=整块 cell 跟随手指（v1.9.32 根因修复，旧链末写法只变换子内容）；拖拽态透明度 0.9（规格 token opacity90 / iOS 同值，v1.9.33 由 1.0 回调）；落位动画 250ms、item 换位动画 350ms FastOutSlowIn；回归测试 DragTest.kt 6 用例真绿）"
         },
         "harmony": {
           "state": "unavailable",

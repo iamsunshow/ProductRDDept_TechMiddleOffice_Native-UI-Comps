@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AnimatingNumbers 数字动画 · 设计规格 · TMO 组件库 v1.9.36</title>
+<style>
+:root {
+  --bg: #fff; --bg-page: #f5f5f5; --text: #1a1a1a; --text-2: #888; --border: #e8e8e8;
+  --primary: #16A34A; --danger: #DC2626; --warn: #F59E0B; --success: #16A34A;
+  --gray6: #E5E5E5; --textSecondary: #6B7280;
+  --radius-lg: 14px; --radius-sm: 6px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif; background: var(--bg-page); color: var(--text); line-height: 1.6; }
+.container { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+h2 { font-size: 20px; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 16px; margin: 20px 0 8px; }
+p { font-size: 14px; margin-bottom: 8px; }
+code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+th { background: #fafafa; font-weight: 600; }
+.section { background: var(--bg); border-radius: 12px; padding: 20px; margin: 16px 0; border: 1px solid var(--border); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.badge-a { background: #e6f7e6; color: #16A34A; }
+
+/* AnimatingNumbers mock：每位 = 定高窗口内竖排 0~9 滚动条 */
+.num-row { display: inline-flex; align-items: flex-end; gap: 1px; }
+.digit { width: 20px; height: 32px; overflow: hidden; display: inline-block; }
+.digit > span { display: block; height: 32px; line-height: 32px; font-size: 18px; font-weight: 600; text-align: center; }
+.digit.fade > span { opacity: .45; }
+.sep { font-size: 18px; font-weight: 600; line-height: 32px; }
+.mock-wrap { display: flex; gap: 24px; flex-wrap: wrap; margin: 16px 0; align-items: flex-start; }
+.mock-item { display: flex; flex-direction: column; gap: 12px; min-width: 240px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
+.mock-label { font-size: 13px; color: var(--text-2); }
+.num-lg .digit { width: 30px; height: 48px; }
+.num-lg .digit > span { height: 48px; line-height: 48px; font-size: 32px; }
+.num-lg .sep { font-size: 32px; line-height: 48px; }
+.num-sm .digit { width: 14px; height: 24px; }
+.num-sm .digit > span { height: 24px; line-height: 24px; font-size: 14px; }
+.num-sm .sep { font-size: 14px; line-height: 24px; }
+.num-danger { color: var(--danger); }
+.num-block .digit { background: #f5f5f5; border-radius: 4px; }
+.arrow { font-size: 18px; color: var(--text-2); align-self: center; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>AnimatingNumbers 数字动画</h1>
+<p>组件 ID：<code>ui.animating-numbers</code> ｜ 信息展示区组件 #61 ｜ TMO 组件库 v1.9.36</p>
+<p>定位：数值变化时以「逐位滚动」动画展示数字过渡过程的展示型组件——每位数字是一个独立滚动窗口，值变化时各位从当前字形滚动到目标字形，用于余额、收益、统计面板等金额/数值的变化呈现，双端 1:1 视觉一致。</p>
+
+<h2>1. 场景与边界（SCQA）</h2>
+<div class="section">
+<h3>Situation 情景</h3>
+<p>记账、理财、统计面板类 App 中，金额与统计数值会因刷新/入账/筛选而跳变（如余额 0 → 12,345.68）。</p>
+<h3>Complication 冲突</h3>
+<p>数值直接替换显示过于生硬，用户来不及感知"数字变了多少"；业务想加动画又没有统一实现——手写逐位滚动在各页面重复，缓动时长、位数对齐、千分位分隔符是否参与滚动，双端各自实现必然漂移。</p>
+<h3>Question 问题</h3>
+<p>需要一个数字滚动动画展示件，统一「位数对齐 + 逐位滚动 + 千分位分隔 + 延迟/时长控制」，并与库内静态金额排版件（Price）职责互不重叠。</p>
+<h3>Answer 方案</h3>
+<p>AnimatingNumbers 数字动画——<code>value</code> 数值驱动的逐位滚动展示件：每位数字为一个竖排 0~9 的定高滚动窗口，挂载后延迟 <code>delay</code>、在 <code>duration</code> 内从 0 滚到目标值；<code>length</code> 控制最大位数（不足前补 0），<code>thousands</code> 决定千分位分隔符（分隔符不参与滚动）。</p>
+</div>
+
+<h2>2. 组件边界与划界</h2>
+<table>
+<tr><th>组件</th><th>职责</th><th>与 AnimatingNumbers 划界</th></tr>
+<tr><td>Price #72</td><td>静态金额排版（前缀+货币符号+整数+小数+后缀）</td><td>Price=静态排版，不含任何动画；AnimatingNumbers=数值滚动过渡。组合用法=宿主用 Price 排「符号/前后缀」，其数值部分替换为 AnimatingNumbers（Price 规格第 2 节已登记「数字动画=二期」即本件）</td></tr>
+<tr><td>CountDown #60</td><td>倒计时：按时间戳自驱每秒递减刷新</td><td>CountDown=时间自驱（秒级持续跳动，无终值语义）；AnimatingNumbers=值驱动的一次性过渡（外部给目标值，滚到位即停）</td></tr>
+<tr><td>Progress #74 / CircleProgress #58</td><td>进度条/环形进度</td><td>进度件以「长度/角度」表达比例；AnimatingNumbers 只表达数值本身的字形变化</td></tr>
+<tr><td>InputNumber #44</td><td>数字步进输入</td><td>InputNumber=可交互输入；AnimatingNumbers=纯展示不可交互</td></tr>
+<tr><td>Skeleton #53</td><td>加载占位骨架</td><td>Skeleton=数据未到位时的灰块占位（无真实数值）；AnimatingNumbers 展示的是真实数值</td></tr>
+</table>
+
+<h2>3. Token 清单</h2>
+<div class="section">
+<table>
+<tr><th>区域</th><th>规格</th><th>Token</th></tr>
+<tr><td>数字字号（medium 默认）</td><td>18（恰好对齐 NutUI base-size 18px = 库内 sizeLg 档）</td><td>AppFont.sizeLg</td></tr>
+<tr><td>数字窗口高（medium）</td><td>32（=字号 18 + 上下留白，注释锚定；为交互行基准 48 的 2/3）</td><td>注释锚定</td></tr>
+<tr><td>size small</td><td>字号 14 / 窗口高 24</td><td>AppFont.sizeSm</td></tr>
+<tr><td>size large</td><td>字号 32 / 窗口高 48</td><td>AppFont.sizeDisplay</td></tr>
+<tr><td>数字颜色（默认）</td><td>textPrimary</td><td>AppColor.textPrimary</td></tr>
+<tr><td>千分位分隔符颜色</td><td>与数字同色（separatorColor 可覆盖）</td><td>AppColor.textPrimary</td></tr>
+<tr><td>数位背景（默认）</td><td>透明（backgroundColor 可覆盖，如灰底块）</td><td>透明</td></tr>
+<tr><td>数位圆角</td><td>4（仅当 backgroundColor 非透明时可见；NutUI 原值 4，库内最小档 AppRadius.sm=6，本件保 4 使数位块更紧凑）</td><td>注释锚定</td></tr>
+<tr><td>数字字重</td><td>Semibold（滚动视觉更稳）</td><td>AppFont.semibold</td></tr>
+<tr><td>数位数字宽度</td><td>等宽数字字形（iOS monospacedDigit / Android FontFeature tnum），避免滚动宽度抖动</td><td>平台等宽特性</td></tr>
+</table>
+</div>
+
+<h2>4. 决策投票表（ACE 模型：选项 / 评估后果 / 选最优）</h2>
+<div class="section">
+<table>
+<tr><th>编号</th><th>决策点</th><th>选项（Alternatives）</th><th>评估后果（Consequences）</th><th>选最优（Evaluate）</th><th>理由</th></tr>
+<tr>
+<td>P1</td><td>字号档位</td>
+<td>A. 复用 Price 的 size 三档（small/medium/large）+ medium 默认 18<br>B. 只暴露裸 fontSize 数值</td>
+<td>A. 与库内 Price 尺寸语言一致，宿主切换档位无需换算；medium 18 略高于库内 sizeLg(16)、低于 sizeXl(22)=数字动画专用档<br>B. 灵活但双端各写数值易漂移，且与库内档位语言脱节</td>
+<td><span class="badge badge-a">A</span></td>
+<td>保持库内尺寸语言统一；medium 字号 18/窗口高 32 为注释锚定的数字动画专用档，small/large 复用 sizeSm(14)/sizeDisplay(32)</td>
+</tr>
+<tr>
+<td>P2</td><td>动画时长单位</td>
+<td>A. duration 毫秒（默认 1000ms）+ delay 毫秒（默认 300ms）<br>B. 秒（NutUI 原样，duration 默认 1s）</td>
+<td>A. 双端毫秒是库内动画惯例（Switch 180ms / Drag 250ms），与 Android Compose tween 的 Int 毫秒参数直通、iOS DispatchTimeInterval.milliseconds 直通<br>B. 浮点秒在两端都要乘 1000，多一次换算易错</td>
+<td><span class="badge badge-a">A</span></td>
+<td>库内动画参数统一毫秒；默认值等价于 NutUI（delay 300ms / duration 1000ms）</td>
+</tr>
+<tr>
+<td>P3</td><td>value 变化时各位起点</td>
+<td>A. 每位都从 0 重新滚到目标位（NutUI 行为）<br>B. 每位从"当前位"滚到目标位（就近滚动）</td>
+<td>A. 视觉统一（整串数字一起"刷"一遍），实现简单，位数增减时不会出现位错位<br>B. 更省动画，但位数变化（如 99 → 12345）时新旧位对不齐，需额外补位逻辑，且 tween 起点随值漂移难断言</td>
+<td><span class="badge badge-a">A</span></td>
+<td>对齐 NutUI 且行为可断言（每次 value 变化 = 全体从 0 起滚）；C1 单测可锁定"值变化后初始偏移=0"</td>
+</tr>
+<tr>
+<td>P4</td><td>千分位分隔符是否参与滚动</td>
+<td>A. 分隔符独立静态渲染（不滚动）<br>B. 分隔符也作为一位参与竖排滚动</td>
+<td>A. 分隔符本质是标点，滚动会产生无意义字形穿插，且长度计算简单（按位插入）<br>B. 视觉混乱，且分隔符位滚动目标无意义</td>
+<td><span class="badge badge-a">A</span></td>
+<td>分隔符静态渲染、颜色可独立覆盖（separatorColor），与 NutUI 一致</td>
+</tr>
+</table>
+</div>
+
+<h2>5. 四组 Demo 预览</h2>
+<div class="mock-wrap">
+
+<div class="mock-item">
+  <div class="num-row"><span class="digit fade"><span>6</span></span><span class="digit"><span>7</span></span><span class="digit"><span>8</span></span><span class="sep">.</span><span class="digit"><span>9</span></span><span class="digit"><span>4</span></span></div>
+  <p class="mock-label">D1 基础用法：value=678.94，挂载后 delay 300ms、1000ms 内从 0 滚到 678.94（首位数滚动中=半透明示意）</p>
+</div>
+
+<div class="mock-item">
+  <div class="num-row"><span class="digit"><span>0</span></span><span class="digit"><span>0</span></span><span class="digit"><span>1</span></span><span class="sep">,</span><span class="digit"><span>5</span></span><span class="digit"><span>7</span></span><span class="digit"><span>8</span></span><span class="sep">.</span><span class="digit"><span>9</span></span><span class="digit"><span>4</span></span></div>
+  <p class="mock-label">D2 位数 + 千分位 + 自定义颜色：value=1578.94、length=8（不足前补 0）、thousands=true（分隔符静态）、color=danger 红</p>
+</div>
+
+<div class="mock-item">
+  <div class="num-row num-danger"><span class="digit"><span>1</span></span><span class="digit"><span>5</span></span><span class="digit"><span>7</span></span><span class="digit"><span>8</span></span><span class="sep">.</span><span class="digit"><span>9</span></span><span class="digit"><span>4</span></span></div>
+  <span style="font-size:13px;color:#888">↕ 切到 88.80 / 12,345.67 观察重滚</span>
+  <p class="mock-label">D3 动态修改数据：宿主按钮切换 value（1578.94 → 88.80 → 12345.67），每次切换全体从 0 重滚到目标值</p>
+</div>
+
+<div class="mock-item">
+  <div class="num-row num-lg"><span class="digit"><span>2</span></span><span class="digit"><span>9</span></span><span class="digit"><span>9</span></span></div>
+  <div class="num-row num-sm num-block"><span class="digit"><span>9</span></span><span class="digit"><span>9</span></span><span class="sep">.</span><span class="digit"><span>9</span></span></div>
+  <p class="mock-label">D4 尺寸/外观档位：size=large（32/48）大号数字；size=small（14/24）+ backgroundColor 灰底块 + cornerRadius 4</p>
+</div>
+
+</div>
+
+<h2>6. 平台差异预告</h2>
+<table>
+<tr><th>差异点</th><th>iOS（UIKit）</th><th>Android（Compose）</th><th>判据</th></tr>
+<tr><td>滚动驱动器</td><td>UIViewPropertyAnimator 驱动每位数位列的 transform 位移（<code>startAnimation(afterDelay:)</code> 实现 delay；value 变化先全体归零再重滚）</td><td>Animatable(0f→1f) + graphicsLayer translationY（draw-phase 直读 state）</td><td>实现差异，起止状态与时长语义相同=结果一致，表内放行</td></tr>
+<tr><td>缓动曲线</td><td><code>UICubicTimingParameters(controlPoint1: 0.4,0 / controlPoint2: 0.2,1)</code></td><td><code>tween(durationMillis, easing = FastOutSlowInEasing)</code></td><td>同一 cubic-bezier(0.4, 0, 0.2, 1) 曲线，视觉一致放行</td></tr>
+<tr><td>等宽数字</td><td>UIFont.monospacedDigitSystemFont</td><td>FontFeature "tnum"</td><td>结果一致（滚动宽度不抖动）放行</td></tr>
+<tr><td>数字窗口结构</td><td>UIView + clipsToBounds + 竖排 UILabel(0~9)</td><td>Box + clipToBounds + Column { Text(0..9) }</td><td>结构同构，放行</td></tr>
+<tr><td>duration/delay 单位</td><td>DispatchTimeInterval.milliseconds</td><td>tween(durationMillis = …) / withContext delay</td><td>库内统一毫秒，放行</td></tr>
+</table>
+
+<h2>7. API 速览</h2>
+<div class="section">
+<h3>AnimatingNumbers Props</h3>
+<table>
+<tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>value</code></td><td>Double（String 亦可）</td><td>必填</td><td>结束值；非法值 fallback「0」不崩</td></tr>
+<tr><td><code>length</code></td><td>Int</td><td>0</td><td>最大展示位数，位数不足时前面按位补 0；0=按实际位数</td></tr>
+<tr><td><code>delay</code></td><td>Int（ms）</td><td>300</td><td>等待动画执行时间</td></tr>
+<tr><td><code>duration</code></td><td>Int（ms）</td><td>1000</td><td>动画执行时长</td></tr>
+<tr><td><code>thousands</code></td><td>Bool</td><td>false</td><td>是否显示千位分隔符（分隔符静态渲染不滚动）</td></tr>
+<tr><td><code>size</code></td><td>"small" | "medium" | "large"</td><td>"medium"</td><td>字号/窗口高档位：14/24、18/32、32/48</td></tr>
+<tr><td><code>color</code></td><td>Color</td><td>textPrimary</td><td>数字颜色</td></tr>
+<tr><td><code>separatorColor</code></td><td>Color?</td><td>nil（同 color）</td><td>千分位分隔符与小数点颜色</td></tr>
+<tr><td><code>backgroundColor</code></td><td>Color</td><td>透明</td><td>每位数位背景色（非透明时按 cornerRadius 圆角）</td></tr>
+<tr><td><code>cornerRadius</code></td><td>Double</td><td>4</td><td>数位背景圆角</td></tr>
+</table>
+
+<h3>行为契约（C1 单测断言点）</h3>
+<table>
+<tr><th>#</th><th>契约</th><th>断言方式</th></tr>
+<tr><td>B1</td><td>挂载后 delay 内不滚动、delay+duration 后到达目标字形</td><td>Robolectric 主时钟推进 delay 前断言偏移=0、推进 delay+duration 后断言显示文本=目标值</td></tr>
+<tr><td>B2</td><td>value 变化 → 全体从 0 重滚到新目标（P3-A）</td><td>值变化瞬间断言初始偏移=0</td></tr>
+<tr><td>B3</td><td>length 补 0：value=12、length=4 → 显示「0012」</td><td>文本断言</td></tr>
+<tr><td>B4</td><td>thousands：value=1234.5 → 显示「1,234.5」，分隔符位数不计入 length 补位</td><td>文本断言</td></tr>
+<tr><td>B5</td><td>非法值 fallback「0」不崩溃</td><td>传 NaN/空串断言不抛异常</td></tr>
+<tr><td>B6</td><td>小数位与整数位均逐位滚动；小数位数随 value 变化（无强制截断）</td><td>文本断言（本件不负责小数位格式化，格式化归 Price）</td></tr>
+</table>
+
+<h3>anti_goals（一期不做）</h3>
+<table>
+<tr><td>货币符号 / 前后缀 / 小数位格式化</td><td>归 Price #72，本件只滚数字（宿主可组合 Price 与 AnimatingNumbers）</td></tr>
+<tr><td>循环播放 / 定时刷新</td><td>值驱动一次性过渡；周期刷新归 CountDown #60 或宿主</td></tr>
+<tr><td>数字字形自定义（字体替换/手写体）</td><td>二期</td></tr>
+<tr><td>滚动结束回调</td><td>一期不提供（动画视觉件，业务无需感知）；如需由宿主按 duration 自行计时</td></tr>
+</table>
+</div>
+
+</div>
+</body>
+</html>

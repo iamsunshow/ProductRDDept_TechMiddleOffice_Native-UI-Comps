@@ -2,6 +2,28 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.9.37] - 2026-09-14（AnimatingNumbers 数字动画 #61 门禁 A+B 双端实现入库）
+
+### Added
+
+- **AnimatingNumbers 数字动画（信息展示区 #61，`ui.animating-numbers`）门禁 A + 门禁 B**：用户 2026-09-14 指示「继续开发组件库的组件吧」→ 提前启动原 🔭 v2.0 推迟件。
+  - 门禁 A：设计规格 `docs/数据与产物/design-spec/animating-numbers-design-spec.html`（SCQA / 划界表 / Token 清单 / ACE 决策表 P1–P4 / Demo 4 组 / 平台差异 / API 与行为契约 B1~B6 / anti_goals）+ 评审单 `docs/评审记录/review-animating-numbers-A.md`（A1–A7 全 ✅、P1–P4 全选最优、0 保留意见）。
+  - 门禁 B 双端实现：
+    - iOS `ios/SharedUI/Components/AnimatingNumbersView.swift`：UIView 手动 frame 布局；每位数字=窗口 UIView（cornerRadius + masksToBounds）+ 内含竖排 0~9 等宽 UILabel 的滚动列，位移由列 `transform` 驱动；动画 `UIViewPropertyAnimator` + `UICubicTimingParameters(controlPoint1: 0.4,0 / controlPoint2: 0.2,1)`（= FastOutSlowIn），`startAnimation(afterDelay:)` 实现 delay；value 变化先全体归零（`transform = .identity`）再重滚；动画闭包 `weak` 捕获滚动列，防「self → animators → 闭包 → column → superview(self)」循环引用；`UIFont.monospacedDigitSystemFont` 等宽数字。
+    - Android `android/sharedui/components/AnimatingNumbers.kt`：`@Composable AnimatingNumbers`；每位=Box(clip + background) + 竖排 0..9 Text 的 Column，位移在 `graphicsLayer {}` lambda 内直读 progress（draw-phase，每 move/帧零重组）；`Animatable(0f→1f)` + `tween(durationMillis, FastOutSlowInEasing)`，delay 用协程 `delay`；`FontFeature "tnum"` 等宽数字。
+    - `AnimatingNumbersSize` 三档：small 14/24、medium 18/32（默认）、large 32/48；`separatorColor` 未指定时跟随 `color`；`value` 非法值（NaN/Infinity）fallback「0」不崩溃。
+  - api.json 新增 `ui.animating-numbers`（available + reviewed=true、subcategory=display、props 10、demos 4、验证版本 v1.9.37）。
+  - Demo 双端 4 段 1:1：iOS `AnimatingNumbersShowcase` / Android `AnimatingNumbersDemo`（D1 基础 678.94 / D2 length=8 + 千分位 + danger / D3 按钮切 value 重滚 / D4 large·small + 灰底块），徽标 v1.0；双端 Demo 注册行已挂 demo 实体（Android `MainActivity.kt` reviewed=true、iOS `DemoShowcases.swift` reviewed=true）。
+  - 平台差异表（规格第 6 节 / 评审 A6）按落地实况更新：滚动驱动器 = iOS UIViewPropertyAnimator vs Android Animatable + graphicsLayer（起止状态与时长语义相同）；缓动 = 同一 cubic-bezier(0.4, 0, 0.2, 1)。
+  - 与 Price #72（静态金额排版·无动画）/ CountDown #60（时间戳自驱每秒刷新）/ Progress #74·CircleProgress #58（以长度/角度表达比例）/ InputNumber #44（可交互输入）/ Skeleton #53（无真实数值）划界。
+
+### 验证
+
+- Android `:app:assembleDebug` **BUILD SUCCESSFUL**（首轮 `internal fun buildAnimatingTokens` 暴露 private-in-file 返回类型 `AnimatingToken` 报错 → 修为 `internal sealed interface` 后通过）。
+- iOS `xcodebuild -scheme ZhiqihuayunDemo -sdk iphonesimulator -configuration Debug build` **BUILD SUCCEEDED**（`-derivedDataPath /tmp/nuic-dd-anim` 独立路径）。
+- `docs/数据与产物/api.json` JSON 合法（`json.load` 复读通过，components 91 条）。
+- 遗留：C1.5 用户 Demo 实机验收待走；C1 单测（B1~B6 断言）/ C2 CR/CI / D 发版未走。
+
 ## [1.9.36] - 2026-09-14（Swipe 用户验收通过状态同步）
 
 ### Changed

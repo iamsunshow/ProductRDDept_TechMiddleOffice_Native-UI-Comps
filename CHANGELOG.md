@@ -2,6 +2,23 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.9.36] - 2026-09-14（Swipe 用户验收通过状态同步）
+
+### Changed
+
+- **用户验收通过状态同步**：用户原话「Swipe：已通过」，双端 Demo `passed=true` 已同步：
+  - iOS `demo/ios/DemoApp/DemoShowcases.swift` 第 105 行 `ui.swipe`：`pending: true` → `passed: true`（列表页红「待完善」→ 绿「已通过」）。
+  - Android `demo/android/app/src/main/java/com/zhiqihuayun/demo/MainActivity.kt` 第 363 行「Swipe 滑动操作」：`pending = true` → `passed = true`。
+  - `docs/组件进度.md`：§3.5 行 58 阶段 `📋 ⚠️重点修复` → `✅`、「重点修复」标记解除、补 v1.9.30/v1.9.31/v1.9.32 修复明细与验收结论；§4 顶插 2026-09-14 Swipe 收编行；§1「已实现」行补验收记录（demo passed 子口径上升、已实现计数不变=此前已计入）。
+  - `docs/数据与产物/api.json`：`ui.swipe` 补 `reviewed: true`（此前缺该字段，对齐 ui.drag 已验收件字段结构）+ note 补验收记录（用户原话 + `passed=true` + 修复闭环 v1.9.30~v1.9.32 + 验证版本 v1.9.35）。
+- 说明：本条目**无拖拽/滑动行为变更**（组件行为 = v1.9.32，已随 v1.9.32 入库），升版为验收状态收口批次（先例：Drag v1.9.34 / PullToRefresh v1.9.29）。
+
+### 验证
+
+- 双端 Demo 注册行 diff 已核对（iOS/Android 各 1 行 `pending` → `passed`，无其他改动）。
+- `docs/数据与产物/api.json` JSON 合法（`json.load` 复读通过，components 90 条不变）。
+- 实机视觉待用户复验（列表页 Swipe 行应由红「待完善」转绿「已通过」，Swipe Demo 4 段 1:1）。
+
 ## [1.9.35] - 2026-09-14（Drag Android 模拟器拖动抖动优化）
 
 ### Perf

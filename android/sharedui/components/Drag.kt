@@ -1,9 +1,9 @@
 package com.zhiqihuayun.sharedui.components
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,6 +42,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.zIndex
 import androidx.compose.ui.unit.dp
 import com.zhiqihuayun.foundation.design.AppColor
+import kotlinx.coroutines.launch
 import com.zhiqihuayun.foundation.design.AppFont
 import com.zhiqihuayun.foundation.design.AppSpace
 
@@ -124,6 +126,14 @@ fun <T> Drag(
     var draggingKey by remember { mutableStateOf<Any?>(null) }
     var dragInitialIndex by remember { mutableStateOf(-1) }
     var dragOffset by remember { mutableFloatStateOf(0f) }
+    // ★ v1.9.35：松手回落动画改由 Animatable 驱动（settlingKey 标记正在回落的项）。
+    //   原实现 translationY 经 animateFloatAsState 在 composable 作用域读 dragOffset，
+    //   每个拖动 move 事件都触发该项 recompose+relayout；改为 graphicsLayer lambda 内
+    //   直读 state（draw-phase 读取）后，每事件只触发重绘，跳过重组/重布局——
+    //   这是模拟器上拖动抖动（事件→重组→绘制三段管线超帧预算）的主要优化点。
+    var settlingKey by remember { mutableStateOf<Any?>(null) }
+    val settleAnim = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
     // 实测 item 高度（px）：swap 阈值=itemHeight/2，swap 后 dragOffset 减 itemHeight，
     // 让被拖动项 translationY 跟随手指并保持相对位置（与 iOS 标准 reorder 一致）。
     var itemHeight by remember { mutableFloatStateOf(0f) }
@@ -150,13 +160,12 @@ fun <T> Drag(
                 animationSpec = tween(DropAnimMs),
                 label = "dragAlpha",
             )
-            // v1.9.30：落位动画——拖动结束 translationY 从残留偏移平滑回落到槽位（0.25s easeOut），
-            // 对齐 iOS 松手后 cell 归位动画；拖拽中 snap 即时跟手（不引入额外延迟）。
-            val animatedDragOffset by animateFloatAsState(
-                targetValue = if (isDragging) dragOffset else 0f,
-                animationSpec = if (isDragging) snap() else tween(DropAnimMs, easing = EaseOut),
-                label = "dragTranslation",
-            )
+            // ★ v1.9.35：translationY 不再用 animateFloatAsState（其 targetValue 在
+            //   composable 作用域读 dragOffset，每个 move 事件触发一次重组）。
+            //   改为下方 graphicsLayer lambda 内直读 dragOffset/settleAnim.value：
+            //   draw-phase 读取只触发重绘，跟手路径零重组、零重布局（Compose 高频手势
+            //   官方推荐模式）。松手回落动画（0.25s EaseOut 对齐 iOS）由 settleAnim
+            //   在协程中 snapTo(残值) → animateTo(0f) 驱动，视觉时序与原实现一致。
             // v1.9.30：底部阴影——每条 cell 顶部画向下渐隐的阴影带（模拟上方 cell 投下的阴影），
             // 首条不画（对齐 iOS：首条 cell 上方无阴影、末条下方无阴影）。
             val hasTopShadow = index > 0
@@ -191,14 +200,33 @@ fun <T> Drag(
                                 if (dragInitialIndex >= 0 && curIndex >= 0 && dragInitialIndex != curIndex) {
                                     onReorder(dragInitialIndex, curIndex)
                                 }
-                                draggingKey = null
-                                dragInitialIndex = -1
-                                dragOffset = 0f
+                                // ★ v1.9.35：松手回落——协程内 snapTo(残值) 再切渲染分支，
+                                //   translationY 无缝衔接后 0.25s EaseOut 归零（对齐 iOS 落位）。
+                                val residual = dragOffset
+                                val finishedKey = itemKey
+                                scope.launch {
+                                    settleAnim.snapTo(residual)
+                                    draggingKey = null
+                                    settlingKey = finishedKey
+                                    dragInitialIndex = -1
+                                    dragOffset = 0f
+                                    settleAnim.animateTo(0f, tween(DropAnimMs, easing = EaseOut))
+                                    if (settlingKey == finishedKey) settlingKey = null
+                                }
                             },
                             onDragCancel = {
-                                draggingKey = null
-                                dragInitialIndex = -1
-                                dragOffset = 0f
+                                // ★ v1.9.35：取消同走 settle 回落（协程内 snapTo 再切分支）
+                                val residual = dragOffset
+                                val finishedKey = itemKey
+                                scope.launch {
+                                    settleAnim.snapTo(residual)
+                                    draggingKey = null
+                                    settlingKey = finishedKey
+                                    dragInitialIndex = -1
+                                    dragOffset = 0f
+                                    settleAnim.animateTo(0f, tween(DropAnimMs, easing = EaseOut))
+                                    if (settlingKey == finishedKey) settlingKey = null
+                                }
                             },
                             onDrag = { change, dragAmount ->
                                 change.consume()
@@ -238,14 +266,35 @@ fun <T> Drag(
                             if (dragInitialIndex >= 0 && curIndex >= 0 && dragInitialIndex != curIndex) {
                                 onReorder(dragInitialIndex, curIndex)
                             }
-                            draggingKey = null
-                            dragInitialIndex = -1
-                            dragOffset = 0f
+                            // ★ v1.9.35：松手回落——协程内先 snapTo(残值) 再切渲染分支
+                            //   （draggingKey→settlingKey），确保 draw 时 settleAnim 已就位
+                            //   残值、translationY 无缝衔接；随后 0.25s EaseOut 平滑归零
+                            //   （视觉时序与原 animateFloatAsState 实现一致，对齐 iOS 落位）。
+                            val residual = dragOffset
+                            val finishedKey = itemKey
+                            scope.launch {
+                                settleAnim.snapTo(residual)
+                                draggingKey = null
+                                settlingKey = finishedKey
+                                dragInitialIndex = -1
+                                dragOffset = 0f
+                                settleAnim.animateTo(0f, tween(DropAnimMs, easing = EaseOut))
+                                if (settlingKey == finishedKey) settlingKey = null
+                            }
                         },
                         onDragCancel = {
-                            draggingKey = null
-                            dragInitialIndex = -1
-                            dragOffset = 0f
+                            // ★ v1.9.35：取消同走 settle 回落（协程内 snapTo 再切分支）
+                            val residual = dragOffset
+                            val finishedKey = itemKey
+                            scope.launch {
+                                settleAnim.snapTo(residual)
+                                draggingKey = null
+                                settlingKey = finishedKey
+                                dragInitialIndex = -1
+                                dragOffset = 0f
+                                settleAnim.animateTo(0f, tween(DropAnimMs, easing = EaseOut))
+                                if (settlingKey == finishedKey) settlingKey = null
+                            }
                         },
                         onDrag = { change, dragAmount ->
                             change.consume()
@@ -302,12 +351,18 @@ fun <T> Drag(
                     //   旧实现把 graphicsLayer 放在链末（最内层）→ 只变换了 Row 的子内容，
                     //   白色背景/阴影/阴影带留在槽位不动，造成"只有图标文字在动、Cell 主体待在原地"。
                     .graphicsLayer {
-                        // v1.9.9：去掉 shadowElevation（改用 Modifier.shadow），只保留 scale/alpha/translation
                         this.scaleX = scale
                         this.scaleY = scale
                         this.alpha = alpha
-                        // 被拖动项跟随手指平滑移动；松手后 animatedDragOffset 平滑回落到 0（对齐 iOS）
-                        this.translationY = animatedDragOffset
+                        // ★ v1.9.35：draw-phase 直读（lambda 内读 state 只触发重绘，
+                        // 不触发 recompose/relayout）——拖拽跟手路径每 move 事件零重组。
+                        this.translationY = when (itemKey) {
+                            // 拖拽中：直读 dragOffset 即时跟手（不引入动画延迟）
+                            draggingKey -> dragOffset
+                            // 松手回落：从残值 0.25s EaseOut 平滑归零（对齐 iOS 落位）
+                            settlingKey -> settleAnim.value
+                            else -> 0f
+                        }
                     }
                     // v1.9.9：默认阴影用 Modifier.shadow 替代 graphicsLayer.shadowElevation，
                     // Modifier.shadow 视觉更柔和（接近 iOS layer.shadow），不会像 graphicsLayer

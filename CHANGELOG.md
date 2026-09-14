@@ -2,6 +2,24 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.9.35] - 2026-09-14（Drag Android 模拟器拖动抖动优化）
+
+### Perf
+
+- **Drag Android 拖动抖动优化——拖拽跟手路径每 move 事件零重组**：用户 2026-09-14 反馈「Android 的模拟器上拖动会有抖动」。根因（两层叠加）：
+  - **每 pointer 事件触发一次重组**：`translationY` 原经 `animateFloatAsState` 在 composable 作用域读 `dragOffset`（旧 `animatedDragOffset`）→ 拖动中**每个 move 事件触发整个被拖项 recompose + relayout**，再叠加拖拽态 `Modifier.shadow(8.dp)` 的 elevation 阴影**每帧 GPU 实时 blur**——模拟器渲染性能弱（GPU 半速/翻译层），帧预算超支 → 掉帧 → 抖动。
+  - **环境因素**：Compose 位移走「事件→recompose→draw」管线且模拟器事件注入稀疏，位移呈阶跃；iOS 模拟器跑 Mac Metal 且 UIKit 位移在 render server 层，感知不到同等问题。真机帧率稳定后体感应明显优于模拟器。
+- 修复（**视觉契约零变化**，透明度 0.9/缩放 1.02/落位 250ms/换位 350ms/阴影带 22dp+0.10 常量全部不动）：
+  - `translationY` 改为 `graphicsLayer {}` lambda 内**直读 state（draw-phase 读取）**：三态 `when(itemKey) { draggingKey → dragOffset 即时跟手； settlingKey → settleAnim.value 松手回落； else → 0f }`——每 move 事件只触发重绘、跳过 recompose/relayout（Compose 高频手势官方推荐模式）。
+  - 松手/取消（`onDragEnd`/`onDragCancel`，handle 与非 handle 两分支共 6 处）回落动画改 `Animatable(settleAnim)` + `rememberCoroutineScope`：协程内**先 `snapTo(残值)` 再切渲染分支**（`draggingKey → settlingKey`），确保 draw 时 `settleAnim` 已就位残值、`translationY` 无缝衔接，随后 0.25s EaseOut 平滑归零（视觉时序与原 `animateFloatAsState` 实现一致，对齐 iOS 落位）；协程收尾做 `settlingKey` 同一性校验（对齐 FixedNav v1.0 动画 completion 竞态经验）。
+  - `scale`/`alpha` 低频动画（仅拖拽开始/结束各触发一次）保留 `animateFloatAsState` 不动；删除旧 `animatedDragOffset` 与 `snap` import。
+
+### 验证
+
+- `cd android && ./gradlew :components:compileDebugKotlin` → BUILD SUCCESSFUL（0 error）。
+- `./gradlew :components:testDebugUnitTest --tests "*DragTest*"` → **DragTest 6/6 通过**（0 失败），视觉规格常量锁定用例（0.9/1.02/250ms/350ms/22dp/0.10）不受影响。
+- 拖动流畅度改善待用户模拟器/真机复验（建议真机为判断标准——模拟器渲染性能本身弱于真机）。
+
 ## [1.9.34] - 2026-09-14（Drag 用户验收通过状态同步 + 回归测试入库）
 
 ### Changed

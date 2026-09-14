@@ -2,6 +2,16 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.9.33] - 2026-09-13（Drag 拖拽态透明度对齐 iOS 0.9）
+
+### Changed
+
+- **Drag Android 拖拽态透明度 1.0 → 0.9**：用户 2026-09-13 反馈「拖动时被拖动项会做透明处理，可以参考 iOS 的透明度」。规格 `drag-design-spec.html` §4 与 iOS `DragListView.swift` 视觉锚点均为「拖拽态 elevation 8dp + 缩放 1.02 + 透明度 0.9」（token `opacity90`，历史 v1.9.0 亦为 0.9）。v1.9.32 曾按「实心白色整块」一度改为 1.0，本版按用户指正回调至规格/iOS 同值 0.9。拖拽态缩放 1.02、elevation 8dp、整块跟随手指（v1.9.32 的 graphicsLayer 修饰符顺序修复）均不变。
+
+### 验证
+
+- Android `:components:compileDebugKotlin` 编译通过（0 error）；实机视觉待用户复验（D1/D2 拖动应见整块白色 cell 跟随手指、呈轻微通透 0.9 观感，与 iOS 1:1）。
+
 ## [1.9.32] - 2026-09-13（Drag 拖动项整块跟随手指修复）
 
 ### Fixed

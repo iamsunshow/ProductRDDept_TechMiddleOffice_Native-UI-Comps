@@ -53,9 +53,10 @@ import com.zhiqihuayun.foundation.design.AppSpace
 //     "iOS 每条 Cell 底部都有阴影，Android 没有"）。渐变带画在 item 自身 bounds 内，
 //     不会被相邻 item 覆盖，与 iOS 视觉 1:1。
 // - 缩放 1.02
-// - 透明度 1.0（★ v1.9.32：由 0.75/0.9 的"半透明观感"改为不透明整块——用户 2026-09-13 反馈
-//   "iOS 拖动时被拖动项是整体被拖动、背景就是白色背景"，故拖动项须呈实心白色整块；
-//   半透明会让白色底与列表白底叠加，视觉上"看不出整块在动"）
+// - 透明度 0.9（★ v1.9.33：回到规格/iOS 同值 —— 用户 2026-09-13 反馈"拖动时被拖动项会做
+//   透明处理，可以参考 iOS 的透明度"。规格 drag-design-spec.html §4 与 iOS DragListView 视觉
+//   锚点均为"拖拽态 elevation 8dp + 缩放 1.02 + 透明度 0.9"（token opacity90）；
+//   v1.9.32 曾按"实心白色整块"一度改为 1.0，现按用户指正回调至 0.9）
 // - ★ v1.9.32 根因修复：拖拽态变换（scale/alpha/translationY）的 graphicsLayer 必须置于
 //   background/shadow/drawWithContent 之前。Compose 修饰符「左侧为外层」，旧实现把
 //   graphicsLayer 放在链末（最内层）→ 只变换了 Row 的子内容，白色背景/阴影/阴影带留在槽位
@@ -70,7 +71,7 @@ import com.zhiqihuayun.foundation.design.AppSpace
 //   若同时跑 300ms placement 动画会与 graphicsLayer.translationY 抵消产生"回跳再追赶"
 //   的顿挫感（用户反馈"不算丝滑"的根因之一）
 private const val DragScale = 1.02f
-private const val DragOpacity = 1.0f
+private const val DragOpacity = 0.9f
 private const val DropAnimMs = 250
 private const val ItemPlaceAnimMs = 350
 

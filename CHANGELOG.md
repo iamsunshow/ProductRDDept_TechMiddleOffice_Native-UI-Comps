@@ -10,6 +10,12 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 - **AnimatingNumbers（#61）用户裁决推迟 v2.0 再开发**：原话「AnimatingNumbers：2.0再开发」——行状态 🔧→🔭、demo 双端注册行转「待开发 v2.0」（蓝色不可点：Android reviewed=false 无 demo / iOS reviewed=false create=nil，Showcase 代码保留库中）、api.json `ui.animating-numbers` note 补用户裁决；§1 计数同步（已实现 84→83、未实现 9→10）。
 - `组件进度.md` §4 顶插收编行、§1 总览行 25/26/27/28 同步。
 
+### 发布（门禁 D · 2026-09-14 用户指令「发布Android和iOS的组件库」）
+
+- **Android**：版本目录 `android/gradle/libs.versions.toml` components 1.0.0→1.9.40（对齐 ui-version.json 唯一源）；`:components:assembleRelease` BUILD SUCCESSFUL（AAR 1.4MB）+ `publishToMavenLocal` 成功——发布坐标 `com.zhiqihuayun:components:1.9.40`（AAR + sources.jar + POM + module 元数据）落 `~/.m2/repository/com/zhiqihuayun/components/1.9.40/`；GitHub Packages 远端发布因缺 `GITHUB_TOKEN` 凭据暂缓（脚本已备 `--remote` 通道）。
+- **iOS**：SPM 包 `KeepAccountsMiddleware` Release 真编译（iphonesimulator）——库本体产物 `KeepAccountsMiddleware.o` + `.swiftmodule`（Release-iphonesimulator）+ `xcodebuild archive` ARCHIVE SUCCEEDED；正式对外形态=子仓 git 标签 `v1.9.40`（依赖已 vendor 本地 path，按 tag 固定引用）。测试 target 在 Release 下报「module was not compiled for testing」=Release 默认关 ENABLE_TESTABILITY 的正常现象（Debug 构建与单测不受影响），非代码缺陷。
+- **发布脚本归口落地**（TechMiddleOffice/DevOpsDept 阶段二 B3）：`DevOpsDept/scripts/publish_android.sh`（版本同步→assembleRelease→publishToMavenLocal，可选 `--remote`/`--tag`）+ `publish_ios.sh`（Release 真编译+archive，可选 `--tag`），均以 `ui-version.json` 为唯一版本源、内置 CHANGELOG 三处同步前置校验。
+
 ### 验证
 
 - api.json / ui-version.json JSON 合法（json.load 复读通过，91 条）；Android `:app:compileDebugKotlin` BUILD SUCCESSFUL + iOS `xcodebuild` Simulator Debug BUILD SUCCEEDED。

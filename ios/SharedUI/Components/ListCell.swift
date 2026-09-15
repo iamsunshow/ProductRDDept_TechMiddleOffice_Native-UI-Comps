@@ -6,7 +6,7 @@ import SnapKit
 /// 约束 Cell 内边距与行高的基类。
 ///
 /// 子类只需关注业务内容布局，无需重复设置选中样式与间距。
-public class ListCell: UITableViewCell {
+open class ListCell: UITableViewCell {
 
     /// 统一内边距。
     public static let horizontalInset: CGFloat = AppSpace.lg
@@ -22,5 +22,5 @@ public class ListCell: UITableViewCell {
     }
 
     @available(*, unavailable)
-    required init?(coder: NSCoder) { nil }
+    public required init?(coder: NSCoder) { nil }
 }

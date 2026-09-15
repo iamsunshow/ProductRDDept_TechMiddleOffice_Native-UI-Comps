@@ -2,6 +2,24 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [2.0.6] - 2026-09-15（v2.0.5 public 化扫尾第四波：Grid public 化 + ListCell open 化）
+
+### Fixed
+
+- **宿主编译暴露 2 类跨模块访问问题**：
+  1. `Grid` / `GridItem` 从未 public 化（v2.0.2 的 21 文件清单遗漏），宿主无法使用宫格组件。
+     - 背景：KeepAccounts 的 `MoreViewController` / `DiscoverHomeViewController` / `LedgerHomeViewController` 原用本地 `NavigationGrid` / `NavBar`（网格语义），而本地副本实为指向旧组件库 `TechMiddleOffice/packages/ios` 的**悬空软链**；组件化后网格已由库内 `Grid` 承载，宿主需改用 `Grid`。
+  2. `ListCell` 为 `public` 但非 `open`，宿主业务 Cell（`TransactionCell` / `CategoryRankCell`）报 `cannot inherit from non-open class 'ListCell' outside of its defining module`。
+- **处置**：
+  1. `Grid.swift`：`Grid` / `GridItem` public 化——`public struct GridItem`（含 `public init(title:symbolName:)`）、`public final class Grid`、`public var onSelect`、`public var column`、`public override init(frame:)`、`public func apply(title:items:)`。
+  2. `ListCell.swift`：`public class` → `open class`，且 `required init?(coder:)` 补 `public`（open 类的 required 初始化器必须 public，否则报 `'required' initializer must be accessible wherever class 'ListCell' can be subclassed`）。
+- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `2.0.5 → 2.0.6` 并重发 AAR。
+
+### 验证
+
+- 组件库：`xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/lib-dd build` BUILD SUCCEEDED。
+- KeepAccounts iOS：真编译（见宿主迁移提交）。
+
 ## [2.0.5] - 2026-09-15（v2.0.4 public 化扫尾第三波：AppRouter 静态成员 public 化）
 
 ### Fixed

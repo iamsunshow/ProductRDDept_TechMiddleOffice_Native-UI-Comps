@@ -7,9 +7,14 @@ import UIKit
 import SnapKit
 
 /// 宫格入口数据项。
-struct GridItem {
-    let title: String
-    let symbolName: String
+public struct GridItem {
+    public let title: String
+    public let symbolName: String
+
+    public init(title: String, symbolName: String) {
+        self.title = title
+        self.symbolName = symbolName
+    }
 }
 
 /// 多格图标入口矩阵（卡片壳 + 可选分区标题 + 等分图标网格）。
@@ -19,18 +24,18 @@ struct GridItem {
 /// - `title` 可选（空字符串时不显示标题区域）
 /// - 超过 column 数量自动换行
 /// - `onSelect` 点击回调（返回索引）
-final class Grid: UIView {
+public final class Grid: UIView {
 
     /// 点击回调（返回点击项的索引）。
-    var onSelect: ((Int) -> Void)?
+    public var onSelect: ((Int) -> Void)?
 
     /// 列数（默认 4）。修改后需调用 `apply` 重新绑定。
-    var column: Int = 4
+    public var column: Int = 4
 
     private let titleLabel = UILabel()
     private let gridContainer = UIStackView()
 
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         setupCardShell()
         setupTitleLabel()
@@ -78,7 +83,7 @@ final class Grid: UIView {
     /// - Parameters:
     ///   - title: 分区标题（空字符串=不显示标题区域）
     ///   - items: 入口列表
-    func apply(title: String, items: [GridItem]) {
+    public func apply(title: String, items: [GridItem]) {
         // 标题：空字符串时隐藏
         titleLabel.text = title
         titleLabel.isHidden = title.isEmpty

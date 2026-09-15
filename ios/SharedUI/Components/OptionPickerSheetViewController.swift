@@ -95,7 +95,7 @@ extension OptionPickerSheetViewController: UIPickerViewDataSource, UIPickerViewD
     ///   - pickerView: 滚轮
     ///   - component: 列
     /// - Returns: 选项数
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+    public func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         options.count
     }
 
@@ -106,7 +106,7 @@ extension OptionPickerSheetViewController: UIPickerViewDataSource, UIPickerViewD
     ///   - row: 行
     ///   - component: 列
     /// - Returns: 文案
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+    public func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         options[row]
     }
 }

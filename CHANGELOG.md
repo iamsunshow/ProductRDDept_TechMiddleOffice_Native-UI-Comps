@@ -2,6 +2,25 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [2.0.4] - 2026-09-15（v2.0.3 public 化扫尾第二波：AppRouter outer enum 可达性 + UIPickerViewDataSource/Delegate 实现 public 化）
+
+### Fixed
+
+- **v2.0.3 遗漏 2 处 public 化**：
+  - `Foundation/Routing/AppRouter.swift:16` `method cannot be declared public because its parameter uses an internal type`。
+    - **根因**：`enum AppRouter` 本身是 `internal`，嵌套 `public enum AppRouter.Destination` 路径不可达（路径访问要求 outer 类型本身可见）。
+  - `SharedUI/Components/OptionPickerSheetViewController.swift:98:10` / `:109:10` `method 'pickerView(_:numberOfRowsInComponent:)' / 'pickerView(_:titleForRow:forComponent:)' must be declared public because it matches a requirement in public protocol 'UIPickerViewDataSource' / 'UIPickerViewDelegate'`。
+    - **根因**：实现 `UIPickerViewDataSource` / `UIPickerViewDelegate`（public protocol）的 2 个方法仅 `internal`，public protocol 要求实现方法必须同为 `public`。
+- **处置**：
+  1. `AppRouter`：`enum AppRouter` → `public enum AppRouter`（outer 类型可达后，`AppRouter.Destination` 路径自然可见）。
+  2. `OptionPickerSheetViewController`：`pickerView(_:numberOfRowsInComponent:)` → `public func`，`pickerView(_:titleForRow:forComponent:)` → `public func`。
+- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `2.0.3 → 2.0.4` 并重发 AAR。
+
+### 验证
+
+- KeepAccounts iOS：`xcodebuild -project KeepAccounts.xcodeproj -scheme KeepAccounts -destination 'generic/platform=iOS Simulator' -configuration Debug` BUILD SUCCEEDED。
+- Android：`:components:assembleRelease`（待重发 AAR 后跑）。
+
 ## [2.0.3] - 2026-09-15（v2.0.2 public 化的连带类型补全：宿主编译扫尾）
 
 ### Fixed

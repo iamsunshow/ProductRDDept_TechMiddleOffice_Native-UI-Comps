@@ -25,7 +25,7 @@ public protocol RouterDestinationProvider: AnyObject {
 ///
 /// ## 业务解耦
 /// 目标页解析经 [provider] 注入，AppRouter 本身不依赖任何业务控制器。
-enum AppRouter {
+public enum AppRouter {
     /// 目标页解析器；宿主 App 启动时注入。
     static var provider: RouterDestinationProvider?
     /// 底部 Tab 索引，与 `MainTabBarController` 顺序一致。

@@ -27,9 +27,9 @@ public protocol RouterDestinationProvider: AnyObject {
 /// 目标页解析经 [provider] 注入，AppRouter 本身不依赖任何业务控制器。
 public enum AppRouter {
     /// 目标页解析器；宿主 App 启动时注入。
-    static var provider: RouterDestinationProvider?
+    public static var provider: RouterDestinationProvider?
     /// 底部 Tab 索引，与 `MainTabBarController` 顺序一致。
-    enum Tab: Int {
+    public enum Tab: Int {
         case ledger = 0
         case charts = 1
         case bookkeeping = 2
@@ -64,7 +64,7 @@ public enum AppRouter {
     ///
     /// - Parameter tab: 目标 Tab
     /// - Returns: 无
-    static func selectTab(_ tab: Tab) {
+    public static func selectTab(_ tab: Tab) {
         guard
             let window = UIApplication.shared.connectedScenes
                 .compactMap({ $0 as? UIWindowScene })
@@ -81,7 +81,7 @@ public enum AppRouter {
     ///   - viewController: 目标控制器
     ///   - host: 发起导航的视图控制器
     /// - Returns: 无
-    static func push(_ viewController: UIViewController, from host: UIViewController) {
+    public static func push(_ viewController: UIViewController, from host: UIViewController) {
         viewController.hidesBottomBarWhenPushed = true
         guard let nav = navigationController(from: host) else { return }
         // 记账等一级页可能隐藏导航栏，二级页需恢复以便返回。
@@ -95,7 +95,7 @@ public enum AppRouter {
     ///   - destination: 目标页面
     ///   - host: 发起导航的视图控制器
     /// - Returns: 无
-    static func open(_ destination: Destination, from host: UIViewController) {
+    public static func open(_ destination: Destination, from host: UIViewController) {
         open(destination, yearMonth: nil, from: host)
     }
 
@@ -106,7 +106,7 @@ public enum AppRouter {
     ///   - month: 月份 1...12
     ///   - host: 发起导航的视图控制器
     /// - Returns: 无
-    static func openIncome(year: Int, month: Int, from host: UIViewController) {
+    public static func openIncome(year: Int, month: Int, from host: UIViewController) {
         open(.incomeList, yearMonth: (year, month), from: host)
     }
 
@@ -117,7 +117,7 @@ public enum AppRouter {
     ///   - month: 月份 1...12
     ///   - host: 发起导航的视图控制器
     /// - Returns: 无
-    static func openExpense(year: Int, month: Int, from host: UIViewController) {
+    public static func openExpense(year: Int, month: Int, from host: UIViewController) {
         open(.expenseList, yearMonth: (year, month), from: host)
     }
 

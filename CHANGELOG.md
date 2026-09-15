@@ -2,6 +2,21 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [2.0.5] - 2026-09-15（v2.0.4 public 化扫尾第三波：AppRouter 静态成员 public 化）
+
+### Fixed
+
+- **v2.0.4 仅 public 化 `AppRouter` enum 本体与 `Destination` 嵌套枚举，遗漏其静态成员**：
+  - 宿主（`KeepAccounts` 的 `MoreViewController` 等）调用 `AppRouter.push(_:from:)` / `AppRouter.open(_:from:)` 报 `'push' is inaccessible due to 'internal' protection level`。
+  - **根因**：`AppRouter` 内的 `static var provider`、`enum Tab`、`static func selectTab/push/open/openIncome/openExpense` 默认 `internal`，未随类型本体一并 public 化。
+- **处置**：上述 7 个静态成员全部 `public` 化（`provider` / `Tab` / `selectTab(_:)` / `push(_:from:)` / `open(_:from:)` / `openIncome(year:month:from:)` / `openExpense(year:month:from:)`）。
+- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `2.0.4 → 2.0.5` 并重发 AAR。
+
+### 验证
+
+- 组件库：`xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/lib-dd build` BUILD SUCCEEDED。
+- KeepAccounts iOS：真编译（见宿主迁移提交）。
+
 ## [2.0.4] - 2026-09-15（v2.0.3 public 化扫尾第二波：AppRouter outer enum 可达性 + UIPickerViewDataSource/Delegate 实现 public 化）
 
 ### Fixed

@@ -2,6 +2,21 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [2.0.7] - 2026-09-15（v2.0.6 public 化扫尾第五波：AppDatabase.dbQueue 公开）
+
+### Fixed
+
+- **宿主编译报** `Foundation/Storage/TransactionRepository.swift:25:46: 'dbQueue' is inaccessible due to 'internal' protection level`。
+  - **根因**：宿主仓储层需读 `AppDatabase.shared.dbQueue` 做业务表读写，而 `dbQueue` 为 `private(set) var`（默认 `internal`）。
+- **处置**：`AppDatabase.dbQueue` → `public private(set) var dbQueue: DatabaseQueue?`。
+  - GRDB 已是本包公开依赖、宿主亦直接依赖 GRDB，暴露该类型无新增耦合；仍为 `private(set)`，外部不可替换队列。
+- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `2.0.6 → 2.0.7` 并重发 AAR。
+
+### 验证
+
+- 组件库：`xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/lib-dd build` BUILD SUCCEEDED。
+- KeepAccounts iOS：真编译（见宿主迁移提交）。
+
 ## [2.0.6] - 2026-09-15（v2.0.5 public 化扫尾第四波：Grid public 化 + ListCell open 化）
 
 ### Fixed

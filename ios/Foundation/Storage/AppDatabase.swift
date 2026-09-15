@@ -29,7 +29,8 @@ public final class AppDatabase {
     /// schema 提供者；宿主 App 启动时注入。
     public static var schemaProvider: DatabaseSchemaProvider?
 
-    private(set) var dbQueue: DatabaseQueue?
+    /// GRDB 读写队列；`prepare()` 前为 nil。宿主仓储层直接读该队列做业务读写。
+    public private(set) var dbQueue: DatabaseQueue?
 
     private init() {}
 

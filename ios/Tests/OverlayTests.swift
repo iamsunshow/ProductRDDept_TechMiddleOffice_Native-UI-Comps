@@ -11,7 +11,7 @@
 
 import UIKit
 import XCTest
-@testable import KeepAccountsMiddleware
+@testable import TMONativeUIComps
 
 final class OverlayTests: XCTestCase {
 

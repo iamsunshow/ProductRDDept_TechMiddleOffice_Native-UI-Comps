@@ -1,6 +1,6 @@
 import XCTest
 import UIKit
-@testable import KeepAccountsMiddleware
+@testable import TMONativeUIComps
 
 /// Cell 组件测试：门禁 C1 用例映射（详见 `docs/验收流程/component-acceptance-cell.md`）。
 ///

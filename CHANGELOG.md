@@ -2,6 +2,19 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [2.0.0] - 2026-09-15（双端组件库改名 tmo-native-ui-comps）
+
+### Changed
+
+- **Android Maven 坐标改名（消费方破坏性变更）**：用户指令「android和ios的组件库名称改成tmo-native-ui-comps」——`android/components/build.gradle.kts` 发布坐标 artifactId 由 `components` 改为 **`tmo-native-ui-comps`**（`com.zhiqihuayun:tmo-native-ui-comps`，group 不变；Gradle 模块目录 `:components` 不变，发布命令不受影响）；GitHub Packages 发布 URL 同步指向子仓实际仓库名 `ProductRDDept_TechMiddleOffice_Native-UI-Comps`；`libs.versions.toml` components 升 `2.0.0`；demo Android 依赖坐标同步 `com.zhiqihuayun:tmo-native-ui-comps:2.0.0`（includeBuild 依赖替换按新坐标匹配）。
+- **iOS SPM 包改名（消费方破坏性变更）**：包名由历史遗留名 `KeepAccountsMiddleware` 改为 **`tmo-native-ui-comps`**（该包最初为记账 App 中间层创建，仓库演进为通用中台组件库后包名未跟随，本次按用户指示正名）——`ios/Package.swift` 包名/产品名=`tmo-native-ui-comps`、Swift 模块名=`TMONativeUIComps`（宿主 `import TMONativeUIComps`；连字符包名会自动转下划线，故显式取 PascalCase 模块名）、testTarget=`TMONativeUICompsTests`；Tests 6 文件 `@testable import` 同步；`publish_ios.sh` scheme 同步 `tmo-native-ui-comps`。
+- `ui-version.json` 升 `2.0.0`（改名=破坏性变更升主版本；无组件行为变更，行为=v1.9.40）。
+
+### 验证
+
+- Android：`:components:assembleRelease` + `publishToMavenLocal`（新坐标 `com.zhiqihuayun:tmo-native-ui-comps:2.0.0` 落 `~/.m2/repository/com/zhiqihuayun/tmo-native-ui-comps/2.0.0/`）+ demo `:app:assembleDebug`（includeBuild 新坐标替换生效）；iOS：`xcodebuild -scheme tmo-native-ui-comps -sdk iphonesimulator -configuration Release` BUILD SUCCEEDED。
+- 宿主消费变更：Android `implementation("com.zhiqihuayun:tmo-native-ui-comps:2.0.0")`；iOS `import TMONativeUIComps`（按子仓 tag `v2.0.0` 固定引用）。
+
 ## [1.9.40] - 2026-09-14（foundation 六件 + SystemBars/DesignTokens C1.5 验收收口 + AnimatingNumbers 推迟 v2.0）
 
 ### Changed

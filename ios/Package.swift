@@ -1,5 +1,7 @@
 // swift-tools-version: 5.7
 // 中台 iOS 组件包 —— 独立 Swift Package，供宿主 App 以 SPM 或 xcframework 方式引用。
+// 包名/产品名 tmo-native-ui-comps（TMO=TechMiddleOffice，2026-09-15 由历史遗留名 KeepAccountsMiddleware 改名）；
+// Swift 模块名 TMONativeUIComps（import TMONativeUIComps）。
 //
 // 覆盖：Foundation（网络/存储/路由/设计/工具）+ SharedUI（通用 UI 组件）。
 // 业务差异（目标页/表结构/后端地址）由宿主经 provider 注入，本包不依赖任何业务代码。
@@ -7,12 +9,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "KeepAccountsMiddleware",
+    name: "tmo-native-ui-comps",
     platforms: [
         .iOS(.v16)
     ],
     products: [
-        .library(name: "KeepAccountsMiddleware", targets: ["KeepAccountsMiddleware"])
+        .library(name: "tmo-native-ui-comps", targets: ["TMONativeUIComps"])
     ],
     dependencies: [
         // v1.30c 根治 SwiftPM 缓存漂移：全部依赖改为 Vendor 本地路径引用。
@@ -29,7 +31,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "KeepAccountsMiddleware",
+            name: "TMONativeUIComps",
             dependencies: [
                 .product(name: "Alamofire", package: "Alamofire"),
                 // GRDB.swift/Vendor 目录 = GRDB.swift（依赖目录名），GRDB.swift/Package.swift 自身
@@ -63,8 +65,8 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "KeepAccountsMiddlewareTests",
-            dependencies: ["KeepAccountsMiddleware"],
+            name: "TMONativeUICompsTests",
+            dependencies: ["TMONativeUIComps"],
             path: "Tests"
         )
     ]

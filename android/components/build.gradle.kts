@@ -75,7 +75,7 @@ publishing {
         // 凭据来源：gradle.properties 的 gpr.user/gpr.key，或环境变量 GITHUB_ACTOR/GITHUB_TOKEN
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/${findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR") ?: "iamsunshow"}/zhiqihuayun-components")
+            url = uri("https://maven.pkg.github.com/${findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR") ?: "iamsunshow"}/ProductRDDept_TechMiddleOffice_Native-UI-Comps")
             credentials {
                 username = (findProperty("gpr.user") as String?) ?: (System.getenv("GITHUB_ACTOR") ?: "iamsunshow")
                 password = (findProperty("gpr.key") as String?) ?: System.getenv("GITHUB_TOKEN").orEmpty()
@@ -90,12 +90,13 @@ afterEvaluate {
         publications {
             register<MavenPublication>("mavenAndroid") {
                 groupId = "com.zhiqihuayun"
-                artifactId = "components"
+                // 2026-09-15 用户指令改名：components → tmo-native-ui-comps（消费方破坏性变更，版本升 v2.0.0）
+                artifactId = "tmo-native-ui-comps"
                 version = libs.versions.components.get()
                 // 自动附加 AAR 产物 + 传递依赖 POM（compose/navigation/retrofit/okhttp/serialization）
                 from(components["release"])
                 pom {
-                    name.set("TechMiddleOffice Android Components")
+                    name.set("tmo-native-ui-comps")
                     description.set("TMO 中台 Android 组件库（foundation + sharedui），跨 App 复用")
                     licenses {
                         license {

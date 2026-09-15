@@ -37,8 +37,8 @@ android {
 }
 
 dependencies {
-    // 组件库本体：坐标 com.zhiqihuayun:components，由 includeBuild ../../android 的 :components 提供
-    implementation("com.zhiqihuayun:components:1.0.0")
+    // 组件库本体：坐标 com.zhiqihuayun:tmo-native-ui-comps，由 includeBuild ../../android 的 :components 提供（模块目录名不变）
+    implementation("com.zhiqihuayun:tmo-native-ui-comps:2.0.0")
 
     // demo 自身的 Compose UI（与组件库版本对齐：composeBom 2024.12.01）
     implementation(platform("androidx.compose:compose-bom:2024.12.01"))

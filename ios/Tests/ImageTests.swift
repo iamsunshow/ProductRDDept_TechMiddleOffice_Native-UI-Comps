@@ -8,7 +8,7 @@
 
 import UIKit
 import XCTest
-@testable import KeepAccountsMiddleware
+@testable import TMONativeUIComps
 
 final class ImageTests: XCTestCase {
     // MARK: - 测试图（标记图：宽高比 ≠ 容器 120x90 4:3）

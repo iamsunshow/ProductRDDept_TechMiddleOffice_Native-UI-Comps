@@ -74,7 +74,8 @@
 
 - iOS 依赖 **SnapKit / Charts / GRDB / Alamofire**（+ 传递依赖 swift-algorithms / swift-numerics）已全部 vendor 到 `ios/Vendor/`（本地 path 引用），**离线可构建**。
 - `demo/ios/project.yml` 中 packages 一律用 `path: ../../ios/Vendor/xxx`，**勿改回远程 URL**（GitHub 网络不稳会导致 SPM 解析失败）。
-- `ios/Package.swift` 仍保留远程 URL 声明（组件库对外发布的正式形态），仅 Demo 工程用本地 Vendor。
+- `Package.swift` 已于 v2.0.1（2026-09-15）由 `ios/Package.swift` 迁至**仓库根目录**——SwiftPM 只认仓库根的清单，留在 `ios/` 子目录时宿主无法用 `.package(url:)` 远程引用。宿主远程引用写法：`.package(url: "https://github.com/iamsunshow/ProductRDDept_TechMiddleOffice_Native-UI-Comps.git", exact: "2.0.1")`；`demo/ios` 与业务库仍走本地路径引用。
+
 
 ---
 

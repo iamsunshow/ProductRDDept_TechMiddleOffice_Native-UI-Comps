@@ -2,6 +2,39 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [2.0.1] - 2026-09-15（iOS 包清单迁至仓库根：打通宿主远程引用）
+
+### Changed
+
+- **iOS 包清单由 `ios/Package.swift` 迁至仓库根 `Package.swift`（无组件行为变更，行为 = v2.0.0）**：用户 2026-09-15 指示「iOS 和 Android 都已经推到远程仓库了吗，我现在业务库需要拉远程仓库，而不是本地的」。
+  - **根因**：SwiftPM 对 git 依赖只认「仓库根目录的 Package.swift」，不支持「子目录即一个包」。清单留在 `ios/` 时宿主无法写 `.package(url: ….git, exact: …)` 远程引用，只能先 clone 全仓再以本地路径引用——等于没走远程依赖。Android 侧走 Maven 二进制（GitHub Packages 坐标 `com.zhiqihuayun:tmo-native-ui-comps`），不受仓库目录结构约束，故**无此问题**。
+  - **target 路径改写**（相对仓库根）：`path: "ios"`、`sources: ["Foundation", "SharedUI"]`、`exclude` = `Vendor` / `.build` / `build` / `Tests` + 4 个记账业务组件；依赖改 `.package(path: "ios/Vendor/…")`。Vendor 目录随包入库，故宿主远程按 tag 引用时**仍离线可构建**。
+  - 配套：`.gitignore` 增补根级 `/.build/`、`/.swiftpm/`、`/build/`；`demo/ios/project.yml` 源路径 `../../ios` 的 excludes 去掉已不存在的 `Package.swift` / `Package.resolved` 并补 `build`；`AGENTS.md` 第 4 节依赖口径同步。
+- **`publish_ios.sh` 两处修正**：构建目录由 `ios/` 改为仓库根（清单已迁）；`--tag` 动作补 `git push origin v<version>`——原实现只打本地标签，发布的标签永远到不了远程，宿主无从引用。
+- `ui-version.json` 升 `2.0.1`。Android 侧无代码变更，按「双端永远同版本」铁律同步 `android/gradle/libs.versions.toml` components `2.0.0 → 2.0.1` 并重发 AAR。
+
+### 宿主消费方式（v2.0.1 起）
+
+- iOS（远程源码依赖，推荐）：
+
+  ```swift
+  .package(url: "https://github.com/iamsunshow/ProductRDDept_TechMiddleOffice_Native-UI-Comps.git", exact: "2.0.1")
+  ```
+
+  `import TMONativeUIComps`
+- Android（远程二进制）：
+
+  ```kotlin
+  maven { url = uri("https://maven.pkg.github.com/iamsunshow/ProductRDDept_TechMiddleOffice_Native-UI-Comps") }
+  implementation("com.zhiqihuayun:tmo-native-ui-comps:2.0.1")
+  ```
+
+### 验证
+
+- `swift package dump-package` 清单解析通过（仓库根）。
+- `xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator' -configuration Release` BUILD SUCCEEDED。
+- Android：`:components:assembleRelease` + 发布 GitHub Packages（坐标 `com.zhiqihuayun:tmo-native-ui-comps:2.0.1`）。
+
 ## [2.0.0] - 2026-09-15（双端组件库改名 tmo-native-ui-comps）
 
 ### Changed

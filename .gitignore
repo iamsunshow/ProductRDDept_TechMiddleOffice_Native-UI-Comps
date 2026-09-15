@@ -12,7 +12,13 @@ www/tsconfig.tsbuildinfo
 www/.vite/
 
 # iOS SPM 构建产物
+# v2.0.1 起清单在仓库根（Package.swift），SPM/xcodebuild 派生数据落在根目录
+/.build/
+/.swiftpm/
+/build/
+# 历史位置（清单曾在 ios/，兼容清理）
 ios/.build/
+ios/.swiftpm/
 
 # iOS demo Xcode 生成物（本机构建/本地配置，不入库）
 demo/ios/build/

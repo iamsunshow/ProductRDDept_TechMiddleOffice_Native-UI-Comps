@@ -1,7 +1,13 @@
 // swift-tools-version: 5.7
-// 中台 iOS 组件包 —— 独立 Swift Package，供宿主 App 以 SPM 或 xcframework 方式引用。
+// 中台 iOS 组件包 —— 独立 Swift Package，供宿主 App 以 SPM 远程引用或 xcframework 方式引用。
 // 包名/产品名 tmo-native-ui-comps（TMO=TechMiddleOffice，2026-09-15 由历史遗留名 KeepAccountsMiddleware 改名）；
 // Swift 模块名 TMONativeUIComps（import TMONativeUIComps）。
+//
+// 清单位置（v2.0.1 变更 · 2026-09-15）：由 ios/Package.swift 迁至「仓库根目录 Package.swift」。
+// 原因：SwiftPM 对 git 依赖只认仓库根目录的 Package.swift（不支持「子目录即一个包」），
+// 清单留在 ios/ 子目录时宿主无法写 .package(url: "….git", exact: "…") 远程引用，
+// 只能先 clone 全仓再以本地路径引用——等于没走远程依赖。
+// 迁到根后宿主可远程按 tag 固定引用；相应地本文件内的 target 路径由「相对 ios/」改为「相对仓库根」。
 //
 // 覆盖：Foundation（网络/存储/路由/设计/工具）+ SharedUI（通用 UI 组件）。
 // 业务差异（目标页/表结构/后端地址）由宿主经 provider 注入，本包不依赖任何业务代码。
@@ -24,10 +30,11 @@ let package = Package(
         // "Extra arguments at positions #3, #4 / Reference to member 'produ' cannot be resolved"。
         // 改为本地 .package(path:) 后，整条链路闭环（Charts → swift-algorithms → swift-numerics
         // 均为相对本地路径），SwiftPM 直接读取 Vendor/ 下物理文件，无远程 cache 命中机会。
-        .package(path: "Vendor/Alamofire"),
-        .package(path: "Vendor/GRDB.swift"),   // 自身 Package.swift name="GRDB"，targets 引用名见下方
-        .package(path: "Vendor/Charts"),        // 内部依赖 .package(path: "../swift-algorithms")，已闭合
-        .package(path: "Vendor/SnapKit"),
+        // v2.0.1 注：依赖目录随包入库，故宿主远程按 tag 引用时同样离线可构建（路径相对仓库根）。
+        .package(path: "ios/Vendor/Alamofire"),
+        .package(path: "ios/Vendor/GRDB.swift"),   // 自身 Package.swift name="GRDB"，targets 引用名见下方
+        .package(path: "ios/Vendor/Charts"),        // 内部依赖 .package(path: "../swift-algorithms")，已闭合
+        .package(path: "ios/Vendor/SnapKit"),
     ],
     targets: [
         .target(
@@ -42,17 +49,18 @@ let package = Package(
                 .product(name: "Charts", package: "Charts"),
                 .product(name: "SnapKit", package: "SnapKit")
             ],
-            path: ".",
+            path: "ios",
             exclude: [
-                "Package.swift",
-                "Package.resolved",
-                "Tests",
-                // SPM 自身解析产物（不在 sources 目录内，仍需显式排除以避免资源扫描重复）。
-                ".build",
                 // 本地依赖目录：Vendor/* 是独立 .package(path:) 依赖，但其仓库自带 Demo App
                 // 资源（如 GRDB.swift/Documentation/DemoApps 的 storyboard/xcassets/xcdatamodeld），
                 // 若不排除会被当主 target 资源扫描，报 multiple resources 重复错误。
                 "Vendor",
+                // SPM 自身解析产物（不在 sources 目录内，仍需显式排除以避免资源扫描重复）。
+                ".build",
+                // xcodebuild 派生数据/归档目录（本地构建产物，不入库）。
+                "build",
+                // 单测源码由下方 testTarget 管理。
+                "Tests",
                 // 记账业务组件（引用 App Feature 领域类型，不属于通用中台，由 App 本地编译）：
                 "SharedUI/Components/CategoryPickerView.swift",
                 "SharedUI/Components/PeriodTabsView.swift",
@@ -67,7 +75,7 @@ let package = Package(
         .testTarget(
             name: "TMONativeUICompsTests",
             dependencies: ["TMONativeUIComps"],
-            path: "Tests"
+            path: "ios/Tests"
         )
     ]
 )

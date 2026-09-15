@@ -8,10 +8,13 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 - **iOS 包清单由 `ios/Package.swift` 迁至仓库根 `Package.swift`（无组件行为变更，行为 = v2.0.0）**：用户 2026-09-15 指示「iOS 和 Android 都已经推到远程仓库了吗，我现在业务库需要拉远程仓库，而不是本地的」。
   - **根因**：SwiftPM 对 git 依赖只认「仓库根目录的 Package.swift」，不支持「子目录即一个包」。清单留在 `ios/` 时宿主无法写 `.package(url: ….git, exact: …)` 远程引用，只能先 clone 全仓再以本地路径引用——等于没走远程依赖。Android 侧走 Maven 二进制（GitHub Packages 坐标 `com.zhiqihuayun:tmo-native-ui-comps`），不受仓库目录结构约束，故**无此问题**。
-  - **target 路径改写**（相对仓库根）：`path: "ios"`、`sources: ["Foundation", "SharedUI"]`、`exclude` = `Vendor` / `.build` / `build` / `Tests` + 4 个记账业务组件；依赖改 `.package(path: "ios/Vendor/…")`。Vendor 目录随包入库，故宿主远程按 tag 引用时**仍离线可构建**。
+  - **target 路径改写**（相对仓库根）：`path: "ios"`、`sources: ["Foundation", "SharedUI"]`、`exclude` = `Vendor` / `.build` / `build` / `Tests` + 4 个记账业务组件。
   - 配套：`.gitignore` 增补根级 `/.build/`、`/.swiftpm/`、`/build/`；`demo/ios/project.yml` 源路径 `../../ios` 的 excludes 去掉已不存在的 `Package.swift` / `Package.resolved` 并补 `build`；`AGENTS.md` 第 4 节依赖口径同步。
 - **`publish_ios.sh` 两处修正**：构建目录由 `ios/` 改为仓库根（清单已迁）；`--tag` 动作补 `git push origin v<version>`——原实现只打本地标签，发布的标签永远到不了远程，宿主无从引用。
-- **path 依赖统一加 `./` 前缀（远程解析实测暴露，本地构建完全看不见）**：SwiftPM 在解析「来自远程仓库的清单」时会校验路径依赖合法性并报 `'ios/Vendor/Alamofire' is not a valid path for path-based dependencies; use relative or absolute path instead`；而清单来自本地工作区时**不报此错**。即漏了 `./` 的后果是「本地 Release 编译通过、宿主远程引用直接失败」。故四个依赖统一写 `.package(path: "./ios/Vendor/…")`。
+- **第三方依赖由「Vendor 本地 path」改为「远程 URL」（远程解析实测暴露的硬约束，本地构建完全看不见）**：SwiftPM **不允许「被别人以 URL 引用的包」声明本地 path 依赖**（`.package(path:)` 只能由根包 / 工作区清单声明）。宿主按 url 拉本包时，path 依赖在清单校验阶段直接失败并报 `Invalid manifest: 'ios/Vendor/Alamofire' is not a valid path for path-based dependencies; use relative or absolute path instead`；**加 `./` 前缀亦不能绕过**（两种写法均实测失败）。而清单来自本地工作区时**不报此错**——后果就是「本地 Release 编译通过、宿主远程引用直接失败」。
+  - 处置：四个依赖改远程 URL 并锁定与 Vendor 相同的版本——Alamofire `from 5.9.1`、GRDB `from 6.29.3`、Charts `from 4.1.0`、SnapKit `from 5.6.0`；**Charts 的 URL 必须写 `ChartsOrg/Charts`**（与宿主 KeepAccounts 完全一致，否则同 identity 不同 URL 会在依赖图里分叉）。解析实测：Alamofire 5.9.1 / Charts 4.1.0 / GRDB 6.29.3 / SnapKit 5.6.0 / swift-algorithms 1.2.1 / swift-numerics 1.0.3，与 Vendor 版本一致。
+  - `ios/Vendor/` **保留**（离线副本），供 `demo/ios`（root 工程，允许 path 依赖）与离线查证使用，不再参与组件包依赖解析。
+  - **代价**：组件库自身 `publish_ios.sh` 的 Release 编译首次需联网拉依赖；宿主业务库本就在远程拉同样四个包，故消费侧无新增前提。v1.30c 的「全 Vendor 离线闭环」方案与远程分发**不可兼得**，本次为打通宿主远程引用而取舍。
 - `ui-version.json` 升 `2.0.1`。Android 侧无代码变更，按「双端永远同版本」铁律同步 `android/gradle/libs.versions.toml` components `2.0.0 → 2.0.1` 并重发 AAR。
 
 ### 宿主消费方式（v2.0.1 起）

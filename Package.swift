@@ -9,6 +9,10 @@
 // 只能先 clone 全仓再以本地路径引用——等于没走远程依赖。
 // 迁到根后宿主可远程按 tag 固定引用；相应地本文件内的 target 路径由「相对 ios/」改为「相对仓库根」。
 //
+// 第二条硬约束（v2.0.1 实测确立，务必牢记）：SwiftPM 不允许「被别人以 URL 引用的包」声明本地 path 依赖。
+// 因此本包对外可分发的形态**不能**使用 .package(path: "ios/Vendor/…")（哪怕加 "./" 前缀也不行），
+// 第三方依赖必须写远程 URL——见下方 dependencies 注释。
+//
 // 覆盖：Foundation（网络/存储/路由/设计/工具）+ SharedUI（通用 UI 组件）。
 // 业务差异（目标页/表结构/后端地址）由宿主经 provider 注入，本包不依赖任何业务代码。
 
@@ -23,39 +27,41 @@ let package = Package(
         .library(name: "tmo-native-ui-comps", targets: ["TMONativeUIComps"])
     ],
     dependencies: [
-        // v1.30c 根治 SwiftPM 缓存漂移：全部依赖改为 Vendor 本地路径引用。
-        // 旧问题：依赖同时以「远程 URL exact」+「Vendor 本地 clone」两份同包名存在，
-        // SwiftPM 从远程 URL checkout 到 .build/checkouts/<Package>/ 作为实际解析源，
-        // 本地 Vendor/Charts/Package.swift 修复的脏字符不生效，导致反复报
-        // "Extra arguments at positions #3, #4 / Reference to member 'produ' cannot be resolved"。
-        // 改为本地 .package(path:) 后，整条链路闭环（Charts → swift-algorithms → swift-numerics
-        // 均为相对本地路径），SwiftPM 直接读取 Vendor/ 下物理文件，无远程 cache 命中机会。
-        // v2.0.1 注：依赖目录随包入库，故宿主远程按 tag 引用时同样离线可构建（路径相对仓库根）。
-        // 铁律：path 依赖必须带 "./" 前缀。SwiftPM 解析「远程仓库」里的清单时会校验
-        // "is not a valid path for path-based dependencies; use relative or absolute path instead"，
-        // 而本地构建（清单来自工作区）不报此错 —— 漏了 ./ 会「本地编译通过、宿主远程引用失败」。
-        .package(path: "./ios/Vendor/Alamofire"),
-        .package(path: "./ios/Vendor/GRDB.swift"),   // 自身 Package.swift name="GRDB"，targets 引用名见下方
-        .package(path: "./ios/Vendor/Charts"),        // 内部依赖 .package(path: "../swift-algorithms")，已闭合
-        .package(path: "./ios/Vendor/SnapKit"),
+        // v2.0.1 依赖声明由「Vendor 本地 path」改回「远程 URL」，与宿主 KeepAccounts 的声明同 URL 同版本区间，
+        // 依赖图里 identity 相同 → SwiftPM 归一为一份，不会重复引入。
+        //
+        // 铁律（v2.0.1 实测确立）：SwiftPM 不允许「被别人以 URL 引用的包」声明本地 path 依赖
+        // （.package(path:) 只能由根包/工作区清单声明）。宿主按 url 拉本包时会在清单校验阶段直接失败：
+        //   Invalid manifest: 'ios/Vendor/Alamofire' is not a valid path for path-based dependencies;
+        //   use relative or absolute path instead.
+        // 而本地 xcodebuild / swift package dump-package **不报此错**（清单来自工作区），
+        // 属「本地编译通过、宿主远程引用失败」的隐藏坑——加 "./" 前缀亦不能绕过。
+        // 历史 v1.30c 的 Vendor 本地 path 方案因此无法用于远程分发；ios/Vendor 目录保留，
+        // 供 demo 工程（root 工程，允许 path 依赖）与离线参考使用。
+        // 宿主侧本就已远程拉取 Alamofire/GRDB/Charts/SnapKit/Kingfisher，故本改动不新增联网前提。
+        .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.9.1"),
+        .package(url: "https://github.com/groue/GRDB.swift.git", from: "6.29.3"),
+        // 与宿主保持同一 URL（ChartsOrg/Charts）：若写成 danielgindi/Charts，同 identity 但 URL 分叉，
+        // 依赖图可能出现两份引用并触发解析冲突。
+        .package(url: "https://github.com/ChartsOrg/Charts.git", from: "4.1.0"),
+        .package(url: "https://github.com/SnapKit/SnapKit.git", from: "5.6.0"),
     ],
     targets: [
         .target(
             name: "TMONativeUIComps",
             dependencies: [
                 .product(name: "Alamofire", package: "Alamofire"),
-                // GRDB.swift/Vendor 目录 = GRDB.swift（依赖目录名），GRDB.swift/Package.swift 自身
-                // name 字段 = "GRDB"（product 名）。SwiftPM 本地 path 依赖以「依赖目录名」为 package
-                // 引用键（Xcode 14.2 实测：valid packages = GRDB.swift），故此处 package: 必须写
-                // "GRDB.swift"；写 "GRDB" 会报 unknown package，整个 iOS 包无法编译/测试。
+                // GRDB 的 package 引用键 = 仓库名 GRDB.swift（identity 由 URL 末段推导，大小写不敏感），
+                // product 名 = GRDB。写成 package: "GRDB" 会报 unknown package。
                 .product(name: "GRDB", package: "GRDB.swift"),
                 .product(name: "Charts", package: "Charts"),
                 .product(name: "SnapKit", package: "SnapKit")
             ],
             path: "ios",
             exclude: [
-                // 本地依赖目录：Vendor/* 是独立 .package(path:) 依赖，但其仓库自带 Demo App
-                // 资源（如 GRDB.swift/Documentation/DemoApps 的 storyboard/xcassets/xcdatamodeld），
+                // Vendor：v2.0.1 起已不参与本包依赖解析（依赖走远程 URL，见上），仅保留作
+                // demo 工程（root 工程，允许 path 依赖）与离线参考；其仓库自带 Demo App 资源
+                // （如 GRDB.swift/Documentation/DemoApps 的 storyboard/xcassets/xcdatamodeld）
                 // 若不排除会被当主 target 资源扫描，报 multiple resources 重复错误。
                 "Vendor",
                 // SPM 自身解析产物（不在 sources 目录内，仍需显式排除以避免资源扫描重复）。

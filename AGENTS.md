@@ -72,9 +72,11 @@
 
 ## 4. 工程依赖（重要 · iOS 已本地化）
 
-- iOS 依赖 **SnapKit / Charts / GRDB / Alamofire**（+ 传递依赖 swift-algorithms / swift-numerics）已全部 vendor 到 `ios/Vendor/`（本地 path 引用），**离线可构建**。
-- `demo/ios/project.yml` 中 packages 一律用 `path: ../../ios/Vendor/xxx`，**勿改回远程 URL**（GitHub 网络不稳会导致 SPM 解析失败）。
-- `Package.swift` 已于 v2.0.1（2026-09-15）由 `ios/Package.swift` 迁至**仓库根目录**——SwiftPM 只认仓库根的清单，留在 `ios/` 子目录时宿主无法用 `.package(url:)` 远程引用。宿主远程引用写法：`.package(url: "https://github.com/iamsunshow/ProductRDDept_TechMiddleOffice_Native-UI-Comps.git", exact: "2.0.1")`；`demo/ios` 与业务库仍走本地路径引用。
+- iOS 依赖 **SnapKit / Charts / GRDB / Alamofire**（+ 传递依赖 swift-algorithms / swift-numerics），v2.0.1 起分两种用法：
+  - **组件包自身（仓库根 `Package.swift`）必须用远程 URL 声明**：SwiftPM **不允许「被别人以 URL 引用的包」声明本地 path 依赖**（`.package(path:)` 只能由根包声明）。写 path 依赖时宿主按 url 拉取会在清单校验阶段直接失败——`Invalid manifest: 'ios/Vendor/Alamofire' is not a valid path for path-based dependencies`，**加 `./` 前缀同样无效**；而本地 `xcodebuild` / `swift package dump-package` **不报此错**，属「本地编译通过、宿主远程引用失败」的隐藏坑。版本与宿主 KeepAccounts 对齐：Alamofire `from 5.9.1` / GRDB `from 6.29.3` / Charts `from 4.1.0`（**URL 必须是 `ChartsOrg/Charts`，与宿主一致，否则同 identity 不同 URL 会分叉**）/ SnapKit `from 5.6.0`。
+  - **`ios/Vendor/` 保留**（与上述版本一致的离线副本），供 `demo/ios` 与离线查证使用；`demo/ios/project.yml` 中 packages 一律用 `path: ../../ios/Vendor/xxx`（demo 是 root 工程，允许 path 依赖），**勿改回远程 URL**。
+  - **代价（明确记录）**：组件库自身 `publish_ios.sh` 的 Release 编译首次需联网拉上述依赖。宿主业务库本就在远程拉同样这四个包，故消费侧无新增前提。
+- `Package.swift` 位于**仓库根目录**（v2.0.1 · 2026-09-15 由 `ios/Package.swift` 迁来）——SwiftPM 只认仓库根目录的清单，留在 `ios/` 子目录时宿主无法用 `.package(url:)` 远程引用。宿主远程引用写法：`.package(url: "https://github.com/iamsunshow/ProductRDDept_TechMiddleOffice_Native-UI-Comps.git", exact: "2.0.1")`。
 
 
 ---

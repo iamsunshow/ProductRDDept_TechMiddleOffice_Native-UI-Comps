@@ -31,10 +31,13 @@ let package = Package(
         // 改为本地 .package(path:) 后，整条链路闭环（Charts → swift-algorithms → swift-numerics
         // 均为相对本地路径），SwiftPM 直接读取 Vendor/ 下物理文件，无远程 cache 命中机会。
         // v2.0.1 注：依赖目录随包入库，故宿主远程按 tag 引用时同样离线可构建（路径相对仓库根）。
-        .package(path: "ios/Vendor/Alamofire"),
-        .package(path: "ios/Vendor/GRDB.swift"),   // 自身 Package.swift name="GRDB"，targets 引用名见下方
-        .package(path: "ios/Vendor/Charts"),        // 内部依赖 .package(path: "../swift-algorithms")，已闭合
-        .package(path: "ios/Vendor/SnapKit"),
+        // 铁律：path 依赖必须带 "./" 前缀。SwiftPM 解析「远程仓库」里的清单时会校验
+        // "is not a valid path for path-based dependencies; use relative or absolute path instead"，
+        // 而本地构建（清单来自工作区）不报此错 —— 漏了 ./ 会「本地编译通过、宿主远程引用失败」。
+        .package(path: "./ios/Vendor/Alamofire"),
+        .package(path: "./ios/Vendor/GRDB.swift"),   // 自身 Package.swift name="GRDB"，targets 引用名见下方
+        .package(path: "./ios/Vendor/Charts"),        // 内部依赖 .package(path: "../swift-algorithms")，已闭合
+        .package(path: "./ios/Vendor/SnapKit"),
     ],
     targets: [
         .target(

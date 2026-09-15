@@ -11,6 +11,7 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
   - **target 路径改写**（相对仓库根）：`path: "ios"`、`sources: ["Foundation", "SharedUI"]`、`exclude` = `Vendor` / `.build` / `build` / `Tests` + 4 个记账业务组件；依赖改 `.package(path: "ios/Vendor/…")`。Vendor 目录随包入库，故宿主远程按 tag 引用时**仍离线可构建**。
   - 配套：`.gitignore` 增补根级 `/.build/`、`/.swiftpm/`、`/build/`；`demo/ios/project.yml` 源路径 `../../ios` 的 excludes 去掉已不存在的 `Package.swift` / `Package.resolved` 并补 `build`；`AGENTS.md` 第 4 节依赖口径同步。
 - **`publish_ios.sh` 两处修正**：构建目录由 `ios/` 改为仓库根（清单已迁）；`--tag` 动作补 `git push origin v<version>`——原实现只打本地标签，发布的标签永远到不了远程，宿主无从引用。
+- **path 依赖统一加 `./` 前缀（远程解析实测暴露，本地构建完全看不见）**：SwiftPM 在解析「来自远程仓库的清单」时会校验路径依赖合法性并报 `'ios/Vendor/Alamofire' is not a valid path for path-based dependencies; use relative or absolute path instead`；而清单来自本地工作区时**不报此错**。即漏了 `./` 的后果是「本地 Release 编译通过、宿主远程引用直接失败」。故四个依赖统一写 `.package(path: "./ios/Vendor/…")`。
 - `ui-version.json` 升 `2.0.1`。Android 侧无代码变更，按「双端永远同版本」铁律同步 `android/gradle/libs.versions.toml` components `2.0.0 → 2.0.1` 并重发 AAR。
 
 ### 宿主消费方式（v2.0.1 起）

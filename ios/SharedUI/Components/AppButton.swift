@@ -14,7 +14,7 @@
 import UIKit
 
 /// 中台基础按钮视觉样式。
-enum AppButtonStyle {
+public enum AppButtonStyle {
     /// 主操作：主色填充 + 白字（本机一键登录样式）。
     case primary
     /// 次要操作：白底 + 主色描边 + 主色文字。
@@ -24,7 +24,7 @@ enum AppButtonStyle {
 }
 
 /// 中台基础按钮组件（UIKit）。
-final class AppButton: UIButton {
+public final class AppButton: UIButton {
     /// 按钮视觉样式。
     private var buttonStyle: AppButtonStyle = .primary
 
@@ -33,22 +33,22 @@ final class AppButton: UIButton {
 
     /// 是否需要最小高度（非通栏时用于撑高）。
     /// 通栏按钮由外部约束高度；这里提供 48pt 的默认内容高度兜底。
-    static let standardHeight: CGFloat = 48
+    public static let standardHeight: CGFloat = 48
 
     // MARK: - 工厂方法
 
     /// 主操作按钮（主色填充 + 白字）。
-    static func primary(_ title: String) -> AppButton {
+    public static func primary(_ title: String) -> AppButton {
         makeButton(title: title, style: .primary)
     }
 
     /// 次要操作按钮（白底 + 主色描边 + 主色文字）。
-    static func secondary(_ title: String) -> AppButton {
+    public static func secondary(_ title: String) -> AppButton {
         makeButton(title: title, style: .secondary)
     }
 
     /// 破坏性操作按钮（白底 + 红色描边 + 红色文字）。
-    static func destructive(_ title: String) -> AppButton {
+    public static func destructive(_ title: String) -> AppButton {
         makeButton(title: title, style: .destructive)
     }
 
@@ -63,18 +63,18 @@ final class AppButton: UIButton {
     // MARK: - 对外接口
 
     /// 设置按钮文案。
-    func setAppTitle(_ title: String) {
+    public func setAppTitle(_ title: String) {
         setTitle(title, for: .normal)
     }
 
     /// 设置可用状态；false 时置灰且不可点击。
-    func setAppEnabled(_ enabled: Bool) {
+    public func setAppEnabled(_ enabled: Bool) {
         isEnabled = enabled
         updateBackground()
     }
 
     /// 设置加载态；true 时置灰并显示"加载中..."，不可点击。
-    func setLoading(_ loading: Bool) {
+    public func setLoading(_ loading: Bool) {
         isLoading = loading
         isEnabled = !loading
         if loading {
@@ -117,7 +117,7 @@ final class AppButton: UIButton {
         layer.borderColor = border?.cgColor
     }
 
-    override var isHighlighted: Bool {
+    public override var isHighlighted: Bool {
         didSet {
             // 主操作按下态用深一档主色，其余样式用透明度反馈。
             if buttonStyle == .primary && isEnabled && !isLoading {

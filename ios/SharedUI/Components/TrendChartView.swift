@@ -5,7 +5,7 @@ import SnapKit
 import Charts
 
 /// 双色折线图（支出红、收入绿）。
-final class TrendChartView: UIView {
+public final class TrendChartView: UIView {
     private let chartView = LineChartView()
     private let emptyLabel = UILabel()
 
@@ -13,7 +13,7 @@ final class TrendChartView: UIView {
     ///
     /// - Parameter frame: 初始 frame
     /// - Returns: 无
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .white
 
@@ -65,7 +65,7 @@ final class TrendChartView: UIView {
     ///   - expensePoints: 支出趋势点
     ///   - incomePoints: 收入趋势点（与支出同标签轴）
     /// - Returns: 无
-    func apply(expensePoints: [ChartPoint], incomePoints: [ChartPoint]) {
+    public func apply(expensePoints: [ChartPoint], incomePoints: [ChartPoint]) {
         let labels = expensePoints.map(\.label).isEmpty ? incomePoints.map(\.label) : expensePoints.map(\.label)
         let count = labels.count
         let hasValue = expensePoints.contains { $0.amount > 0 } || incomePoints.contains { $0.amount > 0 }

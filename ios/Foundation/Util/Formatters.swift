@@ -5,7 +5,7 @@ import Foundation
 /// 金额字符串格式化。
 ///
 /// **全局规范**：所有对外展示的金额均保留两位小数（如 `1121.00`），由本类型统一处理。
-enum MoneyFormatter {
+public enum MoneyFormatter {
     private static let decimal: NumberFormatter = {
         let f = NumberFormatter()
         f.locale = Locale(identifier: "en_US_POSIX")
@@ -20,7 +20,7 @@ enum MoneyFormatter {
     ///
     /// - Parameter amount: 金额
     /// - Returns: 如 `"38.50"`、`"-1118.00"`
-    static func string(from amount: Double) -> String {
+    public static func string(from amount: Double) -> String {
         decimal.string(from: NSNumber(value: amount)) ?? String(format: "%.2f", amount)
     }
 
@@ -28,7 +28,7 @@ enum MoneyFormatter {
     ///
     /// - Parameter amount: 金额
     /// - Returns: 如 `"¥38.50"`
-    static func currency(from amount: Double) -> String {
+    public static func currency(from amount: Double) -> String {
         "¥" + string(from: amount)
     }
 
@@ -38,36 +38,36 @@ enum MoneyFormatter {
     ///   - amount: 金额
     ///   - isIncome: 收入为 `true`，支出为 `false`
     /// - Returns: 收入带 `+`，支出带 `-`
-    static func signed(from amount: Double, isIncome: Bool) -> String {
+    public static func signed(from amount: Double, isIncome: Bool) -> String {
         let body = string(from: amount)
         return isIncome ? "+\(body)" : "-\(body)"
     }
 }
 
 /// 中文日期格式化器集合。
-enum DateFormatters {
-    static let displayDay: DateFormatter = {
+public enum DateFormatters {
+    public static let displayDay: DateFormatter = {
         let f = DateFormatter()
         f.locale = Locale(identifier: "zh_CN")
         f.dateFormat = "MM月dd日"
         return f
     }()
 
-    static let yearMonth: DateFormatter = {
+    public static let yearMonth: DateFormatter = {
         let f = DateFormatter()
         f.locale = Locale(identifier: "zh_CN")
         f.dateFormat = "yyyy年M月"
         return f
     }()
 
-    static let weekdayShort: DateFormatter = {
+    public static let weekdayShort: DateFormatter = {
         let f = DateFormatter()
         f.locale = Locale(identifier: "zh_CN")
         f.dateFormat = "EEE"
         return f
     }()
 
-    static let dateTime: DateFormatter = {
+    public static let dateTime: DateFormatter = {
         let f = DateFormatter()
         f.locale = Locale(identifier: "zh_CN")
         f.dateFormat = "yyyy-MM-dd HH:mm"
@@ -80,7 +80,7 @@ enum DateFormatters {
     ///   - year: 公历年
     ///   - month: 月份 1...12
     /// - Returns: 本地化年月文案
-    static func yearMonthLabel(year: Int, month: Int) -> String {
+    public static func yearMonthLabel(year: Int, month: Int) -> String {
         var comps = DateComponents()
         comps.year = year
         comps.month = month
@@ -93,7 +93,7 @@ enum DateFormatters {
     ///
     /// - Parameter date: 日期
     /// - Returns: `yyyy-MM-dd HH:mm`
-    static func dateTimeLabel(_ date: Date) -> String {
+    public static func dateTimeLabel(_ date: Date) -> String {
         dateTime.string(from: date)
     }
 }

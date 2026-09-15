@@ -3,7 +3,7 @@
 import Foundation
 
 /// 按公历月份计算时间区间。
-enum CalendarFormatter {
+public enum CalendarFormatter {
     /// 计算当月 `[start, end)` 半开区间（end 为下月 1 日 0 点）。
     ///
     /// - Parameters:
@@ -11,7 +11,7 @@ enum CalendarFormatter {
     ///   - month: 月份 1...12
     ///   - calendar: 日历，默认当前
     /// - Returns: 当月时间区间
-    static func interval(year: Int, month: Int, calendar: Calendar = .current) -> DateInterval {
+    public static func interval(year: Int, month: Int, calendar: Calendar = .current) -> DateInterval {
         var comps = DateComponents()
         comps.year = year
         comps.month = month
@@ -27,7 +27,7 @@ enum CalendarFormatter {
     ///   - year: 公历年
     ///   - calendar: 日历，默认当前
     /// - Returns: 当年时间区间
-    static func yearInterval(year: Int, calendar: Calendar = .current) -> DateInterval {
+    public static func yearInterval(year: Int, calendar: Calendar = .current) -> DateInterval {
         var comps = DateComponents()
         comps.year = year
         comps.month = 1
@@ -43,7 +43,7 @@ enum CalendarFormatter {
     ///   - date: 参考日期，默认当前
     ///   - calendar: 日历，默认当前
     /// - Returns: `(year, month)` 元组
-    static func components(from date: Date = Date(), calendar: Calendar = .current) -> (year: Int, month: Int) {
+    public static func components(from date: Date = Date(), calendar: Calendar = .current) -> (year: Int, month: Int) {
         let c = calendar.dateComponents([.year, .month], from: date)
         return (c.year!, c.month!)
     }
@@ -54,7 +54,7 @@ enum CalendarFormatter {
     ///   - date: 参考日期
     ///   - calendar: 日历，默认当前
     /// - Returns: 当天 0 点的 Date
-    static func startOfDay(_ date: Date, calendar: Calendar = .current) -> Date {
+    public static func startOfDay(_ date: Date, calendar: Calendar = .current) -> Date {
         calendar.startOfDay(for: date)
     }
 }

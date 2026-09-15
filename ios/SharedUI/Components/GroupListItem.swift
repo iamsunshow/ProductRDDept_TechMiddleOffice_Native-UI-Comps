@@ -6,7 +6,7 @@ import SnapKit
 /// 通用左文右值列表行。
 ///
 /// 用于分组列表中的单行展示。
-final class GroupListItem: UIControl {
+public final class GroupListItem: UIControl {
     private let titleLabel = UILabel()
     private let valueLabel = UILabel()
     private let chevron = UIImageView(image: UIImage(systemName: "chevron.right"))
@@ -15,7 +15,7 @@ final class GroupListItem: UIControl {
     /// 初始化列表行布局。
     ///
     /// - Parameter frame: 初始 frame
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .white
 
@@ -63,7 +63,7 @@ final class GroupListItem: UIControl {
     ///   - value: 右侧值，nil 或空时隐藏
     ///   - badge: 警告色徽章文案，nil 时隐藏
     ///   - showsChevron: 是否显示右箭头
-    func apply(title: String, value: String?, badge: String? = nil, showsChevron: Bool = true) {
+    public func apply(title: String, value: String?, badge: String? = nil, showsChevron: Bool = true) {
         titleLabel.text = title
         valueLabel.text = value
         valueLabel.isHidden = (value == nil || value?.isEmpty == true)

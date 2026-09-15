@@ -6,8 +6,8 @@ import SnapKit
 /// M3.2 分类选择网格。
 ///
 /// 五列展示收支分类，选中后通过 `onSelect` 回调。
-final class CategoryPickerView: UIView, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    var onSelect: ((BookkeepingCategory) -> Void)?
+public final class CategoryPickerView: UIView, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    public var onSelect: ((BookkeepingCategory) -> Void)?
 
     private var categories: [BookkeepingCategory] = []
     private var selectedName: String?
@@ -17,7 +17,7 @@ final class CategoryPickerView: UIView, UICollectionViewDataSource, UICollection
     ///
     /// - Parameter frame: 初始 frame
     /// - Returns: 无
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         let layout = UICollectionViewFlowLayout()
         layout.minimumInteritemSpacing = AppSpace.sm
         layout.minimumLineSpacing = AppSpace.md
@@ -45,14 +45,14 @@ final class CategoryPickerView: UIView, UICollectionViewDataSource, UICollection
     ///   - categories: 分类列表
     ///   - selectedName: 当前选中分类名，可为 nil
     /// - Returns: 无
-    func apply(categories: [BookkeepingCategory], selectedName: String?) {
+    public func apply(categories: [BookkeepingCategory], selectedName: String?) {
         self.categories = categories
         self.selectedName = selectedName
         collectionView.reloadData()
     }
 
     /// 取消分类选中高亮（弹层取消 / 点空白时调用）。
-    func clearSelection() {
+    public func clearSelection() {
         guard selectedName != nil else { return }
         selectedName = nil
         collectionView.reloadData()
@@ -64,7 +64,7 @@ final class CategoryPickerView: UIView, UICollectionViewDataSource, UICollection
     ///   - collectionView: 集合视图
     ///   - section: Section 索引
     /// - Returns: 分类数
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         categories.count
     }
 
@@ -74,7 +74,7 @@ final class CategoryPickerView: UIView, UICollectionViewDataSource, UICollection
     ///   - collectionView: 集合视图
     ///   - indexPath: 索引路径
     /// - Returns: 配置好的 Cell
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryCell.reuseId, for: indexPath) as! CategoryCell
         let item = categories[indexPath.item]
         cell.apply(item, selected: item.name == selectedName)
@@ -87,7 +87,7 @@ final class CategoryPickerView: UIView, UICollectionViewDataSource, UICollection
     ///   - collectionView: 集合视图
     ///   - indexPath: 索引路径
     /// - Returns: 无
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let item = categories[indexPath.item]
         selectedName = item.name
         collectionView.reloadData()
@@ -101,7 +101,7 @@ final class CategoryPickerView: UIView, UICollectionViewDataSource, UICollection
     ///   - collectionViewLayout: 布局
     ///   - indexPath: 索引路径
     /// - Returns: item 尺寸
-    func collectionView(
+    public func collectionView(
         _ collectionView: UICollectionView,
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath

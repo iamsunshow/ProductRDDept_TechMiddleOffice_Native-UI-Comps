@@ -9,7 +9,7 @@ import GRDB
 /// 数据库 schema 提供者 —— 由宿主 App 注入，声明库文件路径、迁移器与可清空表清单。
 ///
 /// 中台包只管理数据库生命周期，业务表结构与迁移逻辑交由宿主定制。
-protocol DatabaseSchemaProvider {
+public protocol DatabaseSchemaProvider {
     /// 应用支持目录下的子目录名（业务隔离用）。
     var directoryName: String { get }
     /// 数据库文件名。
@@ -23,11 +23,11 @@ protocol DatabaseSchemaProvider {
 /// 本地数据库骨架单例。
 ///
 /// 负责 SQLite 文件路径、迁移与 `DatabaseQueue` 生命周期。
-final class AppDatabase {
-    static let shared = AppDatabase()
+public final class AppDatabase {
+    public static let shared = AppDatabase()
 
     /// schema 提供者；宿主 App 启动时注入。
-    static var schemaProvider: DatabaseSchemaProvider?
+    public static var schemaProvider: DatabaseSchemaProvider?
 
     private(set) var dbQueue: DatabaseQueue?
 
@@ -37,7 +37,7 @@ final class AppDatabase {
     ///
     /// - Returns: 无
     /// - Throws: 文件系统或迁移错误
-    func prepare() throws {
+    public func prepare() throws {
         guard let schema = Self.schemaProvider else {
             throw AppDatabaseError.schemaNotConfigured
         }
@@ -58,7 +58,7 @@ final class AppDatabase {
     ///
     /// 保留表结构，仅删除全部行；失败时抛错由调用方决定是否阻断注销。
     /// - Throws: 数据库写错误
-    func eraseAll() throws {
+    public func eraseAll() throws {
         guard let queue = dbQueue, let schema = Self.schemaProvider else {
             throw AppDatabaseError.databaseNotReady
         }
@@ -71,7 +71,7 @@ final class AppDatabase {
 }
 
 /// 数据库骨架错误。
-enum AppDatabaseError: Error {
+public enum AppDatabaseError: Error {
     /// 数据库尚未初始化（prepare 前调用）。
     case databaseNotReady
     /// schema 提供者未注入（prepare 前须注册 AppDatabase.schemaProvider）。

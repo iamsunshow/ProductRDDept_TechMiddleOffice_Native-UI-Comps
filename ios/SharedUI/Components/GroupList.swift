@@ -6,13 +6,13 @@ import SnapKit
 /// 圆角白底分组容器。
 ///
 /// 垂直排列 `GroupListItem` 并在行间插入分隔线。
-final class GroupList: UIView {
+public final class GroupList: UIView {
     private let stack = UIStackView()
 
     /// 初始化空分组容器。
     ///
     /// - Parameter frame: 初始 frame
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .white
         layer.cornerRadius = AppRadius.lg
@@ -30,7 +30,7 @@ final class GroupList: UIView {
     /// 设置分组内的列表行（自动插入分隔线）。
     ///
     /// - Parameter rows: 列表行视图数组
-    func setRows(_ rows: [GroupListItem]) {
+    public func setRows(_ rows: [GroupListItem]) {
         stack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         for (index, row) in rows.enumerated() {
             stack.addArrangedSubview(row)

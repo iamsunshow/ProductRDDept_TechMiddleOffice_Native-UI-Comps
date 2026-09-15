@@ -6,7 +6,7 @@ import UIKit
 ///
 /// 中台包只负责通用导航机制（Tab 切换 / push / pop），**具体页面构造交由宿主注入**，
 /// 从而与业务解耦、可独立编译。未注入 provider 或返回 nil 时回退到占位页。
-protocol RouterDestinationProvider: AnyObject {
+public protocol RouterDestinationProvider: AnyObject {
     /// 解析目标页控制器。
     ///
     /// - Parameters:
@@ -151,7 +151,7 @@ enum AppRouter {
 }
 
 /// 尚未实现的 Feature 页占位控制器。
-final class NativePlaceholderViewController: UIViewController {
+public final class NativePlaceholderViewController: UIViewController {
     private let pageId: String
     private let titleText: String
 
@@ -161,7 +161,7 @@ final class NativePlaceholderViewController: UIViewController {
     ///   - pageId: 产品页编号
     ///   - titleText: 导航栏标题
     /// - Returns: 无
-    init(pageId: String, titleText: String) {
+    public init(pageId: String, titleText: String) {
         self.pageId = pageId
         self.titleText = titleText
         super.init(nibName: nil, bundle: nil)
@@ -173,7 +173,7 @@ final class NativePlaceholderViewController: UIViewController {
     /// 展示占位说明文案。
     ///
     /// - Returns: 无
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = AppColor.bgPage
         title = titleText

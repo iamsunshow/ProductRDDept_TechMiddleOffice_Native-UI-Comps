@@ -4,8 +4,8 @@ import UIKit
 import SnapKit
 
 /// 通用选项滚轮。
-final class OptionPickerSheetViewController: UIViewController {
-    var onConfirm: ((Int) -> Void)?
+public final class OptionPickerSheetViewController: UIViewController {
+    public var onConfirm: ((Int) -> Void)?
 
     private let titleText: String
     private let options: [String]
@@ -19,7 +19,7 @@ final class OptionPickerSheetViewController: UIViewController {
     ///   - options: 选项文案
     ///   - selectedIndex: 初始选中下标
     /// - Returns: 无
-    init(title: String, options: [String], selectedIndex: Int = 0) {
+    public init(title: String, options: [String], selectedIndex: Int = 0) {
         self.titleText = title
         self.options = options
         self.selectedIndex = min(max(0, selectedIndex), max(0, options.count - 1))
@@ -38,7 +38,7 @@ final class OptionPickerSheetViewController: UIViewController {
     /// 搭建顶栏与滚轮。
     ///
     /// - Returns: 无
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = AppColor.bgCard
 
@@ -87,7 +87,7 @@ extension OptionPickerSheetViewController: UIPickerViewDataSource, UIPickerViewD
     ///
     /// - Parameter pickerView: 滚轮
     /// - Returns: 1
-    func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
+    public func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
 
     /// 行数。
     ///

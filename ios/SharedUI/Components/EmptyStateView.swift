@@ -8,7 +8,7 @@ import SnapKit
 /// 用于 EmptyStateView.setIconDrawable(_:size:) 方法。双端各自用 UIBezierPath/Canvas
 /// 自绘相同形状的 Path，根治 SF Symbol vs Material Icons vs emoji
 /// 三套图标库视觉差异（用户 2026-09-08 反馈）。
-enum EmptyIconKind {
+public enum EmptyIconKind {
     /// 铃铛（用于「暂无通知/记录」类空态）。
     case bell
     /// 文件夹（用于「该文件夹为空」类空态）。
@@ -19,9 +19,9 @@ enum EmptyIconKind {
 ///
 /// 未设置文案时默认「暂无数据」；调用 `setMessage` 可覆盖为业务文案。
 /// 可选设置图标 `setIcon`，图标居中于文案上方。
-final class EmptyStateView: UIView {
+public final class EmptyStateView: UIView {
     /// 列表空态默认文案。
-    static let defaultMessage = "暂无数据"
+    public static let defaultMessage = "暂无数据"
 
     private let iconView = UIImageView()
     private let iconTextLabel = UILabel()
@@ -32,7 +32,7 @@ final class EmptyStateView: UIView {
     ///
     /// - Parameter frame: 初始 frame
     /// - Returns: 无
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         isUserInteractionEnabled = false
 
@@ -70,7 +70,7 @@ final class EmptyStateView: UIView {
     ///
     /// - Parameter text: 展示文本
     /// - Returns: 无
-    func setMessage(_ text: String) {
+    public func setMessage(_ text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         label.text = trimmed.isEmpty ? Self.defaultMessage : text
     }
@@ -80,7 +80,7 @@ final class EmptyStateView: UIView {
     /// - Parameter image: 图标图片
     /// - Parameter size: 图标尺寸（pt），默认 48
     /// - Returns: 无
-    func setIcon(_ image: UIImage?, size: CGFloat = 48) {
+    public func setIcon(_ image: UIImage?, size: CGFloat = 48) {
         iconTextLabel.isHidden = true
         iconView.image = image
         iconView.isHidden = (image == nil)
@@ -97,7 +97,7 @@ final class EmptyStateView: UIView {
     /// - Parameter text: emoji 文本（如 "🔔"、"📂"）
     /// - Parameter size: 字号（pt），默认 48
     /// - Returns: 无
-    func setIconText(_ text: String?, size: CGFloat = 48) {
+    public func setIconText(_ text: String?, size: CGFloat = 48) {
         iconView.isHidden = true
         iconTextLabel.text = text
         iconTextLabel.isHidden = (text == nil)
@@ -113,7 +113,7 @@ final class EmptyStateView: UIView {
     /// - Parameter kind: 图标种类（.bell / .folder）
     /// - Parameter size: 图标尺寸（pt），默认 48
     /// - Returns: 无
-    func setIconDrawable(_ kind: EmptyIconKind, size: CGFloat = 48) {
+    public func setIconDrawable(_ kind: EmptyIconKind, size: CGFloat = 48) {
         iconTextLabel.isHidden = true
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
         let image = renderer.image { context in

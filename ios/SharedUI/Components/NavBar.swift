@@ -10,12 +10,12 @@ import UIKit
 import SnapKit
 
 /// 右侧导航动作数据（与 Android `NavBarAction` 同构）。
-struct NavBarAction {
-    let text: String
-    let color: UIColor?
-    let onTap: () -> Void
+public struct NavBarAction {
+    public let text: String
+    public let color: UIColor?
+    public let onTap: () -> Void
 
-    init(text: String, color: UIColor? = nil, onTap: @escaping () -> Void) {
+    public init(text: String, color: UIColor? = nil, onTap: @escaping () -> Void) {
         self.text = text
         self.color = color
         self.onTap = onTap
@@ -23,24 +23,24 @@ struct NavBarAction {
 }
 
 /// 头部导航条。
-final class NavBar: UIView {
-    struct Metrics {
-        static let contentHeight: CGFloat = 44 // 行高 44pt（宿主可覆盖）
-        static let backGlyph = "←"
-        static let backHitWidth: CGFloat = 44 // 返回热区宽 ≥40pt
-        static let backGlyphInset: CGFloat = AppSpace.sm // ← 距左 8pt
-        static let actionTapInset: CGFloat = AppSpace.md // 右侧动作左右内边距
-        static let sideInset: CGFloat = AppSpace.lg
-        static let titleSideInset: CGFloat = AppSpace.md
+public final class NavBar: UIView {
+    public struct Metrics {
+        public static let contentHeight: CGFloat = 44 // 行高 44pt（宿主可覆盖）
+        public static let backGlyph = "←"
+        public static let backHitWidth: CGFloat = 44 // 返回热区宽 ≥40pt
+        public static let backGlyphInset: CGFloat = AppSpace.sm // ← 距左 8pt
+        public static let actionTapInset: CGFloat = AppSpace.md // 右侧动作左右内边距
+        public static let sideInset: CGFloat = AppSpace.lg
+        public static let titleSideInset: CGFloat = AppSpace.md
     }
 
     /// 标题（可改，改后就地刷新）。
-    var title: String {
+    public var title: String {
         didSet { titleLabel.text = title }
     }
 
     /// 返回回调；nil = 一级页不显示返回钮（标题严格居中）。
-    var onBack: (() -> Void)? {
+    public var onBack: (() -> Void)? {
         didSet {
             backClosure = onBack
             rebuildSides()
@@ -48,7 +48,7 @@ final class NavBar: UIView {
     }
 
     /// 右侧动作；nil = 不显示。
-    var rightAction: NavBarAction? {
+    public var rightAction: NavBarAction? {
         didSet {
             actionClosure = rightAction?.onTap
             rebuildSides()
@@ -62,7 +62,7 @@ final class NavBar: UIView {
     private var backClosure: (() -> Void)?
     private var actionClosure: (() -> Void)?
 
-    init(title: String, onBack: (() -> Void)? = nil, rightAction: NavBarAction? = nil) {
+    public init(title: String, onBack: (() -> Void)? = nil, rightAction: NavBarAction? = nil) {
         self.title = title
         self.onBack = onBack
         self.rightAction = rightAction
@@ -78,7 +78,7 @@ final class NavBar: UIView {
     @available(*, unavailable)
     required init?(coder: NSCoder) { nil }
 
-    override var intrinsicContentSize: CGSize {
+    public override var intrinsicContentSize: CGSize {
         CGSize(width: UIView.noIntrinsicMetric, height: Metrics.contentHeight)
     }
 

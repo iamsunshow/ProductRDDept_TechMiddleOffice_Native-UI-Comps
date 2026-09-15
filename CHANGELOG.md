@@ -2,6 +2,22 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [2.0.2] - 2026-09-15（iOS 对外 API public 化：打通宿主 `import TMONativeUIComps` 后访问通路）
+
+### Fixed
+
+- **iOS 对外 API public 化（无组件行为变更，行为 = v2.0.1）**：v2.0.0/v2.0.1 改名后宿主 `import TMONativeUIComps` 后访问内部 API 编译失败（`'AppButton' is not a member type of 'TMONativeUIComps'` 等）。
+  - **根因**：Swift 默认 access level 是 `internal`，未声明 `public` 修饰的类型对外不可见——本包原本为单仓自用、未按 SPM 对外分发要求标注 public。
+  - **处置**：21 个 iOS 文件 public 化（187 增 187 删，纯 access level 调整、无逻辑/签名/行为变更）：
+    - **Foundation 8 个**：`Design/AppTokens`（`AppColor`/`AppSpace`/`AppFont`/`AppRadius` 全枚举）、`Network/MockAPIClient`（`APIEnvironment`/`APIClientProtocol`）、`Routing/AppRouter`（`RouterDestinationProvider`/`NativePlaceholderViewController`）、`Storage/AppDatabase`（`DatabaseSchemaProvider`/`AppDatabase`/`AppDatabaseError`）、`SystemBars/StatusBarNavigationController`、`Util/CalendarFormatter`、`Util/Formatters`（`MoneyFormatter`/`DateFormatter`）、`Util/DemoDataSettings`。
+    - **SharedUI 13 个**：`AppButton`/`Cell`/`CategoryPickerView`/`EmptyStateView`/`GroupList`/`GroupListItem`/`ListCell`/`NavBar`/`OptionPickerSheetViewController`/`PeriodTabsView`/`SummaryCardView`/`TrendChartView`/`WebContentViewController`/`ZodiacAvatarView`。
+- Android 端 Kotlin 默认 `public`，不受此影响；按「双端永远同版本」铁律同步升 `components` `2.0.1 → 2.0.2` 并重发 AAR。
+
+### 验证
+
+- iOS：`xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator' -configuration Release` BUILD SUCCEEDED。
+- Android：`:components:assembleRelease` BUILD SUCCESSFUL。
+
 ## [2.0.1] - 2026-09-15（iOS 包清单迁至仓库根：打通宿主远程引用）
 
 ### Changed

@@ -4,8 +4,8 @@ import UIKit
 import SnapKit
 
 /// 周 / 月 / 年分段切换（TabsView 的特例）。
-final class PeriodTabsView: UIView {
-    var onChange: ((ChartsPeriod) -> Void)?
+public final class PeriodTabsView: UIView {
+    public var onChange: ((ChartsPeriod) -> Void)?
 
     private(set) var selected: ChartsPeriod = .month
     private var buttons: [ChartsPeriod: UIButton] = [:]
@@ -13,7 +13,7 @@ final class PeriodTabsView: UIView {
     /// 初始化三段分段控件。
     ///
     /// - Parameter frame: 初始 frame
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .white
 

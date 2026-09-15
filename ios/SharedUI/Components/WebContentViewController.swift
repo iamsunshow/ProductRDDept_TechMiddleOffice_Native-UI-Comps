@@ -5,7 +5,7 @@ import WebKit
 import SnapKit
 
 /// 全屏 WKWebView，用于打开 `LegalContentConfig` 等外部 URL。
-final class WebContentViewController: UIViewController, WKNavigationDelegate {
+public final class WebContentViewController: UIViewController, WKNavigationDelegate {
     private let pageTitle: String
     private let url: URL
     private let webView = WKWebView(frame: .zero)
@@ -15,7 +15,7 @@ final class WebContentViewController: UIViewController, WKNavigationDelegate {
     /// - Parameters:
     ///   - title: 导航标题
     ///   - url: 目标地址
-    init(title: String, url: URL) {
+    public init(title: String, url: URL) {
         self.pageTitle = title
         self.url = url
         super.init(nibName: nil, bundle: nil)
@@ -28,7 +28,7 @@ final class WebContentViewController: UIViewController, WKNavigationDelegate {
         progressObservation?.invalidate()
     }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         navigationItem.title = pageTitle
@@ -57,7 +57,7 @@ final class WebContentViewController: UIViewController, WKNavigationDelegate {
         webView.load(URLRequest(url: url))
     }
 
-    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+    public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         let alert = UIAlertController(
             title: "无法打开页面",
             message: "请检查网络，或确认内容平台地址已配置。\n\(url.absoluteString)",

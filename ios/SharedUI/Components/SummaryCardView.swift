@@ -6,7 +6,7 @@ import SnapKit
 /// 摘要卡片控件。
 ///
 /// 展示标题、副标题、主数值与右侧辅助文案。
-final class SummaryCardView: UIControl {
+public final class SummaryCardView: UIControl {
     private let titleLabel = UILabel()
     private let subtitleLabel = UILabel()
     private let valueLabel = UILabel()
@@ -16,7 +16,7 @@ final class SummaryCardView: UIControl {
     /// 初始化卡片布局。
     ///
     /// - Parameter frame: 初始 frame
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .white
         layer.cornerRadius = AppRadius.lg
@@ -75,7 +75,7 @@ final class SummaryCardView: UIControl {
     ///   - value: 主数值文案
     ///   - valueColor: 主数值颜色
     ///   - accessory: 右侧辅助文案，nil 时隐藏
-    func apply(title: String, subtitle: String, value: String, valueColor: UIColor, accessory: String?) {
+    public func apply(title: String, subtitle: String, value: String, valueColor: UIColor, accessory: String?) {
         titleLabel.text = title
         subtitleLabel.text = subtitle
         valueLabel.text = value

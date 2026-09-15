@@ -4,11 +4,11 @@ import UIKit
 import SnapKit
 
 /// 展示星座符号的圆形头像。
-final class ZodiacAvatarView: UIView {
+public final class ZodiacAvatarView: UIView {
     private let symbolLabel = UILabel()
 
     /// 初始化头像视图。
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         clipsToBounds = true
         symbolLabel.textAlignment = .center
@@ -24,7 +24,7 @@ final class ZodiacAvatarView: UIView {
 
     /// 绑定星座；nil 时显示昵称首字。
     /// 会在自身上加 width/height=diameter 约束，让 UIStackView 中的尺寸与 Android .size(diameter) 1:1 对齐。
-    func apply(zodiacName: String?, nickname: String, diameter: CGFloat = 56) {
+    public func apply(zodiacName: String?, nickname: String, diameter: CGFloat = 56) {
         // 自身尺寸约束（UIStackView 中 UIView 无 intrinsicContentSize 会退化成 0，必须显式约束）
         snp.remakeConstraints { make in
             make.width.height.equalTo(diameter)

@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 
 /// Cell 状态标识。
-enum CellStatus {
+public enum CellStatus {
     /// 默认：右侧按 `arrow` 显示箭头。
     case normal
     /// 成功：右侧 ✓（success 色）。
@@ -19,25 +19,25 @@ enum CellStatus {
 }
 
 /// 列表行数据模型（业务无关）。
-struct CellModel {
+public struct CellModel {
     /// 主标题（必填）。
-    var title: String
+    public var title: String
     /// 副标题；为空自动隐藏（单行）。
-    var subtitle: String?
+    public var subtitle: String?
     /// 左侧图标（SF Symbol 名称）。
-    var iconSymbol: String?
+    public var iconSymbol: String?
     /// 右侧值文本。
-    var value: String?
+    public var value: String?
     /// 是否显示右侧箭头，默认 true。
-    var arrow: Bool = true
+    public var arrow: Bool = true
     /// 禁用态：背景置灰、文字置灰、不透箭头、不可点。
-    var disabled: Bool = false
+    public var disabled: Bool = false
     /// 加载态：标题区骨架占位。
-    var loading: Bool = false
+    public var loading: Bool = false
     /// 状态标识，默认 .normal。
-    var status: CellStatus = .normal
+    public var status: CellStatus = .normal
 
-    init(
+    public init(
         title: String,
         subtitle: String? = nil,
         iconSymbol: String? = nil,
@@ -59,22 +59,22 @@ struct CellModel {
 }
 
 /// 通用列表行 Cell。
-final class Cell: UITableViewCell {
-    static let reuseId = "Cell"
+public final class Cell: UITableViewCell {
+    public static let reuseId = "Cell"
 
     /// 最小行高（设计稿「32 号字 cell」单行 = 56pt = 16pt 内边距×2 + 24pt 主标题行高）。
-    static let minHeight: CGFloat = 56
+    public static let minHeight: CGFloat = 56
 
     /// 点击回调（参数=数据+索引）。
-    var onTap: ((_ item: Any?, _ index: Int) -> Void)?
+    public var onTap: ((_ item: Any?, _ index: Int) -> Void)?
     /// 长按回调（iOS 触发；Android 不承诺，平台差异见平台登记）。
-    var onLongPress: ((_ item: Any?, _ index: Int) -> Void)?
+    public var onLongPress: ((_ item: Any?, _ index: Int) -> Void)?
     /// 是否显示底部 1px 分隔线（最后一行由业务置 false）。
-    var showsDivider: Bool = true {
+    public var showsDivider: Bool = true {
         didSet { updateDivider() }
     }
     /// 行底部间隙（pt）。>0 时以「间隙」替代分隔线（对标 Android demo 的 Arrangement.spacedBy(16)）。
-    var rowSpacing: CGFloat = 0 {
+    public var rowSpacing: CGFloat = 0 {
         didSet { updateDivider() }
     }
 
@@ -123,7 +123,7 @@ final class Cell: UITableViewCell {
     /// divider 高度约束引用（横线 1px 或间隙 rowSpacing）。
     private var dividerHeightConstraint: Constraint?
 
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+    public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
         // cell + contentView 同色：v1.26 横屏 safeArea 修复后 contentView.frame = bounds，
@@ -249,7 +249,7 @@ final class Cell: UITableViewCell {
     /// 系统已设置 contentView.frame（含 safeArea inset），此处覆盖为完整 bounds 让
     /// contentView 充满 cell。内容子视图仍受 leading/trailing offset 约束在 safeArea 内，
     /// 不会被刘海遮挡。
-    override func layoutSubviews() {
+    public override func layoutSubviews() {
         super.layoutSubviews()
         contentView.frame = bounds
     }
@@ -257,7 +257,7 @@ final class Cell: UITableViewCell {
     /// 自适高兜底最小行高（对标 Android `heightIn(min = 56.dp)`）。
     /// 不直接约束 contentView（会与 automaticDimension 冲突），而是由
     /// systemLayoutSizeFitting 在内容高度基础上取 max 到 Cell.minHeight，标准且无冲突。
-    override func systemLayoutSizeFitting(
+    public override func systemLayoutSizeFitting(
         _ targetSize: CGSize,
         withHorizontalFittingPriority horizontalPriority: UILayoutPriority,
         verticalFittingPriority: UILayoutPriority
@@ -275,7 +275,7 @@ final class Cell: UITableViewCell {
     ///
     /// - Parameter model: 列表行数据
     /// - Returns: 无
-    func apply(_ model: CellModel) {
+    public func apply(_ model: CellModel) {
         boundItem = model
         // v1.24：仅标题时也设行高 24pt（设计稿 cellTitleLineHeight）。
         // v1.20 曾注释"仅标题不设 attributedText，让 UILabel 原生垂直居中"，但实测发现：
@@ -433,7 +433,7 @@ final class Cell: UITableViewCell {
     ///   - item: 数据
     ///   - index: 所在行索引
     /// - Returns: 无
-    func bind(_ item: Any?, index: Int) {
+    public func bind(_ item: Any?, index: Int) {
         boundItem = item
         boundIndex = index
     }
@@ -442,7 +442,7 @@ final class Cell: UITableViewCell {
     /// （apply() 已设置 `isUserInteractionEnabled = false`），但为保险起见仍显式 guard，
     /// 避免 setHighlighted 被系统/调用方强制触发时，覆盖掉 apply() 为禁用态设置的 gray4 背景
     /// （导致「禁用 cell 按住 → 松手恢复 bgCard 白色」视觉错位）。
-    override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+    public override func setHighlighted(_ highlighted: Bool, animated: Bool) {
         super.setHighlighted(highlighted, animated: animated)
         // 禁用态 = !isUserInteractionEnabled（apply() 中统一赋值），此时禁止改背景。
         guard isUserInteractionEnabled else { return }
@@ -483,7 +483,7 @@ final class Cell: UITableViewCell {
     /// 输出实测值，据此精确校准 `verticalCenterBaselineOffset`，替代纯数学推导。
     ///
     /// - Returns: 文字绘制中心的垂直偏移（pt）。0 = 居中。
-    func debugTitleVerticalOffset() -> CGFloat {
+    public func debugTitleVerticalOffset() -> CGFloat {
         layoutIfNeeded()
         // 标题文字实际绘制矩形（单行时即文字像素框），坐标相对 titleLabel bounds。
         // textRect(forBounds:limitedToNumberOfLines:) 会结合 attributedText 的
@@ -500,7 +500,7 @@ final class Cell: UITableViewCell {
     /// 正值=偏下，负值=偏上，0=居中。取当前可见的 trailing 锚点视图（箭头/状态标识/值）。
     ///
     /// - Returns: 偏移（pt）。
-    func debugTrailingCenterOffset() -> CGFloat {
+    public func debugTrailingCenterOffset() -> CGFloat {
         layoutIfNeeded()
         let anchor = arrowView.isHidden ? valueLabel : arrowView
         let centerY = anchor.convert(CGPoint(x: 0, y: anchor.bounds.midY), to: contentView).y

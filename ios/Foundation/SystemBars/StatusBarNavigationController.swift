@@ -14,5 +14,5 @@ public final class StatusBarNavigationController: UINavigationController {
     /// 将状态栏显隐决策委托给栈顶视图控制器。
     ///
     /// - Returns: 栈顶视图控制器
-    override var childForStatusBarHidden: UIViewController? { topViewController }
+    public override var childForStatusBarHidden: UIViewController? { topViewController }
 }

@@ -5,7 +5,7 @@ import Foundation
 /// 健康检查响应体。
 ///
 /// 禁止直接作为 UI 模型使用。
-struct HealthDTO: Decodable {
-    let status: String
-    let service: String
+public struct HealthDTO: Decodable {
+    public let status: String
+    public let service: String
 }

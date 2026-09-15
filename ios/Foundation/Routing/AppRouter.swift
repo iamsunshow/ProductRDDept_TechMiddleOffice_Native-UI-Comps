@@ -38,7 +38,7 @@ enum AppRouter {
     }
 
     /// 可 push 的目标页面。
-    enum Destination {
+    public enum Destination {
         case incomeList     // 1.1
         case expenseList    // 1.2
         case bill           // 1.3

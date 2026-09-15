@@ -2,6 +2,25 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [2.0.3] - 2026-09-15（v2.0.2 public 化的连带类型补全：宿主编译扫尾）
+
+### Fixed
+
+- **v2.0.2 仅对 21 个 iOS 文件本体 public 化，遗漏 3 处连带类型**：宿主 `KeepAccounts` `xcodebuild` 真编译报错：
+  - `Foundation/Network/MockAPIClient.swift:26:10: method cannot be declared public because its result uses an internal type`（`HealthDTO` 未 public）。
+  - `Foundation/Routing/AppRouter.swift:16:10: method cannot be declared public because its parameter uses an internal type`（`AppRouter.Destination` 嵌套枚举未 public）。
+  - `Foundation/SystemBars/StatusBarNavigationController.swift:17:18: overriding property must be as accessible as its enclosing type`（`childForStatusBarHidden` 跟随 `childForStatusBarStyle` 必须同为 public）。
+- **处置**：
+  1. `HealthDTO.swift`：`struct HealthDTO: Decodable` → `public struct HealthDTO`，字段 `status` / `service` 同步 public（被 public `APIClientProtocol.getHealth() async throws -> HealthDTO` 返回类型引用，必须跟随）。
+  2. `AppRouter.swift`：嵌套 `enum Destination` → `public enum Destination`（被 public `RouterDestinationProvider.makeViewController(for destination: AppRouter.Destination, yearMonth: (Int, Int)?) -> UIViewController?` 参数类型引用，必须跟随）。
+  3. `StatusBarNavigationController.swift`：`override var childForStatusBarHidden` → `public override var childForStatusBarHidden`（与 `public override var childForStatusBarStyle` 对称，类已 public、override 属性必须同为 public）。
+- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `2.0.2 → 2.0.3` 并重发 AAR。
+
+### 验证
+
+- KeepAccounts iOS：`xcodebuild -project KeepAccounts.xcodeproj -scheme KeepAccounts -destination 'generic/platform=iOS Simulator' -configuration Debug` BUILD SUCCEEDED。
+- Android：`:components:assembleRelease`（待重发 AAR 后跑）。
+
 ## [2.0.2] - 2026-09-15（iOS 对外 API public 化：打通宿主 `import TMONativeUIComps` 后访问通路）
 
 ### Fixed

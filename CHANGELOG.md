@@ -2,6 +2,21 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [2.0.8] - 2026-09-15（v2.0.7 public 化扫尾第六波 = 收官：APIEnvironment 补 public init）
+
+### Fixed
+
+- **宿主 AppDelegate 启动注入后端地址报** `App/AppDelegate.swift:26:34: 'APIEnvironment' initializer is inaccessible due to 'internal' protection level`。
+  - **根因**：`APIEnvironment` 类型本体虽已于 v2.0.2 public 化，但结构体的隐式 memberwise initializer 仍是 `internal`，宿主无法构造真实环境（`APIEnvironment(baseURL:)`）。
+- **处置**：`MockAPIClient.swift` 补 `public init(baseURL: URL)`。
+- **收官**：至此宿主 `KeepAccounts` iOS 真编译 `BUILD SUCCEEDED`，v2.0.2 起的 iOS 对外 API public 化扫尾全部完成。
+- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `2.0.7 → 2.0.8` 并重发 AAR。
+
+### 验证
+
+- 组件库：`xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/lib-dd build` BUILD SUCCEEDED。
+- KeepAccounts iOS：`xcodebuild -project KeepAccounts.xcodeproj -scheme KeepAccounts -destination 'generic/platform=iOS Simulator' -configuration Debug` **BUILD SUCCEEDED**。
+
 ## [2.0.7] - 2026-09-15（v2.0.6 public 化扫尾第五波：AppDatabase.dbQueue 公开）
 
 ### Fixed

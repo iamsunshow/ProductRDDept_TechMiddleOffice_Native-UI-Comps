@@ -10,6 +10,13 @@ import Alamofire
 public struct APIEnvironment {
     public var baseURL: URL
 
+    /// 构造环境。
+    ///
+    /// - Parameter baseURL: 后端基址
+    public init(baseURL: URL) {
+        self.baseURL = baseURL
+    }
+
     /// Mock 占位（不接真实请求）。
     public static let mock = APIEnvironment(baseURL: URL(string: "https://mock.keep-accounts.local")!)
 

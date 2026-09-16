@@ -2,6 +2,23 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [2.0.12] - 2026-09-16（ProgressCircle Android 中心文案居中修复 + 回归用例入库）
+
+### Fixed
+
+- **ProgressCircle（#83 ui.progress-circle）Android 中心文案未在环内居中**：`android/sharedui/components/ProgressCircle.kt`
+  - 现象（用户反馈原文）：「Android 的 ProgressCircle 的数值没有水平垂直居中于圆环」。
+  - 根因：中心 `Text` 使用 `Modifier.size(size - centerTextInset*2)`——`size()` 是定尺修饰符（min=max），文案被撑成 48×48（默认 64dp 环）方框，文字按 Text 默认排版落在**方框左上角**；方框本身仍被 `Box(contentAlignment = Alignment.Center)` 居中，故视觉上整块字形偏左上。iOS 侧为 `centerX/centerY=superview` + `textAlignment = .center`，无此问题。设计规格「中心文案定位」一节本就写明 Android 应为「Text align=Alignment.Center + Box scope」，原实现与规格不符。
+  - 修复：定尺 `size()` → 限宽 `widthIn(max = size - centerTextInset*2)`（只防长文案压到轨道、不设 min），并补 `textAlign = TextAlign.Center` + `maxLines = 1` + `overflow = TextOverflow.Ellipsis`；文案以自然尺寸由 `Box(contentAlignment = Center)` 摆到环心，超出限宽走单行省略（对齐 iOS UILabel `numberOfLines=1` 的 `byTruncatingTail`）。环径 / 轨道 6dp 圆头 / 阈值三色 / 0.3s 过渡 / 中心文案字号字重等视觉契约零变化。
+  - 备注：D4 `centerText = "今日 ¥128"`（size=80）文案宽 ≈74dp > 限宽 64dp（8dp 双侧 inset 防压环），双端均按单行省略；需完整展示请加大 size 或缩短文案（本版不改规格）。
+
+### 验证
+
+- 新增回归用例 `android/components/src/test/java/com/zhiqihuayun/sharedui/components/ProgressCircleTest.kt`（8 用例，台账落点 L1）：默认百分比 / 自定义 centerText / 非默认 size 三种情形的「文案中心 ≈ 环心」+「文案节点须为文本自然尺寸（高 ≤ 单行）、不得被撑成环内方框」+ value 超界 clamp / size 契约 / 单行不换行。
+- 红-绿实证：旧实现下 4 用例失败（3 居中 + 1 单行；旧文案节点被撑成 48dp 高）；修复后 8/8 全绿（`cd android && ./gradlew :components:testDebugUnitTest --tests "com.zhiqihuayun.sharedui.components.ProgressCircleTest"`）。
+- Android demo 真编译：`cd demo/android && ./gradlew :app:assembleDebug` BUILD SUCCESSFUL。
+- 遗留：C1.5 用户双端 Demo 实机验收待走；C1 单测其余项、C2 CR/CI 与 D 发版未走。
+
 ## [2.0.11] - 2026-09-16（ShortcutBar 契约补齐 + 三件 Demo 段结构 1:1 + ProgressCircle 分类迁移）
 
 ### Changed

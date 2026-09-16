@@ -3459,11 +3459,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": ""
+          "note": "v1.0 2026-09-16 ProgressCircleView.swift（信息展示区 #83，门禁 A AI 代评通过 + 门禁 B 双端实现入库）"
         },
         "android": {
-          "state": "partial",
-          "note": ""
+          "state": "available",
+          "note": "v1.0 2026-09-16 ProgressCircle.kt（信息展示区 #83，门禁 A AI 代评通过 + 门禁 B 双端实现入库）"
         },
         "harmony": {
           "state": "unavailable",
@@ -3653,9 +3653,10 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/TrendChartView.swift",
-        "android": "ProductRDDept/TechMiddleOffice/android/sharedui/components/TrendChartView.kt"
+        "ios": "ios/SharedUI/Components/LineChartView.swift",
+        "android": "android/sharedui/components/LineChart.kt"
       },
+      "note": "iOS v1.0 2026-09-16 LineChartView.swift（业务展示区 #96 iOS 早已 v1.7.5 收编基于 DGCharts/Charts 第三方库）/ Android v1.0 2026-09-16 LineChart.kt（门禁 A AI 代评通过 + 门禁 B Android 端从零 Canvas 自绘不引入第三方库入库）",
       "deps": [],
       "variants": [],
       "anti_goals": [],
@@ -3721,11 +3722,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": ""
+          "note": "v1.0 2026-09-16 ShortcutBarView.swift（信息展示区 #82，门禁 A AI 代评通过 + 门禁 B 双端实现入库）"
         },
         "android": {
-          "state": "partial",
-          "note": ""
+          "state": "available",
+          "note": "v1.0 2026-09-16 ShortcutBar.kt（信息展示区 #82，门禁 A AI 代评通过 + 门禁 B 双端实现入库）"
         },
         "harmony": {
           "state": "unavailable",
@@ -3741,7 +3742,8 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/TechMiddleOffice/ios/SharedUI/Components/LedgerNavBarView.swift"
+        "ios": "ios/SharedUI/Components/ShortcutBarView.swift",
+        "android": "android/sharedui/components/ShortcutBar.kt"
       },
       "deps": [],
       "variants": [],
@@ -10080,6 +10082,110 @@
       ],
       "note": "任务清单 #81，2026-09-11 双端实现入库；C1.5 经 v1.6.2（#57 Demo 页 verticalScroll 收口）/v1.8.1（#65 iOS centerY 不撑开 arrangedSubview 高度）/v1.8.2（#66 items.didSet 不刷 hidden+VirtualListTests 4 例）修复；2026-09-12 C1.5 用户双端 Demo 实机验收通过（原话「VirtualList：已通过」）。",
       "reviewed": true
+    },
+    {
+      "id": "ui.bar-chart",
+      "name": "条形图 BarChart",
+      "category": "ui",
+      "summary": "横向条形图（对标 Charts BarChart / Material BarChart 横向变体）",
+      "capabilities": [
+        "条形图",
+        "图表",
+        "横向",
+        "Charts",
+        "BarChart",
+        "条形图 BarChart",
+        "basic.bar-chart",
+        "domain.asset-bar-chart"
+      ],
+      "platforms": {
+        "ios": {
+          "state": "available",
+          "note": "v1.0 2026-09-16 BarChartView.swift（业务展示区 #97，门禁 A AI 代评通过 + 门禁 B 双端实现入库）"
+        },
+        "android": {
+          "state": "available",
+          "note": "v1.0 2026-09-16 BarChart.kt（业务展示区 #97，门禁 A AI 代评通过 + 门禁 B 双端实现入库）"
+        },
+        "harmony": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "weixin": {
+          "state": "unavailable",
+          "note": ""
+        },
+        "alipay": {
+          "state": "unavailable",
+          "note": ""
+        }
+      },
+      "source_refs": {
+        "ios": "ios/SharedUI/Components/BarChartView.swift",
+        "android": "android/sharedui/components/BarChart.kt"
+      },
+      "deps": [],
+      "variants": [],
+      "anti_goals": [],
+      "visual_tokens": [],
+      "apis": "",
+      "visual_refs": [
+        "docs/visuals/domain_asset-bar-chart.png"
+      ],
+      "status": "stable",
+      "search_text": "basic.bar-chart 条形图 BarChart 横向条形图（对标 Charts BarChart / Material BarChart 横向变体） basic BarChart Charts 图表 横向 条形图 BarChart basic.bar-chart domain.asset-bar-chart domain.asset-bar-chart",
+      "embedding_ref": "vector-store/ui_bar-chart.json",
+      "legacy_id": "domain.asset-bar-chart",
+      "industry_names": [
+        "BarChart",
+        "Charts"
+      ],
+      "props": [
+        [
+          "items",
+          "BarItem[]",
+          "是",
+          "条目列表 {label, value}"
+        ],
+        [
+          "warnThreshold",
+          "Float",
+          "否，默认 0.8",
+          "warning 阈值（value/maxValue ≥ 阈值显示 warning 橙）"
+        ],
+        [
+          "dangerThreshold",
+          "Float",
+          "否，默认 1.0",
+          "error 阈值（value/maxValue ≥ 1.0 显示 error 红）"
+        ],
+        [
+          "maxValue",
+          "Float?",
+          "否，默认 max(items.value)",
+          "自定义 max"
+        ]
+      ],
+      "events": [],
+      "demos": [
+        [
+          "基础 5 类别",
+          "D1：5 项条目按 maxValue=1200 比例 primary 填充 + 数值标签"
+        ],
+        [
+          "阈值切换",
+          "D2：value=240/320/100 三档触发 warning + 100% 触发 error"
+        ],
+        [
+          "7 类别 Top 排行",
+          "D3：7 项条目降序排行 + 等高对齐 + 数值标签"
+        ],
+        [
+          "0.3s 过渡",
+          "D4：items didSet 触发 0.3s ease-out 过渡"
+        ]
+      ],
+      "note": "条形图 BarChart（业务展示区 #97）：横向条形图 = 白底 bgCard + 行高 24dp + 类别标签 64dp sizeXs=12 textSecondary 右对齐 + 轨道 16dp bgGrayLight=F3F4F6 灰底 + 填充按比例 = (value/maxValue) × 轨道宽 + 圆角 4dp + 数值标签 48dp sizeSm=14 Semibold textPrimary 左对齐 + 阈值三态颜色（primary 16A34A / warning F59E0B / error DC2626）+ 0.3s ease-out 过渡。2026-09-16 门禁 A AI 代评通过（design-spec/bar-chart-design-spec.html + 评审记录/review-bar-chart-A.md，P1–P4 全 A）+ 门禁 B 双端实现入库（BarChartView.swift=UIKit UIStackView+行 UIStackView+BarChartRowView 16/24/4 拼装 / BarChart.kt=Compose Column+BarChartRow 64/48+trackHeight 16dp+圆角 4dp+阈值色 animateColorAsState+0.3s tween）。与 LineChart #96 划界严格（折线 vs 条形），与 ProgressCircle #83（圆环）/Progress #74（横条进度）/Price #72（静态排版）划界。验证版本 v1.0.0；统一待 C1.5 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版。"
     }
   ],
   "businessExtensions": [
@@ -10116,11 +10222,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": ""
+          "note": "v1.0 2026-09-16 ProgressCircleView.swift（信息展示区 #83，门禁 A AI 代评通过 + 门禁 B 双端实现入库）"
         },
         "android": {
-          "state": "partial",
-          "note": ""
+          "state": "available",
+          "note": "v1.0 2026-09-16 ProgressCircle.kt（信息展示区 #83，门禁 A AI 代评通过 + 门禁 B 双端实现入库）"
         },
         "harmony": {
           "state": "unavailable",
@@ -10714,11 +10820,11 @@
       "platforms": {
         "ios": {
           "state": "available",
-          "note": ""
+          "note": "v1.0 2026-09-16 ProgressCircleView.swift（信息展示区 #83，门禁 A AI 代评通过 + 门禁 B 双端实现入库）"
         },
         "android": {
-          "state": "partial",
-          "note": ""
+          "state": "available",
+          "note": "v1.0 2026-09-16 ProgressCircle.kt（信息展示区 #83，门禁 A AI 代评通过 + 门禁 B 双端实现入库）"
         },
         "harmony": {
           "state": "unavailable",

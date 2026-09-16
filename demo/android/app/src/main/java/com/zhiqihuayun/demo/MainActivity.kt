@@ -383,6 +383,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("Loading 加载中", reviewed = true, demo = { LoadingDemo() }, passed = true),
         DemoComponent("Lottie 动画", reviewed = true, demo = { LottieDemo() }, passed = true),
         DemoComponent("NoticeBar 公告栏", reviewed = true, demo = { NoticeBarDemo() }, passed = true),
+        DemoComponent("ShortcutBar 快捷栏", reviewed = true, demo = { ShortcutBarDemo() }, passed = true),
         DemoComponent("Price 价格", reviewed = true, demo = { PriceDemo() }, passed = true),
         DemoComponent("Progress 进度条", reviewed = true, demo = { ProgressDemo() }, passed = true),
         DemoComponent("ResultPage 结果反馈", reviewed = true, demo = { ResultPageDemo() }, passed = true),
@@ -397,6 +398,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
     ),
     "图表组件" to listOf(
         DemoComponent("LineChart 折线图", reviewed = true, passed = true, demo = { LineChartDemo() }),
+        DemoComponent("BarChart 条形图", reviewed = true, passed = true, demo = { BarChartDemo() }),
     ),
     "特色组件" to listOf(
         DemoComponent("QuickEnter 快捷入口"),
@@ -5218,6 +5220,86 @@ private fun CheckboxDemo() {
             color = if (d4Msg != null) AppColor.primary else AppColor.textSecondary
         )
     }
+}
+
+// ===== ShortcutBar 快捷栏 Demo 页（信息展示区 #82 ui.shortcut-bar，门禁 A review-shortcut-bar-A.md）=====
+@androidx.compose.runtime.Composable
+private fun ShortcutBarDemo() {
+    com.zhiqihuayun.sharedui.components.ShortcutBar(
+        items = listOf(
+            com.zhiqihuayun.sharedui.components.ShortcutBarItem("ledger", "记", "记一笔"),
+            com.zhiqihuayun.sharedui.components.ShortcutBarItem("budget", "预", "预算"),
+            com.zhiqihuayun.sharedui.components.ShortcutBarItem("report", "表", "报表"),
+            com.zhiqihuayun.sharedui.components.ShortcutBarItem("assets", "资", "资产"),
+        ),
+        columns = 4,
+        onClick = { id -> println("[ShortcutBar D1] click id=$id") },
+    )
+    com.zhiqihuayun.sharedui.components.ShortcutBar(
+        items = listOf(
+            com.zhiqihuayun.sharedui.components.ShortcutBarItem("a", "明", "明细"),
+            com.zhiqihuayun.sharedui.components.ShortcutBarItem("b", "分", "分类"),
+            com.zhiqihuayun.sharedui.components.ShortcutBarItem("c", "账", "账户"),
+            com.zhiqihuayun.sharedui.components.ShortcutBarItem("d", "卡", "银行卡"),
+            com.zhiqihuayun.sharedui.components.ShortcutBarItem("e", "多", "更多更多"),
+        ),
+        columns = 5,
+        onClick = { id -> println("[ShortcutBar D2] click id=$id") },
+    )
+    com.zhiqihuayun.sharedui.components.ShortcutBar(
+        items = listOf(
+            com.zhiqihuayun.sharedui.components.ShortcutBarItem("1", "1", "项目一"),
+            com.zhiqihuayun.sharedui.components.ShortcutBarItem("2", "2", "项目二"),
+            com.zhiqihuayun.sharedui.components.ShortcutBarItem("3", "3", "项目三"),
+            com.zhiqihuayun.sharedui.components.ShortcutBarItem("4", "4", "项目四"),
+            com.zhiqihuayun.sharedui.components.ShortcutBarItem("5", "5", "项目五"),
+            com.zhiqihuayun.sharedui.components.ShortcutBarItem("6", "6", "项目六"),
+        ),
+        columns = 4,
+        onClick = { id -> println("[ShortcutBar D3] click id=$id") },
+    )
+}
+
+// ===== ProgressCircle 环形进度 Demo 页（信息展示区 #83 ui.progress-circle，门禁 A review-progress-circle-A.md）=====
+@androidx.compose.runtime.Composable
+private fun ProgressCircleDemo() {
+    com.zhiqihuayun.sharedui.components.ProgressCircle(value = 0.3f)
+    com.zhiqihuayun.sharedui.components.ProgressCircle(value = 0.85f)  // warning 橙
+    com.zhiqihuayun.sharedui.components.ProgressCircle(value = 1.10f, centerText = "今日 ¥128")  // error 红 + 自定义文案
+}
+
+// ===== BarChart 条形图 Demo 页（业务展示区 #97 ui.bar-chart，门禁 A review-bar-chart-A.md）=====
+@androidx.compose.runtime.Composable
+private fun BarChartDemo() {
+    com.zhiqihuayun.sharedui.components.BarChart(
+        items = listOf(
+            com.zhiqihuayun.sharedui.components.BarChartItem("餐饮", 800f),
+            com.zhiqihuayun.sharedui.components.BarChartItem("交通", 500f),
+            com.zhiqihuayun.sharedui.components.BarChartItem("购物", 1200f),
+            com.zhiqihuayun.sharedui.components.BarChartItem("娱乐", 300f),
+            com.zhiqihuayun.sharedui.components.BarChartItem("其他", 600f),
+        ),
+    )
+    com.zhiqihuayun.sharedui.components.BarChart(
+        items = listOf(
+            com.zhiqihuayun.sharedui.components.BarChartItem("餐饮", 240f),
+            com.zhiqihuayun.sharedui.components.BarChartItem("交通", 180f),
+            com.zhiqihuayun.sharedui.components.BarChartItem("购物", 320f),  // 100% error
+            com.zhiqihuayun.sharedui.components.BarChartItem("娱乐", 100f),
+            com.zhiqihuayun.sharedui.components.BarChartItem("其他", 200f),
+        ),
+    )
+    com.zhiqihuayun.sharedui.components.BarChart(
+        items = listOf(
+            com.zhiqihuayun.sharedui.components.BarChartItem("餐饮", 1000f),
+            com.zhiqihuayun.sharedui.components.BarChartItem("交通", 800f),
+            com.zhiqihuayun.sharedui.components.BarChartItem("购物", 600f),
+            com.zhiqihuayun.sharedui.components.BarChartItem("娱乐", 500f),
+            com.zhiqihuayun.sharedui.components.BarChartItem("其他", 400f),
+            com.zhiqihuayun.sharedui.components.BarChartItem("医疗", 300f),
+            com.zhiqihuayun.sharedui.components.BarChartItem("教育", 200f),
+        ),
+    )
 }
 
 // ===== 数据录入区全新立项 Radio Demo（#35 ui.radio，规格 radio-design-spec.html，双端 iOS 1:1） =====

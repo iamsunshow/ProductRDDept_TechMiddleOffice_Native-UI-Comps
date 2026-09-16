@@ -2,6 +2,42 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [2.0.9] - 2026-09-16（4 件库缺口门禁 B 双端实现入库：ShortcutBar / ProgressCircle / LineChart Android / BarChart）
+
+### Added
+
+- **ShortcutBar 快捷栏（信息展示区 #82，ui.shortcut-bar）**：双端独立组件入库
+  - iOS `ios/SharedUI/Components/ShortcutBarView.swift`：UIKit 卡片壳（bgCard+border+radiusLg）+ UIScrollView 横向滚动兜底 + UIControl 命中整 entry + 灰底按压态 alpha 0.05；数据驱动 items `[{id, icon, text}]` + columns（默认 4）+ onClick 回调。
+  - Android `android/sharedui/components/ShortcutBar.kt`：Compose Row + horizontalScroll + 图标容器 26×26 圆角 6 primary + 白色图标 16 + sizeXs=12 textPrimary 单行省略 + ripple 按压态；半受控 + 数据驱动 API 同 iOS 1:1。
+  - Demo 双端 4 段 1:1（D1 基础 4 列 / D2 5 列扩展 + 长文本省略 / D3 6 列超长横滚 / D4 受控外部 disabled 切换）。
+  - 设计规格：`docs/数据与产物/design-spec/shortcut-bar-design-spec.html`；评审单：`docs/评审记录/review-shortcut-bar-A.md`（P1–P4 全 A 0 保留意见）。
+
+- **ProgressCircle 进度环（信息展示区 #83，ui.progress-circle）**：双端独立组件入库
+  - iOS `ios/SharedUI/Components/ProgressCircleView.swift`：UIKit CAShapeLayer 双层（track border 灰底 + shape primary/warning/error 阈值色 strokeEnd CABasicAnimation 0.3s ease-out + 中心 UILabel sizeMd=16 Semibold textPrimary 默认百分比）；支持 value 0~1 + size（默认 64）+ centerText 自定义 + warnThreshold=0.8 / dangerThreshold=1.0。
+  - Android `android/sharedui/components/ProgressCircle.kt`：Compose Canvas drawArc 轨道+进度环 strokeCap=Round + animateColorAsState 阈值色 + animateFloatAsState 进度 0.3s tween + 中心 Text 默认百分比。
+  - Demo 双端 4 段 1:1（D1 基础 30% / D2 ±10% 0.3s 过渡 / D3 阈值切换 60%/85%/110% / D4 中心文案「今日 ¥128」）。
+  - 设计规格：`docs/数据与产物/design-spec/progress-circle-design-spec.html`；评审单：`docs/评审记录/review-progress-circle-A.md`（P1–P4 全 A）。
+
+- **LineChart Android（业务展示区 #96，ui.line-chart Android 补全）**：iOS 早已 v1.7.5 收编（基于 DGCharts/Charts 第三方库），本批 Android 端从零 Canvas 自绘不引入第三方库入库
+  - api.json source_refs 改名 `ios/SharedUI/Components/LineChartView.swift` / `android/sharedui/components/LineChart.kt` + note 注明双端实现路径差异。
+  - 设计规格：`docs/数据与产物/design-spec/line-chart-android-design-spec.html`；评审单：`docs/评审记录/review-line-chart-android-A.md`（P1–P4 全 A）。
+
+- **BarChart 条形图（业务展示区 #97，ui.bar-chart）**：双端独立组件入库
+  - iOS `ios/SharedUI/Components/BarChartView.swift`：UIKit UIStackView + BarChartRowView（label 64pt sizeXs=12 textSecondary 右对齐 + 轨道 16pt bgGrayLight=F3F4F6 灰底 + 填充按比例 圆角 4pt + value 48pt sizeSm=14 Semibold + 0.3s UIView.animate 过渡）；支持 items `[{label,value}]` + warnThreshold=0.8 / dangerThreshold=1.0 + maxValue 可覆盖。
+  - Android `android/sharedui/components/BarChart.kt`：Compose Column + BarChartRow（label 64dp / value 48dp + trackHeight 16dp + 圆角 4dp + animateColorAsState 阈值色 + animateFloatAsState 填充宽度 0.3s tween）。
+  - Demo 双端 4 段 1:1（D1 5 类别 / D2 阈值切换 75%/100% / D3 7 类别 Top 排行 / D4 重置动画 0.3s 过渡）。
+  - 设计规格：`docs/数据与产物/design-spec/bar-chart-design-spec.html`；评审单：`docs/评审记录/review-bar-chart-A.md`（P1–P4 全 A）。
+
+### 验证
+
+- 组件库：`docs/数据与产物/api.json` 4 件契约补全（双端 available + source_refs 双端 + note 验证版本 v1.0 2026-09-16）；components 总数 91 → 92。
+- 双端注册行（iOS DemoShowcases 信息展示/操作反馈/图表组件 3 处 + Android MainActivity 信息展示/操作反馈/图表组件 3 处）reviewed=true + passed=true。
+- 提交后 `git log --oneline` 验证本次 commit 已入库（4 件 8 核心组件 + 4 Showcase/Demo + 2 注册行 + api.json + CHANGELOG = 13 文件）。
+- 验证版本 v1.0.0（4 件）；待 C1.5 用户双端 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版。
+- Android Kotlin 默认 `public`；iOS 双端组件均 public 化（与 v2.0.6 Grid public 化一致）—— `BarChartView.swift` / `BarChartItem` / `ProgressCircleView` / `ShortcutBarView` / `ShortcutBarItem` 均 `public`。
+- 全局 `ui-version.json` 仍 v1.0.0（demo 端版本遗留；与组件库 CHANGELOG 升版不同步=长期遗留问题，本批未动）。
+
+
 ## [2.0.8] - 2026-09-15（v2.0.7 public 化扫尾第六波 = 收官：APIEnvironment 补 public init）
 
 ### Fixed

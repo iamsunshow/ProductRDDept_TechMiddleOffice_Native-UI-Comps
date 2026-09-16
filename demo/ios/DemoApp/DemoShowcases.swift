@@ -94,6 +94,7 @@ final class DemoListViewController: UITableViewController {
         ("操作反馈", [
             DemoComponent(id: "ui.action-sheet", name: "ActionSheet 动作面板", reviewed: true, create: { ActionSheetShowcase() }, passed: true),
             DemoComponent(id: "ui.circle-progress", name: "CircleProgress 环形进度", reviewed: false, create: nil),
+            DemoComponent(id: "ui.progress-circle", name: "ProgressCircle 环形进度", reviewed: true, create: { ProgressCircleShowcase() }, passed: true),
             DemoComponent(id: "ui.dialog", name: "Dialog 对话框", reviewed: true, create: { DialogShowcase() }, passed: true),
             DemoComponent(id: "ui.drag", name: "Drag 拖拽", reviewed: true, create: { DragShowcase() }, passed: true),
             DemoComponent(id: "ui.infinite-loading", name: "InfiniteLoading 滚动加载", reviewed: true, create: { InfiniteLoadingShowcase() }, passed: true),
@@ -140,6 +141,7 @@ final class DemoListViewController: UITableViewController {
         ]),
         ("图表组件", [
             DemoComponent(id: "ui.line-chart", name: "LineChart 折线图", reviewed: true, create: { LineChartShowcase() }, passed: true),
+            DemoComponent(id: "ui.bar-chart", name: "BarChart 条形图", reviewed: true, create: { BarChartShowcase() }, passed: true),
         ]),
         ("特色组件", [
             DemoComponent(id: "ui.quick-enter", name: "QuickEnter 快捷入口", reviewed: false, create: nil),

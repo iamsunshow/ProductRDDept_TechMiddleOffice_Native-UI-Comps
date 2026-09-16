@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,7 +19,10 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.zhiqihuayun.foundation.design.AppColor
@@ -30,7 +34,7 @@ private object ProgressCircleTokens {
     val defaultSize = 64.dp
     /** 轨道 stroke 宽度（dp；size × 0.094 = 64 → 6dp）。 */
     fun strokeWidth(size: Dp): Dp = size * 0.094f
-    /** 中心文案 inset（dp；轨道内留 8dp 让文案居中）。 */
+    /** 中心文案 inset（dp；轨道内留 8dp 防长文案压环；文案宽/高居中由 Box contentAlignment 保证）。 */
     val centerTextInset = 8.dp
     /** 过渡时长（ms；与 iOS CABasicAnimation duration 一致）。 */
     const val animationDurationMs = 300
@@ -81,7 +85,7 @@ fun ProgressCircle(
     val strokeWidthDp = ProgressCircleTokens.strokeWidth(size)
     val displayText = centerText ?: "${(clamped * 100).toInt()}%"
     Box(
-        modifier = modifier.size(size),
+        modifier = modifier.size(size).testTag("progress-circle-root"),
         contentAlignment = Alignment.Center,
     ) {
         Canvas(modifier = Modifier.size(size).rotate(-90f)) {
@@ -111,12 +115,21 @@ fun ProgressCircle(
             )
         }
         // 中心文案（sizeMd=16 Semibold textPrimary）
+        // 居中契约（对齐 iOS ProgressCircleView 的 centerX/centerY=superview + textAlignment=.center）：
+        // 文案自身尺寸不设 min，宽高均由外层 Box(contentAlignment=Center) 摆在环心；
+        // 宽度上限 = size − inset×2（8dp 双侧留白，防长文案压到轨道上），超出走单行省略
+        // （对齐 iOS UILabel numberOfLines=1 的 byTruncatingTail）。
         Text(
             text = displayText,
             color = AppColor.textPrimary,
             fontSize = AppFont.sizeMd,
             fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.size(size - ProgressCircleTokens.centerTextInset * 2),
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .widthIn(max = size - ProgressCircleTokens.centerTextInset * 2)
+                .testTag("progress-circle-text"),
         )
     }
 }

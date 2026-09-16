@@ -21,8 +21,9 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 - **`api.json` 顶层 `componentCount` 修正**：90 → 92（v2.0.9 声称「91→92」只落 `components` 数组、未落计数字段，数组实为 92 条）。
 - **版本号口径收口**：`ui-version.json` `version` 2.0.11 与 CHANGELOG 最新条目 [2.0.10] 不一致——本批新增 CHANGELOG [2.0.11] 条目与该版本对应；`ui-version.json` `changelog` 串内原被误标为「[2.0.11]」的 v2.0.10 文案回改为「[2.0.10]」，双处对齐。
+- **ProgressCircle Android 重复注册清理（双端 demo 注册行 1:1）**：Android 「信息展示」与「图表组件」两组同时登记 `ProgressCircle 环形进度`（分类迁移时只做增添、漏做移除，demo 列表出现两处同名项；iOS 端原为「操作反馈」→「图表组件」一次迁移，无重复）。已从 Android「信息展示」组删除并留注释锚点。清理后双端逐行一致：「信息展示」各 29 件、「图表组件」各 3 件（LineChart / BarChart / ProgressCircle）。
 
-验证 = Android `demo/android && ./gradlew :app:assembleDebug` BUILD SUCCESSFUL + iOS `demo/ios && xcodebuild -project ZhiqihuayunDemo.xcodeproj -scheme ZhiqihuayunDemo -destination 'generic/platform=iOS Simulator'` BUILD SUCCEEDED（均为本批改动后真编译）。遗留：C1.5 用户双端 Demo 实机验收待走；C1 单测未建；C2 CR/CI 与 D 发版未走。
+验证 = Android `demo/android && ./gradlew :app:assembleDebug` BUILD SUCCESSFUL + iOS `demo/ios && xcodebuild -project ZhiqihuayunDemo.xcodeproj -scheme ZhiqihuayunDemo -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/opc-ios-dd-pc` BUILD SUCCEEDED（重复注册清理后双端重跑真编译）。遗留：C1.5 用户双端 Demo 实机验收待走；C1 单测未建；C2 CR/CI 与 D 发版未走。
 
 ## [2.0.9] - 2026-09-16（4 件库缺口门禁 B 双端实现入库：ShortcutBar / ProgressCircle / LineChart Android / BarChart）
 

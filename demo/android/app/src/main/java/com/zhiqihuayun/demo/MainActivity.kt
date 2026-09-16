@@ -386,7 +386,8 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("ShortcutBar 快捷栏", reviewed = true, demo = { ShortcutBarDemo() }, passed = true),
         DemoComponent("Price 价格", reviewed = true, demo = { PriceDemo() }, passed = true),
         DemoComponent("Progress 进度条", reviewed = true, demo = { ProgressDemo() }, passed = true),
-        DemoComponent("ProgressCircle 环形进度", reviewed = true, demo = { ProgressCircleDemo() }, passed = true),
+        // ProgressCircle 已于 2026-09-16 按用户指示移入「图表组件」分组（与 iOS 图表组件 section 1:1），
+        // 此处不再登记，避免同一组件在 demo 列表出现两处（重复注册=双端注册行不一致）。
         DemoComponent("ResultPage 结果反馈", reviewed = true, demo = { ResultPageDemo() }, passed = true),
         DemoComponent("Segmented 分段选择器", reviewed = true, passed = true, demo = { SegmentedDemo() }),
         DemoComponent("Skeleton 骨架屏", reviewed = true, demo = { SkeletonDemo() }, passed = true),

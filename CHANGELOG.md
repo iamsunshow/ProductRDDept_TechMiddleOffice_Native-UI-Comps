@@ -2,6 +2,28 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [2.0.11] - 2026-09-16（ShortcutBar 契约补齐 + 三件 Demo 段结构 1:1 + ProgressCircle 分类迁移）
+
+### Changed
+
+- **ShortcutBar（#82 ui.shortcut-bar）Android 契约补齐（对齐 iOS ShortcutBarView）**：`android/sharedui/components/ShortcutBar.kt` 新增 `columns` 布局契约与 `disabled` 参数
+  - 布局契约：`items ≤ columns` 时整条等分（`Modifier.weight(1f)`，超长文本单行省略）；`items > columns` 时 entry 定宽 = 可视宽/columns（扣间距均摊）、row 随内容撑宽走 `horizontalScroll`。原实现无论何值都按内容宽度排布，与 iOS `fillEqually` 等分 + 横滚兜底不一致。
+  - `disabled: Boolean = false`：整条锁定，entry 命中不下钻回调（对齐 iOS `isUserInteractionEnabled` 锁定语义，视觉不变）。
+  - 文本宽由固定 `iconContainerSize + 16` 改为 `fillMaxWidth()`，使省略号在 entry 内正常生效。
+- **三件 Android Demo 由裸组件堆叠重写为 Demo 1~4 段（与 iOS Showcase 1:1）**：`demo/android/app/src/main/java/com/zhiqihuayun/demo/MainActivity.kt`
+  - `ProgressCircleDemo`：Demo 1 基础 30% primary / Demo 2 进度变化 0.3s 过渡（外部按钮 ±10%）/ Demo 3 阈值三档（60% primary · 85% warning · 110% error）/ Demo 4 中心文案自定义（覆盖百分比 + 切换/隐藏）。
+  - `BarChartDemo`：Demo 1 基础 5 类别 / Demo 2 阈值切换（warnThreshold 0.8 · dangerThreshold 1.0）/ Demo 3 7 类别 Top 排行 / Demo 4 重置动画（外部按钮重设 items 触发 tween 过渡）。
+  - `ShortcutBarDemo`：Demo 1 基础 4 列 / Demo 2 5 列 + 长文本省略 / Demo 3 6 列超长横滚 / Demo 4 受控外部 disabled 切换；四段均带段内点击反馈行（回显 entry id）。
+  - 用户反馈原文：「Android 的 BarChart 看不到 Demo1234 的 title 和说明，这个需要和 iOS 保持一致」「ProgressCircle 一样的问题……并且我希望 ProgressCircle 调整到图表组件的分类」「Android 的 Shortcut 一样的问题」。
+- **ProgressCircle（#64 ui.progress-circle）分类迁移 = 操作反馈 → 图表组件**：双端 demo 注册行同步迁移（Android「图表组件」分组 / iOS 图表组件 section），`组件进度.md` §3.5（15→14）+ §3.7（1→2）同步；仍占分母（原属信息展示 22 件内）。
+
+### Fixed
+
+- **`api.json` 顶层 `componentCount` 修正**：90 → 92（v2.0.9 声称「91→92」只落 `components` 数组、未落计数字段，数组实为 92 条）。
+- **版本号口径收口**：`ui-version.json` `version` 2.0.11 与 CHANGELOG 最新条目 [2.0.10] 不一致——本批新增 CHANGELOG [2.0.11] 条目与该版本对应；`ui-version.json` `changelog` 串内原被误标为「[2.0.11]」的 v2.0.10 文案回改为「[2.0.10]」，双处对齐。
+
+验证 = Android `demo/android && ./gradlew :app:assembleDebug` BUILD SUCCESSFUL + iOS `demo/ios && xcodebuild -project ZhiqihuayunDemo.xcodeproj -scheme ZhiqihuayunDemo -destination 'generic/platform=iOS Simulator'` BUILD SUCCEEDED（均为本批改动后真编译）。遗留：C1.5 用户双端 Demo 实机验收待走；C1 单测未建；C2 CR/CI 与 D 发版未走。
+
 ## [2.0.9] - 2026-09-16（4 件库缺口门禁 B 双端实现入库：ShortcutBar / ProgressCircle / LineChart Android / BarChart）
 
 ### Added

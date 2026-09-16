@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "updatedAt": "2026-09-12T23:30:00+08:00",
-  "componentCount": 90,
+  "componentCount": 92,
   "components": [
     {
       "id": "ui.empty",

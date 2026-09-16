@@ -400,6 +400,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
     "图表组件" to listOf(
         DemoComponent("LineChart 折线图", reviewed = true, passed = true, demo = { LineChartDemo() }),
         DemoComponent("BarChart 条形图", reviewed = true, passed = true, demo = { BarChartDemo() }),
+        DemoComponent("ProgressCircle 环形进度", reviewed = true, passed = true, demo = { ProgressCircleDemo() }),
     ),
     "特色组件" to listOf(
         DemoComponent("QuickEnter 快捷入口"),
@@ -5226,81 +5227,326 @@ private fun CheckboxDemo() {
 // ===== ShortcutBar 快捷栏 Demo 页（信息展示区 #82 ui.shortcut-bar，门禁 A review-shortcut-bar-A.md）=====
 @androidx.compose.runtime.Composable
 private fun ShortcutBarDemo() {
-    com.zhiqihuayun.sharedui.components.ShortcutBar(
-        items = listOf(
-            com.zhiqihuayun.sharedui.components.ShortcutBarItem("ledger", "记", "记一笔"),
-            com.zhiqihuayun.sharedui.components.ShortcutBarItem("budget", "预", "预算"),
-            com.zhiqihuayun.sharedui.components.ShortcutBarItem("report", "表", "报表"),
-            com.zhiqihuayun.sharedui.components.ShortcutBarItem("assets", "资", "资产"),
-        ),
-        columns = 4,
-        onClick = { id -> println("[ShortcutBar D1] click id=$id") },
+    Text(
+        text = "ShortcutBar 快捷栏组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
     )
-    com.zhiqihuayun.sharedui.components.ShortcutBar(
-        items = listOf(
-            com.zhiqihuayun.sharedui.components.ShortcutBarItem("a", "明", "明细"),
-            com.zhiqihuayun.sharedui.components.ShortcutBarItem("b", "分", "分类"),
-            com.zhiqihuayun.sharedui.components.ShortcutBarItem("c", "账", "账户"),
-            com.zhiqihuayun.sharedui.components.ShortcutBarItem("d", "卡", "银行卡"),
-            com.zhiqihuayun.sharedui.components.ShortcutBarItem("e", "多", "更多更多"),
-        ),
-        columns = 5,
-        onClick = { id -> println("[ShortcutBar D2] click id=$id") },
+    Text(
+        text = "4 段排查：Demo 1 基础 4 列快捷入口 / Demo 2 5 列扩展 + 长文本省略 / Demo 3 6 列超长横滚 / Demo 4 受控外部 disabled 切换。双端 1:1（iOS ShortcutBarView vs Android ShortcutBar）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
     )
-    com.zhiqihuayun.sharedui.components.ShortcutBar(
-        items = listOf(
-            com.zhiqihuayun.sharedui.components.ShortcutBarItem("1", "1", "项目一"),
-            com.zhiqihuayun.sharedui.components.ShortcutBarItem("2", "2", "项目二"),
-            com.zhiqihuayun.sharedui.components.ShortcutBarItem("3", "3", "项目三"),
-            com.zhiqihuayun.sharedui.components.ShortcutBarItem("4", "4", "项目四"),
-            com.zhiqihuayun.sharedui.components.ShortcutBarItem("5", "5", "项目五"),
-            com.zhiqihuayun.sharedui.components.ShortcutBarItem("6", "6", "项目六"),
-        ),
-        columns = 4,
-        onClick = { id -> println("[ShortcutBar D3] click id=$id") },
-    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // Demo 1 · 基础 4 列快捷入口（点击回调 id）
+        Text("Demo 1 · 基础 4 列快捷入口（点击回调 id）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d1Feedback by remember { mutableStateOf("4 等分 entry，点击图标返回 entry id；4 列以内等分布局。") }
+        var d1Tapped by remember { mutableStateOf(false) }
+        com.zhiqihuayun.sharedui.components.ShortcutBar(
+            items = listOf(
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("ledger", "记", "记一笔"),
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("budget", "预", "预算"),
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("report", "表", "报表"),
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("assets", "资", "资产"),
+            ),
+            columns = 4,
+            onClick = { id ->
+                d1Feedback = "D1 点击 entry id: $id"
+                d1Tapped = true
+            },
+        )
+        Text(d1Feedback, fontSize = AppFont.sizeXs, color = if (d1Tapped) AppColor.primary else AppColor.textSecondary)
+        Text(
+            text = "基础 4 等分 + 图标 26×26 primary 圆角 6 + 文本 sizeXs=12 textPrimary 单行省略 + 点击命中整 entry 透明 + 灰底按压态。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // Demo 2 · 5 列扩展 + 长文本省略
+        Text("Demo 2 · 5 列扩展 + 长文本省略", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2Feedback by remember { mutableStateOf("5 列等分；第 5 项文本超长触发单行省略（…）。") }
+        var d2Tapped by remember { mutableStateOf(false) }
+        com.zhiqihuayun.sharedui.components.ShortcutBar(
+            items = listOf(
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("a", "明", "明细"),
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("b", "分", "分类"),
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("c", "账", "账户"),
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("d", "卡", "银行卡"),
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("e", "多", "更多更多更多"),
+            ),
+            columns = 5,
+            onClick = { id ->
+                d2Feedback = "D2 点击 entry id: $id"
+                d2Tapped = true
+            },
+        )
+        Text(d2Feedback, fontSize = AppFont.sizeXs, color = if (d2Tapped) AppColor.primary else AppColor.textSecondary)
+        Text(
+            text = "5 列扩展走 columns=5；超长文本 sizeXs=12 单行省略（…）。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // Demo 3 · 6 列超长横滚
+        Text("Demo 3 · 6 列超长横滚", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3Feedback by remember { mutableStateOf("6 entries 超过默认 4 列阈值，自动启用横向滚动。") }
+        var d3Tapped by remember { mutableStateOf(false) }
+        com.zhiqihuayun.sharedui.components.ShortcutBar(
+            items = listOf(
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("1", "1", "项目一"),
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("2", "2", "项目二"),
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("3", "3", "项目三"),
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("4", "4", "项目四"),
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("5", "5", "项目五"),
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("6", "6", "项目六"),
+            ),
+            columns = 4,
+            onClick = { id ->
+                d3Feedback = "D3 点击 entry id: $id（可横滚查看更多）"
+                d3Tapped = true
+            },
+        )
+        Text(d3Feedback, fontSize = AppFont.sizeXs, color = if (d3Tapped) AppColor.primary else AppColor.textSecondary)
+        Text(
+            text = "超长 entries 走横向滚动；>columns 项数不截断，可视即可触达。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // Demo 4 · 受控外部 disabled 切换
+        Text("Demo 4 · 受控外部 disabled 切换", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4Locked by remember { mutableStateOf(false) }
+        var d4Feedback by remember { mutableStateOf("外部 disable 切换钮：锁定/解锁 4 entry 整条点击。") }
+        var d4Tapped by remember { mutableStateOf(false) }
+        com.zhiqihuayun.sharedui.components.ShortcutBar(
+            items = listOf(
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("x", "删", "删除"),
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("y", "编", "编辑"),
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("z", "享", "分享"),
+                com.zhiqihuayun.sharedui.components.ShortcutBarItem("w", "藏", "收藏"),
+            ),
+            columns = 4,
+            disabled = d4Locked,
+            onClick = { id ->
+                d4Feedback = "D4 点击 entry id: $id（未锁定时回调；锁定时不回调）"
+                d4Tapped = true
+            },
+        )
+        Text(d4Feedback, fontSize = AppFont.sizeXs, color = if (d4Tapped) AppColor.primary else AppColor.textSecondary)
+        TextButton(onClick = {
+            d4Locked = !d4Locked
+            d4Feedback = "D4 锁定状态切换：当前 disabled=$d4Locked"
+            d4Tapped = true
+        }) {
+            Text("锁定/解锁", fontSize = AppFont.sizeSm, color = AppColor.primary)
+        }
+        Text(
+            text = "外部 disabled 切换锁定整条；锁定时 entry 命中不下钻回调。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+    }
 }
 
-// ===== ProgressCircle 环形进度 Demo 页（信息展示区 #83 ui.progress-circle，门禁 A review-progress-circle-A.md）=====
+// ===== ProgressCircle 环形进度 Demo 页（图表组件 #83 ui.progress-circle，门禁 A review-progress-circle-A.md）=====
 @androidx.compose.runtime.Composable
 private fun ProgressCircleDemo() {
-    com.zhiqihuayun.sharedui.components.ProgressCircle(value = 0.3f)
-    com.zhiqihuayun.sharedui.components.ProgressCircle(value = 0.85f)  // warning 橙
-    com.zhiqihuayun.sharedui.components.ProgressCircle(value = 1.10f, centerText = "今日 ¥128")  // error 红 + 自定义文案
+    Text(
+        text = "ProgressCircle 环形进度组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
+    )
+    Text(
+        text = "4 段排查：Demo 1 基础 30% primary / Demo 2 进度变化 0.3s 过渡（外部±10%）/ Demo 3 阈值切换三档 / Demo 4 中心文案自定义。双端 1:1（iOS ProgressCircleView vs Android ProgressCircle）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // Demo 1 · 基础 30% primary 绿
+        Text("Demo 1 · 基础 30% primary 绿", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        com.zhiqihuayun.sharedui.components.ProgressCircle(value = 0.3f)
+        Text(
+            text = "D1 基础 value=0.3 primary 绿 + 中心文案「30%」+ 默认 64×64 + 轨道 6dp 圆头。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // Demo 2 · 进度变化 0.3s 过渡（外部按钮 ±10%）
+        Text("Demo 2 · 进度变化 0.3s 过渡（外部±10%）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d2Value by remember { mutableStateOf(0.5f) }
+        com.zhiqihuayun.sharedui.components.ProgressCircle(value = d2Value)
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.md)) {
+            TextButton(onClick = { d2Value = (d2Value + 0.1f).coerceAtMost(1f) }) {
+                Text("进度 +10%", fontSize = AppFont.sizeSm, color = AppColor.primary)
+            }
+            TextButton(onClick = { d2Value = (d2Value - 0.1f).coerceAtLeast(0f) }) {
+                Text("进度 -10%", fontSize = AppFont.sizeSm, color = AppColor.primary)
+            }
+        }
+        Text(
+            text = "animateFloatAsState + tween(300) ease-out：环长与阈值色 0.3s 同步过渡。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // Demo 3 · 阈值切换三档（primary/warning/error）
+        Text("Demo 3 · 阈值切换三档（primary/warning/error）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d3Value by remember { mutableStateOf(0.6f) }
+        com.zhiqihuayun.sharedui.components.ProgressCircle(
+            value = d3Value,
+            warnThreshold = 0.8f,
+            dangerThreshold = 1.0f,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
+            TextButton(onClick = { d3Value = 0.6f }) {
+                Text("60% primary", fontSize = AppFont.sizeXs, color = AppColor.primary)
+            }
+            TextButton(onClick = { d3Value = 0.85f }) {
+                Text("85% warning", fontSize = AppFont.sizeXs, color = AppColor.primary)
+            }
+            TextButton(onClick = { d3Value = 1.10f }) {
+                Text("110% error", fontSize = AppFont.sizeXs, color = AppColor.primary)
+            }
+        }
+        Text(
+            text = "value < warnThreshold primary / warnThreshold ≤ value < dangerThreshold warning / ≥ dangerThreshold error。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // Demo 4 · 中心文案自定义（覆盖百分比）
+        Text("Demo 4 · 中心文案自定义（覆盖百分比）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        var d4CenterText by remember { mutableStateOf<String?>("今日 ¥128") }
+        com.zhiqihuayun.sharedui.components.ProgressCircle(
+            value = 1.1f,
+            size = 80.dp,
+            centerText = d4CenterText,
+        )
+        TextButton(onClick = { d4CenterText = if (d4CenterText == null) "3/10" else null }) {
+            Text("切换/隐藏", fontSize = AppFont.sizeSm, color = AppColor.primary)
+        }
+        Text(
+            text = "centerText 自定义覆盖默认百分比；nil 时只显示百分比；切到 nil 即隐藏。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+    }
 }
 
-// ===== BarChart 条形图 Demo 页（业务展示区 #97 ui.bar-chart，门禁 A review-bar-chart-A.md）=====
+// ===== BarChart 条形图 Demo 页（图表组件 #97 ui.bar-chart，门禁 A review-bar-chart-A.md）=====
 @androidx.compose.runtime.Composable
 private fun BarChartDemo() {
-    com.zhiqihuayun.sharedui.components.BarChart(
-        items = listOf(
-            com.zhiqihuayun.sharedui.components.BarChartItem("餐饮", 800f),
-            com.zhiqihuayun.sharedui.components.BarChartItem("交通", 500f),
-            com.zhiqihuayun.sharedui.components.BarChartItem("购物", 1200f),
-            com.zhiqihuayun.sharedui.components.BarChartItem("娱乐", 300f),
-            com.zhiqihuayun.sharedui.components.BarChartItem("其他", 600f),
-        ),
+    Text(
+        text = "BarChart 条形图组件 v1.0",
+        color = AppColor.primary,
+        fontSize = AppFont.sizeXs,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(horizontal = AppSpace.xl, vertical = AppSpace.sm)
     )
-    com.zhiqihuayun.sharedui.components.BarChart(
-        items = listOf(
-            com.zhiqihuayun.sharedui.components.BarChartItem("餐饮", 240f),
-            com.zhiqihuayun.sharedui.components.BarChartItem("交通", 180f),
-            com.zhiqihuayun.sharedui.components.BarChartItem("购物", 320f),  // 100% error
-            com.zhiqihuayun.sharedui.components.BarChartItem("娱乐", 100f),
-            com.zhiqihuayun.sharedui.components.BarChartItem("其他", 200f),
-        ),
+    Text(
+        text = "4 段排查：Demo 1 基础 5 类别 / Demo 2 阈值切换（60/85/110）/ Demo 3 7 类别 Top 排行 / Demo 4 重置动画（外部按钮重设 value 触发 0.3s ease-out 过渡）。双端 1:1（iOS BarChartView vs Android BarChart）。",
+        color = AppColor.textSecondary,
+        fontSize = AppFont.sizeXs,
+        modifier = Modifier.padding(horizontal = AppSpace.xl)
     )
-    com.zhiqihuayun.sharedui.components.BarChart(
-        items = listOf(
-            com.zhiqihuayun.sharedui.components.BarChartItem("餐饮", 1000f),
-            com.zhiqihuayun.sharedui.components.BarChartItem("交通", 800f),
-            com.zhiqihuayun.sharedui.components.BarChartItem("购物", 600f),
-            com.zhiqihuayun.sharedui.components.BarChartItem("娱乐", 500f),
-            com.zhiqihuayun.sharedui.components.BarChartItem("其他", 400f),
-            com.zhiqihuayun.sharedui.components.BarChartItem("医疗", 300f),
-            com.zhiqihuayun.sharedui.components.BarChartItem("教育", 200f),
-        ),
-    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpace.lg, vertical = AppSpace.md),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.md)
+    ) {
+        // Demo 1 · 基础 5 类别
+        Text("Demo 1 · 基础 5 类别（餐饮/交通/购物/娱乐/其他）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        com.zhiqihuayun.sharedui.components.BarChart(
+            items = listOf(
+                com.zhiqihuayun.sharedui.components.BarChartItem("餐饮", 800f),
+                com.zhiqihuayun.sharedui.components.BarChartItem("交通", 500f),
+                com.zhiqihuayun.sharedui.components.BarChartItem("购物", 1200f),
+                com.zhiqihuayun.sharedui.components.BarChartItem("娱乐", 300f),
+                com.zhiqihuayun.sharedui.components.BarChartItem("其他", 600f),
+            ),
+        )
+        Text(
+            text = "maxValue 自动 = 1200；按比例 primary 填充 + 数值标签 sizeSm=14 Semibold。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // Demo 2 · 阈值切换（0.8/1.0）
+        Text("Demo 2 · 阈值切换（warnThreshold=0.8/dangerThreshold=1.0）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        com.zhiqihuayun.sharedui.components.BarChart(
+            items = listOf(
+                com.zhiqihuayun.sharedui.components.BarChartItem("餐饮", 240f),
+                com.zhiqihuayun.sharedui.components.BarChartItem("交通", 180f),
+                com.zhiqihuayun.sharedui.components.BarChartItem("购物", 320f),  // 100% error
+                com.zhiqihuayun.sharedui.components.BarChartItem("娱乐", 100f),
+                com.zhiqihuayun.sharedui.components.BarChartItem("其他", 200f),
+            ),
+            warnThreshold = 0.8f,
+            dangerThreshold = 1.0f,
+        )
+        Text(
+            text = "maxValue=320 → 240/320=75% primary / 320/320=100% error；阈值按 value/maxValue 比例切换。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // Demo 3 · 7 类别 Top 排行（降序）
+        Text("Demo 3 · 7 类别 Top 排行（降序）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        com.zhiqihuayun.sharedui.components.BarChart(
+            items = listOf(
+                com.zhiqihuayun.sharedui.components.BarChartItem("餐饮", 1000f),
+                com.zhiqihuayun.sharedui.components.BarChartItem("交通", 800f),
+                com.zhiqihuayun.sharedui.components.BarChartItem("购物", 600f),
+                com.zhiqihuayun.sharedui.components.BarChartItem("娱乐", 500f),
+                com.zhiqihuayun.sharedui.components.BarChartItem("其他", 400f),
+                com.zhiqihuayun.sharedui.components.BarChartItem("医疗", 300f),
+                com.zhiqihuayun.sharedui.components.BarChartItem("教育", 200f),
+            ),
+        )
+        Text(
+            text = "7 项多类别渲染 + 等高对齐 + 数值标签。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+
+        // Demo 4 · 0.3s 过渡（外部按钮重设 items）
+        Text("Demo 4 · 0.3s 过渡（外部按钮重置 items）", fontSize = AppFont.sizeMd, fontWeight = FontWeight.SemiBold, color = AppColor.textPrimary)
+        val d4Labels = listOf("餐饮", "交通", "购物", "娱乐", "其他")
+        var d4Values by remember { mutableStateOf(listOf(100f, 200f, 300f, 150f, 250f)) }
+        com.zhiqihuayun.sharedui.components.BarChart(
+            items = d4Labels.mapIndexed { index, label ->
+                com.zhiqihuayun.sharedui.components.BarChartItem(label, d4Values[index])
+            },
+        )
+        TextButton(onClick = { d4Values = listOf(500f, 100f, 800f, 200f, 400f) }) {
+            Text("重置动画", fontSize = AppFont.sizeSm, color = AppColor.primary)
+        }
+        Text(
+            text = "items 变更触发重组 + animateFloatAsState tween(300) ease-out 过渡。",
+            fontSize = AppFont.sizeXs,
+            color = AppColor.textSecondary
+        )
+    }
 }
 
 // ===== 数据录入区全新立项 Radio Demo（#35 ui.radio，规格 radio-design-spec.html，双端 iOS 1:1） =====

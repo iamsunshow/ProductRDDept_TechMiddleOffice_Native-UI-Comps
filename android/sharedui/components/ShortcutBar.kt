@@ -3,14 +3,12 @@ package com.zhiqihuayun.sharedui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -19,7 +17,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -71,7 +68,8 @@ data class ShortcutBarItem(
  *
  * @param modifier items 宿主修饰（卡片壳外的尺寸/位置宿主摆放）。
  * @param items 数据驱动条目（id/图标字符/文本）。
- * @param columns 列数（默认 4；传 0/负值回退 4；>10 走横滚）。
+ * @param columns 列数（默认 4；传 0/负值回退 4；items > columns 走横滚）。
+ * @param disabled 整条禁用（仅命中无回调，视觉不变；对齐 iOS isUserInteractionEnabled 锁定语义）。
  * @param onClick 点击回调（返回 entry id；disabled 无回调）。
  */
 @Composable
@@ -79,10 +77,12 @@ fun ShortcutBar(
     modifier: Modifier = Modifier,
     items: List<ShortcutBarItem>,
     columns: Int = ShortcutBarTokens.defaultColumns,
+    disabled: Boolean = false,
     onClick: (String) -> Unit,
 ) {
     val effColumns = if (columns < 1) ShortcutBarTokens.defaultColumns else columns
     val cardShape = RoundedCornerShape(AppRadius.lg)
+    val needsScroll = items.size > effColumns
     val containerModifier = modifier
         .fillMaxWidth()
         .clip(cardShape)
@@ -93,20 +93,44 @@ fun ShortcutBar(
             vertical = AppSpace.md,
         )
 
-    Box(modifier = containerModifier) {
-        // 横滚 row：超长 entries 走 horizontalScroll 兜底
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(AppSpace.sm),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            items.forEach { item ->
-                ShortcutBarEntry(
-                    item = item,
-                    onClick = onClick,
-                )
+    // 布局契约（与 iOS ShortcutBarView 1:1）：
+    //  - items ≤ columns：整条宽 = 可视宽，entry 等分（超长文本单行省略）
+    //  - items > columns：entry 定宽 = 可视宽/columns（扣间距均摊），row 随内容撑宽 → 横向滚动
+    BoxWithConstraints(modifier = containerModifier) {
+        if (needsScroll) {
+            val perColumn = maxWidth / effColumns
+            val gutter = AppSpace.sm * (effColumns - 1) / effColumns
+            val entryWidth = perColumn - gutter
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(AppSpace.sm),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                items.forEach { item ->
+                    ShortcutBarEntry(
+                        item = item,
+                        disabled = disabled,
+                        entryModifier = Modifier.width(entryWidth),
+                        onClick = onClick,
+                    )
+                }
+            }
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(AppSpace.sm),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                items.forEach { item ->
+                    ShortcutBarEntry(
+                        item = item,
+                        disabled = disabled,
+                        entryModifier = Modifier.weight(1f),
+                        onClick = onClick,
+                    )
+                }
             }
         }
     }
@@ -116,12 +140,13 @@ fun ShortcutBar(
 @Composable
 private fun ShortcutBarEntry(
     item: ShortcutBarItem,
+    disabled: Boolean,
+    entryModifier: Modifier,
     onClick: (String) -> Unit,
 ) {
-    val entryShape = RoundedCornerShape(0.dp) // 命中区形状=无圆角，整 entry 命中
     Column(
-        modifier = Modifier
-            .clickable { onClick(item.id) }
+        modifier = entryModifier
+            .clickable(enabled = !disabled) { onClick(item.id) }
             .padding(
                 horizontal = ShortcutBarTokens.entryPaddingHorizontal,
                 vertical = ShortcutBarTokens.entryPaddingVertical,
@@ -152,7 +177,8 @@ private fun ShortcutBarEntry(
             textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.width(ShortcutBarTokens.iconContainerSize + 16.dp),
+            // 文本宽 = entry 宽（等分/定宽由宿主 entryModifier 决定），超长单行省略
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

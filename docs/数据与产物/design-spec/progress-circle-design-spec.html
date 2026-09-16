@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ProgressCircle 进度环 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- ProgressCircle demo 预览 mock（环形进度条 + 中心文案） ---- */
+.pc-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.pc-body{height:120px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--textSecondary);background:#F0FDF4;border-top:1px solid var(--border);}
+.pc-row{display:flex;align-items:center;gap:24px;background:var(--bgCard);padding:24px 16px;}
+.pc-circle{position:relative;width:64px;height:64px;}
+.pc-circle svg{transform:rotate(-90deg);width:64px;height:64px;}
+.pc-circle .pc-track{stroke:var(--border:#E5E7EB);stroke-width:6;fill:none;}
+.pc-circle .pc-fill{stroke:var(--primary:#16A34A);stroke-width:6;fill:none;stroke-linecap:round;}
+.pc-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--textPrimary);line-height:16px;}
+.pc-warn .pc-fill{stroke:var(--warning:#F59E0B);}
+.pc-danger .pc-fill{stroke:var(--error:#DC2626);}
+.pc-circle.pc-warn .pc-fill{stroke:#F59E0B;}
+.pc-circle.pc-danger .pc-fill{stroke:#DC2626;}
+</style>
+</head>
+<body>
+
+<h1>ProgressCircle 进度环 · 设计规格（信息展示组件 · 任务清单 #83 · 收编缺口补独立立项 · 门禁 A）</h1>
+<p>组件 ID：<code>ui.progress-circle</code> ｜ 定位：<b>环形进度条</b>——展示 0~1 比例的圆形进度环，可选中心文案（默认百分比）+ 可选颜色（primary/warning/error 三态）；对标 iOS <code>CAShapeLayer</code> 圆环 + Material <code>CircularProgressIndicator</code> 收敛为库内自有设计语言（轨道 6pt + 圆头线帽 + 默认 64×64 + 中心文案 sizeMd Semibold）。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v2.0.8（2026-09-15，未过 C2/D 不升版）<br/>
+<span class="tag tag-meta">业务回填</span> KeepAccounts 记账 BudgetRing 双端均缺（KeepAccounts 评估文档 §5 行 71，2026-09-16 真实状态核对）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 预算消耗进度环（记账 BudgetRing 等）；② 任务完成度展示；③ 健康步数/活动环（Apple Watch 风格）；④ 加载进度（替代 LinearProgress 圆形变体）；⑤ 数据加载/百分比统计</td></tr>
+<tr><td>不适用（N/A）</td><td>① 横向进度条 → <b>Progress（ui.progress，#74）</b>；② 倒计时 → <b>CountDown（ui.count-down，#60）</b>；③ 数字动画（金额滚到目标值）→ <b>AnimatingNumbers（ui.animating-numbers，#61）</b>；④ 骨架屏 → <b>Skeleton（ui.skeleton，#53）</b>；⑤ 时间戳 → <b>Countdown（ui.countdown，#60）</b>；⑥ 数值格式化（静态排版）→ <b>Price（ui.price，#72）</b>；⑦ 输入数字步进 → <b>InputNumber（ui.input-number，#44）</b></td></tr>
+<tr><td>五态适配</td><td>默认态=轨道 border 灰底 + 进度 primary 主色填充；颜色三态=primary（正常）/warning（≥80% 警告阈值）/error（≥100% 超额阈值）；加载=可选 indeterminate 模式（持续旋转）；成功/失败 N/A（由宿主语义判断）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；收编现状=<b>Android 无独立 ProgressCircle（业务 BudgetRing 自建 Canvas drawArc）；iOS 无独立 ProgressCircle（业务同样自绘 CAShapeLayer）</b>，本规格将业务圆形进度模式提升为库内统一独立组件；与 Progress #74（横条）划界严格（一个圆一个横）；与 AnimatingNumbers #61 划界（一个画环一个滚数字）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>默认尺寸</td><td>64×64（可覆盖 32/48/64/96/128）</td><td>对齐 Apple Watch 活动环 64 / Material CircularProgressIndicator 48/64；宿主可传 size 参数覆盖默认 64</td></tr>
+<tr><td>轨道宽</td><td>6pt/6dp（随 size 比例 = size × 0.094）</td><td>轨道 strokeWidth=6（size=64 时），size 变时按比例缩放（size=32 → 3 / size=96 → 9）；线帽圆头 stroke-linecap=round</td></tr>
+<tr><td>轨道颜色</td><td>border=E5E7EB 灰底（铺满 360°）</td><td>未填充部分统一灰底，无动态透明度变化</td></tr>
+<tr><td>进度颜色</td><td>primary=16A34A（默认）+ warning=F59E0B（≥80% 阈值）+ error=DC2626（≥100% 阈值）</td><td>阈值可由宿主传 warnThreshold=0.8 / dangerThreshold=1.0 覆盖；色彩按 progress 自动切换</td></tr>
+<tr><td>中心文案</td><td>sizeMd=16 Semibold textPrimary、百分比形式（默认）+ 0~100 整数</td><td>默认显示「progress.toInt()%」；宿主可传 centerText 覆盖（如「今日 ¥128」/「3/10」/「步数 8000」）；centerText 为空时只显示百分比；centerText=null 时无文字只画环</td></tr>
+<tr><td>动画</td><td>进度变化 0.3s ease-out 过渡（iOS CAShapeLayer strokeEnd animation + Android animateFloatAsState）</td><td>progress 变化时平滑过渡；indeterminate 模式 1.2s/圈线性旋转（可选）</td></tr>
+<tr><td>与 Progress 横条划界</td><td>ProgressCircle=圆环；Progress=横条</td><td>数据模型同（progress 0~1）+ API 不同（一个圆环一个横条）；可共存</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：纯展示型进度环（独立组件）——value 0~1 + 可选 size + 可选 centerText + 可选 warn/danger 阈值 + 可选 indeterminate</td><td>✅ 与业务现状（记账 BudgetRing）1:1 收敛；双端统一独立组件（CAShapeLayer / Compose Canvas drawArc 同构）；无 children 复杂度；明确划界 Progress #74 横条</td><td><b>推荐 A</b>：业务收敛独立</td></tr>
+<tr><td>B：复用 Progress #74 + 加圆形变体</td><td>Progress 横条职责扩张；横条与圆环视觉差异大（一个矩形轨迹一个圆形轨迹），API 难统一（横条用 width 进度圆环用 strokeEnd）</td><td>淘汰：职责分裂</td></tr>
+<tr><td>C：children 插槽（宿主自组环形 + 文字）</td><td>组件退化为"画圆工具"，业务必须自管轨道颜色/进度颜色/中心文案/阈值；双端契约松散</td><td>淘汰：登记二期</td></tr>
+</table>
+
+<h3>P2 · 数据/API 模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：声明式数据驱动——ProgressCircle(value: Float, size: CGFloat = 64, centerText: String? = nil, warnThreshold: Float = 0.8, dangerThreshold: Float = 1.0, indeterminate: Bool = false)；value 0~1 必传</td><td>✅ 与 Progress #74 数据驱动 API 同构；value 0~1 直白简单；阈值+size+文案 全部具名化；indeterminate 二期候选一期先不实现</td><td><b>推荐 A</b>：与库内 API 同构</td></tr>
+<tr><td>B：children 插槽（iOS UIView 子视图 / Android content slot）</td><td>自由度大但失去组件语义（业务必须自管轨道颜色/进度颜色/中心文案/阈值），与 Progress #74 children 淘汰同理</td><td>淘汰：children 插槽通用化</td></tr>
+<tr><td>C：混合（value + children）</td><td>API 复杂度高、双端契约难对齐</td><td>淘汰：过度设计</td></tr>
+</table>
+
+<h3>P3 · 颜色策略：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：自动阈值切换——value &lt; warnThreshold 显示 primary；warnThreshold ≤ value &lt; dangerThreshold 显示 warning；value ≥ dangerThreshold 显示 error</td><td>✅ 与业务预算场景 1:1（80% 警告/100% 超额）；宿主可传阈值覆盖；视觉清晰</td><td><b>推荐 A</b>：自动阈值</td></tr>
+<tr><td>B：永远 primary（不切换）</td><td>≥100% 超额仍显示绿色=视觉误导；用户体验差</td><td>淘汰</td></tr>
+<tr><td>C：宿主传 color 完全控制</td><td>失去组件语义（每个宿主必须自管阈值判断），与业务现状不匹配</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：一期=value+size+centerText+阈值三态颜色+Demo 四段（D1 基础 30%/D2 进度变化 0.3s 过渡/D3 阈值切换 60%/85%/110%/D4 中心文案自定义「今日 ¥128」）</td><td>✅ 覆盖业务记账 BudgetRing 现状；双端 1:1 收敛；验收可达</td><td><b>推荐 A</b>：一期收敛</td></tr>
+<tr><td>B：一期+indeterminate 持续旋转</td><td>超出 BudgetRing 业务范围；登记二期</td><td>淘汰：登记二期</td></tr>
+<tr><td>C：一期=空壳+业务全自管</td><td>无组件价值</td><td>淘汰</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 设计（4 段 1:1）</h2>
+<div class="spec-card">
+<table>
+<tr><th>Demo</th><th>设计</th><th>验收点</th></tr>
+<tr><td>D1 基础 30%</td><td>value=0.3 + centerText=null → 显示「30%」+ primary 绿色填充</td><td>基础 value 驱动+百分比默认+primary 默认</td></tr>
+<tr><td>D2 进度变化 0.3s 过渡</td><td>外部按钮「进度+10%/进度-10%」运行期切 value 0.0~1.0；value 变化时 0.3s ease-out 动画过渡</td><td>动画时长+缓动函数+过渡视觉</td></tr>
+<tr><td>D3 阈值切换</td><td>value=0.6 primary 绿 / 0.85 warning 橙 / 1.10 error 红；外部按钮三档切换</td><td>warnThreshold=0.8 / dangerThreshold=1.0 自动切换颜色</td></tr>
+<tr><td>D4 中心文案自定义</td><td>centerText=「今日 ¥128」/「3/10」/「步数 8000」三档宿主传覆盖；百分比隐藏</td><td>centerText 自定义覆盖默认百分比</td></tr>
+</table>
+</div>
+
+<h2>05 · 平台差异表（表内放行）</h2>
+<div class="spec-card">
+<table>
+<tr><th>差异点</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>绘制方式</td><td>CAShapeLayer + UIBezierPath（arcCenter/radius/startAngle/endAngle/clockwise）+ strokeEnd 控制进度</td><td>Compose Canvas drawArc（topLeft=Offset.Zero+size=Size、startAngle=-90°、sweepAngle=value×360°、useCenter=false）</td><td>系统级原生 API 差异</td></tr>
+<tr><td>动画</td><td>CABasicAnimation on strokeEnd + CAMediaTimingFunction(name: .easeOut)</td><td>animateFloatAsState(targetValue=value, animationSpec=tween(300, easing=FastOutSlowInEasing))</td><td>平台动画框架差异</td></tr>
+<tr><td>线帽圆头</td><td>lineCap = .round（CAShapeLayer lineCap）</td><td>strokeCap = StrokeCap.Round（Canvas drawArc Stroke 参数）</td><td>视觉一致系统级差异</td></tr>
+<tr><td>中心文案定位</td><td>UILabel centerX/centerY=superview</td><td>Text align=Alignment.Center + Box scope</td><td>布局系统差异</td></tr>
+<tr><td>indeterminate（登记二期）</td><td>strokeEnd 持续 0.0~1.0 旋转动画 + CABasicAnimation repeatCount=infinite</td><td>rememberInfiniteTransition + rotate(degrees) graphicsLayer lambda</td><td>登记二期不实现</td></tr>
+</table>
+</div>
+
+<h2>06 · 验收/反目标</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>说明</th></tr>
+<tr><td>anti_goals 二期候选</td><td>① indeterminate 持续旋转加载态；② 自定义颜色覆盖（color 参数替代阈值）；③ 多环叠加（双环进度）；④ 中心 icon + 文案组合；⑤ 数字动画到目标值（与 AnimatingNumbers #61 划界）；⑥ 进度方向（顺时针/逆时针）</td></tr>
+<tr><td>验收门槛</td><td>C1.5 双端 Demo 实机通过 + 业务 BudgetRing 双端 1:1 替换；C1 单测覆盖 value 0~1 边界 / 阈值切换 / 动画时长 / centerText 自定义</td></tr>
+<tr><td>划界</td><td>与 Progress #74（横条）/Countdown #60（时间戳）/AnimatingNumbers #61（数字滚）/Skeleton #53（骨架屏）/Price #72（静态排版）/InputNumber #44（步进输入）严格划界</td></tr>
+</table>
+</div>
+
+<div class="pc-stage">
+<div class="pc-row">
+<div class="pc-circle">
+<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" stroke="#E5E7EB" stroke-width="6" fill="none"></circle><circle cx="32" cy="32" r="28" stroke="#16A34A" stroke-width="6" fill="none" stroke-dasharray="175.93" stroke-dashoffset="123.15" stroke-linecap="round"></circle></svg>
+<div class="pc-center">30%</div>
+</div>
+<div class="pc-circle pc-warn">
+<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" stroke="#E5E7EB" stroke-width="6" fill="none"></circle><circle cx="32" cy="32" r="28" stroke="#F59E0B" stroke-width="6" fill="none" stroke-dasharray="175.93" stroke-dashoffset="26.39" stroke-linecap="round"></circle></svg>
+<div class="pc-center">85%</div>
+</div>
+<div class="pc-circle pc-danger">
+<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" stroke="#E5E7EB" stroke-width="6" fill="none"></circle><circle cx="32" cy="32" r="28" stroke="#DC2626" stroke-width="6" fill="none" stroke-dasharray="175.93" stroke-dashoffset="-17.59" stroke-linecap="round"></circle></svg>
+<div class="pc-center">¥128</div>
+</div>
+</div>
+<div class="pc-body">D1/D3/D4 基础 30% primary + D3 85% warning + D4 110% error 中心文案「¥128」+ 轨道 6pt 圆头线帽 + size=64</div>
+</div>
+
+</body>
+</html>

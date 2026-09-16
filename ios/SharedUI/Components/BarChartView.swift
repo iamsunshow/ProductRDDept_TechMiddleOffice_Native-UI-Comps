@@ -71,10 +71,23 @@ public final class BarChartView: UIView {
         }
     }
 
+    /// 自然高度 = rows × 行高 24 + (rows − 1) × 行间距 md（与 Android `Column spacedBy(AppSpace.md)` 1:1）。
+    /// 宿主只锚 top/leading/trailing/bottom 即可，无需写死高度（写死易小于自然高 → 行被压重叠）。
+    public override var intrinsicContentSize: CGSize {
+        let rows = CGFloat(items.count)
+        guard rows > 0 else { return CGSize(width: UIView.noIntrinsicMetric, height: 0) }
+        return CGSize(
+            width: UIView.noIntrinsicMetric,
+            height: rows * BarChartTokens.rowHeight + (rows - 1) * AppSpace.md
+        )
+    }
+
     private func rebuild() {
         // 清旧
         stack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         rowViews.removeAll()
+        // 行数变化 → 自然高度变化，通知 Auto Layout 重算
+        invalidateIntrinsicContentSize()
         guard !items.isEmpty else { return }
         // 计算 max
         let m = maxValue ?? items.map(\.value).max() ?? 1
@@ -92,6 +105,20 @@ public final class BarChartView: UIView {
             rowViews.append(row)
         }
     }
+}
+
+/// BarChart 视觉 token（与 Android `BarChartTokens` / design-spec §02 对齐）。
+private enum BarChartTokens {
+    /// 行高（=16pt 轨道 + 上下 4pt 内衬）。
+    static let rowHeight: CGFloat = 24
+    /// 轨道高度。
+    static let trackHeight: CGFloat = 16
+    /// 轨道/填充圆角（=strokeCap Round）。
+    static let cornerRadius: CGFloat = 4
+    /// 类别标签宽。
+    static let labelWidth: CGFloat = 64
+    /// 数值标签宽。
+    static let valueWidth: CGFloat = 48
 }
 
 /// 单行条形（label + 轨道 + 数值）。
@@ -117,33 +144,33 @@ private final class BarChartRowView: UIView {
         valueView.textAlignment = .left
         // 轨道（bgGrayLight=F3F4F6 灰底铺满 + 圆角 4pt）
         trackView.backgroundColor = AppColor.bgGrayLight
-        trackView.layer.cornerRadius = 4
+        trackView.layer.cornerRadius = BarChartTokens.cornerRadius
         trackView.clipsToBounds = true
         // 填充（初始 0，动画到目标）
-        fillView.layer.cornerRadius = 4
+        fillView.layer.cornerRadius = BarChartTokens.cornerRadius
         addSubview(labelView)
         addSubview(trackView)
         addSubview(valueView)
         trackView.addSubview(fillView)
         // 布局
         snp.makeConstraints { make in
-            make.height.equalTo(24)
+            make.height.equalTo(BarChartTokens.rowHeight)
         }
         labelView.snp.makeConstraints { make in
             make.leading.equalToSuperview()
             make.centerY.equalToSuperview()
-            make.width.equalTo(64)
+            make.width.equalTo(BarChartTokens.labelWidth)
         }
         trackView.snp.makeConstraints { make in
             make.leading.equalTo(labelView.snp.trailing).offset(AppSpace.sm)
             make.trailing.equalTo(valueView.snp.leading).offset(-AppSpace.sm)
-            make.height.equalTo(16)
+            make.height.equalTo(BarChartTokens.trackHeight)
             make.centerY.equalToSuperview()
         }
         valueView.snp.makeConstraints { make in
             make.trailing.equalToSuperview()
             make.centerY.equalToSuperview()
-            make.width.equalTo(48)
+            make.width.equalTo(BarChartTokens.valueWidth)
         }
         // 填充颜色（按比例阈值）
         let ratio = maxValue > 0 ? min(1.0, value / maxValue) : 0
@@ -166,7 +193,7 @@ private final class BarChartRowView: UIView {
             self.fillWidthConstraint?.update(offset: 0)
             self.layoutIfNeeded()
             self.fillWidthConstraint?.deactivate()
-            fillView.snp.remakeConstraints { make in
+            self.fillView.snp.remakeConstraints { make in
                 make.leading.top.bottom.equalToSuperview()
                 make.width.equalToSuperview().multipliedBy(ratio)
             }

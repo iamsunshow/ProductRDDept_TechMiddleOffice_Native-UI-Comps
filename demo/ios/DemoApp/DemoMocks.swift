@@ -3,22 +3,6 @@ import UIKit
 
 // MARK: - Mock Business Types
 
-enum ChartsPeriod: Int, CaseIterable {
-    case week, month, year
-    var title: String {
-        switch self {
-        case .week: return "周"
-        case .month: return "月"
-        case .year: return "年"
-        }
-    }
-}
-
-struct ChartPoint: Equatable {
-    let label: String
-    let amount: Double
-}
-
 struct CategoryInfo {
     let assetName: String
     let symbolName: String
@@ -34,14 +18,6 @@ enum CategoryIconImage {
     static func image(assetName: String, symbolName: String) -> UIImage {
         UIImage(systemName: symbolName) ?? UIImage()
     }
-}
-
-// MARK: - BookkeepingCategory (业务类型桩)
-
-struct BookkeepingCategory {
-    let name: String
-    let assetName: String
-    let symbolName: String
 }
 
 // MARK: - ZodiacAvatars (业务类型桩)

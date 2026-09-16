@@ -1,3 +1,6 @@
+import UIKit
+import SnapKit
+
 // MARK: - ProgressCircle Showcase（信息展示区 · #83 · ui.progress-circle 进度环 Demo 页）
 //
 // 4 段排查：D1 基础 30% primary / D2 进度变化 0.3s 过渡（外部按钮±10%）/ D3 阈值切换
@@ -28,11 +31,11 @@ final class ProgressCircleShowcase: ShowcaseViewController {
                 make.top.equalToSuperview().offset(AppSpace.md)
                 make.leading.equalToSuperview().offset(AppSpace.md)
                 make.width.height.equalTo(64)
+                // 底部闭合段容器高度链（否则容器高 0、内容溢出盖住下一段标题）
+                make.bottom.equalToSuperview().offset(-AppSpace.md)
             }
-            let info = addInfo("D1 基础 value=0.3 primary 绿 + 中心文案「30%」+ 默认 64×64 + 轨道 6pt 圆头。")
-            _ = info
         }
-        addInfo("基础 value 驱动 + 百分比默认 + primary 默认。")
+        addInfo("D1 基础 value=0.3 primary 绿 + 中心文案「30%」+ 默认 64×64 + 轨道 6pt 圆头。")
     }
 
     // D2 · 进度变化 0.3s ease-out 过渡
@@ -53,6 +56,9 @@ final class ProgressCircleShowcase: ShowcaseViewController {
             plus.snp.makeConstraints { make in
                 make.top.equalTo(circle2.snp.bottom).offset(AppSpace.sm)
                 make.leading.equalToSuperview().offset(AppSpace.md)
+                make.height.equalTo(36)
+                // 末元素闭合段容器高度链（否则容器高 0、内容溢出盖住下一段标题）
+                make.bottom.equalToSuperview().offset(-AppSpace.md)
             }
             plus.addAction(UIAction { [weak circle2] _ in
                 guard let c = circle2 else { return }
@@ -66,6 +72,8 @@ final class ProgressCircleShowcase: ShowcaseViewController {
             minus.snp.makeConstraints { make in
                 make.top.equalTo(circle2.snp.bottom).offset(AppSpace.sm)
                 make.leading.equalTo(plus.snp.trailing).offset(AppSpace.md)
+                make.height.equalTo(36)
+                make.centerY.equalTo(plus)
             }
             minus.addAction(UIAction { [weak circle2] _ in
                 guard let c = circle2 else { return }
@@ -101,6 +109,11 @@ final class ProgressCircleShowcase: ShowcaseViewController {
                 btn.snp.makeConstraints { make in
                     make.top.equalTo(circle3.snp.bottom).offset(AppSpace.sm)
                     make.leading.equalToSuperview().offset(AppSpace.md + CGFloat(offset))
+                    // 定宽 76（< 档位间距 80）防三档按钮按文字宽度伸缩后互相重叠
+                    make.width.equalTo(76)
+                    make.height.equalTo(36)
+                    // 末元素闭合段容器高度链（否则容器高 0、内容溢出盖住下一段标题）
+                    make.bottom.equalToSuperview().offset(-AppSpace.md)
                 }
                 btn.addAction(UIAction { [weak circle3] _ in
                     circle3?.value = CGFloat(value)
@@ -129,6 +142,9 @@ final class ProgressCircleShowcase: ShowcaseViewController {
             btn.snp.makeConstraints { make in
                 make.top.equalTo(circle4.snp.bottom).offset(AppSpace.sm)
                 make.leading.equalToSuperview().offset(AppSpace.md)
+                make.height.equalTo(36)
+                // 末元素闭合段容器高度链（否则容器高 0、内容溢出盖住下一段标题）
+                make.bottom.equalToSuperview().offset(-AppSpace.md)
             }
             btn.addAction(UIAction { [weak circle4] _ in
                 circle4?.centerText = (circle4?.centerText == nil) ? "3/10" : nil

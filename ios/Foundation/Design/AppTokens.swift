@@ -22,6 +22,8 @@ public enum AppColor {
     public static let border = UIColor(hex: 0xE5E7EB)
     public static let bgPage = UIColor(hex: 0xF9FAFB)
     public static let bgCard = UIColor.white
+    /// v2.0.11 新增：BarChart 轨道灰底（与 Android AppColor.bgGrayLight 对齐；设计稿 0xF3F4F6）。
+    public static let bgGrayLight = UIColor(hex: 0xF3F4F6)
     /// 按钮禁用/加载态填充色（灰阶 400 区间，介于 gray15 与 gray25 之间）。
     public static let buttonDisabled = UIColor(hex: 0x9CA3AF)
 }

@@ -131,6 +131,7 @@ final class DemoListViewController: UITableViewController {
             DemoComponent(id: "ui.progress", name: "Progress 进度条", reviewed: true, create: { ProgressShowcase() }, passed: true),
             DemoComponent(id: "ui.result-page", name: "ResultPage 结果反馈", reviewed: true, create: { ResultPageShowcase() }, passed: true),
             DemoComponent(id: "ui.segmented", name: "Segmented 分段选择器", reviewed: true, create: { SegmentedShowcase() }, passed: true),
+            DemoComponent(id: "ui.shortcut-bar", name: "ShortcutBar 快捷栏", reviewed: true, create: { ShortcutBarShowcase() }, passed: true),
             DemoComponent(id: "ui.skeleton", name: "Skeleton 骨架屏", reviewed: true, create: { SkeletonShowcase() }, passed: true),
             DemoComponent(id: "ui.steps", name: "Steps 步骤条", reviewed: true, create: { StepsShowcase() }, passed: true),
             DemoComponent(id: "ui.table", name: "Table 表格", reviewed: true, create: { TableShowcase() }, passed: true),

@@ -19,6 +19,20 @@
 import UIKit
 import SnapKit
 
+/// 快捷栏视觉 token（与 Android `ShortcutBarTokens` / design-spec §02 对齐）。
+private enum ShortcutBarTokens {
+    /// 图标容器尺寸（=26×26 圆角 6 primary 背景）。
+    static let iconContainerSize: CGFloat = 26
+    /// 图标容器圆角。
+    static let iconContainerRadius: CGFloat = 6
+    /// 图标白圆尺寸（system font glyph 标准尺寸）。
+    static let iconSize: CGFloat = 16
+    /// entry 上下内边距。
+    static let entryPaddingVertical: CGFloat = 6
+    /// entry 左右内边距。
+    static let entryPaddingHorizontal: CGFloat = 4
+}
+
 /// 快捷栏入口数据项。
 public struct ShortcutBarItem {
     public let id: String
@@ -57,6 +71,19 @@ public final class ShortcutBarView: UIView {
 
     @available(*, unavailable)
     required init?(coder: NSCoder) { nil }
+
+    // MARK: - 自然高度
+
+    /// 自然高度 = 壳上下内边距 md×2 + entry 高（entry 上下内边距 ×2 + 图标 26 + 图标文本间距 + 文本行高）。
+    /// 宿主只锚 top/leading/trailing/bottom 即可，无需写死高度（写死 72 < 自然高 81 → entry 内容被压重叠）。
+    public override var intrinsicContentSize: CGSize {
+        let textLineHeight = ceil(UIFont.systemFont(ofSize: AppFont.sizeXs).lineHeight)
+        let entryHeight = ShortcutBarTokens.entryPaddingVertical * 2
+            + ShortcutBarTokens.iconContainerSize
+            + AppSpace.xs
+            + textLineHeight
+        return CGSize(width: UIView.noIntrinsicMetric, height: entryHeight + AppSpace.md * 2)
+    }
 
     // MARK: - 卡片壳
 
@@ -101,33 +128,39 @@ public final class ShortcutBarView: UIView {
         self.columns = max(1, columns)
         // 清空旧 entries
         rowStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        // entries 总宽 = columns 等分；超出 columns 走横向滚动
-        let visibleCount = min(items.count, self.columns)
-        let totalWidth = UIScreen.main.bounds.width - AppSpace.lg * 2
-        let entryWidth = (totalWidth - AppSpace.sm * CGFloat(self.columns - 1)) / CGFloat(self.columns)
+        let needsScroll = items.count > self.columns
+        // 布局契约（与 Android horizontalScroll 1:1）：
+        //  - items ≤ columns：整条宽 = 可视宽，fillEqually 等分（不写死 entry 宽，避免与组件实际宽度脱钩）
+        //  - items > columns：entry 宽 = 可视宽/columns（扣间距均摊），rowStack 随内容撑宽 → 横向滚动
         rowStack.snp.remakeConstraints { make in
-            make.edges.equalToSuperview()
-            make.height.equalToSuperview()
+            make.top.bottom.equalToSuperview()
+            make.leading.equalToSuperview()
+            // 非横滚：整条宽 == 可视宽（fillEqually 等分 + 超长文本 truncating）；
+            // 横滚：宽 >= 可视宽，随 entry 定宽和撑开 → 内容可滚。
+            if needsScroll {
+                make.width.greaterThanOrEqualToSuperview()
+            } else {
+                make.width.equalToSuperview()
+            }
         }
-        // 填充 entries（≤columns 等分展示，>columns 横滚；entry 宽度固定保证等分）
+        // 填充 entries
         for (index, item) in items.enumerated() {
-            let entryView = makeEntryView(item, width: entryWidth, index: index)
+            let entryView = makeEntryView(item, index: index)
+            // 先入树再建「相对 scrollView 宽度」的约束（否则无共同祖先 → NSGenericException 崩溃）
             rowStack.addArrangedSubview(entryView)
-            // 第 columns+1 个开始横滚——放宽 rowStack 宽度
-            if index == self.columns {
-                rowStack.snp.remakeConstraints { make in
-                    make.edges.equalToSuperview()
-                    make.height.equalToSuperview()
-                    make.width.greaterThanOrEqualToSuperview()
+            if needsScroll {
+                let perColumn = 1.0 / CGFloat(self.columns)
+                let gutter = AppSpace.sm * CGFloat(self.columns - 1) / CGFloat(self.columns)
+                entryView.snp.makeConstraints { make in
+                    make.width.equalTo(scrollView.snp.width).multipliedBy(perColumn).offset(-gutter)
                 }
             }
         }
-        _ = visibleCount  // 当前展示计数（保留用于未来扩展 e.g. 截断徽标）
     }
 
     // MARK: - 单个入口项
 
-    private func makeEntryView(_ item: ShortcutBarItem, width: CGFloat, index: Int) -> UIView {
+    private func makeEntryView(_ item: ShortcutBarItem, index: Int) -> UIView {
         let control = UIControl()
         control.tag = index
         control.backgroundColor = .clear
@@ -138,14 +171,14 @@ public final class ShortcutBarView: UIView {
         // 图标容器（primary 背景 + 白色图标 16）
         let iconContainer = UIView()
         iconContainer.backgroundColor = AppColor.primary
-        iconContainer.layer.cornerRadius = 6
+        iconContainer.layer.cornerRadius = ShortcutBarTokens.iconContainerRadius
         let icon = UIImageView(image: UIImage(systemName: item.icon))
         icon.tintColor = .white
         icon.contentMode = .scaleAspectFit
         iconContainer.addSubview(icon)
         icon.snp.makeConstraints { make in
             make.center.equalToSuperview()
-            make.width.height.equalTo(16)
+            make.width.height.equalTo(ShortcutBarTokens.iconSize)
         }
 
         // 文本（sizeXs=12 textPrimary 单行省略）
@@ -163,19 +196,23 @@ public final class ShortcutBarView: UIView {
         col.alignment = .center
         col.distribution = .equalCentering
         col.isLayoutMarginsRelativeArrangement = true
-        col.layoutMargins = UIEdgeInsets(top: 6, left: 4, bottom: 6, right: 4)
+        col.layoutMargins = UIEdgeInsets(
+            top: ShortcutBarTokens.entryPaddingVertical,
+            left: ShortcutBarTokens.entryPaddingHorizontal,
+            bottom: ShortcutBarTokens.entryPaddingVertical,
+            right: ShortcutBarTokens.entryPaddingHorizontal
+        )
         col.isUserInteractionEnabled = false
 
         control.addSubview(col)
         iconContainer.snp.makeConstraints { make in
-            make.width.height.equalTo(26)
+            make.width.height.equalTo(ShortcutBarTokens.iconContainerSize)
         }
         col.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        control.snp.makeConstraints { make in
-            make.width.equalTo(width)
-        }
+        // entry 定宽约束由 apply() 在入树后统一建立（此处 control 尚未入树，不能引用 scrollView 锚点）
+
 
         // 绑定 id 关联
         control.accessibilityIdentifier = item.id

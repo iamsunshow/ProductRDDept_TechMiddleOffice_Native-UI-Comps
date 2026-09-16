@@ -1,3 +1,6 @@
+import UIKit
+import SnapKit
+
 // MARK: - ShortcutBar Showcase（信息展示区 · #82 · ui.shortcut-bar 快捷栏 Demo 页）
 //
 // 4 段排查：D1 基础 4 列快捷入口 / D2 5 列扩展 + 长文本省略 / D3 6 列超长横滚 /
@@ -29,7 +32,9 @@ final class ShortcutBarShowcase: ShowcaseViewController {
             bar.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview().inset(AppSpace.md)
                 make.top.equalToSuperview().offset(AppSpace.md)
-                make.height.equalTo(72)
+                // 底部闭合段容器高度链（否则容器高 0、内容溢出盖住下一段标题）；
+                // 高度走 ShortcutBarView.intrinsicContentSize（壳上下内边距 12×2 + entry 56）。
+                make.bottom.equalToSuperview().offset(-AppSpace.md)
             }
             bar.onClick = { id in
                 feedback.text = "D1 点击 entry id: \(id)"
@@ -55,7 +60,7 @@ final class ShortcutBarShowcase: ShowcaseViewController {
             bar.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview().inset(AppSpace.md)
                 make.top.equalToSuperview().offset(AppSpace.md)
-                make.height.equalTo(72)
+                make.bottom.equalToSuperview().offset(-AppSpace.md)
             }
             bar.onClick = { id in
                 feedback.text = "D2 点击 entry id: \(id)"
@@ -82,7 +87,7 @@ final class ShortcutBarShowcase: ShowcaseViewController {
             bar.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview().inset(AppSpace.md)
                 make.top.equalToSuperview().offset(AppSpace.md)
-                make.height.equalTo(72)
+                make.bottom.equalToSuperview().offset(-AppSpace.md)
             }
             bar.onClick = { id in
                 feedback.text = "D3 点击 entry id: \(id)（可横滚查看更多）"
@@ -108,7 +113,7 @@ final class ShortcutBarShowcase: ShowcaseViewController {
             bar.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview().inset(AppSpace.md)
                 make.top.equalToSuperview().offset(AppSpace.md)
-                make.height.equalTo(72)
+                make.bottom.equalToSuperview().offset(-AppSpace.md)
             }
             bar.onClick = { id in
                 feedback.text = "D4 点击 entry id: \(id)（未锁定时回调；锁定时不回调）"
@@ -123,6 +128,8 @@ final class ShortcutBarShowcase: ShowcaseViewController {
                 make.top.equalTo(bar.snp.bottom).offset(AppSpace.md)
                 make.leading.equalToSuperview().offset(AppSpace.md)
                 make.height.equalTo(36)
+                // 末元素闭合段容器高度链（否则容器高 0、内容溢出盖住下一段标题）
+                make.bottom.equalToSuperview().offset(-AppSpace.md)
             }
             toggle.addAction(UIAction { [weak bar] _ in
                 bar?.isUserInteractionEnabled.toggle()

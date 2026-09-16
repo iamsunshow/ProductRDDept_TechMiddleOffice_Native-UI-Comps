@@ -386,6 +386,7 @@ private val demoSections: List<Pair<String, List<DemoComponent>>> = listOf(
         DemoComponent("ShortcutBar 快捷栏", reviewed = true, demo = { ShortcutBarDemo() }, passed = true),
         DemoComponent("Price 价格", reviewed = true, demo = { PriceDemo() }, passed = true),
         DemoComponent("Progress 进度条", reviewed = true, demo = { ProgressDemo() }, passed = true),
+        DemoComponent("ProgressCircle 环形进度", reviewed = true, demo = { ProgressCircleDemo() }, passed = true),
         DemoComponent("ResultPage 结果反馈", reviewed = true, demo = { ResultPageDemo() }, passed = true),
         DemoComponent("Segmented 分段选择器", reviewed = true, passed = true, demo = { SegmentedDemo() }),
         DemoComponent("Skeleton 骨架屏", reviewed = true, demo = { SkeletonDemo() }, passed = true),

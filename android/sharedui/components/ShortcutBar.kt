@@ -121,10 +121,7 @@ private fun ShortcutBarEntry(
     val entryShape = RoundedCornerShape(0.dp) // 命中区形状=无圆角，整 entry 命中
     Column(
         modifier = Modifier
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = androidx.compose.material.ripple.rememberRipple(),
-            ) { onClick(item.id) }
+            .clickable { onClick(item.id) }
             .padding(
                 horizontal = ShortcutBarTokens.entryPaddingHorizontal,
                 vertical = ShortcutBarTokens.entryPaddingVertical,

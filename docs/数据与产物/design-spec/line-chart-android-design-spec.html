@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>LineChart Android · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- LineChart Android demo 预览 mock（双折线 + 网格 + 数据点） ---- */
+.lc-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.lc-body{height:90px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--textSecondary);background:#F0FDF4;border-top:1px solid var(--border);}
+.lc-chart{background:var(--bgCard);padding:16px;height:200px;position:relative;}
+.lc-grid{position:absolute;inset:16px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.lc-grid::before,.lc-grid::after{content:"";position:absolute;left:0;right:0;height:1px;background:var(--border);}
+.lc-grid::before{top:33%;}
+.lc-grid::after{top:66%;}
+.lc-line1{stroke:var(--primary);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.lc-line2{stroke:var(--primaryMuted:#A855F7);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.lc-dot1{fill:var(--primary);stroke:#fff;stroke-width:1.5;}
+.lc-dot2{fill:#A855F7;stroke:#fff;stroke-width:1.5;}
+</style>
+</head>
+<body>
+
+<h1>LineChart Android · 设计规格（业务展示组件 · 任务清单 #96 · 业务展示补全 · 门禁 A）</h1>
+<p>组件 ID：<code>ui.line-chart</code>（Android 端补全，iOS 已 v1.7.5 收编）｜ 定位：<b>折线图 Android 端</b>——业务展示通用折线图组件，支持单/双折线 + 数据点 + 网格 + Y 轴自适应 + x/y 轴标签；与 iOS LineChartView（DGCharts 同构）双端 1:1 收敛；对标 iOS <code>Charts</code> (DGCharts) <code>LineChartView</code> 收敛为库内自有设计语言（Canvas drawLine 自绘 + 圆点 3dp + 网格 0.5dp）。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v2.0.8（2026-09-15，未过 C2/D 不升版）<br/>
+<span class="tag tag-meta">业务回填</span> KeepAccounts 记账 DualLineChart 双端均需替换（评估文档 §5 行 72，2026-09-16 真实状态核对）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 业务报表趋势展示（记账月度收入/支出）；② 健康数据（心率/步数）；③ 销售趋势（电商 GMV）；④ 任何时序数据可视化；⑤ 双系列对比（如计划 vs 实际）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 横向条形图 → <b>BarChart（ui.bar-chart，#97 立项）</b>；② 饼图/环形分布 → PieChart（业务二期）；③ 数字动画 → <b>AnimatingNumbers #61</b>；④ 单一数值 → <b>Price #72</b>；⑤ 时间戳自驱 → <b>Countdown #60</b>；⑥ 比例表达 → <b>Progress #74 / ProgressCircle #83</b>；⑦ 高频实时流（K 线图/股票）→ 业务自管不沉淀</td></tr>
+<tr><td>五态适配</td><td>默认态=白底（bgCard）+ 主色折线（primary）+ 数据点 3dp 圆；加载=空数据骨架（保留网格不画线）；空态=空数据文案「暂无数据」+ 文案 sizeSm textSecondary；成功/失败 N/A</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；收编现状=<b>iOS LineChartView 已 v1.7.5 收编（基于 DGCharts/Charts 第三方库，业务展示区 #381 ui.line-chart，api.json 行 3617 已登记）；Android 当前无独立 LineChart（业务 DualLineChart 自建 Canvas drawLine）</b>，本规格=Android 端补全独立组件，与 iOS 同库同绘图语言（双端 1:1 Canvas 自绘，不引入第三方库）；与 BarChart #97（立项）严格划界（线 vs 条）</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>默认尺寸</td><td>父宽 × 200dp（高度可覆盖）</td><td>默认高度 200dp 与 iOS LineChartView 1:1；与 iOS inset spaceTop/Bottom=0.1 同构</td></tr>
+<tr><td>网格线</td><td>0.5dp border=E5E7EB 横线 4 条（top/33%/66%/bottom）</td><td>与 iOS LineChartView 网格 1/scale pt 同构（v1.7.5 0.5f→0.5.dp 优化）；4 条网格均分画布</td></tr>
+<tr><td>折线</td><td>strokeWidth=2dp primary=16A34A 圆头线帽（strokeCap=Round）</td><td>与 iOS 2pt 同构；线帽圆头 stroke-linejoin=round 转角圆滑</td></tr>
+<tr><td>数据点</td><td>彩圆 3dp primary + 白洞 1.5dp strokeWidth=1.5</td><td>与 iOS LineChartView v1.6.5 同构（v1.6.5 裸 px→dp 化修复）</td></tr>
+<tr><td>Y 轴</td><td>自适应（min/max 数据域 + 0.1 padding）；可传 fixedYMin/fixedYMax 覆盖</td><td>与 iOS DGCharts spaceTop/Bottom=0.1 同构（v1.7.5 优化）；默认自适应</td></tr>
+<tr><td>X 轴</td><td>等分域 (i+0.5)/count；可传 xLabels 覆盖（默认 1~count 数字）</td><td>与 iOS LineChartView v1.6.5 内缩域同构</td></tr>
+<tr><td>X/Y 轴标签</td><td>sizeXs=12 textSecondary、底部对齐 X + 左侧对齐 Y</td><td>宿主可传 xLabels[String] + yLabels[String] 覆盖；不传则数字默认</td></tr>
+<tr><td>双系列</td><td>series1 primary=16A34A + series2 紫=8B5CF6（业务 LineChartView 同色）</td><td>双折线场景：两条线 + 各自圆点 + 各自 label；与 iOS LineChartView 颜色同构</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：Android 端独立组件（双端 1:1 Canvas 自绘）——与 iOS LineChartView v1.7.5 同库同绘图语言同构；不引入第三方库；单/双折线 + 数据点 + 网格 + x/y 标签</td><td>✅ 与业务现状（记账 DualLineChart）1:1 收敛；双端同一组件；不引入第三方库=无版本依赖</td><td><b>推荐 A</b>：业务收敛独立</td></tr>
+<tr><td>B：引入 MPAndroidChart 第三方库（与 iOS DGCharts 对齐）</td><td>Android 引入第三方库=版本维护负担；与 iOS 同为第三方库双端一致性高但库体本身可纯自绘达到同效果</td><td>淘汰：自绘可达同效果</td></tr>
+<tr><td>C：children 插槽（宿主自组 Line/Point/Label）</td><td>组件退化为"画布"，业务必须自管所有绘图细节；双端契约松散</td><td>淘汰：登记二期</td></tr>
+</table>
+
+<h3>P2 · 数据/API 模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：声明式数据驱动——LineChart(values: [Float], data: [Float]? = nil, xLabels: [String]? = nil, yLabels: [String]? = nil, fixedYMin: Float? = nil, fixedYMax: Float? = nil)；data 非 nil 时为双折线（series2）</td><td>✅ 与 iOS LineChartView 数据模型 1:1 同构；单/双折线统一 API（data 切换）；xLabels/yLabels 可选覆盖；fixedYMin/Max 可选</td><td><b>推荐 A</b>：与 iOS 同构</td></tr>
+<tr><td>B：双 API（LineChart 单 + DualLineChart 双）</td><td>两个组件职责重叠；双折线场景业务必须判断选哪个</td><td>淘汰：单 API 覆盖两场景</td></tr>
+<tr><td>C：children 插槽</td><td>失去组件语义</td><td>淘汰</td></tr>
+</table>
+
+<h3>P3 · Y 轴自适应策略：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：默认自适应 + 宿主可传 fixedYMin/Max 覆盖——yFor(value)= (maxY-minY) × (1 - (value-minY)/(maxY-minY))，domain = [min(values)-0.1×range, max(values)+0.1×range]</td><td>✅ 与 iOS LineChartView v1.7.5 spaceTop/Bottom=0.1 同构；宿主可锁死对比基线；视觉合理</td><td><b>推荐 A</b>：自适应 + 可覆盖</td></tr>
+<tr><td>B：永远自适应（不覆盖）</td><td>业务对比场景无法对齐基线；用户体验差</td><td>淘汰</td></tr>
+<tr><td>C：永远 fixed（必传）</td><td>失去自适应易用性；常见场景多此一举</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：一期=数据驱动单/双折线+数据点+网格+xLabels/yLabels+fixedYMin/Max+Demo 四段（D1 单系列基础/D2 双系列对比/D3 xLabels 月份/D4 fixedYMin/Max 锁死基线）</td><td>✅ 覆盖业务记账 DualLineChart 现状；双端 1:1 收敛；验收可达</td><td><b>推荐 A</b>：一期收敛</td></tr>
+<tr><td>B：一期+二期候选（曲线/区域填充/多系列 3+/滚动缩放）</td><td>超出 DualLineChart 业务范围；二期候选足够</td><td>淘汰：登记二期</td></tr>
+<tr><td>C：一期=空壳+业务全自管</td><td>无组件价值</td><td>淘汰</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 设计（4 段 1:1）</h2>
+<div class="spec-card">
+<table>
+<tr><th>Demo</th><th>设计</th><th>验收点</th></tr>
+<tr><td>D1 单系列基础</td><td>values=[3, 5, 4, 7, 9, 8, 6] + data=null → 单折线 primary 绿 + 7 圆点 + 4 网格 + 自适应 Y 轴</td><td>单系列 Canvas drawLine + 数据点 + 网格 + Y 自适应</td></tr>
+<tr><td>D2 双系列对比</td><td>values=[收入] + data=[支出] 双折线（series1 primary + series2 紫）+ 各自圆点</td><td>双系列同图渲染（双 Canvas drawPath）</td></tr>
+<tr><td>D3 xLabels 月份</td><td>values=12 个月数据 + xLabels=[1月,2月,...,12月] → 底部对齐 X 标签 sizeXs textSecondary</td><td>xLabels 自定义覆盖默认数字</td></tr>
+<tr><td>D4 fixedYMin/Max 锁死基线</td><td>外部按钮「锁基线 0~100 / 自动」切换 fixedYMin=0/fixedYMax=100/缺省自适应；切换时 Y 轴视觉差异</td><td>fixedYMin/Max 覆盖自适应</td></tr>
+</table>
+</div>
+
+<h2>05 · 平台差异表（表内放行）</h2>
+<div class="spec-card">
+<table>
+<tr><th>差异点</th><th>iOS（v1.7.5 已收编）</th><th>Android（本规格立项）</th><th>放行原因</th></tr>
+<tr><td>绘图引擎</td><td>DGCharts (Charts 第三方库) LineChartView + ChartDataEntry</td><td>Compose Canvas drawLine + drawCircle（自绘不引第三方库）</td><td>与 iOS 同效果双端独立选择实现方式</td></tr>
+<tr><td>数据点</td><td>ChartDataEntry x+y + MarkerView</td><td>drawCircle 直接传 cx/cy/radius</td><td>API 差异视觉同</td></tr>
+<tr><td>网格</td><td>DGCharts gridConfig</td><td>Canvas drawLine 4 条横线</td><td>视觉同</td></tr>
+<tr><td>Y 轴</td><td>DGCharts leftAxis spaceTop/Bottom=0.1</td><td>yFor() 函数 domain + 0.1 padding</td><td>算法同实现异</td></tr>
+<tr><td>坐标转换</td><td>CGFloat CGPoint 像素</td><td>Dp + Float 像素（Compose dp→px 转换）</td><td>类型系统差异</td></tr>
+</table>
+<p><b>特别说明</b>：iOS 现状=第三方库（DGCharts/Charts）非纯库侧实现，本规格=Android 端从零自绘 Canvas drawLine = 与 iOS 视觉效果 1:1 同构但实现路径不同。本批 §5 修正段已澄清 iOS 是 Vendor/Charts 第三方库非组件库实现；本规格 Android 端按 Canvas 自绘不引入第三方库。</p>
+</div>
+
+<h2>06 · 验收/反目标</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>说明</th></tr>
+<tr><td>anti_goals 二期候选</td><td>① 曲线（贝塞尔插值）；② 区域填充（折线下渐变填充）；③ 多系列 ≥3；④ 滚动/缩放/平移交互；⑤ 数据点 tooltip/MarkerView；⑥ 堆叠/对比柱状混合；⑦ 高频实时刷新</td></tr>
+<tr><td>验收门槛</td><td>C1.5 双端 Demo 实机通过 + 业务 DualLineChart 双端 1:1 替换；C1 单测覆盖 yFor() 坐标转换 / Y 自适应 / xLabels 覆盖 / 双系列渲染 / fixedYMin/Max 锁死</td></tr>
+<tr><td>划界</td><td>与 BarChart #97（条形图）/PieChart（业务二期）/AnimatingNumbers #61（数字滚）/Price #72（静态排版）/Countdown #60（时间戳自驱）/Progress #74/ProgressCircle #83（比例表达）严格划界</td></tr>
+</table>
+</div>
+
+<div class="lc-stage">
+<div class="lc-chart">
+<svg width="100%" height="100%" viewBox="0 0 320 168" preserveAspectRatio="none">
+<line x1="0" y1="42" x2="320" y2="42" stroke="#E5E7EB" stroke-width="0.5"></line>
+<line x1="0" y1="84" x2="320" y2="84" stroke="#E5E7EB" stroke-width="0.5"></line>
+<line x1="0" y1="126" x2="320" y2="126" stroke="#E5E7EB" stroke-width="0.5"></line>
+<polyline class="lc-line1" points="20,140 60,110 100,120 140,80 180,50 220,65 260,95 300,75"></polyline>
+<polyline class="lc-line2" points="20,150 60,135 100,140 140,115 180,105 220,110 260,90 300,100"></polyline>
+<circle class="lc-dot1" cx="20" cy="140" r="3"></circle>
+<circle class="lc-dot1" cx="60" cy="110" r="3"></circle>
+<circle class="lc-dot1" cx="100" cy="120" r="3"></circle>
+<circle class="lc-dot1" cx="140" cy="80" r="3"></circle>
+<circle class="lc-dot1" cx="180" cy="50" r="3"></circle>
+<circle class="lc-dot1" cx="220" cy="65" r="3"></circle>
+<circle class="lc-dot1" cx="260" cy="95" r="3"></circle>
+<circle class="lc-dot1" cx="300" cy="75" r="3"></circle>
+<circle class="lc-dot2" cx="20" cy="150" r="3"></circle>
+<circle class="lc-dot2" cx="60" cy="135" r="3"></circle>
+<circle class="lc-dot2" cx="100" cy="140" r="3"></circle>
+<circle class="lc-dot2" cx="140" cy="115" r="3"></circle>
+<circle class="lc-dot2" cx="180" cy="105" r="3"></circle>
+<circle class="lc-dot2" cx="220" cy="110" r="3"></circle>
+<circle class="lc-dot2" cx="260" cy="90" r="3"></circle>
+<circle class="lc-dot2" cx="300" cy="100" r="3"></circle>
+</svg>
+</div>
+<div class="lc-body">D2 双系列对比 8 数据点 · series1 primary 绿 + series2 紫 · 4 条横线网格 · strokeWidth=2 圆头线帽 · 彩圆 3dp + 白洞 1.5dp</div>
+</div>
+
+</body>
+</html>

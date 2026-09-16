@@ -3519,7 +3519,9 @@
           "<Progress type=\"circle\" percent={35} />"
         ]
       ],
-      "subcategory": "display"
+      "subcategory": "display",
+      "reviewed": true,
+      "note": "环形进度 ProgressCircle（图表组件 #83，占分母）：v2.0.9 双端实现入库（ProgressCircleView.swift / ProgressCircle.kt = 环形轨道 + 阈值三态 primary/warning/error + 0.3s ease-out 进度过渡 + centerText 中心文案，size 默认 64dp）。2026-09-16 Android Demo 段结构补齐（ProgressCircleDemo 4 段 1:1 iOS ProgressCircleShowcase）+ 按用户指示自操作反馈移入图表组件分组（双端 demo 注册行同步迁移）。**2026-09-16 v2.0.12 C1.5 返修闭环**：用户反馈「Android 的 ProgressCircle 的数值没有水平垂直居中于圆环」=根因中心 Text 误用定尺 Modifier.size(size − centerTextInset×2)（min=max）把文案撑成 48×48 方框、字形落在方框左上角；修复=改限宽 widthIn(max=size − inset×2) + textAlign=Center + maxLines=1 + overflow=Ellipsis，文案以自然尺寸由 Box(contentAlignment=Center) 摆到环心（对齐 iOS centerX/centerY=superview + textAlignment=.center），回归用例 ProgressCircleTest 8 例真绿（回归台账 #78）。**2026-09-16 C1.5 用户双端 Demo 实机验收通过（原话「ProgressCircle：已通过」，验证版本 v2.0.12，demo 双端注册行 passed=true 绿「已通过」）**；遗留 C1 单测其余项 + C2 CR/CI + D 发版。"
     },
     {
       "id": "ui.grid-picker",
@@ -3789,7 +3791,9 @@
           "<ShortcutBar / Grid items={...} onClick={...} />"
         ]
       ],
-      "subcategory": "navigation"
+      "subcategory": "navigation",
+      "reviewed": true,
+      "note": "快捷栏 ShortcutBar（信息展示区 #82）：v2.0.9 双端实现入库（ShortcutBarView.swift 抽 ShortcutBarTokens + intrinsicContentSize + 横滚布局契约 items≤columns fillEqually 等分 / >columns 入口定宽撑开横滚 / ShortcutBar.kt Compose 同契约）。2026-09-16 Android Demo 段结构补齐（ShortcutBarDemo 4 段 1:1 iOS ShortcutBarShowcase：基础 4 列 / 5 列+长文本省略 / 6 列横滚 / 受控 disabled 切换）+ 组件库补齐 columns 等分与定宽横滚契约 + disabled 参数。**2026-09-16 C1.5 用户双端 Demo 实机验收通过（原话「ShortcutBar：已通过」，验证版本 v2.0.12，demo 双端注册行 passed=true 绿「已通过」）**；遗留 C1 单测未建 + C2 CR/CI + D 发版。"
     },
     {
       "id": "ui.split",
@@ -10185,7 +10189,8 @@
           "D4：items didSet 触发 0.3s ease-out 过渡"
         ]
       ],
-      "note": "条形图 BarChart（业务展示区 #97）：横向条形图 = 白底 bgCard + 行高 24dp + 类别标签 64dp sizeXs=12 textSecondary 右对齐 + 轨道 16dp bgGrayLight=F3F4F6 灰底 + 填充按比例 = (value/maxValue) × 轨道宽 + 圆角 4dp + 数值标签 48dp sizeSm=14 Semibold textPrimary 左对齐 + 阈值三态颜色（primary 16A34A / warning F59E0B / error DC2626）+ 0.3s ease-out 过渡。2026-09-16 门禁 A AI 代评通过（design-spec/bar-chart-design-spec.html + 评审记录/review-bar-chart-A.md，P1–P4 全 A）+ 门禁 B 双端实现入库（BarChartView.swift=UIKit UIStackView+行 UIStackView+BarChartRowView 16/24/4 拼装 / BarChart.kt=Compose Column+BarChartRow 64/48+trackHeight 16dp+圆角 4dp+阈值色 animateColorAsState+0.3s tween）。与 LineChart #96 划界严格（折线 vs 条形），与 ProgressCircle #83（圆环）/Progress #74（横条进度）/Price #72（静态排版）划界。验证版本 v1.0.0；统一待 C1.5 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版。"
+      "reviewed": true,
+      "note": "条形图 BarChart（业务展示区 #97）：横向条形图 = 白底 bgCard + 行高 24dp + 类别标签 64dp sizeXs=12 textSecondary 右对齐 + 轨道 16dp bgGrayLight=F3F4F6 灰底 + 填充按比例 = (value/maxValue) × 轨道宽 + 圆角 4dp + 数值标签 48dp sizeSm=14 Semibold textPrimary 左对齐 + 阈值三态颜色（primary 16A34A / warning F59E0B / error DC2626）+ 0.3s ease-out 过渡。2026-09-16 门禁 A AI 代评通过（design-spec/bar-chart-design-spec.html + 评审记录/review-bar-chart-A.md，P1–P4 全 A）+ 门禁 B 双端实现入库（BarChartView.swift=UIKit UIStackView+行 UIStackView+BarChartRowView 16/24/4 拼装 / BarChart.kt=Compose Column+BarChartRow 64/48+trackHeight 16dp+圆角 4dp+阈值色 animateColorAsState+0.3s tween）。与 LineChart #96 划界严格（折线 vs 条形），与 ProgressCircle #83（圆环）/Progress #74（横条进度）/Price #72（静态排版）划界。验证版本 v1.0.0；统一待 C1 单测补建 + C2 CR/CI + D 发版。**2026-09-16 C1.5 用户双端 Demo 实机验收通过（原话「BarChartDemo：已通过」，验证版本 v2.0.12，demo 双端注册行 passed=true 绿「已通过」）**。"
     }
   ],
   "businessExtensions": [

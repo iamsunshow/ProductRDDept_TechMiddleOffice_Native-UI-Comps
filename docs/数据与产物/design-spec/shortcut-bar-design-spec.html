@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ShortcutBar 快捷栏 · 设计规格（门禁 A）</title>
+<style>
+:root{--primary:#16A34A;--primaryMuted:#DCFCE7;--primaryPressed:#15803D;--textPrimary:#111827;--textSecondary:#6B7280;--border:#E5E7EB;--bgPage:#F9FAFB;--bgCard:#FFFFFF;--warning:#F59E0B;--error:#DC2626;--radiusSm:6px;--radiusMd:10px;--radiusLg:14px;--radiusFull:999px;--spaceXs:4px;--spaceSm:8px;--spaceMd:12px;--spaceLg:16px;--spaceXl:24px;--sizeXs:12px;--sizeSm:14px;--sizeMd:16px;--sizeLg:18px;--sizeXl:22px;}
+body{background:var(--bgPage);color:var(--textPrimary);font-size:var(--sizeMd);padding:var(--spaceXl) var(--spaceLg);line-height:1.55;}
+h1{font-size:var(--sizeXl);margin:0 0 var(--spaceLg);}h2{font-size:var(--sizeLg);margin:var(--spaceXl) 0 var(--spaceMd);border-left:4px solid var(--primary);padding-left:var(--spaceSm);}h3{font-size:var(--sizeMd);margin:var(--spaceMd) 0 var(--spaceSm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--radiusFull);font-size:var(--sizeXs);}.tag-ok{background:#DCFCE7;color:#166534;}.tag-meta{background:#EEF2FF;color:#3730A3;}
+.spec-card{background:var(--bgCard);border:1px solid var(--border);border-radius:var(--radiusMd);padding:var(--spaceLg);margin:var(--spaceSm) 0 var(--spaceXl);box-shadow:0 1px 2px rgba(17,24,39,.04);}
+table{border-collapse:collapse;width:100%;font-size:var(--sizeSm);}th,td{border:1px solid var(--border);padding:var(--spaceSm) var(--spaceMd);vertical-align:top;}th{background:#F3F4F6;text-align:left;}
+.diff-row{background:#FEF3C7;}
+/* ---- ShortcutBar demo 预览 mock（横向等分入口栏） ---- */
+.sb-stage{background:#fff;border:1px solid var(--border);border-radius:var(--radiusMd);overflow:hidden;margin:var(--spaceMd) 0;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.sb-body{height:80px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--textSecondary);background:#F0FDF4;border-top:1px solid var(--border);}
+.sb-bar{display:flex;align-items:stretch;background:var(--bgCard);height:80px;padding:12px 16px;gap:12px;}
+.sb-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;user-select:none;}
+.sb-icon{width:28px;height:28px;border-radius:6px;background:var(--primaryMuted);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;}
+.sb-icon svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.8;fill:none;}
+.sb-label{font-size:12px;color:var(--textPrimary);line-height:16px;}
+.sb-item.sb-disabled{opacity:0.4;cursor:not-allowed;}
+.sb-bar::after{content:"";position:absolute;left:0;right:0;bottom:0;height:0.5px;background:var(--border);}
+</style>
+</head>
+<body>
+
+<h1>ShortcutBar 快捷栏 · 设计规格（导航辅助组件 · 任务清单 #82 · 收编缺口补独立立项 · 门禁 A）</h1>
+<p>组件 ID：<code>ui.shortcut-bar</code> ｜ 定位：<b>页面中部横向等分入口栏</b>——一行等宽入口按钮组（图标 + 文字标签），点击回传 <code>onTap(index)</code>；横滑滚动超长列表 + 列数自动适配容器宽；对标 iOS <code>UICollectionView</code> 横向滚轮 / Material <code>NavigationBar</code> 入口 / NutUI React ShortcutBar 收敛为库内自有设计语言（图标 28 圆角 + 文字 12 + 行高 80 + 横向滚动）。<br/>
+<span class="tag tag-meta">组件库版本</span> 设计阶段锁定基线 = v2.0.8（2026-09-15，未过 C2/D 不升版）<br/>
+<span class="tag tag-meta">业务回填</span> KeepAccounts 记账 LedgerShortcutBar 双端均缺（KeepAccounts 评估文档 §5 行 70，2026-09-16 真实状态核对）
+</p>
+
+<h2>01 · 组件用途 &amp; 不适用边界（SCQA）</h2>
+<div class="spec-card">
+<table>
+<tr><th style="width:18%">维度</th><th>说明</th></tr>
+<tr><td>适用场景</td><td>① 记账 App 首页中部入口栏（记一笔/账本/报表/预算 等 4-6 个等分入口）；② 内容详情页顶部快捷操作（编辑/分享/删除 等）；③ 钱包/银行类 App 首页服务矩阵；④ 横滑长列表场景（>5 个入口时启用横滑）</td></tr>
+<tr><td>不适用（N/A）</td><td>① 底部一级页面导航 → <b>Tabbar（ui.tabbar，#19）</b>；② 页面内顶部内容切换（页签+内容区）→ <b>Tabs（ui.tabs，#20）</b>；③ 顶部单行头部导航 → <b>NavBar（ui.nav-bar，#17）</b>；④ 多宫格固定布局（不滚动固定等分）→ <b>Grid（ui.grid，#8）</b>；⑤ 左侧目录导航轨 → SideBar（ui.side-bar，#18）；⑥ 悬浮面板/悬浮钮 → FixedNav/HoverButton；⑦ 一级页分类导航（带选中态+滑动指示）→ Tabs + Segmented #74 组合</td></tr>
+<tr><td>五态适配</td><td>默认态=白底（bgCard）+ 主色图标（primary）+ 主文字标签；激活/按压=点击瞬态按压反馈（iOS 灰底 vs Android ripple）；禁用=整项 alpha 0.4 + 不可点；加载/成功/失败 N/A（入口非数据态）</td></tr>
+<tr><td>与现有组件关系</td><td>deps=[DesignTokens]；收编现状=<b>Android 无独立 ShortcutBar（业务在 DiscoverHomeScreen 自建私有 Row/Column 拼装）；iOS 无独立 ShortcutBar（业务 MoreViewController 用 Grid + 自定义入口组合）</b>，本规格将业务横滑入口栏模式提升为库内统一独立组件（与 Grid #8 划界=Grid 固定多列宫格无滚动，ShortcutBar 滚动超长列表等列宽 + 横滑）；与 Grid 协作非替代</td></tr>
+</table>
+</div>
+
+<h2>02 · 尺寸/Token 规格（零硬编码）</h2>
+<div class="spec-card">
+<table>
+<tr><th>要素</th><th>Token</th><th>说明</th></tr>
+<tr><td>内容行高</td><td>80pt/80dp（含 padding 上下 12 + 图标 28 + gap 4 + 文字 16 + padding 上下 12 ≈ 80）</td><td>对齐 Material NavigationBar 80 / iOS 横向滚轮 80；与 Grid 行高 72 划界（Grid 单格 72 vs ShortcutBar 整行 80）；行底 hairline 表内放行（iOS 1/scale pt vs Android 0.5dp）</td></tr>
+<tr><td>入口宽</td><td>最小 64pt/64dp，最大占满父宽/n 等分，&gt; 容器宽则横滑</td><td>等分优先（≤6 项时父宽/n，每项≥64），超长时横滑（≥7 项启用横向滚动，单项固定 64）</td></tr>
+<tr><td>图标容器</td><td>28×28 圆角 6 + bgPrimaryMuted（=DCFCE7 浅绿底）+ icon primary 主色 18 自绘</td><td>与 Grid #8 图标容器 26pt 划界（Grid 26 vs ShortcutBar 28=图标稍大因行高更宽）；与 AppIcon 复用图标路径（glyph 14 textSecondary 85% 圆 0.44/0.26+斜柄线宽 0.15 双端同坐标）但 primary 染色</td></tr>
+<tr><td>文字标签</td><td>sizeXs=12 Regular textPrimary、单行省略、居中</td><td>与 Grid #8 文字 sizeXs=12 同字号；长文案单行省略（尾部 ...）双端一致</td></tr>
+<tr><td>背景/分隔</td><td>白底 bgCard；行底 hairline；行内 gap=12（iOS 8pt vs Android 8dp 注释锚定）</td><td>白底与 Grid 一致；hairline 双端差异表内放行</td></tr>
+<tr><td>与 Grid 划界</td><td>ShortcutBar=横向滚动入口栏，&gt;6 项自动横滑；Grid=多列固定宫格</td><td>Grid 用于发现页宫格/工具面板（≤12 项固定排列）；ShortcutBar 用于首页快捷入口（>6 项横滑）；Grid 已有 title 分组/卡片壳，ShortcutBar 一期无 title（仅入口按钮组）</td></tr>
+</table>
+</div>
+
+<h2>03 · 关键决策 PREP / ACE（人为决策 4 条，编号 P1–P4，AI 代评待用户总审）</h2>
+<div class="spec-card">
+
+<h3>P1 · 组件定位：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：横向滚动入口栏（一期独立组件）——等列宽图标+文字、≤6 项等分、&gt;6 项横滑、点击回调 onTap(index)、数据驱动 ShortcutItem{icon, label, disabled?}</td><td>✅ 与业务现状（记账 LedgerShortcutBar 等）1:1 收敛；双端统一独立组件，UIKit UICollectionView horizontal / Compose LazyRow 同构；不依赖 Grid 内部改滚动</td><td><b>推荐 A</b>：业务收敛独立</td></tr>
+<tr><td>B：复用 Grid #8 + 内部加滚动模式</td><td>Grid 现状=固定多列宫格+title 分组（业务发现页），加滚动=职责扩张；Grid 的卡片壳+title+onSelect 与 ShortcutBar 无 title+纯入口语义不一致，混入后双 API 难选</td><td>淘汰：职责分裂</td></tr>
+<tr><td>C：children 插槽（宿主自组 Row/Column 自定义）</td><td>组件退化为无语义壳（仅"滚动容器"），业务必须自管间距/对齐/热区；双端契约松散</td><td>淘汰：登记二期（仅通用滚动容器另行立项）</td></tr>
+</table>
+
+<h3>P2 · 数据/API 模型：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：声明式数据驱动——ShortcutBar(items: [ShortcutItem])，ShortcutItem{icon: AppIconName, label: String, disabled: Bool?=false}；onTap(index: Int) 回调</td><td>✅ 与 NavBar #17 / Grid #8 数据驱动 API 同构；图标走 AppIconName（库内已落地枚举）避免业务自管 SF Symbol/Material Icon 字符串；label 文案 host 自由传</td><td><b>推荐 A</b>：与库内 API 同构</td></tr>
+<tr><td>B：children 插槽（iOS UIView 子视图 / Android content slot）</td><td>自由度大但失去组件语义（每个 item 由 host 自绘图标 + 文字 + 间距对齐），与 NavBar 一期 children 淘汰同理</td><td>淘汰：children 插槽通用化</td></tr>
+<tr><td>C：混合（children + 自带 API）</td><td>API 复杂度高、双端契约难对齐；少数场景才需</td><td>淘汰：过度设计</td></tr>
+</table>
+
+<h3>P3 · 横滑 vs 固定：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：智能切换——items ≤ 6 时等分父宽；&gt; 6 时启用横向滚动（iOS UICollectionView horizontal + Compose LazyRow），单项固定 64</td><td>✅ 与业务现状（记账首页 4-6 项 + 工具面板 8-12 项）1:1；无需宿主判断传 mode 参数；视觉连续（无缝）</td><td><b>推荐 A</b>：智能模式</td></tr>
+<tr><td>B：永远横滑（不分模式）</td><td>≤6 项时也横滑会留空=视觉不平衡；用户体验不佳</td><td>淘汰</td></tr>
+<tr><td>C：永远等分（&gt;6 项截断或折行）</td><td>&gt;12 项时折行视觉破碎；用户体验差</td><td>淘汰</td></tr>
+</table>
+
+<h3>P4 · 一期范围：ACE 三选</h3>
+<table>
+<tr><th>选项</th><th>后果</th><th>评估</th></tr>
+<tr><td>A：一期=数据驱动入口栏（items+onTap）+ 智能横滑 + disabled + 行高 80 + Demo 四段（D1 基础 4 项/D2 等分 6 项/D3 横滑 8 项+末项禁用/D4 受控 disabled 切换）</td><td>✅ 覆盖业务记账 LedgerShortcutBar 现状；双端 1:1 收敛；验收可达</td><td><b>推荐 A</b>：一期收敛</td></tr>
+<tr><td>B：一期+二期候选（自定义图标容器/角标 badge/拖拽排序/滑动指示器）</td><td>超出 LedgerShortcutBar 业务范围；二期候选足够</td><td>淘汰：登记二期</td></tr>
+<tr><td>C：一期=空壳+业务全自管</td><td>无组件价值</td><td>淘汰</td></tr>
+</table>
+</div>
+
+<h2>04 · Demo 设计（4 段 1:1）</h2>
+<div class="spec-card">
+<table>
+<tr><th>Demo</th><th>设计</th><th>验收点</th></tr>
+<tr><td>D1 基础 4 项</td><td>items=[记一笔/账本/报表/预算] 4 项等分父宽；点击回 onTap(0/1/2/3) 段内回显计数</td><td>基础数据驱动+等分对齐+回调链通</td></tr>
+<tr><td>D2 等分 6 项</td><td>items=6 项（最大等分数）满铺父宽无横滑；点击回 onTap(0~5)</td><td>等分边界（6 项）+回调链通</td></tr>
+<tr><td>D3 横滑 8 项+末项禁用</td><td>items=8 项触发横滑（&gt;6 项启用）；末项 disabled=true 灰显不可点；点击未禁用项回 onTap(0~6)</td><td>横滑滚动+disabled 优先级</td></tr>
+<tr><td>D4 受控 disabled 切换</td><td>外部按钮「禁用项 3/启用项 3」运行期切 disabled；段内回显当前 disabled 项</td><td>disabled 运行期更新（half-controlled）</td></tr>
+</table>
+</div>
+
+<h2>05 · 平台差异表（表内放行）</h2>
+<div class="spec-card">
+<table>
+<tr><th>差异点</th><th>iOS</th><th>Android</th><th>放行原因</th></tr>
+<tr><td>横向滚动</td><td>UICollectionView horizontal + flow layout isScrollEnabled=true</td><td>LazyRow horizontalArrangement spacedBy(12.dp)</td><td>系统控件原生差异</td></tr>
+<tr><td>按压反馈</td><td>touchDown 灰底 touchUp 还原（UIButton 高亮态）</td><td>ripple（Modifier.clickable indication=rememberRipple）</td><td>平台原生交互</td></tr>
+<tr><td>行底 hairline</td><td>1/scale pt</td><td>0.5dp</td><td>视觉无差异尺寸差异</td></tr>
+<tr><td>文字省略</td><td>UILabel lineBreakMode=.byTruncatingTail</td><td>Text maxLines=1 overflow=TextOverflow.Ellipsis</td><td>系统级原生差异</td></tr>
+<tr><td>等分算法</td><td>UICollectionViewFlowLayout itemSize=parent.width/n（≤6）/固定 64（&gt;6）</td><td>LazyRow 每个 item Modifier.width(parent.width/n) 或 fixed 64.dp</td><td>实现机制差异</td></tr>
+</table>
+</div>
+
+<h2>06 · 验收/反目标</h2>
+<div class="spec-card">
+<table>
+<tr><th>维度</th><th>说明</th></tr>
+<tr><td>anti_goals 二期候选</td><td>① 自定义图标容器样式/颜色覆盖；② 角标 badge（如"新"红点）；③ 拖拽排序；④ 滑动指示器（&gt;6 项时显示当前位置点）；⑤ title 分组（与 Grid 职责重叠）；⑥ children 插槽化</td></tr>
+<tr><td>验收门槛</td><td>C1.5 双端 Demo 实机通过 + 业务 LedgerShortcutBar 双端 1:1 替换；C1 单测覆盖数据驱动回调链 / disabled 优先级 / 滚动模式切换边界</td></tr>
+<tr><td>划界</td><td>与 Grid（#8 多列固定宫格）/Tabbar（#19 底部一级导航）/Tabs（#20 页内页签）/NavBar（#17 顶栏）严格划界</td></tr>
+</table>
+</div>
+
+<div class="sb-stage">
+<div class="sb-bar">
+<div class="sb-item"><div class="sb-icon">记</div><div class="sb-label">记一笔</div></div>
+<div class="sb-item"><div class="sb-icon">账</div><div class="sb-label">账本</div></div>
+<div class="sb-item"><div class="sb-icon">报</div><div class="sb-label">报表</div></div>
+<div class="sb-item"><div class="sb-icon">预</div><div class="sb-label">预算</div></div>
+</div>
+<div class="sb-body">D1 基础 4 项等分父宽 · 点击回 onTap(index) · 行高 80 · 图标 28 圆角浅绿底</div>
+</div>
+
+</body>
+</html>

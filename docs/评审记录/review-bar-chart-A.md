@@ -3,7 +3,7 @@
 > 组件 ID：`ui.bar-chart` ｜ 设计规格：`design-spec/bar-chart-design-spec.html`
 > 评审方式：🖊 AI 代评（用户 2026-09-04 总授权"除特色组件外所有组件评审文档全部生成，中间任何询问直接通过"）
 > 评审日期：2026-09-16 ｜ 终核：等用户全批统一验收（C1.5 实机 Demo）
-> 组件库基线：v2.0.8（2026-09-15 releaseDate，子仓 commit a04d1a2）
+> 组件库基线：v1.0.8（2026-09-15 releaseDate，子仓 commit a04d1a2）
 
 ## 评审清单
 

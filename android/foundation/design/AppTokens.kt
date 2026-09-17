@@ -26,7 +26,7 @@ object AppColor {
     val border = Color(0xFFE5E7EB)
     val bgPage = Color(0xFFF9FAFB)
     val bgCard = Color(0xFFFFFFFF)
-    /** v2.0.11 新增：BarChart 轨道灰底（与 iOS AppColor.bgGrayLight 对齐；设计稿 0xF3F4F6）。 */
+    /** v1.0.11 新增：BarChart 轨道灰底（与 iOS AppColor.bgGrayLight 对齐；设计稿 0xF3F4F6）。 */
     val bgGrayLight = Color(0xFFF3F4F6)
     val success = Color(0xFF16A34A)
     val error = Color(0xFFDC2626)

@@ -3,13 +3,13 @@
 // 包名/产品名 tmo-native-ui-comps（TMO=TechMiddleOffice，2026-09-15 由历史遗留名 KeepAccountsMiddleware 改名）；
 // Swift 模块名 TMONativeUIComps（import TMONativeUIComps）。
 //
-// 清单位置（v2.0.1 变更 · 2026-09-15）：由 ios/Package.swift 迁至「仓库根目录 Package.swift」。
+// 清单位置（v1.0.1 变更 · 2026-09-15）：由 ios/Package.swift 迁至「仓库根目录 Package.swift」。
 // 原因：SwiftPM 对 git 依赖只认仓库根目录的 Package.swift（不支持「子目录即一个包」），
 // 清单留在 ios/ 子目录时宿主无法写 .package(url: "….git", exact: "…") 远程引用，
 // 只能先 clone 全仓再以本地路径引用——等于没走远程依赖。
 // 迁到根后宿主可远程按 tag 固定引用；相应地本文件内的 target 路径由「相对 ios/」改为「相对仓库根」。
 //
-// 第二条硬约束（v2.0.1 实测确立，务必牢记）：SwiftPM 不允许「被别人以 URL 引用的包」声明本地 path 依赖。
+// 第二条硬约束（v1.0.1 实测确立，务必牢记）：SwiftPM 不允许「被别人以 URL 引用的包」声明本地 path 依赖。
 // 因此本包对外可分发的形态**不能**使用 .package(path: "ios/Vendor/…")（哪怕加 "./" 前缀也不行），
 // 第三方依赖必须写远程 URL——见下方 dependencies 注释。
 //
@@ -27,10 +27,10 @@ let package = Package(
         .library(name: "tmo-native-ui-comps", targets: ["TMONativeUIComps"])
     ],
     dependencies: [
-        // v2.0.1 依赖声明由「Vendor 本地 path」改回「远程 URL」，与宿主 KeepAccounts 的声明同 URL 同版本区间，
+        // v1.0.1 依赖声明由「Vendor 本地 path」改回「远程 URL」，与宿主 KeepAccounts 的声明同 URL 同版本区间，
         // 依赖图里 identity 相同 → SwiftPM 归一为一份，不会重复引入。
         //
-        // 铁律（v2.0.1 实测确立）：SwiftPM 不允许「被别人以 URL 引用的包」声明本地 path 依赖
+        // 铁律（v1.0.1 实测确立）：SwiftPM 不允许「被别人以 URL 引用的包」声明本地 path 依赖
         // （.package(path:) 只能由根包/工作区清单声明）。宿主按 url 拉本包时会在清单校验阶段直接失败：
         //   Invalid manifest: 'ios/Vendor/Alamofire' is not a valid path for path-based dependencies;
         //   use relative or absolute path instead.
@@ -59,7 +59,7 @@ let package = Package(
             ],
             path: "ios",
             exclude: [
-                // Vendor：v2.0.1 起已不参与本包依赖解析（依赖走远程 URL，见上），仅保留作
+                // Vendor：v1.0.1 起已不参与本包依赖解析（依赖走远程 URL，见上），仅保留作
                 // demo 工程（root 工程，允许 path 依赖）与离线参考；其仓库自带 Demo App 资源
                 // （如 GRDB.swift/Documentation/DemoApps 的 storyboard/xcassets/xcdatamodeld）
                 // 若不排除会被当主 target 资源扫描，报 multiple resources 重复错误。

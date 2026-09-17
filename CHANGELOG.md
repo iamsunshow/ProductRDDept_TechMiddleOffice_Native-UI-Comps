@@ -2,7 +2,7 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
-## [2.0.12] - 2026-09-16（ProgressCircle Android 中心文案居中修复 + 回归用例入库）
+## [1.0.12] - 2026-09-16（ProgressCircle Android 中心文案居中修复 + 回归用例入库）
 
 ### Fixed
 
@@ -19,7 +19,7 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 - Android demo 真编译：`cd demo/android && ./gradlew :app:assembleDebug` BUILD SUCCESSFUL。
 - 遗留：C1.5 用户双端 Demo 实机验收待走；C1 单测其余项、C2 CR/CI 与 D 发版未走。
 
-## [2.0.11] - 2026-09-16（ShortcutBar 契约补齐 + 三件 Demo 段结构 1:1 + ProgressCircle 分类迁移）
+## [1.0.11] - 2026-09-16（ShortcutBar 契约补齐 + 三件 Demo 段结构 1:1 + ProgressCircle 分类迁移）
 
 ### Changed
 
@@ -36,13 +36,13 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ### Fixed
 
-- **`api.json` 顶层 `componentCount` 修正**：90 → 92（v2.0.9 声称「91→92」只落 `components` 数组、未落计数字段，数组实为 92 条）。
-- **版本号口径收口**：`ui-version.json` `version` 2.0.11 与 CHANGELOG 最新条目 [2.0.10] 不一致——本批新增 CHANGELOG [2.0.11] 条目与该版本对应；`ui-version.json` `changelog` 串内原被误标为「[2.0.11]」的 v2.0.10 文案回改为「[2.0.10]」，双处对齐。
+- **`api.json` 顶层 `componentCount` 修正**：90 → 92（v1.0.9 声称「91→92」只落 `components` 数组、未落计数字段，数组实为 92 条）。
+- **版本号口径收口**：`ui-version.json` `version` 1.0.11 与 CHANGELOG 最新条目 [1.0.10] 不一致——本批新增 CHANGELOG [1.0.11] 条目与该版本对应；`ui-version.json` `changelog` 串内原被误标为「[1.0.11]」的 v1.0.10 文案回改为「[1.0.10]」，双处对齐。
 - **ProgressCircle Android 重复注册清理（双端 demo 注册行 1:1）**：Android 「信息展示」与「图表组件」两组同时登记 `ProgressCircle 环形进度`（分类迁移时只做增添、漏做移除，demo 列表出现两处同名项；iOS 端原为「操作反馈」→「图表组件」一次迁移，无重复）。已从 Android「信息展示」组删除并留注释锚点。清理后双端逐行一致：「信息展示」各 29 件、「图表组件」各 3 件（LineChart / BarChart / ProgressCircle）。
 
 验证 = Android `demo/android && ./gradlew :app:assembleDebug` BUILD SUCCESSFUL + iOS `demo/ios && xcodebuild -project ZhiqihuayunDemo.xcodeproj -scheme ZhiqihuayunDemo -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/opc-ios-dd-pc` BUILD SUCCEEDED（重复注册清理后双端重跑真编译）。遗留：C1.5 用户双端 Demo 实机验收待走；C1 单测未建；C2 CR/CI 与 D 发版未走。
 
-## [2.0.9] - 2026-09-16（4 件库缺口门禁 B 双端实现入库：ShortcutBar / ProgressCircle / LineChart Android / BarChart）
+## [1.0.9] - 2026-09-16（4 件库缺口门禁 B 双端实现入库：ShortcutBar / ProgressCircle / LineChart Android / BarChart）
 
 ### Added
 
@@ -74,42 +74,42 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 - 双端注册行（iOS DemoShowcases 信息展示/操作反馈/图表组件 3 处 + Android MainActivity 信息展示/操作反馈/图表组件 3 处）reviewed=true + passed=true。
 - 提交后 `git log --oneline` 验证本次 commit 已入库（4 件 8 核心组件 + 4 Showcase/Demo + 2 注册行 + api.json + CHANGELOG = 13 文件）。
 - 验证版本 v1.0.0（4 件）；待 C1.5 用户双端 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版。
-- Android Kotlin 默认 `public`；iOS 双端组件均 public 化（与 v2.0.6 Grid public 化一致）—— `BarChartView.swift` / `BarChartItem` / `ProgressCircleView` / `ShortcutBarView` / `ShortcutBarItem` 均 `public`。
-- 全局 `ui-version.json` 仍 v1.0.0（demo 端版本遗留；与组件库 CHANGELOG 升版不同步=长期遗留问题，本批未动）——**本批 v2.0.10 收口时一并补同步（实际值 v2.0.8→v2.0.10，CHANGELOG 描述与实际值之间的差额亦同时纠正）**。
-- v2.0.9 验证段漏报：`xcodebuild -scheme tmo-native-ui-comps Simulator Debug` 与 `:components:compileDebugKotlin` 验证描述均"BUILD SUCCEEDED"与事实不符——本修复由 Android 模拟器复验时 `Unresolved reference 'bgGrayLight'` 暴露。
+- Android Kotlin 默认 `public`；iOS 双端组件均 public 化（与 v1.0.6 Grid public 化一致）—— `BarChartView.swift` / `BarChartItem` / `ProgressCircleView` / `ShortcutBarView` / `ShortcutBarItem` 均 `public`。
+- 全局 `ui-version.json` 仍 v1.0.0（demo 端版本遗留；与组件库 CHANGELOG 升版不同步=长期遗留问题，本批未动）——**本批 v1.0.10 收口时一并补同步（实际值 v1.0.8→v1.0.10，CHANGELOG 描述与实际值之间的差额亦同时纠正）**。
+- v1.0.9 验证段漏报：`xcodebuild -scheme tmo-native-ui-comps Simulator Debug` 与 `:components:compileDebugKotlin` 验证描述均"BUILD SUCCEEDED"与事实不符——本修复由 Android 模拟器复验时 `Unresolved reference 'bgGrayLight'` 暴露。
 
-## [2.0.10] - 2026-09-16（v2.0.9 视觉锚点 token 补全 + Demo 注册行补全 + TrendChart ChartPoint 类型补全）
+## [1.0.10] - 2026-09-16（v1.0.9 视觉锚点 token 补全 + Demo 注册行补全 + TrendChart ChartPoint 类型补全）
 
 ### Fixed
 
-- **v2.0.9 入库 4 件之一 BarChart 双端编译 unresolved `AppColor.bgGrayLight`**。
-  - **根因**：v2.0.9 commit `611a17e` 入库 BarChart 时，iOS `BarChartView.swift:119` `trackView.backgroundColor = AppColor.bgGrayLight` 和 Android `BarChart.kt:142` `.background(AppColor.bgGrayLight)` 都引用 `bgGrayLight`（CHANGELOG v2.0.9 验证段明确写"轨道 16pt bgGrayLight=F3F4F6 灰底"），但 commit 输入遗漏，双端 `AppColor` 实际**无该字段**。
-  - **v2.0.9 验证段漏报**：iOS `xcodebuild` 与 Android `:components:compileDebugKotlin` 验证描述均"BUILD SUCCEEDED"，与事实不符——本修复由 Android 模拟器复验时 `Unresolved reference 'bgGrayLight'` 暴露。
-  - **处置**（保持 v2.0.9 设计规格原样不动）：
+- **v1.0.9 入库 4 件之一 BarChart 双端编译 unresolved `AppColor.bgGrayLight`**。
+  - **根因**：v1.0.9 commit `611a17e` 入库 BarChart 时，iOS `BarChartView.swift:119` `trackView.backgroundColor = AppColor.bgGrayLight` 和 Android `BarChart.kt:142` `.background(AppColor.bgGrayLight)` 都引用 `bgGrayLight`（CHANGELOG v1.0.9 验证段明确写"轨道 16pt bgGrayLight=F3F4F6 灰底"），但 commit 输入遗漏，双端 `AppColor` 实际**无该字段**。
+  - **v1.0.9 验证段漏报**：iOS `xcodebuild` 与 Android `:components:compileDebugKotlin` 验证描述均"BUILD SUCCEEDED"，与事实不符——本修复由 Android 模拟器复验时 `Unresolved reference 'bgGrayLight'` 暴露。
+  - **处置**（保持 v1.0.9 设计规格原样不动）：
     - iOS `ios/Foundation/Design/AppTokens.swift` 补 `public static let bgGrayLight = UIColor(hex: 0xF3F4F6)`。
     - Android `android/foundation/design/AppTokens.kt` 补 `val bgGrayLight = Color(0xFFF3F4F6)`。
-  - **无行为变更**（仅补 token 字段，轨道灰底颜色 F3F4F6 即 v2.0.9 设计稿锁定值）。
-- **v2.0.9 Demo 注册行 2 处遗漏**（用户验收发现「只看到条形图，其他组件没看到」）。
-  - **根因**：v2.0.9 commit `611a17e` Demo 端注册时，4 件 Showcase/Demo 仅注册了 iOS 3 件 + Android 3 件，遗漏：
+  - **无行为变更**（仅补 token 字段，轨道灰底颜色 F3F4F6 即 v1.0.9 设计稿锁定值）。
+- **v1.0.9 Demo 注册行 2 处遗漏**（用户验收发现「只看到条形图，其他组件没看到」）。
+  - **根因**：v1.0.9 commit `611a17e` Demo 端注册时，4 件 Showcase/Demo 仅注册了 iOS 3 件 + Android 3 件，遗漏：
     - iOS `ui.shortcut-bar`：`ShortcutBarShowcase.swift` 文件存在（demo/ios/DemoApp/）但 `DemoShowcases.swift` sections list 未注册行——`sections[4]`「信息展示」Section（行 112~141）少 `DemoComponent(id: "ui.shortcut-bar", ...)`。
     - Android `ProgressCircle 环形进度`：`ProgressCircleDemo()` Composable 函数已写（`MainActivity.kt:5265`）但未注册到 `sections` 的 listOf（"信息展示" Section 行 369~398 少 `DemoComponent("ProgressCircle 环形进度", ...)`）。
-  - **v2.0.9 验证段漏报**：汇报"双端 4 件 Showcase/Demo 全部注册，3 处注册行 iOS + 3 处注册行 Android"——与事实不符（实际 3+3=6 件 ≠ 4 件漏 2 件）。
-  - **处置**（保持 v2.0.9 入库组件清单原样不动）：
+  - **v1.0.9 验证段漏报**：汇报"双端 4 件 Showcase/Demo 全部注册，3 处注册行 iOS + 3 处注册行 Android"——与事实不符（实际 3+3=6 件 ≠ 4 件漏 2 件）。
+  - **处置**（保持 v1.0.9 入库组件清单原样不动）：
     - iOS `DemoShowcases.swift` 信息展示 Section `ui.skeleton` 行前插入 `ui.shortcut-bar` 注册行（归类=信息展示，与 Android 行 386 一致）。
     - Android `MainActivity.kt` 信息展示 Section `Progress 进度条` 行后插入 `ProgressCircle 环形进度` 注册行（按 Android 顺序归类信息展示）。
   - **补漏后双端均 4 件 Showcase/Demo 全部可达**（iOS 4：ui.shortcut-bar/ui.progress-circle/ui.line-chart/ui.bar-chart；Android 4：ShortcutBar/ProgressCircle/LineChart/BarChart）。
-  - **遗留**：Android 信息展示 Section 归类与 iOS 不一致——iOS `ui.progress-circle` 归"操作反馈"（行 97）、Android ProgressCircle 归"信息展示"（本批新增注册行）——按 v2.0.9 commit 实际归类，保持双端各自原生归类不动。
-- **v2.0.9 iOS Demo Showcase 3 件文件漏注册 `.pbxproj`**（用户编译反馈：`Cannot find 'ProgressCircleShowcase'/'ShortcutBarShowcase'/'BarChartShowcase' in scope`）。
-  - **根因**：v2.0.9 commit `611a17e` 入库 4 件组件时，建了 3 个 Showcase 文件（`ShortcutBarShowcase.swift` / `ProgressCircleShowcase.swift` / `BarChartShowcase.swift`）到 `demo/ios/DemoApp/`，但**全部漏注册到 `ZhiqihuayunDemo.xcodeproj/project.pbxproj`**——`.pbxproj` PBXBuildFile / PBXFileReference / PBXGroup / PBXSourcesBuildPhase 4 个 section 都无 Showcase entry（LineChart 内联在 `DemoShowcases.swift` 中，无独立文件）。
-  - **v2.0.9 验证段漏报**：汇报"iOS 4 件 Showcase 全部可达"——与事实不符（实际只有 1 件 LineChart 在 `DemoShowcases.swift` 内联），本批 v2.0.10 收口时一并修复。
-  - **处置**（保持 v2.0.9 入库组件清单原样不动）：
+  - **遗留**：Android 信息展示 Section 归类与 iOS 不一致——iOS `ui.progress-circle` 归"操作反馈"（行 97）、Android ProgressCircle 归"信息展示"（本批新增注册行）——按 v1.0.9 commit 实际归类，保持双端各自原生归类不动。
+- **v1.0.9 iOS Demo Showcase 3 件文件漏注册 `.pbxproj`**（用户编译反馈：`Cannot find 'ProgressCircleShowcase'/'ShortcutBarShowcase'/'BarChartShowcase' in scope`）。
+  - **根因**：v1.0.9 commit `611a17e` 入库 4 件组件时，建了 3 个 Showcase 文件（`ShortcutBarShowcase.swift` / `ProgressCircleShowcase.swift` / `BarChartShowcase.swift`）到 `demo/ios/DemoApp/`，但**全部漏注册到 `ZhiqihuayunDemo.xcodeproj/project.pbxproj`**——`.pbxproj` PBXBuildFile / PBXFileReference / PBXGroup / PBXSourcesBuildPhase 4 个 section 都无 Showcase entry（LineChart 内联在 `DemoShowcases.swift` 中，无独立文件）。
+  - **v1.0.9 验证段漏报**：汇报"iOS 4 件 Showcase 全部可达"——与事实不符（实际只有 1 件 LineChart 在 `DemoShowcases.swift` 内联），本批 v1.0.10 收口时一并修复。
+  - **处置**（保持 v1.0.9 入库组件清单原样不动）：
     - 给 `BarChartShowcase.swift` 加 4 处 `.pbxproj` 注册（PBXBuildFile 行 25 / PBXFileReference 行 140 / PBXGroup 行 375 / PBXSourcesBuildPhase 行 615，UUID `BC0000B2C3D4E5F6789012BC` + `BD0000B3C4D5E6F7890123BD`，PBXGroup 按字母序插在 AppDelegate 后）。
     - 给 `ProgressCircleShowcase.swift` 加 4 处 `.pbxproj` 注册（UUID `D00000B4C5D6E7F8901234D0` + `D10000B5C6D7E8F9012345D1`，PBXGroup 按字母序插在 DemoShowcases 后）。
     - 给 `ShortcutBarShowcase.swift` 加 4 处 `.pbxproj` 注册（UUID `D20000B6C7D8E9F0123456D2` + `D30000B7C8D9EAF1234567D3`，PBXGroup 按字母序插在 ProgressCircle 后）。
     - `plutil -lint` 校验 OK；UUID 6 个全部唯一无冲突。
   - **iOS demo `xcodebuild` 待编译验证**（修复后命令被后台跳过，需你这边再跑一次确认 BUILD SUCCEEDED）。
 - **第二轮编译报错：`Cannot find 'BarChartView' / 'ProgressCircleView' / 'ShortcutBarView' in scope`**（上轮只补了 DemoApp 3 个 Showcase 注册，漏了 SharedUI/Components 库内 3 个 View 注册——demo 工程走 PBXBuildFile 直接 link 模式，不走 SPM，库内每个 .swift 都得手工登记）。
-  - **根因**：v2.0.9 commit `611a17e` 入库 BarChart #97 / ProgressCircle #83 / ShortcutBar #82 三个组件的 SharedUI/Components 实现文件 `BarChartView.swift` / `ProgressCircleView.swift` / `ShortcutBarView.swift` 也漏注册到 demo `.pbxproj`（ShortcutBar 这一轮没报错是 Swift 编译器 lazy 报错的偶然——实例化路径触发查找才会报，BarChart/ProgressCircle 实例化早命中）。
+  - **根因**：v1.0.9 commit `611a17e` 入库 BarChart #97 / ProgressCircle #83 / ShortcutBar #82 三个组件的 SharedUI/Components 实现文件 `BarChartView.swift` / `ProgressCircleView.swift` / `ShortcutBarView.swift` 也漏注册到 demo `.pbxproj`（ShortcutBar 这一轮没报错是 Swift 编译器 lazy 报错的偶然——实例化路径触发查找才会报，BarChart/ProgressCircle 实例化早命中）。
   - **处置**：给 3 个 View 各加 4 处 `.pbxproj` 注册（PBXBuildFile / PBXFileReference / PBXGroup Components 子 group 字母序 / PBXSourcesBuildPhase），共 12 处 UUID全新生成：
     - `BarChartView`: `BA00A1C3D4E5F678901234B1` (FileRef) + `BA00A2C4D5E6F789012345B2` (BuildFile)
     - `ProgressCircleView`: `BA00A3C5D6E7F890123456B3` (FileRef) + `BA00A4C6D7E8F901234567B4` (BuildFile)
@@ -118,7 +118,7 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
   - `plutil -lint` OK；3 View 命中数 12；comm 复查 SharedUI/Components 95 个 .swift 全部注册，无遗漏。
   - **iOS demo `xcodebuild` 待再编译验证**（需你这边再跑一次确认 BUILD SUCCEEDED）。
 - **第三轮编译报错：3 个 Showcase 缺 `import UIKit / import SnapKit` + BarChartView 闭包漏 `self.`**（第二轮只补了 .pbxproj 文件登记，没修源码本身的漏报）。
-  - **根因 1**：`BarChartShowcase.swift` / `ProgressCircleShowcase.swift` / `ShortcutBarShowcase.swift` 三个文件 `grep -L "^import"` 命中——是 DemoApp 内**唯一 3 个无 import 的 .swift 文件**，v2.0.9 commit `611a17e` 入库时漏写 `import UIKit`（同文件内却用 `UIButton / UIAction / CGFloat / UIView / SnapKit`）。
+  - **根因 1**：`BarChartShowcase.swift` / `ProgressCircleShowcase.swift` / `ShortcutBarShowcase.swift` 三个文件 `grep -L "^import"` 命中——是 DemoApp 内**唯一 3 个无 import 的 .swift 文件**，v1.0.9 commit `611a17e` 入库时漏写 `import UIKit`（同文件内却用 `UIButton / UIAction / CGFloat / UIView / SnapKit`）。
   - **根因 2**：`BarChartView.swift:169` 行 `DispatchQueue.main.async { ... fillView.snp.remakeConstraints { ... } ... }`——Swift 5.x 逃逸闭包规则要求闭包内引用 self 属性必须显式 `self.`，行 168 已写 `self.fillWidthConstraint`、行 174 已写 `self.layoutIfNeeded`，但行 169 漏了 `self.fillView`（同一闭包内行 165-176 上下文其他 self 已显式，仅此一处漏）。
   - **处置**（4 处 = 3 Showcase 加 import + 1 View 加 self）：
     - `demo/ios/DemoApp/BarChartShowcase.swift`：文件首插 `import UIKit / import SnapKit`
@@ -127,21 +127,21 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
     - `ios/SharedUI/Components/BarChartView.swift:169`：`fillView.snp.remakeConstraints` → `self.fillView.snp.remakeConstraints`
   - 校验：3 Showcase head -3 均 `import UIKit / import SnapKit`；BarChartView 行 169 已加 self；3 Showcase 仅引用 UIKit 类型（UIButton/UIAction/UIView/CGFloat/UILabel 等）已全覆盖；ProgressCircleView 不涉及逃逸闭包无 self 问题。
   - **iOS demo `xcodebuild` 待第三轮编译验证**（需你这边再跑一次确认 BUILD SUCCEEDED）。
-- **v2.0.2 public 化遗漏：iOS `TrendChartView` 编译 `Method cannot be declared public because its parameter uses an internal type`（行 68）**。
-  - **根因**：v2.0.2 commit `4dc7b19` iOS 对外 API public 化扫尾时，把 `TrendChartView` 类（`ios/SharedUI/Components/TrendChartView.swift`）改 `public`，但**漏 public 化参数类型 `ChartPoint`**——而 iOS 端**从未定义 `ChartPoint` 类型**（Android `TrendChartView.kt:35-38` 早已 `data class ChartPoint(label, amount)`）。
+- **v1.0.2 public 化遗漏：iOS `TrendChartView` 编译 `Method cannot be declared public because its parameter uses an internal type`（行 68）**。
+  - **根因**：v1.0.2 commit `4dc7b19` iOS 对外 API public 化扫尾时，把 `TrendChartView` 类（`ios/SharedUI/Components/TrendChartView.swift`）改 `public`，但**漏 public 化参数类型 `ChartPoint`**——而 iOS 端**从未定义 `ChartPoint` 类型**（Android `TrendChartView.kt:35-38` 早已 `data class ChartPoint(label, amount)`）。
   - **demo 编译错**：Swift 严格模式报 `public func apply(expensePoints: [ChartPoint], incomePoints: [ChartPoint])` 第 68 行 17 列——public 方法参数类型必须是 public，不能是 internal。`demo/ios/DemoApp/DemoMocks.swift:17-20` 之前定义了一个 internal `struct ChartPoint` 兜底，让 demo 编译得过；Swift 严格模式仍判 `[ChartPoint]` 为 internal 而非 public 类型，编译失败。
-  - **v2.0.2 验证段漏报**：v2.0.2 commit `4dc7b19` 验证段汇报"双端 public 化扫尾完成"，但实际只 public 了类、未 public 化 ChartPoint 类型——本次编译错由 iOS `xcodebuild` 复验暴露。
-  - **处置**（保持 v2.0.2 public 化设计意图原样不动）：
+  - **v1.0.2 验证段漏报**：v1.0.2 commit `4dc7b19` 验证段汇报"双端 public 化扫尾完成"，但实际只 public 了类、未 public 化 ChartPoint 类型——本次编译错由 iOS `xcodebuild` 复验暴露。
+  - **处置**（保持 v1.0.2 public 化设计意图原样不动）：
     - 新建 `ios/SharedUI/Components/ChartPoint.swift`：`public struct ChartPoint: Equatable { public let label: String; public let amount: Double }`，与 Android `data class ChartPoint(label, amount)` 字段 1:1 对齐（X 轴标签 / 数值）。
     - 删除 `demo/ios/DemoApp/DemoMocks.swift:17-20` internal `struct ChartPoint` 兜底定义，避免 demo target 内同名 internal 类型冲突。
     - 把 `ChartPoint.swift` 注册到 demo `.pbxproj`（PBXBuildFile / PBXFileReference / PBXGroup / PBXSourcesBuildPhase 4 处，UUID 全新生成 `C0A1B2C3D4E5F60718293A4B` + `D0E1F2A3B4C5D60718293A4C`，`plutil -lint` 校验 OK）。
   - **包边界不动**：`Package.swift` exclude 仍保留 `TrendChartView.swift`（记账业务组件由宿主 App 端 include，本包不收），但 `ChartPoint.swift` 作为数据契约类型保留在 SP target——宿主 `import TMONativeUIComps` 即可获得 `ChartPoint` 类型。
   - **iOS Components 总数** 84 → **85**（新增 `ChartPoint.swift`）。
-- **v2.0.2 public 化同源遗漏：iOS `CategoryPickerView` 行 10/48 + `PeriodTabsView` 行 8 编译 `public (var|func) ... uses an internal type`**。
-  - **根因**：v2.0.2 commit `4dc7b19` iOS 对外 API public 化扫尾时，把 4 件记账业务组件（`CategoryPickerView` / `PeriodTabsView` / `ZodiacAvatarView` / `TrendChartView`）都改 `public`，但**仅 `TrendChartView` 的 ChartPoint 修复在本批一并发现并补齐**——`CategoryPickerView` 用 `BookkeepingCategory`（行 10 public var onSelect、行 48 public func apply）、`PeriodTabsView` 用 `ChartsPeriod`（行 8 public var onChange）均漏 public 化，iOS 端从未定义这两个类型（仅 `demo/ios/DemoApp/DemoMocks.swift:6` `enum ChartsPeriod` 与 行 36 `struct BookkeepingCategory` 兜底 internal 定义）。`ZodiacAvatarView` 行 27 apply 签名只用 String/CGFloat，方法体内部用 `ZodiacSign`/`ZodiacAvatars` 不属签名问题，暂不修。
+- **v1.0.2 public 化同源遗漏：iOS `CategoryPickerView` 行 10/48 + `PeriodTabsView` 行 8 编译 `public (var|func) ... uses an internal type`**。
+  - **根因**：v1.0.2 commit `4dc7b19` iOS 对外 API public 化扫尾时，把 4 件记账业务组件（`CategoryPickerView` / `PeriodTabsView` / `ZodiacAvatarView` / `TrendChartView`）都改 `public`，但**仅 `TrendChartView` 的 ChartPoint 修复在本批一并发现并补齐**——`CategoryPickerView` 用 `BookkeepingCategory`（行 10 public var onSelect、行 48 public func apply）、`PeriodTabsView` 用 `ChartsPeriod`（行 8 public var onChange）均漏 public 化，iOS 端从未定义这两个类型（仅 `demo/ios/DemoApp/DemoMocks.swift:6` `enum ChartsPeriod` 与 行 36 `struct BookkeepingCategory` 兜底 internal 定义）。`ZodiacAvatarView` 行 27 apply 签名只用 String/CGFloat，方法体内部用 `ZodiacSign`/`ZodiacAvatars` 不属签名问题，暂不修。
   - **demo 编译错**：Swift 严格模式报 `CategoryPickerView.swift:48:17 method cannot be declared public because its parameter uses an internal type`（`BookkeepingCategory`）+ `PeriodTabsView.swift:8 public var onChange: ((ChartsPeriod) -> Void)?` 用 internal `ChartsPeriod`——首批 ChartPoint 修复后第二次 `xcodebuild` 复验暴露。
-  - **v2.0.2 验证段漏报**：v2.0.2 commit `4dc7b19` 验证段汇报"双端 public 化扫尾完成"，但实际仅 public 了类、未 public 化任何业务组件参数类型（ChartPoint/BookkeepingCategory/ChartsPeriod 全漏）——本次编译错由 demo `xcodebuild` 复验逐项暴露。
-  - **处置**（保持 v2.0.2 public 化设计意图原样不动）：
+  - **v1.0.2 验证段漏报**：v1.0.2 commit `4dc7b19` 验证段汇报"双端 public 化扫尾完成"，但实际仅 public 了类、未 public 化任何业务组件参数类型（ChartPoint/BookkeepingCategory/ChartsPeriod 全漏）——本次编译错由 demo `xcodebuild` 复验逐项暴露。
+  - **处置**（保持 v1.0.2 public 化设计意图原样不动）：
     - 新建 `ios/SharedUI/Components/BookkeepingCategory.swift`：`public struct BookkeepingCategory: Equatable { public let name: String; public let assetName: String; public let symbolName: String }`，iOS 端记账业务契约（分类名 / 图标资源名 / SF Symbol 名）。
     - 新建 `ios/SharedUI/Components/ChartsPeriod.swift`：`public enum ChartsPeriod: Int, CaseIterable { case week, month, year; public var title: String }`，周/月/年分段。
     - 删除 `demo/ios/DemoApp/DemoMocks.swift` 行 4-15 `enum ChartsPeriod` 兜底 + 行 34-40 `struct BookkeepingCategory` 兜底（保留 `ZodiacSign`/`ZodiacAvatars` 内部类型，方法体内仍需用）。
@@ -151,7 +151,7 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ### Changed
 
-- **全局 `ui-version.json` 同步收口**：v2.0.9 验证段第 38 行说"仍 v1.0.0"与实际 v2.0.8 不符，本批 v2.0.10 收口时同步升至 `v2.0.10`，杜绝后续 CHANGELOG/版本号再不同步。
+- **全局 `ui-version.json` 同步收口**：v1.0.9 验证段第 38 行说"仍 v1.0.0"与实际 v1.0.8 不符，本批 v1.0.10 收口时同步升至 `v1.0.10`，杜绝后续 CHANGELOG/版本号再不同步。
 
 ### 验证
 
@@ -161,22 +161,22 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 - 待 C1.5 用户双端 Demo 实机验收 + C1 单测补建 + C2 CR/CI + D 发版。
 
 
-## [2.0.8] - 2026-09-15（v2.0.7 public 化扫尾第六波 = 收官：APIEnvironment 补 public init）
+## [1.0.8] - 2026-09-15（v1.0.7 public 化扫尾第六波 = 收官：APIEnvironment 补 public init）
 
 ### Fixed
 
 - **宿主 AppDelegate 启动注入后端地址报** `App/AppDelegate.swift:26:34: 'APIEnvironment' initializer is inaccessible due to 'internal' protection level`。
-  - **根因**：`APIEnvironment` 类型本体虽已于 v2.0.2 public 化，但结构体的隐式 memberwise initializer 仍是 `internal`，宿主无法构造真实环境（`APIEnvironment(baseURL:)`）。
+  - **根因**：`APIEnvironment` 类型本体虽已于 v1.0.2 public 化，但结构体的隐式 memberwise initializer 仍是 `internal`，宿主无法构造真实环境（`APIEnvironment(baseURL:)`）。
 - **处置**：`MockAPIClient.swift` 补 `public init(baseURL: URL)`。
-- **收官**：至此宿主 `KeepAccounts` iOS 真编译 `BUILD SUCCEEDED`，v2.0.2 起的 iOS 对外 API public 化扫尾全部完成。
-- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `2.0.7 → 2.0.8` 并重发 AAR。
+- **收官**：至此宿主 `KeepAccounts` iOS 真编译 `BUILD SUCCEEDED`，v1.0.2 起的 iOS 对外 API public 化扫尾全部完成。
+- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `1.0.7 → 1.0.8` 并重发 AAR。
 
 ### 验证
 
 - 组件库：`xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/lib-dd build` BUILD SUCCEEDED。
 - KeepAccounts iOS：`xcodebuild -project KeepAccounts.xcodeproj -scheme KeepAccounts -destination 'generic/platform=iOS Simulator' -configuration Debug` **BUILD SUCCEEDED**。
 
-## [2.0.7] - 2026-09-15（v2.0.6 public 化扫尾第五波：AppDatabase.dbQueue 公开）
+## [1.0.7] - 2026-09-15（v1.0.6 public 化扫尾第五波：AppDatabase.dbQueue 公开）
 
 ### Fixed
 
@@ -184,51 +184,51 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
   - **根因**：宿主仓储层需读 `AppDatabase.shared.dbQueue` 做业务表读写，而 `dbQueue` 为 `private(set) var`（默认 `internal`）。
 - **处置**：`AppDatabase.dbQueue` → `public private(set) var dbQueue: DatabaseQueue?`。
   - GRDB 已是本包公开依赖、宿主亦直接依赖 GRDB，暴露该类型无新增耦合；仍为 `private(set)`，外部不可替换队列。
-- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `2.0.6 → 2.0.7` 并重发 AAR。
+- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `1.0.6 → 1.0.7` 并重发 AAR。
 
 ### 验证
 
 - 组件库：`xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/lib-dd build` BUILD SUCCEEDED。
 - KeepAccounts iOS：真编译（见宿主迁移提交）。
 
-## [2.0.6] - 2026-09-15（v2.0.5 public 化扫尾第四波：Grid public 化 + ListCell open 化）
+## [1.0.6] - 2026-09-15（v1.0.5 public 化扫尾第四波：Grid public 化 + ListCell open 化）
 
 ### Fixed
 
 - **宿主编译暴露 2 类跨模块访问问题**：
-  1. `Grid` / `GridItem` 从未 public 化（v2.0.2 的 21 文件清单遗漏），宿主无法使用宫格组件。
+  1. `Grid` / `GridItem` 从未 public 化（v1.0.2 的 21 文件清单遗漏），宿主无法使用宫格组件。
      - 背景：KeepAccounts 的 `MoreViewController` / `DiscoverHomeViewController` / `LedgerHomeViewController` 原用本地 `NavigationGrid` / `NavBar`（网格语义），而本地副本实为指向旧组件库 `TechMiddleOffice/packages/ios` 的**悬空软链**；组件化后网格已由库内 `Grid` 承载，宿主需改用 `Grid`。
   2. `ListCell` 为 `public` 但非 `open`，宿主业务 Cell（`TransactionCell` / `CategoryRankCell`）报 `cannot inherit from non-open class 'ListCell' outside of its defining module`。
 - **处置**：
   1. `Grid.swift`：`Grid` / `GridItem` public 化——`public struct GridItem`（含 `public init(title:symbolName:)`）、`public final class Grid`、`public var onSelect`、`public var column`、`public override init(frame:)`、`public func apply(title:items:)`。
   2. `ListCell.swift`：`public class` → `open class`，且 `required init?(coder:)` 补 `public`（open 类的 required 初始化器必须 public，否则报 `'required' initializer must be accessible wherever class 'ListCell' can be subclassed`）。
-- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `2.0.5 → 2.0.6` 并重发 AAR。
+- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `1.0.5 → 1.0.6` 并重发 AAR。
 
 ### 验证
 
 - 组件库：`xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/lib-dd build` BUILD SUCCEEDED。
 - KeepAccounts iOS：真编译（见宿主迁移提交）。
 
-## [2.0.5] - 2026-09-15（v2.0.4 public 化扫尾第三波：AppRouter 静态成员 public 化）
+## [1.0.5] - 2026-09-15（v1.0.4 public 化扫尾第三波：AppRouter 静态成员 public 化）
 
 ### Fixed
 
-- **v2.0.4 仅 public 化 `AppRouter` enum 本体与 `Destination` 嵌套枚举，遗漏其静态成员**：
+- **v1.0.4 仅 public 化 `AppRouter` enum 本体与 `Destination` 嵌套枚举，遗漏其静态成员**：
   - 宿主（`KeepAccounts` 的 `MoreViewController` 等）调用 `AppRouter.push(_:from:)` / `AppRouter.open(_:from:)` 报 `'push' is inaccessible due to 'internal' protection level`。
   - **根因**：`AppRouter` 内的 `static var provider`、`enum Tab`、`static func selectTab/push/open/openIncome/openExpense` 默认 `internal`，未随类型本体一并 public 化。
 - **处置**：上述 7 个静态成员全部 `public` 化（`provider` / `Tab` / `selectTab(_:)` / `push(_:from:)` / `open(_:from:)` / `openIncome(year:month:from:)` / `openExpense(year:month:from:)`）。
-- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `2.0.4 → 2.0.5` 并重发 AAR。
+- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `1.0.4 → 1.0.5` 并重发 AAR。
 
 ### 验证
 
 - 组件库：`xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/lib-dd build` BUILD SUCCEEDED。
 - KeepAccounts iOS：真编译（见宿主迁移提交）。
 
-## [2.0.4] - 2026-09-15（v2.0.3 public 化扫尾第二波：AppRouter outer enum 可达性 + UIPickerViewDataSource/Delegate 实现 public 化）
+## [1.0.4] - 2026-09-15（v1.0.3 public 化扫尾第二波：AppRouter outer enum 可达性 + UIPickerViewDataSource/Delegate 实现 public 化）
 
 ### Fixed
 
-- **v2.0.3 遗漏 2 处 public 化**：
+- **v1.0.3 遗漏 2 处 public 化**：
   - `Foundation/Routing/AppRouter.swift:16` `method cannot be declared public because its parameter uses an internal type`。
     - **根因**：`enum AppRouter` 本身是 `internal`，嵌套 `public enum AppRouter.Destination` 路径不可达（路径访问要求 outer 类型本身可见）。
   - `SharedUI/Components/OptionPickerSheetViewController.swift:98:10` / `:109:10` `method 'pickerView(_:numberOfRowsInComponent:)' / 'pickerView(_:titleForRow:forComponent:)' must be declared public because it matches a requirement in public protocol 'UIPickerViewDataSource' / 'UIPickerViewDelegate'`。
@@ -236,18 +236,18 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 - **处置**：
   1. `AppRouter`：`enum AppRouter` → `public enum AppRouter`（outer 类型可达后，`AppRouter.Destination` 路径自然可见）。
   2. `OptionPickerSheetViewController`：`pickerView(_:numberOfRowsInComponent:)` → `public func`，`pickerView(_:titleForRow:forComponent:)` → `public func`。
-- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `2.0.3 → 2.0.4` 并重发 AAR。
+- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `1.0.3 → 1.0.4` 并重发 AAR。
 
 ### 验证
 
 - KeepAccounts iOS：`xcodebuild -project KeepAccounts.xcodeproj -scheme KeepAccounts -destination 'generic/platform=iOS Simulator' -configuration Debug` BUILD SUCCEEDED。
 - Android：`:components:assembleRelease`（待重发 AAR 后跑）。
 
-## [2.0.3] - 2026-09-15（v2.0.2 public 化的连带类型补全：宿主编译扫尾）
+## [1.0.3] - 2026-09-15（v1.0.2 public 化的连带类型补全：宿主编译扫尾）
 
 ### Fixed
 
-- **v2.0.2 仅对 21 个 iOS 文件本体 public 化，遗漏 3 处连带类型**：宿主 `KeepAccounts` `xcodebuild` 真编译报错：
+- **v1.0.2 仅对 21 个 iOS 文件本体 public 化，遗漏 3 处连带类型**：宿主 `KeepAccounts` `xcodebuild` 真编译报错：
   - `Foundation/Network/MockAPIClient.swift:26:10: method cannot be declared public because its result uses an internal type`（`HealthDTO` 未 public）。
   - `Foundation/Routing/AppRouter.swift:16:10: method cannot be declared public because its parameter uses an internal type`（`AppRouter.Destination` 嵌套枚举未 public）。
   - `Foundation/SystemBars/StatusBarNavigationController.swift:17:18: overriding property must be as accessible as its enclosing type`（`childForStatusBarHidden` 跟随 `childForStatusBarStyle` 必须同为 public）。
@@ -255,34 +255,34 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
   1. `HealthDTO.swift`：`struct HealthDTO: Decodable` → `public struct HealthDTO`，字段 `status` / `service` 同步 public（被 public `APIClientProtocol.getHealth() async throws -> HealthDTO` 返回类型引用，必须跟随）。
   2. `AppRouter.swift`：嵌套 `enum Destination` → `public enum Destination`（被 public `RouterDestinationProvider.makeViewController(for destination: AppRouter.Destination, yearMonth: (Int, Int)?) -> UIViewController?` 参数类型引用，必须跟随）。
   3. `StatusBarNavigationController.swift`：`override var childForStatusBarHidden` → `public override var childForStatusBarHidden`（与 `public override var childForStatusBarStyle` 对称，类已 public、override 属性必须同为 public）。
-- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `2.0.2 → 2.0.3` 并重发 AAR。
+- **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `1.0.2 → 1.0.3` 并重发 AAR。
 
 ### 验证
 
 - KeepAccounts iOS：`xcodebuild -project KeepAccounts.xcodeproj -scheme KeepAccounts -destination 'generic/platform=iOS Simulator' -configuration Debug` BUILD SUCCEEDED。
 - Android：`:components:assembleRelease`（待重发 AAR 后跑）。
 
-## [2.0.2] - 2026-09-15（iOS 对外 API public 化：打通宿主 `import TMONativeUIComps` 后访问通路）
+## [1.0.2] - 2026-09-15（iOS 对外 API public 化：打通宿主 `import TMONativeUIComps` 后访问通路）
 
 ### Fixed
 
-- **iOS 对外 API public 化（无组件行为变更，行为 = v2.0.1）**：v2.0.0/v2.0.1 改名后宿主 `import TMONativeUIComps` 后访问内部 API 编译失败（`'AppButton' is not a member type of 'TMONativeUIComps'` 等）。
+- **iOS 对外 API public 化（无组件行为变更，行为 = v1.0.1）**：v1.0.0/v1.0.1 改名后宿主 `import TMONativeUIComps` 后访问内部 API 编译失败（`'AppButton' is not a member type of 'TMONativeUIComps'` 等）。
   - **根因**：Swift 默认 access level 是 `internal`，未声明 `public` 修饰的类型对外不可见——本包原本为单仓自用、未按 SPM 对外分发要求标注 public。
   - **处置**：21 个 iOS 文件 public 化（187 增 187 删，纯 access level 调整、无逻辑/签名/行为变更）：
     - **Foundation 8 个**：`Design/AppTokens`（`AppColor`/`AppSpace`/`AppFont`/`AppRadius` 全枚举）、`Network/MockAPIClient`（`APIEnvironment`/`APIClientProtocol`）、`Routing/AppRouter`（`RouterDestinationProvider`/`NativePlaceholderViewController`）、`Storage/AppDatabase`（`DatabaseSchemaProvider`/`AppDatabase`/`AppDatabaseError`）、`SystemBars/StatusBarNavigationController`、`Util/CalendarFormatter`、`Util/Formatters`（`MoneyFormatter`/`DateFormatter`）、`Util/DemoDataSettings`。
     - **SharedUI 13 个**：`AppButton`/`Cell`/`CategoryPickerView`/`EmptyStateView`/`GroupList`/`GroupListItem`/`ListCell`/`NavBar`/`OptionPickerSheetViewController`/`PeriodTabsView`/`SummaryCardView`/`TrendChartView`/`WebContentViewController`/`ZodiacAvatarView`。
-- Android 端 Kotlin 默认 `public`，不受此影响；按「双端永远同版本」铁律同步升 `components` `2.0.1 → 2.0.2` 并重发 AAR。
+- Android 端 Kotlin 默认 `public`，不受此影响；按「双端永远同版本」铁律同步升 `components` `1.0.1 → 1.0.2` 并重发 AAR。
 
 ### 验证
 
 - iOS：`xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator' -configuration Release` BUILD SUCCEEDED。
 - Android：`:components:assembleRelease` BUILD SUCCESSFUL。
 
-## [2.0.1] - 2026-09-15（iOS 包清单迁至仓库根：打通宿主远程引用）
+## [1.0.1] - 2026-09-15（iOS 包清单迁至仓库根：打通宿主远程引用）
 
 ### Changed
 
-- **iOS 包清单由 `ios/Package.swift` 迁至仓库根 `Package.swift`（无组件行为变更，行为 = v2.0.0）**：用户 2026-09-15 指示「iOS 和 Android 都已经推到远程仓库了吗，我现在业务库需要拉远程仓库，而不是本地的」。
+- **iOS 包清单由 `ios/Package.swift` 迁至仓库根 `Package.swift`（无组件行为变更，行为 = v1.0.0）**：用户 2026-09-15 指示「iOS 和 Android 都已经推到远程仓库了吗，我现在业务库需要拉远程仓库，而不是本地的」。
   - **根因**：SwiftPM 对 git 依赖只认「仓库根目录的 Package.swift」，不支持「子目录即一个包」。清单留在 `ios/` 时宿主无法写 `.package(url: ….git, exact: …)` 远程引用，只能先 clone 全仓再以本地路径引用——等于没走远程依赖。Android 侧走 Maven 二进制（GitHub Packages 坐标 `com.zhiqihuayun:tmo-native-ui-comps`），不受仓库目录结构约束，故**无此问题**。
   - **target 路径改写**（相对仓库根）：`path: "ios"`、`sources: ["Foundation", "SharedUI"]`、`exclude` = `Vendor` / `.build` / `build` / `Tests` + 4 个记账业务组件。
   - 配套：`.gitignore` 增补根级 `/.build/`、`/.swiftpm/`、`/build/`；`demo/ios/project.yml` 源路径 `../../ios` 的 excludes 去掉已不存在的 `Package.swift` / `Package.resolved` 并补 `build`；`AGENTS.md` 第 4 节依赖口径同步。
@@ -291,14 +291,14 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
   - 处置：四个依赖改远程 URL 并锁定与 Vendor 相同的版本——Alamofire `from 5.9.1`、GRDB `from 6.29.3`、Charts `from 4.1.0`、SnapKit `from 5.6.0`；**Charts 的 URL 必须写 `ChartsOrg/Charts`**（与宿主 KeepAccounts 完全一致，否则同 identity 不同 URL 会在依赖图里分叉）。解析实测：Alamofire 5.9.1 / Charts 4.1.0 / GRDB 6.29.3 / SnapKit 5.6.0 / swift-algorithms 1.2.1 / swift-numerics 1.0.3，与 Vendor 版本一致。
   - `ios/Vendor/` **保留**（离线副本），供 `demo/ios`（root 工程，允许 path 依赖）与离线查证使用，不再参与组件包依赖解析。
   - **代价**：组件库自身 `publish_ios.sh` 的 Release 编译首次需联网拉依赖；宿主业务库本就在远程拉同样四个包，故消费侧无新增前提。v1.30c 的「全 Vendor 离线闭环」方案与远程分发**不可兼得**，本次为打通宿主远程引用而取舍。
-- `ui-version.json` 升 `2.0.1`。Android 侧无代码变更，按「双端永远同版本」铁律同步 `android/gradle/libs.versions.toml` components `2.0.0 → 2.0.1` 并重发 AAR。
+- `ui-version.json` 升 `1.0.1`。Android 侧无代码变更，按「双端永远同版本」铁律同步 `android/gradle/libs.versions.toml` components `1.0.0 → 1.0.1` 并重发 AAR。
 
-### 宿主消费方式（v2.0.1 起）
+### 宿主消费方式（v1.0.1 起）
 
 - iOS（远程源码依赖，推荐）：
 
   ```swift
-  .package(url: "https://github.com/iamsunshow/ProductRDDept_TechMiddleOffice_Native-UI-Comps.git", exact: "2.0.1")
+  .package(url: "https://github.com/iamsunshow/ProductRDDept_TechMiddleOffice_Native-UI-Comps.git", exact: "1.0.1")
   ```
 
   `import TMONativeUIComps`
@@ -306,27 +306,27 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
   ```kotlin
   maven { url = uri("https://maven.pkg.github.com/iamsunshow/ProductRDDept_TechMiddleOffice_Native-UI-Comps") }
-  implementation("com.zhiqihuayun:tmo-native-ui-comps:2.0.1")
+  implementation("com.zhiqihuayun:tmo-native-ui-comps:1.0.1")
   ```
 
 ### 验证
 
 - `swift package dump-package` 清单解析通过（仓库根）。
 - `xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator' -configuration Release` BUILD SUCCEEDED。
-- Android：`:components:assembleRelease` + 发布 GitHub Packages（坐标 `com.zhiqihuayun:tmo-native-ui-comps:2.0.1`）。
+- Android：`:components:assembleRelease` + 发布 GitHub Packages（坐标 `com.zhiqihuayun:tmo-native-ui-comps:1.0.1`）。
 
-## [2.0.0] - 2026-09-15（双端组件库改名 tmo-native-ui-comps）
+## [1.0.0] - 2026-09-15（双端组件库改名 tmo-native-ui-comps）
 
 ### Changed
 
-- **Android Maven 坐标改名（消费方破坏性变更）**：用户指令「android和ios的组件库名称改成tmo-native-ui-comps」——`android/components/build.gradle.kts` 发布坐标 artifactId 由 `components` 改为 **`tmo-native-ui-comps`**（`com.zhiqihuayun:tmo-native-ui-comps`，group 不变；Gradle 模块目录 `:components` 不变，发布命令不受影响）；GitHub Packages 发布 URL 同步指向子仓实际仓库名 `ProductRDDept_TechMiddleOffice_Native-UI-Comps`；`libs.versions.toml` components 升 `2.0.0`；demo Android 依赖坐标同步 `com.zhiqihuayun:tmo-native-ui-comps:2.0.0`（includeBuild 依赖替换按新坐标匹配）。
+- **Android Maven 坐标改名（消费方破坏性变更）**：用户指令「android和ios的组件库名称改成tmo-native-ui-comps」——`android/components/build.gradle.kts` 发布坐标 artifactId 由 `components` 改为 **`tmo-native-ui-comps`**（`com.zhiqihuayun:tmo-native-ui-comps`，group 不变；Gradle 模块目录 `:components` 不变，发布命令不受影响）；GitHub Packages 发布 URL 同步指向子仓实际仓库名 `ProductRDDept_TechMiddleOffice_Native-UI-Comps`；`libs.versions.toml` components 升 `1.0.0`；demo Android 依赖坐标同步 `com.zhiqihuayun:tmo-native-ui-comps:1.0.0`（includeBuild 依赖替换按新坐标匹配）。
 - **iOS SPM 包改名（消费方破坏性变更）**：包名由历史遗留名 `KeepAccountsMiddleware` 改为 **`tmo-native-ui-comps`**（该包最初为记账 App 中间层创建，仓库演进为通用中台组件库后包名未跟随，本次按用户指示正名）——`ios/Package.swift` 包名/产品名=`tmo-native-ui-comps`、Swift 模块名=`TMONativeUIComps`（宿主 `import TMONativeUIComps`；连字符包名会自动转下划线，故显式取 PascalCase 模块名）、testTarget=`TMONativeUICompsTests`；Tests 6 文件 `@testable import` 同步；`publish_ios.sh` scheme 同步 `tmo-native-ui-comps`。
-- `ui-version.json` 升 `2.0.0`（改名=破坏性变更升主版本；无组件行为变更，行为=v1.9.40）。
+- `ui-version.json` 升 `1.0.0`（改名=破坏性变更升主版本；无组件行为变更，行为=v1.9.40）。
 
 ### 验证
 
-- Android：`:components:assembleRelease` + `publishToMavenLocal`（新坐标 `com.zhiqihuayun:tmo-native-ui-comps:2.0.0` 落 `~/.m2/repository/com/zhiqihuayun/tmo-native-ui-comps/2.0.0/`）+ demo `:app:assembleDebug`（includeBuild 新坐标替换生效）；iOS：`xcodebuild -scheme tmo-native-ui-comps -sdk iphonesimulator -configuration Release` BUILD SUCCEEDED。
-- 宿主消费变更：Android `implementation("com.zhiqihuayun:tmo-native-ui-comps:2.0.0")`；iOS `import TMONativeUIComps`（按子仓 tag `v2.0.0` 固定引用）。
+- Android：`:components:assembleRelease` + `publishToMavenLocal`（新坐标 `com.zhiqihuayun:tmo-native-ui-comps:1.0.0` 落 `~/.m2/repository/com/zhiqihuayun/tmo-native-ui-comps/1.0.0/`）+ demo `:app:assembleDebug`（includeBuild 新坐标替换生效）；iOS：`xcodebuild -scheme tmo-native-ui-comps -sdk iphonesimulator -configuration Release` BUILD SUCCEEDED。
+- 宿主消费变更：Android `implementation("com.zhiqihuayun:tmo-native-ui-comps:1.0.0")`；iOS `import TMONativeUIComps`（按子仓 tag `v1.0.0` 固定引用）。
 
 ## [1.9.40] - 2026-09-14（foundation 六件 + SystemBars/DesignTokens C1.5 验收收口 + AnimatingNumbers 推迟 v2.0）
 

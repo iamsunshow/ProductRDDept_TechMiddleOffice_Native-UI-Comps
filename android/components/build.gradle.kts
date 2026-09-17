@@ -90,7 +90,7 @@ afterEvaluate {
         publications {
             register<MavenPublication>("mavenAndroid") {
                 groupId = "com.zhiqihuayun"
-                // 2026-09-15 用户指令改名：components → tmo-native-ui-comps（消费方破坏性变更，版本升 v2.0.0）
+                // 2026-09-15 用户指令改名：components → tmo-native-ui-comps（消费方破坏性变更，版本升 v1.0.0）
                 artifactId = "tmo-native-ui-comps"
                 version = libs.versions.components.get()
                 // 自动附加 AAR 产物 + 传递依赖 POM（compose/navigation/retrofit/okhttp/serialization）

@@ -2,6 +2,17 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.0.18] - 2026-09-18（DatePickerSheet 弹层闪动修复）
+
+### Fixed
+
+- **DatePickerSheet Android 弹层持续闪动**：`ModalBottomSheet` 的 `skipPartiallyExpanded` 为 `false` 时，固定高度内容（220dp 滚轮 + 44dp 工具栏）在 partially-expanded 与 fully-expanded 之间反复振荡导致闪动。改为 `skipPartiallyExpanded = true`，弹层直接展开到最终位置。
+
+### 验证
+
+- Android `:components:assembleRelease` BUILD SUCCESSFUL。
+- 发布至 GitHub Packages（`com.zhiqihuayun:tmo-native-ui-comps:1.0.18`）。
+
 ## [1.0.17] - 2026-09-18（NavBar 修复：标题严格居中 + 底部分隔线可关）
 
 ### Fixed

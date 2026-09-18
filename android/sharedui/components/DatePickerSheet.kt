@@ -97,7 +97,7 @@ fun DatePickerSheet(
     val yearUpper = minOf(currentYear + 1, maxYear)
     val years = remember(maxYear) { ((currentYear - 10)..yearUpper).toList() }
 
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val title = when (mode) {
         DatePickerMode.DATE -> "选择日期"

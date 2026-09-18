@@ -2,6 +2,23 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.0.15] - 2026-09-18（NavBar 扩展：背景色 + 前景色 + 自定义动作槽）
+
+### Changed
+
+- **NavBar（ui.nav-bar，#17）扩展 3 个新参数（均向后兼容）**：`android/sharedui/components/NavBar.kt`
+  - `backgroundColor: Color = AppColor.bgCard` — 支持自定义背景色（如 LedgerPage 绿底场景）
+  - `contentColor: Color = AppColor.textPrimary` — 前景色，控制标题/返回箭头/rightAction 默认色
+  - `actions: @Composable RowScope.() -> Unit = {}` — 右侧自定义动作槽（RowScope，可放任意组件；与 rightAction 可同时使用）
+  - 原 `rightAction` 参数保留，`color` 缺省值由 `AppColor.textPrimary` 改为 `contentColor`
+- 宿主 PageScaffold 内部 TitleBar 替换为库 NavBar，删除约 50 行手搓代码
+
+### 验证
+
+- Android `:components:assembleRelease` BUILD SUCCESSFUL。
+- 发布至 GitHub Packages（`com.zhiqihuayun:tmo-native-ui-comps:1.0.15`）。
+- 宿主 `:app:assembleDebug` BUILD SUCCESSFUL。
+
 ## [1.0.14] - 2026-09-18（Grid 扩展：选中高亮 + 自定义图标渲染）
 
 ### Added

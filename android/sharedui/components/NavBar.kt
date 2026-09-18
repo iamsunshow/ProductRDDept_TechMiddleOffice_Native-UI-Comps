@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,6 +30,14 @@ import com.zhiqihuayun.foundation.design.AppSpace
  * 右侧动作 text + 可选 color + onTap；内容行高 44dp；白底 bgCard + 行底 hairline；
  * 导航栈/inset 由宿主自理。对应 iOS：NavBar(title, onBack?, rightAction?)。
  * 版本：Native-UI-Comps ui-version v1.4.0（本文件为新组件初版，随 demo 徽标 v1.0）。
+ *
+ * @param title 居中标题（单行省略）
+ * @param onBack 返回回调（null=不显示返回槽，标题严格居中）
+ * @param rightAction 右侧文字按钮（便捷入口，null=不显示）
+ * @param backgroundColor 背景色（默认 bgCard 白底）
+ * @param contentColor 前景色（标题/返回箭头/rightAction 默认色）
+ * @param actions 右侧自定义动作槽（RowScope，优先级高于 rightAction；两者可同时使用）
+ * @param modifier 布局修饰符
  */
 data class NavBarAction(
     val text: String,
@@ -49,12 +58,15 @@ fun NavBar(
     title: String,
     onBack: (() -> Unit)? = null,
     rightAction: NavBarAction? = null,
+    backgroundColor: Color = AppColor.bgCard,
+    contentColor: Color = AppColor.textPrimary,
+    actions: @Composable RowScope.() -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(AppColor.bgCard),
+            .background(backgroundColor),
     ) {
         Row(
             modifier = Modifier
@@ -72,7 +84,7 @@ fun NavBar(
                 ) {
                     Text(
                         text = "←",
-                        color = AppColor.primary,
+                        color = contentColor,
                         fontSize = AppFont.sizeXl,
                         modifier = Modifier.padding(start = NavBarTokens.backGlyphInset),
                     )
@@ -80,7 +92,7 @@ fun NavBar(
             }
             Text(
                 text = title,
-                color = AppColor.textPrimary,
+                color = contentColor,
                 fontSize = AppFont.sizeLg,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
@@ -99,13 +111,14 @@ fun NavBar(
                 ) {
                     Text(
                         text = rightAction.text,
-                        color = rightAction.color ?: AppColor.textPrimary,
+                        color = rightAction.color ?: contentColor,
                         fontSize = AppFont.sizeSm,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
+            actions()
         }
         // 行底 hairline
         Box(

@@ -2,6 +2,37 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.0.14] - 2026-09-18（Grid 扩展：选中高亮 + 自定义图标渲染）
+
+### Added
+
+- **Grid（ui.grid）扩展 5 个新参数（均向后兼容）**：`android/sharedui/components/Grid.kt`
+  - `selectedIndex: Int?` — 选中项索引，非 null 时高亮该项（primaryMuted 背景 + primary 文字色）
+  - `iconSlot: (@Composable (GridItem, Boolean) -> Unit)?` — 自定义图标渲染槽，非 null 时跳过默认绿色容器，由调用方控制图标视觉
+  - `itemHeight: Int` — 每行高度（默认 72dp）
+  - `scrollable: Boolean` — 是否启用纵向滚动（默认 false）
+  - 用途：支持记账分类选择器等需要选中态 + 自定义图标的场景，替代业务层 LazyVerticalGrid 手写实现。
+
+### 验证
+
+- 待 Android `:components:assembleRelease` BUILD SUCCESSFUL。
+- 待发布至 GitHub Packages（`com.zhiqihuayun:tmo-native-ui-comps:1.0.14`）。
+
+## [1.0.13] - 2026-09-17（BarChart 纳入发布）
+
+### Added
+
+- **BarChart（ui.bar-chart）首次纳入发布 AAR**：`android/sharedui/components/BarChart.kt`
+  - 横向条形图组件，支持阈值三色（primary/warning/error）、300ms 过渡动画。
+  - API：`BarChart(items: List<BarChartItem>, modifier, warnThreshold, dangerThreshold, maxValue)`
+  - 数据类：`BarChartItem(label: String, value: Float)`
+  - 此前源码已入库（v1.0.9）但未随 AAR 发布，本版起消费方可通过 Maven 坐标引用。
+
+### 验证
+
+- Android `:components:assembleRelease` BUILD SUCCESSFUL。
+- 发布至 GitHub Packages（`com.zhiqihuayun:tmo-native-ui-comps:1.0.13`）。
+
 ## [1.0.12] - 2026-09-16（ProgressCircle Android 中心文案居中修复 + 回归用例入库）
 
 ### Fixed

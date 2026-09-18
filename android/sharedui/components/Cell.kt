@@ -76,6 +76,7 @@ enum class CellStatus {
  * @param title 主标题（必填）
  * @param subtitle 副标题；为空自动隐藏（单行）
  * @param icon 左侧图标（Painter，业务侧把资源名解析为 Painter 传入）
+ * @param leading 左侧自定义组合式内容（非 null 时优先于 [icon] 渲染，用于 Painter 无法表达的组合式组件如 ZodiacAvatar）
  * @param value 右侧值文本
  * @param arrow 是否显示右侧箭头，默认 true
  * @param disabled 禁用态：背景置灰、文字置灰、不透箭头、不可点
@@ -90,6 +91,7 @@ fun Cell(
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     icon: Painter? = null,
+    leading: (@Composable () -> Unit)? = null,
     value: String? = null,
     arrow: Boolean = true,
     disabled: Boolean = false,
@@ -126,7 +128,10 @@ fun Cell(
                 .padding(horizontal = AppSpace.lg, vertical = AppSpace.cellVertical),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (icon != null) {
+            if (leading != null) {
+                leading()
+                Spacer(modifier = Modifier.width(AppSpace.md))
+            } else if (icon != null) {
                 Image(
                     painter = icon,
                     contentDescription = null,

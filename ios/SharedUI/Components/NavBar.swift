@@ -1,10 +1,11 @@
 /// NavBar 头部导航（ui.nav-bar，#17）。
 ///
 /// 顶部单行头部导航条（收编升级为库内独立组件）。
-/// 契约：标题居中单行省略；onBack=nil 时返回槽不占位、标题严格水平居中；
-/// 右侧动作 text + 可选 color + onTap；内容高 44pt，宿主可高度约束覆盖；
-/// 白底 bgCard + 行底 hairline；导航栈/inset 由宿主自理。
-/// 对应 Android：NavBar(title, onBack?, rightAction?, modifier)。
+/// 契约：标题严格水平居中（centerX 定位，不受返回槽/动作槽宽度影响）；
+/// onBack=nil 时返回槽不渲染；右侧动作 text + 可选 color + onTap；
+/// 内容高 44pt，宿主可高度约束覆盖；白底 bgCard + 行底 hairline（可关）；
+/// 导航栈/inset 由宿主自理。
+/// 对应 Android：NavBar(title, onBack?, rightAction?, showDivider, modifier)。
 /// 版本：Native-UI-Comps ui-version v1.4.0（本文件为新组件初版，随 demo 徽标 v1.0）。
 import UIKit
 import SnapKit
@@ -61,11 +62,13 @@ public final class NavBar: UIView {
     private var actionButton: UIButton?
     private var backClosure: (() -> Void)?
     private var actionClosure: (() -> Void)?
+    private let showDivider: Bool
 
-    public init(title: String, onBack: (() -> Void)? = nil, rightAction: NavBarAction? = nil) {
+    public init(title: String, onBack: (() -> Void)? = nil, rightAction: NavBarAction? = nil, showDivider: Bool = true) {
         self.title = title
         self.onBack = onBack
         self.rightAction = rightAction
+        self.showDivider = showDivider
         self.backClosure = onBack
         self.actionClosure = rightAction?.onTap
         super.init(frame: .zero)
@@ -97,6 +100,7 @@ public final class NavBar: UIView {
 
     private func setupHairline() {
         hairline.backgroundColor = AppColor.border
+        hairline.isHidden = !showDivider
         addSubview(hairline)
         hairline.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()

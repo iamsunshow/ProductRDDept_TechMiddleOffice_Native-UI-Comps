@@ -2,6 +2,24 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.0.17] - 2026-09-18（NavBar 修复：标题严格居中 + 底部分隔线可关）
+
+### Fixed
+
+- **NavBar Android 标题居中修复**：原实现用 `Row` + `weight(1f)` 将标题夹在返回槽与动作槽之间，标题居中于剩余空间而非屏幕中心，有返回按钮时视觉偏移。改为 Box 叠层——标题 `fillMaxWidth` + `textAlign=Center` 严格屏幕居中，返回槽/动作槽浮于上层交互（对齐 iOS `centerX.equalToSuperview()` 行为）。
+- **NavBar 新增 `showDivider` 参数**（双端，向后兼容，默认 `true`）：控制底部 0.5dp hairline 显示/隐藏。PageScaffold 传 `showDivider=false` 消除页面级 NavBar 多余白线。
+
+### Changed
+
+- **Android**：`NavBar.kt` 布局由 Row 改为 Box 叠层（标题层 + 交互层）；新增 `showDivider: Boolean = true` 参数。
+- **iOS**：`NavBar.swift` 新增 `showDivider: Bool = true` 初始化参数，`setupHairline()` 内 `hairline.isHidden = !showDivider`。
+
+### 验证
+
+- Android `:components:assembleRelease` BUILD SUCCESSFUL。
+- 发布至 GitHub Packages（`com.zhiqihuayun:tmo-native-ui-comps:1.0.17`）。
+- 宿主 `:app:compileDebugKotlin` BUILD SUCCESSFUL。
+
 ## [1.0.15] - 2026-09-18（NavBar 扩展：背景色 + 前景色 + 自定义动作槽）
 
 ### Changed

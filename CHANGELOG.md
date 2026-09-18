@@ -2,6 +2,17 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.0.19] - 2026-09-18（DatePickerSheet 弹层闪动根治）
+
+### Fixed
+
+- **DatePickerSheet Android 弹层闪动根治**：v1.0.18 的 `skipPartiallyExpanded=true` 未完全解决闪动。真正根因=WheelColumn 的 `LaunchedEffect(selectedIndex)` 在初始组合时立即触发 `onIndexChange`，导致三列级联状态变更（年→月 key 变→月重建→日 key 变→日重建），弹层动画期间反复重组闪动。修复=新增 `isInitializing` 守卫：初始滚动定位完成前屏蔽 `onIndexChange` 回调，定位完成后解锁，用户滚动正常触发。
+
+### 验证
+
+- Android `:components:assembleRelease` BUILD SUCCESSFUL。
+- 发布至 GitHub Packages（`com.zhiqihuayun:tmo-native-ui-comps:1.0.19`）。
+
 ## [1.0.18] - 2026-09-18（DatePickerSheet 弹层闪动修复）
 
 ### Fixed

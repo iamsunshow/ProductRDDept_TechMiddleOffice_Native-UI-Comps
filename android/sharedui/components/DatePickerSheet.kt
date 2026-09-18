@@ -26,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -273,17 +274,23 @@ private fun WheelColumn(
             }
     }
 
-    // 选中变化回调
+    // 初始化期间屏蔽 onIndexChange，避免弹层动画中级联触发状态变更导致闪动
+    var isInitializing by remember(key, values) { mutableStateOf(true) }
+
+    // 选中变化回调（初始化完成后才生效）
     LaunchedEffect(selectedIndex) {
-        onIndexChange(selectedIndex)
+        if (!isInitializing) {
+            onIndexChange(selectedIndex)
+        }
     }
 
-    // 初始定位
+    // 初始定位：滚动完成后解除初始化锁
     LaunchedEffect(key, values, initialIndex) {
         val init = initialIndex.coerceIn(0, (values.size - 1).coerceAtLeast(0))
         if (listState.firstVisibleItemIndex != init) {
             listState.scrollToItem(init)
         }
+        isInitializing = false
     }
 
     Box(modifier = modifier.fillMaxSize()) {

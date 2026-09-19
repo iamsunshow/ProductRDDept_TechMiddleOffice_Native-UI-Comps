@@ -359,6 +359,7 @@ fun AppInputField(
     keyboardType: KeyboardType = KeyboardType.Text,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     showClearButton: Boolean = true,
+    enabled: Boolean = true,
     trailingAction: (@Composable () -> Unit)? = null
 ) {
     BasicTextField(
@@ -369,9 +370,13 @@ fun AppInputField(
             .background(AppColor.bgPage, RoundedCornerShape(AppRadius.lg))
             .padding(horizontal = AppSpace.md),
         singleLine = true,
+        enabled = enabled,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         visualTransformation = visualTransformation,
-        textStyle = TextStyle(fontSize = AppFont.sizeMd, color = AppColor.textPrimary),
+        textStyle = TextStyle(
+            fontSize = AppFont.sizeMd,
+            color = if (enabled) AppColor.textPrimary else AppColor.textSecondary
+        ),
         decorationBox = { innerTextField ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -387,7 +392,7 @@ fun AppInputField(
                     }
                     innerTextField()
                 }
-                if (value.isNotEmpty() && showClearButton) {
+                if (enabled && value.isNotEmpty() && showClearButton) {
                     ClearIconButton { onValueChange("") }
                 }
                 trailingAction?.invoke()
@@ -405,14 +410,16 @@ fun PhoneInputField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String = "手机号码",
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     AppInputField(
         value = value,
         onValueChange = onValueChange,
         placeholder = placeholder,
         modifier = modifier,
-        keyboardType = KeyboardType.Phone
+        keyboardType = KeyboardType.Phone,
+        enabled = enabled
     )
 }
 
@@ -425,14 +432,16 @@ fun EmailInputField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String = "邮箱地址",
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     AppInputField(
         value = value,
         onValueChange = onValueChange,
         placeholder = placeholder,
         modifier = modifier,
-        keyboardType = KeyboardType.Email
+        keyboardType = KeyboardType.Email,
+        enabled = enabled
     )
 }
 

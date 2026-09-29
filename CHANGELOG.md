@@ -2,6 +2,17 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.0.21] - 2026-09-29（NavBar 返回字形自绘 chevron）
+
+### Changed
+
+- **NavBar 返回箭头去字体化**：用户反馈「二级页面 titlebar 的返回 icon 有点 low，感觉像是字体」——双端返回槽原为文本字形 `"←"`（Android `NavBar.kt` Text sizeXl / iOS `NavBar.swift` UIButton title sizeXl），字体渲染观感差且行框 ascent/descent 导致字形不严格垂直居中。修复=双端改为自绘 `<` chevron 矢量字形（同坐标 1:1）：12×20dp/pt 视口内两段圆头线 顶点(10,1)→拐点(2,10)→底点(10,19)、线宽 2，Android `BackChevron` Canvas drawLine / iOS `ChevronGlyphView` UIBezierPath（纯 draw 视图显式 `isOpaque=false`，对齐 RateView 经验）；字形几何中心=视口中心，`centerY`/Box Center 几何居中不依赖字体度量。返回热区 44 不变、chevron 距左 8 不变、颜色语义不变（Android=contentColor / iOS=primary）、标题/动作槽/分隔线零变化。
+
+### 验证
+
+- Android `:components:compileDebugKotlin` BUILD SUCCESSFUL + 宿主 KeepAccounts `:app:assembleDebug` BUILD SUCCESSFUL（includeBuild 直连生效，二级页即可看效果）。
+- iOS 包 `xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator'` BUILD SUCCEEDED。
+
 ## [1.0.20] - 2026-09-29（NumberKeyboardView/ProgressCircleView iOS public 化 + AppInputField enabled 补记）
 
 ### Fixed

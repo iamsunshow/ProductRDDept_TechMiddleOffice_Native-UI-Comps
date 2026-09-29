@@ -6,7 +6,7 @@
 /// 内容高 44pt，宿主可高度约束覆盖；白底 bgCard + 行底 hairline（可关）；
 /// 导航栈/inset 由宿主自理。
 /// 对应 Android：NavBar(title, onBack?, rightAction?, showDivider, modifier)。
-/// 版本：Native-UI-Comps ui-version v1.4.0（本文件为新组件初版，随 demo 徽标 v1.0）。
+/// 版本：Native-UI-Comps ui-version v1.0.21（返回字形改自绘 chevron "<"，替换文本字形 "←"）。
 import UIKit
 import SnapKit
 
@@ -27,9 +27,10 @@ public struct NavBarAction {
 public final class NavBar: UIView {
     public struct Metrics {
         public static let contentHeight: CGFloat = 44 // 行高 44pt（宿主可覆盖）
-        public static let backGlyph = "←"
+        public static let backChevronSize = CGSize(width: 12, height: 20) // 自绘 "<" 视口（v1.0.21 起替换文本字形 "←"）
+        public static let backChevronStroke: CGFloat = 2 // chevron 线宽
         public static let backHitWidth: CGFloat = 44 // 返回热区宽 ≥40pt
-        public static let backGlyphInset: CGFloat = AppSpace.sm // ← 距左 8pt
+        public static let backGlyphInset: CGFloat = AppSpace.sm // chevron 距左 8pt
         public static let actionTapInset: CGFloat = AppSpace.md // 右侧动作左右内边距
         public static let sideInset: CGFloat = AppSpace.lg
         public static let titleSideInset: CGFloat = AppSpace.md
@@ -117,11 +118,17 @@ public final class NavBar: UIView {
 
         if backClosure != nil {
             let button = UIButton(type: .system)
-            button.setTitle(Metrics.backGlyph, for: .normal)
-            button.titleLabel?.font = .systemFont(ofSize: AppFont.sizeXl)
-            button.setTitleColor(AppColor.primary, for: .normal)
-            button.contentHorizontalAlignment = .left
-            button.contentEdgeInsets = UIEdgeInsets(top: 0, left: Metrics.backGlyphInset, bottom: 0, right: 0)
+            // 自绘 "<" chevron（与 Android BackChevron 同坐标 1:1）：几何中心=视口中心，
+            // 垂直居中不依赖字体度量。
+            let chevron = ChevronGlyphView(color: AppColor.primary)
+            chevron.isUserInteractionEnabled = false
+            button.addSubview(chevron)
+            chevron.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(Metrics.backGlyphInset)
+                make.centerY.equalToSuperview()
+                make.width.equalTo(Metrics.backChevronSize.width)
+                make.height.equalTo(Metrics.backChevronSize.height)
+            }
             button.addTarget(self, action: #selector(didTapBack), for: .touchUpInside)
             addSubview(button)
             button.snp.makeConstraints { make in
@@ -178,5 +185,38 @@ public final class NavBar: UIView {
 
     @objc private func didTapAction() {
         actionClosure?()
+    }
+}
+
+/// 返回 chevron 矢量字形（自绘 "<"，v1.0.21 起替换文本字形 "←"）。
+///
+/// 12×20pt 视口内两段圆头线：顶点 (10,1)→拐点 (2,10)→底点 (10,19)，线宽 2pt。
+/// 坐标按 bounds 比例缩放，与 Android BackChevron 同坐标 1:1；字形几何中心=视口中心。
+private final class ChevronGlyphView: UIView {
+    private let strokeColor: UIColor
+
+    init(color: UIColor) {
+        self.strokeColor = color
+        super.init(frame: .zero)
+        backgroundColor = .clear
+        isOpaque = false
+        contentMode = .redraw
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { nil }
+
+    override func draw(_ rect: CGRect) {
+        let path = UIBezierPath()
+        path.lineCapStyle = .round
+        path.lineJoinStyle = .round
+        path.lineWidth = NavBar.Metrics.backChevronStroke
+        let w = bounds.width
+        let h = bounds.height
+        path.move(to: CGPoint(x: w * (10.0 / 12.0), y: h * (1.0 / 20.0)))
+        path.addLine(to: CGPoint(x: w * (2.0 / 12.0), y: h * (10.0 / 20.0)))
+        path.addLine(to: CGPoint(x: w * (10.0 / 12.0), y: h * (19.0 / 20.0)))
+        strokeColor.setStroke()
+        path.stroke()
     }
 }

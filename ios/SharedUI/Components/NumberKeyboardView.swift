@@ -18,7 +18,7 @@
 import UIKit
 
 /// 数字键盘面板。
-final class NumberKeyboardView: UIView {
+public final class NumberKeyboardView: UIView {
     // MARK: - 对外属性
     /// 数字/小数/extraKey 文本上屏回调（必传）。
     private let onInput: (String) -> Void
@@ -34,11 +34,11 @@ final class NumberKeyboardView: UIView {
     private let extraKey: String?
 
     /// 仅确认列禁用（buttonDisabled 灰不可点）。
-    var confirmDisabled: Bool = false {
+    public var confirmDisabled: Bool = false {
         didSet { refreshConfirm() }
     }
     /// 整键盘禁用（整体 alpha 0.4、全部不可点）。
-    var disabled: Bool = false {
+    public var disabled: Bool = false {
         didSet {
             isUserInteractionEnabled = !disabled
             alpha = disabled ? 0.4 : 1
@@ -61,7 +61,7 @@ final class NumberKeyboardView: UIView {
     private let confirmButton = UIButton(type: .custom)
 
     // MARK: - 初始化
-    init(
+    public init(
         onInput: @escaping (String) -> Void,
         onDelete: (() -> Void)? = nil,
         onConfirm: (() -> Void)? = nil,
@@ -90,7 +90,7 @@ final class NumberKeyboardView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override var intrinsicContentSize: CGSize {
+    public override var intrinsicContentSize: CGSize {
         CGSize(width: UIView.noIntrinsicMetric, height: Metrics.totalHeight)
     }
 

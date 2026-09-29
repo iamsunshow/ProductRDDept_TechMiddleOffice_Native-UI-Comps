@@ -2,6 +2,17 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.0.20] - 2026-09-29（NumberKeyboardView iOS public 化 + AppInputField enabled 补记）
+
+### Fixed
+
+- **NumberKeyboardView iOS 可见性修复**：`NumberKeyboardView`（ui.number-keyboard #32）自 2026-09-17 收编起类/`init`/`confirmDisabled`/`disabled`/`intrinsicContentSize` 均为 internal，宿主 KeepAccounts 以远程 SPM 引用（v1.0.12）时编译报 `cannot find type 'NumberKeyboardView' in scope`——本地直连编译时代可见、远程包模块边界不可见的隐藏缺口。修复=五处 public 化，API 签名零变化。
+- **补记 [1.0.20 前置]**：AppInputField 新增 `enabled` 参数支持禁用态（此前提交 375580e 已入 main 未记 CHANGELOG，随本版一并随 tag 发布）。
+
+### 验证
+
+- 宿主 KeepAccounts iOS `xcodebuild` Debug BUILD SUCCESSFUL（锚本 tag v1.0.20）。
+
 ## [1.0.19] - 2026-09-18（DatePickerSheet 弹层闪动根治）
 
 ### Fixed

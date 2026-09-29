@@ -1,6 +1,5 @@
 package com.zhiqihuayun.sharedui.components
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -13,13 +12,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,17 +32,18 @@ import com.zhiqihuayun.foundation.design.AppSpace
 /**
  * NavBar 头部导航（ui.nav-bar，#17）。
  *
- * 顶部单行头部导航条。契约：标题严格水平居中（Box 叠层，标题 fillMaxWidth 居中，
+ * 顶部单行头部导航条。契约：标题严格水平+垂直居中（Box 叠层，标题 fillMaxWidth 居中，
  * 返回槽/动作槽浮于上层）；onBack=null 时返回槽不渲染；
  * 右侧动作 text + 可选 color + onTap；内容行高 44dp；白底 bgCard + 行底 hairline（可关）；
  * 导航栈/inset 由宿主自理。对应 iOS：NavBar(title, onBack?, rightAction?)。
- * 版本：Native-UI-Comps ui-version v1.0.21（返回字形改自绘 chevron "<"，替换文本字形 "←"）。
+ * 版本：Native-UI-Comps ui-version v1.0.22（返回按钮改 ScreenTopBar 同款 Material ArrowBack
+ * 24dp 图标 + 48dp 热区贴左，写入组件库作为通用样式；标题垂直居中修复）。
  *
  * @param title 居中标题（单行省略；Box 叠层严格屏幕居中）
  * @param onBack 返回回调（null=不显示返回槽）
  * @param rightAction 右侧文字按钮（便捷入口，null=不显示）
  * @param backgroundColor 背景色（默认 bgCard 白底）
- * @param contentColor 前景色（标题/返回箭头/rightAction 默认色）
+ * @param contentColor 前景色（标题/rightAction 默认色；返回箭头按背景亮度自适应浅色底 primary/深色底白）
  * @param actions 右侧自定义动作槽（RowScope，优先级高于 rightAction；两者可同时使用）
  * @param showDivider 是否显示底部分隔线（默认 true）
  * @param modifier 布局修饰符
@@ -54,8 +56,8 @@ data class NavBarAction(
 
 private object NavBarTokens {
     const val contentHeightDp = 44
-    const val backHitWidthDp = 44 // 返回热区宽 ≥40dp
-    val backGlyphInset = AppSpace.sm
+    const val backHitWidthDp = 48 // 返回热区宽（ScreenTopBar 同款 48dp 贴左，图标居中距左 24dp）
+    const val backIconDp = 24 // Material ArrowBack 图标边长（ScreenTopBar 同款）
     val sideInset = AppSpace.lg
     val titleSideInset = AppSpace.md
 }
@@ -76,7 +78,8 @@ fun NavBar(
             .fillMaxWidth()
             .background(backgroundColor),
     ) {
-        // 标题层：fillMaxWidth 严格屏幕居中，不受返回槽/动作槽宽度影响
+        // 标题层：fillMaxWidth 严格屏幕居中，不受返回槽/动作槽宽度影响；
+        // align(Center) 保证单行文字在 44dp 行高内垂直居中（v1.0.22 修复固定 height 顶对齐偏上）。
         Text(
             text = title,
             color = contentColor,
@@ -86,8 +89,8 @@ fun NavBar(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
+                .align(Alignment.Center)
                 .fillMaxWidth()
-                .height(NavBarTokens.contentHeightDp.dp)
                 .padding(horizontal = NavBarTokens.titleSideInset),
         )
         // 交互层：返回槽 + 右侧动作
@@ -98,16 +101,23 @@ fun NavBar(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (onBack != null) {
+                // 返回按钮：ScreenTopBar（更多页/家庭账单页）同款通用样式，v1.0.22 写入组件库——
+                // 48dp 热区贴左 + Material ArrowBack 24dp 图标居中（图标中心距左 24dp）；
+                // 颜色按背景亮度自适应：浅色底 primary 绿、深色底（如品牌绿 headerBg）白。
+                val backTint =
+                    if (backgroundColor.luminance() > 0.5f) AppColor.primary else Color.White
                 Box(
                     modifier = Modifier
                         .width(NavBarTokens.backHitWidthDp.dp)
                         .fillMaxHeight()
                         .clickable(onClick = onBack),
-                    contentAlignment = Alignment.CenterStart,
+                    contentAlignment = Alignment.Center,
                 ) {
-                    BackChevron(
-                        color = contentColor,
-                        modifier = Modifier.padding(start = NavBarTokens.backGlyphInset),
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                        contentDescription = null,
+                        tint = backTint,
+                        modifier = Modifier.size(NavBarTokens.backIconDp.dp),
                     )
                 }
             }
@@ -139,24 +149,5 @@ fun NavBar(
                     .background(AppColor.border),
             )
         }
-    }
-}
-
-/**
- * 返回 chevron 矢量字形（自绘 "<"，v1.0.21 起替换文本字形 "←"）。
- *
- * 12×20dp 视口内两段圆头线：顶点 (10,1)→拐点 (2,10)→底点 (10,19)，线宽 2dp。
- * 坐标按视口比例缩放，与 iOS ChevronGlyphView 同坐标 1:1；字形几何中心=视口中心，
- * 垂直居中不依赖字体度量（文本字形的行框 ascent/descent 会导致视觉偏移）。
- */
-@Composable
-private fun BackChevron(color: Color, modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier.size(width = 12.dp, height = 20.dp)) {
-        val strokePx = 2.dp.toPx()
-        val top = Offset(size.width * (10f / 12f), size.height * (1f / 20f))
-        val mid = Offset(size.width * (2f / 12f), size.height * (10f / 20f))
-        val bottom = Offset(size.width * (10f / 12f), size.height * (19f / 20f))
-        drawLine(color = color, start = top, end = mid, strokeWidth = strokePx, cap = StrokeCap.Round)
-        drawLine(color = color, start = mid, end = bottom, strokeWidth = strokePx, cap = StrokeCap.Round)
     }
 }

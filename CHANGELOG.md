@@ -2,6 +2,21 @@
 
 Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志」页的唯一数据源，随每次发布一并更新。
 
+## [1.0.22] - 2026-09-29（NavBar 标题垂直居中 + 返回按钮通用样式）
+
+### Fixed
+
+- **NavBar Android 标题垂直居中**：用户反馈「navbar 的 title 没有垂直居中」——Android 标题 Text 固定 `height(44dp)` 内顶对齐致视觉偏上。修复=Text 改 `align(Alignment.Center)`（Box 叠层居中，单行文字以自然高度垂直居中）；iOS 原有 centerY 约束无此问题。
+
+### Changed
+
+- **NavBar 返回按钮统一为通用样式写入组件库**：用户指示采用更多页/家庭账单页（ScreenTopBar）的返回按钮样式作为 NavBar 通用返回样式——48dp/pt 热区贴左 + Material `ArrowBack` 24dp/pt 图标居中（图标中心距左 24，替换 v1.0.21 的 12×20 chevron 距左 8，观感更舒展）；颜色按背景亮度自适应（浅色底 primary 绿、深色底如品牌绿 headerBg 白）。Android 直接使用 `Icons.AutoMirrored.Outlined.ArrowBack`（与 ScreenTopBar 完全同款）；iOS `ArrowGlyphView` UIBezierPath 自绘同几何（chevron (12,4)→(4,12)→(12,20) + 箭杆 (7.83,12)→(20,12)，线宽 2 圆头）。业务侧不再自行维护返回按钮样式。
+
+### 验证
+
+- Android `:components:compileDebugKotlin` BUILD SUCCESSFUL + 宿主 KeepAccounts `:app:assembleDebug` BUILD SUCCESSFUL（mavenLocal 1.0.22）。
+- iOS 包 `xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator'` BUILD SUCCEEDED + 宿主 KeepAccounts iOS `xcodebuild` Debug BUILD SUCCEEDED。
+
 ## [1.0.21] - 2026-09-29（NavBar 返回字形自绘 chevron）
 
 ### Changed

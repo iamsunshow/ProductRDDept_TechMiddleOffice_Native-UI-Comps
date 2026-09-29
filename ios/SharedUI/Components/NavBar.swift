@@ -6,7 +6,8 @@
 /// 内容高 44pt，宿主可高度约束覆盖；白底 bgCard + 行底 hairline（可关）；
 /// 导航栈/inset 由宿主自理。
 /// 对应 Android：NavBar(title, onBack?, rightAction?, showDivider, modifier)。
-/// 版本：Native-UI-Comps ui-version v1.0.21（返回字形改自绘 chevron "<"，替换文本字形 "←"）。
+/// 版本：Native-UI-Comps ui-version v1.0.22（返回按钮改 Material ArrowBack 同款 24pt 图标 +
+/// 48pt 热区贴左通用样式；颜色按背景亮度自适应浅色底 primary/深色底白）。
 import UIKit
 import SnapKit
 
@@ -27,10 +28,9 @@ public struct NavBarAction {
 public final class NavBar: UIView {
     public struct Metrics {
         public static let contentHeight: CGFloat = 44 // 行高 44pt（宿主可覆盖）
-        public static let backChevronSize = CGSize(width: 12, height: 20) // 自绘 "<" 视口（v1.0.21 起替换文本字形 "←"）
-        public static let backChevronStroke: CGFloat = 2 // chevron 线宽
-        public static let backHitWidth: CGFloat = 44 // 返回热区宽 ≥40pt
-        public static let backGlyphInset: CGFloat = AppSpace.sm // chevron 距左 8pt
+        public static let backArrowSize: CGFloat = 24 // Material ArrowBack 图标边长（Android ScreenTopBar 同款，v1.0.22 起通用样式）
+        public static let backArrowStroke: CGFloat = 2 // 箭头线宽
+        public static let backHitWidth: CGFloat = 48 // 返回热区宽（图标居中，中心距左 24pt）
         public static let actionTapInset: CGFloat = AppSpace.md // 右侧动作左右内边距
         public static let sideInset: CGFloat = AppSpace.lg
         public static let titleSideInset: CGFloat = AppSpace.md
@@ -118,16 +118,18 @@ public final class NavBar: UIView {
 
         if backClosure != nil {
             let button = UIButton(type: .system)
-            // 自绘 "<" chevron（与 Android BackChevron 同坐标 1:1）：几何中心=视口中心，
-            // 垂直居中不依赖字体度量。
-            let chevron = ChevronGlyphView(color: AppColor.primary)
-            chevron.isUserInteractionEnabled = false
-            button.addSubview(chevron)
-            chevron.snp.makeConstraints { make in
-                make.leading.equalToSuperview().offset(Metrics.backGlyphInset)
+            // 返回按钮：Android ScreenTopBar（更多页/家庭账单页）同款通用样式，v1.0.22 写入组件库——
+            // 48pt 热区贴左 + Material ArrowBack 24pt 图标居中（图标中心距左 24pt）；
+            // 颜色按背景亮度自适应：浅色底 primary 绿、深色底白。
+            let tint = (backgroundColor?.luminance ?? 1) > 0.5 ? AppColor.primary : .white
+            let arrow = ArrowGlyphView(color: tint)
+            arrow.isUserInteractionEnabled = false
+            button.addSubview(arrow)
+            arrow.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
                 make.centerY.equalToSuperview()
-                make.width.equalTo(Metrics.backChevronSize.width)
-                make.height.equalTo(Metrics.backChevronSize.height)
+                make.width.equalTo(Metrics.backArrowSize)
+                make.height.equalTo(Metrics.backArrowSize)
             }
             button.addTarget(self, action: #selector(didTapBack), for: .touchUpInside)
             addSubview(button)
@@ -188,11 +190,11 @@ public final class NavBar: UIView {
     }
 }
 
-/// 返回 chevron 矢量字形（自绘 "<"，v1.0.21 起替换文本字形 "←"）。
+/// 返回箭头矢量字形（Material ArrowBack 几何自绘，v1.0.22 起作为 NavBar 通用返回样式）。
 ///
-/// 12×20pt 视口内两段圆头线：顶点 (10,1)→拐点 (2,10)→底点 (10,19)，线宽 2pt。
-/// 坐标按 bounds 比例缩放，与 Android BackChevron 同坐标 1:1；字形几何中心=视口中心。
-private final class ChevronGlyphView: UIView {
+/// 24×24pt 视口：chevron (12,4)→(4,12)→(12,20) + 横轴 (7.83,12)→(20,12)，线宽 2pt 圆头。
+/// 与 Android NavBar Material Icons.AutoMirrored.Outlined.ArrowBack 1:1；几何中心=视口中心。
+private final class ArrowGlyphView: UIView {
     private let strokeColor: UIColor
 
     init(color: UIColor) {
@@ -210,13 +212,26 @@ private final class ChevronGlyphView: UIView {
         let path = UIBezierPath()
         path.lineCapStyle = .round
         path.lineJoinStyle = .round
-        path.lineWidth = NavBar.Metrics.backChevronStroke
+        path.lineWidth = NavBar.Metrics.backArrowStroke
         let w = bounds.width
         let h = bounds.height
-        path.move(to: CGPoint(x: w * (10.0 / 12.0), y: h * (1.0 / 20.0)))
-        path.addLine(to: CGPoint(x: w * (2.0 / 12.0), y: h * (10.0 / 20.0)))
-        path.addLine(to: CGPoint(x: w * (10.0 / 12.0), y: h * (19.0 / 20.0)))
+        // chevron 两臂
+        path.move(to: CGPoint(x: w * (12.0 / 24.0), y: h * (4.0 / 24.0)))
+        path.addLine(to: CGPoint(x: w * (4.0 / 24.0), y: h * (12.0 / 24.0)))
+        path.addLine(to: CGPoint(x: w * (12.0 / 24.0), y: h * (20.0 / 24.0)))
+        // 横轴（箭杆）
+        path.move(to: CGPoint(x: w * (7.83 / 24.0), y: h * (12.0 / 24.0)))
+        path.addLine(to: CGPoint(x: w * (20.0 / 24.0), y: h * (12.0 / 24.0)))
         strokeColor.setStroke()
         path.stroke()
+    }
+}
+
+/// 背景色亮度（0~1），用于返回箭头颜色自适应（浅色底 primary / 深色底白）。
+private extension UIColor {
+    var luminance: CGFloat {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        getRed(&r, green: &g, blue: &b, alpha: &a)
+        return 0.299 * r + 0.587 * g + 0.114 * b
     }
 }

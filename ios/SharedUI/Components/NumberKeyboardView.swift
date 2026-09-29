@@ -162,7 +162,7 @@ public final class NumberKeyboardView: UIView {
     }
 
     // MARK: - 布局
-    override func layoutSubviews() {
+    public override func layoutSubviews() {
         super.layoutSubviews()
         let w = bounds.width
         let h = bounds.height

@@ -67,7 +67,7 @@ public final class ProgressCircleView: UIView {
 
     private let trackLayer = CAShapeLayer()
     private let shapeLayer = CAShapeLayer()
-    private let centerLabel = UILabel()
+    public let centerLabel = UILabel()
 
     public override init(frame: CGRect) {
         super.init(frame: frame)

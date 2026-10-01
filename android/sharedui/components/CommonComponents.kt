@@ -548,7 +548,8 @@ fun AppDialog(
     ) {
         Card(
             shape = RoundedCornerShape(AppRadius.lg),
-            colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = AppColor.bgCard)
+            colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = AppColor.bgCard),
+            modifier = Modifier.padding(horizontal = AppSpace.xl)
         ) {
             Column(
                 modifier = Modifier

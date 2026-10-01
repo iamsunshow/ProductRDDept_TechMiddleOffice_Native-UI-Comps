@@ -10247,7 +10247,7 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/App/KeepAccounts/apps/ios/Feature/Ledger/Views/MonthlySummaryView.swift",
+        "ios": "ProductRDDept/App/Xiaozhao/apps/ios/Feature/Ledger/Views/MonthlySummaryView.swift",
         "note": "Bill/Budget/Assets 卡同族，宜抽统一 pattern"
       },
       "deps": [],
@@ -10342,8 +10342,8 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/App/KeepAccounts/apps/ios/Foundation/Storage/TransactionRepository.swift",
-        "android": "ProductRDDept/App/KeepAccounts/apps/android/.../foundation/storage/TransactionRepository.kt"
+        "ios": "ProductRDDept/App/Xiaozhao/apps/ios/Foundation/Storage/TransactionRepository.swift",
+        "android": "ProductRDDept/App/Xiaozhao/apps/android/.../foundation/storage/TransactionRepository.kt"
       },
       "variants": [],
       "anti_goals": [],
@@ -10412,7 +10412,7 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/App/KeepAccounts/apps/ios/Foundation/Storage/BudgetRepository.swift"
+        "ios": "ProductRDDept/App/Xiaozhao/apps/ios/Foundation/Storage/BudgetRepository.swift"
       },
       "variants": [],
       "anti_goals": [],
@@ -10481,7 +10481,7 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/App/KeepAccounts/apps/ios/Foundation/Storage/AssetAccountRepository.swift"
+        "ios": "ProductRDDept/App/Xiaozhao/apps/ios/Foundation/Storage/AssetAccountRepository.swift"
       },
       "variants": [],
       "anti_goals": [],
@@ -10551,7 +10551,7 @@
       },
       "deps": [],
       "source_refs": {
-        "ios": "ProductRDDept/App/KeepAccounts/apps/ios/Foundation/Config/LegalContentConfig.swift"
+        "ios": "ProductRDDept/App/Xiaozhao/apps/ios/Foundation/Config/LegalContentConfig.swift"
       },
       "variants": [],
       "anti_goals": [],
@@ -10615,8 +10615,8 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/App/KeepAccounts/apps/ios/Foundation/Storage/DemoFixtureLoader.swift",
-        "note": "ProductRDDept/App/KeepAccounts/packages/fixtures/"
+        "ios": "ProductRDDept/App/Xiaozhao/apps/ios/Foundation/Storage/DemoFixtureLoader.swift",
+        "note": "ProductRDDept/App/Xiaozhao/packages/fixtures/"
       },
       "deps": [],
       "variants": [],
@@ -10682,7 +10682,7 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/App/KeepAccounts/apps/ios/Feature/Bookkeeping/Views/BookkeepingEntryKeyboardView.swift"
+        "ios": "ProductRDDept/App/Xiaozhao/apps/ios/Feature/Bookkeeping/Views/BookkeepingEntryKeyboardView.swift"
       },
       "deps": [],
       "variants": [],
@@ -10768,7 +10768,7 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/App/KeepAccounts/apps/ios/Feature/Profile/Logic/FamilyBillService.swift"
+        "ios": "ProductRDDept/App/Xiaozhao/apps/ios/Feature/Profile/Logic/FamilyBillService.swift"
       },
       "deps": [],
       "variants": [],
@@ -10845,7 +10845,7 @@
         }
       },
       "source_refs": {
-        "ios": "ProductRDDept/App/KeepAccounts/apps/ios/Feature/Profile/Pages/FeedbackViewController.swift"
+        "ios": "ProductRDDept/App/Xiaozhao/apps/ios/Feature/Profile/Pages/FeedbackViewController.swift"
       },
       "deps": [],
       "variants": [],

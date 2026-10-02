@@ -75,6 +75,6 @@ Native-UI-Comps/
 - 阶段二（代码迁移）：✅ B1 完成——组件源码、catalog、docs-site、scripts、demo 已全部迁入本目录，形成**自包含组件库仓**（monorepo：iOS + Android + 目录 + 文档站 + Demo）。
 - 阶段二（独立仓）：✅ B3 完成——本目录已抽为独立 Git 仓库，OPC 以 submodule 挂载。
 - 阶段二（API 契约收口 + 目录收敛）：✅ 组件 metadata 已收口为 `docs/数据与产物/api.json`（含 API 契约 props/events/demos/note），样式数据收口为 `docs/数据与产物/design-token.json`，版本号收口为 `docs/数据与产物/ui-version.json`；`catalog/`、`design-token/` 目录已并入 `docs/`，`docs-site/` 已更名 `www/`，文档站构建时读 `docs/数据与产物/api.json` 生成，不再维护多份数据源。
-- App 侧：KeepAccounts iOS 仍以 XcodeGen 引用 `Native-UI-Comps/ios`（暂排除冲突），B5 改 SPM 后移除。
+- App 侧：Xiaozhao iOS 仍以 XcodeGen 引用 `Native-UI-Comps/ios`（暂排除冲突），B5 改 SPM 后移除。
 
 > 详细任务进度见 `../../../TASKS.md`。

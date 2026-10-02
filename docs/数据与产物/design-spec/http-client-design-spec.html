@@ -36,7 +36,7 @@ pre { background:#f8f8f8; border:1px solid var(--border); border-radius:8px; pad
 <h3>Situation</h3><p>App 一期不接真后端，全部接口走 Mock；二期切换到真实后端仅需改基址。</p>
 <h3>Complication</h3><p>若各页面自行 <code>URLSession</code>/<code>OkHttp</code> 发请求，会出现基址散落、序列化不一致、无法统一加拦截器（鉴权/日志）。</p>
 <h3>Question</h3><p>需要一个集中构建客户端、集中声明环境基址、并提供一期离线 Mock 能力的网络层，且能被宿主替换为真实环境。</p>
-<h3>Answer</h3><p>HTTPClient——iOS <code>APIClientProtocol</code> + <code>MockAPIClient</code>（Alamofire）+ <code>APIEnvironment.current</code> 可注入基址；Android <code>KeepAccountsApi</code>（Retrofit 接口）+ <code>MockApiClient.create()</code>（OkHttp + <code>MockInterceptor</code> 本地返回 JSON）。一期双端 Mock <strong>均可离线成功</strong>。</p>
+<h3>Answer</h3><p>HTTPClient——iOS <code>APIClientProtocol</code> + <code>MockAPIClient</code>（Alamofire）+ <code>APIEnvironment.current</code> 可注入基址；Android <code>XiaozhaoApi</code>（Retrofit 接口）+ <code>MockApiClient.create()</code>（OkHttp + <code>MockInterceptor</code> 本地返回 JSON）。一期双端 Mock <strong>均可离线成功</strong>。</p>
 </div>
 
 <h2>2. 组件边界与划界</h2>
@@ -61,8 +61,8 @@ pre { background:#f8f8f8; border:1px solid var(--border); border-radius:8px; pad
 <h3>Android（OkHttp + Retrofit + kotlinx.serialization，已有）</h3>
 <table>
 <tr><th>API</th><th>签名</th><th>说明</th></tr>
-<tr><td>接口</td><td><code>interface KeepAccountsApi { @GET(ApiEndpoint.HEALTH) suspend fun health(): HealthDTO }</code></td><td>Retrofit 接口</td></tr>
-<tr><td>客户端</td><td><code>class MockApiClient(val api: KeepAccountsApi) { companion object { fun create(): MockApiClient } }</code></td><td>构建 OkHttp（挂 <code>MockInterceptor</code>）+ Retrofit（kotlinx 转换器）</td></tr>
+<tr><td>接口</td><td><code>interface XiaozhaoApi { @GET(ApiEndpoint.HEALTH) suspend fun health(): HealthDTO }</code></td><td>Retrofit 接口</td></tr>
+<tr><td>客户端</td><td><code>class MockApiClient(val api: XiaozhaoApi) { companion object { fun create(): MockApiClient } }</code></td><td>构建 OkHttp（挂 <code>MockInterceptor</code>）+ Retrofit（kotlinx 转换器）</td></tr>
 <tr><td>Mock 拦截</td><td><code>private class MockInterceptor(json)</code></td><td>按 <code>encodedPath</code> 匹配：<code>/health</code> 返回 ok JSON；<code>else</code> 返回 <code>not_found</code> JSON；统一 <code>code=200</code></td></tr>
 <tr><td>基址</td><td><code>ApiEndpoint.BASE_URL</code></td><td>常量（宿主可为二期切换改造）</td></tr>
 </table>

@@ -117,7 +117,7 @@ def _extract_used_in_apps(comp: dict) -> list[str]:
             apps.add(parts[i + 1])
             break
     if not apps and source_refs:
-      apps.add("KeepAccounts")
+      apps.add("Xiaozhao")
     return sorted(apps)
 
 

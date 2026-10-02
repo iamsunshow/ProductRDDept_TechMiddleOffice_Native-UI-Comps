@@ -25,12 +25,12 @@
 | 用户签字 | （终核等用户审查 2026-09-16） |
 | 下一步 | 门禁 B api.json ui.line-chart 契约登记 → Android 端独立组件实现（LineChart.kt Compose Canvas drawLine+drawCircle+yFor()+xLabels/yLabels，与 iOS LineChartView v1.7.5 视觉 1:1 同构但 Canvas 自绘不引第三方库）→ Demo 双端 1:1 → C1.5 demo 实机 → C1 单测 → C2/D |
 
-## 附录 A · KeepAccounts 业务回填
+## 附录 A · Xiaozhao 业务回填
 
 | 项 | 内容 |
 | | --- |
-| 业务组件 | DualLineChart（KeepAccounts 记账报表页双折线对比图） |
+| 业务组件 | DualLineChart（Xiaozhao 记账报表页双折线对比图） |
 | 业务侧现状 | Android `apps/android/feature/report/ui/ReportScreen.kt` 自建 Canvas drawLine 双折线；iOS `apps/ios/Feature/Report/Pages/ReportViewController.swift` 现状依赖第三方库 Charts/DGCharts（v1.7.5 LineChartView） |
 | 业务待替 | Android DualLineChart 切库内 LineChart（Canvas 自绘不引第三方库）；iOS 现状 LineChartView 库侧已是 DGCharts 第三方库，业务无需切换（库侧保持） |
 | 库侧立项 | ui.line-chart api.json 行 3617 已登记 reviewed=true（iOS）；本规格=Android 端补全独立组件入口 |
-| 评估文档 | KeepAccounts 评估文档 §5 行 72（2026-09-16 真实状态核对 = iOS 是 Vendor/Charts 第三方库非库侧实现；库侧 TrendChart 双端都缺） |
+| 评估文档 | Xiaozhao 评估文档 §5 行 72（2026-09-16 真实状态核对 = iOS 是 Vendor/Charts 第三方库非库侧实现；库侧 TrendChart 双端都缺） |

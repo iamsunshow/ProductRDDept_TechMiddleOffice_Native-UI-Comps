@@ -25,12 +25,12 @@
 | 用户签字 | （终核等用户审查 2026-09-16） |
 | 下一步 | 门禁 B api.json ui.shortcut-bar 契约登记 → 双端独立组件实现（ShortcutBarView.swift UICollectionView horizontal / ShortcutBar.kt LazyRow horizontalArrangement，业务 LedgerShortcutBar 语义对齐不强制迁移）→ Demo 双端 1:1 → C1.5 demo 实机 → C1 单测 → C2/D |
 
-## 附录 A · KeepAccounts 业务回填
+## 附录 A · Xiaozhao 业务回填
 
 | 项 | 内容 |
 | | --- |
-| 业务组件 | LedgerShortcutBar（KeepAccounts 记账主页快捷入口栏） |
+| 业务组件 | LedgerShortcutBar（Xiaozhao 记账主页快捷入口栏） |
 | 业务侧现状 | Android `apps/android/feature/ledger/ui/LedgerHomeScreen.kt` 自建私有 Row/Column 拼装 + DiscoverHomeScreen 横向入口栏同样自建；iOS `apps/ios/Feature/Ledger/Pages/LedgerHomeViewController.swift` navBarView 嵌入 + `MoreViewController.swift` 用 Grid 入口 |
 | 业务待替 | 双端 LedgerShortcutBar 切库内 ShortcutBar（数据驱动 API 1:1） |
 | 库侧立项 | ui.shortcut-bar 已登记 api.json 行 3707，本规格为门禁 B 实现入口 |
-| 评估文档 | KeepAccounts 评估文档 §5 行 70（2026-09-16 真实状态核对 = 双端都缺非 partial） |
+| 评估文档 | Xiaozhao 评估文档 §5 行 70（2026-09-16 真实状态核对 = 双端都缺非 partial） |

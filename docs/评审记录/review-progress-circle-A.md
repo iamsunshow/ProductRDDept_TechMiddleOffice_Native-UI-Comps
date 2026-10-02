@@ -25,12 +25,12 @@
 | 用户签字 | （终核等用户审查 2026-09-16） |
 | 下一步 | 门禁 B api.json ui.progress-circle 契约登记 → 双端独立组件实现（ProgressCircleView.swift CAShapeLayer+UIBezierPath+CABasicAnimation / ProgressCircle.kt Compose Canvas drawArc+animateFloatAsState，业务 BudgetRing 语义对齐不强制迁移）→ Demo 双端 1:1 → C1.5 demo 实机 → C1 单测 → C2/D |
 
-## 附录 A · KeepAccounts 业务回填
+## 附录 A · Xiaozhao 业务回填
 
 | 项 | 内容 |
 | | --- |
-| 业务组件 | BudgetRing（KeepAccounts 记账预算页面环形进度条） |
+| 业务组件 | BudgetRing（Xiaozhao 记账预算页面环形进度条） |
 | 业务侧现状 | Android `apps/android/feature/budget/ui/BudgetScreen.kt` 自建 Canvas drawArc；iOS `apps/ios/Feature/Budget/Pages/BudgetViewController.swift` 同样自绘 CAShapeLayer |
 | 业务待替 | 双端 BudgetRing 切库内 ProgressCircle（数据驱动 API 1:1 收敛） |
 | 库侧立项 | ui.progress-circle 已登记 api.json 行 3444，本规格为门禁 B 实现入口 |
-| 评估文档 | KeepAccounts 评估文档 §5 行 71（2026-09-16 真实状态核对 = 双端都缺非 partial） |
+| 评估文档 | Xiaozhao 评估文档 §5 行 71（2026-09-16 真实状态核对 = 双端都缺非 partial） |

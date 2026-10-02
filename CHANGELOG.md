@@ -14,8 +14,8 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ### 验证
 
-- Android `:components:compileDebugKotlin` BUILD SUCCESSFUL + 宿主 KeepAccounts `:app:assembleDebug` BUILD SUCCESSFUL（mavenLocal 1.0.22）。
-- iOS 包 `xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator'` BUILD SUCCEEDED + 宿主 KeepAccounts iOS `xcodebuild` Debug BUILD SUCCEEDED。
+- Android `:components:compileDebugKotlin` BUILD SUCCESSFUL + 宿主 Xiaozhao `:app:assembleDebug` BUILD SUCCESSFUL（mavenLocal 1.0.22）。
+- iOS 包 `xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator'` BUILD SUCCEEDED + 宿主 Xiaozhao iOS `xcodebuild` Debug BUILD SUCCEEDED。
 
 ## [1.0.21] - 2026-09-29（NavBar 返回字形自绘 chevron）
 
@@ -25,20 +25,20 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ### 验证
 
-- Android `:components:compileDebugKotlin` BUILD SUCCESSFUL + 宿主 KeepAccounts `:app:assembleDebug` BUILD SUCCESSFUL（includeBuild 直连生效，二级页即可看效果）。
+- Android `:components:compileDebugKotlin` BUILD SUCCESSFUL + 宿主 Xiaozhao `:app:assembleDebug` BUILD SUCCESSFUL（includeBuild 直连生效，二级页即可看效果）。
 - iOS 包 `xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator'` BUILD SUCCEEDED。
 
 ## [1.0.20] - 2026-09-29（NumberKeyboardView/ProgressCircleView iOS public 化 + AppInputField enabled 补记）
 
 ### Fixed
 
-- **NumberKeyboardView iOS 可见性修复**：`NumberKeyboardView`（ui.number-keyboard #32）自 2026-09-17 收编起类/`init`/`confirmDisabled`/`disabled`/`intrinsicContentSize`/`layoutSubviews` 均为 internal，宿主 KeepAccounts 以远程 SPM 引用（v1.0.12）时编译报 `cannot find type 'NumberKeyboardView' in scope`——本地直连编译时代可见、远程包模块边界不可见的隐藏缺口。修复=六处 public 化，API 签名零变化。
+- **NumberKeyboardView iOS 可见性修复**：`NumberKeyboardView`（ui.number-keyboard #32）自 2026-09-17 收编起类/`init`/`confirmDisabled`/`disabled`/`intrinsicContentSize`/`layoutSubviews` 均为 internal，宿主 Xiaozhao 以远程 SPM 引用（v1.0.12）时编译报 `cannot find type 'NumberKeyboardView' in scope`——本地直连编译时代可见、远程包模块边界不可见的隐藏缺口。修复=六处 public 化，API 签名零变化。
 - **ProgressCircleView iOS centerLabel 可见性修复**：宿主预算卡（绿底白字）需覆盖中心文案颜色，`centerLabel` 由 private 改 public（宿主远程引用同批暴露）。
 - **补记 [1.0.20 前置]**：AppInputField 新增 `enabled` 参数支持禁用态（此前提交 375580e 已入 main 未记 CHANGELOG，随本版一并随 tag 发布）。
 
 ### 验证
 
-- 宿主 KeepAccounts iOS `xcodebuild` Debug BUILD SUCCESSFUL（锚本 tag v1.0.20）。
+- 宿主 Xiaozhao iOS `xcodebuild` Debug BUILD SUCCESSFUL（锚本 tag v1.0.20）。
 
 ## [1.0.19] - 2026-09-18（DatePickerSheet 弹层闪动根治）
 
@@ -294,13 +294,13 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 - **宿主 AppDelegate 启动注入后端地址报** `App/AppDelegate.swift:26:34: 'APIEnvironment' initializer is inaccessible due to 'internal' protection level`。
   - **根因**：`APIEnvironment` 类型本体虽已于 v1.0.2 public 化，但结构体的隐式 memberwise initializer 仍是 `internal`，宿主无法构造真实环境（`APIEnvironment(baseURL:)`）。
 - **处置**：`MockAPIClient.swift` 补 `public init(baseURL: URL)`。
-- **收官**：至此宿主 `KeepAccounts` iOS 真编译 `BUILD SUCCEEDED`，v1.0.2 起的 iOS 对外 API public 化扫尾全部完成。
+- **收官**：至此宿主 `Xiaozhao` iOS 真编译 `BUILD SUCCEEDED`，v1.0.2 起的 iOS 对外 API public 化扫尾全部完成。
 - **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `1.0.7 → 1.0.8` 并重发 AAR。
 
 ### 验证
 
 - 组件库：`xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/lib-dd build` BUILD SUCCEEDED。
-- KeepAccounts iOS：`xcodebuild -project KeepAccounts.xcodeproj -scheme KeepAccounts -destination 'generic/platform=iOS Simulator' -configuration Debug` **BUILD SUCCEEDED**。
+- Xiaozhao iOS：`xcodebuild -project Xiaozhao.xcodeproj -scheme Xiaozhao -destination 'generic/platform=iOS Simulator' -configuration Debug` **BUILD SUCCEEDED**。
 
 ## [1.0.7] - 2026-09-15（v1.0.6 public 化扫尾第五波：AppDatabase.dbQueue 公开）
 
@@ -315,7 +315,7 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 ### 验证
 
 - 组件库：`xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/lib-dd build` BUILD SUCCEEDED。
-- KeepAccounts iOS：真编译（见宿主迁移提交）。
+- Xiaozhao iOS：真编译（见宿主迁移提交）。
 
 ## [1.0.6] - 2026-09-15（v1.0.5 public 化扫尾第四波：Grid public 化 + ListCell open 化）
 
@@ -323,7 +323,7 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 - **宿主编译暴露 2 类跨模块访问问题**：
   1. `Grid` / `GridItem` 从未 public 化（v1.0.2 的 21 文件清单遗漏），宿主无法使用宫格组件。
-     - 背景：KeepAccounts 的 `MoreViewController` / `DiscoverHomeViewController` / `LedgerHomeViewController` 原用本地 `NavigationGrid` / `NavBar`（网格语义），而本地副本实为指向旧组件库 `TechMiddleOffice/packages/ios` 的**悬空软链**；组件化后网格已由库内 `Grid` 承载，宿主需改用 `Grid`。
+     - 背景：Xiaozhao 的 `MoreViewController` / `DiscoverHomeViewController` / `LedgerHomeViewController` 原用本地 `NavigationGrid` / `NavBar`（网格语义），而本地副本实为指向旧组件库 `TechMiddleOffice/packages/ios` 的**悬空软链**；组件化后网格已由库内 `Grid` 承载，宿主需改用 `Grid`。
   2. `ListCell` 为 `public` 但非 `open`，宿主业务 Cell（`TransactionCell` / `CategoryRankCell`）报 `cannot inherit from non-open class 'ListCell' outside of its defining module`。
 - **处置**：
   1. `Grid.swift`：`Grid` / `GridItem` public 化——`public struct GridItem`（含 `public init(title:symbolName:)`）、`public final class Grid`、`public var onSelect`、`public var column`、`public override init(frame:)`、`public func apply(title:items:)`。
@@ -333,14 +333,14 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 ### 验证
 
 - 组件库：`xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/lib-dd build` BUILD SUCCEEDED。
-- KeepAccounts iOS：真编译（见宿主迁移提交）。
+- Xiaozhao iOS：真编译（见宿主迁移提交）。
 
 ## [1.0.5] - 2026-09-15（v1.0.4 public 化扫尾第三波：AppRouter 静态成员 public 化）
 
 ### Fixed
 
 - **v1.0.4 仅 public 化 `AppRouter` enum 本体与 `Destination` 嵌套枚举，遗漏其静态成员**：
-  - 宿主（`KeepAccounts` 的 `MoreViewController` 等）调用 `AppRouter.push(_:from:)` / `AppRouter.open(_:from:)` 报 `'push' is inaccessible due to 'internal' protection level`。
+  - 宿主（`Xiaozhao` 的 `MoreViewController` 等）调用 `AppRouter.push(_:from:)` / `AppRouter.open(_:from:)` 报 `'push' is inaccessible due to 'internal' protection level`。
   - **根因**：`AppRouter` 内的 `static var provider`、`enum Tab`、`static func selectTab/push/open/openIncome/openExpense` 默认 `internal`，未随类型本体一并 public 化。
 - **处置**：上述 7 个静态成员全部 `public` 化（`provider` / `Tab` / `selectTab(_:)` / `push(_:from:)` / `open(_:from:)` / `openIncome(year:month:from:)` / `openExpense(year:month:from:)`）。
 - **无行为变更**（纯 access level 调整）。Android 侧 Kotlin 默认 `public`，不受此影响，按「双端永远同版本」铁律同步升 `components` `1.0.4 → 1.0.5` 并重发 AAR。
@@ -348,7 +348,7 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 ### 验证
 
 - 组件库：`xcodebuild -scheme tmo-native-ui-comps -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/lib-dd build` BUILD SUCCEEDED。
-- KeepAccounts iOS：真编译（见宿主迁移提交）。
+- Xiaozhao iOS：真编译（见宿主迁移提交）。
 
 ## [1.0.4] - 2026-09-15（v1.0.3 public 化扫尾第二波：AppRouter outer enum 可达性 + UIPickerViewDataSource/Delegate 实现 public 化）
 
@@ -366,14 +366,14 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ### 验证
 
-- KeepAccounts iOS：`xcodebuild -project KeepAccounts.xcodeproj -scheme KeepAccounts -destination 'generic/platform=iOS Simulator' -configuration Debug` BUILD SUCCEEDED。
+- Xiaozhao iOS：`xcodebuild -project Xiaozhao.xcodeproj -scheme Xiaozhao -destination 'generic/platform=iOS Simulator' -configuration Debug` BUILD SUCCEEDED。
 - Android：`:components:assembleRelease`（待重发 AAR 后跑）。
 
 ## [1.0.3] - 2026-09-15（v1.0.2 public 化的连带类型补全：宿主编译扫尾）
 
 ### Fixed
 
-- **v1.0.2 仅对 21 个 iOS 文件本体 public 化，遗漏 3 处连带类型**：宿主 `KeepAccounts` `xcodebuild` 真编译报错：
+- **v1.0.2 仅对 21 个 iOS 文件本体 public 化，遗漏 3 处连带类型**：宿主 `Xiaozhao` `xcodebuild` 真编译报错：
   - `Foundation/Network/MockAPIClient.swift:26:10: method cannot be declared public because its result uses an internal type`（`HealthDTO` 未 public）。
   - `Foundation/Routing/AppRouter.swift:16:10: method cannot be declared public because its parameter uses an internal type`（`AppRouter.Destination` 嵌套枚举未 public）。
   - `Foundation/SystemBars/StatusBarNavigationController.swift:17:18: overriding property must be as accessible as its enclosing type`（`childForStatusBarHidden` 跟随 `childForStatusBarStyle` 必须同为 public）。
@@ -385,7 +385,7 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 
 ### 验证
 
-- KeepAccounts iOS：`xcodebuild -project KeepAccounts.xcodeproj -scheme KeepAccounts -destination 'generic/platform=iOS Simulator' -configuration Debug` BUILD SUCCEEDED。
+- Xiaozhao iOS：`xcodebuild -project Xiaozhao.xcodeproj -scheme Xiaozhao -destination 'generic/platform=iOS Simulator' -configuration Debug` BUILD SUCCEEDED。
 - Android：`:components:assembleRelease`（待重发 AAR 后跑）。
 
 ## [1.0.2] - 2026-09-15（iOS 对外 API public 化：打通宿主 `import TMONativeUIComps` 后访问通路）
@@ -414,7 +414,7 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
   - 配套：`.gitignore` 增补根级 `/.build/`、`/.swiftpm/`、`/build/`；`demo/ios/project.yml` 源路径 `../../ios` 的 excludes 去掉已不存在的 `Package.swift` / `Package.resolved` 并补 `build`；`AGENTS.md` 第 4 节依赖口径同步。
 - **`publish_ios.sh` 两处修正**：构建目录由 `ios/` 改为仓库根（清单已迁）；`--tag` 动作补 `git push origin v<version>`——原实现只打本地标签，发布的标签永远到不了远程，宿主无从引用。
 - **第三方依赖由「Vendor 本地 path」改为「远程 URL」（远程解析实测暴露的硬约束，本地构建完全看不见）**：SwiftPM **不允许「被别人以 URL 引用的包」声明本地 path 依赖**（`.package(path:)` 只能由根包 / 工作区清单声明）。宿主按 url 拉本包时，path 依赖在清单校验阶段直接失败并报 `Invalid manifest: 'ios/Vendor/Alamofire' is not a valid path for path-based dependencies; use relative or absolute path instead`；**加 `./` 前缀亦不能绕过**（两种写法均实测失败）。而清单来自本地工作区时**不报此错**——后果就是「本地 Release 编译通过、宿主远程引用直接失败」。
-  - 处置：四个依赖改远程 URL 并锁定与 Vendor 相同的版本——Alamofire `from 5.9.1`、GRDB `from 6.29.3`、Charts `from 4.1.0`、SnapKit `from 5.6.0`；**Charts 的 URL 必须写 `ChartsOrg/Charts`**（与宿主 KeepAccounts 完全一致，否则同 identity 不同 URL 会在依赖图里分叉）。解析实测：Alamofire 5.9.1 / Charts 4.1.0 / GRDB 6.29.3 / SnapKit 5.6.0 / swift-algorithms 1.2.1 / swift-numerics 1.0.3，与 Vendor 版本一致。
+  - 处置：四个依赖改远程 URL 并锁定与 Vendor 相同的版本——Alamofire `from 5.9.1`、GRDB `from 6.29.3`、Charts `from 4.1.0`、SnapKit `from 5.6.0`；**Charts 的 URL 必须写 `ChartsOrg/Charts`**（与宿主 Xiaozhao 完全一致，否则同 identity 不同 URL 会在依赖图里分叉）。解析实测：Alamofire 5.9.1 / Charts 4.1.0 / GRDB 6.29.3 / SnapKit 5.6.0 / swift-algorithms 1.2.1 / swift-numerics 1.0.3，与 Vendor 版本一致。
   - `ios/Vendor/` **保留**（离线副本），供 `demo/ios`（root 工程，允许 path 依赖）与离线查证使用，不再参与组件包依赖解析。
   - **代价**：组件库自身 `publish_ios.sh` 的 Release 编译首次需联网拉依赖；宿主业务库本就在远程拉同样四个包，故消费侧无新增前提。v1.30c 的「全 Vendor 离线闭环」方案与远程分发**不可兼得**，本次为打通宿主远程引用而取舍。
 - `ui-version.json` 升 `1.0.1`。Android 侧无代码变更，按「双端永远同版本」铁律同步 `android/gradle/libs.versions.toml` components `1.0.0 → 1.0.1` 并重发 AAR。

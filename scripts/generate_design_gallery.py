@@ -541,7 +541,7 @@ def v_storage():
     )
     return f"""
 <div class="visual" style="width:400px;border-radius:{R['lg']}px;border:1px solid {C['border']};padding:16px;">
-  <div style="font-size:{F['sizeSm']}px;font-weight:600;color:{C['textPrimary']};margin-bottom:12px;">SQLite · keepaccounts.db</div>
+  <div style="font-size:{F['sizeSm']}px;font-weight:600;color:{C['textPrimary']};margin-bottom:12px;">SQLite · xiaozhao.db</div>
   {r}
 </div>
 <span class="callout bottom" style="width:400px">本地数据库封装</span>

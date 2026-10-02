@@ -65,7 +65,7 @@ th { background:#fafafa; font-weight:600; }
 <tr><th>辅助 API</th><th>iOS</th><th>Android</th></tr>
 <tr><td>十六进制构造</td><td><code>UIColor(hex: UInt32, alpha:)</code></td><td>直接 <code>Color(0xFFRRGGBB)</code></td></tr>
 <tr><td>文本样式辅助</td><td><code>AppText.attributes(fontSize:color:alignment:)</code> / <code>UILabel.setContentText</code> / <code>UILabel.setLineHeight</code></td><td><code>AppText.contentStyle(fontSize, color)</code> / <code>AppText.lineHeight(fontSize)</code></td></tr>
-<tr><td>主题桥接</td><td>无（UIKit 无主题体系）</td><td><code>KeepAccountsTheme { }</code>（Material3 lightColorScheme+Typography 映射）</td></tr>
+<tr><td>主题桥接</td><td>无（UIKit 无主题体系）</td><td><code>XiaozhaoTheme { }</code>（Material3 lightColorScheme+Typography 映射）</td></tr>
 </table>
 <h3>Events</h3>
 <table><tr><th>事件</th><th>说明</th></tr><tr><td>无</td><td>纯常量集合，无回调</td></tr></table>
@@ -113,7 +113,7 @@ th { background:#fafafa; font-weight:600; }
 <tr><th>差异点</th><th>iOS（UIKit）</th><th>Android（Compose）</th><th>判据</th></tr>
 <tr><td>单位类型</td><td>字号 <code>CGFloat</code>(pt) / 间距 <code>CGFloat</code>(pt)</td><td>字号 <code>TextUnit</code>(sp) / 间距 <code>Dp</code></td><td>表内放行（数值同值，单位体系为平台原生）</td></tr>
 <tr><td>颜色构造</td><td><code>UIColor(hex:)</code> 扩展</td><td><code>Color(0xFF...)</code> 直接构造</td><td>表内放行（输出色值一致）</td></tr>
-<tr><td>主题桥接</td><td>无（UIKit 无 Material 主题体系）</td><td><code>KeepAccountsTheme</code>（Material3 映射）</td><td>表内放行（Android 侧额外适配 Compose 组件生态；iOS 通过令牌直取）</td></tr>
+<tr><td>主题桥接</td><td>无（UIKit 无 Material 主题体系）</td><td><code>XiaozhaoTheme</code>（Material3 映射）</td><td>表内放行（Android 侧额外适配 Compose 组件生态；iOS 通过令牌直取）</td></tr>
 <tr><td>文本样式 API</td><td><code>NSAttributedString</code> + <code>UILabel</code> 扩展</td><td><code>TextStyle</code> 辅助函数</td><td>表内放行（排版参数同值）</td></tr>
 </table>
 

@@ -261,7 +261,7 @@
       <tr>
         <td><b>P1 · 网络图 URL 加载</b></td>
         <td>A. 一期支持（iOS 原生 URLSession+NSCache；Android 引 Coil）<br>B. 一期仅本地（URL 抛业务侧预下载后传图对象），二期双端统一加载方案<br>C. 一期 iOS 支持、Android N/A</td>
-        <td>建议 <b>B</b>：保持组件库零第三方依赖与双端一致；网络头像/封面属少数场景，业务侧（KeepAccounts 等）通常已有预取链路，传 <code>UIImage / ImageBitmap</code> 即可；B 也避免「Android 引 Coil、iOS 原生」的双端加载语义分裂（缓存/失败重试行为难对齐）</td>
+        <td>建议 <b>B</b>：保持组件库零第三方依赖与双端一致；网络头像/封面属少数场景，业务侧（Xiaozhao 等）通常已有预取链路，传 <code>UIImage / ImageBitmap</code> 即可；B 也避免「Android 引 Coil、iOS 原生」的双端加载语义分裂（缓存/失败重试行为难对齐）</td>
       </tr>
       <tr>
         <td><b>P2 · lazy 懒加载</b></td>

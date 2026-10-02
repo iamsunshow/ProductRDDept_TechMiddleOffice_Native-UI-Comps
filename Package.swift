@@ -27,7 +27,7 @@ let package = Package(
         .library(name: "tmo-native-ui-comps", targets: ["TMONativeUIComps"])
     ],
     dependencies: [
-        // v1.0.1 依赖声明由「Vendor 本地 path」改回「远程 URL」，与宿主 KeepAccounts 的声明同 URL 同版本区间，
+        // v1.0.1 依赖声明由「Vendor 本地 path」改回「远程 URL」，与宿主 Xiaozhao 的声明同 URL 同版本区间，
         // 依赖图里 identity 相同 → SwiftPM 归一为一份，不会重复引入。
         //
         // 铁律（v1.0.1 实测确立）：SwiftPM 不允许「被别人以 URL 引用的包」声明本地 path 依赖

@@ -25,12 +25,12 @@
 | 用户签字 | （终核等用户审查 2026-09-16） |
 | 下一步 | 门禁 B api.json ui.bar-chart 契约登记（新条目）→ 双端独立组件实现（BarChartView.swift UIView draw(_:)+UIBezierPath roundedRect+UIView.animate / BarChart.kt Compose Canvas drawRoundRect+animateFloatAsState，业务 AssetTypeBarChart 语义对齐不强制迁移）→ Demo 双端 1:1 → C1.5 demo 实机 → C1 单测 → C2/D |
 
-## 附录 A · KeepAccounts 业务回填
+## 附录 A · Xiaozhao 业务回填
 
 | 项 | 内容 |
 | | --- |
-| 业务组件 | AssetTypeBarChart（KeepAccounts 记账资产页面资产类型条形图） |
+| 业务组件 | AssetTypeBarChart（Xiaozhao 记账资产页面资产类型条形图） |
 | 业务侧现状 | Android `apps/android/feature/assets/ui/AssetsScreen.kt` 自建 Canvas drawRoundRect 拼装；iOS `apps/ios/Feature/Assets/Pages/AssetsViewController.swift` 现状依赖第三方库 Charts/DGCharts BarChartView（v1.7.5 库侧 LineChartView 已含 BarChart 同库组件） |
 | 业务待替 | Android AssetTypeBarChart 切库内 BarChart（Canvas 自绘不引第三方库）；iOS 业务现状=第三方库，库内 BarChart 上线后业务可选择性迁移（库侧保持） |
 | 库侧立项 | ui.bar-chart api.json 无条目（本批门禁 B 立项登记）；组件进度.md §3.7 行 382 已登记 v2.0 todo |
-| 评估文档 | KeepAccounts 评估文档 §5 行 73（2026-09-16 真实状态核对 = iOS 是 Vendor/Charts 第三方库非库侧实现；库侧 BarChart 双端都缺） |
+| 评估文档 | Xiaozhao 评估文档 §5 行 73（2026-09-16 真实状态核对 = iOS 是 Vendor/Charts 第三方库非库侧实现；库侧 BarChart 双端都缺） |

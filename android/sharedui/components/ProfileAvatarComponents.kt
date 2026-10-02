@@ -114,8 +114,8 @@ fun AvatarPickerSheet(
             ) {
                 Text(
                     "取消",
-                    color = AppColor.primary,
-                    fontSize = AppFont.sizeMd,
+                    color = AppColor.textSecondary,
+                    fontSize = AppFont.sizeSm,
                     modifier = Modifier
                         .align(Alignment.CenterStart)
                         .clickable(onClick = onDismiss)

@@ -513,7 +513,10 @@ enum class DialogButtonStyle {
     Default,
 
     /** 破坏性操作：红色文字。 */
-    Destructive
+    Destructive,
+
+    /** 纯文字按钮：透明底无边框，仅显示文字（弹窗取消/确认等轻量操作）。 */
+    Text
 }
 
 /** 单个弹窗按钮配置。 */
@@ -645,6 +648,7 @@ private fun DialogButtonStyle.toAppButtonStyle(): AppButtonStyle = when (this) {
     DialogButtonStyle.Primary -> AppButtonStyle.Primary
     DialogButtonStyle.Default -> AppButtonStyle.Neutral
     DialogButtonStyle.Destructive -> AppButtonStyle.Destructive
+    DialogButtonStyle.Text -> AppButtonStyle.Text
 }
 
 /**

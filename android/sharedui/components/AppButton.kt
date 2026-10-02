@@ -38,6 +38,9 @@ enum class AppButtonStyle {
 
     /** 中性操作：gray10 浅灰底 + textPrimary 文字（对齐 iOS Dialog Default 样式）。 */
     Neutral,
+
+    /** 纯文字操作：透明底 + 无背景无边框，仅文字（弹窗取消/确认等轻量操作）。 */
+    Text,
 }
 
 /**
@@ -80,6 +83,8 @@ fun AppButton(
             Triple(AppColor.bgCard, AppColor.primary, AppColor.primary)
         style == AppButtonStyle.Neutral ->
             Triple(AppColor.gray10, AppColor.textPrimary, null)
+        style == AppButtonStyle.Text ->
+            Triple(Color.Transparent, AppColor.textSecondary, null)
         else ->
             Triple(AppColor.bgCard, AppColor.error, null)
     }

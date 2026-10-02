@@ -1,6 +1,6 @@
 // swift-tools-version: 5.7
 // 中台 iOS 组件包 —— 独立 Swift Package，供宿主 App 以 SPM 远程引用或 xcframework 方式引用。
-// 包名/产品名 tmo-native-ui-comps（TMO=TechMiddleOffice，2026-09-15 由历史遗留名 KeepAccountsMiddleware 改名）；
+// 包名/产品名 tmo-native-ui-comps（TMO=TechMiddleOffice，2026-09-15 由历史遗留名 XiaozhaoMiddleware 改名）；
 // Swift 模块名 TMONativeUIComps（import TMONativeUIComps）。
 //
 // 清单位置（v1.0.1 变更 · 2026-09-15）：由 ios/Package.swift 迁至「仓库根目录 Package.swift」。

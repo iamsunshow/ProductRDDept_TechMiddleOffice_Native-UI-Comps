@@ -18,7 +18,7 @@ public struct APIEnvironment {
     }
 
     /// Mock 占位（不接真实请求）。
-    public static let mock = APIEnvironment(baseURL: URL(string: "https://mock.keep-accounts.local")!)
+    public static let mock = APIEnvironment(baseURL: URL(string: "https://mock.xiaozhao.local")!)
 
     /// 当前生效环境。默认 Mock，宿主 App 启动时注入真实后端地址。
     public static var current: APIEnvironment = mock

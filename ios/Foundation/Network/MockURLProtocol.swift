@@ -16,14 +16,14 @@ final class MockURLProtocol: URLProtocol {
         let body: String
         if path == APIEndpoint.health {
             // 与 Android MockInterceptor /health 成功体一致（字段 status/service）。
-            body = #"{"status":"ok","service":"keep-accounts mock"}"#
+            body = #"{"status":"ok","service":"xiaozhao mock"}"#
         } else {
             // 与 Android 未登记路径兜底体逐字符一致。
             body = #"{"status":"not_found","message":"\#(path)"}"#
         }
         let data = body.data(using: .utf8) ?? Data()
         let response = HTTPURLResponse(
-            url: request.url ?? URL(string: "https://mock.keep-accounts.local")!,
+            url: request.url ?? URL(string: "https://mock.xiaozhao.local")!,
             statusCode: 200,
             httpVersion: "HTTP/1.1",
             headerFields: ["Content-Type": "application/json"]

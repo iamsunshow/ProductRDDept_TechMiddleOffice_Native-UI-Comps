@@ -446,7 +446,7 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 ### Changed
 
 - **Android Maven 坐标改名（消费方破坏性变更）**：用户指令「android和ios的组件库名称改成tmo-native-ui-comps」——`android/components/build.gradle.kts` 发布坐标 artifactId 由 `components` 改为 **`tmo-native-ui-comps`**（`com.zhiqihuayun:tmo-native-ui-comps`，group 不变；Gradle 模块目录 `:components` 不变，发布命令不受影响）；GitHub Packages 发布 URL 同步指向子仓实际仓库名 `ProductRDDept_TechMiddleOffice_Native-UI-Comps`；`libs.versions.toml` components 升 `1.0.0`；demo Android 依赖坐标同步 `com.zhiqihuayun:tmo-native-ui-comps:1.0.0`（includeBuild 依赖替换按新坐标匹配）。
-- **iOS SPM 包改名（消费方破坏性变更）**：包名由历史遗留名 `KeepAccountsMiddleware` 改为 **`tmo-native-ui-comps`**（该包最初为记账 App 中间层创建，仓库演进为通用中台组件库后包名未跟随，本次按用户指示正名）——`ios/Package.swift` 包名/产品名=`tmo-native-ui-comps`、Swift 模块名=`TMONativeUIComps`（宿主 `import TMONativeUIComps`；连字符包名会自动转下划线，故显式取 PascalCase 模块名）、testTarget=`TMONativeUICompsTests`；Tests 6 文件 `@testable import` 同步；`publish_ios.sh` scheme 同步 `tmo-native-ui-comps`。
+- **iOS SPM 包改名（消费方破坏性变更）**：包名由历史遗留名 `XiaozhaoMiddleware` 改为 **`tmo-native-ui-comps`**（该包最初为记账 App 中间层创建，仓库演进为通用中台组件库后包名未跟随，本次按用户指示正名）——`ios/Package.swift` 包名/产品名=`tmo-native-ui-comps`、Swift 模块名=`TMONativeUIComps`（宿主 `import TMONativeUIComps`；连字符包名会自动转下划线，故显式取 PascalCase 模块名）、testTarget=`TMONativeUICompsTests`；Tests 6 文件 `@testable import` 同步；`publish_ios.sh` scheme 同步 `tmo-native-ui-comps`。
 - `ui-version.json` 升 `1.0.0`（改名=破坏性变更升主版本；无组件行为变更，行为=v1.9.40）。
 
 ### 验证
@@ -465,7 +465,7 @@ Native-UI-Comps 组件库版本日志。本文件是官方文档「版本日志�
 ### 发布（门禁 D · 2026-09-14 用户指令「发布Android和iOS的组件库」）
 
 - **Android**：版本目录 `android/gradle/libs.versions.toml` components 1.0.0→1.9.40（对齐 ui-version.json 唯一源）；`:components:assembleRelease` BUILD SUCCESSFUL（AAR 1.4MB）+ `publishToMavenLocal` 成功——发布坐标 `com.zhiqihuayun:components:1.9.40`（AAR + sources.jar + POM + module 元数据）落 `~/.m2/repository/com/zhiqihuayun/components/1.9.40/`；GitHub Packages 远端发布因缺 `GITHUB_TOKEN` 凭据暂缓（脚本已备 `--remote` 通道）。
-- **iOS**：SPM 包 `KeepAccountsMiddleware` Release 真编译（iphonesimulator）——库本体产物 `KeepAccountsMiddleware.o` + `.swiftmodule`（Release-iphonesimulator）+ `xcodebuild archive` ARCHIVE SUCCEEDED；正式对外形态=子仓 git 标签 `v1.9.40`（依赖已 vendor 本地 path，按 tag 固定引用）。测试 target 在 Release 下报「module was not compiled for testing」=Release 默认关 ENABLE_TESTABILITY 的正常现象（Debug 构建与单测不受影响），非代码缺陷。
+- **iOS**：SPM 包 `XiaozhaoMiddleware` Release 真编译（iphonesimulator）——库本体产物 `XiaozhaoMiddleware.o` + `.swiftmodule`（Release-iphonesimulator）+ `xcodebuild archive` ARCHIVE SUCCEEDED；正式对外形态=子仓 git 标签 `v1.9.40`（依赖已 vendor 本地 path，按 tag 固定引用）。测试 target 在 Release 下报「module was not compiled for testing」=Release 默认关 ENABLE_TESTABILITY 的正常现象（Debug 构建与单测不受影响），非代码缺陷。
 - **发布脚本归口落地**（TechMiddleOffice/DevOpsDept 阶段二 B3）：`DevOpsDept/scripts/publish_android.sh`（版本同步→assembleRelease→publishToMavenLocal，可选 `--remote`/`--tag`）+ `publish_ios.sh`（Release 真编译+archive，可选 `--tag`），均以 `ui-version.json` 为唯一版本源、内置 CHANGELOG 三处同步前置校验。
 
 ### 验证
@@ -2019,7 +2019,7 @@ ui.image 图片组件双端实现（门禁 C1，契约 `docs/api.json` `ui.image
 
 - **【根治】ios/Package.swift exclude 补** **`"Vendor"`**：Vendor/GRDB.swift 自带 Demo App 资源（Main/LaunchScreen.storyboard、Assets.xcassets、PerformanceModel.xcdatamodeld 等），主 target `path: "."` 未排除 Vendor 时被当资源扫描，报 `multiple resources named ...` 重复错误。补排除后主 target 只扫 Foundation/SharedUI。
 
-- **iOS 测试补** **`@testable import KeepAccountsMiddleware`**：`Tests/CellTests.swift` 与 `Tests/ConfigProviderTests.swift` 均缺模块导入，首次真编译即报 `cannot find 'Cell'/'CellModel'/'ConfigProvider' in scope`（此前从未真正编译过测试）。补导入后全部编译通过。
+- **iOS 测试补** **`@testable import XiaozhaoMiddleware`**：`Tests/CellTests.swift` 与 `Tests/ConfigProviderTests.swift` 均缺模块导入，首次真编译即报 `cannot find 'Cell'/'CellModel'/'ConfigProvider' in scope`（此前从未真正编译过测试）。补导入后全部编译通过。
 
 - **删除 ios/Package.resolved**：纯本地 path 依赖无需锁定文件（`swift package resolve` 自动清除陈旧远程 URL pins），xcodebuild 实测无此文件可正常构建测试。
 

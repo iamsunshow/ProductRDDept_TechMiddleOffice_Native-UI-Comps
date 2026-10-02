@@ -76,7 +76,7 @@ private class MockInterceptor(
         val body = when (path) {
             ApiEndpoint.HEALTH -> json.encodeToString(
                 HealthDTO.serializer(),
-                HealthDTO(status = "ok", service = "keep-accounts mock")
+                HealthDTO(status = "ok", service = "xiaozhao mock")
             )
             else -> """{"status":"not_found","message":"$path"}"""
         }

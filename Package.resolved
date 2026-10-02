@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ChartsOrg/Charts.git",
       "state" : {
-        "revision" : "07b23476ad52b926be772f317d8f1d4511ee8d02",
-        "version" : "4.1.0"
+        "revision" : "0a229f8c914b0ec93798cee058cf75b339297513",
+        "version" : "5.0.0"
       }
     },
     {

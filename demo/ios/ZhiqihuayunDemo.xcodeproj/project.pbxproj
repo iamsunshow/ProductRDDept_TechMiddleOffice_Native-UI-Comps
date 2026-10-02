@@ -943,7 +943,7 @@
 		};
 		A1BB258859A836B00224FD3E /* Charts */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Charts;
+			productName = DGCharts;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

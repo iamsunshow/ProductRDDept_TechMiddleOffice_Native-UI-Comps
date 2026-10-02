@@ -2,7 +2,7 @@
 
 import UIKit
 import SnapKit
-import Charts
+import DGCharts
 
 /// 双色折线图（支出红、收入绿）。
 public final class TrendChartView: UIView {

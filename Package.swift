@@ -43,7 +43,7 @@ let package = Package(
         .package(url: "https://github.com/groue/GRDB.swift.git", from: "6.29.3"),
         // 与宿主保持同一 URL（ChartsOrg/Charts）：若写成 danielgindi/Charts，同 identity 但 URL 分叉，
         // 依赖图可能出现两份引用并触发解析冲突。
-        .package(url: "https://github.com/ChartsOrg/Charts.git", from: "4.1.0"),
+        .package(url: "https://github.com/ChartsOrg/Charts.git", from: "5.0.0"),
         .package(url: "https://github.com/SnapKit/SnapKit.git", from: "5.6.0"),
     ],
     targets: [
@@ -54,7 +54,7 @@ let package = Package(
                 // GRDB 的 package 引用键 = 仓库名 GRDB.swift（identity 由 URL 末段推导，大小写不敏感），
                 // product 名 = GRDB。写成 package: "GRDB" 会报 unknown package。
                 .product(name: "GRDB", package: "GRDB.swift"),
-                .product(name: "Charts", package: "Charts"),
+                .product(name: "DGCharts", package: "Charts"),
                 .product(name: "SnapKit", package: "SnapKit")
             ],
             path: "ios",

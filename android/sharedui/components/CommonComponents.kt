@@ -515,8 +515,11 @@ enum class DialogButtonStyle {
     /** 破坏性操作：红色文字。 */
     Destructive,
 
-    /** 纯文字按钮：透明底无边框，仅显示文字（弹窗取消/确认等轻量操作）。 */
-    Text
+    /** 纯文字按钮（主色）：透明底无边框 + 主色文字（弹窗确认/提交等主操作）。 */
+    Text,
+
+    /** 纯文字按钮（次色）：透明底无边框 + textSecondary 文字（弹窗取消/关闭等轻量操作）。 */
+    TextSecondary
 }
 
 /** 单个弹窗按钮配置。 */
@@ -606,18 +609,36 @@ fun AppDialog(
     }
 }
 
-/** 通栏按钮：自上而下全宽排列，两两之间留间距。 */
+/** 通栏按钮：自上而下全宽排列，两两之间留间距。若全部为 Text 样式则右对齐横排。 */
 @Composable
 private fun DialogVerticalButtons(actions: List<DialogAction>) {
-    Column(verticalArrangement = Arrangement.spacedBy(AppSpace.md)) {
-        actions.forEach { action ->
-            AppButton(
-                text = action.text,
-                onClick = action.onClick,
-                style = action.style.toAppButtonStyle(),
-                height = 44.dp,
-                radius = AppRadius.md
-            )
+    val allText = actions.all { it.style == DialogButtonStyle.Text || it.style == DialogButtonStyle.TextSecondary }
+    if (allText) {
+        // Text 样式：右对齐横排（iOS 风格弹窗文字按钮）
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            actions.forEach { action ->
+                AppButton(
+                    text = action.text,
+                    onClick = action.onClick,
+                    style = action.style.toAppButtonStyle(),
+                    radius = AppRadius.md
+                )
+            }
+        }
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(AppSpace.md)) {
+            actions.forEach { action ->
+                AppButton(
+                    text = action.text,
+                    onClick = action.onClick,
+                    style = action.style.toAppButtonStyle(),
+                    height = 44.dp,
+                    radius = AppRadius.md
+                )
+            }
         }
     }
 }
@@ -649,6 +670,7 @@ private fun DialogButtonStyle.toAppButtonStyle(): AppButtonStyle = when (this) {
     DialogButtonStyle.Default -> AppButtonStyle.Neutral
     DialogButtonStyle.Destructive -> AppButtonStyle.Destructive
     DialogButtonStyle.Text -> AppButtonStyle.Text
+    DialogButtonStyle.TextSecondary -> AppButtonStyle.TextSecondary
 }
 
 /**

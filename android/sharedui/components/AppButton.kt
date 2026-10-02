@@ -39,8 +39,11 @@ enum class AppButtonStyle {
     /** 中性操作：gray10 浅灰底 + textPrimary 文字（对齐 iOS Dialog Default 样式）。 */
     Neutral,
 
-    /** 纯文字操作：透明底 + 无背景无边框，仅文字（弹窗取消/确认等轻量操作）。 */
+    /** 纯文字操作（主色）：透明底 + 主色文字（弹窗确认/提交等主操作）。 */
     Text,
+
+    /** 纯文字操作（次色）：透明底 + textSecondary 文字（弹窗取消/关闭等轻量操作）。 */
+    TextSecondary,
 }
 
 /**
@@ -65,7 +68,7 @@ fun AppButton(
     modifier: Modifier = Modifier,
     style: AppButtonStyle = AppButtonStyle.Primary,
     fontSize: TextUnit = AppFont.sizeMd,
-    height: Dp = 48.dp,
+    height: Dp? = null,
     radius: Dp = AppRadius.lg,
     enabled: Boolean = true,
     loading: Boolean = false
@@ -84,15 +87,27 @@ fun AppButton(
         style == AppButtonStyle.Neutral ->
             Triple(AppColor.gray10, AppColor.textPrimary, null)
         style == AppButtonStyle.Text ->
+            Triple(Color.Transparent, AppColor.primary, null)
+        style == AppButtonStyle.TextSecondary ->
             Triple(Color.Transparent, AppColor.textSecondary, null)
         else ->
             Triple(AppColor.bgCard, AppColor.error, null)
     }
 
+    // Text/TextSecondary 样式默认紧凑高度（40dp），其他样式默认 48dp
+    val effectiveHeight = height ?: if (style == AppButtonStyle.Text || style == AppButtonStyle.TextSecondary) 40.dp else 48.dp
+    // Text 样式不强制 fillMaxWidth（允许宿主用 modifier 控制宽度），其他样式默认通栏
+    val isText = style == AppButtonStyle.Text || style == AppButtonStyle.TextSecondary
+    val widthModifier = if (isText && modifier == Modifier) {
+        Modifier
+    } else {
+        Modifier.fillMaxWidth()
+    }
+
     Box(
         modifier = modifier
-            .fillMaxWidth()
-            .height(height)
+            .then(widthModifier)
+            .height(effectiveHeight)
             .background(container, shape)
             .then(
                 if (borderColor != null) Modifier.border(BorderStroke(1.dp, borderColor), shape) else Modifier

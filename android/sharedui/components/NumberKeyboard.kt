@@ -48,12 +48,13 @@ fun NumberKeyboard(
     showDot: Boolean = true,
     extraKey: String? = null,
     confirmDisabled: Boolean = false,
+    showConfirmColumn: Boolean = true,
     disabled: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val enabled = !disabled
     val gap = 0.5.dp
-    val bottomFirst = extraKey ?: if (showDot) "." else "·" // 空占位不可点
+    val bottomFirst = extraKey ?: if (showDot) "." else "·"
 
     Column(
         modifier = modifier
@@ -66,9 +67,8 @@ fun NumberKeyboard(
             modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.spacedBy(gap)
         ) {
-            // ---- 左侧 3×4 数字键区（1~9 / 底行首格·0·删除）----
             Column(
-                modifier = Modifier.weight(3f).fillMaxHeight(),
+                modifier = Modifier.weight(1f).fillMaxHeight(),
                 verticalArrangement = Arrangement.spacedBy(gap)
             ) {
                 listOf(
@@ -112,21 +112,23 @@ fun NumberKeyboard(
                     }
                 }
             }
-            // ---- 右列「确认」竖条（跨 4 行整列主色）----
-            val confirmActive = enabled && !confirmDisabled && onConfirm != null
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .background(if (confirmActive) AppColor.primary else AppColor.buttonDisabled)
-                    .clickable(enabled = confirmActive) { onConfirm?.invoke() },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = confirmText,
-                    fontSize = AppFont.sizeMd,
-                    color = Color.White
-                )
+            // ---- 右列「确认」竖条（跨 4 行整列主色），showConfirmColumn=false 时隐藏 ----
+            if (showConfirmColumn) {
+                val confirmActive = enabled && !confirmDisabled && onConfirm != null
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .background(if (confirmActive) AppColor.primary else AppColor.buttonDisabled)
+                        .clickable(enabled = confirmActive) { onConfirm?.invoke() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = confirmText,
+                        fontSize = AppFont.sizeMd,
+                        color = Color.White
+                    )
+                }
             }
         }
     }

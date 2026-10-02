@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,9 +29,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.zhiqihuayun.foundation.design.AppColor
 import com.zhiqihuayun.foundation.design.AppFont
+import com.zhiqihuayun.foundation.design.AppRadius
 import com.zhiqihuayun.foundation.design.AppSpace
 
 /**
@@ -62,49 +67,101 @@ data class RadioOption(
     val disabled: Boolean = false
 )
 
+/** Radio 视觉形态。 */
+enum class RadioVariant {
+    /** 默认：圆形单选点 + 标签（表单/设置列表）。 */
+    DEFAULT,
+    /** 胶囊按钮（筛选标签条/频率选择等水平排列场景）；选中=primary 填充白字，未选=bgPage 填充深色字；点击已选中项触发 toggle（回调 false）。 */
+    CHIP,
+}
+
 private const val GLYPH_LENGTH_DP = 20f
 private const val DOT_LENGTH_DP = 8f
 
-/** 单只单选（label 空=仅单选点；点选置 true、已选再点幂等忽略）。 */
+/**
+ * 单只单选。
+ *
+ * @param variant 视觉形态：DEFAULT=圆形单选点+标签（表单），CHIP=胶囊按钮（筛选标签条）
+ * @param fontSize 标签字号；DEFAULT 默认 sizeMd(16)，CHIP 默认 sizeSm(14)
+ *
+ * DEFAULT：点选置 true、已选再点幂等忽略。
+ * CHIP：点击已选中项触发 toggle（回调 onCheckedChange(false)），外部可据此取消选中。
+ */
 @Composable
 fun Radio(
     label: String? = null,
     checked: Boolean? = null,
     onCheckedChange: ((Boolean) -> Unit)? = null,
     disabled: Boolean = false,
+    variant: RadioVariant = RadioVariant.DEFAULT,
+    fontSize: TextUnit = if (variant == RadioVariant.CHIP) AppFont.sizeSm else AppFont.sizeMd,
     modifier: Modifier = Modifier
 ) {
     var internalChecked by remember(checked) { mutableStateOf(checked ?: false) }
-    // 外部 checked 赋值=同步回显（不触发 onChange）
     LaunchedEffect(checked) {
         if (checked != null && internalChecked != checked) {
             internalChecked = checked
         }
     }
-    Row(
-        modifier = modifier
-            .alpha(if (disabled) 0.4f else 1f)
-            .clickable(enabled = !disabled) {
-                // 点选即确定；已选中再点=幂等忽略（radio 语义无 toggle 取消）
-                if (!internalChecked) {
-                    internalChecked = true
-                    onCheckedChange?.invoke(true)
+    when (variant) {
+        RadioVariant.CHIP -> {
+            val shape = RoundedCornerShape(AppRadius.sm)
+            Box(
+                modifier = modifier
+                    .height(28.dp)
+                    .alpha(if (disabled) 0.4f else 1f)
+                    .background(
+                        color = if (internalChecked) AppColor.primary else AppColor.bgPage,
+                        shape = shape
+                    )
+                    .clickable(enabled = !disabled) {
+                        if (internalChecked) {
+                            internalChecked = false
+                            onCheckedChange?.invoke(false)
+                        } else {
+                            internalChecked = true
+                            onCheckedChange?.invoke(true)
+                        }
+                    }
+                    .padding(horizontal = AppSpace.sm),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = label ?: "",
+                    color = if (internalChecked) Color.White else AppColor.textPrimary,
+                    fontSize = fontSize,
+                    fontWeight = if (internalChecked) FontWeight.Medium else FontWeight.Normal,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+        RadioVariant.DEFAULT -> {
+            Row(
+                modifier = modifier
+                    .alpha(if (disabled) 0.4f else 1f)
+                    .clickable(enabled = !disabled) {
+                        if (!internalChecked) {
+                            internalChecked = true
+                            onCheckedChange?.invoke(true)
+                        }
+                    }
+                    .padding(vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioGlyph(selected = internalChecked, disabled = disabled)
+                if (label != null) {
+                    Spacer(Modifier.width(AppSpace.sm))
+                    Text(
+                        text = label,
+                        fontSize = fontSize,
+                        fontWeight = if (internalChecked && !disabled) FontWeight.SemiBold else FontWeight.Normal,
+                        color = if (disabled) AppColor.textSecondary.copy(alpha = 0.6f) else AppColor.textPrimary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
-            .padding(vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        RadioGlyph(selected = internalChecked, disabled = disabled)
-        if (label != null) {
-            Spacer(Modifier.width(AppSpace.sm))
-            Text(
-                text = label,
-                fontSize = AppFont.sizeMd,
-                fontWeight = if (internalChecked && !disabled) FontWeight.SemiBold else FontWeight.Normal,
-                color = if (disabled) AppColor.textSecondary.copy(alpha = 0.6f) else AppColor.textPrimary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
         }
     }
 }

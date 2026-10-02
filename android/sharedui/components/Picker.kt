@@ -224,7 +224,7 @@ fun Picker(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
                 modifier = Modifier.height(44.dp)
             ) {
-                Text(confirmText, fontSize = AppFont.sizeMd, color = AppColor.primary)
+                Text(confirmText, fontSize = AppFont.sizeSm, color = AppColor.primary)
             }
         }
         Box(

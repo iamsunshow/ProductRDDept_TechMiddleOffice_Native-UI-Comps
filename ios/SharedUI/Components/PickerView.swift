@@ -30,7 +30,7 @@ public struct PickerOption: Equatable {
 public final class PickerView: UIView, UIPickerViewDataSource, UIPickerViewDelegate {
 
     public enum Metrics {
-        /// 工具栏高 44pt（取消=sizeSm14 次色 / 标题=sizeMd16 Semibold / 确定=sizeMd16 primary）
+        /// 工具栏高 44pt（取消/确定=sizeSm14，取消=次色，确定=主色 / 标题=sizeMd16 Semibold）
         public static let barHeight: CGFloat = 44
         /// 滚轮可视区高 220pt=5 行×44
         public static let wheelHeight: CGFloat = 220
@@ -123,10 +123,10 @@ public final class PickerView: UIView, UIPickerViewDataSource, UIPickerViewDeleg
         cancelButton.contentEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
 
-        confirmButton.titleLabel?.font = .systemFont(ofSize: AppFont.sizeMd)
+        confirmButton.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
         confirmButton.setTitleColor(AppColor.primary, for: .normal)
         confirmButton.setTitle(confirmText, for: .normal)
-        confirmButton.titleLabel?.font = .systemFont(ofSize: AppFont.sizeMd, weight: .semibold)
+        confirmButton.titleLabel?.font = .systemFont(ofSize: AppFont.sizeSm)
         confirmButton.contentEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         confirmButton.addTarget(self, action: #selector(confirmTapped), for: .touchUpInside)
 

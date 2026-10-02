@@ -119,7 +119,7 @@ private val AppTypography = Typography(
 )
 
 @Composable
-fun KeepAccountsTheme(content: @Composable () -> Unit) {
+fun AppTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = LightColors,
         typography = AppTypography,

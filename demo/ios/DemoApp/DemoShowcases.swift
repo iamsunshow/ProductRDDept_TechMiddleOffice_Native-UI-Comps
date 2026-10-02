@@ -12832,7 +12832,7 @@ final class HTTPClientShowcase: ShowcaseViewController {
 
     private func toggleEnv() {
         APIEnvironment.current = (APIEnvironment.current.baseURL == APIEnvironment.mock.baseURL)
-            ? APIEnvironment(baseURL: URL(string: "https://keepaccounts.example.com")!)
+            ? APIEnvironment(baseURL: URL(string: "https://xiaozhao.example.com")!)
             : APIEnvironment.mock
         envLabel?.text = "环境: \(envName())\nbaseURL = \(APIEnvironment.current.baseURL.absoluteString)"
     }

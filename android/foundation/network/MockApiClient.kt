@@ -16,7 +16,7 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Url
 
-interface KeepAccountsApi {
+interface DemoApi {
     @GET(ApiEndpoint.HEALTH)
     suspend fun health(): HealthDTO
 }
@@ -40,7 +40,7 @@ data class RawResponse(
  * - [raw]：任意相对路径原始出口（状态码 + 响应体字符串，演示未登记路径兜底）。
  */
 class MockApiClient internal constructor(
-    val api: KeepAccountsApi,
+    val api: DemoApi,
     private val rawApi: RawApi
 ) {
     /** 请求任意相对路径（原始出口，不做 DTO 解码）。 */
@@ -61,7 +61,7 @@ class MockApiClient internal constructor(
                 .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
                 .build()
             return MockApiClient(
-                api = retrofit.create(KeepAccountsApi::class.java),
+                api = retrofit.create(DemoApi::class.java),
                 rawApi = retrofit.create(RawApi::class.java)
             )
         }

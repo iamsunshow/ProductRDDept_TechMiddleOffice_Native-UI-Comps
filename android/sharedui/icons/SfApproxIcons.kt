@@ -398,4 +398,73 @@ object SfApproxIcons {
             )
         }.build()
     }
+
+    /** 华为图标（填充）：八瓣花形，对齐华为品牌 logo。 */
+    val Huawei: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "huawei",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        ).apply {
+            // 8 petals, each a quadratic-Bézier diamond from base (inner) through mid-width to tip (outer)
+            // Top (0°)
+            addPath(fill = SolidColor(Color.Black), pathData = listOf(
+                PathNode.MoveTo(12f, 9.5f),
+                PathNode.QuadTo(10.5f, 7.5f, 12f, 5.5f),
+                PathNode.QuadTo(13.5f, 7.5f, 12f, 9.5f),
+                PathNode.Close
+            ))
+            // Top-right (45°)
+            addPath(fill = SolidColor(Color.Black), pathData = listOf(
+                PathNode.MoveTo(13.77f, 10.23f),
+                PathNode.QuadTo(15.75f, 9.19f, 17.5f, 7.74f),
+                PathNode.QuadTo(16.81f, 10.25f, 13.77f, 10.23f),
+                PathNode.Close
+            ))
+            // Right (90°)
+            addPath(fill = SolidColor(Color.Black), pathData = listOf(
+                PathNode.MoveTo(14.5f, 12f),
+                PathNode.QuadTo(16.5f, 10.5f, 18.5f, 12f),
+                PathNode.QuadTo(16.5f, 13.5f, 14.5f, 12f),
+                PathNode.Close
+            ))
+            // Bottom-right (135°)
+            addPath(fill = SolidColor(Color.Black), pathData = listOf(
+                PathNode.MoveTo(13.77f, 13.77f),
+                PathNode.QuadTo(16.81f, 13.75f, 17.5f, 16.26f),
+                PathNode.QuadTo(15.75f, 14.81f, 13.77f, 13.77f),
+                PathNode.Close
+            ))
+            // Bottom (180°)
+            addPath(fill = SolidColor(Color.Black), pathData = listOf(
+                PathNode.MoveTo(12f, 14.5f),
+                PathNode.QuadTo(13.5f, 16.5f, 12f, 18.5f),
+                PathNode.QuadTo(10.5f, 16.5f, 12f, 14.5f),
+                PathNode.Close
+            ))
+            // Bottom-left (225°)
+            addPath(fill = SolidColor(Color.Black), pathData = listOf(
+                PathNode.MoveTo(10.23f, 13.77f),
+                PathNode.QuadTo(8.25f, 14.81f, 6.5f, 16.26f),
+                PathNode.QuadTo(7.19f, 13.75f, 10.23f, 13.77f),
+                PathNode.Close
+            ))
+            // Left (270°)
+            addPath(fill = SolidColor(Color.Black), pathData = listOf(
+                PathNode.MoveTo(9.5f, 12f),
+                PathNode.QuadTo(7.5f, 13.5f, 5.5f, 12f),
+                PathNode.QuadTo(7.5f, 10.5f, 9.5f, 12f),
+                PathNode.Close
+            ))
+            // Top-left (315°)
+            addPath(fill = SolidColor(Color.Black), pathData = listOf(
+                PathNode.MoveTo(10.23f, 10.23f),
+                PathNode.QuadTo(7.19f, 10.25f, 6.5f, 7.74f),
+                PathNode.QuadTo(8.25f, 9.19f, 10.23f, 10.23f),
+                PathNode.Close
+            ))
+        }.build()
+    }
 }

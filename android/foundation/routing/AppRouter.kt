@@ -20,7 +20,7 @@ class AppRouter(
             "账号安全", "账户安全中心" -> push(SecondaryRoutes.ACCOUNT_SECURITY)
             "意见反馈" -> push(SecondaryRoutes.FEEDBACK)
             "帮助中心", "使用帮助" -> push(SecondaryRoutes.HELP)
-            "关于", "关于小狐记账" -> push(SecondaryRoutes.ABOUT)
+            "关于", "关于小狐记账", "关于小招记账" -> push(SecondaryRoutes.ABOUT)
             else -> push(SecondaryRoutes.placeholder(title))
         }
     }
